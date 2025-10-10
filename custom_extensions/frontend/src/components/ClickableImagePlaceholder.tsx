@@ -33,6 +33,7 @@ export interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
+<<<<<<< HEAD
   onSizeTransformChange?: (payload: any) => void;
   // New props for integration
   elementId?: string;
@@ -50,6 +51,9 @@ export interface ClickableImagePlaceholderProps {
   aiGeneratedPrompt?: string; // Pre-filled prompt from AI
   isGenerating?: boolean; // Loading state for AI generation
   onGenerationStarted?: (elementId: string) => void; // NEW: Callback when generation starts
+=======
+  fit?: 'cover' | 'contain';
+>>>>>>> slides-ai-fix-evgneiy
 }
 
   // ✅ REMOVED: Context Menu Component - replaced with inline buttons!
@@ -64,6 +68,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   isEditable = false,
   className = '',
   style = {},
+<<<<<<< HEAD
   onSizeTransformChange,
   elementId,
   elementRef,
@@ -76,6 +81,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   aiGeneratedPrompt, // New prop
   isGenerating, // New prop
   onGenerationStarted // New prop
+=======
+  fit = 'cover'
+>>>>>>> slides-ai-fix-evgneiy
 }) => {
   const { t } = useLanguage();
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -766,10 +774,23 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                       onClick={handleImageClick}
         >
           <img 
+<<<<<<< HEAD
             ref={imgRef}
             src={displayedImage}
             alt="Uploaded content"
             className="w-full h-full object-cover"
+=======
+            src={imagePath} 
+            alt={description}
+            className="w-full h-full"
+            style={{ cursor: isEditable ? 'pointer' : 'default', objectFit: fit }}
+          />
+          {isEditable && (
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer z-10"
+              onClick={handleClick}
+              title="Click to replace image"
+>>>>>>> slides-ai-fix-evgneiy
               style={{
               objectFit: cropMode
             }}

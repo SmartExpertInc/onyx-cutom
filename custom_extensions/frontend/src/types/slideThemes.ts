@@ -33,13 +33,52 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#f35657'
     },
     fonts: {
-      titleFont: 'Kanit, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
       titleSize: '45px',
       contentSize: '18px'
     }
   },
   
+<<<<<<< HEAD
+=======
+  'light-modern': {
+    id: 'light-modern',
+    name: 'Light Modern',
+    colors: {
+      backgroundColor: '#ffffff',
+      titleColor: '#1a1a1a',
+      subtitleColor: '#6b7280',
+      contentColor: '#374151',
+      accentColor: '#3b82f6'
+    },
+    fonts: {
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
+      titleSize: '36px',
+      contentSize: '16px'
+    }
+  },
+  
+  'corporate-blue': {
+    id: 'corporate-blue',
+    name: 'Corporate Blue',
+    colors: {
+      backgroundColor: '#1e3a8a',
+      titleColor: '#ffffff',
+      subtitleColor: '#bfdbfe',
+      contentColor: '#e0e7ff',
+      accentColor: '#60a5fa'
+    },
+    fonts: {
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
+      titleSize: '40px',
+      contentSize: '16px'
+    }
+  },
+
+>>>>>>> slides-ai-fix-evgneiy
   'chudo-theme': {
     id: 'chudo-theme',
     name: 'Chudo Theme',
@@ -52,8 +91,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     borderColor: '#d01510'
   },
   fonts: {
-    titleFont: 'Mont Bold, sans-serif',
-    contentFont: 'Mont Regular, sans-serif',
+    titleFont: 'Lora Variable, Lora, serif',
+    contentFont: 'Lora Variable, Lora, serif',
     titleSize: '40px',
     contentSize: '16px'
   }
@@ -71,8 +110,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#d01510'
     },
     fonts: {
-      titleFont: 'Mont Bold, sans-serif',
-      contentFont: 'Mont Regular, sans-serif',
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -89,8 +128,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#ee7623'
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',
-      contentFont: 'Montserrat, sans-serif',
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -107,8 +146,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#ee7623'        
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',
-      contentFont: 'Montserrat, sans-serif',
+      titleFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Lora Variable, Lora, serif',
       titleSize: '40px',
       contentSize: '16px'
     }
