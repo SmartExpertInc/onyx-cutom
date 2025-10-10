@@ -901,7 +901,7 @@ export const uk = {
 
     // Create page
     createWithAI: "Створити з ШІ",
-    howToGetStarted: "Як би ви хотіли почати?",
+    howToGetStarted: "Як ви хочете створити продукт?",
     home: "Головна",
     pasteInText: "Вставити текст",
     pasteInTextDescription: "Створити з нотаток, плану або існуючого контенту",
