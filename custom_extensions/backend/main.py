@@ -6090,6 +6090,11 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_parent_outline_id ON projects(parent_outline_id);")
             logger.info("'projects' table updated with lesson plan columns.")
 
+            # --- Add product-as-context column (Onyx document ID for product JSON) ---
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_json_onyx_id TEXT;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_product_json_onyx_id ON projects(product_json_onyx_id);")
+            logger.info("'projects' table updated with product_json_onyx_id column for products-as-context feature.")
+
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
