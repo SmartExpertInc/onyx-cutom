@@ -50,14 +50,14 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'180px', bottom:'100px', background:'#E0E7FF' };
   const avatar: React.CSSProperties = { position:'absolute', left:'0', top:'0', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'160px', right:'0', top:'0', fontSize:'44px', fontWeight:400, color:'#000000', lineHeight:1.1, fontFamily:'serif', whiteSpace:'pre-line' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'190px', right:'0', top:'25px', fontSize:'44px', fontWeight:400, color:'#000000', lineHeight:1.1, fontFamily:'serif', whiteSpace:'pre-line' };
 
   const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'60px', height:'50px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'20px', alignItems:'center' };
   const capsule: React.CSSProperties = { borderRadius:'25px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'100%', background:'#FFFFFF', border:'none', fontFamily:'sans-serif', textTransform:'uppercase' };
   const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF' };
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
-  const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#000000', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
+  const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#000000', fontSize:'16px', fontWeight:500, fontFamily:'sans-serif' };
   const pageNumberContainerStyles: React.CSSProperties = { position:'absolute', bottom:'30px', left:'0px', display:'flex', alignItems:'center', gap:'8px' };
   const smallLineStyles: React.CSSProperties = { width:'20px', height:'1px', backgroundColor:'rgba(9, 9, 11, 0.6)' };
   const pageNumberStyles: React.CSSProperties = { color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
@@ -110,7 +110,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
       {/* Main Content */}
       <div style={content}>
         <div style={avatar}>
-          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p: string)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p: string)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ height:'128%', objectFit:'cover', borderRadius:'50%' }} />
         </div>
         <div style={headingStyle}>
           {isEditable && editHeading ? (
@@ -171,13 +171,14 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
           display: 'inline-flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
-          width: '16px', 
-          height: '16px', 
+          width: '30px', 
+          height: '30px', 
           borderRadius: '50%', 
-          backgroundColor: '#000000', 
+          backgroundColor: 'transparent', 
+          border: '2px solid #000000',
           marginRight: '8px',
-          fontSize: '12px',
-          color: '#FFFFFF'
+          fontSize: '18px',
+          color: '#000000'
         }}>+</div>
         Your Logo
       </div>
