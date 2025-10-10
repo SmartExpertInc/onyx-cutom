@@ -276,7 +276,7 @@ function CustomPillSelector({
         )}
       >
         <div className="flex items-center justify-start w-full">
-          <span className="text-[#09090B] text-sm font-medium">{value}</span>
+          <span className="text-[#0D001B] text-sm font-medium">{value}</span>
         </div>
       </SelectTrigger>
       <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
@@ -336,7 +336,7 @@ function CustomMultiSelector({
         )}
       >
         <div className="flex items-center justify-start w-full">
-          <span className="text-[#09090B] text-sm font-medium">{displayText}</span>
+          <span className="text-[#0D001B] text-sm font-medium">{displayText}</span>
         </div>
       </SelectTrigger>
       <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
