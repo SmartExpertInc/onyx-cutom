@@ -57,7 +57,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF' };
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
-  const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#9CA3AF', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
+  const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#000000', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
   const pageNumberContainerStyles: React.CSSProperties = { position:'absolute', bottom:'30px', left:'0px', display:'flex', alignItems:'center', gap:'8px' };
   const smallLineStyles: React.CSSProperties = { width:'20px', height:'1px', backgroundColor:'rgba(9, 9, 11, 0.6)' };
   const pageNumberStyles: React.CSSProperties = { color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
@@ -174,7 +174,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
           width: '16px', 
           height: '16px', 
           borderRadius: '50%', 
-          backgroundColor: '#9CA3AF', 
+          backgroundColor: '#000000', 
           marginRight: '8px',
           fontSize: '12px',
           color: '#FFFFFF'
