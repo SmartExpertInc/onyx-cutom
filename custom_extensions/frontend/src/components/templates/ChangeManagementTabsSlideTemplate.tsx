@@ -45,18 +45,19 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#111827', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
 
-  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'160px', display:'grid', gridTemplateRows:'40px 40px 40px 40px' };
-  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 24px', fontSize:'16px', fontWeight:500, fontFamily:'sans-serif' });
+  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'140px', display:'grid', gridTemplateRows:'35px 35px 35px 35px' };
+  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 32px', fontSize:'16px', fontWeight:500, fontFamily:'sans-serif' });
 
-  const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'200px', bottom:'120px', background:'#E0E7FF' };
-  const avatar: React.CSSProperties = { position:'absolute', left:'0', top:'0', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'180px', right:'0', top:'20px', fontSize:'48px', fontWeight:400, color:'#000000', lineHeight:1.1, fontFamily:'serif', whiteSpace:'pre-line' };
+  const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'180px', bottom:'100px', background:'#E0E7FF' };
+  const avatar: React.CSSProperties = { position:'absolute', left:'0', top:'0', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'160px', right:'0', top:'0', fontSize:'44px', fontWeight:400, color:'#000000', lineHeight:1.1, fontFamily:'serif', whiteSpace:'pre-line' };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'40px', height:'60px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'16px', alignItems:'center' };
-  const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'100%', background:'#FFFFFF', border:'none', fontFamily:'sans-serif' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'60px', height:'50px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'20px', alignItems:'center' };
+  const capsule: React.CSSProperties = { borderRadius:'25px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'100%', background:'#FFFFFF', border:'none', fontFamily:'sans-serif', textTransform:'uppercase' };
   const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF' };
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
+  const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#9CA3AF', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
   const pageNumberStyles: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
 
   const handlePageNumberSave = (newPageNumber: string) => {
@@ -163,6 +164,23 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
             {currentPageNumber}
           </div>
         )}
+      </div>
+
+      {/* Footer Logo */}
+      <div style={footerLogoStyles}>
+        <div style={{ 
+          display: 'inline-flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          width: '16px', 
+          height: '16px', 
+          borderRadius: '50%', 
+          backgroundColor: '#9CA3AF', 
+          marginRight: '8px',
+          fontSize: '12px',
+          color: '#FFFFFF'
+        }}>+</div>
+        Your Logo
       </div>
     </div>
   );
