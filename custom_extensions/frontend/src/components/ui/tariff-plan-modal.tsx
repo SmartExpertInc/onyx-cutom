@@ -380,7 +380,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       >
                         {plan.popular && (
                           <div className="absolute -top-5 left-0 right-0 z-10">
-                            <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg text-sm font-semibold font-public-sans text-center flex items-center justify-center gap-2">
+                            <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg text-sm font-medium font-public-sans text-center flex items-center justify-center gap-2">
                               {t('tariffPlan.mostPopular', 'Most Popular')}
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_308_22585)">
