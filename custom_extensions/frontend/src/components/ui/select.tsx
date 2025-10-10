@@ -271,7 +271,7 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 hover:border-gray-400 focus:ring-0 focus-visible:ring-0 shadow-sm transition-colors",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
           className
         )}
       >
@@ -331,7 +331,7 @@ function CustomMultiSelector({
     <Select open={isOpen} onOpenChange={setIsOpen}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 hover:border-gray-400 focus:ring-0 focus-visible:ring-0 shadow-sm transition-colors",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
           className
         )}
       >
