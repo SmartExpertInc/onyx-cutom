@@ -15087,6 +15087,68 @@ class OutlineWizardFinalize(BaseModel):
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
+
+@app.post("/api/custom-projects-backend/products/{project_id}/ensure-json")
+async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Ensure the product has a JSON uploaded to Onyx and return its document id.
+    Uses the current user's Onyx session to perform the upload if needed.
+    """
+    try:
+        # Verify access and fetch product
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT p.id, p.onyx_user_id, p.product_json_onyx_id, p.microproduct_content, p.project_name
+                FROM projects p
+                WHERE p.id = $1 AND (
+                    p.onyx_user_id = $2 OR EXISTS (
+                        SELECT 1 FROM product_access pa
+                        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                        WHERE pa.product_id = p.id AND wm.user_id = $3 AND wm.status = 'active'
+                    )
+                )
+                """,
+                project_id, user_uuid, user_email,
+            )
+        if not row:
+            raise HTTPException(status_code=404, detail="Product not found or access denied")
+
+        if row.get("product_json_onyx_id"):
+            return {"product_json_onyx_id": row["product_json_onyx_id"]}
+
+        # Build JSON bytes
+        content = row.get("microproduct_content") or {}
+        try:
+            product_json = json.dumps(content, ensure_ascii=False).encode("utf-8")
+        except Exception as _e:
+            product_json = json.dumps({}, ensure_ascii=False).encode("utf-8")
+
+        # Upload directly to Onyx using current user's cookies
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie_value:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        cookies = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+
+        file_name = f"product_{project_id}.json"
+        if upload_product_json_to_onyx is None:
+            raise HTTPException(status_code=500, detail="Upload helper not available")
+        onyx_id = await upload_product_json_to_onyx(ONYX_API_SERVER_URL, cookies, file_name, product_json)
+
+        # Persist
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE projects SET product_json_onyx_id=$1 WHERE id=$2",
+                onyx_id, project_id,
+            )
+
+        return {"product_json_onyx_id": onyx_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to ensure product JSON for {project_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to ensure product JSON")
+
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
 async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_id: str) -> List[int]:
