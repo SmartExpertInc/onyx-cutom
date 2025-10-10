@@ -1722,8 +1722,8 @@ export const uk = {
     contactSales: "Зв'язатися з відділом продажів",
     subscriptionActivation: "Ваша підписка буде активована одразу після підтвердження платежу",
     chooseYourPlan: "Оберіть план, який підходить саме вам",
-    billMonthly: "Щомісячна оплата",
-    billYearly: "Річна оплата",
+    billMonthly: "Щомісячна",
+    billYearly: "Річна",
     mostPopular: "Найпопулярніший",
     credits: "Кредити",
     storage: "Сховище",
@@ -1871,6 +1871,15 @@ export const uk = {
           amount: "10 ГБ сховище"
         }
       }
+    },
+    language: {
+      selectPreferred: "Оберіть вашу мову",
+      english: "English",
+      spanish: "Español",
+      ukrainian: "Українська",
+      russian: "Російська",
+      describeRole: "Опишіть вашу роль",
+      describeIndustry: "Опишіть вашу галузь"
     }
   }
 };

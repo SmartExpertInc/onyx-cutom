@@ -311,7 +311,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md">
+      <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md">
         <div className="min-h-full">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-7xl mx-auto">
@@ -328,28 +328,28 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-[#434343] mb-5 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
-                
+                <p className="text-blue-700 font-medium text-xs mb-8 public-sans-font"><span className="sora-font">Save 15%</span> on yearly plan!</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 shadow-lg border border-gray-200 mt-8">
                   <button
                     onClick={() => setBillingCycle('monthly')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                       billingCycle === 'monthly'
-                        ? 'bg-blue-500 text-white shadow-lg'
+                        ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    {t('tariffPlan.billMonthly', 'Bill Monthly')}
+                    {t('tariffPlan.billMonthly', 'Monthly')}
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                       billingCycle === 'yearly'
-                        ? 'bg-blue-500 text-white shadow-lg'
+                        ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    {t('tariffPlan.billYearly', 'Bill Yearly')}
+                    {t('tariffPlan.billYearly', 'Yearly')}
                   </button>
                 </div>
               </div>
@@ -367,23 +367,34 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       >
                         {plan.popular && (
                           <div className="absolute -top-3 left-0 right-0 z-10">
-                            <div className="bg-blue-600 text-white px-4 py-2 rounded-t-xl text-sm font-bold shadow-lg text-center flex items-center justify-center gap-2">
-                              <Star className="w-4 h-4" />
+                            <div className="bg-blue-600 text-white px-4 py-1 rounded-t-xl text-sm font-semibold public-sans-font shadow-lg text-center flex items-center justify-center gap-2">
                               {t('tariffPlan.mostPopular', 'Most Popular')}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_308_22585)">
+                                <path d="M6.49994 16.0005C6.34193 16.0013 6.18743 15.9539 6.0571 15.8645C5.92676 15.7752 5.8268 15.6482 5.77057 15.5005L4.52557 12.263C4.50035 12.1978 4.46178 12.1385 4.41232 12.0891C4.36286 12.0396 4.30362 12.0011 4.23838 11.9758L0.999941 10.7299C0.852423 10.6733 0.725541 10.5733 0.63604 10.443C0.546538 10.3128 0.498626 10.1585 0.498626 10.0005C0.498626 9.84251 0.546538 9.68822 0.63604 9.558C0.725541 9.42778 0.852423 9.32777 0.999941 9.27115L4.23744 8.02615C4.30268 8.00093 4.36193 7.96236 4.41138 7.9129C4.46084 7.86345 4.49941 7.8042 4.52463 7.73896L5.77057 4.50052C5.82718 4.35301 5.9272 4.22612 6.05742 4.13662C6.18764 4.04712 6.34193 3.99921 6.49994 3.99921C6.65795 3.99921 6.81225 4.04712 6.94246 4.13662C7.07268 4.22612 7.1727 4.35301 7.22932 4.50052L8.47432 7.73802C8.49953 7.80326 8.5381 7.86251 8.58756 7.91197C8.63702 7.96142 8.69627 8 8.7615 8.02521L11.9803 9.26365C12.1338 9.32055 12.266 9.42339 12.359 9.55815C12.452 9.69291 12.5012 9.85305 12.4999 10.0168C12.4976 10.172 12.4486 10.323 12.3595 10.4501C12.2703 10.5773 12.1451 10.6747 11.9999 10.7299L8.76244 11.9749C8.6972 12.0001 8.63795 12.0387 8.5885 12.0881C8.53904 12.1376 8.50047 12.1968 8.47525 12.2621L7.22932 15.5005C7.17308 15.6482 7.07312 15.7752 6.94279 15.8645C6.81245 15.9539 6.65796 16.0013 6.49994 16.0005Z" fill="white"/>
+                                <path d="M2.74994 5.50052C2.6573 5.50052 2.56684 5.47245 2.49047 5.42001C2.4141 5.36757 2.35541 5.29323 2.32213 5.20677L1.79525 3.83677C1.78383 3.80681 1.76621 3.7796 1.74354 3.75693C1.72086 3.73426 1.69365 3.71663 1.66369 3.70521L0.293691 3.17834C0.207247 3.14505 0.132915 3.08635 0.0804885 3.00998C0.0280618 2.93362 0 2.84316 0 2.75052C0 2.65789 0.0280618 2.56743 0.0804885 2.49106C0.132915 2.4147 0.207247 2.356 0.293691 2.32271L1.66369 1.79584C1.69362 1.78437 1.72081 1.76672 1.74347 1.74406C1.76614 1.72139 1.78378 1.69421 1.79525 1.66427L2.31744 0.306461C2.34689 0.226525 2.39757 0.156124 2.46402 0.102827C2.53048 0.0495292 2.6102 0.0153496 2.69463 0.00396142C2.79599 -0.00836038 2.89856 0.0135079 2.98608 0.0660987C3.0736 0.118689 3.14105 0.198992 3.17775 0.294274L3.70463 1.66427C3.7161 1.69421 3.73374 1.72139 3.75641 1.74406C3.77908 1.76672 3.80626 1.78437 3.83619 1.79584L5.20619 2.32271C5.29263 2.356 5.36697 2.4147 5.41939 2.49106C5.47182 2.56743 5.49988 2.65789 5.49988 2.75052C5.49988 2.84316 5.47182 2.93362 5.41939 3.00998C5.36697 3.08635 5.29263 3.14505 5.20619 3.17834L3.83619 3.70521C3.80623 3.71663 3.77902 3.73426 3.75635 3.75693C3.73367 3.7796 3.71605 3.80681 3.70463 3.83677L3.17775 5.20677C3.14447 5.29323 3.08578 5.36757 3.00941 5.42001C2.93304 5.47245 2.84258 5.50052 2.74994 5.50052Z" fill="white"/>
+                                <path d="M12.4999 8.00052C12.3989 8.00049 12.3002 7.96984 12.2169 7.9126C12.1336 7.85536 12.0696 7.77423 12.0334 7.6799L11.3196 5.82459C11.3071 5.79189 11.2878 5.7622 11.263 5.73744C11.2383 5.71268 11.2086 5.69339 11.1759 5.68084L9.32057 4.96709C9.22631 4.93077 9.14526 4.86675 9.0881 4.78347C9.03094 4.70018 9.00034 4.60154 9.00034 4.50052C9.00034 4.39951 9.03094 4.30087 9.0881 4.21758C9.14526 4.1343 9.22631 4.07028 9.32057 4.03396L11.1759 3.32021C11.2086 3.30766 11.2383 3.28837 11.263 3.26361C11.2878 3.23884 11.3071 3.20915 11.3196 3.17646L12.0281 1.33427C12.0604 1.24716 12.1158 1.17044 12.1882 1.11228C12.2607 1.05411 12.3476 1.01668 12.4396 1.00396C12.5502 0.990572 12.6621 1.01451 12.7576 1.07197C12.8531 1.12944 12.9266 1.21713 12.9665 1.32115L13.6803 3.17646C13.6928 3.20915 13.7121 3.23884 13.7369 3.26361C13.7616 3.28837 13.7913 3.30766 13.824 3.32021L15.6793 4.03396C15.7736 4.07028 15.8546 4.1343 15.9118 4.21758C15.9689 4.30087 15.9995 4.39951 15.9995 4.50052C15.9995 4.60154 15.9689 4.70018 15.9118 4.78347C15.8546 4.86675 15.7736 4.93077 15.6793 4.96709L13.824 5.68084C13.7913 5.69339 13.7616 5.71268 13.7369 5.73744C13.7121 5.7622 13.6928 5.79189 13.6803 5.82459L12.9665 7.6799C12.9302 7.77423 12.8663 7.85536 12.783 7.9126C12.6997 7.96984 12.601 8.00049 12.4999 8.00052Z" fill="white"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_308_22585">
+                                <rect width="16" height="16" fill="white"/>
+                                </clipPath>
+                                </defs>
+                              </svg>
                             </div>
                           </div>
                         )}
                     
                     {/* Card Header */}
                     <div className="p-6 pt-8">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">{plan.name}</h3>
-                      <p className="text-sm text-gray-500 mb-4">Best for personal use</p>
+                      <h3 className="text-xl font-bold text-[#0D001B] public-sans-font mb-1">{plan.name}</h3>
+                      <p className="text-sm text-[#0D001B] public-sans-font mb-4">Best for personal use</p>
                       <div className="text-gray-900">
-                        <span className="text-4xl font-bold">
+                        <span className="text-3xl public-sans-font font-bold">
                           {getPrice(plan)}
                         </span>
                         {plan.price > 0 && (
-                          <span className="text-lg text-gray-500 font-normal">
+                          <span className="text-lg public-sans-font text-gray-500 font-normal">
                             / {billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.year', 'year')}
                           </span>
                         )}
@@ -392,52 +403,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                     {/* Card Body */}
                     <div className="px-6 pb-6">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-4">
-                        {plan.id === 'starter' ? 'What you get:' : 
-                         plan.id === 'pro' ? 'All free features, plus:' :
-                         plan.id === 'business' ? 'All starter features, plus:' :
-                         'All business features, plus:'}
-                      </h4>
-                      <div className="space-y-3 mb-8">
-                        <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-900">
-                            {t('tariffPlan.credits', 'Credits')}: {plan.credits}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-900">
-                            {t('tariffPlan.storage', 'Storage')}: {plan.storage}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-900">
-                            {t('tariffPlan.support', 'Support')}: {plan.support}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-900">
-                            {t('tariffPlan.connectors', 'Connectors')}: {plan.connectors}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-900">
-                            {t('tariffPlan.collaboration', 'Collaboration')}: {plan.collaboration}
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
+                    <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                        className={`w-full py-3 rounded-sm public-sans-font font-semibold text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular
@@ -454,6 +422,52 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
+                      <h4 className="text-base font-semibold public-sans-font text-[#434343] mb-4">
+                        {plan.id === 'starter' ? 'What you get:' : 
+                         plan.id === 'pro' ? 'All free features, plus:' :
+                         plan.id === 'business' ? 'All starter features, plus:' :
+                         'All business features, plus:'}
+                      </h4>
+                      <div className="space-y-3 mb-8 public-sans-font">
+                        <div className="flex items-center">
+                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <span className="text-sm border-[var(--border-light)] font-semibold text-gray-900">
+                            {t('tariffPlan.credits', 'Credits')}: <span className="font-medium">{plan.credits}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <span className="text-sm border-[var(--border-light)] font-semibold text-gray-900">
+                            {t('tariffPlan.storage', 'Storage')}: <span className="font-medium">{plan.storage}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <span className="text-sm border-[var(--border-light)] font-semibold text-gray-900">
+                            {t('tariffPlan.support', 'Support')}: <span className="font-medium">{plan.support}</span>
+                          </span>
+                        </div>
+
+                        {plan.connectors !== '-' && (
+                          <div className="flex items-center">
+                            <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <span className="text-sm border-[var(--border-light)] font-semibold text-gray-900">
+                              {t('tariffPlan.connectors', 'Connectors')}: <span className="font-medium">{plan.connectors}</span>
+                            </span>
+                          </div>
+                        )}
+
+                        {plan.collaboration !== '-' && (
+                          <div className="flex items-center">
+                            <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <span className="text-sm border-[var(--border-light)] font-semibold text-gray-900">
+                              {t('tariffPlan.collaboration', 'Collaboration')}: <span className="font-medium">{plan.collaboration}</span>
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     </div>
                   </div>

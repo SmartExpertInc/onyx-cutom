@@ -1717,8 +1717,8 @@ export const ru = {
     contactSales: "Связаться с отделом продаж",
     subscriptionActivation: "Ваша подписка будет активирована сразу после подтверждения платежа",
     chooseYourPlan: "Выберите план, который подходит именно вам",
-    billMonthly: "Ежемесячная оплата",
-    billYearly: "Годовая оплата",
+    billMonthly: "Ежемесячная",
+    billYearly: "Годовая",
     mostPopular: "Самый популярный",
     credits: "Кредиты",
     storage: "Хранилище",
@@ -1866,6 +1866,15 @@ export const ru = {
           amount: "10 ГБ хранилище"
         }
       }
+    },
+    language: {
+      selectPreferred: "Выберите ваш язык",
+      english: "English",
+      spanish: "Español",
+      ukrainian: "Украинский",
+      russian: "Русский",
+      describeRole: "Опишите вашу роль",
+      describeIndustry: "Опишите вашу отрасль"
     }
   }
 };
