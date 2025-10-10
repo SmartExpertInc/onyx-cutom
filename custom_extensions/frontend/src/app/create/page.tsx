@@ -425,7 +425,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
 
       {/* Feedback button */}
       <button
-        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg"
+        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
         style={{
           width: '38px',
           height: '98px',
@@ -436,7 +436,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         }}
       >
         <span
-          className="font-medium"
+          className="font-medium group-hover:opacity-100 group-active:opacity-100 transition-opacity"
           style={{
             fontSize: '14px',
             color: '#0F58F9',

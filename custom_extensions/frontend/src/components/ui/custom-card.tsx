@@ -87,12 +87,12 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-2 right-2 z-10">
               <div 
                 className={cn(
-                  "inline-flex items-center px-2 py-1 text-sm font-semibold rounded-md gap-1",
+                  "inline-flex items-center px-3 py-1 text-sm font-semibold rounded-md gap-1 tracking-[0.01em]",
                   useCSSVariables 
-                    ? "bg-white text-blue-600"
+                    ? "bg-[#FFFFFF] text-blue-600"
                     : "bg-blue-600 text-white"
                 )}
               >
@@ -116,7 +116,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           
           {/* Text section */}
           {(title || description) && (
-            <div className="flex flex-col items-start gap-2 flex-1 justify-start">
+            <div className="flex flex-col items-start gap-3 justify-start">
               {title && (
                 <h3 
                   className={cn(
@@ -133,7 +133,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {description && (
                 <p 
                   className={cn(
-                    "text-base text-left leading-relaxed max-w-[64%]",
+                    "text-base text-left leading-[130%] max-w-[64%]",
                     useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : ""
                   )}
                   style={!useCSSVariables ? { color: '#71717A' } : undefined}
