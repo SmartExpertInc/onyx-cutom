@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Plan {
@@ -311,7 +311,17 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogOverlay className="bg-black/10 backdrop-blur-sm" />
       <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md">
+        {/* Close Button */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-4 right-4 z-50 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+          aria-label="Close modal"
+        >
+          <X className="w-5 h-5 text-[#71717A]" />
+        </button>
+        
         <div className="h-[90%] min-h-[700px]">
           <div className="container mx-auto px-4 py-7">
             <div className="max-w-7xl mx-auto">
@@ -328,12 +338,12 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-[#434343] mb-5 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
-                <p className="text-blue-700 font-normal text-xs mb-2 public-sans-font"><span className="sora-font font-semibold">Save 15%</span> on yearly plan!</p>
+                <p className="text-blue-700 font-normal text-xs mb-2 public-sans-font"><span className="sora-font-semibold">Save 15%</span> on yearly plan!</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-4 py-1 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-4 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -343,7 +353,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-4 py-1 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-4 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -366,8 +376,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         }`}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-3 left-0 right-0 z-10">
-                            <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg text-sm font-semibold public-sans-font shadow-lg text-center flex items-center justify-center gap-2">
+                          <div className="absolute -top-5 left-0 right-0 z-10">
+                            <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg text-sm font-semibold public-sans-font text-center flex items-center justify-center gap-2">
                               {t('tariffPlan.mostPopular', 'Most Popular')}
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_308_22585)">
@@ -402,7 +412,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     </div>
 
                     {/* Card Body */}
-                    <div className="px-4 pb-5 flex flex-col flex-grow">
+                    <div className="px-4 pb-3 pt-3 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
                         className={`w-full py-2 rounded-sm public-sans-font font-semibold text-base transition-all duration-300 ${
@@ -446,7 +456,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-center">
                           <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
                           <span className="text-sm font-regular text-[#71717A]">
-                             <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>:{plan.support}
+                             <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>: {plan.support}
                           </span>
                         </div>
 

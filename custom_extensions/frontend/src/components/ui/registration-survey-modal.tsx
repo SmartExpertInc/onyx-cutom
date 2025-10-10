@@ -320,21 +320,21 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         {children}
       </DialogTrigger>
       <DialogPortal>
-        <DialogOverlay className="bg-white/90" />
-        <div className="fixed inset-0 z-50 flex pointer-events-none">
+        <DialogOverlay className="bg-white" />
+        <div className="fixed inset-0 z-50 pointer-events-none">
           <BgTopLeft className="absolute top-0 left-0 opacity-90" />
           <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/3 -translate-x-1/3 top-1/3 -translate-y-1/3" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
           <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
-          <div className="p-8 pb-6">
+          <div className="p-8 pb-4">
             {/* ContentBuilder Logo */}
             <div className="flex items-center justify-center mb-6">
               <div className="flex items-center gap-1">
@@ -348,7 +348,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
             
             {/* Progress Bar */}
-            <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto bg-white rounded-full shadow-sm h-2 mb-6">
+            <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto bg-white rounded-full h-2 mb-6">
               <div 
                 className={`bg-[#719AF5] h-2 transition-all duration-300 ${
                   (surveyStep / (selectedCategory === 'work' ? 4 : 2)) * 100 === 100 
