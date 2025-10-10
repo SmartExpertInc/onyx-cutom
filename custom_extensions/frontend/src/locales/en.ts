@@ -1626,7 +1626,7 @@ export const en = {
     processingPayment: "Processing Payment...",
     contactSales: "Contact Sales",
     subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
-    chooseYourPlan: "Choose your plan",
+    chooseYourPlan: "Choose the plan that's right for you",
     billMonthly: "Bill Monthly",
     billYearly: "Bill Yearly",
     mostPopular: "Most Popular",

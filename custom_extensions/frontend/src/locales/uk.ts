@@ -1721,7 +1721,7 @@ export const uk = {
     processingPayment: "Обробка платежу...",
     contactSales: "Зв'язатися з відділом продажів",
     subscriptionActivation: "Ваша підписка буде активована одразу після підтвердження платежу",
-    chooseYourPlan: "Виберіть свій план",
+    chooseYourPlan: "Оберіть план, який підходить саме вам",
     billMonthly: "Щомісячна оплата",
     billYearly: "Річна оплата",
     mostPopular: "Найпопулярніший",
