@@ -308,7 +308,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         <DialogOverlay className="bg-white" />
         <div className="fixed inset-0 z-50 pointer-events-none">
           <BgTopLeft className="absolute top-0 max-w-[1000px] left-0 opacity-90 blur-sm" />
-          <BgBottomRight className="absolute bottom-0 max-w-[1000px] right-0 opacity-90 blur-sm" />
+          <BgBottomRight className="absolute bottom-0 max-w-[1100px] right-0 opacity-90 blur-sm" />
         </div>
       </DialogPortal>
       <DialogContent 
