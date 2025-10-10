@@ -28846,28 +28846,28 @@ async def stripe_webhook(
                 # Compute and persist entitlements based on plan tier
                 # Only update base entitlements if this is NOT an addon-only purchase
                 if not is_addon_purchase or price_id:
-                try:
-                    # Set base entitlements by plan
-                    if plan == 'pro':
-                        base_connectors, base_storage, base_slides = 2, 5, 40
-                    elif plan == 'business':
-                        base_connectors, base_storage, base_slides = 5, 10, 40
-                    else:
-                        base_connectors, base_storage, base_slides = 0, 1, 20
-                    
-                        logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
-                    async with pool.acquire() as conn:
-                        await conn.execute(
-                            """
-                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
-                            VALUES ($1, $2, $3, $4, now())
-                            ON CONFLICT (onyx_user_id)
-                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
-                            """,
-                            onyx_user_id, base_connectors, base_storage, base_slides
-                        )
-                except Exception as e:
-                        logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
+                    try:
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
+                            logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                                VALUES ($1, $2, $3, $4, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                                """,
+                                onyx_user_id, base_connectors, base_storage, base_slides
+                            )
+                    except Exception as e:
+                            logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
                 else:
                     logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
                 
