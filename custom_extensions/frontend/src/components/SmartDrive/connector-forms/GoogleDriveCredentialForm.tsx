@@ -1,0 +1,469 @@
+"use client";
+
+import React, { FC, useState, useEffect } from "react";
+import { useLanguage } from "../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FiFile, FiCheck, FiLink, FiAlertTriangle } from "react-icons/fi";
+import { cn, truncateString } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+
+export interface Credential {
+  id: number;
+  name: string;
+  source: string;
+  credential_json: any;
+  admin_public: boolean;
+  curator_public: boolean;
+  groups: string[] | null;
+}
+
+interface GoogleDriveCredentialFormProps {
+  onCredentialCreated: (credential: Credential) => void;
+  onCancel: () => void;
+}
+
+const GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME = "google_drive_auth_is_admin";
+
+const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
+  onCredentialCreated,
+  onCancel,
+}) => {
+  const { t } = useLanguage();
+  const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | undefined>();
+  const [isDragging, setIsDragging] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadedCredentialType, setUploadedCredentialType] = useState<'app' | 'service_account' | null>(null);
+  const [serviceAccountEmail, setServiceAccountEmail] = useState<string>('');
+  const [clientId, setClientId] = useState<string>('');
+  const [primaryAdminEmail, setPrimaryAdminEmail] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  // Check if we have existing credentials
+  useEffect(() => {
+    const checkExistingCredentials = async () => {
+      try {
+        // Check for app credentials
+        const appResponse = await fetch("/api/manage/admin/connector/google-drive/app-credential");
+        if (appResponse.ok) {
+          const appData = await appResponse.json();
+          if (appData.client_id) {
+            setClientId(appData.client_id);
+            setUploadedCredentialType('app');
+          }
+        }
+
+        // Check for service account credentials
+        const serviceResponse = await fetch("/api/manage/admin/connector/google-drive/service-account-key");
+        if (serviceResponse.ok) {
+          const serviceData = await serviceResponse.json();
+          if (serviceData.service_account_email) {
+            setServiceAccountEmail(serviceData.service_account_email);
+            setUploadedCredentialType('service_account');
+          }
+        }
+      } catch (err) {
+        console.error('Error checking existing credentials:', err);
+      }
+    };
+
+    checkExistingCredentials();
+  }, []);
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    setFileName(file.name);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = async (loadEvent) => {
+      if (!loadEvent?.target?.result) {
+        setIsUploading(false);
+        return;
+      }
+
+      const credentialJsonStr = loadEvent.target.result as string;
+
+      // Check credential type
+      let credentialFileType: 'authorized_user' | 'service_account';
+      try {
+        const appCredentialJson = JSON.parse(credentialJsonStr);
+        if (appCredentialJson.web) {
+          credentialFileType = "authorized_user";
+        } else if (appCredentialJson.type === "service_account") {
+          credentialFileType = "service_account";
+        } else {
+          throw new Error(
+            "Unknown credential type, expected one of 'OAuth Web application' or 'Service Account'"
+          );
+        }
+      } catch (e) {
+        setError(`Invalid file provided - ${e}`);
+        setIsUploading(false);
+        return;
+      }
+
+      try {
+        if (credentialFileType === "authorized_user") {
+          const response = await fetch(
+            "/api/manage/admin/connector/google-drive/app-credential",
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: credentialJsonStr,
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setClientId(data.client_id);
+            setUploadedCredentialType('app');
+            setError(null);
+          } else {
+            const errorMsg = await response.text();
+            setError(`Failed to upload app credentials - ${errorMsg}`);
+          }
+        }
+
+        if (credentialFileType === "service_account") {
+          const response = await fetch(
+            "/api/manage/admin/connector/google-drive/service-account-key",
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: credentialJsonStr,
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setServiceAccountEmail(data.service_account_email);
+            setUploadedCredentialType('service_account');
+            setError(null);
+          } else {
+            const errorMsg = await response.text();
+            setError(`Failed to upload service account key - ${errorMsg}`);
+          }
+        }
+      } catch (err) {
+        setError(`Failed to upload credentials - ${err}`);
+      }
+      setIsUploading(false);
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isUploading) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (isUploading) return;
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (
+        file !== undefined &&
+        (file.type === "application/json" || file.name.endsWith(".json"))
+      ) {
+        handleFileUpload(file);
+      } else {
+        setError("Please upload a JSON file");
+      }
+    }
+  };
+
+  const handleOAuthAuthentication = async () => {
+    setIsAuthenticating(true);
+    setError(null);
+
+    try {
+      // Create credential first
+      const credentialCreationResponse = await fetch("/api/manage/credential", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          admin_public: true,
+          credential_json: {},
+          source: "google_drive",
+          name: "OAuth (uploaded)",
+        }),
+      });
+
+      if (!credentialCreationResponse.ok) {
+        throw new Error(`Failed to create credential - ${credentialCreationResponse.status}`);
+      }
+
+      const credential = await credentialCreationResponse.json();
+
+      // Get authorization URL
+      const authorizationUrlResponse = await fetch(
+        `/api/manage/connector/google-drive/authorize/${credential.id}`
+      );
+      if (!authorizationUrlResponse.ok) {
+        throw new Error(`Failed to get authorization URL - ${authorizationUrlResponse.status}`);
+      }
+
+      const authorizationUrlJson = await authorizationUrlResponse.json();
+
+      // Set cookie for callback
+      Cookies.set(GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME, "true", {
+        path: "/",
+      });
+
+      // Redirect to OAuth
+      router.push(authorizationUrlJson.auth_url);
+    } catch (err) {
+      setError(`Failed to authenticate with Google Drive - ${err}`);
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleServiceAccountCredential = async () => {
+    if (!primaryAdminEmail) {
+      setError("Primary admin email is required");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        "/api/manage/admin/connector/google-drive/service-account-credential",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            google_primary_admin: primaryAdminEmail,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Get the created credential
+        const credentialsResponse = await fetch("/api/custom-projects-backend/credentials/google_drive");
+        if (credentialsResponse.ok) {
+          const credentials = await credentialsResponse.json();
+          const serviceAccountCredential = credentials.find((c: any) => 
+            c.credential_json?.google_service_account_key && c.source === "google_drive"
+          );
+          if (serviceAccountCredential) {
+            onCredentialCreated(serviceAccountCredential);
+          }
+        }
+      } else {
+        const errorMsg = await response.text();
+        setError(`Failed to create service account credential - ${errorMsg}`);
+      }
+    } catch (err) {
+      setError(`Failed to create service account credential - ${err}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Google Drive Credential Setup
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          To connect your Google Drive, create credentials (either OAuth App or Service Account), 
+          download the JSON file, and upload it below.
+        </p>
+        <div className="mb-4">
+          <a
+            className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+            target="_blank"
+            href="https://docs.onyx.app/connectors/google_drive#authorization"
+            rel="noreferrer"
+          >
+            <FiLink className="h-3 w-3" />
+            View detailed setup instructions
+          </a>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <FiAlertTriangle className="w-5 h-5 text-red-600" />
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* File Upload Section */}
+      <div>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
+          Upload Credentials JSON File
+        </label>
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <div className="relative flex flex-1 items-center">
+              <label
+                className={cn(
+                  "flex h-10 items-center justify-center w-full px-4 py-2 border border-dashed rounded-md transition-colors",
+                  isUploading
+                    ? "opacity-70 cursor-not-allowed border-gray-400 bg-gray-50"
+                    : isDragging
+                      ? "bg-blue-50 border-blue-500"
+                      : "cursor-pointer hover:bg-gray-50 hover:border-blue-500 border-gray-300"
+                )}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                <div className="flex items-center space-x-2">
+                  {isUploading ? (
+                    <div className="h-4 w-4 border-t-2 border-b-2 border-blue-600 rounded-full animate-spin"></div>
+                  ) : (
+                    <FiFile className="h-4 w-4 text-gray-500" />
+                  )}
+                  <span className="text-sm text-gray-500">
+                    {isUploading
+                      ? `Uploading ${truncateString(fileName || "file", 50)}...`
+                      : isDragging
+                        ? "Drop JSON file here"
+                        : truncateString(
+                            fileName || "Select or drag JSON credentials file...",
+                            50
+                          )}
+                  </span>
+                </div>
+                <input
+                  className="sr-only"
+                  type="file"
+                  accept=".json"
+                  disabled={isUploading}
+                  onChange={(event) => {
+                    if (!event.target.files?.length) {
+                      return;
+                    }
+                    const file = event.target.files[0];
+                    if (file === undefined) {
+                      return;
+                    }
+                    handleFileUpload(file);
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Show uploaded credentials */}
+      {(serviceAccountEmail || clientId) && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <FiCheck className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-sm font-medium text-green-800">
+                Credentials uploaded successfully
+              </p>
+              <p className="text-xs text-green-600">
+                {serviceAccountEmail ? `Service Account: ${serviceAccountEmail}` : `Client ID: ${clientId}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Service Account Authentication */}
+      {uploadedCredentialType === 'service_account' && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            Primary Admin Email
+          </label>
+          <Input
+            type="email"
+            value={primaryAdminEmail}
+            onChange={(e) => setPrimaryAdminEmail(e.target.value)}
+            placeholder="Enter admin email address"
+            className="w-full px-4 py-3"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Enter the email of an admin/owner of the Google Organization that owns the Google Drive(s) you want to index.
+          </p>
+          <div className="mt-4">
+            <Button
+              onClick={handleServiceAccountCredential}
+              disabled={loading || !primaryAdminEmail}
+              className="px-6 py-3"
+            >
+              {loading ? "Creating..." : "Create Service Account Credential"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* OAuth Authentication */}
+      {uploadedCredentialType === 'app' && (
+        <div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-blue-800">
+              Next, you need to authenticate with Google Drive via OAuth. This gives us read access 
+              to the documents you have access to in your Google Drive account.
+            </p>
+          </div>
+          <Button
+            onClick={handleOAuthAuthentication}
+            disabled={isAuthenticating}
+            className="px-6 py-3"
+          >
+            {isAuthenticating ? "Authenticating..." : "Authenticate with Google Drive"}
+          </Button>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="px-6 py-3"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default GoogleDriveCredentialForm;

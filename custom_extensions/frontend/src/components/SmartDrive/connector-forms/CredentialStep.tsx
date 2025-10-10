@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "../../ui/card";
 import { Input } from "@/components/ui/input";
 import { credentialTemplates, credentialDisplayNames } from "./OnyxCredentialTemplates";
+import GoogleDriveCredentialForm from "./GoogleDriveCredentialForm";
 
 export interface Credential {
   id: number;
@@ -1141,6 +1142,16 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Use Google Drive specific form for Google Drive connector
+  if (connectorId === 'google_drive') {
+    return (
+      <GoogleDriveCredentialForm
+        onCredentialCreated={onCredentialCreated}
+        onCancel={onCancel}
+      />
+    );
+  }
 
   // Build credential form fields dynamically based on templates
   const getCredentialFields = () => {
