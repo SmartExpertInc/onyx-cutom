@@ -279,9 +279,9 @@ function CustomPillSelector({
           <span className="text-[#0D001B] text-sm font-medium">{value}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
+      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <SelectItem key={option.value} value={option.value} className="rounded-full mx-2">
             {option.label}
           </SelectItem>
         ))}
@@ -339,11 +339,11 @@ function CustomMultiSelector({
           <span className="text-[#0D001B] text-sm font-medium">{displayText}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
+      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}
-            className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+            className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm rounded-full mx-2"
             onClick={(e) => {
               e.preventDefault()
               handleToggle(option.value)
