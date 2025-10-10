@@ -35,8 +35,8 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         {/* Badge positioned at top right */}
         {pillLabel && (
           <div className="absolute top-1 right-1 z-10">
-            <div className="inline-flex items-center px-1 py-[2px] text-[9px] font-normal rounded gap-0.5 bg-blue-600 text-white">
-              <Sparkles size={6} />
+            <div className="inline-flex items-center px-0.5 py-[1px] text-[6px] font-normal leading-none rounded-sm gap-0.5 bg-blue-600 text-white">
+              <Sparkles size={4} />
               {pillLabel}
             </div>
           </div>
