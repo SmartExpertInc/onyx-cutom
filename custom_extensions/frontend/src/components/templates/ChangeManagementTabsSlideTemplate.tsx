@@ -54,7 +54,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'60px', height:'75px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'20px', alignItems:'center' };
   const capsule: React.CSSProperties = { borderRadius:'50px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'95px', background:'#FFFFFF', border:'none', fontFamily:'sans-serif', textTransform:'uppercase' };
-  const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF', height:'', borderRadius:'50px' };
+  const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF', height:'55px', borderRadius:'50px' };
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
   const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#000000', fontSize:'16px', fontWeight:500, fontFamily:'sans-serif' };
