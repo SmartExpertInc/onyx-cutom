@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 import { ChevronRight } from 'lucide-react';
 
 export interface PercentCirclesProps extends BaseTemplateProps {
@@ -13,6 +14,8 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   bottomCards: Array<{ value: string; text: string; hasArrow?: boolean }>;
   avatarPath?: string;
   logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
   slideIndex?: number;
 }
 
@@ -25,6 +28,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   ],
   avatarPath = '',
   logoPath = '',
+  logoText = 'Your Logo',
+  pageNumber = '1',
   slideIndex = 1,
   isEditable = true, // Set to true by default for testing
   onUpdate,
@@ -32,6 +37,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -59,9 +66,9 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const titleStyle: React.CSSProperties = { 
     position:'absolute', 
     left:'50px', 
-    top:'60px', 
-    right:'500px', // Add right margin to prevent overlap with avatar
-    fontSize:'50px', 
+    top:'50px', 
+    right:'550px', // Add right margin to prevent overlap with avatar
+    fontSize:'47px', 
     fontWeight:1100, 
     color:'#000000',
     whiteSpace:'pre-line',
@@ -94,7 +101,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const circleFilled: React.CSSProperties = {
     ...circleBase,
     background:'#0F58F9', // Blue
-    fontSize:'20px',
+    fontSize:'23px',
     fontWeight:600,
     border:'none',
     color:'#FFFFFF',
@@ -104,8 +111,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Avatar positioning - upper right, overlapping border
   const avatarWrap: React.CSSProperties = { 
     position:'absolute', 
-    right:'80px', 
-    top:'90px', 
+    right:'70px', 
+    top:'60px', 
     width:'170px', 
     height:'170px', 
     borderRadius:'50%', 
@@ -153,7 +160,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     fontSize:'18px',
     color:'#34353C',
     lineHeight:1.3,
-    fontFamily:'Inter, sans-serif'
+    fontFamily:'Inter, sans-serif',
+    fontWeight:400
   };
 
   const cardTextStyleFirst: React.CSSProperties = {
@@ -193,16 +201,32 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     whiteSpace:'pre-wrap' 
   });
 
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-line',
+    width: '100%',
+    fontFamily: base.fontFamily
+  });
+
   // Logo section styling
   const logoSection: React.CSSProperties = {
     position:'absolute',
-    bottom:'44px',
+    bottom:'24px',
     right:'44px',
     display:'flex',
     alignItems:'center',
     gap:'8px',
     fontSize:'14px',
-    color:'#909090',
+    color:'black',
     fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
@@ -210,7 +234,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     width:'20px',
     height:'20px',
     borderRadius:'50%',
-    border:'1px solid #909090',
+    border:'1px solid black',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
@@ -223,16 +247,25 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <style>{`
         .percent-circles *:not(.title-element):not(.card-value-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .percent-circles .title-element,
         .percent-circles .card-value-element {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
-        .percent-circles .percent-text,
+        .percent-circles .percent-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
         .percent-circles .card-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 400 !important;
+        }
+        .card-text * {
+          font-weight: 400 !important;
+        }
+        .percent-circles .logo-text {
+          font-weight: 600 !important;
         }
       `}</style>
       <div className="percent-circles inter-theme" style={slide}>
@@ -247,7 +280,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
               onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }} 
               onCancel={()=> setEdit(null)} 
               className="title-element"
-              style={inline(titleStyle)} 
+              style={inlineEditor(titleStyle)} 
             />
           ) : (
             <div className="title-element" onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
@@ -266,7 +299,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                  onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
                  onCancel={()=> setEdit(null)} 
                  className="percent-text"
-                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
+                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
                />
              ) : (
                <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
@@ -328,7 +361,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
              )}
 
             {/* Text */}
-            <div style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
+            <div className="card-text" style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
               {isEditable && edit?.k===`bt${i}` ? (
                 <ImprovedInlineEditor 
                   initialValue={card.text} 
@@ -358,6 +391,53 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
             )}
           </div>
         ))}
+      </div>
+
+      {/* Logo section */}
+      <div style={logoSection}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
+        />
+      </div>
+
+      {/* Page number */}
+      <div style={{
+        position:'absolute',
+        bottom:'24px',
+        left:'0px',
+        color:'#34353C',
+        fontSize:'16px',
+        fontWeight:400,
+        fontFamily:'Inter, sans-serif',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        <div style={{
+          width: '15px',
+          height: '1px',
+          backgroundColor: '#5F616D'
+        }}></div>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'16px', fontWeight:600, fontFamily:'Inter, sans-serif' }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
     </div>

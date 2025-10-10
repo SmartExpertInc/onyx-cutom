@@ -600,6 +600,8 @@ export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 
@@ -647,6 +649,8 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 
@@ -989,6 +993,7 @@ export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
   tableData: Array<Record<string, string>>; // flexible rows keyed by current headers
   profileImagePath?: string;
   profileImageAlt?: string;
+  companyLogoPath?: string;
   companyName?: string;
   reportType?: string;
   date?: string;
@@ -1089,6 +1094,8 @@ export interface CompanyToolsResourcesSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   companyLogoPath?: string;
+  logoText?: string;
+  logoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -1143,6 +1150,8 @@ export interface ResilienceBehaviorsSlideProps extends BaseTemplateProps {
   bullets: string[];
   profileImagePath?: string;
   profileImageAlt?: string;
+  logoText?: string;
+  logoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

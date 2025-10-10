@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SoftSkillsAssessmentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -136,6 +137,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   titleColor,
   contentColor,
   accentColor,
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme,
@@ -144,12 +147,14 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTips, setEditingTips] = useState<number | null>(null);
   const [editingAdditionalTips, setEditingAdditionalTips] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTips, setCurrentTips] = useState(tips);
   const [currentAdditionalTips, setCurrentAdditionalTips] = useState([
     "Additional tip 1",
     "Additional tip 2"
   ]);
+  const [currentPageNumber, setCurrentPageNumber] = useState('27');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -164,7 +169,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px 40px 80px',
+    padding: '40px 60px 40px 60px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -233,6 +238,10 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
+        .soft-skills-assessment-slide-template .logo-text {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
       `}</style>
       <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
@@ -282,8 +291,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
         {/* Profile image */}
         <div style={{
-          width: '160px',
-          height: '160px',
+          width: '170px',
+          height: '170px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#0F58F9'
@@ -309,7 +318,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <div style={{
         display: 'flex',
         gap: '30px',
-        marginTop: '-17px'
+        marginTop: '-35px'
       }}>
         {currentTips.map((tip, index) => (
           <div
@@ -323,17 +332,15 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           >
             {/* Main tip block */}
             <div style={{
-              padding: '30px',
+              padding: '20px 70px 30px 32px',
               backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
-              minHeight: '310px',
+              minHeight: '355px',
               display: 'flex',
-              paddingLeft: '32px',
-              paddingTop: '40px',
               zIndex: '2',
-              borderRadius: '12px',
+              borderRadius: '4px',
             }}>
               <div style={{
-                fontSize: '32px',
+                fontSize: '37px',
                 fontWeight: '700',
                 color: index === 0 ? '#000000' : '#FFFFFF',
                 lineHeight: '1.4',
@@ -347,7 +354,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     multiline={true}
                     className="card-text"
                     style={{
-                      fontSize: '32px',
+                      fontSize: '33px',
                       maxWidth: '386px',
                       fontWeight: '700',
                       color: index === 0 ? '#000000' : '#FFFFFF',
@@ -392,15 +399,45 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       }}>
         {/* Page number */}
         <div style={{
-          fontSize: '14px',
+          position: 'absolute',
+          bottom: '24px',
+          left: '0px',
+          fontSize: '16px',
           color: 'rgba(0, 0, 0, 0.6)',
-          fontFamily: 'Inter, sans-serif'
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: 400,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          27
+          <div style={{
+            width: '15px',
+            height: '1px',
+            backgroundColor: '#5F616D'
+          }}></div>
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: 'rgba(0, 0, 0, 0.6)', fontSize: '16px', fontWeight: 600 }}
+            />
+          ) : (
+            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
         </div>
         
         {/* Logo placeholder */}
         <div style={{
+          position: 'absolute',
+          bottom: '24px',
+          right: '22px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
@@ -408,21 +445,16 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '1px solid black',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px'
-          }}>
-            +
-          </div>
-          Your Logo
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#000000"
+            text={logoText}
+          />
         </div>
       </div>
+
     </div>
     </>
   );

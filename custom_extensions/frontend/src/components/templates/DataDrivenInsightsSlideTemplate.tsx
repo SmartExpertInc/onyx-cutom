@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface DataDrivenInsightsProps extends BaseTemplateProps {
   tag: string;
@@ -21,6 +22,8 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   metrics: Array<{ value: string; caption: string }>;
   avatarPath?: string;
   logoPath?: string;
+  logoText?: string;
+  pageNumber?: string;
   slideIndex?: number;
 }
 
@@ -43,6 +46,8 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   ],
   avatarPath = '',
   logoPath = '',
+  logoText = 'Your Logo',
+  pageNumber = '1',
   slideIndex = 1,
   isEditable = false,
   onUpdate,
@@ -50,6 +55,8 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ key: string } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   type SeriesBar = { year: string; value: string; height: number };
   const toSeries = (heights: number[], values: string[], years: string[]): SeriesBar[] => {
@@ -98,7 +105,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     background:'transparent', 
     color:'#34353C', 
     padding:'8px 18px', 
-    fontSize:'16px', 
+    fontSize:'17px', 
     borderRadius:'20px', 
     border:'2px solid #000000', 
     display:'flex', 
@@ -115,31 +122,67 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     fontFamily:'serif'
   };
   const descStyle: React.CSSProperties = { 
-    width:'525px', 
+    width:'670px', 
     color:'#34353C', 
-    fontSize:'15px', 
+    fontSize:'17px', 
     textAlign:'left', 
     lineHeight:'1.5', 
     fontFamily:'"Inter", sans-serif'
   };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
-  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'480px', minHeight:'46px' };
+  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'420px', minHeight:'46px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
-  const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
-  const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', position:'relative', borderRadius:'1px 1px 1px 1px' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'flex', gap:'20px' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', width:'355px', height: '320px', flex: 1, padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
+  const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 0 8px 0' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'10px', bottom:'8px', display:'flex', alignItems:'flex-end', height:'calc(100% - 24px)', flexWrap:'nowrap' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'40px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
+  const getBarBase = (seriesLength: number): React.CSSProperties => {
+    // Calculate bar width to fill available space evenly
+    return { 
+      flex: 1,
+      marginRight: '5px',
+      background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', 
+      position:'relative', 
+      borderRadius:'1px 1px 1px 1px' 
+    };
+  };
+  const getYearLabelStyle = (seriesLength: number, isLast: boolean): React.CSSProperties => {
+    return {
+      flex: 1,
+      marginRight: isLast ? '0px' : '5px',
+      textAlign: 'center',
+      color: '#3A3A3C',
+      fontSize: '12px',
+      fontFamily: '"Inter", sans-serif'
+    };
+  };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 10px 0 25px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
 
-  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
+  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", sans-serif' };
-  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'42px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-wrap',
+    width: '100%',
+    fontFamily: base.fontFamily,
+    textAlign: base.textAlign
+  });
 
   const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
@@ -163,7 +206,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           return (
             <div
               key={i}
-              style={{ ...barBase, height:`${hh}px` }}
+              style={{ ...getBarBase(series.length), height:`${hh}px` }}
               onMouseEnter={()=> setHoverBar({ panel: panelKey, idx:i })}
               onMouseLeave={()=> setHoverBar(null)}
               onMouseDown={(e)=>{
@@ -182,11 +225,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 window.addEventListener('mouseup', onUp);
               }}
             >
-              <div style={{ position:'absolute', top:'6px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
+              <div style={{ position:'absolute', top:'6px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'10px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
-                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'"Inter", sans-serif', fontSize:'12px' }} />
+                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'"Inter", sans-serif', fontSize:'10px' }} />
                 ) : b.value }
               </div>
               {isEditable && hoverBar && hoverBar.panel===panelKey && hoverBar.idx===i && (
@@ -213,6 +256,16 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .data-driven-insights .logo-text {
+          font-weight: 600 !important;
+        }
+        .logo-text *{
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
+        .desc-element {
+          font-weight: 400 !important;
+        }
       `}</style>
       <div 
         className="data-driven-insights inter-theme" 
@@ -224,7 +277,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={tagStyle}>
         <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#0F58F9' }}></div>
         {isEditable && edit?.key==='tag' ? (
-          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(tagStyle)} />
+          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineEditor(tagStyle)} />
         ) : (
           <div onClick={()=> isEditable && setEdit({ key:'tag' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
         )}
@@ -244,7 +297,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         )}
       </div>
 
-      <div style={descWrap}>
+      <div className="desc-element" style={descWrap}>
         {isEditable && edit?.key==='desc' ? (
           <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ description:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ ...descStyle }} />
         ) : (
@@ -261,7 +314,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', ...getYearLabelStyle(leftSeries.length, i === leftSeries.length - 1) }}>
               {edit?.key===`left-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...leftSeries]; next[i]={ ...next[i], year:v }; setLeftSeries(next); pushState('left'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -277,7 +330,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', ...getYearLabelStyle(rightSeries.length, i === rightSeries.length - 1) }}>
               {edit?.key===`right-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...rightSeries]; next[i]={ ...next[i], year:v }; setRightSeries(next); pushState('right'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -309,6 +362,57 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
       <div style={avatar}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+      </div>
+
+      {/* Logo section */}
+      <div style={{
+        position:'absolute',
+        bottom:'20px',
+        right:'20px'
+      }}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
+        />
+      </div>
+
+      {/* Page number */}
+      <div style={{
+        position:'absolute',
+        bottom:'24px',
+        left:'0px',
+        color:'#34353C',
+        fontSize:'15px',
+        fontWeight:400,
+        fontFamily:'Inter, sans-serif',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        <div style={{
+          width: '15px',
+          height: '1px',
+          backgroundColor: '#5F616D'
+        }}></div>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'16px', fontWeight:600, fontFamily:'Inter, sans-serif' }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
     </div>
