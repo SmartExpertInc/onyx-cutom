@@ -52,9 +52,9 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const avatar: React.CSSProperties = { position:'absolute', left:'0', top:'0', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'190px', right:'0', top:'25px', fontSize:'44px', fontWeight:400, color:'#000000', lineHeight:1.1, fontFamily:'serif', whiteSpace:'pre-line' };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'60px', height:'50px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'20px', alignItems:'center' };
-  const capsule: React.CSSProperties = { borderRadius:'25px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'100%', background:'#FFFFFF', border:'none', fontFamily:'sans-serif', textTransform:'uppercase' };
-  const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'60px', height:'75px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'20px', alignItems:'center' };
+  const capsule: React.CSSProperties = { borderRadius:'50px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'95px', background:'#FFFFFF', border:'none', fontFamily:'sans-serif', textTransform:'uppercase' };
+  const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF', height:'', borderRadius:'50px' };
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
   const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#000000', fontSize:'16px', fontWeight:500, fontFamily:'sans-serif' };
