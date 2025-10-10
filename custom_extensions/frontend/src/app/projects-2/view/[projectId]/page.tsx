@@ -115,8 +115,8 @@ export default function Projects2ViewPage() {
       const videoLessonSlide: VideoLessonSlideData = {
         slideId: newSlide.slideId,
         slideNumber: videoLessonData.slides.length + 1,
-        slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
-        displayedText: newSlide.props?.content || '',
+        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
+        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || '',
         displayedPictureDescription: '',
         displayedVideoDescription: '',
         voiceoverText: ''
