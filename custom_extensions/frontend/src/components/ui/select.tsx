@@ -275,11 +275,11 @@ function CustomPillSelector({
           className
         )}
       >
-        <div className="flex items-center justify-center w-full">
+        <div className="flex items-center justify-start w-full">
           <span className="text-[#09090B] text-sm font-medium">{value}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+      <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
@@ -335,11 +335,11 @@ function CustomMultiSelector({
           className
         )}
       >
-        <div className="flex items-center justify-center w-full">
+        <div className="flex items-center justify-start w-full">
           <span className="text-[#09090B] text-sm font-medium">{displayText}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+      <SelectContent className="border border-gray-300 max-h-[200px]" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}

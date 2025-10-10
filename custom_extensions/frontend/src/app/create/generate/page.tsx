@@ -1155,8 +1155,8 @@ function GenerateProductPicker() {
         style={{
           width: '1100px',
           height: '2100px',
-          left: '60%',
-          top: '60%',
+          left: '50%',
+          top: '50%',
           borderRadius: '999px',
           background: 'linear-gradient(180deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
           transform: 'translate(-50%, -50%) rotate(120deg)',
@@ -1279,7 +1279,7 @@ function GenerateProductPicker() {
 
         {/* Tab selector */}
         <div 
-          className="w-fit rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-200 mb-4"
+          className="w-fit rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow duration-200"
           style={{
             background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.5))'
           }}
@@ -1829,17 +1829,17 @@ function GenerateProductPicker() {
                   {t('interface.generate.examplePrompts', 'Example prompts')}
                 </span>
               </div>
-              <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
+              <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-4">
                 {Array.from({ length: 6 }).map((_, index) =>
                   examples[index] ? (
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-row justify-between items-center w-full p-2 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-70 hover:opacity-100"
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FDFDFD", border: "1px solid #E0E0E0", color: "#71717A" }}
                     >
-                      <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-lg" style={{ color: "#71717A" }}>+</span>
+                      <span className="text-left leading-tight flex-1">{examples[index]}</span>
+                      <span className="absolute top-2 right-2 text-lg font-light" style={{ color: "#71717A" }}>+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
