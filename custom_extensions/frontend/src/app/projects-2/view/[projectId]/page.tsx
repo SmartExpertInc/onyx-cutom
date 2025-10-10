@@ -28,10 +28,14 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import '../components/compact-slide-styles.css';
 import AvatarDataProvider from '../components/AvatarDataService';
+import { ScaledSlideViewer } from '@/components/ScaledSlideViewer';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+// Video output dimensions - slides render at native size for correct aspect ratio
+const VIDEO_NATIVE_WIDTH = 1920;
+const VIDEO_NATIVE_HEIGHT = 1080;
 
 export default function Projects2ViewPage() {
   const params = useParams();
@@ -748,29 +752,29 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Using same approach as LessonPlanView carousel */}
-                <div
-                  className="professional-slide relative bg-white overflow-hidden"
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                    width: '100%',
-                    maxWidth: aspectRatio === '16:9' ? '900px' 
-                      : aspectRatio === '9:16' ? '400px'
-                      : '800px',
-                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
-                      : aspectRatio === '9:16' ? '9/16'
-                      : '1/1',
-                    minHeight: '400px',
-                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
-                  }}
+                {/* Slide Content - Rendered at NATIVE video dimensions (1920×1080) then scaled down via CSS transform */}
+                <ScaledSlideViewer
+                  nativeWidth={VIDEO_NATIVE_WIDTH}
+                  nativeHeight={VIDEO_NATIVE_HEIGHT}
+                  padding={20}
+                  debug={false}
                 >
-                  <div 
-                    style={{ width: '100%', height: '100%' }} 
-                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
+                  <div
+                    className="professional-slide relative bg-white overflow-hidden"
+                    style={{
+                      width: VIDEO_NATIVE_WIDTH,
+                      height: VIDEO_NATIVE_HEIGHT,
+                      aspectRatio: '16/9', // ✅ Correct aspect ratio (not 16/10)
+                      backgroundColor: 'white',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                    }}
+                    data-slide-canvas="true" // Important for DragEnhancer to calculate positions correctly
                   >
+                    {/* NO text size overrides! Templates control their own typography */}
+                    {/* NO compact CSS classes! Slides maintain native spacing */}
                     <ComponentBasedSlideDeckRenderer
                       slides={componentBasedSlideDeck.slides}
                       selectedSlideId={currentSlideId}
@@ -790,7 +794,7 @@ export default function Projects2ViewPage() {
                       theme="default"
                     />
                   </div>
-                </div>
+                </ScaledSlideViewer>
               </div>
             ) : (
               <VideoLessonDisplay 
