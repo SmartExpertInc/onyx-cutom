@@ -73,7 +73,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-sm xs:text-base sm:text-base md:text-base lg:text-lg leading-tight text-center px-1 font-semibold"
+              className="text-sm xs:text-base sm:text-base md:text-base lg:text-base leading-tight text-center px-1 font-semibold"
               style={{
                 color: active ? '#0D001B' : '#797979'
               }}
