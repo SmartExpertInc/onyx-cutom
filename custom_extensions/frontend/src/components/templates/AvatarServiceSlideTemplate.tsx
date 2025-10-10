@@ -210,7 +210,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
+    width: '100%',
+    aspectRatio: '16/9',
     backgroundColor: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',

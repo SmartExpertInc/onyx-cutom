@@ -216,7 +216,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   };
 
   return (
-    <div className="work-life-balance-slide-template" style={slideStyles}>
+    <div className="work-life-balance-slide-template" style={slideStyles} data-slide-canvas="true">
       {/* Left Content Area */}
       <div style={{
         width: '60%',
