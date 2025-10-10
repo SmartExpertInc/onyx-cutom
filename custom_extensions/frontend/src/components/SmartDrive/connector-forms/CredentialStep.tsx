@@ -130,16 +130,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
             <h3 className="text-xl font-semibold text-gray-900">Available Credentials</h3>
             <div className="flex items-center gap-3">
               <Button
-                variant="outline"
-                onClick={() => setHelpModalOpen(true)}
-                className="px-4 py-2.5 text-blue-600 border-blue-200 hover:bg-blue-50"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Help
-              </Button>
-              <Button
                 variant="blueGradient"
                 onClick={handleCreateNew}
                 className="px-6 py-2.5"
@@ -271,6 +261,16 @@ const CredentialStep: FC<CredentialStepProps> = ({
                   </h3>
                   <p className="text-gray-600 mt-1">Enter your credentials to connect to {connectorName}</p>
                 </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setHelpModalOpen(true)}
+                  className="px-4 py-2.5 text-blue-600 border-blue-200 hover:bg-blue-50 flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Help
+                </Button>
                 <button
                   onClick={() => setShowCreateForm(false)}
                   className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -295,7 +295,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
 
       {/* Help Modal */}
       {helpModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-100">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
