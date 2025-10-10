@@ -1146,9 +1146,24 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-white relative overflow-hidden"
     >
-      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
+      {/* Decorative gradient background */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1100px',
+          height: '2100px',
+          left: '60%',
+          top: '60%',
+          borderRadius: '999px',
+          background: 'linear-gradient(360deg, #D817FF 10%, #5D72F4 70%, #90EDE5 100%)',
+          transform: 'translate(-50%, -50%) rotate(120deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+
+      <div className="w-full max-w-3xl flex flex-col gap-6 items-center relative z-10">
         {/* back button absolute top-left */}
         <Link
           href="/create"

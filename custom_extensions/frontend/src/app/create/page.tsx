@@ -368,29 +368,21 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
       
       {/* Top-left back button */}
       <div 
-        className="absolute top-6 left-6 rounded-lg z-10 shadow-md hover:shadow-xl active:shadow-xl transition-shadow duration-200"
+        className="absolute top-6 left-6 rounded-lg z-10 shadow-md hover:shadow-xl active:shadow-xl transition-shadow duration-200 cursor-pointer"
         style={{
-          paddingBottom: '2px',
+          paddingBottom: '1px',
           background: '#D3D3D3'
         }}
       >
-        <div 
-          className="rounded-lg"
-          style={{
-            padding: '2px',
-            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5))'
-          }}
+        <Link
+          href="/projects"
+          onClick={onHomeClick}
+          className="flex items-center gap-1 text-sm rounded-lg px-4 py-2 bg-white/50 backdrop-blur-sm transition-all duration-200 border border-white"
+          style={{ color: '#000000' }}
         >
-          <Link
-            href="/projects"
-            onClick={onHomeClick}
-            className="flex items-center gap-1 text-sm rounded-lg px-4 py-2 bg-white/50 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-            style={{ color: '#000000' }}
-          >
-            <span>&lt;</span>
-            <span>Back</span>
-          </Link>
-        </div>
+          <span>&lt;</span>
+          <span>Back</span>
+        </Link>
       </div>
 
       {/* Main content */}
