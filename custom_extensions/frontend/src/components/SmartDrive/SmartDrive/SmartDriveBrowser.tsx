@@ -49,7 +49,15 @@ type UploadProgress = {
 	progress: number; // 0-100
 };
 
-type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string; startedAtMs?: number; durationMs?: number }>;
+type IndexingState = Record<string, { 
+	status: 'not_started' | 'in_progress' | 'success' | 'failed' | 'pending' | 'done' | 'unknown'; 
+	etaPct: number; 
+	onyxFileId?: number | string; 
+	timeStarted?: number;
+	timeUpdated?: number;
+	estimatedTokens?: number;
+	estimatedDuration?: number;
+}>;
 
 const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	mode = 'manage',
@@ -245,63 +253,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (uploadInput.current) uploadInput.current.value = '';
 	};
 
-	const INDEX_TOKENS_PER_SEC = 75000 / 30; // ~2500 tokens/s (OpenAI small model ~75k in 30s)
+	const INDEX_TOKENS_PER_SEC = 2500; // ~2500 tokens/s for duration estimation
 
-	const startIndexingEstimates = useCallback(async (paths: string[]) => {
-		if (!paths || paths.length === 0) return;
-		try {
-			const results = await Promise.all(paths.map(async (p) => {
-				const url = `${CUSTOM_BACKEND_URL}/smartdrive/token-estimate?path=${encodeURIComponent(p)}`;
-				console.log('[SmartDrive] token-estimate request:', url);
-				const res = await fetch(url, { credentials: 'same-origin' });
-				if (!res.ok) throw new Error(`token-estimate failed: ${res.status}`);
-				const data = await res.json();
-				const tokens = Number(data?.tokens ?? 0);
-				const baseDurationSec = Math.max(3, Math.ceil(tokens / INDEX_TOKENS_PER_SEC));
-				// Speed up PDFs ~4x by reducing the estimated duration
-				const isPdf = p.toLowerCase().endsWith('.pdf');
-				const durationSec = isPdf ? Math.max(1, Math.ceil(baseDurationSec / 4)) : baseDurationSec;
-				console.log('[SmartDrive] token-estimate response:', { path: p, tokens, durationSec, source: data?.source, isPdf });
-				return { path: p, tokens, durationMs: durationSec * 1000 };
-			}));
-			const now = Date.now();
-			setIndexing(prev => {
-				const out: IndexingState = { ...prev };
-				for (const r of results) {
-					if (!r) continue;
-					const prevEntry = out[r.path] || { status: 'pending', etaPct: 5 };
-					out[r.path] = { ...prevEntry, status: 'pending', startedAtMs: now, durationMs: r.durationMs, etaPct: Math.max(prevEntry.etaPct ?? 5, 5) };
-				}
-				return out;
-			});
-		} catch (e) {
-			console.error('[SmartDrive] token-estimate error:', e);
+	// Calculate progress based on status and time interpolation
+	const calculateProgress = useCallback((status: string, timeStarted?: number, estimatedTokens?: number): number => {
+		if (status === 'not_started') {
+			return 5;
+		} else if (status === 'in_progress' && timeStarted && estimatedTokens) {
+			const elapsed = Date.now() - timeStarted;
+			const estimatedDuration = (estimatedTokens / INDEX_TOKENS_PER_SEC) * 1000;
+			const ratio = Math.min(elapsed / estimatedDuration, 1);
+			return Math.min(95, 5 + (90 * ratio)); // 5% to 95%
+		} else if (status === 'success' || status === 'done') {
+			return 100;
+		} else if (status === 'failed') {
+			return 0; // Show error state
 		}
+		return 5; // Default for pending/unknown
 	}, [INDEX_TOKENS_PER_SEC]);
-
-	// Drive time-based progress updates for all pending items with a known duration
-	const hasPendingTimed = useMemo(() => Object.values(indexing).some(v => v.status === 'pending' && v.startedAtMs && v.durationMs), [indexing]);
-	useEffect(() => {
-		if (!hasPendingTimed) return;
-		const interval = setInterval(() => {
-			setIndexing(prev => {
-				const now = Date.now();
-				const out: IndexingState = { ...prev };
-				for (const [path, st] of Object.entries(out)) {
-					if (st.status !== 'pending' || !st.startedAtMs || !st.durationMs) continue;
-					const elapsed = now - st.startedAtMs;
-					const pct = Math.min(100, Math.max(5, Math.round((elapsed / st.durationMs) * 100)));
-					if (pct >= 100) {
-						out[path] = { ...st, status: 'done', etaPct: 100 };
-					} else {
-						out[path] = { ...st, etaPct: pct };
-					}
-				}
-				return out;
-			});
-		}, 500);
-		return () => clearInterval(interval);
-	}, [hasPendingTimed]);
 
 	const uploadFiles = async (files: File[]) => {
 		if (files.length === 0) return;
@@ -351,7 +320,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					console.log(`[SmartDrive] Creating path: ${p} from currentPath=${currentPath}, filename=${filename}`);
 					
 					if (r.onyx_file_id) {
-						next[p] = { status: 'pending', etaPct: 5, onyxFileId: r.onyx_file_id };
+						next[p] = { 
+							status: 'not_started', 
+							etaPct: 5, 
+							onyxFileId: r.onyx_file_id,
+							timeStarted: undefined,
+							timeUpdated: undefined,
+							estimatedTokens: undefined,
+							estimatedDuration: undefined
+						};
 						pathsToTrack.push(p);
 						console.log(`[SmartDrive] Added to indexing tracking:`, { path: p, onyxFileId: r.onyx_file_id });
 					} else {
@@ -364,9 +341,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				
 				setIndexing(next);
 				
-				// Start time-based indexing progress based on token estimates (no polling)
+				// Start polling for real progress data
 				if (pathsToTrack.length > 0) {
-					await startIndexingEstimates(pathsToTrack);
+					await pollIndexingProgress(pathsToTrack);
 				}
 			} else {
 				console.warn('[SmartDrive] No results array in upload response:', data);
@@ -382,13 +359,106 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const pollIndexingStatus = async (paths: string[]) => {
+	const pollIndexingProgress = async (paths: string[]) => {
 		if (!paths || paths.length === 0) {
-			console.log('[SmartDrive] pollIndexingStatus: no paths provided');
+			console.log('[SmartDrive] pollIndexingProgress: no paths provided');
 			return;
 		}
 		
-		console.log('[SmartDrive] pollIndexingStatus: starting poll for paths:', paths);
+		console.log('[SmartDrive] pollIndexingProgress: starting poll for paths:', paths);
+		
+		try {
+			const params = new URLSearchParams();
+			for (const p of paths) {
+				params.append('paths', p);
+			}
+			
+			const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-progress?${params.toString()}`;
+			console.log('[SmartDrive] pollIndexingProgress: fetching URL:', url);
+			
+			const res = await fetch(url, { credentials: 'same-origin' });
+			console.log('[SmartDrive] pollIndexingProgress: response status:', res.status);
+			
+			if (!res.ok) {
+				console.error('[SmartDrive] pollIndexingProgress: request failed:', { status: res.status, statusText: res.statusText });
+				// Fallback to old endpoint
+				return pollIndexingStatusFallback(paths);
+			}
+			
+			const data = await res.json();
+			console.log('[SmartDrive] pollIndexingProgress: response data:', data);
+			
+			const progressData = data?.progress || {};
+			console.log('[SmartDrive] pollIndexingProgress: extracted progress data:', progressData);
+			
+			let nextRemaining = 0;
+			setIndexing(prev => {
+				console.log('[SmartDrive] pollIndexingProgress: current indexing state:', prev);
+				const out: IndexingState = { ...prev };
+				
+				for (const p of Object.keys(out)) {
+					const progress = progressData[p];
+					if (!progress) {
+						console.log(`[SmartDrive] pollIndexingProgress: no progress data for path '${p}'`);
+						continue;
+					}
+					
+					const oldState = out[p] || { status: 'unknown', etaPct: 0 };
+					
+					// Parse timestamps
+					const timeStarted = progress.time_started ? new Date(progress.time_started).getTime() : undefined;
+					const timeUpdated = progress.time_updated ? new Date(progress.time_updated).getTime() : undefined;
+					
+					// Calculate progress percentage
+					const etaPct = calculateProgress(
+						progress.status, 
+						timeStarted, 
+						progress.estimated_tokens
+					);
+					
+					out[p] = { 
+						...oldState, 
+						status: progress.status,
+						etaPct,
+						timeStarted,
+						timeUpdated,
+						estimatedTokens: progress.estimated_tokens,
+						estimatedDuration: progress.estimated_tokens ? (progress.estimated_tokens / INDEX_TOKENS_PER_SEC) * 1000 : undefined
+					};
+					
+					console.log(`[SmartDrive] pollIndexingProgress: updated state for '${p}':`, { 
+						old: oldState, 
+						new: out[p],
+						progressData: progress
+					});
+					
+					if (!progress.is_complete) nextRemaining += 1;
+				}
+				
+				console.log('[SmartDrive] pollIndexingProgress: final indexing state:', out);
+				console.log('[SmartDrive] pollIndexingProgress: remaining files:', nextRemaining);
+				return out;
+			});
+			
+			// Continue polling until all done
+			if (nextRemaining > 0) {
+				console.log('[SmartDrive] pollIndexingProgress: continuing polling in 1.5s, remaining:', nextRemaining);
+				setTimeout(() => pollIndexingProgress(paths), 1500);
+			} else {
+				console.log('[SmartDrive] pollIndexingProgress: all files indexed, stopping polling');
+			}
+		} catch (error) {
+			console.error('[SmartDrive] pollIndexingProgress: error:', error);
+			// Fallback to old endpoint
+			return pollIndexingStatusFallback(paths);
+		}
+	};
+
+	// Fallback to old binary status check
+	const pollIndexingStatusFallback = async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		
+		console.log('[SmartDrive] pollIndexingStatusFallback: using fallback for paths:', paths);
 		
 		try {
 			const params = new URLSearchParams();
@@ -397,63 +467,38 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			}
 			
 			const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-status?${params.toString()}`;
-			console.log('[SmartDrive] pollIndexingStatus: fetching URL:', url);
-			
 			const res = await fetch(url, { credentials: 'same-origin' });
-			console.log('[SmartDrive] pollIndexingStatus: response status:', res.status);
 			
-			if (!res.ok) {
-				console.error('[SmartDrive] pollIndexingStatus: request failed:', { status: res.status, statusText: res.statusText });
-				return;
-			}
+			if (!res.ok) return;
 			
 			const data = await res.json();
-			console.log('[SmartDrive] pollIndexingStatus: response data:', data);
-			
 			const statuses = data?.statuses || {};
-			console.log('[SmartDrive] pollIndexingStatus: extracted statuses:', statuses);
 			
 			let nextRemaining = 0;
 			setIndexing(prev => {
-				console.log('[SmartDrive] pollIndexingStatus: current indexing state:', prev);
 				const out: IndexingState = { ...prev };
 				
 				for (const p of Object.keys(out)) {
-					// Support encoded/decoded mapping
 					const done = statuses[p] === true || statuses[encodeURI(p)] === true || statuses[decodeURIComponent(p)] === true;
-					console.log(`[SmartDrive] pollIndexingStatus: checking path '${p}':`, {
-						statusForPath: statuses[p],
-						statusForEncoded: statuses[encodeURI(p)],
-						statusForDecoded: statuses[decodeURIComponent(p)],
-						finalDone: done
-					});
-					
 					const oldState = out[p] || { status: 'unknown', etaPct: 0 };
+					
 					out[p] = { 
 						...oldState, 
 						status: done ? 'done' : 'pending', 
 						etaPct: done ? 100 : Math.min(95, (oldState.etaPct ?? 5) + 10) 
 					};
 					
-					console.log(`[SmartDrive] pollIndexingStatus: updated state for '${p}':`, { old: oldState, new: out[p] });
-					
 					if (!done) nextRemaining += 1;
 				}
 				
-				console.log('[SmartDrive] pollIndexingStatus: final indexing state:', out);
-				console.log('[SmartDrive] pollIndexingStatus: remaining files:', nextRemaining);
 				return out;
 			});
 			
-			// Continue polling until all done
 			if (nextRemaining > 0) {
-				console.log('[SmartDrive] pollIndexingStatus: continuing polling in 1.5s, remaining:', nextRemaining);
-				setTimeout(() => pollIndexingStatus(paths), 1500);
-			} else {
-				console.log('[SmartDrive] pollIndexingStatus: all files indexed, stopping polling');
+				setTimeout(() => pollIndexingStatusFallback(paths), 1500);
 			}
 		} catch (error) {
-			console.error('[SmartDrive] pollIndexingStatus: error:', error);
+			console.error('[SmartDrive] pollIndexingStatusFallback: error:', error);
 		}
 	};
 

@@ -10975,7 +10975,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         analysis_prompt = f"""        
         Please describe:
         1. What is this file? (image, document, etc.)
-        2. What does it contain or show? (max 200 words)
+        2. What does it contain or show? (min 500 words)
         3. What are the main topics, concepts, or subjects?
         4. What information would be most relevant for lesson planning or content creation?
         
@@ -32511,6 +32511,176 @@ async def smartdrive_indexing_status(
     except Exception as e:
         logger.error(f"[SmartDrive] indexing-status error: {e}", exc_info=True)
         return {"statuses": {p: None for p in paths}}
+
+
+@app.get("/api/custom/smartdrive/indexing-progress")
+async def smartdrive_indexing_progress(
+    request: Request,
+    paths: List[str] = Query([]),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get detailed indexing progress for SmartDrive files using IndexAttempt data."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"[SmartDrive] IndexingProgress: user_id={onyx_user_id}, raw_paths={paths}")
+        
+        # Normalize paths
+        norm_paths: List[str] = []
+        for p in paths:
+            try:
+                norm_p = await _normalize_smartdrive_path(p)
+                norm_paths.append(norm_p)
+                logger.info(f"[SmartDrive] IndexingProgress: normalized '{p}' -> '{norm_p}'")
+            except Exception as e:
+                logger.error(f"[SmartDrive] IndexingProgress: failed to normalize path '{p}': {e}")
+                continue
+        
+        if not norm_paths:
+            logger.warning(f"[SmartDrive] IndexingProgress: no valid normalized paths")
+            return {"progress": {}}
+
+        # Lookup Onyx file IDs and get token estimates
+        path_to_file_id: Dict[str, str] = {}
+        path_to_tokens: Dict[str, int] = {}
+        
+        async with pool.acquire() as conn:
+            logger.info(f"[SmartDrive] IndexingProgress: querying database for user_id={onyx_user_id}, paths={norm_paths}")
+            rows = await conn.fetch(
+                """
+                SELECT smartdrive_path, onyx_file_id
+                FROM smartdrive_imports
+                WHERE onyx_user_id = $1 AND smartdrive_path = ANY($2::text[])
+                """,
+                str(onyx_user_id),
+                norm_paths,
+            )
+            logger.info(f"[SmartDrive] IndexingProgress: found {len(rows)} records in database")
+            
+        for r in rows:
+            path = r["smartdrive_path"]
+            file_id = str(r["onyx_file_id"])
+            path_to_file_id[path] = file_id
+            logger.info(f"[SmartDrive] IndexingProgress: mapping path='{path}' -> onyx_file_id='{file_id}'")
+
+        if not path_to_file_id:
+            logger.warning(f"[SmartDrive] IndexingProgress: no file mappings found")
+            return {"progress": {p: None for p in norm_paths}}
+
+        # Get token estimates for all files
+        for path in path_to_file_id.keys():
+            try:
+                # Use the existing token-estimate endpoint logic
+                file_id = path_to_file_id[path]
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{ONYX_API_SERVER_URL}/user/file/token-estimate",
+                        params={"file_ids": file_id},
+                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+                    )
+                if resp.is_success:
+                    data = resp.json() or {}
+                    total_tokens = int(data.get("total_tokens") or 0)
+                    path_to_tokens[path] = total_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: path='{path}' tokens={total_tokens}")
+                else:
+                    path_to_tokens[path] = 0
+            except Exception as e:
+                logger.warning(f"[SmartDrive] IndexingProgress: failed to get tokens for path='{path}': {e}")
+                path_to_tokens[path] = 0
+
+        # Query Onyx for IndexAttempt data via UserFile -> cc_pair -> IndexAttempt
+        file_ids = list(path_to_file_id.values())
+        query_params = []
+        for fid in file_ids:
+            query_params.append(("file_ids", fid))
+        
+        # Get UserFile data to find cc_pair_id
+        onyx_user_files_url = f"{ONYX_API_SERVER_URL}/user/file/list"
+        logger.info(f"[SmartDrive] IndexingProgress: querying Onyx for user files at {onyx_user_files_url}")
+        
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                onyx_user_files_url,
+                cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+            )
+        
+        if not resp.is_success:
+            logger.error(f"[SmartDrive] IndexingProgress: Onyx user files request failed: {resp.status_code}")
+            return {"progress": {p: None for p in norm_paths}}
+        
+        user_files = resp.json()
+        file_id_to_cc_pair = {}
+        
+        # Map file_id to cc_pair_id
+        for file_data in user_files:
+            if str(file_data.get("id")) in file_ids:
+                file_id_to_cc_pair[str(file_data["id"])] = file_data.get("cc_pair_id")
+                logger.info(f"[SmartDrive] IndexingProgress: file_id={file_data['id']} -> cc_pair_id={file_data.get('cc_pair_id')}")
+
+        # Get IndexAttempt data for each cc_pair
+        progress_data = {}
+        for path, file_id in path_to_file_id.items():
+            cc_pair_id = file_id_to_cc_pair.get(file_id)
+            if not cc_pair_id:
+                logger.warning(f"[SmartDrive] IndexingProgress: no cc_pair_id for file_id={file_id}")
+                progress_data[path] = None
+                continue
+            
+            try:
+                # Query IndexAttempt for this cc_pair
+                index_attempt_url = f"{ONYX_API_SERVER_URL}/connector/index-attempt"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.get(
+                        index_attempt_url,
+                        params={"cc_pair_id": cc_pair_id},
+                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+                    )
+                
+                if resp.is_success:
+                    index_attempts = resp.json()
+                    if index_attempts and len(index_attempts) > 0:
+                        # Get the latest attempt
+                        latest_attempt = index_attempts[0]
+                        progress_data[path] = {
+                            "status": latest_attempt.get("status"),
+                            "time_started": latest_attempt.get("time_started"),
+                            "time_updated": latest_attempt.get("time_updated"),
+                            "total_docs_indexed": latest_attempt.get("total_docs_indexed", 0),
+                            "estimated_tokens": path_to_tokens.get(path, 0),
+                            "is_complete": latest_attempt.get("status") in ["success", "failed", "canceled"]
+                        }
+                        logger.info(f"[SmartDrive] IndexingProgress: path='{path}' status={latest_attempt.get('status')}")
+                    else:
+                        progress_data[path] = {
+                            "status": "not_started",
+                            "time_started": None,
+                            "time_updated": None,
+                            "total_docs_indexed": 0,
+                            "estimated_tokens": path_to_tokens.get(path, 0),
+                            "is_complete": False
+                        }
+                else:
+                    logger.warning(f"[SmartDrive] IndexingProgress: failed to get IndexAttempt for cc_pair_id={cc_pair_id}")
+                    progress_data[path] = None
+                    
+            except Exception as e:
+                logger.error(f"[SmartDrive] IndexingProgress: error getting IndexAttempt for path='{path}': {e}")
+                progress_data[path] = None
+
+        # Fill in missing paths
+        for p in norm_paths:
+            if p not in progress_data:
+                progress_data[p] = None
+                logger.info(f"[SmartDrive] IndexingProgress: no data for path='{p}' -> None")
+        
+        logger.info(f"[SmartDrive] IndexingProgress: returning progress data for {len(progress_data)} paths")
+        return {"progress": progress_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] indexing-progress error: {e}", exc_info=True)
+        return {"progress": {p: None for p in paths}}
 
 
 @app.post("/api/custom/smartdrive/move")
