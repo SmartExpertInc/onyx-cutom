@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "./card";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
@@ -9,10 +10,11 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   gradientTo?: string;
   active?: boolean;
   onClick?: () => void;
+  pillLabel?: string;
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, svg, label, active = false, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, svg, label, active = false, gradientTo, onClick, pillLabel, ...props }, ref) => {
     return (
       <Card
         ref={ref}
@@ -23,13 +25,22 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           className
         )}
         style={{
-          backgroundColor: active ? '#F2F8FF' : '#E0E0E0',
+          backgroundColor: active ? '#F2F8FF' : '#FFFFFF',
           border: active ? '2px solid #0F58F9' : '1px solid #D3D3D3',
           boxShadow: 'none'
         }}
         onClick={onClick}
         {...props}
       >
+        {/* Badge positioned at top right */}
+        {pillLabel && (
+          <div className="absolute top-1.5 right-1.5 z-10">
+            <div className="inline-flex items-center px-2 py-0.5 text-xs font-normal rounded-md gap-1 bg-blue-600 text-white">
+              <Sparkles size={8} />
+              {pillLabel}
+            </div>
+          </div>
+        )}
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {svg ? (
               <div className="flex items-center justify-center">
@@ -62,7 +73,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-base xs:text-lg sm:text-lg md:text-lg lg:text-xl leading-tight text-center px-1 font-semibold"
+              className="text-sm xs:text-base sm:text-base md:text-base lg:text-lg leading-tight text-center px-1 font-semibold"
               style={{
                 color: active ? '#0D001B' : '#797979'
               }}
