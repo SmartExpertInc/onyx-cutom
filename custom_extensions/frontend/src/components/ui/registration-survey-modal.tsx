@@ -322,8 +322,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogPortal>
         <DialogOverlay className="bg-white" />
         <div className="fixed inset-0 z-50 pointer-events-none">
-          <BgTopLeft className="absolute top-0 max-w-[1000px] left-0 opacity-90" />
-          <BgBottomRight className="absolute bottom-0 max-w-[1000px] right-0 opacity-90" />
+          <BgTopLeft className="absolute top-0 max-w-[1000px] left-0 opacity-90 blur-sm" />
+          <BgBottomRight className="absolute bottom-0 max-w-[1000px] right-0 opacity-90 blur-sm" />
         </div>
       </DialogPortal>
       <DialogContent 
@@ -713,7 +713,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       (surveyStep === 3 && !surveyData.companySize) ||
                       (surveyStep === 4 && (!surveyData.industry || (surveyData.industry === 'other' && !surveyData.additionalInfo.trim())))
                     }
-                        className="w-full text-sm flex items-center justify-center px-6 py-4 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed public-sans-font"
+                        className="w-full text-sm flex items-center justify-center px-6 py-4 bg-blue-700 text-white rounded-md font-semibold hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed public-sans-font"
                   >
                     {t('survey.navigation.continue', 'Continue')}
                         <ChevronRight className="w-5 h-5 ml-2" />
