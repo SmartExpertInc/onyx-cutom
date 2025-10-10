@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogOverlay,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -302,10 +303,13 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogOverlay className="bg-white/80">
-        <BgTopLeft className="absolute top-0 left-0 opacity-90" />
-        <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
-      </DialogOverlay>
+      <DialogPortal>
+        <DialogOverlay className="bg-white/90" />
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <BgTopLeft className="absolute top-0 left-0 opacity-90" />
+          <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
+        </div>
+      </DialogPortal>
       <DialogContent 
         className="sm:max-w-[1280px] w-[90vw] rounded-4xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-2xl bg-transparent" 
         hideCloseIcon 
@@ -342,7 +346,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             {/* Language Selection */}
             <div className="mb-8">
               <h3 className="text-xl font-regular text-[var(--secondary-foreground)] mb-3 text-center public-sans-font">Select your preferred language</h3>
-              <div className="relative max-w-4xl mx-auto">
+              <div className="relative max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -364,7 +368,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       <ChevronDown className="w-4 h-4 text-gray-400" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-full text-sm public-sans-font">
+                  <DropdownMenuContent className="w-4xl text-sm public-sans-font">
                     <DropdownMenuItem onClick={() => setSelectedLanguage('en')} className="flex items-center">
                       <USFlag className="w-4 h-4 mr-2" />
                       English
@@ -408,7 +412,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           }`}>
             {/* Step 1: Main Category Selection */}
             {surveyStep === 1 && (
-                <div className="grid md:grid-cols-2 gap-15 max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-15 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                   {/* Personal Card */}
                   <div
                     onClick={() => setSelectedCategory('personal')}
@@ -472,7 +476,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {/* Step 2: Work Role */}
           {surveyStep === 2 && selectedCategory === 'work' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-16 gap-y-4 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                 {[
                   { value: 'marketer', label: t('survey.role.marketer', 'Marketer'), icon: <Marketer className="w-12 h-12" fill={surveyData.workRole === 'marketer' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'hr-ld', label: t('survey.role.hrLd', 'HR / L&D'), icon: <HrLnD className="w-6 h-6" fill={surveyData.workRole === 'hr-ld' ? '#0F58F9' : '#87ABFC'} /> },
@@ -511,7 +515,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               
               {/* Other role input field - appears when "Other" is selected */}
               {surveyData.workRole === 'other' && (
-                <div className="mt-6 max-w-4xl mx-auto">
+                <div className="mt-6 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                   <input
                     type="text"
                     placeholder="Describe your role"
@@ -527,7 +531,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 3: Company Size */}
               {surveyStep === 3 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-16 gap-y-4 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                     {[
                       { value: '1-10', label: '1–10', icon: 1 },
                       { value: '11-50', label: '11–50', icon: 2 },
@@ -562,7 +566,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 4: Industry */}
               {surveyStep === 4 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-16 gap-y-4 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                     {[
                       { value: 'video-production', label: t('survey.industry.videoProduction', 'Video Production'), icon: <Marketer fill={surveyData.industry === 'video-production' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'digital-marketing', label: t('survey.industry.digitalMarketing', 'Digital Marketing'), icon: <HrLnD fill={surveyData.industry === 'digital-marketing' ? '#0F58F9' : '#87ABFC'} /> },
@@ -597,13 +601,26 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Other industry input field - appears when "Other" is selected */}
+                  {surveyData.industry === 'other' && (
+                    <div className="mt-6 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
+                      <input
+                        type="text"
+                        placeholder="Describe your industry"
+                        value={surveyData.additionalInfo}
+                        onChange={(e) => setSurveyData(prev => ({ ...prev, additionalInfo: e.target.value }))}
+                        className="w-full p-6 text-xl border border-[var(--border-light)] rounded-lg bg-white text-[#434343] placeholder:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent public-sans-font"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Step 2: Personal Use */}
               {surveyStep === 2 && selectedCategory === 'personal' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-16 gap-y-4 max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                     {[
                       { value: 'personal-projects', label: t('survey.personalUse.personalProjects', 'Personal projects'), icon: <Other fill={surveyData.personalUse === 'personal-projects' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'learning-skills', label: t('survey.personalUse.learningSkills', 'Learning new skills'), icon: <Business fill={surveyData.personalUse === 'learning-skills' ? '#0F58F9' : '#87ABFC'} /> },
@@ -643,14 +660,14 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         
         {/* Navigation Buttons */}
         <div className="px-8 py-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 gap-14">
+          <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
+            <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}
               {surveyStep > 1 ? (
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex bg-transparent items-center justify-center px-6 py-3 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-300/20 transition-all duration-200 public-sans-font"
+                  className="flex bg-transparent items-center justify-center px-6 py-3 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-50/20 transition-all duration-200 public-sans-font"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
                   {t('survey.navigation.previous', 'Previous')}
@@ -664,9 +681,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 {surveyStep === 4 && selectedCategory === 'work' ? (
                   <Button
                     onClick={completeSurvey}
-                    disabled={!surveyData.industry}
+                    disabled={!surveyData.industry || (surveyData.industry === 'other' && !surveyData.additionalInfo.trim())}
                         className={`w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md font-semibold transition-all duration-200 shadow-lg hover:shadow-xl public-sans-font ${
-                      surveyData.industry 
+                      (surveyData.industry && !(surveyData.industry === 'other' && !surveyData.additionalInfo.trim()))
                             ? 'hover:bg-blue-700' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
@@ -695,7 +712,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       (surveyStep === 2 && selectedCategory === 'work' && (!surveyData.workRole || (surveyData.workRole === 'other' && !surveyData.additionalInfo.trim()))) ||
                       (surveyStep === 2 && selectedCategory === 'personal' && !surveyData.personalUse) ||
                       (surveyStep === 3 && !surveyData.companySize) ||
-                      (surveyStep === 4 && !surveyData.industry)
+                      (surveyStep === 4 && (!surveyData.industry || (surveyData.industry === 'other' && !surveyData.additionalInfo.trim())))
                     }
                         className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed public-sans-font"
                   >
