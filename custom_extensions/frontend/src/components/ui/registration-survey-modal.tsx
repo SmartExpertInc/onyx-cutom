@@ -115,7 +115,7 @@ const PersonalIcon: React.FC<{ className?: string, fill?: string, fill2?: string
   fill,
   fill2,
 }) => (
-  <svg className={className} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width={60} height={60} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M39.4512 33.9824H20.5498C20.5445 33.9824 20.5391 33.9824 20.5338 33.9824C17.8923 33.9584 15.4128 32.912 13.5521 31.0359C11.69 29.1585 10.6645 26.668 10.6645 24.0234V19.3359C10.6645 8.6741 19.3386 0 30.0005 0C40.6623 0 49.3364 8.6741 49.3364 19.3359V24.0234C49.3364 26.668 48.3109 29.1585 46.4487 31.0359C44.588 32.912 42.1085 33.9584 39.467 33.9824C39.4617 33.9824 39.4564 33.9824 39.4512 33.9824ZM49.0563 60H10.9446L7.17504 38.3879C6.98754 37.3126 7.81512 36.3281 8.90672 36.3281H51.0942C52.1858 36.3281 53.0134 37.3126 52.8259 38.3879L49.0563 60Z" fill={fill || "#EFB4FB"}/>
     <path d="M17.6953 27.539V18.164C17.6953 17.1933 18.4823 16.4062 19.4531 16.4062C22.2896 16.4062 24.8031 14.7046 25.8565 12.0709L26.0242 11.6517C26.2564 11.071 26.7799 10.6575 27.3987 10.5658C28.0174 10.4743 28.6382 10.7182 29.0289 11.2065C31.6724 14.5111 35.6156 16.4062 39.8474 16.4062H40.5469C41.5177 16.4062 42.3047 17.1933 42.3047 18.164V27.539C42.3047 30.979 40.8852 34.093 38.602 36.3281H21.398C19.1148 34.093 17.6953 30.979 17.6953 27.539ZM51.6323 45.2281L49.0559 60H54.3359C57.4641 60 60 57.464 60 54.336C60 52.5532 59.1606 50.8744 57.7344 49.8047L51.6323 45.2281ZM0 54.336C0 57.464 2.53594 60 5.66402 60H10.9441L8.36766 45.2281L2.26559 49.8047C0.839414 50.8744 0 52.5531 0 54.336ZM35.2734 48.2812C35.2734 47.3105 34.4864 46.5234 33.5156 46.5234H26.4844C25.5136 46.5234 24.7266 47.3105 24.7266 48.2812C24.7266 49.252 25.5136 50.039 26.4844 50.039H33.5156C34.4864 50.039 35.2734 49.252 35.2734 48.2812Z" fill={fill2 || "#F7E0FC"}/>
   </svg>
@@ -125,7 +125,7 @@ const WorklIcon: React.FC<{ className?: string, fill?: string }> = ({
   className,
   fill,
 }) => (
-  <svg className={className} viewBox="0 0 60 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width={60} height={50} viewBox="0 0 60 51" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M31.217 35.6365H28.783C28.596 35.6365 28.4176 35.5632 28.2845 35.4313L25.4448 32.5916C25.3128 32.4596 25.2395 32.28 25.2395 32.0943V26.8181C25.2395 26.4296 25.5535 26.1155 25.9421 26.1155H34.0579C34.4465 26.1155 34.7605 26.4296 34.7605 26.8181V32.0943C34.7605 32.28 34.6872 32.4596 34.5552 32.5916L31.7143 35.4313C31.5824 35.5632 31.404 35.6365 31.217 35.6365ZM55.6488 41.4271H4.35117C1.95259 41.4271 0 39.4757 0 37.0772V18.4652L23.7732 28.8733V32.0943C23.7732 32.6698 24.0017 33.2209 24.4086 33.6277L27.2483 36.4674C27.6552 36.8743 28.2075 37.1028 28.783 37.1028H31.217C31.7925 37.1028 32.3448 36.8743 32.7517 36.4674L35.5914 33.6277C35.9983 33.2209 36.2268 32.6686 36.2268 32.0943V28.8526L60 18.183V37.0772C59.9988 39.4757 58.0474 41.4271 55.6488 41.4271ZM23.7732 27.3386L0 16.9305V14.2265C0 11.8279 1.95259 9.8753 4.35117 9.8753H26.272V24.6493H25.9421C24.7446 24.6493 23.7732 25.6207 23.7732 26.8181V27.3386ZM33.728 24.6493V9.8753H55.6488C58.0474 9.8753 60 11.8279 60 14.2265V16.6422L36.2268 27.3118V26.8181C36.2268 25.6207 35.2554 24.6493 34.0579 24.6493H33.728ZM27.6784 9.8753H32.3216V24.6493H27.6784V9.8753ZM54.9132 50.182H5.08675C3.26613 50.182 1.78397 48.6998 1.78397 46.8792V42.8934H58.216V46.8792C58.216 48.6998 56.7339 50.182 54.9132 50.182ZM43.7463 47.2409H16.2537C15.8651 47.2409 15.5499 46.9269 15.5499 46.5383C15.5499 46.1497 15.8651 45.8345 16.2537 45.8345H43.7463C44.1349 45.8345 44.4489 46.1497 44.4489 46.5383C44.4489 46.9269 44.1349 47.2409 43.7463 47.2409ZM34.7739 8.40902V6.30859C34.5711 6.24993 34.2656 6.19617 34.0848 6.19617H25.914C25.7344 6.19617 25.4289 6.24993 25.2261 6.30859V8.40902H18.5997V5.9298C18.5997 2.72965 22.3192 0.817383 25.914 0.817383H34.0848C37.6808 0.817383 41.4003 2.72965 41.4003 5.9298V8.40902H34.7739Z" fill={fill || "#86ABFB"}/>
   </svg>
 );
@@ -296,27 +296,44 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   };
 
   return (
-    <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
-      setSurveyModalOpen(open);
-      if (open) resetSurvey();
-    }}>
+    <>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #ebebeb;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #d4d4d4;
+        }
+      `}</style>
+      <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
+        setSurveyModalOpen(open);
+        if (open) resetSurvey();
+      }}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
       <DialogPortal>
         <DialogOverlay className="bg-white/90" />
-        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-          <BgTopLeft className="absolute top-0 left-0 opacity-90 w-auto h-auto max-w-[50vw] max-h-[50vh]" />
-          <BgBottomRight className="absolute bottom-0 right-0 opacity-90 w-auto h-auto max-w-[50vw] max-h-[50vh]" />
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <BgTopLeft className="absolute top-0 left-0 opacity-90" />
+          <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-4xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-2xl bg-transparent" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-[90vw] min-w-[840px] max-w-[1300px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+          <div className="relative z-10 w-full max-w-[1280px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
           <div className="p-8 pb-6">
             {/* ContentBuilder Logo */}
@@ -332,7 +349,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
             
             {/* Progress Bar */}
-            <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto bg-white rounded-full h-2 mb-6">
+            <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto bg-white rounded-full shadow-sm h-2 mb-6">
               <div 
                 className={`bg-[#719AF5] h-2 transition-all duration-300 ${
                   (surveyStep / (selectedCategory === 'work' ? 4 : 2)) * 100 === 100 
@@ -544,7 +561,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       >
                         <div className="flex items-center gap-6">
                           <Other className="w-8 h-8 mr-3" fill={surveyData.companySize === option.value ? '#0F58F9' : '#87ABFC'} />
-                          <span className={`font-medium text-lg public-sans-font ${
+                          <span className={`font-medium text-2xl public-sans-font ${
                             surveyData.companySize === option.value ? 'text-blue-600' : 'text-[var(--secondary-foreground)]'
                           }`}>{option.label}</span>
                         </div>
@@ -581,7 +598,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                               {option.icon}
                             </span>
                           </div>
-                          <span className={`font-semibold text-lg public-sans-font ${
+                          <span className={`font-semibold text-2xl public-sans-font ${
                             surveyData.industry === option.value ? 'text-blue-600' : 'text-[var(--secondary-foreground)]'
                           }`}>{option.label}</span>
                         </div>
@@ -629,7 +646,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                               {option.icon}
                             </span>
                           </div>
-                          <span className={`font-semibold text-lg public-sans-font ${
+                          <span className={`font-semibold text-2xl public-sans-font ${
                             surveyData.personalUse === option.value ? 'text-blue-600' : 'text-[var(--secondary-foreground)]'
                           }`}>{option.label}</span>
                         </div>
@@ -710,6 +727,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
