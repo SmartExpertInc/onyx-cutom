@@ -1012,6 +1012,8 @@ export interface HighPerformingTeamsSlideProps extends BaseTemplateProps {
   points: Array<{ x: number; y: number }>;
   avatarPath?: string;
   avatarAlt?: string;
+  logoNew?: string;
+  pageNumber?: string;
 }
 
 // Pixel-perfect: Impact Value (yellow) – three metrics with images and captions
@@ -1076,7 +1078,10 @@ export interface TableOfContentsSlideProps extends BaseTemplateProps {
   }>;
   profileImagePath?: string;
   profileImageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
   companyLogoPath?: string;
+  pageNumber?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -1131,6 +1136,7 @@ export interface ResourcesListSlideProps extends BaseTemplateProps {
   barColor?: string;
   titleColor?: string;
   contentColor?: string;
+  pageNumber?: string;
 }
 
 export interface CourseRulesTimelineSlideProps extends BaseTemplateProps {

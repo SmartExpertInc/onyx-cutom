@@ -22,6 +22,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  logoPath = '',
+  logoAlt = 'Your Logo',
   backgroundColor,
   titleColor,
   contentColor,
@@ -29,15 +31,17 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  pageNumber = '30'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingButtons, setEditingButtons] = useState<{ index: number } | null>(null);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [showLogoUpload, setShowLogoUpload] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentButtons, setCurrentButtons] = useState(buttons);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -46,7 +50,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#FAF9F4', // Light off-white background as per screenshot
+    backgroundColor: '#FFFFFF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -74,25 +78,79 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ profileImagePath: newImagePath });
     }
   };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
+      onUpdate({ pageNumber: newPageNumber });
     }
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
   };
 
   return (
     <div className="table-of-contents-slide-template inter-theme" style={slideStyles}>
+      <style>{`
+        .table-of-contents-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .table-of-contents-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
+      {/* Logo */}
+      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
+        {logoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={logoPath}
+            onImageUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+            size="SMALL"
+            position="CENTER"
+            description="Your Logo"
+            isEditable={isEditable}
+            style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setShowLogoUpload(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
       {/* Title */}
       <div style={{
         position: 'absolute',
-        top: '60px',
+        top: '160px',
         left: '60px',
-        fontSize: '48px',
+        fontSize: '58px',
         fontWeight: 'bold',
         color: '#1C1B1A', // Black text as per screenshot
         lineHeight: '1.1',
@@ -102,9 +160,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
-            className="toc-title-editor"
+            className="toc-title-editor title-element"
             style={{
-              fontSize: '48px',
+              fontSize: '58px',
               fontWeight: 'bold',
               color: '#1C1B1A',
               lineHeight: '1.1',
@@ -114,6 +172,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           />
         ) : (
           <div
+            className="title-element"
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
@@ -130,23 +189,20 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         position: 'absolute',
         top: '270px',
         left: '60px',
-        width: '430px',
+        width: '530px',
         display: 'grid',
-        gridTemplateColumns: '215px 215px',
-        gridTemplateRows: 'repeat(3, 70px)',
-        gap: '40px',
+        gridTemplateColumns: '250px 250px',
+        gap: '30px',
       }}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
-            backgroundColor: '#6CDC77', // Vibrant green color as per screenshot
-            borderRadius: '15px',
-            border: '1px solid gray',
-            padding: '20px',
+            backgroundColor: '#0F58F9', // Blue
+            borderRadius: '4px',
+            padding: '15px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: isEditable ? 'pointer' : 'default',
-            minHeight: '60px',
           }}>
             {isEditable && editingButtons?.index === index ? (
               <ImprovedInlineEditor
@@ -155,9 +211,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 onCancel={() => setEditingButtons(null)}
                 className="toc-button-editor"
                 style={{
-                  fontSize: '17px',
+                  fontSize: '25px',
                   fontWeight: '500',
-                  color: '#245D27',
+                  color: '#FFFFFF',
                   width: '100%',
                   height: 'auto',
                   textAlign: 'center',
@@ -167,9 +223,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
               <div
                 onClick={() => isEditable && setEditingButtons({ index })}
                 style={{
-                  fontSize: '17px',
+                  fontSize: '25px',
                   fontWeight: '500',
-                  color: '#245D27', // White text as per screenshot
+                  color: '#FFFFFF', // White text as per screenshot
                   textAlign: 'center',
                   userSelect: 'none'
                 }}
@@ -181,35 +237,26 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         ))}
       </div>
 
-      {/* Profile Image */}
+      {/* Profile Image Container */}
       <div style={{
         position: 'absolute',
-        top: '120px',
+        top: '90px',
         right: '60px',
-        width: '545px',
-        height: '440px',
+        width: '445px',
+        height: '500px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
+        overflow: 'hidden',
+        borderRadius: '8px',
       }}>
-        {/* Blue Background Rectangle */}
-        <div style={{
-          position: 'absolute',
-          bottom: '0',
-          left: '0',
-          right: '0',
-          height: '290px',
-          backgroundColor: '#A7B3DD', // Light blue background as per screenshot
-          borderRadius: '12px',
-          border: '1px solid #000000',
-          zIndex: 1,
-        }} />
-        
         {/* Profile Image! */}
         <div style={{
           position: 'absolute',
-          bottom: '-24px',
+          bottom: '-25px',
           zIndex: 2,
+          height: '100%',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -218,24 +265,67 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
+            fit="contain"
             style={{
-              width: '536px',
-              height: '551px',
-              objectFit: 'cover',
+              height: '100%',
             }}
           />
         </div>
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: 'rgba(9, 9, 11, 0.6)',
+              fontSize: '19px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: 'rgba(9, 9, 11, 0.6)',
+              fontSize: '19px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {showLogoUpload && (
         <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
+          isOpen={showLogoUpload}
+          onClose={() => setShowLogoUpload(false)}
+          onImageUploaded={(p: string) => { onUpdate && onUpdate({ logoPath: p }); setShowLogoUpload(false); }}
           title="Upload Company Logo"
         />
       )}

@@ -250,7 +250,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               fontWeight: 'bold',
               color: '#09090B',
               lineHeight: '1.1',
-              width: '100%',
+              width: '900px',
+              maxWidth: '900px',
               height: 'auto',
               fontFamily: "'Lora', serif",
             }}
@@ -292,7 +293,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               fontSize: '16px',
               color: 'rgba(9, 9, 11, 0.7)',
               lineHeight: '1.4',
-              width: '100%',
+              width: '480px',
+              maxWidth: '480px',
               height: 'auto',
             }}
           />
@@ -346,7 +348,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   onCancel={() => setEditingStatistics(null)}
                   className="statistic-value-editor title-element"
                   style={{
-                    fontSize: '32px',
+                    fontSize: '28px',
                     fontWeight: 'semibold',
                     color: '#09090B',
                     width: '100%',
@@ -457,7 +459,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             <div key={index} style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '8px',
+              gap: '15px',
             }}>
               <div style={{
                 width: '6px',

@@ -1913,8 +1913,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Here are some impact value statements backed by numbers:',
       statements: [
-        { number: '50%', description: 'decrease in turnover rates.' },
-        { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+        { number: '50%', description: 'decrease in turnover\nrates.' },
+        { number: '$2.8B', description: 'the cost of harassment\nto businesses in the United States annually.' },
         { number: '40%', description: 'increase in employee morale and engagement' }
       ],
       profileImagePath: '',
@@ -2226,7 +2226,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🧠',
     component: SoftSkillsTypesSlideTemplate,
     defaultProps: {
-      title: 'Types of\nSoft Skills',
+      title: 'Types of Soft Skills',
       cards: [
         { label: 'Time management' },
         { label: 'Team work' },
@@ -2375,7 +2375,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: HighPerformingTeamsSlideTemplate,
     defaultProps: {
       title: 'The Power of High-\nPerforming Teams',
-      description: 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
+      description: 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',
       panelColor: '#E9B84C',
       lineColor: '#5A4DF6',
       points: [
@@ -2545,24 +2545,27 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   }
   ,
 
-  // New: Key skills list with numbered items and right image panel
+  // New: Key skills list with numbered items and avatar on left
   'key-skills-data-analysis': {
     id: 'key-skills-data-analysis',
     name: 'Key Skills (Data Analysis)',
-    description: 'Large heading with numbered list on the left and rounded right image panel',
+    description: 'Blue gradient left panel with heading and avatar, numbered list on light right panel',
     category: 'content',
     icon: '🧠',
     component: KeySkillsDataAnalysisSlideTemplate,
     defaultProps: {
       heading: 'Key skills\nfor data analysis:',
       items: [ 'Sorting and filtering data.', 'Formulas and functions.', 'Pivot tables.', 'Data validation.', 'Charts and graphs.' ],
-      rightPanelColor: '#20472F'
+      avatarImagePath: '',
+      logoPath: '',
+      pageNumber: '36'
     },
     propSchema: {
       heading: { type: 'text', label: 'Heading', required: true },
       items: { type: 'array', label: 'Items', required: true },
-      rightPanelColor: { type: 'color', label: 'Right Panel' },
-      rightImagePath: { type: 'image', label: 'Right Image' }
+      avatarImagePath: { type: 'image', label: 'Avatar Image' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 }
     }
   }
   ,
@@ -2577,19 +2580,23 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: ChangeManagementTabsSlideTemplate,
     defaultProps: {
       topTabs: [
-        'CHANGE MANAGEMENT FUNDAMENTALS',
-        'THE NEED FOR CHANGE',
-        'BUILDING A CHANGE-READY CULTURE',
-        'EFFECTIVE COMMUNICATION AND ENGAGEMENT'
+        'Change management fundamentals',
+        'The need for change',
+        'Building a change-ready culture',
+        'Effective communication and engagement'
       ],
-      heading: 'Communication is the lifeblood of successful change initiatives.',
-      pills: ['ORGANIZATIONS', 'COMMUNICATION', 'STAKEHOLDERS']
+      heading: 'Communication is the lifeblood\nof successful change initiatives.',
+      pills: ['Organization', 'Communication', 'Stakeholders'],
+      pageNumber: '39',
+      logoNew: ''
     },
     propSchema: {
       topTabs: { type: 'array', label: 'Top Tabs', required: true },
       heading: { type: 'text', label: 'Heading', required: true },
       pills: { type: 'array', label: 'Pills', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      logoNew: { type: 'image', label: 'Logo' }
     }
   }
   ,
@@ -2603,14 +2610,21 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🎁',
     component: BenefitsAndPerksColumnsSlideTemplate,
     defaultProps: {
-      logoText: 'Logo',
-      heading: 'Benefits and Perks'
+      logoText: 'Your Logo',
+      heading: 'Our culture and values',
+      columns: [
+        { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
+        { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
+        { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
+        { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
+      ]
     },
     propSchema: {
       logoText: { type: 'text', label: 'Logo' },
       heading: { type: 'text', label: 'Heading', required: true },
       columns: { type: 'array', label: 'Columns', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' }
     }
   }
   ,
@@ -2841,12 +2855,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         'How to develop a growth mindset',
         'Learning from errors'
       ],
-      avatarPath: ''
+      avatarPath: '',
+      logoNew: '',
+      pageNumber: '32'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       topics: { type: 'array', label: 'Topics', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoNew: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
     }
   },
 

@@ -124,6 +124,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .solution-steps-slide-template .step-title {
+          font-weight: 600 !important;
+        }
       `}</style>
       {/* Subtitle chip (previous title) */}
       <div style={{
@@ -188,14 +191,14 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         top: '120px',
         left: '60px',
         right: '60px',
-        fontSize: '58px',
+        fontSize: '56px',
         color: '#09090B',
         lineHeight: '1.1',
         minHeight: '75px',
         maxHeight: '75px',
         display: 'flex',
         alignItems: 'center',
-        overflow: 'hidden',
+        // overflow: 'hidden',
         fontFamily: "'Lora', serif"
       }}>
         {isEditable && editingTitle ? (
@@ -205,7 +208,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onCancel={() => setEditingTitle(false)}
             className="solution-main-title-editor title-element"
             style={{
-              fontSize: '58px',
+              fontSize: '56px',
               color: '#09090B',
               lineHeight: '1.1',
               width: '100%',
@@ -229,7 +232,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               fontSize: '56px',
               color: '#09090B',
               lineHeight: '1.1',
-              overflow: 'hidden',
+              // overflow: 'hidden',
               fontFamily: "'Lora', serif"
             }}
           >
@@ -272,7 +275,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Timeline and Steps */}
       <div style={{
         position: 'absolute',
-        top: '57%',
+        top: '405px',
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: '100%',
@@ -322,9 +325,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               width: '220px',
             }}>
               {/* Step Title */}
-              <div style={{
+              <div className="step-title" style={{
                 fontSize: '28px',
-                fontWeight: 'semibold',
+                fontWeight: 600,
                 color: '#09090B',
                 marginBottom: '15px',
               }}>
@@ -333,10 +336,10 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     initialValue={step.title}
                     onSave={(value) => handleStepSave(index, 'title', value)}
                     onCancel={() => setEditingSteps(null)}
-                    className="step-title-editor"
+                    className="step-title-editor step-title"
                     style={{
                       fontSize: '28px',
-                      fontWeight: 'semibold',
+                      fontWeight: 600,
                       color: '#09090B',
                       width: '100%',
                       height: 'auto',
@@ -344,6 +347,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                   />
                 ) : (
                   <div
+                    className="step-title"
                     onClick={() => isEditable && setEditingSteps({ index, field: 'title' })}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -367,6 +371,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     initialValue={step.description}
                     onSave={(value) => handleStepSave(index, 'description', value)}
                     onCancel={() => setEditingSteps(null)}
+                    multiline={true}
                     className="step-description-editor"
                     style={{
                       fontSize: '20px',
@@ -444,7 +449,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
+        bottom: '20px',
         left: '0px',
         display: 'flex',
         alignItems: 'center',
@@ -465,7 +470,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             className="page-number-editor"
             style={{
               color: '#09090B99',
-              fontSize: '17px',
+              fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
@@ -477,7 +482,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
               color: '#09090B99',
-              fontSize: '17px',
+              fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',

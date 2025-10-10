@@ -15,8 +15,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   slideId,
   title = 'Here are some impact value statements backed by numbers:',
   statements = [
-    { number: '50%', description: 'decrease in turnover rates.' },
-    { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+    { number: '50%', description: 'decrease in turnover\nrates.' },
+    { number: '$2.8B', description: 'the cost of harassment\nto businesses in the United States annually.' },
     { number: '40%', description: 'increase in employee morale and engagement' }
   ],
   profileImagePath = '',
@@ -50,11 +50,14 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     display: 'flex',
+    gap: '70px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
-    paddingBottom: '35px',
+    paddingTop: '40px',
+    paddingBottom: '65px',
+    paddingLeft: '50px',
+    paddingRight: '40px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -138,19 +141,19 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       `}</style>
       {/* Left section with title and profile image */}
       <div style={{
-        width: '75%',
+        width: '45%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        gap: '20px'
       }}>
         {/* Title */}
         <div style={{
-          maxWidth: '537px',
-          fontSize: '45px',
+          maxWidth: '490px',
+          fontSize: '46px',
           color: '#09090B',
           lineHeight: '1.2',
-          marginBottom: '40px',
+          flex: 1,
           minHeight: '50px',
           display: 'flex',
           alignItems: 'flex-start'
@@ -163,8 +166,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               multiline={true}
               className="impact-title-editor title-element"
               style={{
-                maxWidth: '480px',
-                fontSize: '48px',
+                maxWidth: '490px',
+                fontSize: '46px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 width: '100%',
@@ -183,7 +186,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '48px',
+                fontSize: '46px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 minHeight: '50px'
@@ -196,10 +199,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
         {/* Profile image in gradient container */}
         <div style={{
-          width: '440px',
-          height: '255px',
+          width: '490px',
+          height: '310px',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
-          borderRadius: '24px',
+          borderRadius: '8px',
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
@@ -212,12 +215,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
+            fit="contain"
             style={{
-              width: '43%',
-              height: '92%',
-              objectFit: 'cover',
+              width: '80%',
+              height: '110%',
               position: 'relative',
-              bottom: '-22px',
+              bottom: '-50px',
             }}
           />
         </div>
@@ -226,7 +229,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       {/* Logo in bottom-right corner */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
+        bottom: '20px',
         right: '30px'
       }}>
         {logoNew ? (
@@ -274,7 +277,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
+        bottom: '15px',
         left: '0px',
         display: 'flex',
         alignItems: 'center',
@@ -334,33 +337,37 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       {/* Right section with impact statements */}
       <div style={{
         display: 'flex',
-        gap: '31px',
-        width: '65%',
+        gap: '15px',
+        width: '55%',
         height: '100%'
       }}>
         {/* Левая колонка (два блока) */}
         <div style={{
-          flex: 1,
+          width: '50%',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: '30px'
+          gap: '15px'
         }}>
-          {currentStatements.slice(0, 2).map((statement, index) => (
+          {[currentStatements[0], currentStatements[2]].filter(Boolean).map((statement, idx) => {
+            const index = idx === 0 ? 0 : 2;
+            return (
             <div
               key={index}
               style={{
                 backgroundColor: '#FFFFFF',
-                borderRadius: '20px',
-                padding: '30px',
+                borderRadius: '8px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                minHeight: index === 1 ? '210.5px' : '325px'
+                boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
+                ...(idx === 1 ? { height: '310px' } : { flex: 1 })
               }}
             >
               {/* Number */}
               <div className="title-element" style={{
-                fontSize: '48px',
+                fontSize: '58px',
                 color: '#263644',
                 minHeight: '60px',
                 maxHeight: '60px',
@@ -375,7 +382,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '48px',
+                      fontSize: '58px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
@@ -394,7 +401,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       height: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      fontSize: '48px',
+                      fontSize: '58px',
                       color: themeBg,
                       minHeight: '60px',
                       maxHeight: '60px',
@@ -408,8 +415,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
               {/* Description */}
               <div style={{
-                fontSize: '14px',
-                color: '#336188',
+                fontSize: '18px',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
                 minHeight: '25px',
                 display: 'flex',
@@ -423,11 +430,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     multiline={true}
                     className="statement-description-editor"
                     style={{
-                      fontSize: '14px',
-                      color: '#336188',
+                      fontSize: '18px',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
-                      height: 'auto'
+                      height: 'auto',
+                      whiteSpace: 'pre-line'
                     }}
                   />
                 ) : (
@@ -436,10 +444,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '14px',
-                      color: '#336188',
+                      fontSize: '18px',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
-                      width: '100%'
+                      width: '100%',
+                      whiteSpace: 'pre-line'
                     }}
                   >
                     {statement.description}
@@ -447,40 +456,42 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
 
         {/* Правая колонка (один блок) */}
         <div style={{
-          flex: 1,
+          width: '50%',
+          height: '100%',
           display: 'flex',
           alignItems: 'stretch'
         }}>
-          {currentStatements[2] && (
+          {currentStatements[1] && (
             <div
               style={{
                 backgroundColor: '#FFFFFF',
-                borderRadius: '20px',
-                padding: '30px',
-                paddingTop: '22px',
+                borderRadius: '8px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                height: '566px'
+                boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
+                flex: 1
               }}
             >
               <div className="title-element" style={{
-                fontSize: '48px',
+                fontSize: '58px',
                 color: '#263644',
               }}>
-                {isEditable && editingNumbers === 2 ? (
+                {isEditable && editingNumbers === 1 ? (
                   <ImprovedInlineEditor
-                    initialValue={currentStatements[2].number}
-                    onSave={(value) => handleNumberSave(2, value)}
+                    initialValue={currentStatements[1].number}
+                    onSave={(value) => handleNumberSave(1, value)}
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '48px',
+                      fontSize: '58px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto'
@@ -489,35 +500,35 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 ) : (
                   <div
                     className="title-element"
-                    onClick={() => isEditable && setEditingNumbers(2)}
+                    onClick={() => isEditable && setEditingNumbers(1)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '48px',
+                      fontSize: '58px',
                       color: themeBg,
                       fontWeight: 'bold',
                       width: '100%'
                     }}
                   >
-                    {currentStatements[2].number}
+                    {currentStatements[1].number}
                   </div>
                 )}
               </div>
               <div style={{
-                fontSize: '14px',
-                color: themeBg,
+                fontSize: '18px',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4'
               }}>
-                {isEditable && editingStatements === 2 ? (
+                {isEditable && editingStatements === 1 ? (
                   <ImprovedInlineEditor
-                    initialValue={currentStatements[2].description}
-                    onSave={(value) => handleStatementSave(2, value)}
+                    initialValue={currentStatements[1].description}
+                    onSave={(value) => handleStatementSave(1, value)}
                     onCancel={handleStatementCancel}
                     multiline={true}
                     className="statement-description-editor"
                     style={{
-                      fontSize: '14px',
-                      color: '#336188',
+                      fontSize: '18px',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
@@ -525,17 +536,17 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   />
                 ) : (
                   <div
-                    onClick={() => isEditable && setEditingStatements(2)}
+                    onClick={() => isEditable && setEditingStatements(1)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '14px',
-                      color: '#336188',
+                      fontSize: '18px',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%'
                     }}
                   >
-                    {currentStatements[2].description}
+                    {currentStatements[1].description}
                   </div>
                 )}
               </div>
