@@ -189,6 +189,50 @@ const Other: React.FC<{ className?: string, fill?: string }> = ({
   </svg>
 );
 
+const BgTopLeft: React.FC<{ className?: string, fill?: string }> = ({
+  className,
+  fill,
+}) => (
+  <svg width="948" height="822" viewBox="0 0 948 822" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#filter0_f_330_2774)">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M720.123 -73.4956C794.877 43.3356 694.401 187.798 660.613 322.32C634.146 427.696 633.783 548.923 547.277 614.66C462.025 679.444 346.449 647.875 239.519 642.313C121.711 636.186 -17.3566 669.705 -95.3889 581.233C-174.415 491.634 -132.173 355.796 -117.796 237.194C-103.681 120.745 -99.2725 -4.01981 -14.6051 -85.2056C75.9143 -172.003 205.477 -195.021 330.87 -193.022C471.953 -190.774 644.074 -192.348 720.123 -73.4956Z" fill="url(#paint0_linear_330_2774)" fill-opacity="0.9"/>
+  </g>
+  <defs>
+  <filter id="filter0_f_330_2774" x="-341.993" y="-393.14" width="1289.14" height="1248.03" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+  <feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_330_2774"/>
+  </filter>
+  <linearGradient id="paint0_linear_330_2774" x1="707.918" y1="-90.5542" x2="-108.646" y2="565.019" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#90EDE5"/>
+  <stop offset="1" stop-color="#3817FF"/>
+  </linearGradient>
+  </defs>
+  </svg>
+);
+
+const BgBottomRight: React.FC<{ className?: string, fill?: string }> = ({
+  className,
+  fill,
+}) => (
+  <svg width="1152" height="822" viewBox="0 0 1152 822" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#filter0_f_330_2773)">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M681.474 58.4974C825.417 3.48079 1006.52 24.0342 1120.8 127.394C1229.96 226.127 1201.21 394.962 1215.44 541.453C1228.38 674.61 1273.26 816.197 1198.51 927.16C1122.01 1040.73 977.794 1083.51 841.473 1096.58C713.468 1108.84 593.57 1063.52 484.396 995.591C363.389 920.298 207.585 840.198 200.674 697.859C193.863 557.605 370.201 494.259 454.602 382.024C536.898 272.587 553.563 107.387 681.474 58.4974Z" fill="url(#paint0_linear_330_2773)" fill-opacity="0.9"/>
+  </g>
+  <defs>
+  <filter id="filter0_f_330_2773" x="0.481445" y="-171.202" width="1440.15" height="1469.78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+  <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+  <feGaussianBlur stdDeviation="100" result="effect1_foregroundBlur_330_2773"/>
+  </filter>
+  <linearGradient id="paint0_linear_330_2773" x1="632.364" y1="56.0494" x2="794.103" y2="1105.42" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#90EDE5"/>
+  <stop offset="1" stop-color="#D817FF"/>
+  </linearGradient>
+  </defs>
+  </svg>
+);
+
 const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   onComplete,
   children,
@@ -258,14 +302,17 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogOverlay className="bg-gradient-to-br from-[#3817FF] via-white to-[#D817FF]" />
+      <DialogOverlay className="bg-white/80">
+        <BgTopLeft className="absolute top-0 left-0 opacity-90" />
+        <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
+      </DialogOverlay>
       <DialogContent 
         className="sm:max-w-[1280px] w-[90vw] rounded-4xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-2xl bg-transparent" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-[90vw] min-w-[830px] max-w-[1280px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+          <div className="relative z-10 w-[90vw] min-w-[840px] max-w-[1280px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
           <div className="p-8 pb-6">
             {/* ContentBuilder Logo */}
@@ -281,7 +328,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
             
             {/* Progress Bar */}
-            <div className="w-4xl mx-auto bg-white rounded-full h-2 mb-6">
+            <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto bg-white rounded-full h-2 mb-6">
               <div 
                 className={`bg-[#719AF5] h-2 transition-all duration-300 ${
                   (surveyStep / (selectedCategory === 'work' ? 4 : 2)) * 100 === 100 
