@@ -5,11 +5,14 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export interface TopicsSlideProps extends BaseTemplateProps {
   title: string;
   topics: string[];
   avatarPath?: string;
+  logoNew?: string;
+  pageNumber?: string;
 }
 
 export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideTheme | string }> = ({
@@ -21,21 +24,26 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     'Learning from errors'
   ],
   avatarPath = '',
+  logoNew = '',
+  pageNumber = '32',
   isEditable = false,
   onUpdate,
   theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const [currentTitle, setCurrentTitle] = useState(title);
 
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#000000', 
-    color:'#FFFFFF', 
+    backgroundColor:'#E0E7FF', 
+    color:'#09090BCC', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
-    borderRadius:'20px',
     overflow:'hidden'
   };
 
@@ -46,18 +54,16 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     top:0,
     width:'45%',
     height:'100%',
-    background:'#2C6657',
+    background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
-    borderTopRightRadius:'50px',
-    borderBottomRightRadius:'50px',
   };
 //save1
   const avatarContainer: React.CSSProperties = {
-    width:'410px',
+    width:'470px',
     position:'absolute',
-    bottom:'-30px',
+    bottom:'-25px',
     borderRadius:'16px',
     overflow:'hidden',
   };
@@ -66,10 +72,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const rightSection: React.CSSProperties = {
     position:'absolute',
     right:0,
-    top:0,
+    top:'97px',
     width:'55%',
-    height:'100%',
-    background:'#000000',
+    background:'#E0E7FF',
     padding:'60px 80px',
     display:'flex',
     flexDirection:'column',
@@ -78,20 +83,22 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   // Topics header banner
   const topicsBanner: React.CSSProperties = {
-    background:'#F2E5B4',
-    width:'200px',
-    borderRadius:'27px',
-    marginBottom:'40px',
+    width:'fit-content',
+    borderRadius:'50px',
+    border: '1px solid #09090B',
+    marginBottom:'53px',
     display:'flex',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    padding: '12px 40px'
   };
 
   const topicsTitleStyle: React.CSSProperties = {
     fontSize:'42px',
     fontWeight:700,
-    color:'#443F33',
-    textAlign:'center'
+    color:'#09090BCC',
+    textAlign:'center',
+    display: 'inline-block'
   };
 
   // Topics list
@@ -108,18 +115,18 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 
   const bulletPoint: React.CSSProperties = {
-    width:'12px',
-    height:'12px',
-    borderRadius:'50%',
-    background:'#F5E6A3',
+    width:'7px',
+    height:'8px',
     flexShrink:0
   };
 
   const topicText: React.CSSProperties = {
-    fontSize:'16px',
+    fontSize:'24px',
     fontWeight:400,
-    color:'#C1C1C1',
-    lineHeight:1.4
+    color:'rgba(9, 9, 11, 0.8)',
+    lineHeight:1.4,
+    flex: 1,
+    width: '100%'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -131,9 +138,33 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     margin:0
   });
 
+  const handleLogoNewUploaded = (path: string) => {
+    onUpdate && onUpdate({ logoNew: path });
+    setShowLogoUploadModal(false);
+  };
+
+  const handlePageNumberSave = (value: string) => {
+    setCurrentPageNumber(value);
+    onUpdate && onUpdate({ pageNumber: value });
+    setEditingPageNumber(false);
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
+  };
+
   return (
-    <div style={slide}>
-      {/* Left section - Avatar with dark green background */}
+    <div className="topics-slide inter-theme" style={slide}>
+      <style>{`
+        .topics-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .topics-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 700 !important;
+        }
+      `}</style>
+      {/* Left section - Avatar with gradient blue background */}
       <div style={leftSection}>
         <div style={avatarContainer}>
           <ClickableImagePlaceholder
@@ -150,28 +181,45 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
       <div style={rightSection}>
         {/* Topics header banner */}
         <div style={topicsBanner}>
-          <div style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
-            {isEditable && editKey === 'title' ? (
-              <ImprovedInlineEditor 
-                initialValue={title} 
-                onSave={(value) => { 
-                  onUpdate && onUpdate({ title: value }); 
-                  setEditKey(null); 
-                }} 
-                onCancel={() => setEditKey(null)} 
-                style={inline(topicsTitleStyle)} 
-              />
-            ) : (
-              title
-            )}
-          </div>
+          {isEditable && editKey === 'title' ? (
+            <ImprovedInlineEditor 
+              initialValue={title} 
+              onChange={(value) => setCurrentTitle(value)}
+              onSave={(value) => { 
+                onUpdate && onUpdate({ title: value }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => { 
+                setEditKey(null);
+                setCurrentTitle(title);
+              }} 
+              className="title-element"
+              style={{
+                ...inline(topicsTitleStyle), 
+                display: 'inline-block',
+                width: `${Math.max(currentTitle.length * 0.55, 3)}em`,
+                maxWidth: '500px'
+              }}
+            />
+          ) : (
+            <div className="title-element" style={topicsTitleStyle} onClick={() => { 
+              if (isEditable) {
+                setCurrentTitle(title);
+                setEditKey('title');
+              }
+            }}>
+              {title}
+            </div>
+          )}
         </div>
 
         {/* Topics list */}
         <div style={topicsList}>
           {topics.map((topic, index) => (
             <div key={index} style={topicItem}>
-              <div style={bulletPoint} />
+              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+              </svg>
               <div 
                 style={topicText} 
                 onClick={() => isEditable && setEditKey(`topic-${index}`)}
@@ -186,6 +234,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
                       setEditKey(null); 
                     }} 
                     onCancel={() => setEditKey(null)} 
+                    multiline={true}
                     style={inline(topicText)} 
                   />
                 ) : (
@@ -196,6 +245,111 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
           ))}
         </div>
       </div>
+
+      {/* Logo in top-right corner */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Page number with line in bottom-right */}
+      <div style={{
+        position: 'absolute',
+        bottom: '17px',
+        right: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '18px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '18px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+      </div>
+
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(p: string) => { onUpdate && onUpdate({ logoNew: p }); setShowLogoUploadModal(false); }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

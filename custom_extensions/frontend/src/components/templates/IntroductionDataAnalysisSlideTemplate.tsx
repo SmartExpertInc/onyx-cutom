@@ -34,7 +34,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     color:'#FFFFFF', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative' 
@@ -44,10 +44,9 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   const avatarFrame: React.CSSProperties = {
     position:'absolute',
     left:'55px',
-    top:'50%',
-    transform:'translateY(-50%)',
+    top:'75px',
     width:'510px',
-    height:'515px',
+    height:'520px',
     background:'#FFFFFF',
     borderRadius:'10px',
     display:'flex',
@@ -87,7 +86,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     right:'55px',
     top:'280px',
     width:'478px',
-    height:'305px',
+    height:'315px',
     background:'#FFFFFF',
     borderRadius:'10px',
     display:'flex',
@@ -143,8 +142,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
       {/* Logo in top-left corner */}
       <div style={{
         position: 'absolute',
-        top: '30px',
-        left: '30px'
+        top: '20px',
+        left: '20px'
       }}>
         {logoNew ? (
           <ClickableImagePlaceholder

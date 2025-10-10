@@ -10,16 +10,18 @@ interface YourLogoProps {
   isEditable?: boolean;
   color?: string; // stroke/text color for the placeholder
   text?: string; // label text
+  fontSize?: string; // font size for the text
   style?: React.CSSProperties;
 }
 
-// Unified “Your Logo” UI used across slides
+// Unified "Your Logo" UI used across slides
 export const YourLogo: React.FC<YourLogoProps> = ({
   logoPath,
   onLogoUploaded,
   isEditable = false,
   color = '#888888',
   text = 'Your Logo',
+  fontSize = '14px',
   style = {}
 }) => {
   const [open, setOpen] = useState(false);
@@ -48,7 +50,11 @@ export const YourLogo: React.FC<YourLogoProps> = ({
           <div style={{ width: '12px', height: '2px', backgroundColor: color, position: 'absolute' }} />
           <div style={{ width: '2px', height: '12px', backgroundColor: color, position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
         </div>
+<<<<<<< HEAD
         <span style={{ fontSize: '15px', fontWeight: 500, fontFamily: 'Inter, sans-serif', color }}>{text}</span>
+=======
+        <span style={{ fontSize, fontWeight: 400, color }}>{text}</span>
+>>>>>>> origin/slides-ai-fix-valeria
       </div>
 
       <PresentationImageUpload
