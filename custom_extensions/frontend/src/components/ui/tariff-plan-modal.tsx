@@ -312,7 +312,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden p-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -337,13 +337,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <span className="text-md font-medium text-blue-600">ContentBuilder</span>
                   </div>
                 </div>
-                <h1 className="text-2xl font-bold text-[#434343] mb-5 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
-                <p className="text-blue-700 font-normal text-xs mb-2 public-sans-font"><span className="sora-font-bold">Save 15%</span> on yearly plan!</p>
+                <h1 className="text-2xl font-bold text-[#434343] mb-5 font-sora">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
+                <p className="text-blue-700 font-normal text-xs mb-2 font-public-sans"><span className="font-sora font-bold">Save 15%</span> on yearly plan!</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-5 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-semibold transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -353,7 +353,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-5 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-semibold transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -397,14 +397,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     
                     {/* Card Header */}
                     <div className="p-5 pt-6">
-                      <h3 className="text-xl font-bold text-[#0D001B] public-sans-font mb-1">{plan.name}</h3>
-                      <p className="text-sm text-[#0D001B] public-sans-font mb-4">Best for personal use</p>
+                      <h3 className="text-xl font-bold text-[#0D001B] font-public-sans mb-1">{plan.name}</h3>
+                      <p className="text-sm text-[#0D001B] font-public-sans mb-4">Best for personal use</p>
                       <div className="text-gray-900">
-                        <span className="text-3xl public-sans-font font-bold">
+                        <span className="text-3xl font-public-sans font-bold">
                           {getPrice(plan)}
                         </span>
                         {plan.price > 0 && (
-                          <span className="text-xs public-sans-font text-[#0D001B] font-normal">
+                          <span className="text-xs font-public-sans text-[#0D001B] font-normal">
                             / {billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.year', 'year')}
                           </span>
                         )}
@@ -415,7 +415,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className="px-4 pb-3 pt-3 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-2 rounded-sm public-sans-font font-semibold text-base transition-all duration-300 ${
+                        className={`w-full py-2 rounded-sm font-public-sans font-semibold text-base transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular
@@ -432,29 +432,29 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
-                      <h4 className="text-base font-semibold public-sans-font text-[#434343] pt-9 mb-4">
+                      <h4 className="text-base font-semibold font-public-sans text-[#434343] pt-9 mb-4">
                         {plan.id === 'starter' ? 'What you get:' : 
                          plan.id === 'pro' ? 'All free features, plus:' :
                          plan.id === 'business' ? 'All starter features, plus:' :
                          'All business features, plus:'}
                       </h4>
-                      <div className="space-y-4 mb-8 public-sans-font flex-grow">
+                      <div className="space-y-4 mb-8 font-public-sans flex-grow">
                         <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-blue-600 mr-3 font-medium flex-shrink-0" />
                           <span className="text-sm font-regular text-[#71717A]">
                             <span className="font-semibold">{t('tariffPlan.credits', 'Credits')}</span>: {plan.credits}
                           </span>
                         </div>
 
                         <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
                           <span className="text-sm font-regular text-[#71717A]">
                             <span className="font-semibold">{t('tariffPlan.storage', 'Storage')}</span>: {plan.storage}
                           </span>
                         </div>
 
                         <div className="flex items-center">
-                          <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
                           <span className="text-sm font-regular text-[#71717A]">
                              <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>: {plan.support}
                           </span>
@@ -462,7 +462,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                         {plan.connectors !== '-' && (
                           <div className="flex items-center">
-                            <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <Check className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
                             <span className="text-sm font-regular text-[#71717A]">
                               <span className="font-semibold">{t('tariffPlan.connectors', 'Connectors')}</span>: {plan.connectors}
                             </span>
@@ -471,7 +471,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                         {plan.collaboration !== '-' && (
                           <div className="flex items-center">
-                            <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <Check className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
                             <span className="text-sm font-regular text-[#71717A]">
                               <span className="font-semibold">{t('tariffPlan.collaboration', 'Collaboration')}</span>: {plan.collaboration}
                             </span>
