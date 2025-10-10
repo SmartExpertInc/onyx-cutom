@@ -58,7 +58,9 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
   const footerLogoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#9CA3AF', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
-  const pageNumberStyles: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
+  const pageNumberContainerStyles: React.CSSProperties = { position:'absolute', bottom:'30px', left:'0px', display:'flex', alignItems:'center', gap:'8px' };
+  const smallLineStyles: React.CSSProperties = { width:'20px', height:'1px', backgroundColor:'rgba(9, 9, 11, 0.6)' };
+  const pageNumberStyles: React.CSSProperties = { color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);
@@ -132,8 +134,11 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={pageNumberStyles}>
+      {/* Page number with line */}
+      <div style={pageNumberContainerStyles}>
+        {/* Small line */}
+        <div style={smallLineStyles} />
+        {/* Page number */}
         {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}
@@ -141,10 +146,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
             onCancel={handlePageNumberCancel}
             className="page-number-editor"
             style={{
-              color: '#09090B99',
-              fontSize: '17px',
-              fontWeight: '300',
-              fontFamily: currentTheme.fonts.contentFont,
+              ...pageNumberStyles,
               width: '30px',
               height: 'auto'
             }}
@@ -153,10 +155,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
           <div
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
-              color: '#09090B99',
-              fontSize: '17px',
-              fontWeight: '300',
-              fontFamily: currentTheme.fonts.contentFont,
+              ...pageNumberStyles,
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
