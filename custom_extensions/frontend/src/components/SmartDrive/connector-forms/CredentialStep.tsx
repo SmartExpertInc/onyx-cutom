@@ -359,102 +359,223 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'notion':
                       return (
                         <div>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.notion.title', 'Setting up the Notion Connector')}
+                          </Text>
                           <Text>
-                            <span className="font-semibold">
-                              {t('connectors.instructions.notion.title', 'Get a Notion Integration Token')}
-                            </span>
+                            To authorize Contentbuilder to connect to your Notion workspace, follow these steps:
                           </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.notion.step1', 'Open your Notion "My Integrations" and create a new integration.')}</>,
-                            <>{t('connectors.instructions.notion.step2', 'Name it (for example, "contentbuilder") and enable Read content capability.')}</>,
-                            <>{t('connectors.instructions.notion.step3', 'Copy the Integration Token that is shown after creation.')}</>,
-                            <>{t('connectors.instructions.notion.step4', 'In Notion, for each page or database to index: open the menu (•••) → "Add connections" → select your integration. Child pages/rows are included automatically.')}</>,
-                            <>{t('connectors.instructions.notion.step5', 'Paste the Integration Token into the field here and create the credential.')}</>,
+                            <><strong>Create a Notion Integration:</strong><br />
+                              • Visit the <a href="https://www.notion.com/my-integrations" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Notion integrations page</a><br />
+                              • Click the <strong>"+ New integration"</strong> button<br />
+                              • Name the integration (e.g., "ContentBuilder")<br />
+                              • Select <strong>"Read content"</strong> as the capability<br />
+                              • Click <strong>"Submit"</strong> to create the integration</>,
+                            <><strong>Obtain the Integration Token:</strong><br />
+                              • After creating the integration, copy the provided integration token (API key)<br />
+                              • This token will be used to authenticate with Notion's API</>,
+                            <><strong>Share Pages/Databases with the Integration:</strong><br />
+                              • Navigate to each page or database you want to index in your Notion workspace<br />
+                              • Click the <strong>"•••"</strong> menu in the top-right corner<br />
+                              • Select <strong>"Add connections"</strong><br />
+                              • Search for and select your newly created integration<br />
+                              • Child pages and database rows are included automatically</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter the integration token obtained earlier<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your authorized Notion content</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Indexing runs periodically. To limit content, remove the integration from specific pages or databases.</p>
-                            <p>Make sure to grant the integration access to all pages and databases you want to index.</p>
+                            <p><strong>Important:</strong> Indexing runs periodically. To limit content, remove the integration from specific pages or databases in Notion.</p>
+                            <p>Make sure to grant the integration access to all pages and databases you want to index before creating the credential.</p>
+                            <p>The integration only has read access and cannot modify your Notion content.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a 
-                              href="https://www.notion.com/my-integrations" 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              className="text-blue-600 hover:text-blue-800 underline"
-                            >
-                              {t('connectors.instructions.notion.link', 'Go to Notion My Integrations →')}
-                            </a>
-                          </Text>
                         </div>
                       );
 
                     case 'google_drive':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.google_drive.title', 'Get Google Drive Service Account')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.google_drive.title', 'Setting up the Google Drive Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Google Drive, you need to create a Google Cloud service account and configure it properly:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.google_drive.step1', 'Go to Google Cloud Console → IAM & Admin → Service Accounts.')}</>,
-                            <>{t('connectors.instructions.google_drive.step2', 'Create a new service account with a descriptive name.')}</>,
-                            <>{t('connectors.instructions.google_drive.step3', 'Generate and download a JSON key file for the service account.')}</>,
-                            <>{t('connectors.instructions.google_drive.step4', 'Upload the JSON file here and provide the primary admin email.')}</>,
+                            <><strong>Create a Google Cloud Project:</strong><br />
+                              • Go to the <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Cloud Console</a><br />
+                              • Create a new project or select an existing one<br />
+                              • Enable the Google Drive API for your project</>,
+                            <><strong>Create a Service Account:</strong><br />
+                              • Navigate to <strong>IAM & Admin → Service Accounts</strong><br />
+                              • Click <strong>"Create Service Account"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Add a description and click <strong>"Create and Continue"</strong></>,
+                            <><strong>Generate Service Account Key:</strong><br />
+                              • In the service account list, click on your newly created service account<br />
+                              • Go to the <strong>"Keys"</strong> tab<br />
+                              • Click <strong>"Add Key" → "Create new key"</strong><br />
+                              • Select <strong>"JSON"</strong> format and click <strong>"Create"</strong><br />
+                              • Download the JSON key file to your computer</>,
+                            <><strong>Configure Domain-Wide Delegation (Optional):</strong><br />
+                              • For organization-wide access, enable domain-wide delegation<br />
+                              • Note the service account's client ID for later use<br />
+                              • In Google Admin Console, add the client ID to the domain-wide delegation list</>,
+                            <><strong>Share Google Drive Files:</strong><br />
+                              • Share the specific Google Drive folders/files you want to index with the service account email<br />
+                              • The service account email can be found in the downloaded JSON file (client_email field)<br />
+                              • Grant <strong>"Viewer"</strong> permissions to the service account</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • Upload the downloaded JSON key file in the credential form<br />
+                              • Enter the primary admin email address (for domain-wide delegation)<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Ensure the service account has the necessary permissions to access the Google Drive files you want to index.</p>
-                            <p>The primary admin email must have access to all the files that should be indexed.</p>
+                            <p><strong>Important:</strong> The service account must have access to all Google Drive files you want to index. Share folders/files with the service account email address.</p>
+                            <p>For organization-wide access, domain-wide delegation must be configured in Google Admin Console.</p>
+                            <p>The service account only has read access and cannot modify your Google Drive content.</p>
+                            <p>Make sure the Google Drive API is enabled in your Google Cloud project.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.google_drive.link', 'Go to Google Cloud Service Accounts →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'slack':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.slack.title', 'Get a Slack Bot Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.slack.title', 'Setting up the Slack Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Slack workspace, you need to create a Slack app and configure it with the necessary permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.slack.step1', 'Create a new Slack app in your workspace.')}</>,
-                            <>{t('connectors.instructions.slack.step2', 'Add Bot Token Scopes: channels:read, channels:history, groups:read, groups:history, im:read, im:history, mpim:read, mpim:history, users:read.')}</>,
-                            <>{t('connectors.instructions.slack.step3', 'Install the app to your workspace and copy the Bot User OAuth Token.')}</>,
-                            <>{t('connectors.instructions.slack.step4', 'Paste the token here and create the credential.')}</>,
+                            <><strong>Create a Slack App:</strong><br />
+                              • Go to the <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Slack API Apps Dashboard</a><br />
+                              • Click <strong>"Create New App"</strong><br />
+                              • Choose <strong>"From scratch"</strong><br />
+                              • Enter an app name (e.g., "ContentBuilder") and select your workspace<br />
+                              • Click <strong>"Create App"</strong></>,
+                            <><strong>Configure Bot Token Scopes:</strong><br />
+                              • In your app settings, go to <strong>"OAuth & Permissions"</strong><br />
+                              • Scroll down to <strong>"Scopes"</strong> section<br />
+                              • Add the following Bot Token Scopes:<br />
+                              • <code>channels:read</code> - View basic information about public channels<br />
+                              • <code>channels:history</code> - View messages in public channels<br />
+                              • <code>groups:read</code> - View basic information about private channels<br />
+                              • <code>groups:history</code> - View messages in private channels<br />
+                              • <code>im:read</code> - View basic information about direct messages<br />
+                              • <code>im:history</code> - View messages in direct messages<br />
+                              • <code>mpim:read</code> - View basic information about group direct messages<br />
+                              • <code>mpim:history</code> - View messages in group direct messages<br />
+                              • <code>users:read</code> - View people in the workspace</>,
+                            <><strong>Install the App to Your Workspace:</strong><br />
+                              • Scroll up to <strong>"OAuth Tokens for Your Workspace"</strong><br />
+                              • Click <strong>"Install to Workspace"</strong><br />
+                              • Review the permissions and click <strong>"Allow"</strong><br />
+                              • Copy the <strong>"Bot User OAuth Token"</strong> (starts with xoxb-)</>,
+                            <><strong>Invite Bot to Channels:</strong><br />
+                              • In Slack, go to each channel you want to index<br />
+                              • Type <code>/invite @YourBotName</code> to add the bot to the channel<br />
+                              • For private channels, ask a channel administrator to invite the bot<br />
+                              • The bot needs to be in channels to access their message history</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the Bot User OAuth Token<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing messages from channels the bot has access to</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Make sure to invite the bot to all channels you want to index.</p>
-                            <p>The bot needs to be added to private channels manually by channel administrators.</p>
+                            <p><strong>Important:</strong> The bot must be invited to all channels you want to index. It cannot access channels it's not a member of.</p>
+                            <p>For private channels, a channel administrator must manually invite the bot.</p>
+                            <p>The bot only has read access and cannot send messages or modify your Slack content.</p>
+                            <p>Make sure all required scopes are added before installing the app to your workspace.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.slack.link', 'Go to Slack Apps Dashboard →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'github':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.github.title', 'Get a GitHub Personal Access Token')}</Text>
-                          <Steps items={[
-                            <>{t('connectors.instructions.github.step1', 'Go to GitHub Settings → Developer settings → Personal access tokens.')}</>,
-                            <>{t('connectors.instructions.github.step2', 'Generate a new token (classic) with "repo" scope for private repos or no scopes for public repos only.')}</>,
-                            <>{t('connectors.instructions.github.step3', 'Copy the generated token and paste it here.')}</>,
-                          ]} />
-                          <Text className="mt-2">
-                            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.github.link', 'Go to GitHub Personal Access Tokens →')}
-                            </a>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.github.title', 'Setting up the GitHub Connector')}
                           </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your GitHub repositories, you need to create a Personal Access Token with the appropriate permissions:
+                          </Text>
+                          <Steps items={[
+                            <><strong>Access GitHub Token Settings:</strong><br />
+                              • Go to <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">GitHub Personal Access Tokens</a><br />
+                              • Click <strong>"Generate new token"</strong><br />
+                              • Select <strong>"Generate new token (classic)"</strong></>,
+                            <><strong>Configure Token Permissions:</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Set expiration date (recommended: 90 days or custom)<br />
+                              • Select the following scopes based on your needs:<br />
+                              • <code>repo</code> - Full access to private repositories (for private repos)<br />
+                              • <code>public_repo</code> - Access to public repositories only<br />
+                              • <code>read:org</code> - Read org and team membership (if indexing organization repos)<br />
+                              • <code>read:user</code> - Read user profile data</>,
+                            <><strong>Generate and Copy Token:</strong><br />
+                              • Scroll down and click <strong>"Generate token"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again<br />
+                              • Store the token securely (it acts as your password)</>,
+                            <><strong>Configure Repository Access:</strong><br />
+                              • Ensure the repositories you want to index are accessible to your account<br />
+                              • For organization repositories, make sure you have read access<br />
+                              • Private repositories require the <code>repo</code> scope</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the Personal Access Token<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your accessible GitHub repositories</>,
+                          ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>For private repositories, you must select the <code>repo</code> scope. Public repositories only need <code>public_repo</code>.</p>
+                            <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
+                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                         </div>
                       );
                     case 'gitlab':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.gitlab.title', 'Get a GitLab Personal Access Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.gitlab.title', 'Setting up the GitLab Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your GitLab repositories, you need to create a Personal Access Token with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.gitlab.step1', 'Go to GitLab User Settings → Access Tokens.')}</>,
-                            <>{t('connectors.instructions.gitlab.step2', 'Create a personal access token with "read_api" and "read_repository" scopes.')}</>,
-                            <>{t('connectors.instructions.gitlab.step3', 'Copy the token and paste it here along with your GitLab URL.')}</>,
+                            <><strong>Access GitLab User Settings:</strong><br />
+                              • Go to <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">GitLab Personal Access Tokens</a><br />
+                              • Log in with your GitLab account credentials<br />
+                              • Navigate to <strong>User Settings → Access Tokens</strong></>,
+                            <><strong>Create a Personal Access Token:</strong><br />
+                              • Click <strong>"Add new token"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Set an expiration date (recommended: 90 days or custom)<br />
+                              • Select the following scopes:<br />
+                              • <code>read_api</code> - Read access to the API<br />
+                              • <code>read_repository</code> - Read access to repositories<br />
+                              • <code>read_user</code> - Read access to user information</>,
+                            <><strong>Generate and Copy Token:</strong><br />
+                              • Click <strong>"Create personal access token"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again<br />
+                              • Store the token securely (it acts as your password)</>,
+                            <><strong>Configure Repository Access:</strong><br />
+                              • Ensure the repositories you want to index are accessible to your account<br />
+                              • For private repositories, make sure you have read access<br />
+                              • For group repositories, ensure you're a member of the group</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the Personal Access Token<br />
+                              • Enter your GitLab instance URL (e.g., https://gitlab.com or your self-hosted instance)<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>For self-hosted GitLab instances, make sure the instance URL is accessible from the Contentbuilder server.</p>
+                            <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
+                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.gitlab.link', 'Go to GitLab Personal Access Tokens →')}
@@ -465,30 +586,83 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'confluence':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.confluence.title', 'Get Confluence API Token')}</Text>
-                          <Steps items={[
-                            <>{t('connectors.instructions.confluence.step1', 'Go to Atlassian Account Settings → Security → Create and manage API tokens.')}</>,
-                            <>{t('connectors.instructions.confluence.step2', 'Create a new API token with a descriptive label.')}</>,
-                            <>{t('connectors.instructions.confluence.step3', 'Copy the token and your Confluence username (not URL).')}</>,
-                            <>{t('connectors.instructions.confluence.step4', 'Enter your username and the API token here.')}</>,
-                          ]} />
-                          <Text className="mt-2">
-                            <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.confluence.link', 'Go to Atlassian API Tokens →')}
-                            </a>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.confluence.title', 'Setting up the Confluence Connector')}
                           </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Confluence instance, you need to create an Atlassian API token and configure the connection:
+                          </Text>
+                          <Steps items={[
+                            <><strong>Access Atlassian Account Settings:</strong><br />
+                              • Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Atlassian Account Settings</a><br />
+                              • Log in with your Atlassian account credentials<br />
+                              • Navigate to <strong>Security → API tokens</strong></>,
+                            <><strong>Create an API Token:</strong><br />
+                              • Click <strong>"Create API token"</strong><br />
+                              • Enter a descriptive label (e.g., "ContentBuilder")<br />
+                              • Click <strong>"Create"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again</>,
+                            <><strong>Gather Your Confluence Details:</strong><br />
+                              • Note your Confluence username (usually your email address)<br />
+                              • Identify your Confluence base URL (e.g., https://yourcompany.atlassian.net)<br />
+                              • Ensure you have access to the Confluence spaces you want to index</>,
+                            <><strong>Configure Confluence Permissions:</strong><br />
+                              • Make sure your user account has read access to the Confluence spaces you want to index<br />
+                              • For private spaces, ensure you're a member or have appropriate permissions<br />
+                              • The API token will inherit your user's permissions</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your Confluence username<br />
+                              • Paste the API token from Atlassian<br />
+                              • Enter your Confluence base URL<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
+                          ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Your Confluence username is usually your email address, not a display name.</p>
+                            <p>Make sure you have read access to all Confluence spaces you want to index before creating the credential.</p>
+                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                         </div>
                       );
                     case 'jira':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.jira.title', 'Get Jira API Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.jira.title', 'Setting up the Jira Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Jira instance, you need to create an Atlassian API token and configure the connection:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.jira.step1', 'Go to Atlassian Account Settings → Security → Create and manage API tokens.')}</>,
-                            <>{t('connectors.instructions.jira.step2', 'Create a new API token with a descriptive label.')}</>,
-                            <>{t('connectors.instructions.jira.step3', 'Copy the token and your Jira user email address.')}</>,
-                            <>{t('connectors.instructions.jira.step4', 'Enter your email and the API token here.')}</>,
+                            <><strong>Access Atlassian Account Settings:</strong><br />
+                              • Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Atlassian Account Settings</a><br />
+                              • Log in with your Atlassian account credentials<br />
+                              • Navigate to <strong>Security → API tokens</strong></>,
+                            <><strong>Create an API Token:</strong><br />
+                              • Click <strong>"Create API token"</strong><br />
+                              • Enter a descriptive label (e.g., "ContentBuilder")<br />
+                              • Click <strong>"Create"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again</>,
+                            <><strong>Gather Your Jira Details:</strong><br />
+                              • Note your Jira username (usually your email address)<br />
+                              • Identify your Jira base URL (e.g., https://yourcompany.atlassian.net)<br />
+                              • Ensure you have access to the Jira projects you want to index</>,
+                            <><strong>Configure Jira Permissions:</strong><br />
+                              • Make sure your user account has read access to the Jira projects you want to index<br />
+                              • For private projects, ensure you're a member or have appropriate permissions<br />
+                              • The API token will inherit your user's permissions</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your Jira username<br />
+                              • Paste the API token from Atlassian<br />
+                              • Enter your Jira base URL<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Your Jira username is usually your email address, not a display name.</p>
+                            <p>Make sure you have read access to all Jira projects you want to index before creating the credential.</p>
+                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.jira.link', 'Go to Atlassian API Tokens →')}
@@ -499,13 +673,46 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'zendesk':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.zendesk.title', 'Get Zendesk API Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.zendesk.title', 'Setting up the Zendesk Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Zendesk instance, you need to create an API token and configure the connection:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.zendesk.step1', 'Go to Zendesk Admin Center → Apps and integrations → APIs → Zendesk API.')}</>,
-                            <>{t('connectors.instructions.zendesk.step2', 'Enable Token Access and create a new API token.')}</>,
-                            <>{t('connectors.instructions.zendesk.step3', 'Copy the token, your email, and subdomain (e.g., "yourcompany" from yourcompany.zendesk.com).')}</>,
-                            <>{t('connectors.instructions.zendesk.step4', 'Enter the subdomain, email, and token here.')}</>,
+                            <><strong>Access Zendesk Admin Center:</strong><br />
+                              • Log in to your Zendesk account as an administrator<br />
+                              • Go to <strong>Admin Center → Apps and integrations → APIs → Zendesk API</strong><br />
+                              • Ensure you have admin permissions to create API tokens</>,
+                            <><strong>Enable Token Access:</strong><br />
+                              • In the Zendesk API settings, find <strong>"Token Access"</strong><br />
+                              • Toggle <strong>"Enable token access"</strong> to ON<br />
+                              • This allows API authentication using tokens instead of passwords</>,
+                            <><strong>Create an API Token:</strong><br />
+                              • Click <strong>"Add API token"</strong><br />
+                              • Enter a descriptive label (e.g., "ContentBuilder")<br />
+                              • Click <strong>"Create"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again</>,
+                            <><strong>Gather Your Zendesk Details:</strong><br />
+                              • Note your Zendesk subdomain (e.g., "yourcompany" from yourcompany.zendesk.com)<br />
+                              • Identify your Zendesk email address (the one you use to log in)<br />
+                              • Ensure you have access to the tickets and articles you want to index</>,
+                            <><strong>Configure Zendesk Permissions:</strong><br />
+                              • Make sure your user account has read access to the tickets and articles you want to index<br />
+                              • For private content, ensure you have appropriate permissions<br />
+                              • The API token will inherit your user's permissions</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your Zendesk subdomain<br />
+                              • Enter your Zendesk email address<br />
+                              • Paste the API token from Zendesk<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Your Zendesk subdomain is the part before ".zendesk.com" in your Zendesk URL.</p>
+                            <p>Make sure you have read access to all Zendesk content you want to index before creating the credential.</p>
+                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://support.zendesk.com/hc/en-us/articles/4408889192858" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.zendesk.link', 'Learn about Zendesk API Tokens →')}
@@ -516,12 +723,43 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'asana':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.asana.title', 'Get Asana Personal Access Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.asana.title', 'Setting up the Asana Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Asana workspace, you need to create a Personal Access Token with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.asana.step1', 'Go to Asana → My Profile Settings → Apps → Manage Developer Apps.')}</>,
-                            <>{t('connectors.instructions.asana.step2', 'Create a Personal Access Token with appropriate permissions.')}</>,
-                            <>{t('connectors.instructions.asana.step3', 'Copy the token and paste it here.')}</>,
+                            <><strong>Access Asana Developer Console:</strong><br />
+                              • Go to <a href="https://app.asana.com/0/developer-console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Asana Developer Console</a><br />
+                              • Log in with your Asana account credentials<br />
+                              • Navigate to <strong>My Profile Settings → Apps → Manage Developer Apps</strong></>,
+                            <><strong>Create a Personal Access Token:</strong><br />
+                              • Click <strong>"Create new token"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Select the following scopes based on your needs:<br />
+                              • <code>default</code> - Basic read access to your workspace<br />
+                              • <code>read:workspace</code> - Read access to workspace data<br />
+                              • <code>read:projects</code> - Read access to projects and tasks</>,
+                            <><strong>Generate and Copy Token:</strong><br />
+                              • Click <strong>"Create token"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again<br />
+                              • Store the token securely (it acts as your password)</>,
+                            <><strong>Configure Workspace Access:</strong><br />
+                              • Ensure the projects and tasks you want to index are accessible to your account<br />
+                              • For private projects, make sure you're a member or have appropriate permissions<br />
+                              • The token will inherit your user's permissions</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the Personal Access Token<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your accessible Asana content</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Make sure the token has the necessary scopes to access the Asana content you want to index.</p>
+                            <p>Tokens don't expire automatically, but you can revoke them at any time from the Developer Console.</p>
+                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://app.asana.com/0/developer-console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.asana.link', 'Go to Asana Developer Console →')}
@@ -532,12 +770,44 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'airtable':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.airtable.title', 'Get Airtable Access Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.airtable.title', 'Setting up the Airtable Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Airtable bases, you need to create a Personal Access Token with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.airtable.step1', 'Go to Airtable Account → Developer Hub → Personal access tokens.')}</>,
-                            <>{t('connectors.instructions.airtable.step2', 'Create a new token with read permissions for your bases.')}</>,
-                            <>{t('connectors.instructions.airtable.step3', 'Copy the token and paste it here.')}</>,
+                            <><strong>Access Airtable Developer Hub:</strong><br />
+                              • Go to <a href="https://airtable.com/create/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Airtable Personal Access Tokens</a><br />
+                              • Log in with your Airtable account credentials<br />
+                              • Navigate to <strong>Account → Developer Hub → Personal access tokens</strong></>,
+                            <><strong>Create a Personal Access Token:</strong><br />
+                              • Click <strong>"Create new token"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Set an expiration date (recommended: 90 days or custom)<br />
+                              • Select the following scopes:<br />
+                              • <code>data.records:read</code> - Read access to records<br />
+                              • <code>data.records:write</code> - Write access to records (if needed)<br />
+                              • <code>schema.bases:read</code> - Read access to base schemas</>,
+                            <><strong>Configure Base Access:</strong><br />
+                              • Select the specific bases you want to give access to<br />
+                              • For workspace access, select <strong>"All current and future bases in all current and future workspaces"</strong><br />
+                              • For specific bases, select individual bases from the list</>,
+                            <><strong>Generate and Copy Token:</strong><br />
+                              • Click <strong>"Create token"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again<br />
+                              • Store the token securely (it acts as your password)</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the Personal Access Token<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your accessible Airtable bases</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Make sure the token has access to all Airtable bases you want to index.</p>
+                            <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
+                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://airtable.com/create/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.airtable.link', 'Go to Airtable Personal Access Tokens →')}
@@ -548,13 +818,44 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'dropbox':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.dropbox.title', 'Get Dropbox Access Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.dropbox.title', 'Setting up the Dropbox Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Dropbox account, you need to create a Dropbox app and generate an access token:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.dropbox.step1', 'Go to Dropbox App Console and create a new app.')}</>,
-                            <>{t('connectors.instructions.dropbox.step2', 'Choose "Scoped access" and "Full Dropbox" access.')}</>,
-                            <>{t('connectors.instructions.dropbox.step3', 'Generate an access token and copy it.')}</>,
-                            <>{t('connectors.instructions.dropbox.step4', 'The form will show "Dropbox API Key" - paste your access token there.')}</>,
+                            <><strong>Access Dropbox App Console:</strong><br />
+                              • Go to <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Dropbox App Console</a><br />
+                              • Log in with your Dropbox account credentials<br />
+                              • Click <strong>"Create app"</strong> to start the app creation process</>,
+                            <><strong>Configure App Settings:</strong><br />
+                              • Choose <strong>"Scoped access"</strong> as the API type<br />
+                              • Select <strong>"Full Dropbox"</strong> for the access level<br />
+                              • Enter an app name (e.g., "ContentBuilder")<br />
+                              • Click <strong>"Create app"</strong> to proceed</>,
+                            <><strong>Configure App Permissions:</strong><br />
+                              • In the app settings, go to <strong>"Permissions"</strong> tab<br />
+                              • Enable the following permissions:<br />
+                              • <code>files.metadata.read</code> - Read file metadata<br />
+                              • <code>files.content.read</code> - Read file contents<br />
+                              • <code>sharing.read</code> - Read sharing information</>,
+                            <><strong>Generate Access Token:</strong><br />
+                              • Go to the <strong>"Settings"</strong> tab in your app<br />
+                              • Scroll down to <strong>"OAuth 2"</strong> section<br />
+                              • Click <strong>"Generate access token"</strong><br />
+                              • <strong>Important:</strong> Copy the token immediately - you won't be able to see it again</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the access token<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your Dropbox files</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Access tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Make sure the app has the necessary permissions to access the Dropbox files you want to index.</p>
+                            <p>Access tokens don't expire automatically, but you can revoke them at any time from the App Console.</p>
+                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.dropbox.link', 'Go to Dropbox App Console →')}
@@ -584,15 +885,44 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'r2':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.r2.title', 'Get Cloudflare R2 Credentials')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.r2.title', 'Setting up the Cloudflare R2 Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Cloudflare R2 storage, you need to create an API token with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.r2.step1', 'Go to Cloudflare Dashboard → R2 Object Storage.')}</>,
-                            <>{t('connectors.instructions.r2.step2', 'Click "Manage R2 API Tokens" in the right sidebar.')}</>,
-                            <>{t('connectors.instructions.r2.step3', 'Create a new API token with "Object Read" permissions for your bucket.')}</>,
-                            <>{t('connectors.instructions.r2.step4', 'Copy your Account ID from the R2 overview page.')}</>,
-                            <>{t('connectors.instructions.r2.step5', 'Copy the Access Key ID and Secret Access Key from the token creation.')}</>,
-                            <>{t('connectors.instructions.r2.step6', 'Enter all three values (Account ID, Access Key ID, Secret) here.')}</>,
+                            <><strong>Access Cloudflare Dashboard:</strong><br />
+                              • Go to <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Cloudflare Dashboard</a><br />
+                              • Log in with your Cloudflare account credentials<br />
+                              • Navigate to <strong>R2 Object Storage</strong> in the sidebar</>,
+                            <><strong>Create R2 Bucket (if needed):</strong><br />
+                              • Click <strong>"Create bucket"</strong> if you don't have one already<br />
+                              • Enter a bucket name (e.g., "contentbuilder-storage")<br />
+                              • Choose your preferred location<br />
+                              • Click <strong>"Create bucket"</strong> to proceed</>,
+                            <><strong>Generate API Token:</strong><br />
+                              • In the R2 section, click <strong>"Manage R2 API Tokens"</strong> in the right sidebar<br />
+                              • Click <strong>"Create API token"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Select <strong>"Object Read"</strong> permissions for your bucket</>,
+                            <><strong>Copy Required Credentials:</strong><br />
+                              • Copy your <strong>Account ID</strong> from the R2 overview page<br />
+                              • Copy the <strong>Access Key ID</strong> from the token creation<br />
+                              • Copy the <strong>Secret Access Key</strong> from the token creation<br />
+                              • <strong>Important:</strong> Store these credentials securely - you won't be able to see the secret key again</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your Account ID<br />
+                              • Enter the Access Key ID<br />
+                              • Enter the Secret Access Key<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> API credentials are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Make sure the API token has the necessary permissions to access the R2 bucket you want to index.</p>
+                            <p>You can create multiple API tokens with different permissions for different use cases.</p>
+                            <p>If you lose the secret key, you'll need to create a new API token - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.r2.link', 'Go to Cloudflare API Tokens →')}
@@ -603,15 +933,50 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'google_cloud_storage':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.gcs.title', 'Get Google Cloud Storage Credentials')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.gcs.title', 'Setting up the Google Cloud Storage Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Google Cloud Storage buckets, you need to create a service account with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.gcs.step1', 'Go to Google Cloud Console → IAM & Admin → Service Accounts.')}</>,
-                            <>{t('connectors.instructions.gcs.step2', 'Create a new service account with "Storage Object Viewer" role.')}</>,
-                            <>{t('connectors.instructions.gcs.step3', 'Generate and download a JSON key file for the service account.')}</>,
-                            <>{t('connectors.instructions.gcs.step4', 'Open the JSON file and copy the "client_email" and "private_key" values.')}</>,
-                            <>{t('connectors.instructions.gcs.step5', 'Use the client_email as Access Key ID and private_key as Secret Access Key.')}</>,
-                            <>{t('connectors.instructions.gcs.step6', 'Enter both values here to create the credential.')}</>,
+                            <><strong>Access Google Cloud Console:</strong><br />
+                              • Go to <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Cloud Console</a><br />
+                              • Log in with your Google Cloud account credentials<br />
+                              • Select your project or create a new one<br />
+                              • Navigate to <strong>IAM & Admin → Service Accounts</strong></>,
+                            <><strong>Create a Service Account:</strong><br />
+                              • Click <strong>"Create Service Account"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • Add a description (e.g., "Service account for ContentBuilder to access GCS")<br />
+                              • Click <strong>"Create and Continue"</strong></>,
+                            <><strong>Assign Storage Permissions:</strong><br />
+                              • In the <strong>"Grant this service account access to project"</strong> section<br />
+                              • Select the <strong>"Storage Object Viewer"</strong> role<br />
+                              • This role provides read access to Cloud Storage objects<br />
+                              • Click <strong>"Continue"</strong> and then <strong>"Done"</strong></>,
+                            <><strong>Generate Service Account Key:</strong><br />
+                              • In the service account list, click on your newly created service account<br />
+                              • Go to the <strong>"Keys"</strong> tab<br />
+                              • Click <strong>"Add Key" → "Create new key"</strong><br />
+                              • Select <strong>"JSON"</strong> format and click <strong>"Create"</strong><br />
+                              • Download the JSON key file to your computer</>,
+                            <><strong>Extract Credentials from JSON:</strong><br />
+                              • Open the downloaded JSON file in a text editor<br />
+                              • Copy the <strong>"client_email"</strong> value (this will be your Access Key ID)<br />
+                              • Copy the <strong>"private_key"</strong> value (this will be your Secret Access Key)<br />
+                              • Keep the JSON file secure - it contains sensitive information</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter the client_email as Access Key ID<br />
+                              • Enter the private_key as Secret Access Key<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Service account credentials are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Make sure the service account has the necessary permissions to access the GCS buckets you want to index.</p>
+                            <p>You can create multiple service accounts with different permissions for different use cases.</p>
+                            <p>If you lose the JSON key file, you'll need to generate a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.gcs.link', 'Go to Google Cloud Service Accounts →')}
@@ -861,18 +1226,52 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'salesforce':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.salesforce.title', 'Get Salesforce Credentials')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.salesforce.title', 'Setting up the Salesforce Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Salesforce org, you need to obtain your security token and configure the connection:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.salesforce.step1', 'Log into your Salesforce account as an admin.')}</>,
-                            <>{t('connectors.instructions.salesforce.step2', 'Go to Setup → My Personal Information → Reset My Security Token.')}</>,
-                            <>{t('connectors.instructions.salesforce.step3', 'Click "Reset Security Token" - a new token will be emailed to you.')}</>,
-                            <>{t('connectors.instructions.salesforce.step4', 'Copy the security token from the email.')}</>,
-                            <>{t('connectors.instructions.salesforce.step5', 'Determine if you\'re using a Sandbox environment (usually has "test" in the URL).')}</>,
-                            <>{t('connectors.instructions.salesforce.step6', 'Enter your username, password, security token, and check sandbox if applicable.')}</>,
+                            <><strong>Access Your Salesforce Account:</strong><br />
+                              • Log into your Salesforce account as an administrator<br />
+                              • Note whether you're using a production org or sandbox environment<br />
+                              • Sandbox URLs typically contain "test" or "sandbox" in the domain</>,
+                            <><strong>Reset Your Security Token:</strong><br />
+                              • Go to <strong>Setup</strong> (gear icon in top right)<br />
+                              • Navigate to <strong>My Personal Information → Reset My Security Token</strong><br />
+                              • Click <strong>"Reset Security Token"</strong><br />
+                              • A new security token will be sent to your registered email address</>,
+                            <><strong>Obtain Your Credentials:</strong><br />
+                              • Check your email for the security token (usually arrives within minutes)<br />
+                              • Copy the security token from the email<br />
+                              • Note your Salesforce username (usually your email address)<br />
+                              • Have your Salesforce password ready</>,
+                            <><strong>Determine Environment Type:</strong><br />
+                              • <strong>Production:</strong> Your main Salesforce org (e.g., mycompany.salesforce.com)<br />
+                              • <strong>Sandbox:</strong> Test environment (e.g., mycompany--test.salesforce.com)<br />
+                              • Check the URL in your browser to confirm the environment type</>,
+                            <><strong>Configure API Access (if needed):</strong><br />
+                              • Ensure your user profile has API access enabled<br />
+                              • Go to <strong>Setup → Users → Profiles → [Your Profile]</strong><br />
+                              • Under <strong>"System Permissions"</strong>, ensure <strong>"API Enabled"</strong> is checked</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your Salesforce username<br />
+                              • Enter your Salesforce password<br />
+                              • Paste the security token from your email<br />
+                              • Check the <strong>"Is Sandbox Environment"</strong> checkbox if using a sandbox<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p><strong>Important:</strong> Security tokens expire when you change your password. You'll need to reset the token after password changes.</p>
+                            <p>Make sure to use the correct environment type (production vs sandbox) as this affects which data Contentbuilder can access.</p>
+                            <p>Your user account must have API access enabled and appropriate permissions to read the Salesforce objects you want to index.</p>
+                            <p>Security tokens are case-sensitive and should be entered exactly as received in the email.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
+                            <strong>Learn more about Salesforce Security Tokens: </strong>
                             <a href="https://help.salesforce.com/s/articleView?id=sf.user_security_token.htm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.salesforce.link', 'Learn about Salesforce Security Tokens →')}
+                              Salesforce Security Token Help →
                             </a>
                           </Text>
                         </div>
@@ -1154,15 +1553,29 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     default:
                       return (
                         <div>
-                          <Text className="font-semibold">
-                            {t('connectors.instructions.default.title', 'How to obtain credentials')}
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.default.title', 'Setting up the Connector')}
                           </Text>
                           <Text>
-                            {t('connectors.instructions.default.text', "Use your source system's admin panel to generate an API key/token or app credentials with read access, then paste them here to create a credential in contentbuilder.")}
+                            {t('connectors.instructions.default.text', "To connect this service to Contentbuilder, you'll need to obtain the appropriate credentials from your source system's admin panel or developer settings.")}
                           </Text>
+                          <Steps items={[
+                            <><strong>Access Your Service's Admin Panel:</strong><br />
+                              • Log into your service's admin dashboard or developer console<br />
+                              • Look for API settings, integrations, or developer tools section</>,
+                            <><strong>Generate API Credentials:</strong><br />
+                              • Create a new API key, token, or app credential<br />
+                              • Ensure it has read access to the data you want to index<br />
+                              • Note any required permissions or scopes</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • Enter the credentials in the form below<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection<br />
+                              • Contentbuilder will start indexing your authorized content</>,
+                          ]} />
                           <ImportantNotes>
-                            <p>Make sure the credentials have the necessary permissions to read the data you want to index.</p>
-                            <p>Keep your credentials secure and never share them publicly.</p>
+                            <p><strong>Important:</strong> Make sure the credentials have the necessary permissions to read the data you want to index.</p>
+                            <p>Keep your credentials secure and never share them publicly - they act as passwords to your data.</p>
+                            <p>If you need help with a specific connector, check the official Contentbuilder documentation for detailed setup instructions.</p>
                           </ImportantNotes>
                         </div>
                       );
