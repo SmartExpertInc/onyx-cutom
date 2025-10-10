@@ -243,18 +243,17 @@ export default function CreateFromSpecificFilesPage() {
   );
 
   const handleCreateContent = async () => {
-    // DEBUG: Log current state
-    console.log('[CreateFromSpecificFiles DEBUG] handleCreateContent called with:', {
+    console.log('[CreateFromSpecificFiles] === START handleCreateContent ===');
+    console.log('[CreateFromSpecificFiles] Initial state:', {
       selectedConnectors,
       selectedFiles,
-      connectorsData: connectors.map(c => ({ id: c.id, name: c.name, source: c.source })),
-      hasConnectors: selectedConnectors.length > 0,
-      hasFiles: selectedFiles.length > 0
+      selectedProducts,
+      connectorsData: connectors.map(c => ({ id: c.id, name: c.name, source: c.source }))
     });
 
     // Require at least one selection (connectors OR files OR products)
     if (selectedConnectors.length === 0 && selectedFiles.length === 0 && selectedProducts.length === 0) {
-      console.log('[CreateFromSpecificFiles DEBUG] No selection - returning');
+      console.log('[CreateFromSpecificFiles] ERROR: No selection - returning');
       return;
     }
 
@@ -263,7 +262,7 @@ export default function CreateFromSpecificFilesPage() {
     const hasFiles = selectedFiles.length > 0;
     const hasProducts = selectedProducts.length > 0;
 
-    console.log('[CreateFromSpecificFiles DEBUG] Generation mode:', { hasConnectors, hasFiles });
+    console.log('[CreateFromSpecificFiles] Generation mode flags:', { hasConnectors, hasFiles, hasProducts });
 
     // Construct flexible context based on what's selected
     const combinedContext: any = {
@@ -273,70 +272,114 @@ export default function CreateFromSpecificFilesPage() {
     const searchParams = new URLSearchParams();
 
     // Ensure products have Onyx IDs and merge them into selectedFiles
-    let productIdsToFiles: string[] = [];
+    let productOnyxIds: string[] = [];
     if (hasProducts) {
+      console.log('[CreateFromSpecificFiles] Processing products:', selectedProducts);
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      
       for (const pid of selectedProducts) {
         const product = products.find((p: any) => p.id === pid);
+        console.log(`[CreateFromSpecificFiles] Product ${pid}:`, {
+          found: !!product,
+          name: product?.projectName || product?.microproduct_name,
+          existing_onyx_id: product?.product_json_onyx_id
+        });
+        
         let onyxId: string | undefined = product?.product_json_onyx_id;
+        
         if (!onyxId) {
+          console.log(`[CreateFromSpecificFiles] Product ${pid} missing Onyx ID, calling ensure-json...`);
           try {
-            const res = await fetch(`${CUSTOM_BACKEND_URL}/products/${pid}/ensure-json`, { method: 'POST', credentials: 'same-origin' });
+            const res = await fetch(`${CUSTOM_BACKEND_URL}/products/${pid}/ensure-json`, { 
+              method: 'POST', 
+              credentials: 'same-origin' 
+            });
+            console.log(`[CreateFromSpecificFiles] ensure-json response for ${pid}:`, res.status, res.statusText);
+            
             if (res.ok) {
               const data = await res.json();
               onyxId = data?.product_json_onyx_id;
+              console.log(`[CreateFromSpecificFiles] ensure-json returned Onyx ID for ${pid}:`, onyxId);
+            } else {
+              const errorText = await res.text();
+              console.error(`[CreateFromSpecificFiles] ensure-json failed for ${pid}:`, errorText);
             }
           } catch (e) {
-            console.warn('ensure-json failed', e);
+            console.error(`[CreateFromSpecificFiles] ensure-json exception for ${pid}:`, e);
           }
         }
-        if (onyxId) productIdsToFiles.push(encodeURIComponent(String(onyxId)));
+        
+        if (onyxId) {
+          productOnyxIds.push(String(onyxId));
+          console.log(`[CreateFromSpecificFiles] Added Onyx ID for product ${pid}:`, onyxId);
+        } else {
+          console.warn(`[CreateFromSpecificFiles] WARNING: No Onyx ID available for product ${pid}`);
+        }
       }
+      
+      console.log('[CreateFromSpecificFiles] Product Onyx IDs collected:', productOnyxIds);
     }
 
-    const mergedSelectedFiles = [...selectedFiles];
-    if (productIdsToFiles.length) mergedSelectedFiles.push(...productIdsToFiles);
+    // Merge SmartDrive files and product Onyx IDs
+    const mergedSelectedFiles = [...selectedFiles, ...productOnyxIds];
+    console.log('[CreateFromSpecificFiles] Merged selected files:', {
+      smartDriveFiles: selectedFiles,
+      productOnyxIds,
+      merged: mergedSelectedFiles
+    });
 
-    if (hasConnectors && (hasFiles || productIdsToFiles.length)) {
-      // Both connectors and files selected
-      console.log('[CreateFromSpecificFiles DEBUG] Processing both connectors and files');
+    // Build context and URL params based on selections
+    if (hasConnectors && mergedSelectedFiles.length > 0) {
+      // Both connectors and files/products selected
+      console.log('[CreateFromSpecificFiles] Mode: Connectors + Files/Products');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
       combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
       combinedContext.selectedFiles = mergedSelectedFiles;
+      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.map(f => encodeURIComponent(f)).join(','));
     } else if (hasConnectors) {
       // Only connectors selected
-      console.log('[CreateFromSpecificFiles DEBUG] Processing connectors only');
+      console.log('[CreateFromSpecificFiles] Mode: Connectors only');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
       combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
+      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-    } else if (hasFiles || productIdsToFiles.length) {
-      // Only files selected (from SmartDrive)
-      combinedContext.fromConnectors = true; // Keep consistent
+    } else if (mergedSelectedFiles.length > 0) {
+      // Only files/products selected (from SmartDrive or products)
+      console.log('[CreateFromSpecificFiles] Mode: Files/Products only');
+      combinedContext.fromConnectors = true; // Keep consistent with existing behavior
       combinedContext.selectedFiles = mergedSelectedFiles;
       combinedContext.connectorIds = [];
       combinedContext.connectorSources = [];
+      
       searchParams.set('fromConnectors', 'true');
-      searchParams.set('selectedFiles', mergedSelectedFiles.join(','));
+      searchParams.set('selectedFiles', mergedSelectedFiles.map(f => encodeURIComponent(f)).join(','));
+    } else {
+      console.error('[CreateFromSpecificFiles] ERROR: No valid selection after processing!');
+      return;
     }
 
     // Store in sessionStorage for the generate page
-    console.log('[CreateFromSpecificFiles DEBUG] Final combinedContext:', combinedContext);
-    console.log('[CreateFromSpecificFiles DEBUG] Final URL params:', searchParams.toString());
+    console.log('[CreateFromSpecificFiles] Final combinedContext:', JSON.stringify(combinedContext, null, 2));
+    console.log('[CreateFromSpecificFiles] Final URL params:', searchParams.toString());
 
     try {
       sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
-    } catch {}
+      console.log('[CreateFromSpecificFiles] Stored combinedContext in sessionStorage');
+    } catch (e) {
+      console.error('[CreateFromSpecificFiles] Failed to store in sessionStorage:', e);
+    }
 
     const finalUrl = `/custom-projects-ui/create/generate?${searchParams.toString()}`;
-    console.log('[CreateFromSpecificFiles DEBUG] Redirecting to:', finalUrl);
+    console.log('[CreateFromSpecificFiles] Redirecting to:', finalUrl);
+    console.log('[CreateFromSpecificFiles] === END handleCreateContent ===');
 
     try {
       await Promise.resolve(router.push(finalUrl));

@@ -15093,9 +15093,12 @@ async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.P
     """Ensure the product has a JSON uploaded to Onyx and return its document id.
     Uses the current user's Onyx session to perform the upload if needed.
     """
+    logger.info(f"[ensure_product_json] === START for product_id={project_id} ===")
     try:
         # Verify access and fetch product
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        logger.info(f"[ensure_product_json] User: uuid={user_uuid}, email={user_email}")
+        
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
                 """
@@ -15111,29 +15114,44 @@ async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.P
                 """,
                 project_id, user_uuid, user_email,
             )
+        
         if not row:
+            logger.warning(f"[ensure_product_json] Product {project_id} not found or access denied for user {user_uuid}")
             raise HTTPException(status_code=404, detail="Product not found or access denied")
 
+        logger.info(f"[ensure_product_json] Product found: id={row['id']}, name={row.get('project_name')}, existing_onyx_id={row.get('product_json_onyx_id')}")
+
         if row.get("product_json_onyx_id"):
+            logger.info(f"[ensure_product_json] Product {project_id} already has Onyx ID: {row['product_json_onyx_id']}")
             return {"product_json_onyx_id": row["product_json_onyx_id"]}
 
         # Build JSON bytes
         content = row.get("microproduct_content") or {}
+        logger.info(f"[ensure_product_json] Building JSON from content (keys: {list(content.keys()) if isinstance(content, dict) else 'not-dict'})")
         try:
             product_json = json.dumps(content, ensure_ascii=False).encode("utf-8")
-        except Exception as _e:
+            logger.info(f"[ensure_product_json] JSON size: {len(product_json)} bytes")
+        except Exception as e:
+            logger.error(f"[ensure_product_json] Failed to serialize content: {e}, using empty dict")
             product_json = json.dumps({}, ensure_ascii=False).encode("utf-8")
 
         # Upload directly to Onyx using current user's cookies
         session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
         if not session_cookie_value:
+            logger.error(f"[ensure_product_json] No session cookie found for product {project_id}")
             raise HTTPException(status_code=401, detail="Authentication required")
         cookies = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+        logger.info(f"[ensure_product_json] Session cookie present: {bool(session_cookie_value)}")
 
         file_name = f"product_{project_id}.json"
+        logger.info(f"[ensure_product_json] Uploading to Onyx: file_name={file_name}, url={ONYX_API_SERVER_URL}")
+        
         if upload_product_json_to_onyx is None:
+            logger.error(f"[ensure_product_json] Upload helper not available")
             raise HTTPException(status_code=500, detail="Upload helper not available")
+        
         onyx_id = await upload_product_json_to_onyx(ONYX_API_SERVER_URL, cookies, file_name, product_json)
+        logger.info(f"[ensure_product_json] Upload successful, received Onyx ID: {onyx_id}")
 
         # Persist
         async with pool.acquire() as conn:
@@ -15141,13 +15159,16 @@ async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.P
                 "UPDATE projects SET product_json_onyx_id=$1 WHERE id=$2",
                 onyx_id, project_id,
             )
+        logger.info(f"[ensure_product_json] Persisted Onyx ID {onyx_id} to product {project_id}")
 
+        logger.info(f"[ensure_product_json] === SUCCESS for product_id={project_id}, onyx_id={onyx_id} ===")
         return {"product_json_onyx_id": onyx_id}
-    except HTTPException:
+    except HTTPException as he:
+        logger.error(f"[ensure_product_json] HTTPException for product {project_id}: {he.status_code} - {he.detail}")
         raise
     except Exception as e:
-        logger.error(f"Failed to ensure product JSON for {project_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to ensure product JSON")
+        logger.error(f"[ensure_product_json] Unexpected error for product {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to ensure product JSON: {str(e)}")
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
