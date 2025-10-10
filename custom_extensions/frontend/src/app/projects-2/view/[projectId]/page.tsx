@@ -85,7 +85,7 @@ export default function Projects2ViewPage() {
       // This matches the golden reference implementation in SmartSlideDeckViewer
       const slideWithBackendCompat: any = {
         ...newSlide,
-        slideTitle: newSlide.props?.title || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
+        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
         slideNumber: componentBasedSlideDeck.slides.length + 1
       };
 
