@@ -69,6 +69,9 @@ from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
 
+# Product JSON indexing service (for products-as-context feature)
+from app.services.product_json_indexer import upload_product_json_to_onyx
+
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -15150,10 +15153,6 @@ async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.P
 
         file_name = f"product_{project_id}.json"
         logger.info(f"[ensure_product_json] Uploading to Onyx: file_name={file_name}, url={ONYX_API_SERVER_URL}")
-        
-        if upload_product_json_to_onyx is None:
-            logger.error(f"[ensure_product_json] Upload helper not available")
-            raise HTTPException(status_code=500, detail="Upload helper not available")
         
         onyx_id = await upload_product_json_to_onyx(ONYX_API_SERVER_URL, cookies, file_name, product_json)
         logger.info(f"[ensure_product_json] Upload successful, received Onyx ID: {onyx_id}")

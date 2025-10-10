@@ -164,11 +164,11 @@ To debug, check:
 
 ### Backend:
 - `custom_extensions/backend/main.py`
+  - Added import for upload helper (line ~73)
   - Added DB migration (lines ~6093-6096)
   - Added `product_json_onyx_id` to `ProjectApiResponse` model
   - Updated projects listing queries to include new column
   - Added `ensure_product_json` endpoint (lines ~15091-15171)
-  - Added import for upload helper
 
 ### Frontend:
 - `custom_extensions/frontend/src/app/create/from-files/specific/page.tsx`
