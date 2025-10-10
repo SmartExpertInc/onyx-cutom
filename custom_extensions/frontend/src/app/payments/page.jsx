@@ -221,7 +221,16 @@ export default function BillingPage() {
       price: 150,
       priceNote: 'per month',
       purchaseDate: '2025-09-01'
-    }
+    },
+    {
+      type: 'storage',
+      name: '5 GB Storage',
+      amount: '5 GB storage',
+      price: 150,
+      priceNote: 'per month',
+      purchaseDate: '2025-09-01'
+    },
+    
   ];
 
   const getIcon = (type) => {
