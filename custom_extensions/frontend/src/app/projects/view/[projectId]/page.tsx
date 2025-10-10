@@ -35,7 +35,6 @@ import workspaceService, {
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
-import HtmlPreviewButton from '@/components/HtmlPreviewButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
@@ -44,6 +43,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
+import HtmlPreviewButton from '@/components/HtmlPreviewButton';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -2045,33 +2045,34 @@ export default function ProjectInstanceViewPage() {
               </button>
             )}
 
-            {/* Debug HTML Preview Button - for Video Lesson Presentations */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION && (
-              <HtmlPreviewButton
-                projectName={projectInstanceData.name}
-                onError={(error) => {
-                  console.error('HTML preview error:', error);
-                  alert(`HTML preview failed: ${error}`);
-                }}
-                onSuccess={(message) => {
-                  console.log('HTML preview success:', message);
-                }}
-                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-              />
-            )}
-
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
               projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
-                <VideoDownloadButton
-                  projectName={projectInstanceData.name}
-                  onError={(error) => {
-                    console.error('Video generation error:', error);
-                    alert(`Video generation failed: ${error}`);
-                  }}
-                  onSuccess={(downloadUrl) => {
-                    console.log('Video generated successfully:', downloadUrl);
-                  }}
-                />
+                <div className="flex items-center gap-3">
+                  {/* HTML Preview Debug Button */}
+                  <HtmlPreviewButton
+                    projectName={projectInstanceData.name}
+                    onError={(error) => {
+                      console.error('HTML preview error:', error);
+                      alert(`HTML preview failed: ${error}`);
+                    }}
+                    onSuccess={(message) => {
+                      console.log('HTML preview success:', message);
+                    }}
+                    className=""
+                  />
+                  
+                  {/* Video Download Button */}
+                  <VideoDownloadButton
+                    projectName={projectInstanceData.name}
+                    onError={(error) => {
+                      console.error('Video generation error:', error);
+                      alert(`Video generation failed: ${error}`);
+                    }}
+                    onSuccess={(downloadUrl) => {
+                      console.log('Video generated successfully:', downloadUrl);
+                    }}
+                  />
+                </div>
               ) : (
                 <button
                   onClick={handlePdfDownload}
