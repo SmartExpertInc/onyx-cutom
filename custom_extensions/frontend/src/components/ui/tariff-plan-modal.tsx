@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogOverlay } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Plan {
@@ -312,7 +313,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden p-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -322,7 +323,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <X className="w-6 h-6 text-[#71717A]" />
         </button>
         
-        <div className="h-[90%] min-h-[700px]">
+        <ScrollArea className="h-[90vh] w-full">
+          <div className="h-[90%] min-h-[700px]">
           <div className="container mx-auto px-10 py-7">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
@@ -343,7 +345,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-normal transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -353,7 +355,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm font-public-sans font-normal transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -485,7 +487,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

@@ -14,6 +14,7 @@ import {
   DialogOverlay,
   DialogPortal,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -296,22 +297,6 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
   return (
     <>
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #ebebeb;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #d4d4d4;
-        }
-      `}</style>
       <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
         setSurveyModalOpen(open);
         if (open) resetSurvey();
@@ -327,14 +312,15 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
-          {/* Header with Logo and Progress */}
-          <div className="p-8 pb-4">
+          <ScrollArea className="w-full max-h-[90vh]">
+            <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+            {/* Header with Logo and Progress */}
+            <div className="p-8 pb-4">
             {/* ContentBuilder Logo */}
             <div className="flex items-center justify-center mb-6">
               <div className="flex items-center gap-1">
@@ -723,7 +709,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
           </div>
         </div>
-        </div>
+            </div>
+          </ScrollArea>
       </DialogContent>
     </Dialog>
     </>
