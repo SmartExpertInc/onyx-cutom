@@ -5,122 +5,10 @@ import { BenefitsTagsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import SimpleRichTextEditor from '../SimpleRichTextEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+type TagType = { text: string; isHighlighted?: boolean };
 
 export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   theme?: SlideTheme | string;
@@ -150,8 +38,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
+  const [currentPageNumber, setCurrentPageNumber] = useState('06');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
@@ -161,15 +53,24 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'end',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
+    padding: '40px 60px',
+  };
+
+  // Tags block styles
+  const tagsBlockStyles: React.CSSProperties = {
+    backgroundColor: '#E0E7FF', // Darker grey for tags block
+    borderRadius: '12px',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -213,36 +114,171 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     }
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, yourLogoText: newYourLogoText });
+    }
+  };
+
   return (
     <div className="benefits-tags-slide-template" style={slideStyles}>
-      {/* Top section with title and profile image */}
+      {/* Logo in top-left corner */}
       <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '60px'
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
       }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Tags Block - contains everything except logo */}
+      <div style={tagsBlockStyles}>
+        {/* Profile image with orange background */}
+        <div style={{
+          width: '165px',
+          height: '165px',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          position: 'absolute',
+          left: '50px',
+          top: '100px',
+          background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              height: '147%',
+              borderRadius: '50%',
+              objectFit: 'cover',
+            }}
+          />
+        </div>
+
         {/* Title */}
         <div style={{
           fontSize: '48px',
-          fontWeight: 'bold',
-          color: themeTitle,
+          color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.1',
-          marginTop: '40px',
-          marginLeft: '-332%'
+          position: 'absolute',
+          top: '100px',
+          left: '300px',
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <SimpleRichTextEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
                 fontSize: '48px',
-                fontWeight: 'bold',
-                color: themeTitle,
-                lineHeight: '1.1'
+                color: '#626262',
+                lineHeight: '1.1',
+                width: '100%',
+                height: 'auto',
               }}
+              allowFormatting={true}
             />
           ) : (
             <div
@@ -257,250 +293,205 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           )}
         </div>
 
-        {/* Profile image */}
-        <div style={{
-          width: '155px',
-          height: '155px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'absolute',
-          left: '60px',
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Tags section */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        maxWidth: '600px',
-        position: 'relative',
-        marginTop: '40px',
-        left: '-17%'
-      }}>
-        {/* First row */}
+        {/* Tags section */}
         <div style={{
           display: 'flex',
-          gap: '20px'
-        }}>
-          {currentTags.slice(0, 2).map((tag, index) => (
-            <div
-              key={index}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
-                borderRadius: '8px',
-                fontSize: '34px',
-                color: tag.isHighlighted ? themeBg : themeContent,
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: index === 0 ? '370px' : '180px'
-              }}
-              onClick={() => isEditable && setEditingTags(index)}
-            >
-              {isEditable && editingTags === index ? (
-                <InlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '34px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
-                    fontWeight: '500',
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Second row */}
-        <div style={{
-          display: 'flex',
-          gap: '20px'
-        }}>
-          {currentTags.slice(2, 5).map((tag, index) => (
-            <div
-              key={index + 2}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
-                borderRadius: '8px',
-                fontSize: '34px',
-                color: tag.isHighlighted ? themeBg : themeContent,
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: index === 0 ? '200px' : index === 1 ? '180px' : '180px'
-              }}
-              onClick={() => isEditable && setEditingTags(index + 2)}
-            >
-              {isEditable && editingTags === index + 2 ? (
-                <InlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index + 2, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '34px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
-                    fontWeight: '500',
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Third row (single tag) */}
-        <div style={{
-          display: 'flex',
+          flexDirection: 'column',
           gap: '20px',
+          width: '100%',
+          position: 'absolute',
+          top: '205px',
+          left: '300px',
         }}>
-          {currentTags.slice(5).map((tag, index) => (
-            <div
-              key={index + 5}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
-                borderRadius: '8px',
-                fontSize: '30px',
-                color: tag.isHighlighted ? themeBg : themeContent,
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: '380px'
-              }}
-              onClick={() => isEditable && setEditingTags(index + 5)}
-            >
-              {isEditable && editingTags === index + 5 ? (
-                <InlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index + 5, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '34px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
-                    fontWeight: '500',
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
+          {/* First row - 3 tags */}
+          <div style={{
+            display: 'flex',
+            gap: '20px'
+          }}>
+            {currentTags.slice(0, 3).map((tag: TagType, index: number) => (
+              <div
+                key={index}
+                style={{
+                  padding: '12px 20px',
+                  border: tag.isHighlighted ? 'none' : `1px solid #09090B`, // Dark grey border for non-highlighted
+                  borderRadius: '40px',
+                  fontSize: '34px',
+                  color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: index === 0 ? '315px' : '180px'
+                }}
+                onClick={() => isEditable && setEditingTags(index)}
+              >
+                {isEditable && editingTags === index ? (
+                  <SimpleRichTextEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '34px',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#727272',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                    allowFormatting={true}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Second row - 2 tags */}
+          <div style={{
+            display: 'flex',
+            gap: '20px'
+          }}>
+            {currentTags.slice(3, 5).map((tag: TagType, index: number) => (
+              <div
+                key={index + 3}
+                style={{
+                  padding: '12px 20px',
+                  border: tag.isHighlighted ? 'none' : `1px solid #09090B`, // Dark grey border for non-highlighted
+                  borderRadius: '40px',
+                  fontSize: '34px',
+                  color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: index === 0 ? '185px' : index === 1 ? '210px' : '180px'
+                }}
+                onClick={() => isEditable && setEditingTags(index + 3)}
+              >
+                {isEditable && editingTags === index + 3 ? (
+                  <SimpleRichTextEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index + 3, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '34px',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#727272',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                    allowFormatting={true}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Third row (single blue tag) */}
+          <div style={{
+            display: 'flex',
+            gap: '20px',
+          }}>
+            {currentTags.slice(5).map((tag: TagType, index: number) => (
+              <div
+                key={index + 5}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: '#0F58F9', // Blue background for highlighted tag
+                  border: tag.isHighlighted ? 'none' : `1px solid #0F58F9`,
+                  borderRadius: '40px',
+                  fontSize: '34px',
+                  color: '#FFFFFF', // White text
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '370px'
+                }}
+                onClick={() => isEditable && setEditingTags(index + 5)}
+              >
+                {isEditable && editingTags === index + 5 ? (
+                  <SimpleRichTextEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index + 5, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '30px',
+                      color: '#FFFFFF',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                    allowFormatting={true}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '25px',
-        left: '80px',
+        bottom: '20px',
+        left: '0',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '8px'
       }}>
+        {/* Small line */}
         <div style={{
-          fontSize: '14px',
-          fontWeight: '300',
-          color: themeContent
-        }}>
-          {currentCompanyLogoPath ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={currentCompanyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '30px',
-                maxWidth: '120px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo design with clickable area
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              cursor: isEditable ? 'pointer' : 'default'
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
             }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            >
-              <div style={{
-                width: '30px',
-                height: '30px',
-                border: `2px solid ${themeContent}`,
-                borderRadius: '50%',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <div style={{
-                  width: '12px',
-                  height: '2px',
-                  backgroundColor: themeContent,
-                  position: 'absolute'
-                }} />
-                <div style={{
-                  width: '2px',
-                  height: '12px',
-                  backgroundColor: themeContent,
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)'
-                }} />
-              </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Company logo</span>
-            </div>
-          )}
-        </div>
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}
@@ -508,7 +499,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         <PresentationImageUpload
           isOpen={showLogoUploadModal}
           onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath) => {
+          onImageUploaded={(newLogoPath: string) => {
             handleCompanyLogoUploaded(newLogoPath);
             setShowLogoUploadModal(false);
           }}

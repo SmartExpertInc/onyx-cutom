@@ -9,7 +9,7 @@ import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positio
 export interface BaseTemplateProps {
   slideId: string;
   isEditable?: boolean;
-  onUpdate?: (props: any) => void;
+  onUpdate?: (props: Record<string, unknown>) => void;
   voiceoverText?: string; // Optional voiceover text for video lessons
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
@@ -21,8 +21,10 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & any>;
-  defaultProps: Record<string, any>;
+  // Using broad props type here to accommodate many specialized templates
+  // The registry ensures we pass the correct props at runtime
+  component: React.ComponentType<any>;
+  defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }
 
@@ -31,8 +33,8 @@ export interface PropDefinition {
   label: string;
   description?: string;
   required?: boolean;
-  default?: any;
-  options?: Array<{value: any; label: string}>; // For select type
+  default?: unknown;
+  options?: Array<{value: unknown; label: string}>; // For select type
   min?: number; // For number type
   max?: number; // For number type
   maxLength?: number; // For text type
@@ -49,7 +51,7 @@ export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
   templateId: string;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
   voiceoverText?: string; // Optional voiceover text for video lessons
   
   // NEW: Positioning support
@@ -135,7 +137,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   imageOffset?: { x: number; y: number };
 }
 
-export interface BigImageTopProps extends BigImageLeftProps {}
+export type BigImageTopProps = BigImageLeftProps;
 
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
@@ -425,9 +427,9 @@ export interface LegacySlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: any[];
+  contentBlocks: Array<Record<string, unknown>>;
   deckgoTemplate?: string;
-  imagePlaceholders?: any[];
+  imagePlaceholders?: Array<Record<string, unknown>>;
 }
 
 export interface MigrationResult {
@@ -439,8 +441,8 @@ export interface MigrationResult {
 
 export interface SlideEditor {
   templateId: string;
-  props: Record<string, any>;
-  onPropsChange: (newProps: Record<string, any>) => void;
+  props: Record<string, unknown>;
+  onPropsChange: (newProps: Record<string, unknown>) => void;
   onTemplateChange: (newTemplateId: string) => void;
 }
 
@@ -523,6 +525,8 @@ export interface CourseOverviewSlideProps extends BaseTemplateProps {
   subtitleColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
@@ -537,6 +541,7 @@ export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 export interface ThankYouSlideProps extends BaseTemplateProps {
@@ -546,6 +551,7 @@ export interface ThankYouSlideProps extends BaseTemplateProps {
   address: string;
   postalCode: string;
   companyName: string;
+  logoNew?: string;
   profileImagePath?: string;
   profileImageAlt?: string;
   backgroundColor?: string;
@@ -553,6 +559,7 @@ export interface ThankYouSlideProps extends BaseTemplateProps {
   textColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 // New slide templates based on images
@@ -566,11 +573,14 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   currentStep?: number;
   totalSteps?: number;
   companyName?: string;
+  benefitsListIcon?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
@@ -590,6 +600,8 @@ export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 
@@ -617,6 +629,7 @@ export interface LearningTopicsSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   companyName?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
@@ -636,6 +649,8 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 
@@ -651,6 +666,8 @@ export interface TwoColumnSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
@@ -665,6 +682,8 @@ export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface ImpactStatementsSlideProps extends BaseTemplateProps {
@@ -743,6 +762,16 @@ export interface DataAnalysisSlideProps extends BaseTemplateProps {
 
 
 
+
+
+
+
+
+
+
+
+
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -787,7 +816,22 @@ export type TemplateId =
   | 'bar-chart-slide'
   | 'critical-thinking-slide'
   | 'psychological-safety-slide'
-  | 'data-analysis-slide';
+  | 'data-analysis-slide'
+  | 'solution-steps-slide'
+  | 'proof-statistics-slide'
+  | 'marketing-agency-thank-you-slide'
+  | 'table-of-contents-slide'
+  | 'company-tools-resources-slide'
+  | 'stay-safe-tips-slide'
+  | 'resources-list-slide'
+  | 'course-rules-timeline-slide'
+  | 'resilience-behaviors-slide'
+  | 'soft-skills-types-slide'
+  | 'phishing-rise-slide'
+  | 'ai-pharma-market-growth-slide'
+  | 'kpi-update-slide'
+  | 'interest-growth-slide'
+;
 
 export interface TemplatePreview {
   templateId: string;
@@ -804,8 +848,8 @@ export interface EditableField {
   key: string;
   label: string;
   type: PropDefinition['type'];
-  value: any;
-  onChange: (value: any) => void;
+  value: unknown;
+  onChange: (value: unknown) => void;
   validation?: {
     required?: boolean;
     minLength?: number;
@@ -819,4 +863,380 @@ export interface TemplateEditor {
   onSave: () => void;
   onCancel: () => void;
   onPreview: () => void;
+}
+
+// --- New Slide Interfaces ---
+
+export interface SolutionStepsSlideProps extends BaseTemplateProps {
+  subtitle: string;
+  title: string;
+  steps: Array<{
+    title: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  pageNumber?: string;
+  logoNew?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface ProofStatisticsSlideProps extends BaseTemplateProps {
+  tagText: string;
+  title: string;
+  description: string;
+  statistics: Array<{
+    value: string;
+    description: string;
+  }>;
+  conclusionText: string;
+  bulletPoints: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface MarketingAgencyThankYouSlideProps extends BaseTemplateProps {
+  headerTitle: string;
+  logoText: string;
+  mainTitle: string;
+  bodyText: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface ImpactValueStatisticsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  statistics: Array<{
+    percentage: string;
+    description: string;
+    backgroundColor: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  logoText?: string;
+  sourceText?: string;
+  sourceLink?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface OralHealthConditionsSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  conditions: Array<{
+    number: string;
+    condition: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface DeiStandardsMethodsSlideProps extends BaseTemplateProps {
+  title: string;
+  methods: Array<{
+    title: string;
+    bulletPoints: string[];
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface KpiReportChartSlideProps extends BaseTemplateProps {
+  title: string;
+  legend: Array<{
+    color: string;
+    label: string;
+  }>;
+  bars: Array<{
+    percentage: string;
+    color: string;
+    height: number;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  headers?: string[]; // optional, default to [Feature Name, Status, Due Date, Assignee]
+  tableData: Array<Record<string, string>>; // flexible rows keyed by current headers
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+// Pixel-perfect: High-Performing Teams (title + paragraph + rounded panel with editable line chart and avatar)
+export interface HighPerformingTeamsSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  panelColor?: string;
+  lineColor?: string;
+  points: Array<{ x: number; y: number }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+  logoNew?: string;
+  pageNumber?: string;
+}
+
+// Pixel-perfect: Impact Value (yellow) – three metrics with images and captions
+export interface ImpactValueSlideProps extends BaseTemplateProps {
+  year: string;
+  subtitle: string;
+  title: string; // multi-line: Impact \n Value
+  metrics: Array<{ number: string; imagePath?: string; caption: string }>;
+  backgroundColor?: string;
+}
+
+// Pixel-perfect: Phishing rise (concentric circles variant)
+export interface ConcentricPhishingRiseSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  bigLabel: string;
+  mediumLabel: string;
+  smallLabel: string;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+}
+
+// Pixel-perfect: Financial Impact mosaic grid
+export interface FinancialImpactMosaicSlideProps extends BaseTemplateProps {
+  leftTitle: string;
+  kpiTitle: string;
+  kpiSubtitle: string;
+  leftAvatarPath?: string;
+  leftAvatarAlt?: string;
+  topRightImagePath?: string;
+  bottomRightImagePath?: string;
+  midStatLeft: string;
+  midStatRight: string;
+  midStatLeftCaption: string;
+  midStatRightCaption: string;
+  footerDate?: string;
+  footerPage?: string;
+}
+
+export interface KpiBestPracticesSlideProps extends BaseTemplateProps {
+  leftImagePath?: string;
+  leftImageAlt?: string;
+  bodyText: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  bottomImagePath?: string;
+  bottomImageAlt?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface TableOfContentsSlideProps extends BaseTemplateProps {
+  title: string;
+  buttons: Array<{
+    text: string;
+    link: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
+  companyLogoPath?: string;
+  pageNumber?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface CompanyToolsResourcesSlideProps extends BaseTemplateProps {
+  title: string;
+  sections: Array<{
+    title: string;
+    content: string;
+    backgroundColor: string;
+    textColor: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  logoText?: string;
+  logoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
 } 
+
+// --- New pixel-perfect slides based on provided designs ---
+export interface StaySafeTipsSlideProps extends BaseTemplateProps {
+  title: string;
+  tips: Array<{
+    number: string;
+    heading: string;
+    description: string;
+  }>;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+  companyLogoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface ResourcesListSlideProps extends BaseTemplateProps {
+  title: string;
+  resources: Array<{
+    text: string;
+  }>;
+  logoPath?: string;
+  logoAlt?: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  barColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  pageNumber?: string;
+}
+
+export interface CourseRulesTimelineSlideProps extends BaseTemplateProps {
+  steps: Array<{
+    number: string;
+    text: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
+export interface ResilienceBehaviorsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  bullets: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  logoText?: string;
+  logoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface SoftSkillsTypesSlideProps extends BaseTemplateProps {
+  title: string;
+  cards: Array<{
+    label: string;
+    imagePath?: string;
+    imageAlt?: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  logoText?: string;
+  logoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+// --- New pixel-perfect slides (from user-provided designs) ---
+
+export interface PhishingRiseSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  bars: Array<{
+    year: string;
+    valueLabel: string; // e.g., "33M$"
+    height: number; // pixel height for the bar
+  }>;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface AiPharmaMarketGrowthSlideProps extends BaseTemplateProps {
+  title: string;
+  bars: Array<{
+    year: string;
+    label: string; // e.g., "$10 million"
+    widthPercent: number; // 0-100
+  }>;
+  doctorImagePath?: string;
+  doctorImageAlt?: string;
+  panelBackgroundColor?: string; // left rounded panel color
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface KpiUpdateSlideProps extends BaseTemplateProps {
+  title: string; // "KPI Update"
+  items: Array<{
+    value: string; // e.g., "10%", "1M"
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  footerLeft?: string;
+  footerCenter?: string;
+  footerRight?: string;
+}
+
+export interface InterestGrowthSlideProps extends BaseTemplateProps {
+  title: string; // "Interest"
+  cards: Array<{
+    label: string; // e.g., "Interest growth"
+    percentage: string; // e.g., "50%"
+  }>;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  rightPanelColor?: string;
+}
