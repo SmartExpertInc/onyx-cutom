@@ -194,7 +194,7 @@ const BgTopLeft: React.FC<{ className?: string, fill?: string }> = ({
   className,
   fill,
 }) => (
-  <svg width="948" height="822" viewBox="0 0 948 822" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className={className} viewBox="0 0 948 822" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g filter="url(#filter0_f_330_2774)">
   <path fill-rule="evenodd" clip-rule="evenodd" d="M720.123 -73.4956C794.877 43.3356 694.401 187.798 660.613 322.32C634.146 427.696 633.783 548.923 547.277 614.66C462.025 679.444 346.449 647.875 239.519 642.313C121.711 636.186 -17.3566 669.705 -95.3889 581.233C-174.415 491.634 -132.173 355.796 -117.796 237.194C-103.681 120.745 -99.2725 -4.01981 -14.6051 -85.2056C75.9143 -172.003 205.477 -195.021 330.87 -193.022C471.953 -190.774 644.074 -192.348 720.123 -73.4956Z" fill="url(#paint0_linear_330_2774)" fill-opacity="0.9"/>
   </g>
@@ -216,7 +216,7 @@ const BgBottomRight: React.FC<{ className?: string, fill?: string }> = ({
   className,
   fill,
 }) => (
-  <svg width="1152" height="822" viewBox="0 0 1152 822" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className={className} viewBox="0 0 1152 822" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g filter="url(#filter0_f_330_2773)">
   <path fill-rule="evenodd" clip-rule="evenodd" d="M681.474 58.4974C825.417 3.48079 1006.52 24.0342 1120.8 127.394C1229.96 226.127 1201.21 394.962 1215.44 541.453C1228.38 674.61 1273.26 816.197 1198.51 927.16C1122.01 1040.73 977.794 1083.51 841.473 1096.58C713.468 1108.84 593.57 1063.52 484.396 995.591C363.389 920.298 207.585 840.198 200.674 697.859C193.863 557.605 370.201 494.259 454.602 382.024C536.898 272.587 553.563 107.387 681.474 58.4974Z" fill="url(#paint0_linear_330_2773)" fill-opacity="0.9"/>
   </g>
