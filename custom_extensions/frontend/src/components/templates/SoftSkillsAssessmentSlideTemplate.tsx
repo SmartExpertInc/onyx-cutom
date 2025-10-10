@@ -157,14 +157,14 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#FFFFFF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
+    padding: '60px 80px 40px 80px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -220,7 +220,21 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   };
 
   return (
-    <div className="soft-skills-assessment-slide-template" style={slideStyles}>
+    <>
+      <style>{`
+        .soft-skills-assessment-slide-template *:not(.title-element):not(.card-text) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .soft-skills-assessment-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .soft-skills-assessment-slide-template .card-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
       <div style={{
         display: 'flex',
@@ -231,9 +245,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         {/* Title */}
         <div style={{
           fontSize: '61px',
-          color: themeTitle,
+          color: '#000000',
           lineHeight: '1.2',
-          maxWidth: '76%'
+          maxWidth: '70%',
+          fontWeight: 900,
+          fontFamily: 'serif'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -241,16 +257,18 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
-              className="soft-skills-title-editor"
+              className="title-element"
               style={{
-                fontSize: '36px',
-                fontWeight: 'bold',
-                color: themeTitle,
-                lineHeight: '1.2'
+                fontSize: '61px',
+                color: '#000000',
+                lineHeight: '1.2',
+                fontWeight: 900,
+                fontFamily: 'serif'
               }}
             />
           ) : (
             <div
+              className="title-element"
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
@@ -264,10 +282,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
         {/* Profile image */}
         <div style={{
-          width: '145px',
-          height: '145px',
+          width: '160px',
+          height: '160px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: '#0F58F9'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -305,18 +324,20 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             {/* Main tip block */}
             <div style={{
               padding: '30px',
-              backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
+              backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
               minHeight: '310px',
               display: 'flex',
-              paddingLeft: '10px',
+              paddingLeft: '32px',
+              paddingTop: '40px',
               zIndex: '2',
+              borderRadius: '12px',
             }}>
               <div style={{
-                fontSize: '29px',
-                fontWeight: '500',
-                color: themeBg,
+                fontSize: '32px',
+                fontWeight: '700',
+                color: index === 0 ? '#000000' : '#FFFFFF',
                 lineHeight: '1.4',
-                textAlign: 'center'
+                fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingTips === index ? (
                   <InlineEditor
@@ -324,13 +345,14 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     onSave={(value) => handleTipSave(index, value)}
                     onCancel={handleTipCancel}
                     multiline={true}
-                    className="tip-editor"
+                    className="card-text"
                     style={{
-                      fontSize: '27px',
-                      fontWeight: '500',
-                      color: themeBg,
+                      fontSize: '32px',
+                      maxWidth: '386px',
+                      fontWeight: '700',
+                      color: index === 0 ? '#000000' : '#FFFFFF',
                       lineHeight: '1.4',
-                      textAlign: 'center',
+                      fontFamily: 'Inter, sans-serif',
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
@@ -338,6 +360,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                   />
                 ) : (
                   <div
+                    className="card-text"
                     onClick={() => isEditable && setEditingTips(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -350,64 +373,58 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               </div>
             </div>
 
-            {/* Additional block that extends out */}
-            <div style={{
-              padding: '20px',
-              backgroundColor: themeAccent,
-              minHeight: '80px',
-              height: '304px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              top: '-303px',
-              zIndex: '1',
-              marginTop: '-10px', // Makes it overlap slightly
-              marginLeft: '16px', // Makes it extend out to the right
-              marginRight: '-11px' // Makes it extend out to the right
-            }}>
-              <div style={{
-                fontSize: '18px',
-                fontWeight: '400',
-                color: themeBg,
-                lineHeight: '1.3',
-                textAlign: 'center'
-              }}>
-                {isEditable && editingAdditionalTips === index ? (
-                  <InlineEditor
-                    initialValue={currentAdditionalTips[index]}
-                    onSave={(value) => handleAdditionalTipSave(index, value)}
-                    onCancel={handleAdditionalTipCancel}
-                    multiline={true}
-                    className="additional-tip-editor"
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: '400',
-                      color: themeBg,
-                      lineHeight: '1.3',
-                      textAlign: 'center',
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingAdditionalTips(index)}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {currentAdditionalTips[index]}
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         ))}
       </div>
+
+      {/* Footer separator and elements */}
+      <div style={{
+        position: 'absolute',
+        bottom: '0',
+        left: '0',
+        right: '0',
+        height: '40px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 80px',
+        backgroundColor: '#FFFFFF'
+      }}>
+        {/* Page number */}
+        <div style={{
+          fontSize: '14px',
+          color: 'rgba(0, 0, 0, 0.6)',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          27
+        </div>
+        
+        {/* Logo placeholder */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: 'black',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '1px solid black',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px'
+          }}>
+            +
+          </div>
+          Your Logo
+        </div>
+      </div>
     </div>
+    </>
   );
 };
 

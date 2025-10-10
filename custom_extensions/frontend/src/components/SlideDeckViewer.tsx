@@ -9,7 +9,7 @@ interface SlideDeckViewerProps {
   onSave?: (updatedDeck: SlideDeckData) => void;
 }
 
-// Professional slide templates based on industry best practices
+// Professional slide templates based on industry best practices1
 const SLIDE_TEMPLATES = {
   title: {
     name: 'Title Slide',
@@ -297,6 +297,13 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
   // Render inline editor
   const renderInlineEditor = (block: AnyContentBlock, slideId: string, blockIndex: number): React.ReactNode => {
     const handleSave = (newValue: string) => {
+      // Проверяем, что значение не пустое
+      if (!newValue || newValue.trim() === '') {
+        // Если значение пустое, просто закрываем редактор без сохранения
+        setEditingBlock(null);
+        return;
+      }
+      
       const updatedDeck = { ...localDeck };
       const slide = updatedDeck.slides.find(s => s.slideId === slideId);
       if (slide) {
@@ -305,13 +312,13 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         // Update based on block type
         switch (block.type) {
           case 'headline':
-            (updatedBlock as HeadlineBlock).text = newValue;
+            (updatedBlock as HeadlineBlock).text = newValue.trim();
             break;
           case 'paragraph':
-            (updatedBlock as ParagraphBlock).text = newValue;
+            (updatedBlock as ParagraphBlock).text = newValue.trim();
             break;
           case 'alert':
-            (updatedBlock as AlertBlock).text = newValue;
+            (updatedBlock as AlertBlock).text = newValue.trim();
             break;
           case 'bullet_list':
             (updatedBlock as BulletListBlock).items = newValue.split('\n').filter(item => item.trim());
@@ -359,6 +366,8 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         onSave={handleSave}
         onCancel={handleCancel}
         multiline={block.type === 'bullet_list' || block.type === 'numbered_list'}
+        blockType={block.type}
+        blockLevel={(block as HeadlineBlock)?.level}
       />
     );
   };
@@ -548,16 +557,25 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                     <InlineEditor
                       initialValue={slide.slideTitle}
                       onSave={(newTitle) => {
+                        // Проверяем, что заголовок не пустой
+                        if (!newTitle || newTitle.trim() === '') {
+                          // Если заголовок пустой, восстанавливаем исходное значение
+                          setEditingTitle(null);
+                          return;
+                        }
+                        
                         const updatedDeck = { ...localDeck };
                         const targetSlide = updatedDeck.slides.find(s => s.slideId === slide.slideId);
                         if (targetSlide) {
-                          targetSlide.slideTitle = newTitle;
+                          targetSlide.slideTitle = newTitle.trim();
                           setLocalDeck(updatedDeck);
                           onSave?.(updatedDeck);
                         }
                         setEditingTitle(null);
                       }}
                       onCancel={() => setEditingTitle(null)}
+                      blockType="headline"
+                      blockLevel={2}
                     />
                   ) : (
                     <h2 className="slide-title-text">{slide.slideTitle}</h2>
@@ -589,11 +607,14 @@ interface InlineEditorProps {
   onSave: (value: string) => void;
   onCancel: () => void;
   multiline?: boolean;
+  blockType?: string;
+  blockLevel?: number;
 }
 
-function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: InlineEditorProps) {
+function InlineEditor({ initialValue, onSave, onCancel, multiline = false, blockType, blockLevel }: InlineEditorProps) {
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -619,30 +640,155 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     onSave(value);
   };
 
+  // Определяем точные стили в зависимости от типа блока
+  const getEditorStyles = (): React.CSSProperties => {
+    const baseStyles: React.CSSProperties = {
+      width: '100%',
+      border: '2px solid var(--primary-color)',
+      borderRadius: 'var(--border-radius)',
+      padding: 'var(--space-lg)',
+      outline: 'none',
+      boxShadow: 'var(--shadow-md)',
+      transition: 'all 0.2s ease',
+      background: 'white',
+      boxSizing: 'border-box',
+      position: 'relative',
+      zIndex: 1000,
+      
+      // Критически важные свойства для предотвращения сдвигов
+      margin: '0',
+      display: 'block',
+      verticalAlign: 'baseline',
+      textRendering: 'optimizeLegibility',
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
+      
+      // Предотвращаем изменение размеров
+      minHeight: '0',
+      maxHeight: 'none',
+      resize: 'none',
+      overflow: 'visible',
+      
+      // Точное выравнивание
+      textAlign: 'left',
+      whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
+      wordWrap: multiline ? 'break-word' : 'normal',
+      
+      // Критически важно для видимости текста
+      color: '#000000', // Базовый цвет для видимости
+      fontSize: '16px', // Базовый размер шрифта
+      lineHeight: '1.4', // Базовый line-height
+    };
+
+    // Точные стили для заголовков с сохранением размеров
+    if (blockType === 'headline') {
+      baseStyles.fontFamily = "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      baseStyles.fontWeight = '700';
+      baseStyles.color = '#ffffff';
+      baseStyles.lineHeight = '1.3';
+      baseStyles.letterSpacing = '-0.02em';
+      
+      if (blockLevel === 1) {
+        baseStyles.fontSize = '45px';
+        baseStyles.minHeight = '60px';
+      } else if (blockLevel === 2) {
+        baseStyles.fontSize = '35px';
+        baseStyles.minHeight = '50px';
+      } else if (blockLevel === 3) {
+        baseStyles.fontSize = '28px';
+        baseStyles.minHeight = '40px';
+      } else if (blockLevel === 4) {
+        baseStyles.fontSize = '22px';
+        baseStyles.minHeight = '32px';
+      }
+    }
+    
+    // Точные стили для параграфов
+    if (blockType === 'paragraph') {
+      baseStyles.fontFamily = "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace";
+      baseStyles.fontSize = '1rem';
+      baseStyles.lineHeight = '1.6';
+      baseStyles.color = '#d9e1ff';
+      baseStyles.fontWeight = '400';
+      baseStyles.minHeight = '24px';
+    }
+
+    // Точные стили для списков
+    if (blockType === 'bullet_list' || blockType === 'numbered_list') {
+      baseStyles.fontFamily = "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace";
+      baseStyles.fontSize = '1rem';
+      baseStyles.lineHeight = '1.6';
+      baseStyles.color = '#d9e1ff';
+      baseStyles.fontWeight = '400';
+      baseStyles.minHeight = 'auto';
+      baseStyles.height = 'auto';
+    }
+
+    return baseStyles;
+  };
+
+  // Автоматически подстраиваем высоту textarea под содержимое
+  const adjustTextareaHeight = () => {
+    if (multiline && inputRef.current && containerRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      const container = containerRef.current;
+      
+      // Сначала устанавливаем минимальную высоту
+      textarea.style.height = 'auto';
+      
+      // Вычисляем необходимую высоту
+      const scrollHeight = textarea.scrollHeight;
+      const minHeight = parseInt(getComputedStyle(textarea).minHeight) || 24;
+      
+      // Устанавливаем оптимальную высоту
+      const optimalHeight = Math.max(scrollHeight, minHeight);
+      textarea.style.height = `${optimalHeight}px`;
+      
+      // Обновляем контейнер если нужно
+      container.style.minHeight = `${optimalHeight}px`;
+    }
+  };
+
+  // Обновляем высоту при изменении значения
+  useEffect(() => {
+    if (multiline) {
+      adjustTextareaHeight();
+    }
+  }, [value, multiline]);
+
   if (multiline) {
     return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className="inline-editor-textarea"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        rows={4}
-      />
+      <div ref={containerRef} className="inline-editor-container" style={{ width: '100%', position: 'relative' }}>
+        <textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          className="inline-editor-textarea"
+          style={getEditorStyles()}
+          data-block-type={blockType}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          onInput={adjustTextareaHeight}
+          rows={1}
+        />
+      </div>
     );
   }
 
   return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className="inline-editor-input"
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-    />
+    <div ref={containerRef} className="inline-editor-container" style={{ width: '100%', position: 'relative' }}>
+      <input
+        ref={inputRef as React.RefObject<HTMLInputElement>}
+        className="inline-editor-input"
+        type="text"
+        style={getEditorStyles()}
+        data-block-type={blockType}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+      />
+    </div>
   );
 }
 
