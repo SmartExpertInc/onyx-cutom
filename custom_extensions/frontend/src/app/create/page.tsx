@@ -367,15 +367,31 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
       />
       
       {/* Top-left back button */}
-      <Link
-        href="/projects"
-        onClick={onHomeClick}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm hover:bg-white/80 rounded-lg px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md z-10"
-        style={{ color: '#000000' }}
+      <div 
+        className="absolute top-6 left-6 rounded-lg z-10 shadow-md hover:shadow-xl active:shadow-xl transition-shadow duration-200"
+        style={{
+          paddingBottom: '2px',
+          background: '#D3D3D3'
+        }}
       >
-        <span>&lt;</span>
-        <span>Back</span>
-      </Link>
+        <div 
+          className="rounded-lg"
+          style={{
+            padding: '2px',
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5))'
+          }}
+        >
+          <Link
+            href="/projects"
+            onClick={onHomeClick}
+            className="flex items-center gap-1 text-sm rounded-lg px-4 py-2 bg-white/50 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            style={{ color: '#000000' }}
+          >
+            <span>&lt;</span>
+            <span>Back</span>
+          </Link>
+        </div>
+      </div>
 
       {/* Main content */}
       <div className="w-full max-w-6xl flex flex-col gap-10 items-center relative z-10">
@@ -436,11 +452,10 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         }}
       >
         <span
-          className="font-medium group-hover:opacity-100 group-active:opacity-100 transition-opacity"
+          className="font-medium opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
           style={{
             fontSize: '14px',
             color: '#0F58F9',
-            opacity: 0.5,
             transform: 'rotate(-90deg)',
             whiteSpace: 'nowrap',
           }}
