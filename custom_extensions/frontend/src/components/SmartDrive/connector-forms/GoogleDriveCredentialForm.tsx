@@ -2,7 +2,7 @@
 
 import React, { FC, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { FileIcon, CheckIcon, AlertTriangleIcon } from "lucide-react";
+import { FileIcon, CheckIcon, AlertTriangleIcon, } from "lucide-react";
 import { cn, truncateString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -35,26 +35,46 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [uploadedCredentialType, setUploadedCredentialType] = useState<'app' | null>(null);
   const [clientId, setClientId] = useState<string>('');
+  const [existingCredential, setExistingCredential] = useState<Credential | null>(null);
+  const [isCheckingCredentials, setIsCheckingCredentials] = useState(true);
+  const [isRevoking, setIsRevoking] = useState(false);
+
+  // Function to refresh credential check
+  const refreshCredentialCheck = async () => {
+    try {
+      setIsCheckingCredentials(true);
+      
+      // Check for existing Google Drive credentials
+      const credentialsResponse = await fetch("/api/custom-projects-backend/credentials/google_drive");
+      if (credentialsResponse.ok) {
+        const credentials = await credentialsResponse.json();
+        if (Array.isArray(credentials) && credentials.length > 0) {
+          const latestCredential = credentials[0];
+          setExistingCredential(latestCredential);
+        } else {
+          setExistingCredential(null);
+        }
+      }
+
+      // Check for app credentials
+      const appResponse = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential");
+      if (appResponse.ok) {
+        const appData = await appResponse.json();
+        if (appData.client_id) {
+          setClientId(appData.client_id);
+          setUploadedCredentialType('app');
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing credentials:', err);
+    } finally {
+      setIsCheckingCredentials(false);
+    }
+  };
 
   // Check if we have existing credentials
   useEffect(() => {
-    const checkExistingCredentials = async () => {
-      try {
-        // Check for app credentials
-        const appResponse = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential");
-        if (appResponse.ok) {
-          const appData = await appResponse.json();
-          if (appData.client_id) {
-            setClientId(appData.client_id);
-            setUploadedCredentialType('app');
-          }
-        }
-      } catch (err) {
-        console.error('Error checking existing credentials:', err);
-      }
-    };
-
-    checkExistingCredentials();
+    refreshCredentialCheck();
   }, []);
 
   const handleFileUpload = async (file: File) => {
@@ -210,6 +230,43 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       setIsAuthenticating(false);
     }
   };
+
+  // Show loading state while checking credentials
+  if (isCheckingCredentials) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Checking existing credentials...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show existing credential status if found
+  if (existingCredential) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Google Drive Authentication Status
+          </h3>
+        </div>
+
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <CheckIcon className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h4 className="font-medium text-green-800 mb-1">Authentication Complete</h4>
+              <p className="text-sm text-green-700 mb-3">
+                Your Google Drive credentials have been successfully uploaded and authenticated.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
