@@ -2,7 +2,6 @@
 
 import React, { FC, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FileIcon, CheckIcon, AlertTriangleIcon } from "lucide-react";
 import { cn, truncateString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -34,33 +33,20 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadedCredentialType, setUploadedCredentialType] = useState<'app' | 'service_account' | null>(null);
-  const [serviceAccountEmail, setServiceAccountEmail] = useState<string>('');
+  const [uploadedCredentialType, setUploadedCredentialType] = useState<'app' | null>(null);
   const [clientId, setClientId] = useState<string>('');
-  const [primaryAdminEmail, setPrimaryAdminEmail] = useState<string>('');
-  const [loading, setLoading] = useState(false);
 
   // Check if we have existing credentials
   useEffect(() => {
     const checkExistingCredentials = async () => {
       try {
         // Check for app credentials
-        const appResponse = await fetch("/api/manage/admin/connector/google-drive/app-credential");
+        const appResponse = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential");
         if (appResponse.ok) {
           const appData = await appResponse.json();
           if (appData.client_id) {
             setClientId(appData.client_id);
             setUploadedCredentialType('app');
-          }
-        }
-
-        // Check for service account credentials
-        const serviceResponse = await fetch("/api/manage/admin/connector/google-drive/service-account-key");
-        if (serviceResponse.ok) {
-          const serviceData = await serviceResponse.json();
-          if (serviceData.service_account_email) {
-            setServiceAccountEmail(serviceData.service_account_email);
-            setUploadedCredentialType('service_account');
           }
         }
       } catch (err) {
@@ -124,28 +110,6 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
           } else {
             const errorMsg = await response.text();
             setError(`Failed to upload app credentials - ${errorMsg}`);
-          }
-        }
-
-        if (credentialFileType === "service_account") {
-          const response = await fetch(
-            "/api/manage/admin/connector/google-drive/service-account-key",
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: credentialJsonStr,
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setServiceAccountEmail(data.service_account_email);
-            setUploadedCredentialType('service_account');
-            setError(null);
-          } else {
-            const errorMsg = await response.text();
-            setError(`Failed to upload service account key - ${errorMsg}`);
           }
         }
       } catch (err) {
@@ -218,8 +182,6 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
         }),
       });
 
-      // TODO: Add onCredentialCreated() usage here
-
       if (!credentialCreationResponse.ok) {
         throw new Error(`Failed to create credential - ${credentialCreationResponse.status}`);
       }
@@ -239,57 +201,13 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       // Set cookie for callback
       document.cookie = `${GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME}=true; path=/`;
 
+      onCredentialCreated(credential);
+
       // Redirect to OAuth
       router.push(authorizationUrlJson.auth_url);
     } catch (err) {
       setError(`Failed to authenticate with Google Drive - ${err}`);
       setIsAuthenticating(false);
-    }
-  };
-
-  const handleServiceAccountCredential = async () => {
-    if (!primaryAdminEmail) {
-      setError("Primary admin email is required");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        "/api/manage/admin/connector/google-drive/service-account-credential",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            google_primary_admin: primaryAdminEmail,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        // Get the created credential
-        const credentialsResponse = await fetch("/api/custom-projects-backend/credentials/google_drive");
-        if (credentialsResponse.ok) {
-          const credentials = await credentialsResponse.json();
-          const serviceAccountCredential = credentials.find((c: any) => 
-            c.credential_json?.google_service_account_key && c.source === "google_drive"
-          );
-          if (serviceAccountCredential) {
-            onCredentialCreated(serviceAccountCredential);
-          }
-        }
-      } else {
-        const errorMsg = await response.text();
-        setError(`Failed to create service account credential - ${errorMsg}`);
-      }
-    } catch (err) {
-      setError(`Failed to create service account credential - ${err}`);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -376,7 +294,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       </div>
 
       {/* Show uploaded credentials */}
-      {(serviceAccountEmail || clientId) && (
+      {(clientId) && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <CheckIcon className="w-5 h-5 text-green-600" />
@@ -385,37 +303,9 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
                 Credentials uploaded successfully
               </p>
               <p className="text-xs text-green-600">
-                {serviceAccountEmail ? `Service Account: ${serviceAccountEmail}` : `Client ID: ${clientId}`}
+                {`Client ID: ${clientId}`}
               </p>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Service Account Authentication */}
-      {uploadedCredentialType === 'service_account' && (
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Primary Admin Email
-          </label>
-          <Input
-            type="email"
-            value={primaryAdminEmail}
-            onChange={(e) => setPrimaryAdminEmail(e.target.value)}
-            placeholder="Enter admin email address"
-            className="w-full px-4 py-3"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Enter the email of an admin/owner of the Google Organization that owns the Google Drive(s) you want to index.
-          </p>
-          <div className="mt-4">
-            <Button
-              onClick={handleServiceAccountCredential}
-              disabled={loading || !primaryAdminEmail}
-              className="px-6 py-3"
-            >
-              {loading ? "Creating..." : "Create Service Account Credential"}
-            </Button>
           </div>
         </div>
       )}
