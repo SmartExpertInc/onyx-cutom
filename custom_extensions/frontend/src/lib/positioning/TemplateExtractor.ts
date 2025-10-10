@@ -1652,7 +1652,7 @@ export class TemplateExtractor {
     const items: PositionableItem[] = [];
 
     // Try to extract basic content
-    if (slide.props.title) {
+    if (slide.props.title && typeof slide.props.title === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'title',
         slide.props.title,
@@ -1661,7 +1661,7 @@ export class TemplateExtractor {
       ));
     }
 
-    if (slide.props.content) {
+    if (slide.props.content && typeof slide.props.content === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'content',
         slide.props.content,
