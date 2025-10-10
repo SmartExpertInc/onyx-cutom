@@ -28293,24 +28293,71 @@ async def addons_checkout(
                     # Get current_period_end safely from subscription object
                     current_period_end = (existing_sub.get('current_period_end') if isinstance(existing_sub, dict) 
                                         else getattr(existing_sub, 'current_period_end', None))
+                    
+                    # Debug: log the subscription object structure
                     if not current_period_end:
+                        logger.warning(f"[BILLING] current_period_end not found! Subscription type: {type(existing_sub)}, has attr: {hasattr(existing_sub, 'current_period_end')}")
+                        # Try accessing as dict
+                        if hasattr(existing_sub, '__dict__'):
+                            logger.warning(f"[BILLING] Subscription __dict__ keys: {list(existing_sub.__dict__.keys())}")
+                        # Fallback to 0 for now
                         current_period_end = 0
                     
                     logger.info(f"[BILLING] Subscription current_period_end: {current_period_end}")
                     
-                    # Add items directly to existing subscription and sync to DB immediately
+                    # Build map of existing subscription items by price_id
+                    existing_items = existing_sub.get('items', {}).get('data', []) if isinstance(existing_sub, dict) else getattr(existing_sub, 'items', {}).get('data', [])
+                    existing_items_map = {}
+                    for sub_item in existing_items:
+                        price = sub_item.get('price') if isinstance(sub_item, dict) else getattr(sub_item, 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        item_id = sub_item.get('id') if isinstance(sub_item, dict) else getattr(sub_item, 'id', None)
+                        if price_id and item_id:
+                            existing_items_map[price_id] = {
+                                'id': item_id,
+                                'quantity': sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', 1)
+                            }
+                    
+                    logger.info(f"[BILLING] Existing subscription items: {list(existing_items_map.keys())}")
+                    
+                    # Add or update items in existing subscription and sync to DB immediately
+                    addons_updated = []
+                    addons_added = []
                     async with pool.acquire() as conn:
                         for idx, item in enumerate(line_items):
-                            logger.info(f"[BILLING] Adding addon item {idx+1}/{len(line_items)}: price_id={item['price']}, quantity={item['quantity']}")
-                            sub_item = stripe.SubscriptionItem.create(
-                                subscription=existing_subscription_id,
-                                price=item['price'],
-                                quantity=item['quantity'],
-                            )
+                            logger.info(f"[BILLING] Processing addon item {idx+1}/{len(line_items)}: price_id={item['price']}, quantity={item['quantity']}")
+                            
+                            # Check if item already exists
+                            if item['price'] in existing_items_map:
+                                # Update existing item quantity
+                                existing_item = existing_items_map[item['price']]
+                                new_quantity = int(existing_item['quantity']) + int(item['quantity'])
+                                logger.info(f"[BILLING] Addon already exists (item_id={existing_item['id']}), updating quantity from {existing_item['quantity']} to {new_quantity}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for quantity increase")
+                                
+                                sub_item = stripe.SubscriptionItem.modify(
+                                    existing_item['id'],
+                                    quantity=new_quantity,
+                                )
+                                sub_item_id = existing_item['id']
+                                addons_updated.append(item['price'])
+                            else:
+                                # Create new item
+                                logger.info(f"[BILLING] Adding new addon item: price_id={item['price']}, quantity={item['quantity']}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for new addon")
+                                sub_item = stripe.SubscriptionItem.create(
+                                    subscription=existing_subscription_id,
+                                    price=item['price'],
+                                    quantity=item['quantity'],
+                                )
+                                sub_item_id = sub_item.id
+                                addons_added.append(item['price'])
+                            
                             # Immediately sync to user_billing_addons
                             addon = PRICE_TO_ADDON.get(item['price'], None)
                             if addon and addon.get('type') in ('connectors', 'storage'):
-                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item['quantity']}, period_end={current_period_end}")
+                                final_quantity = sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', item['quantity'])
+                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={final_quantity}, period_end={current_period_end}")
                                 await conn.execute(
                                     """
                                     INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
@@ -28318,11 +28365,17 @@ async def addons_checkout(
                                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
                                     ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
                                     """,
-                                    sub_item.id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item.id, item['price'],
-                                    addon['type'], item['quantity'], existing_sub.status, int(current_period_end)
+                                    sub_item_id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item_id, item['price'],
+                                    addon['type'], final_quantity, existing_sub.status, int(current_period_end)
                                 )
-                    logger.info(f"[BILLING] Successfully added and synced {len(line_items)} add-on items to existing subscription {existing_subscription_id}")
-                    return {"url": f"{base_url}/custom-projects-ui/payments?addon_added=true"}
+                    
+                    action = "updated" if addons_updated else "added"
+                    logger.info(f"[BILLING] Successfully processed {len(line_items)} add-on items: {len(addons_added)} added, {len(addons_updated)} updated")
+                    return {
+                        "url": f"{base_url}/custom-projects-ui/payments?addon_{action}=true",
+                        "message": f"Addon(s) {action}. You will be charged prorated amount immediately.",
+                        "immediate_charge": True
+                    }
                 else:
                     logger.warning(f"[BILLING] Existing subscription status is {existing_sub.status}, not active/trialing. Will create new checkout.")
             except Exception as e:
@@ -28673,9 +28726,9 @@ async def stripe_webhook(
                         
                         # Check if this is a base tier price
                         tier_key = PRICE_TO_TIER.get(item_price_id, '')
-                        if tier_key:
+                    if tier_key:
                             price_id = item_price_id
-                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                        plan = tier_key.replace('_monthly', '').replace('_yearly', '')
                             recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                             interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                             logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
@@ -28761,26 +28814,26 @@ async def stripe_webhook(
                     else:
                         # Normal plan purchase: update everything including plan
                         logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
-                        await conn.execute(
-                            """
-                            INSERT INTO user_billing (
-                                onyx_user_id, stripe_customer_id, subscription_status, 
-                                subscription_id, current_price_id, current_plan, 
-                                current_interval, updated_at
-                            )
-                            VALUES ($1, $2, $3, $4, $5, $6, $7, now())
-                            ON CONFLICT (onyx_user_id)
-                            DO UPDATE SET 
-                                subscription_status = EXCLUDED.subscription_status,
-                                subscription_id = EXCLUDED.subscription_id,
-                                current_price_id = EXCLUDED.current_price_id,
-                                current_plan = EXCLUDED.current_plan,
-                                current_interval = EXCLUDED.current_interval,
-                                updated_at = now()
-                            """,
-                            onyx_user_id, customer_id, subscription.status,
-                            subscription_id, price_id, plan, interval
+                    await conn.execute(
+                        """
+                        INSERT INTO user_billing (
+                            onyx_user_id, stripe_customer_id, subscription_status, 
+                            subscription_id, current_price_id, current_plan, 
+                            current_interval, updated_at
                         )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                        ON CONFLICT (onyx_user_id)
+                        DO UPDATE SET 
+                            subscription_status = EXCLUDED.subscription_status,
+                            subscription_id = EXCLUDED.subscription_id,
+                            current_price_id = EXCLUDED.current_price_id,
+                            current_plan = EXCLUDED.current_plan,
+                            current_interval = EXCLUDED.current_interval,
+                            updated_at = now()
+                        """,
+                        onyx_user_id, customer_id, subscription.status,
+                        subscription_id, price_id, plan, interval
+                    )
 
                 # If this was an upgrade, cancel the previous subscription
                 try:
@@ -28793,27 +28846,27 @@ async def stripe_webhook(
                 # Compute and persist entitlements based on plan tier
                 # Only update base entitlements if this is NOT an addon-only purchase
                 if not is_addon_purchase or price_id:
-                    try:
-                        # Set base entitlements by plan
-                        if plan == 'pro':
-                            base_connectors, base_storage, base_slides = 2, 5, 40
-                        elif plan == 'business':
-                            base_connectors, base_storage, base_slides = 5, 10, 40
-                        else:
-                            base_connectors, base_storage, base_slides = 0, 1, 20
-                        
+                try:
+                    # Set base entitlements by plan
+                    if plan == 'pro':
+                        base_connectors, base_storage, base_slides = 2, 5, 40
+                    elif plan == 'business':
+                        base_connectors, base_storage, base_slides = 5, 10, 40
+                    else:
+                        base_connectors, base_storage, base_slides = 0, 1, 20
+                    
                         logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
-                        async with pool.acquire() as conn:
-                            await conn.execute(
-                                """
-                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
-                                VALUES ($1, $2, $3, $4, now())
-                                ON CONFLICT (onyx_user_id)
-                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
-                                """,
-                                onyx_user_id, base_connectors, base_storage, base_slides
-                            )
-                    except Exception as e:
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                            VALUES ($1, $2, $3, $4, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            """,
+                            onyx_user_id, base_connectors, base_storage, base_slides
+                        )
+                except Exception as e:
                         logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
                 else:
                     logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
