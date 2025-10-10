@@ -169,6 +169,66 @@ export default function VideoEditorHeader({
   // Video generation constants and functions - transferred from VideoDownloadButton
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
+  // Debug HTML Preview handler
+  const handleDebugHtmlPreview = async () => {
+    try {
+      console.log('🔍 [DEBUG_HTML_PREVIEW] Starting HTML preview generation...');
+      
+      // Extract slide data
+      const slideData = await extractSlideData();
+      
+      if (!slideData.slides || slideData.slides.length === 0) {
+        console.error('🔍 [DEBUG_HTML_PREVIEW] No slide data found');
+        alert('No slide data found. Please make sure you have at least one slide.');
+        return;
+      }
+
+      console.log('🔍 [DEBUG_HTML_PREVIEW] Slide data extracted:', {
+        slideCount: slideData.slides.length,
+        theme: slideData.theme
+      });
+
+      // Send all slides to HTML preview endpoint
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/slide-html/preview`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          slides: slideData.slides,
+          theme: slideData.theme || 'dark-purple'
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🔍 [DEBUG_HTML_PREVIEW] Failed to generate HTML:', errorText);
+        alert(`Failed to generate HTML preview: ${response.status} ${response.statusText}`);
+        return;
+      }
+
+      // Get the HTML content
+      const htmlContent = await response.text();
+      console.log('🔍 [DEBUG_HTML_PREVIEW] HTML generated successfully, length:', htmlContent.length);
+
+      // Open in a new window
+      const previewWindow = window.open('', '_blank');
+      if (previewWindow) {
+        previewWindow.document.write(htmlContent);
+        previewWindow.document.close();
+        console.log('🔍 [DEBUG_HTML_PREVIEW] Preview opened in new window');
+      } else {
+        console.error('🔍 [DEBUG_HTML_PREVIEW] Failed to open preview window (popup blocked?)');
+        alert('Failed to open preview window. Please allow popups for this site.');
+      }
+
+    } catch (error) {
+      console.error('🔍 [DEBUG_HTML_PREVIEW] Error generating HTML preview:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+    }
+  };
+
   // Function to extract actual slide data from current project - updated to use props
   const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
@@ -1020,6 +1080,19 @@ export default function VideoEditorHeader({
                 </div>
               )}
             </div>
+
+            {/* Debug HTML Preview button */}
+            <button
+              onClick={handleDebugHtmlPreview}
+              className="bg-gray-50 border-gray-300 text-black hover:bg-gray-100 rounded-[7px] px-3 py-1.5 border flex items-center gap-1.5 h-8 cursor-pointer"
+              title="Preview static HTML with finalized text positioning"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span className="text-sm font-normal">Debug</span>
+            </button>
 
             {/* Generate button */}
             <button
