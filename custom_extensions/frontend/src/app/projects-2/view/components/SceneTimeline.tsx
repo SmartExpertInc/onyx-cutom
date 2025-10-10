@@ -6,7 +6,7 @@ import { SlideAddButton } from '@/components/SlideAddButton';
 
 interface Scene {
   id: string;
-  name: string;
+  name: string | {};
   order: number;
 }
 
