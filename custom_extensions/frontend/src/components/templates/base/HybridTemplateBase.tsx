@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { 
@@ -259,8 +259,45 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // For editable slides: render template with drag-and-drop enabled
   // FIXED: Use more flexible positioning that doesn't interfere with slide flow
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  // 📐 LEVEL 5: HybridTemplateBase Wrapper Logging
+  useEffect(() => {
+    if (wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(wrapperRef.current);
+      const parent = wrapperRef.current.parentElement;
+      const parentRect = parent?.getBoundingClientRect();
+      
+      console.log('📐 [5. HybridTemplateBase] Positioning wrapper:', {
+        className: 'positioning-enabled-slide',
+        setStyles: {
+          maxWidth: currentCanvasConfig.width,
+          width: '100%',
+          height: 'auto',
+          minHeight: '600px',
+        },
+        computedStyles: {
+          width: computedStyle.width,
+          height: computedStyle.height,
+          maxWidth: computedStyle.maxWidth,
+          minHeight: computedStyle.minHeight,
+        },
+        actualDimensions: { 
+          width: rect.width, 
+          height: rect.height 
+        },
+        parentDimensions: parentRect ? {
+          width: parentRect.width,
+          height: parentRect.height,
+        } : null,
+      });
+    }
+  }, [slide, currentCanvasConfig.width]);
+  
   return (
     <div 
+      ref={wrapperRef}
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
         // Use max-width and max-height instead of fixed dimensions to allow natural flow

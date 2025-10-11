@@ -51,6 +51,7 @@ export const ScaledSlideViewer: React.FC<ScaledSlideViewerProps> = ({
   debug = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -63,6 +64,16 @@ export const ScaledSlideViewer: React.FC<ScaledSlideViewerProps> = ({
 
       const rect = parent.getBoundingClientRect();
       
+      // 📐 LEVEL 1: Parent Container Analysis
+      console.log('📐 [1. ScaledSlideViewer] Parent container:', {
+        className: parent.className,
+        tagName: parent.tagName,
+        dimensions: {
+          width: rect.width,
+          height: rect.height,
+        }
+      });
+      
       // Calculate available space (subtract padding on both sides)
       const availableWidth = rect.width - padding * 2;
       const availableHeight = rect.height - padding * 2;
@@ -74,6 +85,21 @@ export const ScaledSlideViewer: React.FC<ScaledSlideViewerProps> = ({
       // Use the smaller scale to ensure the slide fits completely
       // Cap at 1.0 to prevent enlarging beyond native size
       const newScale = Math.min(scaleX, scaleY, 1);
+      
+      // 📐 LEVEL 1: Scale Calculation Results
+      console.log('📐 [1. ScaledSlideViewer] Scale calculation:', {
+        nativeSize: { width: nativeWidth, height: nativeHeight },
+        availableSpace: { width: availableWidth, height: availableHeight },
+        calculatedScale: {
+          scaleX: scaleX.toFixed(3),
+          scaleY: scaleY.toFixed(3),
+          final: newScale.toFixed(3),
+        },
+        resultingDimensions: {
+          width: Math.round(nativeWidth * newScale),
+          height: Math.round(nativeHeight * newScale),
+        }
+      });
       
       setScale(newScale);
       setDimensions({
@@ -118,6 +144,46 @@ export const ScaledSlideViewer: React.FC<ScaledSlideViewerProps> = ({
   const scaledWidth = dimensions.width;
   const scaledHeight = dimensions.height;
 
+  // 📐 LEVEL 2: Outer Wrapper Verification
+  useEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      console.log('📐 [2. ScaledSlideViewer] Outer wrapper rendered:', {
+        setDimensions: { width: scaledWidth, height: scaledHeight },
+        actualDimensions: { 
+          width: rect.width, 
+          height: rect.height 
+        },
+        match: {
+          width: Math.abs(rect.width - scaledWidth) < 1,
+          height: Math.abs(rect.height - scaledHeight) < 1,
+        }
+      });
+    }
+  }, [scaledWidth, scaledHeight]);
+
+  // 📐 LEVEL 3: Inner Content Verification
+  useEffect(() => {
+    if (contentRef.current) {
+      const rect = contentRef.current.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(contentRef.current);
+      const transform = computedStyle.transform;
+      
+      console.log('📐 [3. ScaledSlideViewer] Inner content:', {
+        nativeDimensions: { width: nativeWidth, height: nativeHeight },
+        transform: transform,
+        actualVisualDimensions: { 
+          width: rect.width, 
+          height: rect.height 
+        },
+        expectedVisualDimensions: {
+          width: nativeWidth * scale,
+          height: nativeHeight * scale,
+        }
+      });
+    }
+  }, [scale, nativeWidth, nativeHeight]);
+
   return (
     <div
       ref={containerRef}
@@ -154,6 +220,7 @@ export const ScaledSlideViewer: React.FC<ScaledSlideViewerProps> = ({
       
       {/* Content rendered at NATIVE size, then scaled down */}
       <div
+        ref={contentRef}
         className="scaled-slide-content"
         style={{
           width: nativeWidth,

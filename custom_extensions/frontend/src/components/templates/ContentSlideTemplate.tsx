@@ -308,8 +308,42 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     content: content?.substring(0, 50) + '...'
   });
 
+  // 📐 LEVEL 6: Template Container Logging
+  const templateRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (templateRef.current) {
+      const rect = templateRef.current.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(templateRef.current);
+      const parent = templateRef.current.parentElement;
+      const parentRect = parent?.getBoundingClientRect();
+      
+      console.log('📐 [6. Template] ContentSlideTemplate container:', {
+        templateName: 'ContentSlideTemplate',
+        setStyles: {
+          width: slideStyles.width,
+          height: slideStyles.height,
+          minHeight: slideStyles.minHeight,
+        },
+        computedStyles: {
+          width: computedStyle.width,
+          height: computedStyle.height,
+          minHeight: computedStyle.minHeight,
+        },
+        actualDimensions: { 
+          width: rect.width, 
+          height: rect.height 
+        },
+        parentDimensions: parentRect ? {
+          width: parentRect.width,
+          height: parentRect.height,
+        } : null,
+      });
+    }
+  }, [slideStyles.width, slideStyles.height, slideStyles.minHeight]);
+
   return (
-    <div className="content-slide-template" style={slideStyles}>
+    <div ref={templateRef} className="content-slide-template" style={slideStyles}>
       {/* Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (

@@ -507,6 +507,36 @@ export default function Projects2ViewPage() {
     setIsOptionPopupOpen(true);
   };
 
+  // 📐 LEVEL 4: data-slide-canvas Logging
+  useEffect(() => {
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      setTimeout(() => {
+        const canvas = document.querySelector('[data-slide-canvas="true"]');
+        if (canvas) {
+          const rect = canvas.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(canvas);
+          
+          console.log('📐 [4. Video Editor] data-slide-canvas div:', {
+            setStyles: {
+              width: VIDEO_NATIVE_WIDTH,
+              height: VIDEO_NATIVE_HEIGHT,
+            },
+            computedStyles: {
+              width: computedStyle.width,
+              height: computedStyle.height,
+              maxWidth: computedStyle.maxWidth,
+              maxHeight: computedStyle.maxHeight,
+            },
+            actualDimensions: { 
+              width: rect.width, 
+              height: rect.height 
+            },
+          });
+        }
+      }, 500);
+    }
+  }, [componentBasedSlideDeck, isComponentBasedVideoLesson]);
+
   const handleActiveToolChange = (toolId: string) => {
     if (toolId === 'media') {
       setIsMediaPopupOpen(true);
