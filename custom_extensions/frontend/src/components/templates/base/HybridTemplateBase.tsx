@@ -272,10 +272,8 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       console.log('📐 [5. HybridTemplateBase] Positioning wrapper:', {
         className: 'positioning-enabled-slide',
         setStyles: {
-          maxWidth: currentCanvasConfig.width,
           width: '100%',
-          height: 'auto',
-          minHeight: '600px',
+          height: '100%',
         },
         computedStyles: {
           width: computedStyle.width,
@@ -291,20 +289,24 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
           width: parentRect.width,
           height: parentRect.height,
         } : null,
+        dimensionsMatch: parentRect ? {
+          width: Math.abs(rect.width - parentRect.width) < 1,
+          height: Math.abs(rect.height - parentRect.height) < 1,
+        } : null,
       });
     }
-  }, [slide, currentCanvasConfig.width]);
+  }, [slide]);
   
   return (
     <div 
       ref={wrapperRef}
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
-        // Use max-width and max-height instead of fixed dimensions to allow natural flow
-        maxWidth: currentCanvasConfig.width,
+        // ✅ FIXED: Inherit full dimensions from parent (data-slide-canvas)
+        // No maxWidth constraint - allows full 1920px width
+        // No height: auto - inherits full 1080px height
         width: '100%',
-        height: 'auto',
-        minHeight: '600px', // Ensure minimum height for consistency
+        height: '100%',
         position: 'relative',
         // Ensure the wrapper doesn't interfere with slide spacing
         margin: 0,
