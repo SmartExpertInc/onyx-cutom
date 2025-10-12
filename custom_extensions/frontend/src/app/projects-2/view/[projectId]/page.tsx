@@ -756,8 +756,6 @@ export default function Projects2ViewPage() {
                     transformOrigin: 'center center',
                     transition: 'transform 0.3s ease-in-out',
                     position: 'relative',
-                    width: '100%',
-                    height: '100%',
                     pointerEvents: 'auto',
                     userSelect: 'auto',
                     display: 'flex',
@@ -770,13 +768,12 @@ export default function Projects2ViewPage() {
                     style={{
                       borderRadius: '12px',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                      width: '100%',
-                      maxWidth: aspectRatio === '16:9' ? '900px' 
+                      width: aspectRatio === '16:9' ? '900px' 
                         : aspectRatio === '9:16' ? '400px'
                         : '800px',
-                      aspectRatio: aspectRatio === '16:9' ? '16/10' 
-                        : aspectRatio === '9:16' ? '9/16'
-                        : '1/1',
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
                       minHeight: '400px',
                       maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
                     }}
