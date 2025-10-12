@@ -782,11 +782,11 @@ export default function Projects2ViewPage() {
                       justifyContent: 'center',
                       paddingTop: '5%', // Push content down slightly to show top properly
                     }}>
-                      <div style={{
-                        zoom: 0.7, // Scale content inside while keeping slide box size
-                        width: '100%',
-                        height: '100%',
-                      }}>
+                    <div style={{
+                      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
+                      width: '100%',
+                      height: '100%',
+                    }}>
                         <ComponentBasedSlideDeckRenderer
                           slides={componentBasedSlideDeck.slides}
                           selectedSlideId={currentSlideId}

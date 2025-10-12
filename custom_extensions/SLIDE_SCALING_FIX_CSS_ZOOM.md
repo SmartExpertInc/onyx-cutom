@@ -86,8 +86,8 @@ The CSS `zoom` property provides **true proportional scaling** because:
     paddingTop: '5%', // Push content down to show top properly
   }}>
     {/* Apply zoom to content INSIDE */}
-    <div style={{ 
-      zoom: 0.7, // Scale content inside while keeping slide box size
+    <div style={{
+      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
       width: '100%',
       height: '100%',
     }}>
@@ -102,7 +102,7 @@ The CSS `zoom` property provides **true proportional scaling** because:
 1. **Added positioning wrapper** - Flexbox container with `alignItems: 'flex-start'` and `paddingTop: '5%'`
 2. **Apply `zoom` to nested content wrapper** - This scales the content while keeping the slide container at its original size
 3. **Slide dimensions remain unchanged** - The `900px × 506px` box stays the same size
-4. **Content scales and positions correctly** - Text, images, padding all scale to 70% and are positioned to show the top of the slide
+4. **Content scales and positions correctly** - Text, images, padding all scale to 60% and are positioned to show the top of the slide
 5. **Better visual result** - Slide maintains its position and size in the UI, content appears smaller with proper spacing
 
 ### Why This Placement is Better
@@ -116,9 +116,9 @@ The CSS `zoom` property provides **true proportional scaling** because:
 
 **How it works:**
 - Slide container: `900px × 506px` (unchanged)
-- Content inside: Rendered at 70% scale
-- Text `fontSize: '53px'` → displays as `37.1px`
-- Padding `40px` → displays as `28px`
+- Content inside: Rendered at 60% scale
+- Text `fontSize: '53px'` → displays as `31.8px`
+- Padding `40px` → displays as `24px`
 - Result: Everything inside is smaller, box stays same size
 
 ## Results
