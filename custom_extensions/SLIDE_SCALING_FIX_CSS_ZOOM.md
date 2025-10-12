@@ -65,36 +65,50 @@ The CSS `zoom` property provides **true proportional scaling** because:
 </div>
 ```
 
-**After** (Fixed with `zoom` at container level):
+**After** (Fixed with `zoom` on content wrapper):
 ```tsx
 <div 
-  className="bg-white rounded-md shadow-lg relative flex items-center justify-center w-full h-full"
+  className="professional-slide relative bg-white overflow-hidden"
   style={{
-    zoom: 0.7, // Apply zoom at container level to scale everything
-    overflow: 'visible', // Allow zoomed content to be visible
+    borderRadius: '12px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+    width: '900px',  // Slide container stays full size
+    height: '506px',
   }}
 >
-  {/* Slide content - all children are now properly zoomed */}
+  {/* Apply zoom to content INSIDE the slide container */}
+  <div style={{ 
+    width: '100%', 
+    height: '100%',
+    zoom: 0.7, // Scale content inside while keeping slide box size
+  }}>
+    <ComponentBasedSlideDeckRenderer ... />
+  </div>
 </div>
 ```
 
 ### Key Changes
 
-1. **Moved `zoom` to outermost container** - This ensures zoom applies to ALL child elements
-2. **Changed overflow to visible** - Prevents clipping of zoomed content
-3. **Removed `overflow-hidden` class** - Was interfering with zoom display
-4. **Critical**: Templates use absolute pixel font sizes (e.g., `fontSize: '53px'`) with `!important` flags. Zoom MUST be applied at a parent level that encompasses these elements to work correctly.
+1. **Apply `zoom` to content wrapper INSIDE the slide** - This scales the content while keeping the slide container at its original size
+2. **Slide dimensions remain unchanged** - The `900px × 506px` box stays the same size
+3. **Content scales within the box** - Text, images, padding all scale to 70%
+4. **Better visual result** - Slide maintains its position and size in the UI, but content appears smaller inside
 
-### Why This Placement Matters
+### Why This Placement is Better
 
-Templates define text with absolute values like:
-```tsx
-fontSize: '53px',  // Absolute pixel value
-fontWeight: 900,
-color: '#000000'
-```
+**Benefits of zooming content instead of container:**
+- ✅ Slide box stays at intended size (good for layout)
+- ✅ Easier to click/interact (larger hit area)
+- ✅ Content scales correctly (text, padding, images)
+- ✅ No overflow issues (content stays within bounds)
+- ✅ Maintains aspect ratio perfectly
 
-If `zoom` is applied to a child container AFTER these values are calculated, it won't affect them properly. By applying `zoom` to the parent container, the browser applies the zoom factor BEFORE calculating child dimensions, ensuring all text, padding, and layout scales correctly.
+**How it works:**
+- Slide container: `900px × 506px` (unchanged)
+- Content inside: Rendered at 70% scale
+- Text `fontSize: '53px'` → displays as `37.1px`
+- Padding `40px` → displays as `28px`
+- Result: Everything inside is smaller, box stays same size
 
 ## Results
 

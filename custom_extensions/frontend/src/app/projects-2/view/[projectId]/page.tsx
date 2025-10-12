@@ -747,13 +747,9 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative flex items-center justify-center w-full h-full"
-                style={{
-                  zoom: 0.7, // Apply zoom at container level to scale everything including absolute font sizes
-                  overflow: 'visible', // Allow zoomed content to be visible
-                }}
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Zoomed container wraps everything */}
+                {/* Slide Container - Keeps original size */}
                 <div
                   style={{
                     position: 'relative',
@@ -777,7 +773,12 @@ export default function Projects2ViewPage() {
                         : '800px',
                     }}
                   >
-                    <div style={{ width: '100%', height: '100%' }}>
+                    {/* Apply zoom to content INSIDE the slide container */}
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      zoom: 0.7, // Scale content inside while keeping slide box size
+                    }}>
                       <ComponentBasedSlideDeckRenderer
                         slides={componentBasedSlideDeck.slides}
                         selectedSlideId={currentSlideId}
