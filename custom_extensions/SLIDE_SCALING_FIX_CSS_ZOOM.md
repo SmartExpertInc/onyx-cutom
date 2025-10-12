@@ -65,45 +65,33 @@ The CSS `zoom` property provides **true proportional scaling** because:
 </div>
 ```
 
-**After** (Fixed with `zoom` on content wrapper + proper centering):
+**After** (Fixed with `zoom` on content wrapper + centering):
 ```tsx
 <div 
-  className="bg-white rounded-md shadow-lg relative overflow-visible w-full h-full"
+  className="professional-slide relative bg-white overflow-hidden"
   style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    borderRadius: '12px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+    width: '900px',  // Slide container stays full size
+    height: '506px',
   }}
 >
-  {/* Slide Container - Centered horizontally and vertically */}
-  <div
-    className="professional-slide relative bg-white overflow-hidden"
-    style={{
-      borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      width: '900px',  // Slide container stays full size
-      height: '506px',
-      pointerEvents: 'auto',
-      userSelect: 'auto'
-    }}
-  >
-    {/* Positioning wrapper for zoomed content */}
-    <div style={{ 
-      width: '100%', 
+  {/* Positioning wrapper for zoomed content */}
+  <div style={{ 
+    width: '100%', 
+    height: '100%',
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingTop: '5%', // Push content down to show top properly
+  }}>
+    {/* Apply zoom to content INSIDE */}
+    <div style={{
+      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
+      width: '100%',
       height: '100%',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-      paddingTop: '5%', // Push content down to show top properly
     }}>
-      {/* Apply zoom to content INSIDE */}
-      <div style={{
-        zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
-        width: '100%',
-        height: '100%',
-      }}>
-        <ComponentBasedSlideDeckRenderer ... />
-      </div>
+      <ComponentBasedSlideDeckRenderer ... />
     </div>
   </div>
 </div>
@@ -111,11 +99,11 @@ The CSS `zoom` property provides **true proportional scaling** because:
 
 ### Key Changes
 
-1. **Outer flexbox container** - The parent container uses `display: flex`, `alignItems: center`, and `justifyContent: center` to center the entire slide box both horizontally and vertically
-2. **Slide container** - The `professional-slide` div maintains fixed dimensions (e.g., `900px × 506px` for 16:9) and is now perfectly centered
-3. **Inner positioning wrapper** - Flexbox container with `alignItems: 'flex-start'` and `paddingTop: '5%'` to position the zoomed content
-4. **Apply `zoom` to nested content wrapper** - This scales the content to 60% while keeping the slide container at its original size
-5. **Better visual result** - Slide is centered horizontally and vertically, content appears at 60% scale with proper spacing
+1. **Added positioning wrapper** - Flexbox container with `alignItems: 'flex-start'` and `paddingTop: '5%'`
+2. **Apply `zoom` to nested content wrapper** - This scales the content while keeping the slide container at its original size
+3. **Slide dimensions remain unchanged** - The `900px × 506px` box stays the same size
+4. **Content scales and positions correctly** - Text, images, padding all scale to 60% and are positioned to show the top of the slide
+5. **Better visual result** - Slide maintains its position and size in the UI, content appears smaller with proper spacing
 
 ### Why This Placement is Better
 

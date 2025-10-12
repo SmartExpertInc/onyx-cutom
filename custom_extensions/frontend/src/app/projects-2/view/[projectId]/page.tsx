@@ -747,61 +747,65 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-visible w-full h-full"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Container - Centered horizontally and vertically */}
+                {/* Slide Container - Keeps original size */}
+                <div
+                  style={{
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                    userSelect: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                 <div
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                    width: aspectRatio === '16:9' ? '900px' 
+                      width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
-                    height: aspectRatio === '16:9' ? '506px' 
-                      : aspectRatio === '9:16' ? '711px'
-                      : '800px',
-                    pointerEvents: 'auto',
-                    userSelect: 'auto'
-                  }}
-                >
-                  {/* Apply zoom to content INSIDE the slide container */}
-                  <div style={{ 
-                    width: '100%', 
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                    paddingTop: '5%', // Push content down slightly to show top properly
-                  }}>
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
+                    }}
+                  >
+                    {/* Apply zoom to content INSIDE the slide container */}
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'center',
+                      paddingTop: '5%', // Push content down slightly to show top properly
+                    }}>
                     <div style={{
                       zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
                       width: '100%',
                       height: '100%',
                     }}>
-                      <ComponentBasedSlideDeckRenderer
-                        slides={componentBasedSlideDeck.slides}
-                        selectedSlideId={currentSlideId}
-                        isEditable={true}
-                        onSlideUpdate={(updatedSlide) => {
-                          // Handle slide updates for component-based slides
-                          if (componentBasedSlideDeck) {
-                            const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                              slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                            );
-                            const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                            setComponentBasedSlideDeck(updatedDeck);
-                            // Save to backend
-                            saveVideoLessonData(updatedDeck);
-                          }
-                        }}
-                        theme="default"
-                      />
+                    <ComponentBasedSlideDeckRenderer
+                      slides={componentBasedSlideDeck.slides}
+                      selectedSlideId={currentSlideId}
+                      isEditable={true}
+                      onSlideUpdate={(updatedSlide) => {
+                        // Handle slide updates for component-based slides
+                        if (componentBasedSlideDeck) {
+                          const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                            slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                          );
+                          const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                          setComponentBasedSlideDeck(updatedDeck);
+                          // Save to backend
+                          saveVideoLessonData(updatedDeck);
+                        }
+                      }}
+                      theme="default"
+                    />
+                      </div>
                     </div>
                   </div>
                 </div>
