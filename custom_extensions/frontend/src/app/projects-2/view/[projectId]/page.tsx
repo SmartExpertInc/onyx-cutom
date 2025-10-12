@@ -760,9 +760,7 @@ export default function Projects2ViewPage() {
                     userSelect: 'auto',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: '100%'
+                    justifyContent: 'center'
                   }}
                 >
                   <div
@@ -770,14 +768,12 @@ export default function Projects2ViewPage() {
                     style={{
                       borderRadius: '12px',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                      width: aspectRatio === '16:9' ? '1286px' 
-                        : aspectRatio === '9:16' ? '571px'
-                        : '1143px',
-                      height: aspectRatio === '16:9' ? '723px' 
-                        : aspectRatio === '9:16' ? '1016px'
-                        : '1143px',
-                      minHeight: '571px',
-                      maxHeight: aspectRatio === '9:16' ? '857px' : '714px',
+                      width: aspectRatio === '16:9' ? '900px' 
+                        : aspectRatio === '9:16' ? '400px'
+                        : '800px',
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
                     }}
                   >
                     <div style={{ width: '100%', height: '100%' }}>
