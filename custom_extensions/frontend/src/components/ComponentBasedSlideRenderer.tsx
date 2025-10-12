@@ -193,8 +193,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
           className={`slide-container ${selectedSlideId === slide.slideId ? 'active' : ''}`}
           style={{
             display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
-            width: 'fit-content',
-            height: 'fit-content',
+            width: '100%',
+            height: '100%',
             marginBottom: selectedSlideId ? 0 : '40px'
           }}
         >
