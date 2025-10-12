@@ -747,12 +747,15 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative flex items-center justify-center w-full h-full"
+                style={{
+                  zoom: 0.7, // Apply zoom at container level to scale everything including absolute font sizes
+                  overflow: 'visible', // Allow zoomed content to be visible
+                }}
               >
-                {/* Slide Content - Using CSS zoom for proper scaling of text and padding */}
+                {/* Slide Content - Zoomed container wraps everything */}
                 <div
                   style={{
-                    zoom: 0.5, // Scale down to 50% - zoom scales everything including padding and text
                     position: 'relative',
                     pointerEvents: 'auto',
                     userSelect: 'auto',

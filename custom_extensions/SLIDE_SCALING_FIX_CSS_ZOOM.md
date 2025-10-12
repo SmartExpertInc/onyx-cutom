@@ -56,42 +56,45 @@ The CSS `zoom` property provides **true proportional scaling** because:
 
 **Before** (Broken with `transform: scale()`):
 ```tsx
-<div
-  style={{
-    transform: 'scale(0.7)',
-    transformOrigin: 'center center',
-    transition: 'transform 0.3s ease-in-out',
-    position: 'relative',
-    pointerEvents: 'auto',
-    userSelect: 'auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}
+<div 
+  className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
 >
+  <div style={{ transform: 'scale(0.7)', ... }}>
+    {/* Slide content */}
+  </div>
+</div>
 ```
 
-**After** (Fixed with `zoom`):
+**After** (Fixed with `zoom` at container level):
 ```tsx
-<div
+<div 
+  className="bg-white rounded-md shadow-lg relative flex items-center justify-center w-full h-full"
   style={{
-    zoom: 0.7, // Scale down to 70% - zoom scales everything including padding and text
-    position: 'relative',
-    pointerEvents: 'auto',
-    userSelect: 'auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    zoom: 0.7, // Apply zoom at container level to scale everything
+    overflow: 'visible', // Allow zoomed content to be visible
   }}
 >
+  {/* Slide content - all children are now properly zoomed */}
+</div>
 ```
 
 ### Key Changes
 
-1. **Replaced** `transform: 'scale(0.7)'` with `zoom: 0.7`
-2. **Removed** `transformOrigin` (not needed with zoom)
-3. **Removed** `transition` (can be added back if needed)
-4. **Kept** interaction properties (`pointerEvents`, `userSelect`)
+1. **Moved `zoom` to outermost container** - This ensures zoom applies to ALL child elements
+2. **Changed overflow to visible** - Prevents clipping of zoomed content
+3. **Removed `overflow-hidden` class** - Was interfering with zoom display
+4. **Critical**: Templates use absolute pixel font sizes (e.g., `fontSize: '53px'`) with `!important` flags. Zoom MUST be applied at a parent level that encompasses these elements to work correctly.
+
+### Why This Placement Matters
+
+Templates define text with absolute values like:
+```tsx
+fontSize: '53px',  // Absolute pixel value
+fontWeight: 900,
+color: '#000000'
+```
+
+If `zoom` is applied to a child container AFTER these values are calculated, it won't affect them properly. By applying `zoom` to the parent container, the browser applies the zoom factor BEFORE calculating child dimensions, ensuring all text, padding, and layout scales correctly.
 
 ## Results
 
