@@ -28,7 +28,6 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import '../components/compact-slide-styles.css';
 import AvatarDataProvider from '../components/AvatarDataService';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -748,47 +747,60 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Using same approach as LessonPlanView carousel */}
+                {/* Slide Content - Using transform scale approach from SmartSlideDeckViewer */}
                 <div
-                  className="professional-slide relative bg-white overflow-hidden"
                   style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                    transform: 'scale(0.7)', // Scale down to 70% of original size
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.3s ease-in-out',
+                    position: 'relative',
                     width: '100%',
-                    maxWidth: aspectRatio === '16:9' ? '900px' 
-                      : aspectRatio === '9:16' ? '400px'
-                      : '800px',
-                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
-                      : aspectRatio === '9:16' ? '9/16'
-                      : '1/1',
-                    minHeight: '400px',
-                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
+                    height: '100%',
+                    pointerEvents: 'auto',
+                    userSelect: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  <div 
-                    style={{ width: '100%', height: '100%' }} 
-                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
+                  <div
+                    className="professional-slide relative bg-white overflow-hidden"
+                    style={{
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                      width: '100%',
+                      maxWidth: aspectRatio === '16:9' ? '900px' 
+                        : aspectRatio === '9:16' ? '400px'
+                        : '800px',
+                      aspectRatio: aspectRatio === '16:9' ? '16/10' 
+                        : aspectRatio === '9:16' ? '9/16'
+                        : '1/1',
+                      minHeight: '400px',
+                      maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
+                    }}
                   >
-                    <ComponentBasedSlideDeckRenderer
-                      slides={componentBasedSlideDeck.slides}
-                      selectedSlideId={currentSlideId}
-                      isEditable={true}
-                      onSlideUpdate={(updatedSlide) => {
-                        // Handle slide updates for component-based slides
-                        if (componentBasedSlideDeck) {
-                          const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                            slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                          );
-                          const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                          setComponentBasedSlideDeck(updatedDeck);
-                          // Save to backend
-                          saveVideoLessonData(updatedDeck);
-                        }
-                      }}
-                      theme="default"
-                    />
+                    <div style={{ width: '100%', height: '100%' }}>
+                      <ComponentBasedSlideDeckRenderer
+                        slides={componentBasedSlideDeck.slides}
+                        selectedSlideId={currentSlideId}
+                        isEditable={true}
+                        onSlideUpdate={(updatedSlide) => {
+                          // Handle slide updates for component-based slides
+                          if (componentBasedSlideDeck) {
+                            const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                              slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                            );
+                            const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                            setComponentBasedSlideDeck(updatedDeck);
+                            // Save to backend
+                            saveVideoLessonData(updatedDeck);
+                          }
+                        }}
+                        theme="default"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
