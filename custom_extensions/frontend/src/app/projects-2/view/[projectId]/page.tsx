@@ -752,7 +752,7 @@ export default function Projects2ViewPage() {
                 {/* Slide Content - Using CSS zoom for proper scaling of text and padding */}
                 <div
                   style={{
-                    zoom: 0.7, // Scale down to 70% - zoom scales everything including padding and text
+                    zoom: 0.5, // Scale down to 50% - zoom scales everything including padding and text
                     position: 'relative',
                     pointerEvents: 'auto',
                     userSelect: 'auto',
