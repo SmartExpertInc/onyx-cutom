@@ -778,8 +778,9 @@ export default function Projects2ViewPage() {
                       width: '100%', 
                       height: '100%',
                       display: 'flex',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       justifyContent: 'center',
+                      paddingTop: '5%', // Push content down slightly to show top properly
                     }}>
                       <div style={{
                         zoom: 0.7, // Scale content inside while keeping slide box size
