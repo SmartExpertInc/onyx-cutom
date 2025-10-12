@@ -777,7 +777,7 @@ export default function Projects2ViewPage() {
                     <div style={{ 
                       width: '100%', 
                       height: '100%',
-                      zoom: 0.7, // Scale content inside while keeping slide box size
+                      zoom: 0.6, // Scale content to 60% while keeping slide box size
                     }}>
                       <ComponentBasedSlideDeckRenderer
                         slides={componentBasedSlideDeck.slides}
