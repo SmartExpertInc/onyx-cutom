@@ -777,26 +777,34 @@ export default function Projects2ViewPage() {
                     <div style={{ 
                       width: '100%', 
                       height: '100%',
-                      zoom: 0.6, // Scale content to 60% while keeping slide box size
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}>
-                      <ComponentBasedSlideDeckRenderer
-                        slides={componentBasedSlideDeck.slides}
-                        selectedSlideId={currentSlideId}
-                        isEditable={true}
-                        onSlideUpdate={(updatedSlide) => {
-                          // Handle slide updates for component-based slides
-                          if (componentBasedSlideDeck) {
-                            const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                              slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                            );
-                            const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                            setComponentBasedSlideDeck(updatedDeck);
-                            // Save to backend
-                            saveVideoLessonData(updatedDeck);
-                          }
-                        }}
-                        theme="default"
-                      />
+                      <div style={{
+                        zoom: 0.7, // Scale content inside while keeping slide box size
+                        width: '100%',
+                        height: '100%',
+                      }}>
+                        <ComponentBasedSlideDeckRenderer
+                          slides={componentBasedSlideDeck.slides}
+                          selectedSlideId={currentSlideId}
+                          isEditable={true}
+                          onSlideUpdate={(updatedSlide) => {
+                            // Handle slide updates for component-based slides
+                            if (componentBasedSlideDeck) {
+                              const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                                slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                              );
+                              const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                              setComponentBasedSlideDeck(updatedDeck);
+                              // Save to backend
+                              saveVideoLessonData(updatedDeck);
+                            }
+                          }}
+                          theme="default"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

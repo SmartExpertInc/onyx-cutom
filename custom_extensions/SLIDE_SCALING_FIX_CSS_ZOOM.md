@@ -65,7 +65,7 @@ The CSS `zoom` property provides **true proportional scaling** because:
 </div>
 ```
 
-**After** (Fixed with `zoom` on content wrapper):
+**After** (Fixed with `zoom` on content wrapper + centering):
 ```tsx
 <div 
   className="professional-slide relative bg-white overflow-hidden"
@@ -76,23 +76,33 @@ The CSS `zoom` property provides **true proportional scaling** because:
     height: '506px',
   }}
 >
-  {/* Apply zoom to content INSIDE the slide container */}
+  {/* Centering wrapper for zoomed content */}
   <div style={{ 
     width: '100%', 
     height: '100%',
-    zoom: 0.7, // Scale content inside while keeping slide box size
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   }}>
-    <ComponentBasedSlideDeckRenderer ... />
+    {/* Apply zoom to content INSIDE */}
+    <div style={{ 
+      zoom: 0.7, // Scale content inside while keeping slide box size
+      width: '100%',
+      height: '100%',
+    }}>
+      <ComponentBasedSlideDeckRenderer ... />
+    </div>
   </div>
 </div>
 ```
 
 ### Key Changes
 
-1. **Apply `zoom` to content wrapper INSIDE the slide** - This scales the content while keeping the slide container at its original size
-2. **Slide dimensions remain unchanged** - The `900px × 506px` box stays the same size
-3. **Content scales within the box** - Text, images, padding all scale to 70%
-4. **Better visual result** - Slide maintains its position and size in the UI, but content appears smaller inside
+1. **Added centering wrapper** - Flexbox container centers the zoomed content
+2. **Apply `zoom` to nested content wrapper** - This scales the content while keeping the slide container at its original size
+3. **Slide dimensions remain unchanged** - The `900px × 506px` box stays the same size
+4. **Content scales and centers** - Text, images, padding all scale to 70% and are properly centered
+5. **Better visual result** - Slide maintains its position and size in the UI, content appears smaller and centered inside
 
 ### Why This Placement is Better
 
