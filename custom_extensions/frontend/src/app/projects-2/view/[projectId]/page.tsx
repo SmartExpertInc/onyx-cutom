@@ -749,12 +749,10 @@ export default function Projects2ViewPage() {
               <div 
                 className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Using transform scale approach from SmartSlideDeckViewer */}
+                {/* Slide Content - Using CSS zoom for proper scaling of text and padding */}
                 <div
                   style={{
-                    transform: 'scale(0.7)', // Scale down to 70% of original size
-                    transformOrigin: 'center center',
-                    transition: 'transform 0.3s ease-in-out',
+                    zoom: 0.7, // Scale down to 70% - zoom scales everything including padding and text
                     position: 'relative',
                     pointerEvents: 'auto',
                     userSelect: 'auto',
