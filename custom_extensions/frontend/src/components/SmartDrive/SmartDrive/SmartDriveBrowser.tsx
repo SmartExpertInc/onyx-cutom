@@ -546,6 +546,28 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		return () => clearInterval(interval);
 	}, [indexing]);
 
+	// Cleanup completed indexing entries after a delay to prevent memory buildup
+	useEffect(() => {
+		const completedPaths = Object.entries(indexing)
+			.filter(([_, st]) => st && (st.status === 'success' || st.status === 'done'))
+			.map(([path]) => path);
+
+		if (completedPaths.length === 0) return;
+
+		// Remove completed entries after 3 seconds to allow users to see the completion
+		const timeout = setTimeout(() => {
+			setIndexing(prev => {
+				const next = { ...prev };
+				completedPaths.forEach(path => {
+					delete next[path];
+				});
+				return next;
+			});
+		}, 3000);
+
+		return () => clearTimeout(timeout);
+	}, [indexing]);
+
 	const onDragOver = (e: React.DragEvent) => {
 		e.preventDefault();
 	};
@@ -672,7 +694,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
 											{it.type === 'file' && (() => { 
 												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-												const shouldShow = s && s.status !== 'done';
+												const shouldShow = s && s.status !== 'done' && s.status !== 'success';
 												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
 													indexingState: s,
 													shouldShow,
