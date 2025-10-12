@@ -745,22 +745,34 @@ export default function Projects2ViewPage() {
               onClick={handleCloseSettingsPanel}
             />
 
-             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
-               <div 
-                 className="professional-slide relative bg-white overflow-hidden"
-                 style={{
-                   borderRadius: '12px',
-                   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                   width: aspectRatio === '16:9' ? '900px' 
-                     : aspectRatio === '9:16' ? '400px'
-                     : '800px',
-                   height: aspectRatio === '16:9' ? '506px' 
-                     : aspectRatio === '9:16' ? '711px'
-                     : '800px',
-                   pointerEvents: 'auto',
-                   userSelect: 'auto'
-                 }}
-               >
+            {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
+              <div 
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
+              >
+                {/* Slide Container - Keeps original size */}
+                <div
+                  style={{
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                    userSelect: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                <div
+                  className="professional-slide relative bg-white overflow-hidden"
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                      width: aspectRatio === '16:9' ? '900px' 
+                      : aspectRatio === '9:16' ? '400px'
+                      : '800px',
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
+                    }}
+                  >
                     {/* Apply zoom to content INSIDE the slide container */}
                     <div style={{ 
                       width: '100%', 
@@ -794,9 +806,11 @@ export default function Projects2ViewPage() {
                       theme="default"
                     />
                       </div>
-                     </div>
-               </div>
-             ) : (
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
               <VideoLessonDisplay 
                 dataToDisplay={videoLessonData || null}
                 isEditing={true}
