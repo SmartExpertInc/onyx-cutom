@@ -539,7 +539,7 @@ export const es = {
     },
     noMembers: "No se encontraron miembros del espacio de trabajo",
     searchPlaceholder: "Buscar miembros...",
-    searchPlaceholderProjects: "Buscar proyectos...",
+    searchPlaceholderProjects: "Buscar...",
     manageRoles: "Gestionar roles",
 
     // Role Management

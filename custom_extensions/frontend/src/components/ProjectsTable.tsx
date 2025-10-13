@@ -45,7 +45,8 @@ import {
   FileText,
   ClipboardCheck,
   TableOfContents,
-  Search
+  Search,
+  ArrowDownUp
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -3710,14 +3711,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       )}
 
       {/* Navigation Panel */}
+
       {!trashMode && (
-        <div className="mb-6">
+        <div className="flex items-center gap-4 mb-6">
           <nav className="flex space-x-8">
             <button
               className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "all" 
                   ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-gray-500 text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("all")}
             >
@@ -3727,7 +3729,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "created" 
                   ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-gray-500 text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("created")}
             >
@@ -3737,7 +3739,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "shared" 
                   ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-gray-500 text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("shared")}
             >
@@ -3747,28 +3749,26 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "favorites" 
                   ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-gray-500 text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("favorites")}
             >
               Favorites
             </button>
           </nav>
-        </div>
-      )}
-
-      {!trashMode && (
-        <div className="flex items-center gap-4 mb-6">
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
             <Input
               type="text"
               variant="shadow"
-              placeholder={t('interface.searchPlaceholderProjects', 'Search projects...')}
+              placeholder={t('interface.searchPlaceholderProjects', 'Search...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
+          </div>
+          <div className="flex items-center p-4 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+            <ArrowDownUp size={16} />
           </div>
            <div className="flex items-center gap-4">
            {viewMode === "grid" && (

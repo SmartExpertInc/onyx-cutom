@@ -614,7 +614,7 @@ export const en = {
     },
     noMembers: "No workspace members found",
     searchPlaceholder: "Search members...",
-    searchPlaceholderProjects: "Search projects...",
+    searchPlaceholderProjects: "Search...",
     manageRoles: "Manage Roles",
 
     // Role Management
