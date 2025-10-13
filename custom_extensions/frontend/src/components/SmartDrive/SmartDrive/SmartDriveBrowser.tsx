@@ -90,6 +90,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [pickerPath, setPickerPath] = useState<string>('/');
 	const [pickerDirs, setPickerDirs] = useState<SmartDriveItem[]>([]);
 	const [pickerLoading, setPickerLoading] = useState(false);
+	const [pickerSelected, setPickerSelected] = useState<string[]>([]);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -210,6 +211,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (selected.size === 0) return;
 		setPickerOp(op);
 		setPickerPath(currentPath || '/');
+		setPickerSelected(Array.from(selected));
 		setPickerOpen(true);
 		void loadPickerDirs(currentPath || '/');
 	};
@@ -268,7 +270,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (!targetFolder) return;
 		setBusy(true);
 		try {
-			for (const p of Array.from(selected)) {
+			for (const p of pickerSelected) {
 				const destBase = targetFolder.endsWith('/') ? targetFolder : `${targetFolder}/`;
 				const to = `${destBase}${p.split('/').pop()}`.replace(/\/+/, '/');
 				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}`);
@@ -657,8 +659,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (normPickerPath === normCurrentPath) return false;
 		
 		// Can't move a folder into itself or its children
-		const selectedPaths = Array.from(selected);
-		for (const selPath of selectedPaths) {
+		for (const selPath of pickerSelected) {
 			const normSelPath = selPath.endsWith('/') ? selPath : `${selPath}/`;
 			// If picker path is the selected item or a child of it
 			if (normPickerPath === normSelPath || normPickerPath.startsWith(normSelPath)) {
@@ -667,7 +668,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 		
 		return true;
-	}, [pickerPath, currentPath, selected]);
+	}, [pickerPath, currentPath, pickerSelected]);
 
 	// In select mode, notify parent on every selection change to enable downstream buttons immediately
 	useEffect(() => {
