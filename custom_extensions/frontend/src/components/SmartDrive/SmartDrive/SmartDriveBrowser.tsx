@@ -800,7 +800,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										</div>
 										<div className="flex-1">
 									<div className="font-medium text-slate-800">{it.name}</div>
-											<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+						<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${formatDate(it.modified)}` : ''}</div>
 											{it.type === 'file' && (() => { 
 											const s = indexing[it.path]; 
 												const shouldShow = s && s.status !== 'done' && s.status !== 'success';
@@ -825,7 +825,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											)}
 										</div>
 										<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-										<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+						<div className="w-44 text-right text-sm text-slate-700">{it.modified ? formatDate(it.modified) : ''}</div>
 										<div className="w-8 flex justify-end">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
@@ -922,3 +922,13 @@ function formatSize(bytes?: number | null): string {
 }
 
 export default SmartDriveBrowser; 
+ 
+function formatDate(val?: string | null): string {
+	if (!val) return '';
+	try {
+		const d = new Date(val);
+		return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+	} catch {
+		return '';
+	}
+}
