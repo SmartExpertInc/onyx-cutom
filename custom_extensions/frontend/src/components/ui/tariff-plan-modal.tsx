@@ -314,7 +314,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-xl p-0 max-h-[85vh] min-w-[830px] bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -324,8 +324,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <X className="w-5 h-5 xl:w-6 xl:h-6 text-[#71717A]" />
         </button>
         
-        <ScrollArea className="h-[85vh] max-h-[750px] w-full">
-          <div className="h-[85vh] min-h-[600px] max-h-[750px]">
+        <ScrollArea className="h-[90vh] max-h-[750px] w-full">
+          <div className="h-[90vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-6 py-4 xl:py-5 xl:px-8">
             <div className="max-w-7xl mx-auto">
               {/* Header */}

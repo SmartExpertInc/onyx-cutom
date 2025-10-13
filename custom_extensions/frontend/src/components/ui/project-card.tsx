@@ -444,7 +444,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 shadow-md flex"
+          className="relative h-40 flex"
         >
           {/* Left side - Only gradient */}
           <div className="w-[45%] h-full" style={{
@@ -459,11 +459,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="w-[55%] h-full relative flex flex-col p-4" style={{ backgroundColor: `${bgColor}20` }}>
             {/* Lock/Users icon positioned absolutely in top-right */}
             {project.isPrivate ? (
-              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
+              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
                 <Lock size={18} className="text-gray-600" />
               </div>
             ) : (
-              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
+              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
                 <Users size={18} className="text-gray-600" />
               </div>
             )}
