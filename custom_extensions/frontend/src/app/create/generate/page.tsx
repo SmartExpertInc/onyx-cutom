@@ -1840,10 +1840,10 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-row justify-between items-center w-full p-2 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
+                      className="flex flex-row justify-between items-center w-full p-3 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FDFDFD", border: "1px solid #E0E0E0", color: "#71717A" }}
                     >
-                      <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>Te
+                      <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>
                       <span className="absolute top-1 right-2 text-xl leading-none" style={{ color: "#71717A", fontWeight: 200 }}>+</span>
                     </button>
                   ) : (
