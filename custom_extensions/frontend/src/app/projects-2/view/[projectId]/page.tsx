@@ -28,7 +28,6 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import '../components/compact-slide-styles.css';
 import AvatarDataProvider from '../components/AvatarDataService';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -748,29 +747,46 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Using same approach as LessonPlanView carousel */}
+                {/* Slide Container - Keeps original size */}
+                <div
+                  style={{
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                    userSelect: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                 <div
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                    width: '100%',
-                    maxWidth: aspectRatio === '16:9' ? '900px' 
+                      width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
-                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
-                      : aspectRatio === '9:16' ? '9/16'
-                      : '1/1',
-                    minHeight: '400px',
-                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
-                  }}
-                >
-                  <div 
-                    style={{ width: '100%', height: '100%' }} 
-                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
+                    }}
                   >
+                    {/* Apply zoom to content INSIDE the slide container */}
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'center',
+                      paddingTop: '5%', // Push content down slightly to show top properly
+                    }}>
+                    <div style={{
+                      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
+                      width: '100%',
+                      height: '100%',
+                    }}>
                     <ComponentBasedSlideDeckRenderer
                       slides={componentBasedSlideDeck.slides}
                       selectedSlideId={currentSlideId}
@@ -789,6 +805,8 @@ export default function Projects2ViewPage() {
                       }}
                       theme="default"
                     />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
