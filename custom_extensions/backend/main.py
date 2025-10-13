@@ -33580,6 +33580,12 @@ async def get_smartdrive_login_credentials(
             if row["expires_at"] < datetime.now(timezone.utc):
                 raise HTTPException(status_code=400, detail="Token expired")
 
+            # Ensure credits exist before any SmartDrive provisioning
+            try:
+                await get_or_create_user_credits(row["onyx_user_id"], "User", DB_POOL)
+            except Exception as _e:
+                logger.warning(f"[SmartDrive] Failed to ensure credits before provisioning: {_e}")
+
             account = await conn.fetchrow(
                 """
                 SELECT nextcloud_username, nextcloud_password_encrypted, nextcloud_base_url
@@ -33662,22 +33668,10 @@ async def get_smartdrive_login_credentials(
                         row["onyx_user_id"], userid, encrypted, base_url, datetime.now(timezone.utc)
                     )
 
-                    # Clean default skeleton files immediately after account creation using comprehensive cleanup
+                    # Clean default skeleton files with a single comprehensive pass
                     try:
                         deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
-                        
-                        # Wait briefly and run cleanup again to catch any files that might get recreated
-                        import asyncio
-                        await asyncio.sleep(2)
-                        additional_deleted = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        if additional_deleted > 0:
-                            logger.info(f"[SmartDrive] Second cleanup: removed {additional_deleted} additional files that were recreated")
-                        else:
-                            logger.info(f"[SmartDrive] ✅ Account completely clean - no additional files found")
-                        
-                        total_deleted = deleted_count + additional_deleted
-                        logger.info(f"[SmartDrive] TOTAL CLEANUP: Removed {total_deleted} default files for user {userid}")
+                        logger.info(f"[SmartDrive] Cleanup: removed {deleted_count} default files for new user {userid}")
                     except Exception as cleanup_err:
                         logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
 
@@ -33728,6 +33722,11 @@ async def bootstrap_smartdrive_session(
         logger.info(f"Bootstrapping SmartDrive session for user: {onyx_user_id}")
 
         async with pool.acquire() as conn:
+            # Ensure credits exist before any SmartDrive account actions
+            try:
+                await get_or_create_user_credits(onyx_user_id, "User", DB_POOL)
+            except Exception as _e:
+                logger.warning(f"[SmartDrive] Failed to ensure credits before session bootstrap: {_e}")
             # Check if user already has SmartDrive account
             account = await conn.fetchrow(
                 "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
@@ -34249,27 +34248,35 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
                         except Exception as e:
                             logger.warning(f"[SmartDrive] Exception deleting {h}: {e}")
                     
-                    # Also try to delete common Nextcloud skeleton files by name (in case PROPFIND missed some)
-                    # Prune to items observed to exist in logs + common defaults
+                    # Also try to delete common Nextcloud skeleton files by name in parallel
                     common_skeleton_items = [
                         "Documents", "Photos", "Templates",
                         "Readme.md", "Nextcloud intro.mp4", "Nextcloud Manual.pdf",
                         "Nextcloud.png", "Reasons to use Nextcloud.pdf", "Templates credits.md"
                     ]
                     
-                    for item_name in common_skeleton_items:
-                        try:
-                            del_url = f"{webdav_base}/{item_name}"
-                            delete_resp = await cleanup_client.delete(del_url, auth=(userid, password))
-                            if delete_resp.status_code == 204:  # Successfully deleted
-                                deleted_count += 1
-                                logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {item_name}")
-                            elif delete_resp.status_code == 404:
-                                logger.debug(f"[SmartDrive] Skeleton item not found (expected): {item_name}")
-                            else:
-                                logger.warning(f"[SmartDrive] Failed to delete skeleton item {item_name}: HTTP {delete_resp.status_code}")
-                        except Exception as e:
-                            logger.warning(f"[SmartDrive] Exception deleting skeleton item {item_name}: {e}")
+                    import asyncio as _asyncio
+                    sem = _asyncio.Semaphore(8)
+                    async def _del_item(_name: str) -> int:
+                        async with sem:
+                            try:
+                                _del_url = f"{webdav_base}/{_name}"
+                                _resp = await cleanup_client.delete(_del_url, auth=(userid, password))
+                                if _resp.status_code == 204:
+                                    logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {_name}")
+                                    return 1
+                                elif _resp.status_code == 404:
+                                    logger.debug(f"[SmartDrive] Skeleton item not found (expected): {_name}")
+                                    return 0
+                                else:
+                                    logger.warning(f"[SmartDrive] Failed to delete skeleton item {_name}: HTTP {_resp.status_code}")
+                                    return 0
+                            except Exception as _e:
+                                logger.warning(f"[SmartDrive] Exception deleting skeleton item {_name}: {_e}")
+                                return 0
+
+                    _results = await _asyncio.gather(*(_del_item(n) for n in common_skeleton_items))
+                    deleted_count += sum(_results)
 
                     # Final verification: do another PROPFIND to check what remains
                     try:
