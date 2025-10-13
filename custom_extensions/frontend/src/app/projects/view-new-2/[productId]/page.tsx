@@ -1093,20 +1093,20 @@ export default function ProductViewNewPage() {
                       Lessons
                     </div>
                     {columnVideoLessonEnabled && (
-                      <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                      <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#4CFFF0" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
                       </div>
                     )}
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FFE149" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.3333 2H2.66667C2.29848 2 2 2.29848 2 2.66667V6C2 6.36819 2.29848 6.66667 2.66667 6.66667H13.3333C13.7015 6.66667 14 6.36819 14 6V2.66667C14 2.29848 13.7015 2 13.3333 2Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M7.33333 9.33333H2.66667C2.29848 9.33333 2 9.63181 2 10V13.3333C2 13.7015 2.29848 14 2.66667 14H7.33333C7.70152 14 8 13.7015 8 13.3333V10C8 9.63181 7.70152 9.33333 7.33333 9.33333Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1114,7 +1114,7 @@ export default function ProductViewNewPage() {
                       </svg>
                       <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                    <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9.33366 1.33398V5.33398H13.3337M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -1188,7 +1188,7 @@ export default function ProductViewNewPage() {
                                   <div className="relative group flex items-center justify-center">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
-                                        className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                        className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                         onClick={() => {
                                           setShowRegenerateModal({
                                             isOpen: true,
@@ -1198,7 +1198,7 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                       </div>
@@ -1207,7 +1207,7 @@ export default function ProductViewNewPage() {
                                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                       <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                         <div 
-                                          className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                          className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                           style={{ border: '1px solid #0F58F9' }}
                                           onClick={() => {
                                             if (status?.videoLesson?.productId) {
@@ -1215,7 +1215,7 @@ export default function ProductViewNewPage() {
                                             }
                                           }}
                                         >
-                                          <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                          <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                         </div>
                                       </CustomTooltip>
                                     </div>
@@ -1223,11 +1223,11 @@ export default function ProductViewNewPage() {
                                 ) : (
                                   <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                      className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                       style={{ border: '1px solid #0F58F9' }}
                                       onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                     >
-                                      <Plus size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                      <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                     </div>
                                   </CustomTooltip>
                                 )}
@@ -1240,7 +1240,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1250,7 +1250,7 @@ export default function ProductViewNewPage() {
                                         });
                                       }}
                                     >
-                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
                                       </svg>
                                     </div>
@@ -1259,7 +1259,7 @@ export default function ProductViewNewPage() {
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
-                                        className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
                                           if (status?.quiz?.productId) {
@@ -1267,7 +1267,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1275,11 +1275,11 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
-                                    className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                    className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
-                                    <Plus size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1291,7 +1291,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1301,7 +1301,7 @@ export default function ProductViewNewPage() {
                                         });
                                       }}
                                     >
-                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
                                       </svg>
                                     </div>
@@ -1310,7 +1310,7 @@ export default function ProductViewNewPage() {
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
-                                        className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
                                           if (status?.presentation?.productId) {
@@ -1318,7 +1318,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1326,11 +1326,11 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
-                                    className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                    className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
-                                    <Plus size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1342,7 +1342,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1352,7 +1352,7 @@ export default function ProductViewNewPage() {
                                         });
                                       }}
                                     >
-                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
                                       </svg>
                                     </div>
@@ -1361,7 +1361,7 @@ export default function ProductViewNewPage() {
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
-                                        className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
                                           if (status?.onePager?.productId) {
@@ -1369,7 +1369,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1377,11 +1377,11 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
-                                    className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                    className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
-                                    <Plus size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
