@@ -329,8 +329,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <div className="container mx-auto px-8 py-6">
             <div className="max-w-6xl mx-auto">
               {/* Header */}
-              <div className="text-center mb-13">
-                <div className="flex items-center justify-center mb-4">
+              <div className="text-center mb-10">
+                <div className="flex items-center justify-center mb-2">
                   <div className="flex items-center gap-1">
                     <div className="w-7 h-7 flex items-center justify-center">
                       <svg width="14" height="18" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -340,7 +340,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <span className="text-xs font-medium text-blue-600 font-public-sans">ContentBuilder</span>
                   </div>
                 </div>
-                <h1 className="text-[22px] font-bold text-[#434343] mb-5 font-sora">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
+                <h1 className="text-[22px] font-bold text-[#434343] mb-4 font-sora">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
                 <p className="text-blue-700 font-normal text-[11px] mb-2 font-public-sans"><span className="font-sora font-bold">Save 15%</span> on yearly plan!</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
@@ -401,7 +401,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     {/* Card Header */}
                     <div className="p-5 pt-6">
                       <h3 className="text-xl font-bold text-[#0D001B] font-public-sans mb-1">{plan.name}</h3>
-                      <p className="text-lg text-[#0D001B] font-public-sans mb-4">Best for personal use</p>
+                      <p className="text-sm text-[#0D001B] font-public-sans mb-4">Best for personal use</p>
                       <div className="text-gray-900">
                         <span className="text-[28px] font-public-sans font-bold">
                           {getPrice(plan)}
@@ -415,10 +415,10 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     </div>
 
                     {/* Card Body */}
-                    <div className="px-4 pb-3 pt-3 flex flex-col flex-grow">
+                    <div className="px-4 pb-3 pt-1 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-3 rounded-sm font-public-sans font-medium text-xs transition-all duration-300 ${
+                        className={`w-full py-2 rounded-sm font-public-sans font-medium text-[13px] transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular
@@ -435,7 +435,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
-                      <h4 className="text-sm font-medium font-public-sans text-[#434343] pt-9 mb-4">
+                      <h4 className="text-sm font-medium font-public-sans text-[#434343] pt-7 mb-4">
                         {plan.id === 'starter' ? 'What you get:' : 
                          plan.id === 'pro' ? 'All free features, plus:' :
                          plan.id === 'business' ? 'All starter features, plus:' :
