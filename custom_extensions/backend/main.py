@@ -33991,7 +33991,8 @@ async def list_smartdrive_files(
 
             # Use Nextcloud WebDAV API to list files with the user's individual credentials
             username, password, base_url, _ = await _get_nextcloud_credentials(conn, onyx_user_id)
-            webdav_url = f"{base_url}/remote.php/dav/files/{username}{path}"
+            # Encode DAV path segments to handle special characters like '#'
+            webdav_url = f"{base_url}/remote.php/dav/files/{username}{_encode_dav_path(path)}"
             auth = (username, password)
             
             try:
@@ -34077,8 +34078,20 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             else:
                 relative_path = file_path
                 
+            # Decode relative path for human-readable output
+            try:
+                from urllib.parse import unquote as _unquote
+                relative_path = _unquote(relative_path)
+            except Exception:
+                pass
             # Extract file name
             name = relative_path.split('/')[-1] if not relative_path.endswith('/') else relative_path.split('/')[-2]
+            # Ensure name is decoded
+            try:
+                from urllib.parse import unquote as _unquote
+                name = _unquote(name)
+            except Exception:
+                pass
             if not name:
                 continue
                 
@@ -34449,7 +34462,7 @@ async def smartdrive_mkdir(
         await _ensure_folder_tree(webdav_user_base, user_root_prefix + path, auth=(username, password))
 
         # Create target folder (MKCOL)
-        target = _ensure_trailing_slash(user_root_prefix + path)
+        target = _ensure_trailing_slash(_encode_dav_path(user_root_prefix + path))
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.request("MKCOL", f"{webdav_user_base}{target}", auth=(username, password))
         if resp.status_code in (201, 405):  # created or already exists
@@ -34478,13 +34491,16 @@ async def smartdrive_upload(
         webdav_user_base = f"{base_url}/remote.php/dav/files/{username}"
 
         # Ensure destination folder exists
-        await _ensure_folder_tree(webdav_user_base, _ensure_trailing_slash(user_root_prefix + norm_dir), auth=(username, password))
+        await _ensure_folder_tree(webdav_user_base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + norm_dir)), auth=(username, password))
 
         results: List[Dict[str, Any]] = []
         async with httpx.AsyncClient(timeout=None) as client:
             for f in files:
                 safe_name = _sanitize_filename(f.filename or "upload.bin")
-                dest_url = f"{webdav_user_base}{_ensure_trailing_slash(user_root_prefix + norm_dir)}{safe_name}"
+                # Encode destination path and filename for WebDAV
+                from urllib.parse import quote as _quote
+                dest_dir = _ensure_trailing_slash(_encode_dav_path(user_root_prefix + norm_dir))
+                dest_url = f"{webdav_user_base}{dest_dir}{_quote(safe_name, safe='')}"
 
                 # Track file size during streaming
                 file_size = 0
@@ -34953,9 +34969,9 @@ async def smartdrive_move(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        headers = {"Destination": f"{base}{_encode_dav_path(f"{user_root_prefix}{dst}")}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("MOVE", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
+            resp = await client.request("MOVE", f"{base}{_encode_dav_path(f"{user_root_prefix}{src}")}", auth=(username, password), headers=headers)
         if resp.status_code in (201, 204):
             return {"success": True}
         raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
@@ -34980,9 +34996,9 @@ async def smartdrive_copy(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        headers = {"Destination": f"{base}{_encode_dav_path(f"{user_root_prefix}{dst}")}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("COPY", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
+            resp = await client.request("COPY", f"{base}{_encode_dav_path(f"{user_root_prefix}{src}")}", auth=(username, password), headers=headers)
         if resp.status_code in (201, 204):
             return {"success": True}
         raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
@@ -35012,7 +35028,7 @@ async def smartdrive_delete(
         results: List[Dict[str, Any]] = []
         async with httpx.AsyncClient(timeout=60.0) as client:
             for p in norm_paths:
-                resp = await client.delete(f"{base}{user_root_prefix}{p}", auth=(username, password))
+                resp = await client.delete(f"{base}{_encode_dav_path(f"{user_root_prefix}{p}")}", auth=(username, password))
                 ok = resp.status_code in (200, 204)
                 results.append({"path": p, "success": ok, "status": resp.status_code, "error": None if ok else _dav_error(resp)})
         if any(not r["success"] for r in results):
@@ -35068,7 +35084,7 @@ async def smartdrive_token_estimate(
                 pass
         # Otherwise use HEAD to get Content-Length and approximate
         base = f"{base_url}/remote.php/dav/files/{username}"
-        file_url = f"{base}{user_root_prefix}{norm_path}"
+        file_url = f"{base}{_encode_dav_path(f"{user_root_prefix}{norm_path}")}"
         async with httpx.AsyncClient(timeout=15.0) as client:
             head = await client.head(file_url, auth=(username, password))
         if not head.is_success:
@@ -35109,7 +35125,7 @@ async def smartdrive_download(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        source_url = f"{base}{user_root_prefix}{norm_path}"
+        source_url = f"{base}{_encode_dav_path(f"{user_root_prefix}{norm_path}")}"
 
         client = httpx.AsyncClient(timeout=None)
         resp = await client.get(source_url, auth=(username, password), stream=True)
@@ -35224,6 +35240,22 @@ async def _normalize_smartdrive_path(p: str) -> str:
     return normalized if normalized != "" else "/"
 
 
+def _encode_dav_path(path: str) -> str:
+    """Percent-encode each path segment for WebDAV URLs, preserving slashes.
+    Ensures leading/trailing slash semantics are kept.
+    """
+    try:
+        from urllib.parse import quote
+        if path is None:
+            return "/"
+        is_abs = path.startswith("/")
+        is_dir = path.endswith("/")
+        parts = [seg for seg in path.split("/") if seg != ""]
+        encoded = "/".join(quote(seg, safe="") for seg in parts)
+        return ("/" if is_abs else "") + encoded + ("/" if is_dir and encoded else "")
+    except Exception:
+        return path
+
 async def _ensure_folder_tree(base: str, full_path: str, auth: Tuple[str, str]) -> None:
     """Ensure the full folder tree exists using MKCOL on each segment."""
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -35233,7 +35265,7 @@ async def _ensure_folder_tree(base: str, full_path: str, auth: Tuple[str, str]) 
         cumulative = ""
         for seg in segments:
             cumulative += f"/{seg}"
-            url = f"{base}{_ensure_trailing_slash(cumulative)}"
+            url = f"{base}{_ensure_trailing_slash(_encode_dav_path(cumulative))}"
             try:
                 r = await client.request("MKCOL", url, auth=auth)
                 if r.status_code in (201, 405):

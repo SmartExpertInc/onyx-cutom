@@ -1,5 +1,6 @@
 # custom_extensions/backend/app/services/smartdrive_uploader.py
 import httpx
+from urllib.parse import quote
 from fastapi import HTTPException
 import logging
 from typing import Optional
@@ -68,7 +69,21 @@ async def upload_file_to_smartdrive(
     if not file_path.endswith("/"):
         file_path = f"{file_path}/"
 
-    folder_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+    # Encode path segments for WebDAV
+    def _encode_dav_path(path: str) -> str:
+        try:
+            if path is None:
+                return "/"
+            is_abs = path.startswith("/")
+            is_dir = path.endswith("/")
+            parts = [seg for seg in path.split("/") if seg != ""]
+            encoded = "/".join(quote(seg, safe="") for seg in parts)
+            return ("/" if is_abs else "") + encoded + ("/" if is_dir and encoded else "")
+        except Exception:
+            return path
+
+    safe_dir_path = _encode_dav_path(file_path)
+    folder_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{safe_dir_path}"
     logger.info(f"[SmartDrive] Ensuring folder | url={folder_url}")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -77,7 +92,7 @@ async def upload_file_to_smartdrive(
         cumulative = ""
         for part in path_parts:
             cumulative += f"/{part}"
-            mkcol_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{cumulative}/"
+            mkcol_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{_encode_dav_path(cumulative)}/"
             try:
                 mkcol_resp = await client.request("MKCOL", mkcol_url, auth=(nextcloud_username, nextcloud_password))
                 if mkcol_resp.status_code == 201:
@@ -91,7 +106,7 @@ async def upload_file_to_smartdrive(
                 logger.warning(f"[SmartDrive] MKCOL failed {mkcol_url}: {e}")
 
         # Upload file
-        file_url = f"{folder_url}{file_name}"
+        file_url = f"{folder_url}{quote(file_name, safe='')}"
         logger.info(f"[SmartDrive] PUT {file_url}")
         response = await client.put(
             file_url,

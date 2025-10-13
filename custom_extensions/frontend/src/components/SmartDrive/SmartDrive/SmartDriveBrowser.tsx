@@ -690,10 +690,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 										</div>
 										<div className="flex-1">
-											<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
+									<div className="font-medium text-slate-800">{it.name}</div>
 											<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
 											{it.type === 'file' && (() => { 
-												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+											const s = indexing[it.path]; 
 												const shouldShow = s && s.status !== 'done' && s.status !== 'success';
 												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
 													indexingState: s,
@@ -704,7 +704,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											})() && (
 												<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
 													{(() => { 
-														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+												const s = indexing[it.path]; 
 														const pct = s?.etaPct ?? 10; 
 														return (
 															<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
