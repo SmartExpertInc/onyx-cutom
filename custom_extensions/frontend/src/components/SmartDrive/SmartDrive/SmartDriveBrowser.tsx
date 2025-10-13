@@ -102,7 +102,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error(`List failed: ${res.status}`);
 			const data = await res.json();
-			setItems(Array.isArray(data.files) ? data.files : []);
+			// Filter out the current folder itself if backend includes it in listing
+			const listingPath = (data.path || path || '/');
+			const norm = (p: string) => {
+				if (!p) return '/';
+				// collapse multiple slashes and unify trailing slash for directories
+				let out = p.replace(/\\+/g, '/');
+				if (!out.startsWith('/')) out = '/' + out;
+				// don't force trailing slash; compare both forms later
+				return out;
+			};
+			const selfA = norm(listingPath);
+			const selfB = selfA.endsWith('/') ? selfA.slice(0, -1) : selfA + '/';
+			const files = Array.isArray(data.files) ? data.files.filter((i: SmartDriveItem) => {
+				const p = norm(i?.path || '');
+				return p !== selfA && p !== selfB;
+			}) : [];
+			setItems(files);
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
