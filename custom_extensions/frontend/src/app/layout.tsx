@@ -6,6 +6,21 @@ import { MontFontLoader } from '../components/MontFontLoader';
 import { AvatarDisplayManager } from '../components/AvatarDisplayManager';
 import MixpanelProvider from './MixpanelProvider';
 import VerificationGate from '../components/VerificationGate';
+import { Public_Sans, Sora } from 'next/font/google';
+
+const publicSans = Public_Sans({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-public-sans',
+  display: 'swap',
+});
+
+const sora = Sora({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sora',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -18,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full font-sans">
+    <html lang="en" className={`h-full font-sans ${publicSans.variable} ${sora.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

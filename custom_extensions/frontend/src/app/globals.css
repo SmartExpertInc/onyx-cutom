@@ -82,7 +82,7 @@
 
 body {
   color: var(--foreground);
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
 }
 /* Styles for Project Table Expand/Collapse */
 
@@ -274,41 +274,41 @@ body:has([aria-modal="true"]) [draggable="true"] {
 
 /* Sora Font Classes */
 .sora-font {
-  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
 }
 
 .sora-font-bold {
-  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
   font-weight: 700;
 }
 
 .sora-font-semibold {
-  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
   font-weight: 600;
 }
 
 .sora-font-medium {
-  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sora), 'Sora', system-ui, -apple-system, sans-serif;
   font-weight: 500;
 }
 
 /* Public Sans Font Classes */
 .public-sans-font {
-  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
 }
 
 .public-sans-font-bold {
-  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
   font-weight: 700;
 }
 
 .public-sans-font-semibold {
-  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
   font-weight: 600;
 }
 
 .public-sans-font-medium {
-  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-public-sans), 'Public Sans', system-ui, -apple-system, sans-serif;
   font-weight: 500;
 }
 
