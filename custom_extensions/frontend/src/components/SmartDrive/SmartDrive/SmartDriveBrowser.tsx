@@ -209,9 +209,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const doMoveCopy = (op: 'move' | 'copy') => {
 		if (selected.size === 0) return;
 		setPickerOp(op);
-		setPickerPath('/');
+		setPickerPath(currentPath || '/');
 		setPickerOpen(true);
-		void loadPickerDirs('/');
+		void loadPickerDirs(currentPath || '/');
 	};
 
 	const openRename = () => {
@@ -879,9 +879,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={()=>setPickerOpen(false)}>Cancel</Button>
-						<Button onClick={()=>submitPicker(pickerPath)} disabled={pickerLoading || !isValidPickerDestination}>
-							Select folder
-						</Button>
+					<Button onClick={() => { console.log('[SmartDrive] Select folder clicked', { op: pickerOp, pickerPath, selected: Array.from(selected) }); submitPicker(pickerPath); }} disabled={pickerLoading || !isValidPickerDestination}>
+						Select folder
+					</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
