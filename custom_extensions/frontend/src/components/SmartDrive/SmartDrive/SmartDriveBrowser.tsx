@@ -272,7 +272,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		try {
 			for (const p of pickerSelected) {
 				const destBase = targetFolder.endsWith('/') ? targetFolder : `${targetFolder}/`;
-				const to = `${destBase}${p.split('/').pop()}`.replace(/\/+/, '/');
+				const baseName = p.split('/').pop() || '';
+				let to = `${destBase}${baseName}`.replace(/\/+?/g, '/');
+				// Normalize trailing slash: files must not end with '/', folders must end with '/'
+				const srcItem = items.find(i => i.path === p);
+				if (srcItem && srcItem.type === 'file') {
+					to = to.replace(/\/$/, '');
+				} else if (srcItem && srcItem.type === 'directory') {
+					to = to.endsWith('/') ? to : `${to}/`;
+				}
 				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}`);
 				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`, {
 					method: 'POST',
