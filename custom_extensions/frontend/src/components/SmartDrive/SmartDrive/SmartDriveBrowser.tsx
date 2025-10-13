@@ -672,6 +672,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
+	// Download single path (bypass selection)
+	const downloadPath = async (p: string) => {
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`, { 
+				credentials: 'same-origin' 
+			});
+			if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+			const data = await res.json();
+			if (data.downloadUrl) {
+				window.open(data.downloadUrl, '_blank');
+			}
+		} catch (e) {
+			console.error('[SmartDrive] Download error:', e);
+			alert('Download failed');
+		}
+	};
+
 	const canRename = selected.size === 1;
 	const canDelete = selected.size > 0;
 	const canMoveCopy = selected.size > 0;
@@ -783,16 +800,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						</div>
 						<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
 							{filtered.map((it, idx) => {
-								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-									setSelected(new Set([it.path]));
-                                    switch(action) {
-                                        case 'rename': openRename(); break;
-										case 'move': doMoveCopy('move'); break;
-										case 'copy': doMoveCopy('copy'); break;
-										case 'delete': del(); break;
-										case 'download': download(); break;
-									}
-								};
+						const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+							switch(action) {
+								case 'rename': openRenameForPath(it.path); break;
+								case 'move': doMoveCopyForPaths('move', [it.path]); break;
+								case 'copy': doMoveCopyForPaths('copy', [it.path]); break;
+								case 'delete': delPaths([it.path]); break;
+								case 'download': if (it.type==='file') void downloadPath(it.path); break;
+							}
+						};
 								
 					return (
 						<div
@@ -909,11 +925,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</Button>
 												</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()}>
-										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('rename');}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('delete');}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('download');}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+										<DropdownMenuItem onSelect={()=> handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+										<DropdownMenuItem onSelect={()=> handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+										<DropdownMenuItem onSelect={()=> handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+										<DropdownMenuItem onSelect={()=> handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={()=> handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</div>
@@ -987,6 +1003,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			</Dialog>
 		</div>
 	);
+};
+
+// Start move/copy for explicit paths
+const doMoveCopyForPaths = (op: 'move' | 'copy', paths: string[]) => {
+    if (!paths || paths.length === 0) return;
+    setPickerOp(op);
+    setPickerPath(currentPath || '/');
+    setPickerSelected(paths);
+    setPickerOpen(true);
+    void loadPickerDirs(currentPath || '/');
+};
+
+// Open rename for a specific path (without relying on selection)
+const openRenameForPath = (path: string) => {
+    if (!path) return;
+    setRenameFromPath(path);
+    setRenameNewName(path.split('/').pop() || '');
+    setRenameOpen(true);
 };
 
 function formatSize(bytes?: number | null): string {
