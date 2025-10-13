@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert } from 'lucide-react';
+import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert, ChevronDown } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -133,6 +133,7 @@ export default function ProductViewNewPage() {
     quiz: {exists: boolean, productId?: number}, 
     videoLesson: {exists: boolean, productId?: number}
   }}>({});
+  const [collapsedSections, setCollapsedSections] = useState<{[key: number]: boolean}>({});
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -844,6 +845,26 @@ export default function ProductViewNewPage() {
     });
   };
 
+  // Toggle section collapse
+  const toggleSectionCollapse = (index: number) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  // Collapse all sections
+  const collapseAllSections = () => {
+    const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+    if (!trainingPlanData?.sections) return;
+    
+    const allCollapsed: {[key: number]: boolean} = {};
+    trainingPlanData.sections.forEach((_, index) => {
+      allCollapsed[index] = true;
+    });
+    setCollapsedSections(allCollapsed);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -993,6 +1014,7 @@ export default function ProductViewNewPage() {
                 style={{
                   border: '1px solid #E0E0E0'
                 }}
+                onClick={collapseAllSections}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M3 4.5L6 7.5L9 4.5" stroke="#797979" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1028,6 +1050,13 @@ export default function ProductViewNewPage() {
                     />
                   ) : (
                       <div className="group flex items-center gap-2">
+                      <button 
+                        className="w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-transform duration-300"
+                        style={{ backgroundColor: '#719AF5' }}
+                        onClick={() => toggleSectionCollapse(index)}
+                      >
+                        <ChevronDown size={14} className={`text-white transition-transform duration-300 ${collapsedSections[index] ? '-rotate-90' : ''}`} />
+                      </button>
                       <h2 
                           className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] cursor-pointer"
                         onClick={() => startEditing('sectionTitle', index)}
@@ -1049,10 +1078,17 @@ export default function ProductViewNewPage() {
                   </div>
                   
                   {/* Module Content */}
+                  <div 
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{
+                      maxHeight: collapsedSections[index] ? '0' : '10000px',
+                      opacity: collapsedSections[index] ? 0 : 1
+                    }}
+                  >
                   <div className="p-[25px] pt-0">
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 gap-4 items-center px-[25px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, borderBottom: '1px solid #E0E0E0' }} >
+                  <div className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, borderBottom: '1px solid #E0E0E0' }} >
                     <div className="text-[14px] font-medium text-[#434343]">
                       Lessons
                     </div>
@@ -1087,7 +1123,7 @@ export default function ProductViewNewPage() {
                   </div>
 
                   {section.lessons && section.lessons.length > 0 && (
-                    <div>
+                    <div className="flex flex-col gap-3">
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => {
                         const lessonKey = lesson.id || lesson.title;
                         const status = lessonContentStatus[lessonKey];
@@ -1347,6 +1383,7 @@ export default function ProductViewNewPage() {
                       })}
                     </div>
                   )}
+                  </div>
                   </div>
                 </div>
               ));
