@@ -1012,38 +1012,43 @@ export default function ProductViewNewPage() {
               }
 
               return trainingPlanData.sections.map((section, index) => (
-                <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
-                  {isEditingField('sectionTitle', index) ? (
-                    <input
-                      type="text"
-                      value={section.title}
-                      onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
-                      onBlur={handleInputBlur}
-                      className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 bg-transparent border-none outline-none w-full"
-                      placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
-                      autoFocus
-                    />
-                  ) : (
-                    <div className="group flex items-center gap-2 mb-2">
-                      <h2 
-                        className="text-[#191D30] font-semibold text-[20px] leading-[100%] cursor-pointer"
-                        onClick={() => startEditing('sectionTitle', index)}
-                      >
-                        {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
-                      </h2>
-                      <button
-                        onClick={() => startEditing('sectionTitle', index)}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
-                        title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
-                      >
-                        <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
-                      </button>
-                    </div>
-                  )}
-                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
-                    {section.lessons?.length || 0} {t('interface.viewNew.lessons', 'lessons')}
-                  </p>
-                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
+                <div key={section.id || index} className="bg-white rounded-lg overflow-hidden">
+                  {/* Module Header */}
+                  <div className="bg-[#CCDBFC] p-[25px]">
+                    {isEditingField('sectionTitle', index) ? (
+                      <input
+                        type="text"
+                        value={section.title}
+                        onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
+                        onBlur={handleInputBlur}
+                        className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] bg-transparent border-none outline-none w-full"
+                        placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="group flex items-center gap-2">
+                        <h2 
+                          className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] cursor-pointer"
+                          onClick={() => startEditing('sectionTitle', index)}
+                        >
+                          {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
+                        </h2>
+                        <span className="bg-white text-[#797979] text-[12px] px-2 py-1 rounded">
+                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
+                        </span>
+                        <button
+                          onClick={() => startEditing('sectionTitle', index)}
+                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                          title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
+                        >
+                          <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Module Content */}
+                  <div className="p-[25px]">
                   
                   {/* Product Types Header */}
                   <div className="grid mb-4 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}` }} >
@@ -1307,6 +1312,7 @@ export default function ProductViewNewPage() {
                       })}
                     </div>
                   )}
+                  </div>
                 </div>
               ));
             })()}

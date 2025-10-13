@@ -1377,62 +1377,65 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && useExistingOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = outlines.find(o => o.name === value);
-                        setSelectedOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedModuleIndex(null);
-                        setLessonsForModule([]);
-                        setSelectedLesson("");
-                      }}
-                      options={outlines.map((o) => ({
-                        value: o.name,
-                        label: o.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
+                        value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = modulesForOutline.findIndex(m => m.name === value);
-                          setSelectedModuleIndex(idx !== -1 ? idx : null);
-                          setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
+                          const outline = outlines.find(o => o.name === value);
+                          setSelectedOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedModuleIndex(null);
+                          setLessonsForModule([]);
                           setSelectedLesson("");
                         }}
-                        options={modulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={outlines.map((o) => ({
+                          value: o.name,
+                          label: o.name
                         }))}
-                        label={t('interface.generate.modules', 'Modules')}
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedLesson}
-                        onValueChange={setSelectedLesson}
-                        options={lessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedOutlineId && (
+                        <CustomPillSelector
+                          value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = modulesForOutline.findIndex(m => m.name === value);
+                            setSelectedModuleIndex(idx !== -1 ? idx : null);
+                            setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
+                            setSelectedLesson("");
+                          }}
+                          options={modulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label={t('interface.generate.modules', 'Modules')}
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedLesson}
+                          onValueChange={setSelectedLesson}
+                          options={lessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={language}
                           onValueChange={setLanguage}
@@ -1453,14 +1456,14 @@ function GenerateProductPicker() {
                           }))}
                           label={t('interface.generate.slides', 'Slides')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={language}
                       onValueChange={setLanguage}
@@ -1481,69 +1484,72 @@ function GenerateProductPicker() {
                       }))}
                       label={t('interface.generate.slides', 'Slides')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = quizOutlines.find(o => o.name === value);
-                        setSelectedQuizOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedQuizModuleIndex(null);
-                        setQuizLessonsForModule([]);
-                        setSelectedQuizLesson("");
-                      }}
-                      options={quizOutlines.map((outline) => ({
-                        value: outline.name,
-                        label: outline.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedQuizOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
+                        value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = quizModulesForOutline.findIndex(m => m.name === value);
-                          setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
-                          setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
+                          const outline = quizOutlines.find(o => o.name === value);
+                          setSelectedQuizOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedQuizModuleIndex(null);
+                          setQuizLessonsForModule([]);
                           setSelectedQuizLesson("");
                         }}
-                        options={quizModulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={quizOutlines.map((outline) => ({
+                          value: outline.name,
+                          label: outline.name
                         }))}
-                        label="Module"
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedQuizModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedQuizLesson}
-                        onValueChange={setSelectedQuizLesson}
-                        options={quizLessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedQuizOutlineId && (
+                        <CustomPillSelector
+                          value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = quizModulesForOutline.findIndex(m => m.name === value);
+                            setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
+                            setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
+                            setSelectedQuizLesson("");
+                          }}
+                          options={quizModulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label="Module"
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedQuizModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedQuizLesson}
+                          onValueChange={setSelectedQuizLesson}
+                          options={quizLessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedQuizLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={quizLanguage}
                           onValueChange={setQuizLanguage}
@@ -1577,14 +1583,14 @@ function GenerateProductPicker() {
                           }))}
                           label={t('interface.generate.questions', 'Questions')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
@@ -1618,69 +1624,72 @@ function GenerateProductPicker() {
                       }))}
                       label={t('interface.generate.questions', 'Questions')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = textOutlines.find(o => o.name === value);
-                        setSelectedTextOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedTextModuleIndex(null);
-                        setTextLessonsForModule([]);
-                        setSelectedTextLesson("");
-                      }}
-                      options={textOutlines.map((o) => ({
-                        value: o.name,
-                        label: o.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedTextOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
+                        value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = textModulesForOutline.findIndex(m => m.name === value);
-                          setSelectedTextModuleIndex(idx !== -1 ? idx : null);
-                          setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
+                          const outline = textOutlines.find(o => o.name === value);
+                          setSelectedTextOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedTextModuleIndex(null);
+                          setTextLessonsForModule([]);
                           setSelectedTextLesson("");
                         }}
-                        options={textModulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={textOutlines.map((o) => ({
+                          value: o.name,
+                          label: o.name
                         }))}
-                        label="Module"
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedTextModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedTextLesson}
-                        onValueChange={setSelectedTextLesson}
-                        options={textLessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedTextOutlineId && (
+                        <CustomPillSelector
+                          value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = textModulesForOutline.findIndex(m => m.name === value);
+                            setSelectedTextModuleIndex(idx !== -1 ? idx : null);
+                            setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
+                            setSelectedTextLesson("");
+                          }}
+                          options={textModulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label="Module"
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedTextModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedTextLesson}
+                          onValueChange={setSelectedTextLesson}
+                          options={textLessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedTextLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={textLanguage}
                           onValueChange={setTextLanguage}
@@ -1719,14 +1728,14 @@ function GenerateProductPicker() {
                           label={t('interface.generate.selectStyles', 'Styles')}
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={textLanguage}
                       onValueChange={setTextLanguage}
@@ -1765,9 +1774,9 @@ function GenerateProductPicker() {
                       label={t('interface.generate.selectStyles', 'Styles')}
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* Video Lesson Configuration */}
