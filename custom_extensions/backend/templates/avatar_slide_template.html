@@ -782,9 +782,9 @@
         
         .course-overview-slide .image-container {
             position: absolute;
-            bottom: -40px;
+            bottom: -43px;
             height: 91%;
-            border-radius: 15px;
+            border-radius: 16px;
             overflow: hidden;
         }
         
@@ -792,7 +792,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 15px;
+            border-radius: 16px;
         }
         
         /* Work Life Balance Slide Template */
@@ -800,7 +800,7 @@
             width: 100%;
             height: 100%;
             aspect-ratio: 16/9;
-            background: linear-gradient(90deg, #DE57E5 0%, #8863FB 100%);
+            background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
             display: flex;
             position: relative;
             overflow: hidden;
@@ -911,8 +911,8 @@
         
         .work-life-balance-slide .image-container {
             position: absolute;
-            left: -63px;
-            bottom: -40px;
+            left: -67px;
+            bottom: -43px;
             z-index: 2;
             width: 100%;
             display: flex;
@@ -921,8 +921,8 @@
         }
         
         .work-life-balance-slide .balance-image {
-            height: 850px;
-            border-radius: 15px;
+            height: 904px;
+            border-radius: 16px;
             object-fit: contain;
         }
         
@@ -1058,7 +1058,7 @@
         .benefits-list-slide .bottom-section {
             flex: 1;
             background-color: #E0E7FF;
-            padding: 32px 96px;
+            padding: 21px 96px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -1354,13 +1354,11 @@
             width: 100%;
             height: 100%;
             aspect-ratio: 16/9;
-            background-color: #E0E7FF;
             display: flex;
             flex-direction: column;
             padding: 64px 96px;
-            padding-right: 0;
-            padding-bottom: 0;
             padding-left: 0;
+            padding-bottom: 0;
             position: relative;
             overflow: hidden;
         }
@@ -1379,10 +1377,21 @@
         .hybrid-work-slide .logo-text {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 21px;
+            gap: 13px;
+            font-size: 22px;
             color: black;
             font-family: 'Inter', sans-serif;
+        }
+        
+        .hybrid-work-slide .main-content {
+            width: 100%;
+            height: 100%;
+            background-color: #E0E7FF;
+            display: flex;
+            padding: 64px 96px;
+            padding-right: 0;
+            padding-bottom: 0;
+            padding-top: 64px;
         }
         
         .hybrid-work-slide .left-column {
@@ -2225,6 +2234,8 @@
                         </div>
                     </div>
 
+                    <!-- Main content with two columns -->
+                    <div class="main-content">
                     <!-- Left column -->
                     <div class="left-column">
                         <div>
@@ -2284,6 +2295,7 @@
                                 <img src="{{ teamImagePath }}" alt="{{ teamImageAlt or 'Team meeting' }}" class="team-image">
                             </div>
                         {% endif %}
+                    </div>
                     </div>
 
                     <!-- Logo in bottom-right corner -->
