@@ -456,12 +456,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="relative">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate ? (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-2 border border-gray-200">
-                <Lock size={17} className="text-gray-600" />
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                <Lock size={18} className="text-gray-600" />
               </div>
             ) : (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-2 border border-gray-200">
-                <Users size={17} className="text-gray-600" />
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                <Users size={18} className="text-gray-600" />
               </div>
             )}
           </div>
@@ -478,45 +478,45 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 min-h-28 flex flex-col justify-between gap-2">
+        <div className="bg-white px-4 py-3 min-h-28 flex flex-col justify-between gap-2 h-32">
         {project.designMicroproductType && (
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
                 {project.designMicroproductType === "Slide Deck" && (
-                  <LayoutTemplate size={14} className="text-[#EFB4FB]" />
+                  <LayoutTemplate size={17} className="text-[#EFB4FB]" />
                 )}
                 {project.designMicroproductType === "Training Plan" && (
-                  <BookOpen size={14} className="text-[#719AF5]" />
+                  <BookOpen size={17} className="text-[#719AF5]" />
                 )}
                 {project.designMicroproductType === "Video Lesson Presentation" && (
-                  <MonitorPlay size={14} className="text-[#06A294]" />
+                  <MonitorPlay size={17} className="text-[#06A294]" />
                 )}
                 {project.designMicroproductType === "Text Presentation" && (
-                  <FileText size={14} className="text-purple-300" />
+                  <FileText size={17} className="text-purple-300" />
                 )}
                 {project.designMicroproductType === "Quiz" && (
-                  <FileQuestion size={14} className="text-[#FBEC9E]" />
+                  <FileQuestion size={17} className="text-[#FBEC9E]" />
                 )}
               </div>
-              <span className="text-sm text-gray-500 font-medium">
+              <span className="text-sm text-gray-500 font-normal">
                 {getProductTypeDisplayName(project.designMicroproductType)}
               </span>
             </div>
           )}
-          <div className="h-2 w-full border-b border-[#E0E0E0]" />
+          <div className="h-1 w-full border-b border-[#E0E0E0]" />
           {/* Project title */}
           <h3 className="font-bold text-gray-900 text-base leading-tight" title={displayTitle}>
             {displayTitle}
           </h3>
           
           {/* Creator info and options */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <div className="flex items-center gap-3">
               {/* Avatar */}
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
               >
-                <Image src="/images/avatarIcon.png" alt="Avatar" width={32} height={32} className="w-7 h-7 opacity-50" />
+                <Image src="/avatarIcon.png" alt="Avatar" width={32} height={32} className="w-7 h-7 opacity-50" />
               </div>
               
               {/* Creator info */}

@@ -487,15 +487,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             </svg>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center">
-            <span className="font-black text-black text-2xl">ContentBuilder</span>
+          <div className="rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none">
+            <path d="M12.6963 11.831L10.5205 10.4425C10.7998 9.65925 10.7368 8.78439 10.3321 8.04194L12.1168 6.47327C13.0972 7.07503 14.4037 6.95757 15.256 6.11902C16.248 5.143 16.248 3.56044 15.256 2.58438C14.2639 1.60832 12.6553 1.60832 11.6633 2.58438C10.8818 3.35329 10.7164 4.4981 11.1659 5.42681L9.38103 6.99572C8.52665 6.41397 7.43676 6.31227 6.50015 6.69182L4.44195 3.90514C5.18026 2.95143 5.10743 1.58407 4.22185 0.712658C3.25607 -0.237553 1.69021 -0.237553 0.724374 0.712658C-0.241458 1.66292 -0.241458 3.20358 0.724374 4.15379C1.41786 4.8361 2.42044 5.02835 3.28829 4.73105L5.34675 7.51798C4.33025 8.69104 4.38442 10.4545 5.5115 11.5633C5.53315 11.5846 5.55541 11.6046 5.57772 11.6252L3.58345 15.0689C2.75458 14.8761 1.84648 15.0971 1.20005 15.7332C0.207993 16.7093 0.207993 18.292 1.20005 19.268C2.1921 20.244 3.80065 20.244 4.79266 19.268C5.77434 18.3022 5.78405 16.7428 4.82279 15.7645L6.81691 12.3211C7.81832 12.604 8.93798 12.37 9.74277 11.6194L11.9207 13.0089C11.7816 13.6442 11.9624 14.3339 12.4642 14.8276C13.2504 15.601 14.5247 15.601 15.3107 14.8276C16.0968 14.0542 16.0968 12.8004 15.3107 12.027C14.598 11.326 13.4839 11.2606 12.6963 11.831ZM2.06068 16.9455C2.01235 16.9994 1.96687 17.0503 1.92225 17.0941C1.86665 17.1488 1.79068 17.2154 1.69641 17.244C1.57799 17.28 1.45699 17.2483 1.36425 17.1571C1.12173 16.9185 1.21448 16.4671 1.58003 16.1076C1.94568 15.7479 2.40428 15.6566 2.64689 15.8953C2.73958 15.9864 2.77175 16.1055 2.73516 16.2221C2.70609 16.3148 2.6384 16.3898 2.58286 16.4443C2.53824 16.4881 2.4865 16.5328 2.43167 16.5804C2.3684 16.6352 2.30284 16.6918 2.2383 16.7552C2.17381 16.8187 2.11633 16.8832 2.06068 16.9455ZM12.0433 2.95853C12.4088 2.59888 12.8675 2.50753 13.11 2.74618C13.2027 2.83733 13.235 2.95643 13.1983 3.07303C13.1692 3.16583 13.1015 3.24073 13.046 3.29534C13.0015 3.33909 12.9498 3.38384 12.8949 3.43134C12.8315 3.48619 12.7661 3.54279 12.7015 3.60624C12.6369 3.66979 12.5794 3.73434 12.5236 3.79664C12.4755 3.85044 12.4298 3.90149 12.3854 3.94529C12.3299 3.99994 12.2537 4.06654 12.1595 4.09519C12.0409 4.13114 11.92 4.09949 11.8273 4.00824C11.5849 3.76959 11.6777 3.31814 12.0433 2.95853ZM1.56229 1.89272C1.51513 1.94522 1.47087 1.99482 1.42772 2.03747C1.3737 2.09062 1.2996 2.15537 1.20772 2.18342C1.09241 2.21832 0.974611 2.18757 0.884304 2.09887C0.648195 1.86652 0.738654 1.42707 1.0946 1.07696C1.45049 0.726758 1.89694 0.637857 2.13315 0.870209C2.22341 0.95901 2.25486 1.07496 2.21914 1.18836C2.19063 1.27871 2.12492 1.35161 2.07085 1.40466C2.02745 1.44737 1.97703 1.49102 1.92367 1.53707C1.86203 1.59037 1.7982 1.64557 1.73543 1.70737C1.67257 1.76922 1.61641 1.83212 1.56229 1.89272ZM5.96558 7.78808C6.40227 7.35838 6.95001 7.24938 7.23979 7.53443C7.35057 7.64348 7.38904 7.78563 7.34539 7.92493C7.31042 8.03584 7.22967 8.12519 7.1633 8.19054C7.11009 8.24289 7.04819 8.29614 6.98274 8.35294C6.90722 8.41849 6.82896 8.48604 6.75181 8.56189C6.67467 8.63784 6.60596 8.71479 6.53949 8.78924C6.48176 8.85359 6.42743 8.91449 6.37427 8.96674C6.3079 9.03224 6.21709 9.11155 6.10437 9.14585C5.96289 9.1888 5.81835 9.15105 5.70741 9.042C5.41784 8.75669 5.52888 8.21779 5.96558 7.78808ZM13.0368 13.1053C12.9927 13.1486 12.9323 13.2014 12.8577 13.2241C12.7639 13.2525 12.6682 13.2275 12.5946 13.1552C12.4023 12.9662 12.4758 12.6086 12.7656 12.3236C13.0551 12.0386 13.4186 11.9663 13.6108 12.1555C13.6841 12.2276 13.7097 12.322 13.6807 12.4144C13.6577 12.488 13.604 12.5472 13.56 12.5905C13.5248 12.6251 13.4838 12.6606 13.4404 12.6982C13.3904 12.7415 13.3383 12.7865 13.2872 12.8368C13.2361 12.8871 13.1903 12.9381 13.1464 12.9876C13.1081 13.0303 13.072 13.0706 13.0368 13.1053Z" fill="#0F58F9"/>
+            </svg>
+            <span className="font-black text-[#0F58F9] text-2xl">ContentBuilder</span>
           </div>
         )}
       </div>
       <nav className="flex flex-col gap-1">
         <Link
           href="/projects"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
           onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
@@ -503,7 +506,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         </Link>
         <Link
           href="/projects?tab=smart-drive"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
           onClick={() => {
             trackPageView("Smart Drive");
             onFolderSelect(null);
@@ -515,7 +518,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {offersTabEnabled && (
           <Link
             href="/projects?tab=offers"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => {
             trackPageView("Offers");
             onFolderSelect(null);
@@ -528,7 +531,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {aiAuditEnabled && (
           <Link
             href="/projects?tab=audits"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => onFolderSelect(null)}
           >
             <ClipboardCheck size={18} />
@@ -538,7 +541,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {workspaceTabEnabled && (
           <Link
             href="/projects?tab=workspace"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => onFolderSelect(null)}
           >
             <Users size={18} />
@@ -548,7 +551,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {exportToLMSEnabled && (
           <Link
             href="/projects?tab=export-lms"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => {
             trackPageView("Export to LMS");
             onFolderSelect(null);
@@ -614,12 +617,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
         {eventPostersEnabled && (
-          <Link href="/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+          <Link href="/create/event-poster/questionnaire" className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900">
             <Presentation size={18} />
             <span>{t('interface.eventPoster', 'Event Poster')}</span>
           </Link>
         )}
-        <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}>
+        <Link href="/projects?tab=trash" className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>
         </Link>
@@ -670,12 +673,23 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] rounded-md font-medium public-sans" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
+        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] flex items-center gap-2 rounded-md font-medium public-sans text-sm" onClick={onTariffModalOpen}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <g clip-path="url(#clip0_308_17348)">
+          <path d="M12.3176 11.7968C11.8825 11.9633 11.6458 12.2012 11.4774 12.6356C11.3107 12.2012 11.0724 11.9649 10.6372 11.7968C11.0724 11.6303 11.3091 11.394 11.4774 10.9579C11.6442 11.3924 11.8825 11.6287 12.3176 11.7968ZM11.5382 4.99568C11.9153 3.5935 12.4306 3.07794 13.8366 2.70096C12.4322 2.3245 11.9158 1.81001 11.5382 0.40625C11.1611 1.80843 10.6458 2.32399 9.23981 2.70096C10.6442 3.07743 11.1606 3.59192 11.5382 4.99568ZM11.9486 7.88981C11.9486 7.7577 11.8798 7.5982 11.6872 7.5445C10.1118 7.10467 9.12471 6.60253 8.38772 5.86735C7.65079 5.13161 7.14678 4.14608 6.70788 2.57315C6.65409 2.38089 6.49433 2.31215 6.36201 2.31215C6.22969 2.31215 6.06993 2.38089 6.01615 2.57315C5.57561 4.14608 5.07266 5.13155 4.33631 5.86735C3.5983 6.60418 2.61227 7.1063 1.03681 7.5445C0.844242 7.5982 0.775391 7.75771 0.775391 7.88981C0.775391 8.02192 0.844242 8.18143 1.03681 8.23513C2.61227 8.67496 3.59932 9.1771 4.33631 9.91227C5.07431 10.6491 5.57725 11.6335 6.01615 13.2065C6.06994 13.3987 6.2297 13.4675 6.36201 13.4675C6.49434 13.4675 6.6541 13.3987 6.70788 13.2065C7.14842 11.6335 7.65137 10.6481 8.38772 9.91227C9.12573 9.17545 10.1118 8.67332 11.6872 8.23513C11.8798 8.18142 11.9486 8.02192 11.9486 7.88981Z" fill="#06A294"/>
+          </g>
+          <defs>
+          <clipPath id="clip0_308_17348">
+          <rect width="14.6939" height="14.6939" fill="white" transform="translate(0.775391 0.407227)"/>
+          </clipPath>
+          </defs>
+        </svg>
+            Get Unlimited AI</Button>
         <button 
           onClick={onAddOnsModalOpen}
           className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-semibold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
         >
-          <Coins size={20} className="text-[#F7E0FC]" />
+          <Coins size={20} className="text-[#8808A2]" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </button>
         <Button variant="outline" onClick={onSurveyModalOpen}>

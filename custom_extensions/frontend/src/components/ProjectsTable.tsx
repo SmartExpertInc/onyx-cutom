@@ -3825,14 +3825,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 variant={viewMode === "grid" ? "view-active" : "view"}
                 className={`rounded-full ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
-                <LayoutGrid size={16} />
+                <LayoutGrid size={20} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
                 className={`rounded-full ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
-                <List size={16} />
+                <List size={20} />
               </Button>
             </div>
           </div>
