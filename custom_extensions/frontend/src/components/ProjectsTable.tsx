@@ -3715,7 +3715,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       {!trashMode && (
         <div className="flex items-center gap-4 mb-6">
-          <nav className="flex space-x-5">
+          <nav className="flex">
             <button
               className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "all" 
@@ -3769,7 +3769,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Favorites
             </button>
           </nav>
-          <div className="relative flex-1 min-w-0">
+          <div className="relative w-200 ml-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
             <Input
               type="text"
@@ -3796,13 +3796,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    {contentTypeFilter}
                  </Button>
                </DropdownMenuTrigger>
-               <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-gray-100">
-                 <DropdownMenuLabel className="px-4 py-3 border-b border-gray-100">
+               <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-[#E4E4E7]">
+                 <DropdownMenuLabel className="px-4 py-3 border-b border-[#E4E4E7] bg-white">
                    <p className="font-semibold text-sm text-gray-900">
                      {t("interface.filterBy", "Filter by")}
                    </p>
                  </DropdownMenuLabel>
-                 <DropdownMenuSeparator className="border-gray-300" />
+                 <DropdownMenuSeparator className="border-[#E4E4E7] text-[#E4E4E7] bg-[#E4E4E7]" />
                  {contentTypeFilters.map((filter) => {
                    const Icon = contentTypeFilterIcons[filter];
                    const isSelected = contentTypeFilter === filter;
@@ -3810,9 +3810,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                      <DropdownMenuItem
                        key={filter}
                        onClick={() => setContentTypeFilter(filter)}
-                       className={`flex items-center justify-between px-4 py-3 text-sm transition-colors ${
+                       className={`flex items-center justify-between px-2 py-2 text-sm transition-colors bg-white ${
                          isSelected 
-                           ? "bg-[#CCDBFC] text-[#0F58F9] font-medium" 
+                           ? "!bg-[#CCDBFC] text-[#0F58F9] font-medium" 
                            : "text-gray-900 hover:bg-gray-50"
                        }`}
                      >
@@ -3892,15 +3892,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
               <Button
                 onClick={() => setViewMode("grid")}
-                variant={viewMode === "grid" ? "view-active" : "view"}
-                className={`rounded-full ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
+                className={`rounded-full p-1 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
                 <LayoutGrid size={20} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
-                variant={viewMode === "list" ? "view-active" : "view"}
-                className={`rounded-full ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
+                className={`rounded-full p-1 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
                 <List size={20} />
               </Button>
@@ -3990,7 +3988,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {t("interface.actions", "ACTIONS")}
+                    {/* {t("interface.actions", "ACTIONS")} */}
                   </TableHead>
                 </TableRow>
               </TableHeader>

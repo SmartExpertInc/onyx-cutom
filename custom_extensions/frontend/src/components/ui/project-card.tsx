@@ -444,9 +444,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex justify-between"
+          className="relative h-40 shadow-md flex"
         >
-          <div className="absolute top-0 left-0 w-[40%] h-full" style={{
+          {/* Left side - Only gradient */}
+          <div className="w-[45%] h-full" style={{
             backgroundColor: bgColor,
             backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
               displayTitle.split("").reverse().join("")
@@ -454,21 +455,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }} />
           {/* Top row with badge positioned absolutely */}
           
-            {/* Truncated title in center */}
-            <div className="p-2 w-[60%]" style={{ backgroundColor: `${bgColor}40` }}>
-              <div className="relative">
-                {/* Private badge positioned absolutely in top-right */}
-                {project.isPrivate ? (
-                  <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
-                    <Lock size={18} className="text-gray-600" />
-                  </div>
-                ) : (
-                  <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
-                    <Users size={18} className="text-gray-600" />
-                  </div>
-                )}
+          {/* Right side - Title text with icon */}
+          <div className="w-[55%] h-full relative flex flex-col p-4" style={{ backgroundColor: `${bgColor}20` }}>
+            {/* Lock/Users icon positioned absolutely in top-right */}
+            {project.isPrivate ? (
+              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
+                <Lock size={18} className="text-gray-600" />
               </div>
-              <div className="flex items-center pt-2 justify-center flex-1 px-2">
+            ) : (
+              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-1.5 border border-gray-200">
+                <Users size={18} className="text-gray-600" />
+              </div>
+            )}
+            
+            {/* Title text */}
+            <div className="flex items-center justify-center flex-1 mt-8">
               <h3 
                 className="font-semibold text-md text-left leading-tight line-clamp-5"
                   style={{ color: "black" }}
@@ -476,8 +477,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 {displayTitle}
               </h3>
             </div>
-           </div>
-           
+          </div>
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
