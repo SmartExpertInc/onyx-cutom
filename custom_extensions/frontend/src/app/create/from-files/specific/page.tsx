@@ -438,6 +438,7 @@ export default function CreateFromSpecificFilesPage() {
         <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
           <Button
             variant="back"
+            asChild
           >
             <Link
               href="/create"
