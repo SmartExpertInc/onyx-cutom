@@ -326,7 +326,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         
         <ScrollArea className="h-[90vh] max-h-[720px] w-full">
           <div className="h-[90%] min-h-[700px] max-h-[720px]">
-          <div className="container mx-auto px-8 xl:px-10 py-6 xl:py-7">
+          <div className="container mx-auto px-8 py-6 xl:py-7">
             <div className="max-w-6xl mx-auto">
               {/* Header */}
               <div className="text-center mb-10 xl:mb-14">
@@ -379,7 +379,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         }`}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-5 left-0 right-0 z-10">
+                          <div className="absolute -top-4 left-0 right-0 xl:-top-5 z-10">
                             <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg text-xs xl:text-sm font-medium font-public-sans text-center flex items-center justify-center gap-2">
                               {t('tariffPlan.mostPopular', 'Most Popular')}
                               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -418,7 +418,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className="px-4 pb-3 pt-1 xl:pt-3 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-2 xl:py-3 rounded-sm font-public-sans font-medium text-[13px] xl:text-xs transition-all duration-300 ${
+                        className={`w-full py-2 xl:py-3 rounded-sm font-public-sans font-medium text-[13px] xl:text-sm transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular

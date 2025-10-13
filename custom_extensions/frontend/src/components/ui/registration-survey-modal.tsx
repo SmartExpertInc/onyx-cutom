@@ -317,7 +317,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <ScrollArea className="w-full h-[90vh] z-30 max-h-[700px]">
+          <ScrollArea className="w-full h-[90vh] z-100 max-h-[700px]">
             <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
             {/* Header with Logo and Progress */}
             <div className="p-8 pb-4">
@@ -644,7 +644,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
         {/* Navigation Buttons */}
-        <div className="px-8 pt-6 mb-15">
+        <div className="px-8 pt-6 pb-6">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
             <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}

@@ -477,21 +477,27 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
-            <div 
-              className="inline-flex items-center gap-1 bg-gray-50 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
-            >
-              <span className="text-xs font-semibold text-gray-700">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 bg-purple-100 rounded flex items-center justify-center">
+                <Presentation size={12} className="text-purple-600" />
+              </div>
+              <span className="text-sm text-gray-500 font-medium">
                 {getProductTypeDisplayName(project.designMicroproductType)}
               </span>
             </div>
           )}
           
+          {/* Project title */}
+          <h3 className="font-bold text-gray-900 text-lg leading-tight" title={displayTitle}>
+            {displayTitle}
+          </h3>
+          
           {/* Creator info and options */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* Avatar */}
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 style={{ backgroundColor: avatarColor }}
               >
                 {project.createdBy.slice(0, 1).toUpperCase()}
@@ -499,7 +505,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-900 leading-tight">
+                <span className="text-sm font-medium text-gray-700 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
                 <span className="text-xs text-gray-500 leading-tight">
