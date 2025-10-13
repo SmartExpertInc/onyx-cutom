@@ -109,7 +109,7 @@ export default function ProductViewNewPage() {
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   // const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
-  const columnVideoLessonEnabled = false; // Temporarily disabled to check styles
+  const columnVideoLessonEnabled = true; // Temporarily enabled to check styles
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
@@ -1015,7 +1015,7 @@ export default function ProductViewNewPage() {
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg overflow-hidden">
                   {/* Module Header */}
-                  <div className="bg-[#CCDBFC] p-[25px]">
+                  <div className="bg-[#CCDBFC] px-[12px] py-[20px]">
                   {isEditingField('sectionTitle', index) ? (
                     <input
                       type="text"
@@ -1049,10 +1049,10 @@ export default function ProductViewNewPage() {
                   </div>
                   
                   {/* Module Content */}
-                  <div className="p-[25px]">
+                  <div className="p-[25px] pt-0">
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 gap-4 items-center px-2 pb-4" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, borderBottom: '1px solid #E0E0E0' }} >
+                  <div className="grid mb-4 gap-4 items-center px-[25px] mx-[-25px]" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, borderBottom: '1px solid #E0E0E0' }} >
                     <div className="text-[14px] font-medium text-[#434343]">
                       Lessons
                     </div>
@@ -1136,14 +1136,11 @@ export default function ProductViewNewPage() {
                               </div>
                               {/* Progress Scale */}
                               <div className="flex items-center gap-2 ml-6">
-                                <div className="flex gap-1">
-                                  {[...Array(totalProducts)].map((_, i) => (
-                                    <div 
-                                      key={i}
-                                      className="w-8 rounded-full"
-                                      style={{ backgroundColor: i < actualCreatedCount ? '#719AF5' : '#CCDBFC', height: '3px' }}
-                                    />
-                                  ))}
+                                <div className="relative w-32 h-[3px] bg-[#CCDBFC] rounded-full overflow-hidden">
+                                  <div 
+                                    className="absolute top-0 left-0 h-full bg-[#719AF5] rounded-full transition-all duration-300"
+                                    style={{ width: `${(actualCreatedCount / totalProducts) * 100}%` }}
+                                  />
                                 </div>
                                 <span className="text-[#797979] text-[9px]">{actualCreatedCount}/{totalProducts} created</span>
                               </div>
