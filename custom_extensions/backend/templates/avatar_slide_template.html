@@ -694,14 +694,14 @@
             z-index: 1 !important;
         }
         
-        /* Course Overview Slide Template */
+        /* Course Overview Slide Template - EXACT React Copy */
         .course-overview-slide {
-            width: 100%;
-            height: 100%;
+            width: 1920px;
+            height: 1080px;
+            background-color: #ffffff;
             display: flex;
             position: relative;
             overflow: hidden;
-            background-color: #ffffff;
         }
         
         .course-overview-slide .left-panel {
@@ -726,15 +726,25 @@
             position: absolute;
             top: 48px;
             left: 48px;
+        }
+        
+        .course-overview-slide .logo-img {
+            max-height: 64px;
+            max-width: 192px;
+            object-fit: contain;
+        }
+        
+        .course-overview-slide .logo-text {
             color: #ffffff;
-            font-size: 26px;
+            font-size: 38px;
             font-weight: 500;
+            font-family: 'Inter', sans-serif;
         }
         
         .course-overview-slide .page-number-container {
             position: absolute;
             bottom: 48px;
-            left: 0px;
+            left: 0;
             display: flex;
             align-items: center;
             gap: 13px;
@@ -742,7 +752,7 @@
         
         .course-overview-slide .page-line {
             width: 32px;
-            height: 1.5px;
+            height: 2px;
             background-color: rgba(255, 255, 255, 0.5);
         }
         
@@ -750,6 +760,7 @@
             color: #ffffff;
             font-size: 27px;
             font-weight: 300;
+            font-family: 'Inter', sans-serif;
         }
         
         .course-overview-slide .title-container {
@@ -764,20 +775,16 @@
         
         .course-overview-slide .title {
             font-size: 101px;
-            color: white;
+            color: #ffffff;
             line-height: 1.1;
             font-family: 'Inter', sans-serif;
-            user-select: none;
-            position: relative;
         }
         
         .course-overview-slide .subtitle {
             font-size: 101px;
-            color: white;
+            color: #ffffff;
             line-height: 1.1;
             font-family: 'Inter', sans-serif;
-            user-select: none;
-            position: relative;
         }
         
         .course-overview-slide .image-container {
@@ -788,18 +795,17 @@
             overflow: hidden;
         }
         
-        .course-overview-slide .course-image {
+        .course-overview-slide .image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 16px;
         }
         
-        /* Work Life Balance Slide Template */
+        /* Work Life Balance Slide Template - EXACT React Copy */
         .work-life-balance-slide {
-            width: 100%;
-            height: 100%;
-            aspect-ratio: 16/9;
+            width: 1920px;
+            height: 1080px;
             background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
             display: flex;
             position: relative;
@@ -832,6 +838,12 @@
             color: #ffffff;
         }
         
+        .work-life-balance-slide .logo-img {
+            max-height: 48px;
+            max-width: 192px;
+            object-fit: contain;
+        }
+        
         .work-life-balance-slide .logo-placeholder {
             width: 48px;
             height: 48px;
@@ -843,10 +855,28 @@
             justify-content: center;
         }
         
+        .work-life-balance-slide .logo-plus-h {
+            width: 19px;
+            height: 3px;
+            background-color: #ffffff;
+            position: absolute;
+        }
+        
+        .work-life-balance-slide .logo-plus-v {
+            width: 3px;
+            height: 19px;
+            background-color: #ffffff;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
         .work-life-balance-slide .logo-text {
             font-size: 22px;
             font-weight: 300;
             color: #ffffff;
+            font-family: 'Inter', sans-serif;
         }
         
         .work-life-balance-slide .title {
@@ -859,7 +889,6 @@
             color: #ffffff;
             line-height: 1.1;
             font-family: 'Inter', sans-serif;
-            user-select: none;
         }
         
         .work-life-balance-slide .content {
@@ -873,7 +902,6 @@
             color: #ffffff;
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
-            user-select: none;
         }
         
         .work-life-balance-slide .page-number-container {
@@ -887,7 +915,7 @@
         
         .work-life-balance-slide .page-line {
             width: 32px;
-            height: 1.5px;
+            height: 2px;
             background-color: rgba(255, 255, 255, 0.5);
         }
         
@@ -895,6 +923,7 @@
             color: #ffffff;
             font-size: 27px;
             font-weight: 300;
+            font-family: 'Inter', sans-serif;
         }
         
         .work-life-balance-slide .arch-background {
@@ -920,17 +949,16 @@
             justify-content: center;
         }
         
-        .work-life-balance-slide .balance-image {
+        .work-life-balance-slide .image-container img {
             height: 904px;
             border-radius: 16px;
             object-fit: contain;
         }
         
-        /* Phishing Definition Slide Template */
+        /* Phishing Definition Slide Template - EXACT React Copy */
         .phishing-definition-slide {
-            width: 100%;
-            height: 100%;
-            aspect-ratio: 16/9;
+            width: 1920px;
+            height: 1080px;
             background-color: #E0E7FF;
             display: flex;
             position: relative;
@@ -1033,11 +1061,10 @@
             font-weight: 500;
         }
         
-        /* Benefits List Slide Template */
+        /* Benefits List Slide Template - EXACT React Copy */
         .benefits-list-slide {
-            width: 100%;
-            height: 100%;
-            aspect-ratio: 16/9;
+            width: 1920px;
+            height: 1080px;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -1210,11 +1237,10 @@
             font-weight: 300;
         }
         
-        /* Impact Statements Slide Template */
+        /* Impact Statements Slide Template - EXACT React Copy */
         .impact-statements-slide {
-            width: 100%;
-            height: 100%;
-            aspect-ratio: 16/9;
+            width: 1920px;
+            height: 1080px;
             background-color: #E0E7FF;
             display: flex;
             gap: 112px;
@@ -1349,18 +1375,18 @@
             font-weight: 300;
         }
         
-        /* Hybrid Work Best Practices Slide Template */
+        /* Hybrid Work Best Practices Slide Template - EXACT React Copy */
         .hybrid-work-slide {
-            width: 100%;
-            height: 100%;
-            aspect-ratio: 16/9;
+            width: 1920px;
+            height: 1080px;
+            background-color: #E0E7FF;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
             padding: 64px 96px;
             padding-left: 0;
             padding-bottom: 0;
-            position: relative;
-            overflow: hidden;
         }
         
         .hybrid-work-slide .logo-header {
@@ -1975,11 +2001,11 @@
                         <!-- Logo placeholder -->
                         <div class="logo-container">
                             {% if logoPath %}
-                                <img src="{{ logoPath }}" alt="{{ logoAlt or 'Company logo' }}" style="max-height: 45px; max-width: 180px; object-fit: contain;">
+                                <img src="{{ logoPath }}" alt="{{ logoAlt or 'Company logo' }}" class="logo-img">
                             {% else %}
                                 <div class="logo-placeholder">
-                                    <div style="width: 18px; height: 3px; background-color: #ffffff; position: absolute;"></div>
-                                    <div style="width: 3px; height: 18px; background-color: #ffffff; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                                    <div class="logo-plus-h"></div>
+                                    <div class="logo-plus-v"></div>
                                 </div>
                                 <span class="logo-text">Your Logo</span>
                             {% endif %}
