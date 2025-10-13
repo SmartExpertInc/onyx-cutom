@@ -986,7 +986,7 @@ export default function ProductViewNewPage() {
       <div className="max-w-7xl mx-auto flex flex-col">
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-4 md:px-8 lg:px-[120px] mt-6">
+          <div className="px-4 md:px-8 lg:px-[100px] mt-6">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
@@ -1001,7 +1001,7 @@ export default function ProductViewNewPage() {
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3 space-y-4 pb-4">
             {/* Course Info Bar */}
             <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">

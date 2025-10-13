@@ -277,7 +277,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         <div className="w-full bg-white rounded-lg overflow-hidden mb-4">
           {/* Header with border */}
           <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4" style={{ borderBottom: '1px solid #E0E0E0' }}>
-            <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'AI Agent')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('actions.aiAgent', 'AI Agent')}</h3>
             <button
               onClick={() => setShowAdvanced(false)}
               className="text-gray-500 hover:text-gray-700 text-sm"
@@ -305,9 +305,9 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 type="button"
                 onClick={() => toggleExample(ex)}
                 disabled={loadingEdit}
-                className={`relative text-left rounded-md px-4 py-4 text-sm w-full h-[60px] flex items-start cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
+                className={`relative text-left rounded-md px-4 py-4 text-sm w-full min-h-[70px] flex items-start cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
-                    ? 'bg-[#B8D4F0]'
+                    ? 'bg-[#A8C5F0]'
                     : 'bg-[#CCDBFC] hover:shadow-lg'
                 }`}
               >
@@ -324,20 +324,19 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
               disabled={!editPrompt.trim() || loadingEdit}
               className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                backgroundColor: '#FFFFFF',
-                color: '#0F58F9',
+                backgroundColor: '#0F58F9',
+                color: '#FFFFFF',
                 fontSize: '14px',
                 fontWeight: '600',
                 lineHeight: '140%',
-                letterSpacing: '0.05em',
-                border: '1px solid #0F58F9'
+                letterSpacing: '0.05em'
               }}
             >
               {loadingEdit ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent" style={{ borderColor: '#0F58F9', borderTopColor: 'transparent' }}></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent" style={{ borderColor: '#FFFFFF', borderTopColor: 'transparent' }}></div>
               ) : (
                 <>
-                  <Sparkles size={14} style={{ color: '#0F58F9' }} />
+                  <Sparkles size={14} style={{ color: '#FFFFFF' }} />
                   {t('actions.applyEdit', 'Apply Edit')}
                 </>
               )}
