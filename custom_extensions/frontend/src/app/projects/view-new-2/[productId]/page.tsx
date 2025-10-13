@@ -869,14 +869,14 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 font-inter min-h-screen"
+      className="font-inter min-h-screen"
       style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+        background: '#F0F0F0'
       }}
     >
-      <div className="max-w-7xl mx-auto flex flex-col">
-        <header className="sticky top-0 z-50 h-16 bg-white mb-6 flex flex-row justify-between items-center gap-4 p-[14px] -mx-4 md:-mx-8 px-[14px] md:px-8" style={{ borderBottom: '1px solid #E4E4E7' }}>
-          <div className="flex items-center gap-x-4">
+      <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px] mb-6" style={{ borderBottom: '1px solid #E4E4E7' }}>
+        <div className="max-w-7xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
+          <div className="flex items-center gap-x-8">
             <button
               onClick={() => { if (typeof window !== 'undefined') window.location.href = '/projects'; }}
               className="flex items-center justify-center bg-white rounded-md h-9 px-3 transition-all duration-200 hover:shadow-lg cursor-pointer"
@@ -904,15 +904,15 @@ export default function ProductViewNewPage() {
           <div className="flex items-center space-x-3">
             {/* AI Agent button for Course Outline */}
             {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
-              <button
+            <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
                 className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
+              style={{
                   backgroundColor: '#FFFFFF',
-                  color: '#0F58F9',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  lineHeight: '140%',
+                color: '#0F58F9',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
                   letterSpacing: '0.05em',
                   border: '1px solid #0F58F9'
                 }}
@@ -922,27 +922,27 @@ export default function ProductViewNewPage() {
                   <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 {t('actions.aiAgent', 'AI Agent')}
-              </button>
+            </button>
             )}
 
             {/* Export button */}
-            <button
+              <button
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-              style={{
+                style={{
                 backgroundColor: '#0F58F9',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
               title="Export"
-            >
+              >
               <svg width="9" height="12" viewBox="0 0 9 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.74154 8.67253V1.18945M4.74154 8.67253L1.53451 5.4655M4.74154 8.67253L7.94857 5.4655M8.48307 10.8105H1" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               {t('actions.export', 'Export')}
-            </button>
+              </button>
 
             {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && scormEnabled && (
               <ToastProvider>
@@ -975,11 +975,13 @@ export default function ProductViewNewPage() {
               <Download size={14} style={{ color: 'white' }} /> Download PDF
             </button> */}
           </div>
-        </header>
+        </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto flex flex-col py-4 md:py-8">
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-[200px]">
+          <div className="px-4 md:px-8 lg:px-[120px]">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
@@ -992,44 +994,27 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[200px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[120px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-3 space-y-4">
-            {/* Course Outline Title */}
-            <div className="bg-white rounded-lg p-[25px]">
-              {isEditingField('mainTitle') ? (
-                <input
-                  type="text"
-                  value={(() => {
-                    const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                    return trainingPlanData?.mainTitle || projectData.name || t('interface.viewNew.courseOutline', 'Course Outline');
-                  })()}
-                  onChange={(e) => handleInputChange(['mainTitle'], e.target.value)}
-                  onBlur={handleInputBlur}
-                  className="text-[#191D30] font-semibold text-[32px] leading-none bg-transparent border-none outline-none w-full"
-                  placeholder={t('interface.viewNew.courseTitle', 'Course Title')}
-                  autoFocus
-                />
-              ) : (
-                <div className="group flex items-center gap-2">
-                  <h1 
-                    className="text-[#191D30] font-semibold text-[32px] leading-none cursor-pointer"
-                    onClick={() => startEditing('mainTitle')}
-                  >
-                    {(() => {
-                      const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                      return trainingPlanData?.mainTitle || projectData.name || t('interface.viewNew.courseOutline', 'Course Outline');
-                    })()}
-                  </h1>
-                  <button
-                    onClick={() => startEditing('mainTitle')}
-                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
-                    title={t('interface.viewNew.editCourseTitle', 'Edit course title')}
-                  >
-                    <Edit3 size={16} className="text-[#9A9DA2] hover:text-gray-700" />
-                  </button>
-                </div>
-              )}
+            {/* Course Info Bar */}
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center gap-2 text-[#797979] text-[14px]">
+                <span>{totalModules} modules</span>
+                <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
+                <span>{totalLessons} lessons total</span>
+              </div>
+              <button
+                className="flex items-center gap-2 bg-transparent rounded-md h-9 px-3 transition-all duration-200 hover:bg-gray-50 cursor-pointer"
+                style={{
+                  border: '1px solid #E0E0E0'
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="#797979" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-[#797979] text-[14px] font-medium">Collapse All</span>
+              </button>
             </div>
 
             {/* Render actual modules from the course outline data */}
