@@ -46,7 +46,43 @@ import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 import { BarChartSlideTemplate } from './BarChartSlideTemplate';
 import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
-import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
+import { SolutionStepsSlideTemplate } from './SolutionStepsSlideTemplate';
+import { ProofStatisticsSlideTemplate } from './ProofStatisticsSlideTemplate';
+import { MarketingAgencyThankYouSlideTemplate } from './MarketingAgencyThankYouSlideTemplate';
+import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
+import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
+import { StaySafeTipsSlideTemplate } from './StaySafeTipsSlideTemplate';
+import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
+import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
+import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
+import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
+import { PhishingRiseSlideTemplate } from './PhishingRiseSlideTemplate';
+import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTemplate';
+import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
+import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
+import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
+import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate';
+import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
+import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
+import ImpactMetricsRightImageSlideTemplate from './ImpactMetricsRightImageSlideTemplate';
+import CultureValuesThreeColumnsSlideTemplate from './CultureValuesThreeColumnsSlideTemplate';
+import KeySkillsDataAnalysisSlideTemplate from './KeySkillsDataAnalysisSlideTemplate';
+import ChangeManagementTabsSlideTemplate from './ChangeManagementTabsSlideTemplate';
+import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlideTemplate';
+import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
+import ResourcesSlideTemplate from './ResourcesSlideTemplate';
+import LeftBarAvatarImageSlideTemplate from './LeftBarAvatarImageSlideTemplate';
+import ProblemsGridSlideTemplate from './ProblemsGridSlideTemplate';
+import DataDrivenInsightsSlideTemplate from './DataDrivenInsightsSlideTemplate';
+import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
+import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
+import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
+import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
+import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
+import TopicsSlideTemplate from './TopicsSlideTemplate';
+
+
+
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1545,6 +1581,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       address: '374 Creekside Road Palmetto',
       postalCode: 'F134221',
       companyName: 'Company name',
+      logoNew: '',
       profileImagePath: '',
       profileImageAlt: 'Profile image',
       backgroundColor: '#110c35',
@@ -1559,6 +1596,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       address: { type: 'text', label: 'Address', required: true },
       postalCode: { type: 'text', label: 'Postal Code', required: true },
       companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       backgroundColor: { type: 'color', label: 'Background Color', default: '#110c35' },
@@ -1595,7 +1633,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#ffffff',
       contentColor: '#d9e1ff',
       accentColor: '#4CAF50',
-      companyName: 'Company name'
+      companyName: 'Company name',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
@@ -1610,7 +1649,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
       contentColor: { type: 'color', label: 'Content Color', default: '#d9e1ff' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#4CAF50' },
-      companyName: { type: 'text', label: 'Company Name', required: true }
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 
@@ -1736,7 +1776,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#333333',
       contentColor: '#666666',
       accentColor: '#9c27b0',
-      companyName: 'Company name'
+      companyName: 'Company name',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1748,7 +1789,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' },
-      companyName: { type: 'text', label: 'Company Name', required: true }
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 
@@ -1783,6 +1825,26 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    }
+  },
+
+  // New: Connection slide (dark UI with venn and bottom tabs)
+  'connection-slide': {
+    id: 'connection-slide',
+    name: 'Connection Slide',
+    description: 'Dark split layout with venn diagram and bottom navigation',
+    category: 'content',
+    icon: '🕸️',
+    component: ConnectionSlideTemplate,
+    defaultProps: {
+      title: 'Connection',
+      description: 'Connections create trust, encourage open communication, and build a culture of collaboration.',
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
     }
   },
 
@@ -1851,20 +1913,22 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Here are some impact value statements backed by numbers:',
       statements: [
-        { number: '50%', description: 'decrease in turnover rates.' },
-        { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+        { number: '50%', description: 'decrease in turnover\nrates.' },
+        { number: '$2.8B', description: 'the cost of harassment\nto businesses in the United States annually.' },
         { number: '40%', description: 'increase in employee morale and engagement' }
       ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-
+      pageNumber: '18',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       statements: { type: 'array', label: 'Statements', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 
@@ -1945,28 +2009,925 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'data-analysis-slide': {
-    id: 'data-analysis-slide',
-    name: 'Data Analysis Slide',
-    description: 'Slide with profile image and Excel icon for data analysis topics',
+  'solution-steps-slide': {
+    id: 'solution-steps-slide',
+    name: 'Solution Steps Slide',
+    description: 'Dark themed slide with step-by-step guide and timeline',
     category: 'content',
-    icon: '📈',
-    component: DataAnalysisSlideTemplate,
+    icon: '📋',
+    component: SolutionStepsSlideTemplate,
     defaultProps: {
-      title: 'Introduction to Data Analysis',
+      subtitle: 'The Solution',
+      title: 'Step-by-step Guide',
+      steps: [
+        { title: 'Step 1', description: 'Know the Regulations' },
+        { title: 'Step 2', description: 'Conduct Risk Assessments' },
+        { title: 'Step 3', description: 'Provide Training and Education' }
+      ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-      excelIconPath: '',
-      excelIconAlt: 'Excel icon'
+      website: 'www.company.com',
+      date: 'Date Goes Here',
+      pageNumber: '23'
+    },
+    propSchema: {
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      website: { type: 'text', label: 'Website', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 50 }
+    }
+  },
+
+  'proof-statistics-slide': {
+    id: 'proof-statistics-slide',
+    name: 'Proof Statistics Slide',
+    description: 'Blue themed slide with statistics and bullet points',
+    category: 'content',
+    icon: '📊',
+    component: ProofStatisticsSlideTemplate,
+    defaultProps: {
+      tagText: 'Presentation',
+      title: 'The Proof Is in the Pudding',
+      description: 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
+      statistics: [
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' }
+      ],
+      conclusionText: 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
+      bulletPoints: [
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      tagText: { type: 'text', label: 'Tag Text', required: true, maxLength: 50 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 500 },
+      statistics: { type: 'array', label: 'Statistics', required: true },
+      conclusionText: { type: 'text', label: 'Conclusion Text', required: true, maxLength: 500 },
+      bulletPoints: { type: 'array', label: 'Bullet Points', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'marketing-agency-thank-you-slide': {
+    id: 'marketing-agency-thank-you-slide',
+    name: 'Marketing Agency Thank You Slide',
+    description: 'Light themed slide with orange accent and thank you message',
+    category: 'content',
+    icon: '🙏',
+    component: MarketingAgencyThankYouSlideTemplate,
+    defaultProps: {
+      headerTitle: 'Introduction to Our\nMarketing Agency',
+      logoText: 'Your Logo',
+      mainTitle: 'Thank you!',
+      bodyText: 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true, maxLength: 100 },
+      logoText: { type: 'text', label: 'Logo Text', maxLength: 50 },
+      mainTitle: { type: 'text', label: 'Main Title', required: true, maxLength: 100 },
+      bodyText: { type: 'text', label: 'Body Text', required: true, maxLength: 500 },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  },
+
+  'stay-safe-tips-slide': {
+    id: 'stay-safe-tips-slide',
+    name: 'Stay Safe Tips Slide',
+    description: 'White left panel with 4 numbered tips and actor on black',
+    category: 'content',
+    icon: '🛡️',
+    component: StaySafeTipsSlideTemplate,
+    defaultProps: {
+      title: '4 tips to staysafe online',
+      tips: [
+        { number: '1', heading: 'Know the scams', description: 'Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.' },
+        { number: '2', heading: "Don't click", description: 'These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer' },
+        { number: '3', heading: 'Shop safely', description: 'Don\'t shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online' },
+        { number: '4', heading: 'Passwords', description: 'Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.' },
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      tips: { type: 'array', label: 'Tips', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    }
+  },
+
+  'resources-list-slide': {
+    id: 'resources-list-slide',
+    name: 'Resources List Slide',
+    description: 'Olive background with three resource bars and title',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesListSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      resources: [
+        { text: 'Resource 1: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 2: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 3: [Website/Book Title] - [Link/Author Name]' }
+      ],
+      logoPath: '',
+      logoAlt: 'Your Logo',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      resources: { type: 'array', label: 'Resources', required: true },
+      logoPath: { type: 'image', label: 'Logo' },
+      logoAlt: { type: 'text', label: 'Logo Alt Text' },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'course-rules-timeline-slide': {
+    id: 'course-rules-timeline-slide',
+    name: 'Course Rules Timeline Slide',
+    description: 'Purple background, actor left, vertical line with two steps',
+    category: 'content',
+    icon: '🧭',
+    component: CourseRulesTimelineSlideTemplate,
+    defaultProps: {
+      steps: [
+        { number: '01', text: 'Rules of the course' },
+        { number: '02', text: 'Prerequisite courses' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'resilience-behaviors-slide': {
+    id: 'resilience-behaviors-slide',
+    name: 'Resilience Behaviors Slide',
+    description: 'Green background with title, subtitle, avatar and 8 bullets',
+    category: 'content',
+    icon: '🌿',
+    component: ResilienceBehaviorsSlideTemplate,
+    defaultProps: {
+      title: 'Research shows that resilient employees engage in three specific behaviors.',
+      subtitle: 'Research shows that resilient employees engage in three specific behaviors. These help them remain focused and optimistic despite setbacks or uncertainty:',
+      bullets: [
+        'Pay attention to your health',
+        'Focus on your physical well-being',
+        'Practice relaxation techniques',
+        'Practice reframing threats as challenges',
+        'Watch your stress levels',
+        'Mind your mindset',
+        'Practice self-awareness',
+        'Get connected'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 140 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 400 },
+      bullets: { type: 'array', label: 'Bullets', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'soft-skills-types-slide': {
+    id: 'soft-skills-types-slide',
+    name: 'Soft Skills Types Slide',
+    description: 'Light background with big title and three image cards',
+    category: 'content',
+    icon: '🧠',
+    component: SoftSkillsTypesSlideTemplate,
+    defaultProps: {
+      title: 'Types of Soft Skills',
+      cards: [
+        { label: 'Time management' },
+        { label: 'Team work' },
+        { label: 'Work ethic' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  // Pixel-perfect: Phishing rise
+  'phishing-rise-slide': {
+    id: 'phishing-rise-slide',
+    name: 'Phishing Rise Slide',
+    description: 'Two-column slide with narrative and black bar chart',
+    category: 'content',
+    icon: '📈',
+    component: PhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today... documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been a noted that 93% of phishing emails are now ransomware.',
+      bars: [
+        { year: '2019', valueLabel: '33M$', height: 160 },
+        { year: '2020', valueLabel: '39M$', height: 200 },
+        { year: '2021', valueLabel: '55M$', height: 330 },
+        { year: '2022', valueLabel: '44M$', height: 270 },
+        { year: '2023', valueLabel: '67M$', height: 420 },
+        { year: '2024', valueLabel: '35M$', height: 210 }
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 600 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    }
+  },
+
+  // Pixel-perfect: AI Pharma Market Growth
+  'ai-pharma-market-growth-slide': {
+    id: 'ai-pharma-market-growth-slide',
+    name: 'AI Pharma Market Growth Slide',
+    description: 'Rounded light panel with left labels and right doctor photo',
+    category: 'content',
+    icon: '🏥',
+    component: AiPharmaMarketGrowthSlideTemplate,
+    defaultProps: {
+      title: 'AI Pharma\nMarket Growth',
+      bars: [
+        { year: '2012', label: '$10 million', widthPercent: 24 },
+        { year: '2016', label: '$100 million', widthPercent: 72 },
+        { year: '2020', label: '$700 million', widthPercent: 92 },
+        { year: '2030', label: '$9000 billion', widthPercent: 100 }
+      ],
+      doctorImagePath: '',
+      doctorImageAlt: 'Doctor',
+      panelBackgroundColor: '#dfeeff'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      doctorImagePath: { type: 'image', label: 'Right Image' },
+      doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      panelBackgroundColor: { type: 'color', label: 'Panel Color' }
+    }
+  },
+
+  // Pixel-perfect: KPI Update
+  'kpi-update-slide': {
+    id: 'kpi-update-slide',
+    name: 'KPI Update Slide',
+    description: 'Light report slide with big KPI values and footer',
+    category: 'content',
+    icon: '📑',
+    component: KpiUpdateSlideTemplate,
+    defaultProps: {
+      title: 'KPI Update',
+      items: [
+        { value: '10%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '75', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '86%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '1M', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile',
+      footerLeft: 'Company name',
+      footerCenter: 'KPI Report',
+      footerRight: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      items: { type: 'array', label: 'Items', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-      excelIconPath: { type: 'image', label: 'Excel Icon' },
-      excelIconAlt: { type: 'text', label: 'Excel Icon Alt Text' }
+      footerLeft: { type: 'text', label: 'Footer Left' },
+      footerCenter: { type: 'text', label: 'Footer Center' },
+      footerRight: { type: 'text', label: 'Footer Right' }
+    }
+  },
+
+  // Pixel-perfect: Interest Growth
+  'interest-growth-slide': {
+    id: 'interest-growth-slide',
+    name: 'Interest Growth Slide',
+    description: 'Left 2x2 cards with percentages and right photo panel',
+    category: 'content',
+    icon: '🧭',
+    component: InterestGrowthSlideTemplate,
+    defaultProps: {
+      title: 'Interest',
+      cards: [
+        { label: 'Interest growth', percentage: '50%' },
+        { label: 'Interest growth', percentage: '140%' },
+        { label: 'Interest growth', percentage: '128%' },
+        { label: 'Interest growth', percentage: '100%' }
+      ],
+      rightImagePath: '',
+      rightImageAlt: 'Person',
+      rightPanelColor: '#3a5bf0'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      rightPanelColor: { type: 'color', label: 'Right Panel Color' }
+    }
+  },
+
+  // Pixel-perfect: High-Performing Teams
+  'high-performing-teams-slide': {
+    id: 'high-performing-teams-slide',
+    name: 'High-Performing Teams',
+    description: 'Title, paragraph, rounded panel with editable line and avatar',
+    category: 'content',
+    icon: '🟡',
+    component: HighPerformingTeamsSlideTemplate,
+    defaultProps: {
+      title: 'The Power of High-\nPerforming Teams',
+      description: 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',
+      panelColor: '#E9B84C',
+      lineColor: '#5A4DF6',
+      points: [
+        { x: 6, y: 72 },
+        { x: 22, y: 58 },
+        { x: 40, y: 64 },
+        { x: 58, y: 48 },
+        { x: 72, y: 42 },
+        { x: 84, y: 38 }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      panelColor: { type: 'color', label: 'Panel Color' },
+      lineColor: { type: 'color', label: 'Line Color' },
+      points: { type: 'array', label: 'Line Points', required: true },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
+    }
+  },
+
+
+  'table-of-contents-slide': {
+    id: 'table-of-contents-slide',
+    name: 'Table of Contents Slide',
+    description: 'Clean slide with green buttons and profile image',
+    category: 'content',
+    icon: '📋',
+    component: TableOfContentsSlideTemplate,
+    defaultProps: {
+      title: 'Table of Contents',
+      buttons: [
+        { text: 'The Problem', link: '' },
+        { text: 'Benefits', link: '' },
+        { text: 'Best Practices', link: '' },
+        { text: 'Methods', link: '' },
+        { text: 'Achieving Success', link: '' },
+        { text: 'The Future', link: '' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      buttons: { type: 'array', label: 'Buttons', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  },
+
+  'company-tools-resources-slide': {
+    id: 'company-tools-resources-slide',
+    name: 'Company Tools and Resources Slide',
+    description: 'Grid layout with alternating colored sections',
+    category: 'content',
+    icon: '🛠️',
+    component: CompanyToolsResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Company tools and resources',
+      sections: [
+        {
+          title: 'Communication Tools:',
+          content: 'Effective communication is key to success in any workplace. At [Company Name], we use a variety of communication tools to keep our team connected and informed. Here are some of the key tools we use.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        },
+        {
+          title: 'Project Management:',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Learning and Development Resources',
+          content: 'We believe in investing in our employees\' growth and development. Here are some of the resources we offer: Online training courses (LinkedIn Learning, Udemy, etc.); In-house training and workshops; Professional development funds.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Project Management',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      sections: { type: 'array', label: 'Sections', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
     }
   }
+  ,
+
+  // New: Impact metrics with right image panel (matches screenshots 1 and 3 variants)
+  'impact-metrics-right-image': {
+    id: 'impact-metrics-right-image',
+    name: 'Impact Metrics (Right Image)',
+    description: 'Three big impact metrics on the left and rounded image panel on the right',
+    category: 'content',
+    icon: '📈',
+    component: ImpactMetricsRightImageSlideTemplate,
+    defaultProps: {
+      metrics: [
+        { text: '300% increase in online visibility' },
+        { text: '$5 for every $1 spent average ROI' },
+        { text: '95% increase in customer loyalty' }
+      ],
+      showTitle: false,
+      backgroundColor: '#0f2a2e',
+      textColor: '#E6ECE9',
+      bulletBg: 'rgba(255,255,255,0.2)',
+      bulletColor: '#E6ECE9',
+      rightPanelColor: '#EA6A20'
+    },
+    propSchema: {
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      showTitle: { type: 'boolean', label: 'Show Title' },
+      title: { type: 'text', label: 'Title' },
+      backgroundColor: { type: 'color', label: 'Background' },
+      textColor: { type: 'color', label: 'Text Color' },
+      bulletBg: { type: 'color', label: 'Bullet BG' },
+      bulletColor: { type: 'color', label: 'Bullet Color' },
+      rightPanelColor: { type: 'color', label: 'Right Panel' },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  
+
+  
+
+  // New: Culture & Values with three columns and avatar
+  'culture-values-three-columns': {
+    id: 'culture-values-three-columns',
+    name: 'Culture & Values (3 columns)',
+    description: 'Top bar with logo and title, three equal columns with a colored middle panel and avatar',
+    category: 'content',
+    icon: '🏛️',
+    component: CultureValuesThreeColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Logo',
+      title: 'Our culture and values',
+      leftText: 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner...',
+      middleText: 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees...',
+      rightText: 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data...',
+      middlePanelColor: '#3B46FF'
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      title: { type: 'text', label: 'Title', required: true },
+      leftText: { type: 'text', label: 'Left Text', required: true },
+      middleText: { type: 'text', label: 'Middle Text', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      middlePanelColor: { type: 'color', label: 'Middle Panel' },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Key skills list with numbered items and avatar on left
+  'key-skills-data-analysis': {
+    id: 'key-skills-data-analysis',
+    name: 'Key Skills (Data Analysis)',
+    description: 'Blue gradient left panel with heading and avatar, numbered list on light right panel',
+    category: 'content',
+    icon: '🧠',
+    component: KeySkillsDataAnalysisSlideTemplate,
+    defaultProps: {
+      heading: 'Key skills\nfor data analysis:',
+      items: [ 'Sorting and filtering data.', 'Formulas and functions.', 'Pivot tables.', 'Data validation.', 'Charts and graphs.' ],
+      avatarImagePath: '',
+      logoPath: '',
+      pageNumber: '36'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      avatarImagePath: { type: 'image', label: 'Avatar Image' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 }
+    }
+  }
+  ,
+
+  // New: Change Management Tabs
+  'change-management-tabs': {
+    id: 'change-management-tabs',
+    name: 'Change Management Tabs',
+    description: 'Four top bars (tabs) + main heading + three capsule pills',
+    category: 'content',
+    icon: '🗂️',
+    component: ChangeManagementTabsSlideTemplate,
+    defaultProps: {
+      topTabs: [
+        'Change management fundamentals',
+        'The need for change',
+        'Building a change-ready culture',
+        'Effective communication and engagement'
+      ],
+      heading: 'Communication is the lifeblood\nof successful change initiatives.',
+      pills: ['Organization', 'Communication', 'Stakeholders'],
+      pageNumber: '39',
+      logoNew: ''
+    },
+    propSchema: {
+      topTabs: { type: 'array', label: 'Top Tabs', required: true },
+      heading: { type: 'text', label: 'Heading', required: true },
+      pills: { type: 'array', label: 'Pills', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      logoNew: { type: 'image', label: 'Logo' }
+    }
+  }
+  ,
+
+  // New: Benefits and Perks Columns
+  'benefits-and-perks-columns': {
+    id: 'benefits-and-perks-columns',
+    name: 'Benefits and Perks Columns',
+    description: 'Four equal columns; 2nd and 4th are accent blocks with numbers',
+    category: 'content',
+    icon: '🎁',
+    component: BenefitsAndPerksColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Your Logo',
+      heading: 'Our culture and values',
+      columns: [
+        { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
+        { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
+        { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
+        { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
+      ]
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      heading: { type: 'text', label: 'Heading', required: true },
+      columns: { type: 'array', label: 'Columns', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  }
+  ,
+
+  // New: Oral Hygiene Signs
+  'oral-hygiene-signs': {
+    id: 'oral-hygiene-signs',
+    name: 'Oral Hygiene Signs',
+    description: 'Large heading with two 3-item lists with big numbers',
+    category: 'content',
+    icon: '🦷',
+    component: OralHygieneSignsSlideTemplate,
+    defaultProps: {
+      heading: 'What are the signs of\npoor oral hygiene?'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      leftItems: { type: 'array', label: 'Left Items', required: true },
+      rightItems: { type: 'array', label: 'Right Items', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Resources slide (pixel-perfect)
+  'resources-slide': {
+    id: 'resources-slide',
+    name: 'Resources',
+    description: 'Centered heading with 3 resources rows and speaker card',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      items: [
+        'Resource 1 | Website/Book Title - Link/Author Name',
+        'Resource 2 | Website/Book Title - Link/Author Name',
+        'Resource 3 | Website/Book Title - Link/Author Name'
+      ],
+      speakerName: "Speaker's Name",
+      speakerTitle: "Speaker's Title"
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      speakerName: { type: 'text', label: 'Speaker Name', required: true },
+      speakerTitle: { type: 'text', label: 'Speaker Title', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Left bar with avatar and big image
+  'leftbar-avatar-image': {
+    id: 'leftbar-avatar-image',
+    name: 'Left Bar + Avatar + Image',
+    description: 'Black left bar, circular avatar, large framed image. No texts.',
+    category: 'content',
+    icon: '🖼️',
+    component: LeftBarAvatarImageSlideTemplate,
+    defaultProps: {
+      avatarPath: '',
+      mainImagePath: ''
+    },
+    propSchema: {
+      avatarPath: { type: 'image', label: 'Avatar' },
+      mainImagePath: { type: 'image', label: 'Main Image' }
+    }
+  }
+  ,
+
+  // New: Problems Grid (tag, title, 2x2 cards, right paragraph, avatar)
+  'problems-grid': {
+    id: 'problems-grid',
+    name: 'Problems Grid',
+    description: 'Dark layout with tag, large title, 4 cards, right paragraph and avatar',
+    category: 'content',
+    icon: '🧩',
+    component: ProblemsGridSlideTemplate,
+    defaultProps: {
+      tag: 'The problem',
+      title: 'Problem Name'
+    },
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Data-Driven Insights
+  'data-driven-insights': {
+    id: 'data-driven-insights',
+    name: 'Data-Driven Insights',
+    description: 'Two bar charts with right metrics, tag and title',
+    category: 'content',
+    icon: '📊',
+    component: DataDrivenInsightsSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      leftChartTitle: { type: 'text', label: 'Left Chart Title', required: true },
+      rightChartTitle: { type: 'text', label: 'Right Chart Title', required: true },
+      leftBars: { type: 'array', label: 'Left Bars', required: true },
+      rightBars: { type: 'array', label: 'Right Bars', required: true },
+      barLabels: { type: 'array', label: 'Bar Labels', required: true },
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Company Timeline
+
+  // New: DEI Methods
+  'dei-methods': {
+    id: 'dei-methods',
+    name: 'DEI Methods',
+    description: 'Green header card with two sections and avatar rings',
+    category: 'content',
+    icon: '🟩',
+    component: DeiMethodsSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true },
+      section1Title: { type: 'text', label: 'Section 1 Title', required: true },
+      section1Lines: { type: 'array', label: 'Section 1 Lines', required: true },
+      section2Title: { type: 'text', label: 'Section 2 Title', required: true },
+      section2Lines: { type: 'array', label: 'Section 2 Lines', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Soft Skills Develop
+  'soft-skills-develop': {
+    id: 'soft-skills-develop',
+    name: 'Soft Skills Develop',
+    description: 'Left content grid with right image and purple bar',
+    category: 'content',
+    icon: '🟣',
+    component: SoftSkillsDevelopSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Percent Circles
+  'percent-circles': {
+    id: 'percent-circles',
+    name: 'Percent Circles',
+    description: 'Title, 11 circles row, two green cards bottom, avatar',
+    category: 'content',
+    icon: '🟢',
+    component: PercentCirclesSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      percent: { type: 'text', label: 'Percent', required: true },
+      bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  },
+
+  'introduction-data-analysis': {
+    id: 'introduction-data-analysis',
+    name: 'Introduction to Data Analysis',
+    description: 'Dark green slide with avatar frame, title, and icon placeholder',
+    category: 'content',
+    icon: '📊',
+    component: IntroductionDataAnalysisSlideTemplate,
+    defaultProps: {
+      title: 'Introduction to Data Analysis',
+      avatarPath: '',
+      iconPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      iconPath: { type: 'image', label: 'Icon' }
+    }
+  },
+
+  'impact-value-statements': {
+    id: 'impact-value-statements',
+    name: 'Impact Value Statements',
+    description: 'Light grey slide with percentage statements and blue avatar frame',
+    category: 'content',
+    icon: '📈',
+    component: ImpactValueStatementsSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value Statements',
+      statements: [
+        { percentage: '27%', description: 'increase in profit margins of companies' },
+        { percentage: '10%', description: 'increase in revenue growth led by data-driven decisions' },
+        { percentage: '50%', description: 'less failure when engaging stakeholders in decisions' }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      statements: { type: 'array', label: 'Statements', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  },
+
+  'topics': {
+    id: 'topics',
+    name: 'Topics',
+    description: 'Split slide with dark green avatar section and black topics list with yellow banner',
+    category: 'content',
+    icon: '📋',
+    component: TopicsSlideTemplate,
+    defaultProps: {
+      title: 'Topics',
+      topics: [
+        'Fixed mindset VS Growth mindset',
+        'Growth mindset - Success & Fulfilment',
+        'How to develop a growth mindset',
+        'Learning from errors'
+      ],
+      avatarPath: '',
+      logoNew: '',
+      pageNumber: '32'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      topics: { type: 'array', label: 'Topics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoNew: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
+    }
+  },
+
+
+  
+
+  // New: Enterprise Roadmap (table)
+  'enterprise-roadmap-slide': {
+    id: 'enterprise-roadmap-slide',
+    name: 'Enterprise Roadmap Slide',
+    description: 'Light report slide with avatar and zebra table',
+    category: 'content',
+    icon: '📋',
+    component: EnterpriseRoadmapSlideTemplate,
+    defaultProps: {
+      title: 'Enterprise Offerings: Roadmap',
+      description: 'These KPIs typically measure performance in a shorter time frame... (CPA)',
+      tableData: [
+        { featureName: 'Mobile optimization', status: 'Testing', dueDate: '14 April', assignee: 'Julius' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'Cross-platform sync', status: 'Concept', dueDate: '30 June', assignee: 'Vanessa' }
+      ],
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      tableData: { type: 'array', label: 'Rows', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      companyName: { type: 'text', label: 'Company' },
+      reportType: { type: 'text', label: 'Report' },
+      date: { type: 'text', label: 'Date' }
+    }
+  },
+
+  // New: Concentric Phishing Rise
+  'concentric-phishing-rise-slide': {
+    id: 'concentric-phishing-rise-slide',
+    name: 'Phishing Rise (Concentric)',
+    description: 'Big/medium/small circles with labels and avatar',
+    category: 'content',
+    icon: '⭕',
+    component: ConcentricPhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today...',
+      bigLabel: '564$',
+      mediumLabel: '321$',
+      smallLabel: '128$'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      bigLabel: { type: 'text', label: 'Big Label', required: true },
+      mediumLabel: { type: 'text', label: 'Medium Label', required: true },
+      smallLabel: { type: 'text', label: 'Small Label', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' }
+    }
+  },
+
+  
 };
 
 // Utility functions for working with the registry

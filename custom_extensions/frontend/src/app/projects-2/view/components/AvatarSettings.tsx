@@ -2,11 +2,32 @@ import React, { useState, useEffect, useRef } from 'react';
 import Tooltip from './Tooltip';
 import AvatarPopup from './AvatarPopup';
 import AdvancedSettings from './AdvancedSettings';
+import { useAvatarData } from './AvatarDataService';
 
 export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   const [showViewDropdown, setShowViewDropdown] = useState(false);
+  
+  // 🔍 **DEBUG LOGGING: AvatarSettings Component Initialization**
+  console.log('🎬 [AVATAR_SETTINGS] AvatarSettings component initialized');
+
+  // Use real avatar data service
+  const { avatarData, processedAvatars, isLoading, error, refreshAvatars } = useAvatarData();
+
+  // 🔍 **DEBUG LOGGING: Avatar Data Service Integration**
+  console.log('🎬 [AVATAR_SETTINGS] Avatar data service state:', {
+    avatarDataCount: avatarData.length,
+    processedAvatarsCount: processedAvatars.length,
+    isLoading,
+    error
+  });
+
+  const handleAvatarSelect = (avatar: any, variant?: any) => {
+    console.log('🎬 [AVATAR_SETTINGS] Avatar selected:', avatar, variant);
+    // Here you would typically update the current avatar in the video editor
+    setIsAvatarPopupOpen(false);
+  };
 
   const contentRef = useRef<HTMLDivElement>(null);
   const viewDropdownRef = useRef<HTMLDivElement>(null);
@@ -249,6 +270,8 @@ export default function AvatarSettings() {
       <AvatarPopup
         isOpen={isAvatarPopupOpen}
         onClose={() => setIsAvatarPopupOpen(false)}
+        onAvatarSelect={handleAvatarSelect}
+        avatarData={avatarData}
         displayMode="modal"
         title="Choose Avatar"
       />

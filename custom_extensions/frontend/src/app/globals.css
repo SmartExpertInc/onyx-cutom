@@ -78,7 +78,9 @@
 
 body {
   color: var(--foreground);
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-family: 'Mont Regular', 'Mont', Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
 }
 /* Styles for Project Table Expand/Collapse */
 
@@ -301,4 +303,50 @@ body:has([aria-modal="true"]) [draggable="true"] {
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+}
+
+/* Apply Lora Variable to slide templates */
+.slide-content,
+.slide-title,
+.slide-text,
+.paragraph-text,
+.bullet-text,
+.number-text,
+.professional-headline .heading-text,
+.professional-bullet-item,
+.professional-numbered-item {
+  font-family: 'Lora Variable', 'Lora', serif !important;
+  font-weight: 400 !important;
+}
+
+/* Mont Font Classes for Non-Slide Components */
+.mont-theme {
+  font-family: 'Mont Regular', 'Mont', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+.mont-theme h1,
+.mont-theme h2,
+.mont-theme h3,
+.mont-theme .slide-title,
+.mont-theme .slide-title-text,
+.mont-theme .slide-title-display {
+  font-family: 'Mont Bold', 'Mont', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 18px;
+}
+
+.mont-theme p,
+.mont-theme .slide-content,
+.mont-theme .slide-subtitle,
+.mont-theme .slide-text,
+.mont-theme li,
+.mont-theme span,
+.mont-theme .paragraph-text,
+.mont-theme .bullet-text,
+.mont-theme .number-text {
+  font-family: 'Mont Regular', 'Mont', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 18px;
 }

@@ -1,4 +1,4 @@
-// custom_extensions/frontend/src/components/templates/BarChartSlideTemplate.tsx
+// custom_extensions/frontend/src/components/templates/BarChartSlideTemplate.tsx!
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BarChartSlideProps } from '@/types/slideTemplates';
@@ -160,8 +160,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#15232E',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -258,7 +258,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   };
 
   return (
-    <div className="bar-chart-slide-template" style={slideStyles}>
+    <div className="bar-chart-slide-template inter-theme" style={slideStyles}>
              {/* Profile Image - Top Left */}
        <div style={{
          position: 'absolute',
@@ -270,7 +270,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          display: 'flex',
          alignItems: 'center',
          justifyContent: 'center',
-         overflow: 'hidden'
        }}>
          <ClickableImagePlaceholder
            imagePath={profileImagePath}
@@ -294,7 +293,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
         justifyContent: 'center',
         alignItems: 'flex-end',
         gap: '60px',
-        height: '400px',
+        height: '79.8%',
         marginTop: '80px',
         position: 'relative'
       }}>
@@ -304,8 +303,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           bottom: '0',
           left: '0',
           right: '0',
-          height: '1px',
-          backgroundColor: themeContent,
+          height: '2px',
+          backgroundColor: '#C6D3DC',
           opacity: 0.3
         }} />
 
@@ -354,8 +353,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           >
                          {/* Percentage */}
              <div style={{
-               fontSize: '32px',
-               color: themeTitle,
+               fontSize: '40px',
+               color: '#EEF0F1',
                fontWeight: 'bold',
                textAlign: 'center',
                minHeight: '40px',
@@ -372,14 +371,17 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    onCancel={handleBarCancel}
                    className="bar-percentage-editor"
                    style={{
-                     fontSize: '32px',
-                     color: themeTitle,
-                     fontWeight: 'bold',
-                     textAlign: 'center',
-                     width: '100%',
-                     height: '100%',
-                     minHeight: '40px',
-                     maxHeight: '40px'
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '40px',
+                    color: '#EEF0F1',
+                    fontWeight: 'bold',
+                    minHeight: '40px',
+                    maxHeight: '40px',
+                    overflow: 'hidden'
                    }}
                  />
                ) : (
@@ -392,7 +394,13 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      height: '100%',
                      display: 'flex',
                      alignItems: 'center',
-                     justifyContent: 'center'
+                     justifyContent: 'center',
+                     fontSize: '40px',
+                     color: '#EEF0F1',
+                     fontWeight: 'bold',
+                     minHeight: '40px',
+                     maxHeight: '40px',
+                     overflow: 'hidden'
                    }}
                  >
                    {bar.percentage}
@@ -403,13 +411,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              {/* Description - moved above the bar */}
              <div style={{
                fontSize: '14px',
-               color: themeContent,
+               color: '#9EA8AF',
                maxWidth: '120px',
                lineHeight: '1.3',
                minHeight: '40px',
                maxHeight: '60px',
                display: 'flex',
-               alignItems: 'center',
                justifyContent: 'center',
                overflow: 'hidden'
              }}>
@@ -422,8 +429,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    className="bar-description-editor"
                    style={{
                      fontSize: '14px',
-                     color: themeContent,
-                     textAlign: 'center',
+                     color: '#9EA8AF',
                      maxWidth: '120px',
                      lineHeight: '1.3',
                      width: '100%',
@@ -442,7 +448,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      height: '100%',
                      display: 'flex',
                      alignItems: 'center',
-                     justifyContent: 'center'
+                     justifyContent: 'center',
+                     fontSize: '14px',
+                     color: '#9EA8AF',
+                     maxWidth: '120px',
+                     lineHeight: '1.3',
+                     minHeight: '40px',
+                     maxHeight: '60px',
+                     overflow: 'hidden'
                    }}
                  >
                    {bar.description}
@@ -454,7 +467,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              <div style={{
                width: '155px',
                height: `${bar.height}px`,
-               backgroundColor: themeAccent,
+               backgroundColor: '#FAF36F',
                position: 'relative'
              }}>
                               {/* Height adjustment controls */}
@@ -630,8 +643,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          display: 'flex',
          justifyContent: 'space-between',
          alignItems: 'center',
-         fontSize: '12px',
-         color: themeContent
+         fontSize: '13px',
+         color: '#A2ABB1'
        }}>
          {/* Website - left aligned */}
          <div>
@@ -642,8 +655,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                onCancel={handleWebsiteCancel}
                className="footer-website-editor"
                style={{
-                 fontSize: '12px',
-                 color: themeContent
+                 fontSize: '13px',
+                 color: '#A2ABB1'
                }}
              />
            ) : (
@@ -662,7 +675,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          {/* Date and Page Number - right aligned together */}
          <div style={{
            display: 'flex',
-           gap: '20px',
+           gap: '40px',
            alignItems: 'center'
          }}>
            {/* Date */}
@@ -674,8 +687,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onCancel={handleDateCancel}
                  className="footer-date-editor"
                  style={{
-                   fontSize: '12px',
-                   color: themeContent
+                   fontSize: '13px',
+                   color: '#A2ABB1'
                  }}
                />
              ) : (
@@ -683,7 +696,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onClick={() => isEditable && setEditingDate(true)}
                  style={{
                    cursor: isEditable ? 'pointer' : 'default',
-                   userSelect: 'none'
+                   userSelect: 'none',
+                   fontSize: '13px',
+                   color: '#A2ABB1'
                  }}
                >
                  {currentDate}
@@ -700,7 +715,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onCancel={handlePageNumberCancel}
                  className="footer-page-number-editor"
                  style={{
-                   fontSize: '12px',
+                   fontSize: '13px',
                    color: themeContent
                  }}
                />
@@ -709,7 +724,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onClick={() => isEditable && setEditingPageNumber(true)}
                  style={{
                    cursor: isEditable ? 'pointer' : 'default',
-                   userSelect: 'none'
+                   userSelect: 'none',
+                   fontSize: '13px',
+                   color: '#A2ABB1'
                  }}
                >
                  {currentPageNumber}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Simple Video Composer
-=====================
+Simple Video Composer - FIXED VERSION
+=====================================
 
 A reliable, single-method video composition system using pure OpenCV.
 Replaces the dual-approach complexity with one robust solution.
@@ -12,7 +12,9 @@ Key Features:
 - Frame-by-frame composition with progress feedback
 - Single method - no fallback complexity
 - Preserves original slide video as background canvas
-- FFmpeg for final audio merge only
+- FFmpeg for final audio merge with BROWSER-COMPATIBLE encoding
+
+CRITICAL FIX: Replaced -c:v copy with browser-compatible H.264 encoding
 """
 
 import cv2
@@ -34,6 +36,8 @@ class SimpleVideoComposer:
     
     Eliminates the dual-approach complexity and provides a single,
     robust method for composing slide and avatar videos.
+    
+    FIXED: Now uses browser-compatible H.264 encoding instead of copying video streams.
     """
     
     def __init__(self):
@@ -315,6 +319,9 @@ class SimpleVideoComposer:
         """
         Add audio from avatar video to the composed video using FFmpeg.
         
+        CRITICAL FIX: Now uses browser-compatible H.264 encoding instead of copying video streams.
+        This fixes the issue where videos show only the first frame with audio playing.
+        
         Args:
             video_path: Path to video without audio
             audio_source_path: Path to video with audio (avatar video)
@@ -324,13 +331,18 @@ class SimpleVideoComposer:
             True if successful, False otherwise
         """
         try:
-            logger.info("🎬 [SIMPLE_COMPOSER] Adding audio to composed video")
+            logger.info("🎬 [SIMPLE_COMPOSER] Adding audio to composed video with BROWSER-COMPATIBLE encoding")
             
+            # FIXED: Use browser-compatible H.264 encoding instead of copying video streams
             cmd = [
                 'ffmpeg',
                 '-i', video_path,        # Video input (no audio)
                 '-i', audio_source_path, # Audio source (avatar video)
-                '-c:v', 'copy',          # Copy video stream as-is
+                '-c:v', 'libx264',       # Use H.264 codec for browser compatibility
+                '-profile:v', 'baseline', # Ensure maximum browser compatibility
+                '-level', '3.0',         # H.264 level for web compatibility
+                '-pix_fmt', 'yuv420p',   # Standard pixel format for web
+                '-movflags', '+faststart', # Enable progressive download
                 '-c:a', 'aac',           # Encode audio as AAC
                 '-map', '0:v:0',         # Use video from first input
                 '-map', '1:a:0',         # Use audio from second input
@@ -339,7 +351,7 @@ class SimpleVideoComposer:
                 output_path
             ]
             
-            logger.info(f"🎬 [SIMPLE_COMPOSER] FFmpeg audio command: {' '.join(cmd)}")
+            logger.info(f"🎬 [SIMPLE_COMPOSER] FFmpeg audio command (FIXED): {' '.join(cmd)}")
             
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -353,7 +365,7 @@ class SimpleVideoComposer:
                 logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge failed: {stderr.decode()}")
                 return False
             
-            logger.info("🎬 [SIMPLE_COMPOSER] Audio merge completed successfully")
+            logger.info("🎬 [SIMPLE_COMPOSER] Audio merge completed successfully with browser-compatible encoding")
             
             # Verify final output
             if os.path.exists(output_path) and os.path.getsize(output_path) > 0:

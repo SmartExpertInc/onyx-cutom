@@ -139,12 +139,15 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  pageNumber = '02'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Use theme colors instead of props
@@ -153,8 +156,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -165,7 +168,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: newTitle });
     }
   };
 
@@ -173,7 +176,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, content: newContent });
     }
   };
 
@@ -189,14 +192,27 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, imagePath: newImagePath });
     }
   };
 
   const handleLogoUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, logoPath: newLogoPath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, logoPath: newLogoPath });
     }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
   };
 
   return (
@@ -211,12 +227,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Logo placeholder */}
         <div style={{
           position: 'absolute',
-          top: '40px',
-          left: '60px',
+          top: '25px',
+          left: '25px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: themeTitle
+          color: '#ffffff'
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -246,7 +262,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${themeContent}`,
+                border: `2px solid #ffffff`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -269,7 +285,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: '#ffffff' }}>Your Logo</span>
             </div>
           )}
         </div>
@@ -277,7 +293,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Title - Centered vertically */}
         <div style={{ 
           position: 'absolute',
-          top: '40%',
+          top: '22%',
           left: '60px',
           transform: 'translateY(-50%)',
           marginBottom: '40px'
@@ -289,17 +305,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               onCancel={handleTitleCancel}
               className="work-life-balance-title-editor"
               style={{
-                fontSize: '68px',
-                color: themeTitle,
+                marginTop: '162px',
+                fontSize: '58px',
+                color: '#ffffff',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                position: 'relative'
               }}
             />
           ) : (
@@ -307,8 +318,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 marginTop: '162px',
-                fontSize: '68px',
-                color: themeTitle,
+                fontSize: '58px',
+                color: '#ffffff',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -324,9 +335,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Content */}
         <div style={{ 
           position: 'absolute',
-          top: '55%',
+          top: '39%',
           left: '60px',
-          maxWidth: '500px'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor
@@ -336,28 +346,25 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               multiline={true}
               className="work-life-balance-content-editor"
               style={{
-                fontSize: '23px',
-                color: themeContent,
+                marginTop: '31px',
+                marginLeft: '6px',
+                width: '451px',
+                fontSize: '24px',
+                color: '#ffffff',
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                position: 'relative'
               }}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingContent(true)}
               style={{
-                marginTop: '43px',
-                marginLeft: '8px',
-                width: '611px',
+                marginTop: '31px',
+                marginLeft: '6px',
+                width: '500px',
                 fontSize: '23px',
-                color: themeContent,
+                color: '#ffffff',
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
@@ -366,6 +373,52 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               }}
             >
               {currentContent}
+            </div>
+          )}
+        </div>
+
+        {/* Page number with line */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '0px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          {/* Small line */}
+          <div style={{
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          }} />
+          {/* Page number */}
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                width: '30px',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
             </div>
           )}
         </div>
@@ -383,12 +436,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Arch background */}
         <div style={{
           position: 'absolute',
-          right: '0',
-          top: '10%',
+          right: '0px',
+          bottom: '0',
           transform: 'rotate(90deg)',
-          width: '105%',
-          height: '75%',
-          backgroundColor: themeAccent,
+          width: '116%',
+          height: '74%',
+          backgroundColor: '#ffffff',
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />
@@ -396,10 +449,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Image */}
         <div style={{
           position: 'absolute',
-          left: '34px',
+          left: '-42px',
           bottom: '-27px',
           zIndex: 2,
-          width: '80%',
+          width: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -411,7 +464,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             description="Work-life balance image"
             isEditable={isEditable}
             style={{
-              height: '474px',
+              height: '565px',
               borderRadius: '10px',
               objectFit: 'contain'
             }}
