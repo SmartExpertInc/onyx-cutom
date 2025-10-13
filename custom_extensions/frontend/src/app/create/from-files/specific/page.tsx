@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles, Package } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
 import SmartDriveBrowser from '../../../../components/SmartDrive/SmartDrive/SmartDriveBrowser';
@@ -436,18 +436,13 @@ export default function CreateFromSpecificFilesPage() {
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
-          <Button
-            variant="back"
-            asChild
+          <Link
+            href="/create"
+            className="group flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
           >
-            <Link
-              href="/create"
-              className="group flex items-center gap-3 px-4 py-2.5"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-              {t('interface.back', 'Back')}
-            </Link>
-          </Button>
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+            {t('interface.back', 'Back')}
+          </Link>
         </div>
         <HeadTextCustom
           text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
@@ -619,7 +614,7 @@ export default function CreateFromSpecificFilesPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
-                <Settings className="w-10 h-10 text-blue-600" />
+                <Package className="w-10 h-10 text-blue-600" />
                 <div>
                   <h3 className="text-xl font-bold text-blue-600">{t('interface.selectProducts', 'Select Products')}</h3>
                   <p className="text-sm text-gray-600 mt-1">{t('interface.chooseProductsAsContext', 'Choose previously created products to include as context')}</p>
@@ -656,20 +651,41 @@ export default function CreateFromSpecificFilesPage() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="max-h-[520px] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {(products || []).filter((p:any)=>{
                 const name = (p.projectName || p.microproduct_name || '').toLowerCase();
                 const type = (p.design_microproduct_type || '').toLowerCase();
                 const term = productSearchTerm.toLowerCase();
                 return name.includes(term) || type.includes(term);
-              }).map((product:any)=> (
-                <LMSProductCard
-                  key={product.id}
-                  product={product}
-                  isSelected={selectedProducts.includes(product.id)}
-                  onToggleSelect={(id:number)=> setSelectedProducts(prev=> prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id])}
-                />
-              ))}
+              }).length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">
+                    {productSearchTerm ? t('interface.noProductsFound', 'No products found matching your search.') : t('interface.noProductsAvailable', 'No products available.')}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    {productSearchTerm ? t('interface.tryAdjustingSearch', 'Try adjusting your search terms.') : t('interface.createFirstProduct', 'Create your first product to get started.')}
+                  </p>
+                </div>
+              ) : (
+                (products || []).filter((p:any)=>{
+                  const name = (p.projectName || p.microproduct_name || '').toLowerCase();
+                  const type = (p.design_microproduct_type || '').toLowerCase();
+                  const term = productSearchTerm.toLowerCase();
+                  return name.includes(term) || type.includes(term);
+                }).map((product:any)=> (
+                  <LMSProductCard
+                    key={product.id}
+                    product={product}
+                    isSelected={selectedProducts.includes(product.id)}
+                    onToggleSelect={(id:number)=> setSelectedProducts(prev=> prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id])}
+                  />
+                ))
+              )}
+              </div>
             </div>
           </div>
 

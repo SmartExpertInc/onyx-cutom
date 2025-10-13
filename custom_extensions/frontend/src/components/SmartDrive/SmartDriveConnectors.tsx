@@ -610,7 +610,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <p className="text-sm text-gray-700 mb-6">{showQuotaModal.message}</p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowQuotaModal(null)}>Close</Button>
-              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }}>Buy More</Button>
+              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }} className="text-gray-900">Buy More</Button>
             </div>
           </div>
         </div>
@@ -649,7 +649,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               </div>
               {entitlements.connectors_used >= entitlements.connectors_limit && (
                 <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)} className="text-gray-900">Buy More</Button>
                 </div>
               )}
             </div>
@@ -681,7 +681,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               </div>
               {entitlements.storage_used_gb >= entitlements.storage_gb && (
                 <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)} className="text-gray-900">Buy More</Button>
                 </div>
               )}
             </div>
