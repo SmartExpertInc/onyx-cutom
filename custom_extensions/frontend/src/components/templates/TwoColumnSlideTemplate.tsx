@@ -4,119 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   theme?: SlideTheme | string;
@@ -135,12 +24,16 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  logoPath = '',
+  pageNumber = '05'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -161,7 +54,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, title: newTitle });
     }
   };
 
@@ -169,7 +62,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, content: newContent });
     }
   };
 
@@ -185,24 +78,60 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, profileImagePath: newImagePath });
     }
   };
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, rightImagePath: newImagePath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, logoPath: newLogoPath });
     }
   };
 
   return (
-    <div className="two-column-slide-template" style={slideStyles}>
+    <div className="two-column-slide-template inter-theme" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        zIndex: 20
+      }}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={handleLogoUploaded}
+          isEditable={isEditable}
+          color="#000000"
+          text="Your Logo"
+        />
+      </div>
+
       {/* Left section with avatar and text */}
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeBg,
+        backgroundColor: '#E0E7FF',
         padding: '60px',
+        paddingBottom: '110px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'end',
@@ -210,11 +139,14 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
       }}>
         {/* Profile image */}
         <div style={{
-          width: '120px',
-          height: '120px',
+          width: '135px',
+          height: '135px',
           borderRadius: '50%',
-          overflow: 'hidden',
-          marginBottom: '40px'
+          position: 'absolute',
+          backgroundColor: '#ffffff',
+          top: '40px',
+          right: '40px',
+          overflow: 'hidden'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -224,10 +156,12 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '100%',
+              height: '149%',
               borderRadius: '50%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              overflow: 'hidden',
+              position: 'relative',
+              bottom: '0px',
             }}
           />
         </div>
@@ -245,23 +179,26 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
           {/* Content text */}
           <div style={{
-            fontSize: '14px',
-            color: themeContent,
+            fontSize: '15px',
+            color: '#09090B',
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-100px'
+            bottom: '-185px',
+            width: '100%'
           }}>
             {isEditable && editingContent ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentContent}
                 onSave={handleContentSave}
                 onCancel={handleContentCancel}
                 multiline={true}
                 className="two-column-content-editor"
                 style={{
-                  fontSize: '14px',
-                  color: themeContent,
-                  lineHeight: '1.6'
+                  fontSize: '15px',
+                  color: '#09090B',
+                  lineHeight: '1.6',
+                  width: '100%',
+                  minHeight: 'auto'
                 }}
               />
             ) : (
@@ -269,7 +206,11 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 onClick={() => isEditable && setEditingContent(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  fontSize: '15px',
+                  color: '#09090B',
+                  lineHeight: '1.6',
+                  width: '100%'
                 }}
               >
                 {currentContent}
@@ -277,11 +218,58 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             )}
           </div>
         </div>
+
+        {/* Page number with line */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '0px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          zIndex: 20
+        }}>
+          {/* Small line */}
+          <div style={{
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          }} />
+          {/* Page number */}
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                width: '30px',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right section with image */}
       <div style={{
-        width: '85%',
+        width: '50%',
         height: '100%',
         position: 'relative'
       }}>
@@ -295,6 +283,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           style={{
             width: '100%',
             height: '100%',
+            borderRadius: '0px',
             objectFit: 'contain'
           }}
         />

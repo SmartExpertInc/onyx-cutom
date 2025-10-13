@@ -27,8 +27,8 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
   const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
-  // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+    // Function to extract actual slide data from current project
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
     
     try {
@@ -36,9 +36,18 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       const slideViewerData = (window as any).currentSlideData;
       if (slideViewerData?.deck?.slides) {
         console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        
+        // Extract voiceover texts from slides
+        const voiceoverTexts = slideViewerData.deck.slides
+          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
+          .filter((text: string) => text && text.trim().length > 0);
+        
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+        
         return {
           slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple'
+          theme: slideViewerData.deck.theme || 'dark-purple',
+          voiceoverTexts: voiceoverTexts
         };
       }
 
@@ -57,20 +66,28 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
           
           if (projectData.details?.slides) {
+            // Extract voiceover texts from slides
+            const voiceoverTexts = projectData.details.slides
+              .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
+              .filter((text: string) => text && text.trim().length > 0);
+            
+            console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+            
             return {
               slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple'
+              theme: projectData.details.theme || 'dark-purple',
+              voiceoverTexts: voiceoverTexts
             };
           }
         }
       }
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
-      return { slides: [], theme: 'dark-purple' };
-      
-    } catch (error) {
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+        
+      } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
   };
 
@@ -117,11 +134,9 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       // Create the request payload
       const requestPayload = {
         projectName: projectName || 'Generated Video',
-        voiceoverTexts: [
-          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better.",
-          "Let's dive into the main content. This presentation covers important topics that are essential for your learning journey.",
-          "As we conclude, remember these key points. They will serve as a foundation for your continued growth and development."
-        ],
+        voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
+          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
+        ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
@@ -150,7 +165,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       }
 
       const createData = await createResponse.json();
-      
+
       if (!createData.success) {
         throw new Error(createData.error || 'Failed to create presentation');
       }
@@ -178,11 +193,17 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
             setProgress(currentProgress);
             
             console.log('🎬 [VIDEO_DOWNLOAD] Job progress:', currentProgress);
+            
+            // Show progress-based messages to user
+            if (currentProgress > 50 && currentProgress < 90) {
+              // During the longest phase (avatar generation), reassure user
+              setStatus('generating'); // Keep showing generating status with helpful message
+            }
 
             if (statusData.status === 'completed') {
               clearInterval(pollInterval);
               setStatus('completed');
-              setProgress(100);
+       setProgress(100);
               console.log('🎬 [VIDEO_DOWNLOAD] Video generation completed');
               
               // Auto-download the video
@@ -203,14 +224,15 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         }
       }, 2000);
 
-      // Set a timeout to stop polling after 5 minutes
+      // Set a timeout to stop polling after 10 minutes (increased from 5 minutes)
+      // This accounts for longer processing times in multi-slide presentations
       setTimeout(() => {
         clearInterval(pollInterval);
         if (status === 'generating') {
           setStatus('error');
-          onError?.('Video generation timed out. Please check the status manually.');
+          onError?.('Video generation timed out after 10 minutes. This may indicate a backend issue. Please check the status manually.');
         }
-      }, 300000);
+      }, 600000);
 
     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed:', error);
@@ -225,13 +247,13 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       console.log('🎬 [VIDEO_DOWNLOAD] Downloading video for job:', jobId);
       
       const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
-        method: 'GET',
+         method: 'GET',
         headers: {
           'Accept': 'video/mp4',
         },
-        credentials: 'same-origin',
-      });
-
+         credentials: 'same-origin',
+       });
+       
       if (!downloadResponse.ok) {
         throw new Error(`Download failed: ${downloadResponse.status}`);
       }
@@ -249,18 +271,18 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       
       console.log('🎬 [VIDEO_DOWNLOAD] Video downloaded successfully');
       onSuccess?.(url);
-      
-    } catch (error) {
+       
+     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Download failed:', error);
       onError?.(error instanceof Error ? error.message : 'Download failed');
-    }
-  };
+     }
+   };
 
-  const getButtonText = () => {
+   const getButtonText = () => {
     switch (status) {
       case 'generating':
         return `Creating Professional Video... ${progress}%`;
-      case 'completed':
+             case 'completed':
         return 'Professional Video Ready';
       case 'error':
         return 'Generation Failed - Try Again';
@@ -346,21 +368,21 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       </div>
 
       {/* Main Video Generation Button */}
-      <button
-        onClick={handleDownloadVideo}
+    <button
+      onClick={handleDownloadVideo}
         disabled={status === 'generating' || !selectedAvatar}
-        className={getButtonClassName()}
-        title={
+      className={getButtonClassName()}
+      title={
           !selectedAvatar 
             ? 'Please select an avatar first'
             : status === 'generating' 
-              ? 'Professional video generation in progress...' 
-              : 'Create professional video with slide capture and AI avatar'
-        }
-      >
-        {getButtonIcon()}
-        {getButtonText()}
-      </button>
+          ? 'Professional video generation in progress...' 
+          : 'Create professional video with slide capture and AI avatar'
+      }
+    >
+      {getButtonIcon()}
+      {getButtonText()}
+    </button>
       
       {/* Progress Bar */}
       {status === 'generating' && (

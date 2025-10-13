@@ -33,6 +33,7 @@ export interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  fit?: 'cover' | 'contain';
   onSizeTransformChange?: (payload: any) => void;
   // New props for integration
   elementId?: string;
@@ -64,6 +65,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   isEditable = false,
   className = '',
   style = {},
+  fit = 'cover',
   onSizeTransformChange,
   elementId,
   elementRef,

@@ -28,7 +28,7 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import '../components/compact-slide-styles.css';
+import AvatarDataProvider from '../components/AvatarDataService';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -72,47 +72,121 @@ export default function Projects2ViewPage() {
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
-    if (!videoLessonData) return;
+    console.log('🔍 handleAddSlide called with:', {
+      newSlide,
+      isComponentBasedVideoLesson,
+      hasVideoLessonData: !!videoLessonData,
+      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+    });
 
-    // Convert ComponentBasedSlide to VideoLessonSlideData
-    const videoLessonSlide: VideoLessonSlideData = {
-      slideId: newSlide.slideId,
-      slideNumber: videoLessonData.slides.length + 1,
-      slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
-      displayedText: newSlide.props?.content || '',
-      displayedPictureDescription: '',
-      displayedVideoDescription: '',
-      voiceoverText: ''
-    };
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility
+      // This matches the golden reference implementation in SmartSlideDeckViewer
+      const slideWithBackendCompat: any = {
+        ...newSlide,
+        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
+        slideNumber: componentBasedSlideDeck.slides.length + 1
+      };
 
-    const updatedData = {
-      ...videoLessonData,
-      slides: [...videoLessonData.slides, videoLessonSlide]
-    };
+      // Handle component-based slide deck (new structure)
+      const updatedSlides = [...componentBasedSlideDeck.slides, slideWithBackendCompat];
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentBasedSlideDeck,
+        slides: updatedSlides,
+        currentSlideId: newSlide.slideId
+      };
 
-    setVideoLessonData(updatedData);
-    setCurrentSlideId(videoLessonSlide.slideId);
-    
-    // Save to backend
-    saveVideoLessonData(updatedData);
+      console.log('🔍 Adding slide to component-based deck with backend compatibility:', {
+        originalSlideCount: componentBasedSlideDeck.slides.length,
+        newSlideCount: updatedSlides.length,
+        newSlideId: newSlide.slideId,
+        hasSlideTitle: !!slideWithBackendCompat.slideTitle,
+        slideTitle: slideWithBackendCompat.slideTitle
+      });
+
+      setComponentBasedSlideDeck(updatedDeck);
+      setCurrentSlideId(newSlide.slideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      // Handle old video lesson structure (legacy)
+      const videoLessonSlide: VideoLessonSlideData = {
+        slideId: newSlide.slideId,
+        slideNumber: videoLessonData.slides.length + 1,
+        slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
+        displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || '',
+        displayedPictureDescription: '',
+        displayedVideoDescription: '',
+        voiceoverText: ''
+      };
+
+      const updatedData = {
+        ...videoLessonData,
+        slides: [...videoLessonData.slides, videoLessonSlide]
+      };
+
+      console.log('🔍 Adding slide to legacy video lesson:', {
+        originalSlideCount: videoLessonData.slides.length,
+        newSlideCount: updatedData.slides.length,
+        newSlideId: videoLessonSlide.slideId
+      });
+
+      setVideoLessonData(updatedData);
+      setCurrentSlideId(videoLessonSlide.slideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedData);
+    } else {
+      console.error('❌ handleAddSlide: No valid data structure found!', {
+        isComponentBasedVideoLesson,
+        hasVideoLessonData: !!videoLessonData,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+      });
+    }
   };
 
   // NEW: Function to save Video Lesson data
   const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
+        console.error('❌ saveVideoLessonData: No projectId provided');
         return;
       }
+      
+      console.log('💾 Saving video lesson data:', {
+        projectId,
+        dataType: data.constructor.name,
+        slideCount: 'slides' in data ? data.slides.length : 'N/A'
+      });
+
+      // 🔧 CRITICAL FIX: Add dev user header to match old UI's golden reference pattern
+      const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: saveOperationHeaders,
         body: JSON.stringify({ microProductContent: data })
       });
+      
       if (!response.ok) {
-        // Handle error silently or with user notification
+        const errorText = await response.text();
+        console.error('❌ Failed to save video lesson data:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
       }
+      
+      console.log('✅ Video lesson data saved successfully');
     } catch (error) {
-      // Handle error silently or with user notification
+      console.error('❌ Error saving video lesson data:', error);
+      // TODO: Show user notification for save errors
     }
   };
 
@@ -188,37 +262,85 @@ export default function Projects2ViewPage() {
 
   // NEW: Function to delete slide (following old interface pattern)
   const handleDeleteSlide = (slideId: string) => {
-    if (!videoLessonData || videoLessonData.slides.length <= 1) {
-      return;
+    console.log('🗑️ handleDeleteSlide called with:', {
+      slideId,
+      isComponentBasedVideoLesson,
+      hasVideoLessonData: !!videoLessonData,
+      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+    });
+
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // Handle component-based slide deck (new structure)
+      if (componentBasedSlideDeck.slides.length <= 1) {
+        console.log('⚠️ Cannot delete slide: only one slide remaining');
+        return;
+      }
+
+      const updatedSlides = componentBasedSlideDeck.slides.filter(slide => slide.slideId !== slideId);
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentBasedSlideDeck,
+        slides: updatedSlides,
+        currentSlideId: currentSlideId === slideId ? updatedSlides[0]?.slideId : currentSlideId
+      };
+
+      console.log('🗑️ Deleting slide from component-based deck:', {
+        originalSlideCount: componentBasedSlideDeck.slides.length,
+        newSlideCount: updatedSlides.length,
+        deletedSlideId: slideId
+      });
+
+      setComponentBasedSlideDeck(updatedDeck);
+      setCurrentSlideId(updatedDeck.currentSlideId || undefined);
+      
+      // Save to backend
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      // Handle old video lesson structure (legacy)
+      if (videoLessonData.slides.length <= 1) {
+        console.log('⚠️ Cannot delete slide: only one slide remaining');
+        return;
+      }
+      
+      // Filter out the deleted slide and renumber remaining slides
+      const updatedSlides = videoLessonData.slides
+        .filter(slide => slide.slideId !== slideId)
+        .map((slide, index) => ({
+          ...slide,
+          slideNumber: index + 1
+        }));
+
+      const updatedData = {
+        ...videoLessonData,
+        slides: updatedSlides
+      };
+
+      // Handle current slide selection after deletion
+      let newCurrentSlideId = currentSlideId;
+      if (currentSlideId === slideId) {
+        // If we deleted the current slide, select the next one or previous one
+        const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
+        const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
+        newCurrentSlideId = nextSlide?.slideId;
+      }
+
+      console.log('🗑️ Deleting slide from legacy video lesson:', {
+        originalSlideCount: videoLessonData.slides.length,
+        newSlideCount: updatedSlides.length,
+        deletedSlideId: slideId
+      });
+
+      setVideoLessonData(updatedData);
+      setCurrentSlideId(newCurrentSlideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedData);
+    } else {
+      console.error('❌ handleDeleteSlide: No valid data structure found!', {
+        isComponentBasedVideoLesson,
+        hasVideoLessonData: !!videoLessonData,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+      });
     }
-    
-    // Filter out the deleted slide and renumber remaining slides
-    const updatedSlides = videoLessonData.slides
-      .filter(slide => slide.slideId !== slideId)
-      .map((slide, index) => ({
-        ...slide,
-        slideNumber: index + 1
-      }));
-
-    const updatedData = {
-      ...videoLessonData,
-      slides: updatedSlides
-    };
-
-    // Handle current slide selection after deletion
-    let newCurrentSlideId = currentSlideId;
-    if (currentSlideId === slideId) {
-      // If we deleted the current slide, select the next one or previous one
-      const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
-      const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
-      newCurrentSlideId = nextSlide?.slideId;
-    }
-
-    setVideoLessonData(updatedData);
-    setCurrentSlideId(newCurrentSlideId);
-    
-    // Save to backend
-    saveVideoLessonData(updatedData);
   };
 
   // NEW: Load Video Lesson data on component mount
@@ -535,13 +657,17 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
-      closeMenu();
-    }}>
+    <AvatarDataProvider>
+      <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
+        closeMenu();
+      }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
+        videoLessonData={videoLessonData}
+        componentBasedSlideDeck={componentBasedSlideDeck}
+        currentSlideId={currentSlideId}
       />
 
       {/* Toolbar */}
@@ -621,29 +747,46 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
               >
-                {/* Slide Content - Using same approach as LessonPlanView carousel */}
+                {/* Slide Container - Keeps original size */}
+                <div
+                  style={{
+                    position: 'relative',
+                    pointerEvents: 'auto',
+                    userSelect: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                 <div
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                    width: '100%',
-                    maxWidth: aspectRatio === '16:9' ? '900px' 
+                      width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
-                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
-                      : aspectRatio === '9:16' ? '9/16'
-                      : '1/1',
-                    minHeight: '400px',
-                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
-                  }}
-                >
-                  <div 
-                    style={{ width: '100%', height: '100%' }} 
-                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
+                      height: aspectRatio === '16:9' ? '506px' 
+                        : aspectRatio === '9:16' ? '711px'
+                        : '800px',
+                    }}
                   >
+                    {/* Apply zoom to content INSIDE the slide container */}
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'center',
+                      paddingTop: '5%', // Push content down slightly to show top properly
+                    }}>
+                    <div style={{
+                      zoom: 0.6, // Scale content inside while keeping slide box size (60% of original)
+                      width: '100%',
+                      height: '100%',
+                    }}>
                     <ComponentBasedSlideDeckRenderer
                       slides={componentBasedSlideDeck.slides}
                       selectedSlideId={currentSlideId}
@@ -662,6 +805,8 @@ export default function Projects2ViewPage() {
                       }}
                       theme="default"
                     />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -810,6 +955,7 @@ export default function Projects2ViewPage() {
         position={optionPopupPosition}
       />
       
-    </div>
+      </div>
+    </AvatarDataProvider>
   );
 }

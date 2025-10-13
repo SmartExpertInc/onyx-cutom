@@ -630,7 +630,8 @@ class HTMLToImageService:
                                  template_id: str,
                                  props: Dict[str, Any],
                                  theme: str,
-                                 output_path: str) -> bool:
+                                 output_path: str,
+                                 metadata: Dict[str, Any] = None) -> bool:
         """
         Convert a slide with props to PNG image.
         
@@ -639,6 +640,7 @@ class HTMLToImageService:
             props: Slide properties
             theme: Theme name
             output_path: Where to save PNG
+            metadata: Slide metadata (contains elementPositions for drag-and-drop)
             
         Returns:
             True if successful, False otherwise
@@ -650,6 +652,7 @@ class HTMLToImageService:
             logger.info(f"  - Theme: {theme}")
             logger.info(f"  - Output path: {output_path}")
             logger.info(f"  - Props keys: {list(props.keys())}")
+            logger.info(f"  - Metadata: {metadata}")
             
             # Store props for fallback access
             self._last_props = props
@@ -667,7 +670,7 @@ class HTMLToImageService:
             # Generate clean HTML
             logger.info(f"🎬 [HTML_TO_IMAGE] Generating HTML content...")
             html_content = html_template_service.generate_clean_html_for_video(
-                template_id, props, theme
+                template_id, props, theme, metadata=metadata
             )
             
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")

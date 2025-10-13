@@ -96,6 +96,7 @@ COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
 COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
 COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
+COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay"  # New component for generated video products
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay"  # New component for lesson plans
@@ -2811,7 +2812,7 @@ class TextPresentationDetails(BaseModel):
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -3988,7 +3989,7 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -5138,7 +5139,7 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -7388,7 +7389,7 @@ class AIAuditLandingDetails(BaseModel):
     model_config = {"from_attributes": True}
 # +++ END NEW MODEL +++
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, Dict[str, Any], None]
 
 class DesignTemplateBase(BaseModel):
     template_name: str
@@ -12840,6 +12841,31 @@ Return ONLY the JSON object.
             llm_json_example = ""  # Not used for lesson plans
             component_specific_instructions = ""  # Not used for lesson plans
             
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, we don't need LLM parsing since the content is already structured
+            # The aiResponse contains the video metadata as JSON
+            try:
+                video_metadata = json.loads(project_data.aiResponse)
+                # Store the video metadata directly without LLM parsing
+                parsed_content_model_instance = video_metadata
+                logger.info(f"Video product created with metadata: {video_metadata.get('videoJobId', 'unknown')}")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse video metadata JSON: {e}")
+                # Create a fallback structure
+                parsed_content_model_instance = {
+                    "videoJobId": "unknown",
+                    "videoUrl": "",
+                    "thumbnailUrl": "",
+                    "generatedAt": datetime.now().isoformat(),
+                    "sourceSlides": [],
+                    "component_name": "VideoProductDisplay"
+                }
+            
+            # Skip LLM parsing for video products
+            target_content_model = None
+            default_error_instance = None
+            llm_json_example = ""
+            component_specific_instructions = ""
         else:
             logger.warning(f"Unknown component_name '{selected_design_template.component_name}' for DT ID {selected_design_template.id}. Defaulting to TrainingPlanDetails for parsing.")
             target_content_model = TrainingPlanDetails
@@ -12848,7 +12874,13 @@ Return ONLY the JSON object.
             component_specific_instructions = "Parse the content according to the JSON example provided."
 
 
-        if hasattr(default_error_instance, 'detectedLanguage'):
+        # Skip LLM parsing for video products since they already have structured content
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # parsed_content_model_instance is already set in the video product case above
+            logger.info(f"Video product created, skipping LLM parsing")
+        else:
+            # Set detected language if the error instance supports it
+            if hasattr(default_error_instance, 'detectedLanguage'):
                 default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
 
         # Skip LLM parsing for lesson plans
@@ -13019,6 +13051,10 @@ Return ONLY the JSON object.
         elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             # For lesson plans, content_to_store_for_db was already set earlier - don't overwrite it
             logger.info("Lesson plan - using pre-set content_to_store_for_db")
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, the content is already a dictionary
+            content_to_store_for_db = parsed_content_model_instance
+            logger.info(f"Video product content prepared for DB storage")
         else:
             content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             
@@ -13102,6 +13138,10 @@ Return ONLY the JSON object.
                     # For lesson plans, preserve the original structure without parsing
                     logger.info("Re-parsing lesson plan - preserving original structure.")
                     final_content_for_response = db_content_dict
+                elif component_name_from_db == COMPONENT_NAME_VIDEO_PRODUCT:
+                    # For video products, return the raw dictionary data
+                    final_content_for_response = db_content_dict
+                    logger.info("Re-parsed as VideoProductDisplay (raw dictionary).")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -13502,17 +13542,27 @@ async def get_project_instance_detail(
             try:
                 # Parse JSON string to dict
                 details_dict = json.loads(details_data)
-                # Round hours to integers before returning
-                details_dict = round_hours_in_content(details_dict)
-                parsed_details = details_dict
-                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
+                # For video products, preserve the original structure without rounding hours
+                if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product parsed from JSON string (preserving structure): {json.dumps(parsed_details, indent=2)}")
+                else:
+                    # Round hours to integers before returning for other content types
+                    details_dict = round_hours_in_content(details_dict)
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
             except (json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
                 parsed_details = None
         else:
-            # Already a dict, just round hours
-            parsed_details = round_hours_in_content(details_data)
-            logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+            # For video products, preserve the original structure without rounding hours
+            if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                parsed_details = details_data
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product already dict (preserving structure): {json.dumps(parsed_details, indent=2)}")
+            else:
+                # Already a dict, just round hours for other content types
+                parsed_details = round_hours_in_content(details_data)
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:
@@ -13533,19 +13583,70 @@ async def get_project_instance_detail(
             logger.error(f"Failed to parse lesson_plan_data JSON for project {project_id}: {e}")
             lesson_plan_data = None
     
-    return MicroProductApiResponse(
-        name=project_instance_name, slug=project_slug, project_id=project_id,
-        design_template_id=row_dict["design_template_id"], component_name=component_name,
-        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
-        sourceChatSessionId=row_dict.get("source_chat_session_id"),
-        parentProjectName=row_dict.get('project_name'),
-        custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier"),
-        is_advanced=row_dict.get("is_advanced"),
-        advanced_rates=row_dict.get("advanced_rates"),
-        lesson_plan_data=lesson_plan_data
-        # folder_id is not in MicroProductApiResponse, but can be added if needed
-    )
+    # 🔍 CRITICAL DEBUG: Log the exact response being sent to frontend
+    # For video products and video lesson presentations, ensure we preserve the raw dictionary without Pydantic validation
+    if (component_name in [COMPONENT_NAME_VIDEO_PRODUCT, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]) and parsed_details:
+        # Create response with raw video/slide metadata to avoid Pydantic validation issues
+        # This prevents the slides array from being corrupted to contentBlocks
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates"),
+            lesson_plan_data=lesson_plan_data
+        )
+        # Override the details field to ensure it remains as raw dict
+        response_data.details = parsed_details
+        logger.info(f"🔍 [DATA INTEGRITY] Project {project_id} - Preserved raw dict for {component_name} to prevent slides→contentBlocks corruption")
+    else:
+        # For other content types, use normal processing
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates")
+        )
+    
+    # 🔍 CRITICAL DEBUG: For video products and slide-based components, log the exact response being sent
+    if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+        logger.info(f"🎬 [CRITICAL DEBUG] Sending response to frontend for Project {project_id}:")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details content: {response_data.details}")
+        if hasattr(response_data.details, 'videoUrl'):
+            logger.info(f"🎬 [CRITICAL DEBUG] Response has videoUrl: {response_data.details.videoUrl}")
+        elif isinstance(response_data.details, dict) and 'videoUrl' in response_data.details:
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoUrl: {response_data.details['videoUrl']}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoJobId: {response_data.details.get('videoJobId', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has thumbnailUrl: {response_data.details.get('thumbnailUrl', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!")
+        else:
+            logger.info(f"🎬 [CRITICAL DEBUG] ❌ Response has NO videoUrl!")
+    elif component_name in [COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]:
+        logger.info(f"📊 [CRITICAL DEBUG] Sending slide-based response to frontend for Project {project_id}:")
+        logger.info(f"📊 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"📊 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        if isinstance(response_data.details, dict):
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has slides: {'slides' in response_data.details}")
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has contentBlocks: {'contentBlocks' in response_data.details}")
+            if 'slides' in response_data.details:
+                logger.info(f"📊 [CRITICAL DEBUG] ✅ FIXED: Slides array preserved with {len(response_data.details['slides'])} slides")
+            elif 'contentBlocks' in response_data.details:
+                logger.error(f"📊 [CRITICAL DEBUG] ❌ BUG: Data corrupted to contentBlocks instead of slides!")
+        else:
+            logger.warning(f"📊 [CRITICAL DEBUG] Response details is not a dict: {type(response_data.details)}")
+    
+    return response_data
 
 @app.get("/api/custom/pdf/folder/{folder_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_folder_as_pdf(
@@ -31956,7 +32057,8 @@ async def get_presentation_status(job_id: str):
             "thumbnailUrl": job.thumbnail_url,
             "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
             "createdAt": job.created_at.isoformat() if job.created_at else None,
-            "completedAt": job.completed_at.isoformat() if job.completed_at else None
+            "completedAt": job.completed_at.isoformat() if job.completed_at else None,
+            "lastHeartbeat": job.last_heartbeat.isoformat() if job.last_heartbeat else None
         }
         
     except Exception as e:
@@ -32151,8 +32253,12 @@ async def preview_slide_html(request: Request):
         # Get the first slide
         slide_props = slides_data[0]
         template_id = slide_props.get("templateId")
+        slide_id = slide_props.get("slideId")
+        metadata = slide_props.get("metadata", {})
         
         logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
         logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
@@ -32162,6 +32268,33 @@ async def preview_slide_html(request: Request):
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
         logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # CRITICAL: Log text element positioning data at endpoint level
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"  - Slide ID: {slide_id}")
+        logger.info(f"  - Metadata: {metadata}")
+        logger.info(f"  - Metadata type: {type(metadata)}")
+        
+        if metadata and isinstance(metadata, dict):
+            element_positions = metadata.get('elementPositions', {})
+            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"  - Element positions: {element_positions}")
+            logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+            
+            # Log each text element position at endpoint level
+            if element_positions:
+                for element_id, position in element_positions.items():
+                    if 'draggable' in element_id:  # Text elements use draggable IDs
+                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"    - Element ID: {element_id}")
+                        logger.info(f"    - Position: {position}")
+                        logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
+                        logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
+            else:
+                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+        else:
+            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
@@ -32173,10 +32306,10 @@ async def preview_slide_html(request: Request):
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
-        # Generate clean HTML
+        # Generate clean HTML with slideId and metadata
         logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
-            template_id, actual_props, theme
+            template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
         logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")

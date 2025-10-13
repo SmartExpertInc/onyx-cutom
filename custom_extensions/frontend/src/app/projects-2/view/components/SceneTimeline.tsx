@@ -6,7 +6,7 @@ import { SlideAddButton } from '@/components/SlideAddButton';
 
 interface Scene {
   id: string;
-  name: string;
+  name: string | {};
   order: number;
 }
 
@@ -69,7 +69,7 @@ export default function SceneTimeline({
 
   const handleRenameClick = (scene: Scene) => {
     setEditingSceneId(scene.id);
-    setEditingName(scene.name);
+    setEditingName((typeof scene.name === 'string' ? scene.name : '') || '');
   };
 
   const handleRenameSave = () => {
@@ -184,8 +184,8 @@ export default function SceneTimeline({
                     />
                   ) : (
                     <>
-                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={scene.name || 'Untitled'}>
-                        {scene.name || 'Untitled'}
+                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}>
+                        {(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}
                       </span>
                       <svg 
                         className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer flex-shrink-0" 
