@@ -274,9 +274,10 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white rounded-lg p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
+        <div className="w-full bg-white rounded-lg overflow-hidden mb-4">
+          {/* Header with border */}
+          <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4" style={{ borderBottom: '1px solid #E0E0E0' }}>
+            <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'AI Agent')}</h3>
             <button
               onClick={() => setShowAdvanced(false)}
               className="text-gray-500 hover:text-gray-700 text-sm"
@@ -285,12 +286,14 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             </button>
           </div>
           
+          {/* Content area */}
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-3">
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
             placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-            className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-y-auto min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-            style={{ background: 'rgba(255,255,255,0.95)' }}
+            className="w-full px-7 py-5 rounded-lg bg-white text-sm text-black resize-none overflow-y-auto min-h-[80px] border focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.95)', borderColor: '#E0E0E0' }}
             disabled={loadingEdit}
           />
 
@@ -305,11 +308,11 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 className={`relative text-left rounded-md px-4 py-4 text-sm w-full cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
                     ? 'bg-[#B8D4F0]'
-                    : 'bg-[#D9ECFF] hover:shadow-lg'
+                    : 'bg-[#CCDBFC] hover:shadow-lg'
                 }`}
               >
                 {ex.short}
-                <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
               </button>
             ))}
           </div>
@@ -319,7 +322,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: '#3B82F6',
                 color: 'white',
@@ -338,6 +341,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 </>
               )}
             </button>
+          </div>
           </div>
         </div>
       )}

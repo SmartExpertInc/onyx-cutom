@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert, ChevronDown } from 'lucide-react';
+import { FolderOpen, Sparkles, Edit3, Plus, ShieldAlert, ChevronDown, Eye } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -1070,7 +1070,7 @@ export default function ProductViewNewPage() {
                       >
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
                       </button>
-                        <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full ml-3">
+                        <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full">
                           {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
                         </span>
                     </div>
@@ -1186,34 +1186,36 @@ export default function ProductViewNewPage() {
                               <div className="flex items-center justify-center">
                                 {hasVideoLesson ? (
                                   <div className="relative group flex items-center justify-center">
-                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
-                                        className="w-[24px] h-[24px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                        className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                         onClick={() => {
-                                          if (status?.videoLesson?.productId) {
-                                            handleIconClick(status.videoLesson.productId);
-                                          }
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'video-lesson',
+                                            existingProductId: status?.videoLesson?.productId || null
+                                          });
                                         }}
                                       >
-                                        <Check size={12} strokeWidth={3.5} className="text-white" />
+                                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
                                       </div>
                                     </CustomTooltip>
-                                    {/* Regenerate icon on hover */}
+                                    {/* View icon on hover */}
                                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                      <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                         <div 
                                           className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                           style={{ border: '1px solid #0F58F9' }}
                                           onClick={() => {
-                                            setShowRegenerateModal({
-                                              isOpen: true,
-                                              lesson: lesson,
-                                              contentType: 'video-lesson',
-                                              existingProductId: status?.videoLesson?.productId || null
-                                            });
+                                            if (status?.videoLesson?.productId) {
+                                              handleIconClick(status.videoLesson.productId);
+                                            }
                                           }}
                                         >
-                                          <RefreshCw size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                          <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
                                         </div>
                                       </CustomTooltip>
                                     </div>
@@ -1236,34 +1238,36 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasQuiz ? (
                                 <div className="relative group flex items-center justify-center">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                  <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
-                                        if (status?.quiz?.productId) {
-                                          handleIconClick(status.quiz.productId);
-                                        }
+                                        setShowRegenerateModal({
+                                          isOpen: true,
+                                          lesson: lesson,
+                                          contentType: 'quiz',
+                                          existingProductId: status?.quiz?.productId || null
+                                        });
                                       }}
                                     >
-                                      <Check size={12} strokeWidth={3.5} className="text-white" />
+                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
                                     </div>
                                   </CustomTooltip>
-                                  {/* Regenerate icon on hover */}
+                                  {/* View icon on hover */}
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
-                                          setShowRegenerateModal({
-                                            isOpen: true,
-                                            lesson: lesson,
-                                            contentType: 'quiz',
-                                            existingProductId: status?.quiz?.productId || null
-                                          });
+                                          if (status?.quiz?.productId) {
+                                            handleIconClick(status.quiz.productId);
+                                          }
                                         }}
                                       >
-                                        <RefreshCw size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1285,34 +1289,36 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
                                 <div className="relative group flex items-center justify-center">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                  <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
-                                        if (status?.presentation?.productId) {
-                                          handleIconClick(status.presentation.productId);
-                                        }
+                                        setShowRegenerateModal({
+                                          isOpen: true,
+                                          lesson: lesson,
+                                          contentType: 'presentation',
+                                          existingProductId: status?.presentation?.productId || null
+                                        });
                                       }}
                                     >
-                                      <Check size={12} strokeWidth={3.5} className="text-white" />
+                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
                                     </div>
                                   </CustomTooltip>
-                                  {/* Regenerate icon on hover */}
+                                  {/* View icon on hover */}
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
-                                          setShowRegenerateModal({
-                                            isOpen: true,
-                                            lesson: lesson,
-                                            contentType: 'presentation',
-                                            existingProductId: status?.presentation?.productId || null
-                                          });
+                                          if (status?.presentation?.productId) {
+                                            handleIconClick(status.presentation.productId);
+                                          }
                                         }}
                                       >
-                                        <RefreshCw size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1334,34 +1340,36 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasOnePager ? (
                                 <div className="relative group flex items-center justify-center">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                  <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[24px] h-[24px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[24px] h-[24px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
-                                        if (status?.onePager?.productId) {
-                                          handleIconClick(status.onePager.productId);
-                                        }
+                                        setShowRegenerateModal({
+                                          isOpen: true,
+                                          lesson: lesson,
+                                          contentType: 'one-pager',
+                                          existingProductId: status?.onePager?.productId || null
+                                        });
                                       }}
                                     >
-                                      <Check size={12} strokeWidth={3.5} className="text-white" />
+                                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 2.41421H2.33333C1.97971 2.41421 1.64057 2.55469 1.39052 2.80474C1.14048 3.05479 1 3.39392 1 3.74755V13.0809C1 13.4345 1.14048 13.7736 1.39052 14.0237C1.64057 14.2737 1.97971 14.4142 2.33333 14.4142H11.6667C12.0203 14.4142 12.3594 14.2737 12.6095 14.0237C12.8595 13.7736 13 13.4345 13 13.0809V8.41421M12 1.41421C12.2652 1.149 12.6249 1 13 1C13.3751 1 13.7348 1.149 14 1.41421C14.2652 1.67943 14.4142 2.03914 14.4142 2.41421C14.4142 2.78929 14.2652 3.149 14 3.41421L7.66667 9.74755L5 10.4142L5.66667 7.74755L12 1.41421Z" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
                                     </div>
                                   </CustomTooltip>
-                                  {/* Regenerate icon on hover */}
+                                  {/* View icon on hover */}
                                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                                         style={{ border: '1px solid #0F58F9' }}
                                         onClick={() => {
-                                          setShowRegenerateModal({
-                                            isOpen: true,
-                                            lesson: lesson,
-                                            contentType: 'one-pager',
-                                            existingProductId: status?.onePager?.productId || null
-                                          });
+                                          if (status?.onePager?.productId) {
+                                            handleIconClick(status.onePager.productId);
+                                          }
                                         }}
                                       >
-                                        <RefreshCw size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={12} strokeWidth={3.5} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
