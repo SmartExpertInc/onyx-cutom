@@ -108,7 +108,8 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
+  // const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
+  const columnVideoLessonEnabled = false; // Temporarily disabled to check styles
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
@@ -987,7 +988,7 @@ export default function ProductViewNewPage() {
                 <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
                 <span>{totalLessons} lessons total</span>
               </div>
-              <button
+                  <button
                 className="flex items-center gap-2 bg-transparent rounded-md h-9 px-3 transition-all duration-200 hover:bg-gray-50 cursor-pointer"
                 style={{
                   border: '1px solid #E0E0E0'
@@ -997,7 +998,7 @@ export default function ProductViewNewPage() {
                   <path d="M3 4.5L6 7.5L9 4.5" stroke="#797979" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span className="text-[#797979] text-[14px] font-medium">Collapse All</span>
-              </button>
+                  </button>
             </div>
 
             {/* Render actual modules from the course outline data */}
@@ -1015,61 +1016,71 @@ export default function ProductViewNewPage() {
                 <div key={section.id || index} className="bg-white rounded-lg overflow-hidden">
                   {/* Module Header */}
                   <div className="bg-[#CCDBFC] p-[25px]">
-                    {isEditingField('sectionTitle', index) ? (
-                      <input
-                        type="text"
-                        value={section.title}
-                        onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
-                        onBlur={handleInputBlur}
+                  {isEditingField('sectionTitle', index) ? (
+                    <input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
+                      onBlur={handleInputBlur}
                         className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] bg-transparent border-none outline-none w-full"
-                        placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
-                        autoFocus
-                      />
-                    ) : (
+                      placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
+                      autoFocus
+                    />
+                  ) : (
                       <div className="group flex items-center gap-2">
-                        <h2 
+                      <h2 
                           className="text-[#0F58F9] font-semibold text-[20px] leading-[100%] cursor-pointer"
-                          onClick={() => startEditing('sectionTitle', index)}
-                        >
-                          {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
-                        </h2>
+                        onClick={() => startEditing('sectionTitle', index)}
+                      >
+                        {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
+                      </h2>
                         <span className="bg-white text-[#797979] text-[12px] px-2 py-1 rounded">
                           {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
                         </span>
-                        <button
-                          onClick={() => startEditing('sectionTitle', index)}
-                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
-                          title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
-                        >
+                      <button
+                        onClick={() => startEditing('sectionTitle', index)}
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                        title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
+                      >
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
-                        </button>
-                      </div>
-                    )}
+                      </button>
+                    </div>
+                  )}
                   </div>
                   
                   {/* Module Content */}
                   <div className="p-[25px]">
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}` }} >
-                    <div className="text-sm font-medium text-gray-700">
-                      {/* {t('interface.viewNew.lessonTitle', 'Lesson Title')} */}
+                  <div className="grid mb-4 gap-4 items-center px-2 pb-4" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, borderBottom: '1px solid #E0E0E0' }} >
+                    <div className="text-[14px] font-medium text-[#434343]">
+                      Lessons
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
-                      <LessonPresentationIcon size={18} color="#2563eb" />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.3333 2H2.66667C2.29848 2 2 2.29848 2 2.66667V6C2 6.36819 2.29848 6.66667 2.66667 6.66667H13.3333C13.7015 6.66667 14 6.36819 14 6V2.66667C14 2.29848 13.7015 2 13.3333 2Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7.33333 9.33333H2.66667C2.29848 9.33333 2 9.63181 2 10V13.3333C2 13.7015 2.29848 14 2.66667 14H7.33333C7.70152 14 8 13.7015 8 13.3333V10C8 9.63181 7.70152 9.33333 7.33333 9.33333Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M13.3333 9.33333H11.3333C10.9651 9.33333 10.6667 9.63181 10.6667 10V13.3333C10.6667 13.7015 10.9651 14 11.3333 14H13.3333C13.7015 14 14 13.7015 14 13.3333V10C14 9.63181 13.7015 9.33333 13.3333 9.33333Z" stroke="#D817FF" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                       <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
-                      <TextPresentationIcon size={18} color="#2563eb" />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.33366 1.33398V5.33398H13.3337M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                       <span>{t('interface.viewNew.onePager', 'One-Pager')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
-                      <QuizIcon size={18} color="#2563eb" />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FFE149" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                       <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
                     </div>
                     {columnVideoLessonEnabled && (
-                      <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
-                        <VideoScriptIcon size={18} color="#2563eb" />
+                      <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#4CFFF0" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                         <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
                       </div>
                     )}
@@ -1085,11 +1096,16 @@ export default function ProductViewNewPage() {
                         const hasQuiz = status?.quiz?.exists;
                         const hasVideoLesson = status?.videoLesson?.exists;
 
+                        const createdCount = [hasPresentation, hasOnePager, hasQuiz, hasVideoLesson].filter(Boolean).length;
+                        const totalProducts = columnVideoLessonEnabled ? 4 : 3;
+                        const actualCreatedCount = columnVideoLessonEnabled ? createdCount : [hasPresentation, hasOnePager, hasQuiz].filter(Boolean).length;
+
                         return (
-                          <div key={lesson?.id || lessonIndex} className="grid py-3 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}` }} >
+                          <div key={lesson?.id || lessonIndex} className="grid gap-4 items-center px-[24px] py-[16px] rounded-md" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, border: '1px solid #E0E0E0' }} >
                             {/* Lesson Title Column */}
+                            <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
+                                <span className="text-[#191D30] text-[16px] font-normal">{lessonIndex + 1}.</span>
                               {isEditingField('lessonTitle', index, lessonIndex) ? (
                                 <input
                                   type="text"
@@ -1117,6 +1133,20 @@ export default function ProductViewNewPage() {
                                   </button>
                                 </div>
                               )}
+                              </div>
+                              {/* Progress Scale */}
+                              <div className="flex items-center gap-2 ml-6">
+                                <div className="flex gap-1">
+                                  {[...Array(totalProducts)].map((_, i) => (
+                                    <div 
+                                      key={i}
+                                      className="w-8 rounded-full"
+                                      style={{ backgroundColor: i < actualCreatedCount ? '#719AF5' : '#CCDBFC', height: '3px' }}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-[#797979] text-[9px]">{actualCreatedCount}/{totalProducts} created</span>
+                              </div>
                             </div>
                             
                             {/* Presentation Status Column */}
