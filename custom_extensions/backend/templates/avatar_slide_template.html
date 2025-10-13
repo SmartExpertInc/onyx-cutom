@@ -915,103 +915,109 @@
                         <!-- Left content -->
                         <div class="left-content" style="background-color: transparent;">
                             <!-- Title with positioning support -->
-                            {% if title %}
-                                {% if metadata and metadata.elementPositions %}
-                                    {% set titleId = 'draggable-' + slideId + '-0' %}
-                                    {% if metadata.elementPositions[titleId] %}
-                                        {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
-                                        {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
-                                        <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 TITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
-                                        Element ID: {{ titleId }}
-                                        Original Position (Editor Canvas):
-                                          x: {{ metadata.elementPositions[titleId].x }}px
-                                          y: {{ metadata.elementPositions[titleId].y }}px
-                                        
-                                        Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
-                                        
-                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
-                                        -->
-                                        <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
-                                    {% else %}
-                                        <!-- 📍 TITLE: No custom position found for {{ titleId }}, using default layout -->
-                                        <h1 class="slide-title">{{ title }}</h1>
-                                    {% endif %}
+                            {# CRITICAL FIX: Check for positioning data FIRST, then check title text #}
+                            {# This ensures title renders even if text is empty but position was saved #}
+                            {% set titleId = 'draggable-' + slideId + '-0' %}
+                            {% set hasTitlePosition = metadata and metadata.elementPositions and metadata.elementPositions[titleId] %}
+                            {% set hasTitleText = title and title|trim %}
+                            
+                            {% if hasTitlePosition or hasTitleText %}
+                                {% if hasTitlePosition %}
+                                    {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
+                                    {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 TITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: {{ titleId }}
+                                    Has Position Data: YES
+                                    Has Text Data: {{ 'YES' if hasTitleText else 'NO (rendering anyway due to position data)' }}
+                                    Original Position (Editor Canvas):
+                                      x: {{ metadata.elementPositions[titleId].x }}px
+                                      y: {{ metadata.elementPositions[titleId].y }}px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                      scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                    
+                                    Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title if hasTitleText else '' }}</h1>
                                 {% else %}
-                                    <!-- 📍 TITLE: No metadata available, using default layout -->
+                                    <!-- 📍 TITLE: Text present but no custom position, using default layout -->
                                     <h1 class="slide-title">{{ title }}</h1>
                                 {% endif %}
                             {% endif %}
 
                             <!-- Subtitle with positioning support -->
-                            {% if subtitle %}
-                                {% if metadata and metadata.elementPositions %}
-                                    {% set subtitleId = 'draggable-' + slideId + '-1' %}
-                                    {% if metadata.elementPositions[subtitleId] %}
-                                        {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
-                                        {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
-                                        <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 SUBTITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
-                                        Element ID: {{ subtitleId }}
-                                        Original Position (Editor Canvas):
-                                          x: {{ metadata.elementPositions[subtitleId].x }}px
-                                          y: {{ metadata.elementPositions[subtitleId].y }}px
-                                        
-                                        Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
-                                        
-                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
-                                        -->
-                                        <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
-                                    {% else %}
-                                        <!-- 📍 SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
-                                        <h2 class="slide-subtitle">{{ subtitle }}</h2>
-                                    {% endif %}
+                            {# CRITICAL FIX: Check for positioning data FIRST, then check subtitle text #}
+                            {# This ensures subtitle renders even if text is empty but position was saved #}
+                            {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                            {% set hasSubtitlePosition = metadata and metadata.elementPositions and metadata.elementPositions[subtitleId] %}
+                            {% set hasSubtitleText = subtitle and subtitle|trim %}
+                            
+                            {% if hasSubtitlePosition or hasSubtitleText %}
+                                {% if hasSubtitlePosition %}
+                                    {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
+                                    {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 SUBTITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: {{ subtitleId }}
+                                    Has Position Data: YES
+                                    Has Text Data: {{ 'YES' if hasSubtitleText else 'NO (rendering anyway due to position data)' }}
+                                    Original Position (Editor Canvas):
+                                      x: {{ metadata.elementPositions[subtitleId].x }}px
+                                      y: {{ metadata.elementPositions[subtitleId].y }}px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                      scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                    
+                                    Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle if hasSubtitleText else '' }}</h2>
                                 {% else %}
-                                    <!-- 📍 SUBTITLE: No metadata available, using default layout -->
+                                    <!-- 📍 SUBTITLE: Text present but no custom position, using default layout -->
                                     <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                 {% endif %}
                             {% endif %}
 
                             <!-- Content with positioning support -->
-                            {% if content %}
-                                {% if metadata and metadata.elementPositions %}
-                                    {% set contentId = 'draggable-' + slideId + '-2' %}
-                                    {% if metadata.elementPositions[contentId] %}
-                                        {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
-                                        {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
-                                        <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 CONTENT POSITIONING
-                                        ───────────────────────────────────────────────────────────────
-                                        Element ID: {{ contentId }}
-                                        Original Position (Editor Canvas):
-                                          x: {{ metadata.elementPositions[contentId].x }}px
-                                          y: {{ metadata.elementPositions[contentId].y }}px
-                                        
-                                        Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
-                                        
-                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
-                                        -->
-                                        <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
-                                    {% else %}
-                                        <!-- 📍 CONTENT: No custom position found for {{ contentId }}, using default layout -->
-                                        <p class="content-text">{{ content }}</p>
-                                    {% endif %}
+                            {# CRITICAL FIX: Check for positioning data FIRST, then check content text #}
+                            {# This ensures content renders even if text is empty but position was saved #}
+                            {% set contentId = 'draggable-' + slideId + '-2' %}
+                            {% set hasContentPosition = metadata and metadata.elementPositions and metadata.elementPositions[contentId] %}
+                            {% set hasContentText = content and content|trim %}
+                            
+                            {% if hasContentPosition or hasContentText %}
+                                {% if hasContentPosition %}
+                                    {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
+                                    {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 CONTENT POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: {{ contentId }}
+                                    Has Position Data: YES
+                                    Has Text Data: {{ 'YES' if hasContentText else 'NO (rendering anyway due to position data)' }}
+                                    Original Position (Editor Canvas):
+                                      x: {{ metadata.elementPositions[contentId].x }}px
+                                      y: {{ metadata.elementPositions[contentId].y }}px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                      scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                    
+                                    Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content if hasContentText else '' }}</p>
                                 {% else %}
-                                    <!-- 📍 CONTENT: No metadata available, using default layout -->
+                                    <!-- 📍 CONTENT: Text present but no custom position, using default layout -->
                                     <p class="content-text">{{ content }}</p>
                                 {% endif %}
                             {% endif %}
