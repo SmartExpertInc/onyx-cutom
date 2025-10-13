@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "../styles/positioning.css";
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap');
-
 /* Mont Font Family - Used in Chudo Themes */
 @font-face {
   font-family: 'Mont Regular';
