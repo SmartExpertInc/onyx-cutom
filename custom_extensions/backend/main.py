@@ -9205,6 +9205,12 @@ async def migrate_onyx_users_to_credits_table() -> int:
                             user['onyx_user_id']
                         )
                         
+                        # Ensure default user type is assigned immediately after credits
+                        try:
+                            await assign_default_user_type(user['onyx_user_id'], custom_conn)
+                        except Exception as user_type_error:
+                            logger.warning(f"Failed to assign user type to {user['onyx_user_id']}: {user_type_error}")
+
                         if existing_smartdrive and existing_smartdrive.get('nextcloud_username') and existing_smartdrive.get('nextcloud_password_encrypted'):
                             logger.info(f"User {user['onyx_user_id']} already has full SmartDrive provisioning, skipping")
                         else:
@@ -9309,11 +9315,7 @@ async def migrate_onyx_users_to_credits_table() -> int:
                                 logger.error(f"[SmartDrive Migration] Failed to provision Nextcloud for user {user['onyx_user_id']}: {smartdrive_error}")
                                 # Don't fail the whole migration if SmartDrive provisioning fails
                         
-                        # Also assign default user type to users who don't have it yet
-                        try:
-                            await assign_default_user_type(user['onyx_user_id'], custom_conn)
-                        except Exception as user_type_error:
-                            logger.warning(f"Failed to assign user type to {user['onyx_user_id']}: {user_type_error}")
+                        # (User type assignment moved earlier to occur before SmartDrive provisioning)
                         
                         migrated_count += 1
                         logger.info(f"Processed user {user['onyx_user_id']} ({user['name']}) - migration complete")
@@ -34248,15 +34250,11 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
                             logger.warning(f"[SmartDrive] Exception deleting {h}: {e}")
                     
                     # Also try to delete common Nextcloud skeleton files by name (in case PROPFIND missed some)
+                    # Prune to items observed to exist in logs + common defaults
                     common_skeleton_items = [
-                        "Documents", "Photos", "Templates", "Music", "Videos", 
-                        "welcome.txt", "Readme.md", "Nextcloud intro.mp4",
-                        "Nextcloud Manual.pdf", "Example.md", "Example.odt",
-                        # Additional files that commonly appear in Nextcloud
-                        "Nextcloud.png", "Reasons to use Nextcloud.pdf", 
-                        "Templates credits.md", "Nextcloud.pdf",
-                        "Talk", "Contacts", "Calendar", "Tasks",
-                        "Deck", "Notes", "Flow", "Forms"
+                        "Documents", "Photos", "Templates",
+                        "Readme.md", "Nextcloud intro.mp4", "Nextcloud Manual.pdf",
+                        "Nextcloud.png", "Reasons to use Nextcloud.pdf", "Templates credits.md"
                     ]
                     
                     for item_name in common_skeleton_items:
