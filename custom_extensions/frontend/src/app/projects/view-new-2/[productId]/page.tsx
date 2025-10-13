@@ -109,7 +109,7 @@ export default function ProductViewNewPage() {
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   // const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
-  const columnVideoLessonEnabled = true; // Temporarily enabled to check styles
+  const columnVideoLessonEnabled = false;
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
@@ -992,6 +992,7 @@ export default function ProductViewNewPage() {
               onContentUpdate={handleSmartEditContentUpdate}
               onError={handleSmartEditError}
               onRevert={handleSmartEditRevert}
+              onClose={() => setShowSmartEditor(false)}
               currentLanguage={editableData.detectedLanguage}
               currentTheme={editableData.theme}
             />
@@ -1472,7 +1473,7 @@ export default function ProductViewNewPage() {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={handleRegenerateCancel}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                 style={{
                   backgroundColor: '#6B7280',
                   color: 'white',
@@ -1486,7 +1487,7 @@ export default function ProductViewNewPage() {
               </button>
               <button
                 onClick={handleRegenerateConfirm}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: 'white',

@@ -10,6 +10,7 @@ interface SmartPromptEditorProps {
   onContentUpdate: (updatedContent: any) => void;
   onError: (error: string) => void;
   onRevert?: () => void;
+  onClose?: () => void; // Callback to close the editor
   currentLanguage?: string | null; // Current language of the training plan
   currentTheme?: string | null; // Current theme of the training plan
 }
@@ -21,6 +22,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
   onContentUpdate,
   onError,
   onRevert,
+  onClose,
   currentLanguage,
   currentTheme,
 }) => {
@@ -279,7 +281,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4" style={{ borderBottom: '1px solid #E0E0E0' }}>
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.aiAgent', 'AI Agent')}</h3>
             <button
-              onClick={() => setShowAdvanced(false)}
+              onClick={() => onClose?.()}
               className="text-gray-500 hover:text-gray-700 text-sm"
             >
               ✕ {t('actions.close', 'Close')}
