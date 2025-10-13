@@ -3719,8 +3719,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <button
               className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "all" 
-                  ? "border-[#719AF5] text-[#719AF5]" 
-                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
+                  ? "border-b-2 border-[#719AF5] text-[#719AF5]" 
+                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("all")}
             >
@@ -3730,10 +3730,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               All
             </button>
             <button
-              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
+              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium transition-colors ${
                 activeTab === "created" 
-                  ? "border-[#719AF5] text-[#719AF5]" 
-                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
+                  ? "border-b-2 border-[#719AF5] text-[#719AF5]" 
+                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("created")}
             >
@@ -3745,8 +3745,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <button
               className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "shared" 
-                  ? "border-[#719AF5] text-[#719AF5]" 
-                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
+                  ? "border-b-2 border-[#719AF5] text-[#719AF5]" 
+                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("shared")}
             >
@@ -3758,8 +3758,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <button
               className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "favorites" 
-                  ? "border-[#719AF5] text-[#719AF5]" 
-                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
+                 ? "border-b-2 border-[#719AF5] text-[#719AF5]" 
+                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("favorites")}
             >
@@ -3769,8 +3769,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Favorites
             </button>
           </nav>
-          <div className="relative flex-1 left-20 min-w-0">
-            <Search className="absolute left-23 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
             <Input
               type="text"
               variant="shadow"
@@ -3802,7 +3802,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                      {t("interface.filterBy", "Filter by")}
                    </p>
                  </DropdownMenuLabel>
-                 <DropdownMenuSeparator />
+                 <DropdownMenuSeparator className="border-gray-300" />
                  {contentTypeFilters.map((filter) => {
                    const Icon = contentTypeFilterIcons[filter];
                    const isSelected = contentTypeFilter === filter;
@@ -3812,16 +3812,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                        onClick={() => setContentTypeFilter(filter)}
                        className={`flex items-center justify-between px-4 py-3 text-sm transition-colors ${
                          isSelected 
-                           ? "bg-[#E0ECFF] text-[#3366FF] font-medium" 
+                           ? "bg-[#CCDBFC] text-[#0F58F9] font-medium" 
                            : "text-gray-900 hover:bg-gray-50"
                        }`}
                      >
-                       <div className="flex items-center gap-3">
+                       <div className={`flex items-center gap-3 ${isSelected ? "text-[#0F58F9]" : "text-gray-900"}`}>
                          <Icon 
                            size={16} 
-                           className={isSelected ? "text-[#3366FF]" : "text-gray-600"} 
+                           className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
                          />
-                         <span>{filter}</span>
+                         <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filter}</span>
                        </div>
                        {isSelected && (
                          <Check size={16} className="text-[#3366FF]" />

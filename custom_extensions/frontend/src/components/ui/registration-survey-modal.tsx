@@ -312,12 +312,13 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center justify-center" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-full max-w-[1280px] h-[85vh] min-h-[600px] max-h-[800px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto flex flex-col">
+          <ScrollArea className="h-[85vh] min-h-[600px] max-h-[800px]">
+            <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
             {/* ContentBuilder Logo */}
@@ -407,8 +408,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
           {/* Main Content */}
-          <ScrollArea className="flex-1 overflow-y-auto">
-            <div className="px-8 pb-8">
+          <div className="px-8 pb-8">
           <div className={`transition-all duration-300 ease-in-out ${
             isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
           }`}>
@@ -642,10 +642,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               )}
             </div>
           </div>
-          </ScrollArea>
         
         {/* Navigation Buttons */}
-        <div className="flex-shrink-0 px-8 pt-4 pb-6">
+        <div className="px-8 pt-4 pb-8">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
             <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}
@@ -711,6 +710,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         </div>
             </div>
+          </ScrollArea>
       </DialogContent>
     </Dialog>
     </>
