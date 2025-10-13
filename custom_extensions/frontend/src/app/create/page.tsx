@@ -430,7 +430,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
             Icon={ImportIcon}
             title={t('interface.importFileOrUrl', 'Create from files')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
-            href="/create/from-files"
+            href="/create/from-files/specific"
             gradientFrom="from-purple-300"
             gradientTo="to-pink-200"
             iconColor="text-purple-600"
