@@ -227,6 +227,27 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
+	// Delete specific paths (bypass selection)
+	const delPaths = async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		if (!confirm(`Delete ${paths.length} item(s)?`)) return;
+		setBusy(true);
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/delete`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'same-origin',
+				body: JSON.stringify({ paths })
+			});
+			if (!res.ok && res.status !== 207) throw new Error(await res.text());
+			await fetchList(currentPath);
+		} catch (e) {
+			alert('Delete failed');
+		} finally {
+			setBusy(false);
+		}
+	};
+
 	const doMoveCopy = (op: 'move' | 'copy') => {
 		if (selected.size === 0) return;
 		setPickerOp(op);
@@ -1016,10 +1037,10 @@ const doMoveCopyForPaths = (op: 'move' | 'copy', paths: string[]) => {
 };
 
 // Open rename for a specific path (without relying on selection)
-const openRenameForPath = (path: string) => {
-    if (!path) return;
-    setRenameFromPath(path);
-    setRenameNewName(path.split('/').pop() || '');
+const openRenameForPath = (p: string) => {
+    if (!p) return;
+    setRenameFromPath(p);
+    setRenameNewName(p.split('/').pop() || '');
     setRenameOpen(true);
 };
 
