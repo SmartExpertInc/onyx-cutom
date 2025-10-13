@@ -8840,7 +8840,7 @@ async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: as
             INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
             VALUES ($1, $2, $3, $3)
             RETURNING *
-        """, onyx_user_id, user_name, 100, 100)  # Default 100 credits for new users
+        """, onyx_user_id, user_name, 100)  # Default 100 credits for new users
         
         # Assign default "Normal (HR)" user type to new users
         await assign_default_user_type(onyx_user_id, conn)
