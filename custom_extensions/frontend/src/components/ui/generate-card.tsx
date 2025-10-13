@@ -1,50 +1,52 @@
 import React from "react";
 import { Card, CardContent } from "./card";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
+  svg?: React.ReactNode;
   label: string;
   gradientTo?: string;
   active?: boolean;
   onClick?: () => void;
+  pillLabel?: string;
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, svg, label, active = false, gradientTo, onClick, pillLabel, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
-          "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
+          "group relative rounded-sm overflow-hidden transition-all duration-200 cursor-pointer",
+          "w-[116px] h-[90px] xs:w-[132px] xs:h-[106px] sm:w-[132px] sm:h-[106px] md:w-[132px] md:h-[106px] lg:w-[132px] lg:h-[106px] xl:w-[150px] xl:h-[114px]",
           "hover:scale-105",
           className
         )}
         style={{
-          backgroundColor: active ? 'white' : '#F2F9FC',
-          background: active 
-            ? `white`
-            : `#F2F9FC`,
-          boxShadow: active 
-            ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-        }}
-        onMouseEnter={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-          }
+          backgroundColor: active ? '#F2F8FF' : '#FFFFFF',
+          border: active ? '2px solid #0F58F9' : '1px solid #D3D3D3',
+          boxShadow: 'none'
         }}
         onClick={onClick}
         {...props}
       >
+        {/* Badge positioned at top right */}
+        {pillLabel && (
+          <div className="absolute top-0 right-1 z-10">
+            <div className="inline-flex items-center px-[6px] py-[4px] text-[10px] font-normal leading-none rounded-sm gap-0.5 bg-blue-600 text-white">
+              <Sparkles size={6} />
+              {pillLabel}
+            </div>
+          </div>
+        )}
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
-            {Icon && (
+            {svg ? (
+              <div className="flex items-center justify-center">
+                {svg}
+              </div>
+            ) : Icon && (
               <div 
                 className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
                 style={{
@@ -71,9 +73,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
+              className="text-sm xs:text-base sm:text-base md:text-base lg:text-sm xl:text-sm leading-tight text-center px-1 font-semibold"
               style={{
-                color: active ? '#6B6B6D' : '#7C8082'
+                color: active ? '#0D001B' : '#797979'
               }}
             >
               {label}

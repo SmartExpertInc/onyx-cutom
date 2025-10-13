@@ -969,7 +969,7 @@ export const en = {
 
     // Create page
     createWithAI: "Create with AI",
-    howToGetStarted: "How would you like to get started?",
+    howToGetStarted: "How do you want to create a product?",
     home: "Home",
     pasteInText: "Paste in text",
     pasteInTextDescription:
@@ -1030,7 +1030,7 @@ export const en = {
         "Do you want to create a quiz from an existing Course Outline?",
       onePagerQuestion:
         "Do you want to create a one-pager from an existing Course Outline?",
-      promptPlaceholder: "Describe what you'd like to make",
+      promptPlaceholder: "Describe what you'd like to make...",
       // Additional keys for preview pages
       loading: "Generating...",
       back: "Back",

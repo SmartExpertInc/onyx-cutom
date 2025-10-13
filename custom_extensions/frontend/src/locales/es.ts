@@ -889,7 +889,7 @@ export const es = {
 
     // Create page
     createWithAI: "Crear con IA",
-    howToGetStarted: "¿Cómo te gustaría comenzar?",
+    howToGetStarted: "¿Cómo quieres crear un producto?",
     home: "Inicio",
     pasteInText: "Pegar texto",
     pasteInTextDescription:

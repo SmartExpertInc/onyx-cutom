@@ -915,7 +915,7 @@ export const ru = {
 
     // Create page
     createWithAI: "Создать с ИИ",
-    howToGetStarted: "Как бы вы хотели начать?",
+    howToGetStarted: "Как вы хотите создать продукт?",
     home: "Главная",
     pasteInText: "Вставить текст",
     pasteInTextDescription:
