@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -17,6 +18,7 @@ import {
   HelpCircle,
   TableOfContents,
   FileText,
+  FileQuestion,
   Share2,
   PenLine,
   Star,
@@ -26,7 +28,11 @@ import {
   FolderMinus,
   Trash2,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  LayoutTemplate,
+  BookOpen,
+  MonitorPlay
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -449,12 +455,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Top row with badge positioned absolutely */}
           <div className="relative">
             {/* Private badge positioned absolutely in top-right */}
-            {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
-                <Lock size={8} className="text-gray-600" />
-                <span className="text-xs font-semibold text-gray-700">
-                  {t("interface.private", "Private")}
-                </span>
+            {project.isPrivate ? (
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-2 border border-gray-200">
+                <Lock size={17} className="text-gray-600" />
+              </div>
+            ) : (
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-2 py-2 border border-gray-200">
+                <Users size={17} className="text-gray-600" />
               </div>
             )}
           </div>
@@ -472,23 +479,33 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         
         {/* Lower section with white background (25-30% of height) */}
         <div className="bg-white p-4 min-h-28 flex flex-col justify-between gap-2">
-          {/* Full title */}
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
-            {displayTitle}
-          </h3>
-          {project.designMicroproductType && (
+        {project.designMicroproductType && (
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-purple-100 rounded flex items-center justify-center">
-                <Presentation size={12} className="text-purple-600" />
+              <div className="w-6 h-6 flex items-center justify-center">
+                {project.designMicroproductType === "Slide Deck" && (
+                  <LayoutTemplate size={14} className="text-[#EFB4FB]" />
+                )}
+                {project.designMicroproductType === "Training Plan" && (
+                  <BookOpen size={14} className="text-[#719AF5]" />
+                )}
+                {project.designMicroproductType === "Video Lesson Presentation" && (
+                  <MonitorPlay size={14} className="text-[#06A294]" />
+                )}
+                {project.designMicroproductType === "Text Presentation" && (
+                  <FileText size={14} className="text-purple-300" />
+                )}
+                {project.designMicroproductType === "Quiz" && (
+                  <FileQuestion size={14} className="text-[#FBEC9E]" />
+                )}
               </div>
               <span className="text-sm text-gray-500 font-medium">
                 {getProductTypeDisplayName(project.designMicroproductType)}
               </span>
             </div>
           )}
-          
+          <div className="h-2 w-full border-b border-[#E0E0E0]" />
           {/* Project title */}
-          <h3 className="font-bold text-gray-900 text-lg leading-tight" title={displayTitle}>
+          <h3 className="font-bold text-gray-900 text-base leading-tight" title={displayTitle}>
             {displayTitle}
           </h3>
           
@@ -497,15 +514,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-3">
               {/* Avatar */}
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                style={{ backgroundColor: avatarColor }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
               >
-                {project.createdBy.slice(0, 1).toUpperCase()}
+                <Image src="/images/avatarIcon.png" alt="Avatar" width={32} height={32} className="w-7 h-7 opacity-50" />
               </div>
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 leading-tight">
+                <span className="text-sm font-semibold text-gray-700 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
                 <span className="text-xs text-gray-500 leading-tight">

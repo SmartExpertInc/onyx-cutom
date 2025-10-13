@@ -312,13 +312,13 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 h-[90vh] min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 h-[90vh] max-h-[700px] min-w-[830px] border-0 shadow-xl bg-transparent left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
           <ScrollArea className="w-full h-[90vh] z-100 max-h-[700px]">
-            <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+            <div className="relative z-10 w-full max-w-[1280px] h-[90vh] max-h-[700px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
             {/* Header with Logo and Progress */}
             <div className="p-8 pb-4">
             {/* ContentBuilder Logo */}

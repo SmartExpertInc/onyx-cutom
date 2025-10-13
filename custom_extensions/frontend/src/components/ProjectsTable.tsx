@@ -3687,18 +3687,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     <div>
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
               <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
                 <Button 
-                  variant="gradient" 
-                  className="rounded-full font-semibold"
+                  variant="download" 
+                  className="rounded-full font-semibold bg-[#0F58F9] font-medium public-sans"
                   onClick={handleCreateProduct}
                   asChild
                 >
                   <div>
                   <Plus size={16} className="text-white" />
                   {auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}
-                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                  <span className="ml-1.5 rounded-full bg-white text-[#0F58F9] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
                   </div>
@@ -3819,18 +3819,20 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </Button>
             )} */}
 
-            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
+            <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
               <Button
                 onClick={() => setViewMode("grid")}
                 variant={viewMode === "grid" ? "view-active" : "view"}
+                className={`rounded-full ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
-                <LayoutGrid size={16} className="text-gray-800" />
+                <LayoutGrid size={16} className="text-gray-600" />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
+                className={`rounded-full ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
               >
-                <List size={16} className="text-gray-800" />
+                <List size={16} className="text-gray-600" />
               </Button>
             </div>
           </div>

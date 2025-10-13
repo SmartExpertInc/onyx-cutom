@@ -301,7 +301,7 @@ const FolderItem: React.FC<{
     <div>
       <div
         className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-all duration-200 border border-transparent ${!isModalOpen ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-          } ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-800'}`}
+          } ${selectedFolderId === folder.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-100 text-gray-800'}`}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onFolderSelect(selectedFolderId === folder.id ? null : folder.id)}
         draggable={!isModalOpen}
@@ -477,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const isSearching = folderSearch.trim().length > 0;
 
   return (
-    <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm z-40">
+    <aside className="w-64 bg-[#EEEEEE] p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm z-40">
       <div className="relative mb-6">
         {deloitteBannerEnabled ? (
           <div className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
@@ -495,7 +495,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <nav className="flex flex-col gap-1">
         <Link
           href="/projects"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
         >
           <Home size={18} />
@@ -503,7 +503,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         </Link>
         <Link
           href="/projects?tab=smart-drive"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => {
             trackPageView("Smart Drive");
             onFolderSelect(null);
@@ -515,7 +515,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {offersTabEnabled && (
           <Link
             href="/projects?tab=offers"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
             onClick={() => {
             trackPageView("Offers");
             onFolderSelect(null);
@@ -528,7 +528,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {aiAuditEnabled && (
           <Link
             href="/projects?tab=audits"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
             onClick={() => onFolderSelect(null)}
           >
             <ClipboardCheck size={18} />
@@ -538,7 +538,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {workspaceTabEnabled && (
           <Link
             href="/projects?tab=workspace"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
             onClick={() => onFolderSelect(null)}
           >
             <Users size={18} />
@@ -548,7 +548,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {exportToLMSEnabled && (
           <Link
             href="/projects?tab=export-lms"
-            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}
             onClick={() => {
             trackPageView("Export to LMS");
             onFolderSelect(null);
@@ -619,7 +619,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <span>{t('interface.eventPoster', 'Event Poster')}</span>
           </Link>
         )}
-        <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
+        <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>
         </Link>
@@ -670,12 +670,12 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Button variant="download" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
+        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] radius-md font-medium public-sans" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
         <button 
           onClick={onAddOnsModalOpen}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-semibold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
         >
-          <Coins size={20} className="text-gray-900" />
+          <Coins size={20} className="text-[#F7E0FC]" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </button>
         <Button variant="outline" onClick={onSurveyModalOpen}>
@@ -1175,7 +1175,7 @@ const ProjectsPageInner: React.FC = () => {
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
       <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} onSurveyModalOpen={() => setSurveyModalOpen(true)} />
-      <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
+      <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
