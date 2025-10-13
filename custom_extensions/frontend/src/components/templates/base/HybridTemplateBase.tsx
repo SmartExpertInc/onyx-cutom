@@ -264,7 +264,6 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
       style={{
         // Use max-width and max-height instead of fixed dimensions to allow natural flow
-        maxWidth: currentCanvasConfig.width,
         width: '100%',
         height: 'auto',
         minHeight: '600px', // Ensure minimum height for consistency
