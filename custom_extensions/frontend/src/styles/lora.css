@@ -1,4 +1,4 @@
-/* Lora Font Styles for All Slides */
+/* Lora Font Styles - FOR SLIDES ONLY */
 
 /* Font Face Definitions */
 @font-face {
@@ -9,76 +9,20 @@
   font-display: swap;
 }
 
-/* Global Font Application - LORA EVERYWHERE */
-* {
+/* NO GLOBAL APPLICATION - Lora is ONLY for slide-specific elements */
+
+/* Title elements in slides - LORA */
+.title-element {
   font-family: 'Lora', serif !important;
+  font-weight: 500 !important;
 }
 
-/* Specific Slide Elements - LORA */
+/* Specific Slide Title Classes - LORA */
 .slide-title,
 .slide-title-text,
-.slide-title-display,
-.slide-content,
-.slide-text,
-.paragraph-text,
-.bullet-text,
-.number-text,
-.professional-headline .heading-text,
-.professional-bullet-item,
-.professional-numbered-item,
-.inline-editor-input,
-.inline-editor-textarea,
-.content-block,
-.bullet-points-template,
-.component-based-slide {
+.slide-title-display {
   font-family: 'Lora', serif !important;
-  font-weight: 400 !important;
 }
 
-/* Headings - LORA */
-h1, h2, h3, h4, h5, h6,
-.heading-text,
-.level-1 .heading-text,
-.level-2 .heading-text,
-.level-3 .heading-text,
-.level-4 .heading-text {
-  font-family: 'Lora', serif !important;
-  font-weight: 600 !important;
-}
-
-/* Lists - LORA */
-.bullet-items li,
-.numbered-items li,
-.professional-bullet-list,
-.professional-numbered-list {
-  font-family: 'Lora', serif !important;
-  font-weight: 400 !important;
-}
-
-/* Inline Editor - LORA */
-.inline-editor-input[data-block-type="headline"],
-.inline-editor-textarea[data-block-type="headline"],
-.inline-editor-input[data-block-type="paragraph"],
-.inline-editor-textarea[data-block-type="paragraph"],
-.inline-editor-input[data-block-type="bullet_list"],
-.inline-editor-textarea[data-block-type="bullet_list"],
-.inline-editor-input[data-block-type="numbered_list"],
-.inline-editor-textarea[data-block-type="numbered_list"] {
-  font-family: 'Lora', serif !important;
-  font-weight: 400 !important;
-}
-
-/* Force override for all text elements - LORA */
-.slide-content *,
-.slide-title *,
-.content-block * {
-  font-family: 'Lora', serif !important;
-  font-weight: 400 !important;
-}
-
-/* Page numbers and logos - LORA */
-.page-number-editor,
-.page-number-display {
-  font-family: 'Lora', serif !important;
-  font-weight: 300 !important;
-}
+/* Component-based slides can define their own font rules using inline styles */
+/* Each template controls its own font application through className and inline <style> tags */
