@@ -619,8 +619,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const download = async () => {
 		const filesOnly = Array.from(selected).filter(p => items.find(i => i.path === p && i.type === 'file'));
 		for (const p of filesOnly) {
-			const url = `${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`;
-			window.open(url, '_blank');
+			try {
+				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`, { 
+					credentials: 'same-origin' 
+				});
+				if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+				const data = await res.json();
+				if (data.downloadUrl) {
+					window.open(data.downloadUrl, '_blank');
+				}
+			} catch (e) {
+				console.error('[SmartDrive] Download error:', e);
+				alert('Download failed');
+			}
 		}
 	};
 

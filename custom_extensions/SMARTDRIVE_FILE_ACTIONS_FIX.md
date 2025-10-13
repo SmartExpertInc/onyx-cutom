@@ -10,28 +10,47 @@ Fixed three critical issues affecting SmartDrive file browser operations: rename
 
 **Problem**: Downloads were returning empty files with a `httpx.StreamClosed` error in the backend logs.
 
-**Root Cause**: Indentation bug in `smartdrive_download` function. The status check and `StreamingResponse` creation were outside the `async with client.stream()` context, causing the stream to close before it could be read.
+**Root Cause**: The `StreamingResponse` approach didn't work because the async context manager exits before the stream is consumed by the client, causing `StreamClosed` errors.
 
-**Fix Applied** (`custom_extensions/backend/main.py`, lines 35142-35158):
+**Fix Applied** (`custom_extensions/backend/main.py`, lines 35167-35193):
+
+Changed from streaming approach to public download link approach (same as LMS export):
 ```python
-async with httpx.AsyncClient(timeout=None) as client:
-    async with client.stream("GET", source_url, auth=(username, password)) as resp:
-        # Now properly indented - inside the stream context
-        if resp.status_code != 200:
-            raise HTTPException(...)
-        
-        filename = _guess_filename_from_path(norm_path)
-        media_type = resp.headers.get("content-type", "application/octet-stream")
-        headers = {
-            "Content-Disposition": f"attachment; filename=\"{filename}\"",
-            "ETag": resp.headers.get("etag", ""),
+@app.get("/api/custom/smartdrive/download")
+async def smartdrive_download(...):
+    """Create a public download link for the file (like LMS export approach)."""
+    from app.services.nextcloud_share import create_public_download_link
+    
+    onyx_user_id = await get_current_onyx_user_id(request)
+    norm_path = await _normalize_smartdrive_path(path)
+    
+    # Create public download link with short expiry (1 day for direct downloads)
+    download_link = await create_public_download_link(onyx_user_id, norm_path, expiry_days=1)
+    
+    # Return the download link for the frontend to open
+    return {"downloadUrl": download_link}
+```
+
+**Frontend Update** (`custom_extensions/frontend/src/components/SmartDrive/SmartDrive/SmartDriveBrowser.tsx`, lines 619-636):
+```typescript
+const download = async () => {
+    const filesOnly = Array.from(selected).filter(p => items.find(i => i.path === p && i.type === 'file'));
+    for (const p of filesOnly) {
+        try {
+            const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`, { 
+                credentials: 'same-origin' 
+            });
+            if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+            const data = await res.json();
+            if (data.downloadUrl) {
+                window.open(data.downloadUrl, '_blank');
+            }
+        } catch (e) {
+            console.error('[SmartDrive] Download error:', e);
+            alert('Download failed');
         }
-        
-        async def stream_body():
-            async for chunk in resp.aiter_bytes():
-                yield chunk
-        
-        return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
+    }
+};
 ```
 
 ### 2. Rename Operation 403 Forbidden Error ✅
@@ -39,31 +58,45 @@ async with httpx.AsyncClient(timeout=None) as client:
 **Problem**: Rename operations failed with:
 ```
 HTTP Request: MOVE https://nc1.contentbuilder.ai/remote.php/dav/files/sd_xxx/file.md "HTTP/1.1 403 Forbidden"
+Error: Requested uri (/remote.php/dav/files/...) is out of base uri (/smartdrive/remote.php/dav/)
 ```
 
-**Root Cause**: The Destination header was being constructed correctly, but the code needed:
-1. Better logging to diagnose issues
-2. Acceptance of additional WebDAV success status codes (200, 201, 204)
-3. Clearer variable naming for the destination URL
+**Root Cause**: Nextcloud is behind a proxy that adds `/smartdrive` prefix. When the MOVE request includes a Destination header without this prefix, Nextcloud rejects it as "out of base uri".
 
-**Fix Applied** (`custom_extensions/backend/main.py`, lines 34959-35008):
-- Split destination URL construction into a separate variable for clarity
-- Added comprehensive logging (request params, URLs, response status)
-- Added status code 200 to accepted success codes
-- Improved error messages with detailed logging
+**Fix Applied** (`custom_extensions/backend/main.py`, lines 34959-35028):
+- Added automatic detection and retry logic for proxy configurations
+- When a 403 error mentions "/smartdrive" and "out of base uri", the code automatically retries with an adjusted Destination header that includes the `/smartdrive` prefix
+- Added comprehensive logging for debugging
+- Added status code 200 to accepted success codes (200, 201, 204)
 
 ```python
-# Build source and destination URLs explicitly
-source_url = f"{base}{_encode_dav_path(user_root_prefix + src)}"
-dest_url = f"{base}{_encode_dav_path(user_root_prefix + dst)}"
-
 headers = {"Destination": dest_url, "Overwrite": "T"}
-
 logger.info(f"[SmartDrive] MOVE: {source_url} -> Destination: {dest_url}")
+
+async with httpx.AsyncClient(timeout=60.0) as client:
+    resp = await client.request("MOVE", source_url, auth=(username, password), headers=headers)
+
+logger.info(f"[SmartDrive] MOVE response: status={resp.status_code}")
 
 # Accept all standard WebDAV success codes
 if resp.status_code in (200, 201, 204):
     return {"success": True}
+
+# If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
+if resp.status_code == 403 and "/smartdrive" in resp.text and "out of base uri" in resp.text:
+    logger.info(f"[SmartDrive] MOVE 403 - trying with /smartdrive prefix in Destination")
+    from urllib.parse import urlparse
+    parsed_dest = urlparse(dest_url)
+    adjusted_dest = f"/smartdrive{parsed_dest.path}"
+    headers_retry = {"Destination": adjusted_dest, "Overwrite": "T"}
+    logger.info(f"[SmartDrive] MOVE retry: {source_url} -> Destination: {adjusted_dest}")
+    
+    async with httpx.AsyncClient(timeout=60.0) as client2:
+        resp2 = await client2.request("MOVE", source_url, auth=(username, password), headers=headers_retry)
+    
+    logger.info(f"[SmartDrive] MOVE retry response: status={resp2.status_code}")
+    if resp2.status_code in (200, 201, 204):
+        return {"success": True}
 ```
 
 ### 3. Move Operation Silent Failures ✅
@@ -71,15 +104,15 @@ if resp.status_code in (200, 201, 204):
 **Problem**: Move operations appeared to succeed but files weren't actually moved.
 
 **Root Cause**: 
+- Same proxy configuration issue as rename (403 with "out of base uri" error)
 - Only status codes 201 and 204 were considered successful (missing 200)
 - Lack of detailed logging made debugging difficult
-- No clear error messages when operations failed
 
-**Fix Applied** (`custom_extensions/backend/main.py`, lines 34959-35008 for MOVE, 35012-35061 for COPY):
+**Fix Applied** (`custom_extensions/backend/main.py`, lines 34959-35028 for MOVE, 35031-35101 for COPY):
+- Same automatic retry logic as rename for proxy configurations
 - Added detailed logging at each step (request, URLs, response)
 - Expanded success status codes to include 200, 201, and 204 (all valid WebDAV success codes)
 - Added error logging with full error details
-- Improved destination URL construction for clarity
 
 ## WebDAV Success Codes
 
@@ -147,15 +180,37 @@ Or in case of errors:
 ## Files Modified
 
 - `custom_extensions/backend/main.py`:
-  - `smartdrive_download()` - Fixed indentation (lines 35142-35158)
-  - `smartdrive_move()` - Added logging, fixed status codes, improved error handling (lines 34959-35008)
-  - `smartdrive_copy()` - Added logging, fixed status codes, improved error handling (lines 35012-35061)
+  - `smartdrive_download()` - Changed to public link approach (lines 35167-35193)
+  - `smartdrive_move()` - Added proxy detection and retry logic, improved logging (lines 34959-35028)
+  - `smartdrive_copy()` - Added proxy detection and retry logic, improved logging (lines 35031-35101)
+
+- `custom_extensions/frontend/src/components/SmartDrive/SmartDrive/SmartDriveBrowser.tsx`:
+  - `download()` - Updated to fetch download URL from API and open in new tab (lines 619-636)
 
 ## Impact
 
-- ✅ Downloads now work correctly with proper file content
-- ✅ Rename operations succeed without 403 errors
-- ✅ Move operations work reliably and provide clear error messages
+- ✅ Downloads now work correctly using public download links (1-day expiry)
+- ✅ Rename operations automatically handle proxy configurations with retry logic
+- ✅ Move/Copy operations work reliably with automatic proxy detection
 - ✅ Better debugging capability with comprehensive logging
 - ✅ All operations handle WebDAV responses according to RFC 4918 specification
+- ✅ Automatic handling of Nextcloud instances behind proxies (e.g., `/smartdrive` prefix)
+
+## Technical Notes
+
+### Download Strategy
+The download implementation now uses Nextcloud's OCS API to create temporary public share links (similar to LMS export). This approach:
+- Avoids streaming context issues
+- Works reliably across different proxy configurations
+- Creates links with 1-day expiry for security
+- Opens downloads in a new tab for better UX
+
+### Proxy Detection
+The MOVE/COPY operations now include intelligent proxy detection:
+1. First attempt uses standard absolute URI Destination header
+2. If 403 error contains "/smartdrive" and "out of base uri", automatically retry
+3. Retry uses adjusted Destination with `/smartdrive` path prefix
+4. Comprehensive logging shows both attempts for debugging
+
+This handles cases where Nextcloud is behind a reverse proxy that adds path prefixes.
 

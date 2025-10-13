@@ -34998,6 +34998,26 @@ async def smartdrive_move(
         if resp.status_code in (200, 201, 204):
             return {"success": True}
         
+        # If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
+        if resp.status_code == 403 and "/smartdrive" in resp.text and "out of base uri" in resp.text:
+            logger.info(f"[SmartDrive] MOVE 403 - trying with /smartdrive prefix in Destination")
+            # Extract just the path and add /smartdrive prefix
+            from urllib.parse import urlparse
+            parsed_dest = urlparse(dest_url)
+            adjusted_dest = f"/smartdrive{parsed_dest.path}"
+            headers_retry = {"Destination": adjusted_dest, "Overwrite": "T"}
+            logger.info(f"[SmartDrive] MOVE retry: {source_url} -> Destination: {adjusted_dest}")
+            
+            async with httpx.AsyncClient(timeout=60.0) as client2:
+                resp2 = await client2.request("MOVE", source_url, auth=(username, password), headers=headers_retry)
+            
+            logger.info(f"[SmartDrive] MOVE retry response: status={resp2.status_code}")
+            if resp2.status_code in (200, 201, 204):
+                return {"success": True}
+            error_detail = _dav_error(resp2)
+            logger.error(f"[SmartDrive] MOVE retry failed: status={resp2.status_code}, detail={error_detail}")
+            raise HTTPException(status_code=_map_webdav_status(resp2.status_code), detail=error_detail)
+        
         error_detail = _dav_error(resp)
         logger.error(f"[SmartDrive] MOVE failed: status={resp.status_code}, detail={error_detail}")
         raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=error_detail)
@@ -35050,6 +35070,26 @@ async def smartdrive_copy(
         # WebDAV COPY success codes: 201 (Created), 204 (No Content), 200 (OK)
         if resp.status_code in (200, 201, 204):
             return {"success": True}
+        
+        # If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
+        if resp.status_code == 403 and "/smartdrive" in resp.text and "out of base uri" in resp.text:
+            logger.info(f"[SmartDrive] COPY 403 - trying with /smartdrive prefix in Destination")
+            # Extract just the path and add /smartdrive prefix
+            from urllib.parse import urlparse
+            parsed_dest = urlparse(dest_url)
+            adjusted_dest = f"/smartdrive{parsed_dest.path}"
+            headers_retry = {"Destination": adjusted_dest, "Overwrite": "T"}
+            logger.info(f"[SmartDrive] COPY retry: {source_url} -> Destination: {adjusted_dest}")
+            
+            async with httpx.AsyncClient(timeout=60.0) as client2:
+                resp2 = await client2.request("COPY", source_url, auth=(username, password), headers=headers_retry)
+            
+            logger.info(f"[SmartDrive] COPY retry response: status={resp2.status_code}")
+            if resp2.status_code in (200, 201, 204):
+                return {"success": True}
+            error_detail = _dav_error(resp2)
+            logger.error(f"[SmartDrive] COPY retry failed: status={resp2.status_code}, detail={error_detail}")
+            raise HTTPException(status_code=_map_webdav_status(resp2.status_code), detail=error_detail)
         
         error_detail = _dav_error(resp)
         logger.error(f"[SmartDrive] COPY failed: status={resp.status_code}, detail={error_detail}")
@@ -35170,37 +35210,27 @@ async def smartdrive_download(
     path: str = Query(..., description="File path to download"),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Download a file by streaming from WebDAV to client."""
+    """Create a public download link for the file (like LMS export approach)."""
     try:
+        from app.services.nextcloud_share import create_public_download_link
+        
         onyx_user_id = await get_current_onyx_user_id(request)
         norm_path = await _normalize_smartdrive_path(path)
-        async with pool.acquire() as conn:
-            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
-        base = f"{base_url}/remote.php/dav/files/{username}"
-        source_url = f"{base}{_encode_dav_path(user_root_prefix + norm_path)}"
-
-        async with httpx.AsyncClient(timeout=None) as client:
-            async with client.stream("GET", source_url, auth=(username, password)) as resp:
-                if resp.status_code != 200:
-                    raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
-
-                filename = _guess_filename_from_path(norm_path)
-                media_type = resp.headers.get("content-type", "application/octet-stream")
-                headers = {
-                    "Content-Disposition": f"attachment; filename=\"{filename}\"",
-                    "ETag": resp.headers.get("etag", ""),
-                }
-
-                async def stream_body():
-                    async for chunk in resp.aiter_bytes():
-                        yield chunk
-
-                return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
+        
+        logger.info(f"[SmartDrive] Creating download link for path={norm_path}")
+        
+        # Create public download link with short expiry (1 day for direct downloads)
+        download_link = await create_public_download_link(onyx_user_id, norm_path, expiry_days=1)
+        
+        logger.info(f"[SmartDrive] Download link created: {download_link}")
+        
+        # Return the download link for the frontend to open
+        return {"downloadUrl": download_link}
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"[SmartDrive] download error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to download file")
+        raise HTTPException(status_code=500, detail="Failed to create download link")
 
 
 # --------- Helpers: auth, paths, rate limiting, dav utils ---------
