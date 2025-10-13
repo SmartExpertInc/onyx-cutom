@@ -79,6 +79,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [indexing, setIndexing] = useState<IndexingState>({});
 	const [mkdirOpen, setMkdirOpen] = useState(false);
 	const [mkdirName, setMkdirName] = useState('');
+	// Rename modal state
+	const [renameOpen, setRenameOpen] = useState(false);
+	const [renameFromPath, setRenameFromPath] = useState<string | null>(null);
+	const [renameNewName, setRenameNewName] = useState('');
+	const [renameSaving, setRenameSaving] = useState(false);
+	// Folder picker modal state for move/copy
+	const [pickerOpen, setPickerOpen] = useState(false);
+	const [pickerOp, setPickerOp] = useState<'move' | 'copy'>('move');
+	const [pickerPath, setPickerPath] = useState<string>('/');
+	const [pickerDirs, setPickerDirs] = useState<SmartDriveItem[]>([]);
+	const [pickerLoading, setPickerLoading] = useState(false);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -195,51 +206,84 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const doMoveCopy = async (op: 'move' | 'copy') => {
+	const doMoveCopy = (op: 'move' | 'copy') => {
 		if (selected.size === 0) return;
-		const toPath = prompt(`Destination path for ${op}`);
-		if (!toPath) return;
-		setBusy(true);
-		try {
-			for (const p of Array.from(selected)) {
-				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${op}`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					credentials: 'same-origin',
-					body: JSON.stringify({ from: p, to: toPath.endsWith('/') ? `${toPath}${p.split('/').pop()}` : toPath })
-				});
-				if (!res.ok) throw new Error(await res.text());
-			}
-			clearSel();
-			await fetchList(currentPath);
-		} catch (e) {
-			alert(`${op} failed`);
-		} finally {
-			setBusy(false);
-		}
+		setPickerOp(op);
+		setPickerPath('/');
+		setPickerOpen(true);
+		void loadPickerDirs('/');
 	};
 
-	const rename = async () => {
+	const openRename = () => {
 		if (selected.size !== 1) return;
 		const p = Array.from(selected)[0];
-		const base = p.split('/').slice(0, -1).join('/') || '/';
-		const old = p.split('/').pop() || '';
-		const name = prompt('Rename to', old);
-		if (!name || name === old) return;
-		setBusy(true);
+		setRenameFromPath(p);
+		setRenameNewName(p.split('/').pop() || '');
+		setRenameOpen(true);
+	};
+
+	const submitRename = async () => {
+		if (!renameFromPath) return;
+		const base = renameFromPath.split('/').slice(0, -1).join('/') || '/';
+		const old = renameFromPath.split('/').pop() || '';
+		const name = renameNewName.trim();
+		if (!name || name === old) { setRenameOpen(false); return; }
+		setRenameSaving(true);
 		try {
 			const to = `${base}${base.endsWith('/') ? '' : '/'}${name}`;
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				credentials: 'same-origin',
-				body: JSON.stringify({ from: p, to })
+				body: JSON.stringify({ from: renameFromPath, to })
 			});
 			if (!res.ok) throw new Error(await res.text());
+			setRenameOpen(false);
+			setRenameSaving(false);
 			clearSel();
 			await fetchList(currentPath);
 		} catch (e) {
+			setRenameSaving(false);
 			alert('Rename failed');
+		}
+	};
+
+	const loadPickerDirs = async (path: string) => {
+		setPickerLoading(true);
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
+			if (!res.ok) throw new Error('Failed to load');
+			const data = await res.json();
+			const dirs = (data.files || []).filter((i: SmartDriveItem) => i.type === 'directory');
+			setPickerDirs(dirs);
+			setPickerPath(data.path || path);
+		} catch {
+			setPickerDirs([]);
+		} finally {
+			setPickerLoading(false);
+		}
+	};
+
+	const submitPicker = async (targetFolder: string) => {
+		if (!targetFolder) return;
+		setBusy(true);
+		try {
+			for (const p of Array.from(selected)) {
+				const destBase = targetFolder.endsWith('/') ? targetFolder : `${targetFolder}/`;
+				const to = `${destBase}${p.split('/').pop()}`.replace(/\/+/, '/');
+				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					credentials: 'same-origin',
+					body: JSON.stringify({ from: p, to })
+				});
+				if (!res.ok) throw new Error(await res.text());
+			}
+			setPickerOpen(false);
+			clearSel();
+			await fetchList(currentPath);
+		} catch (e) {
+			alert(`${pickerOp} failed`);
 		} finally {
 			setBusy(false);
 		}
@@ -672,8 +716,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{filtered.map((it, idx) => {
 								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 									setSelected(new Set([it.path]));
-									switch(action) {
-										case 'rename': rename(); break;
+                                    switch(action) {
+                                        case 'rename': openRename(); break;
 										case 'move': doMoveCopy('move'); break;
 										case 'copy': doMoveCopy('copy'); break;
 										case 'delete': del(); break;
@@ -742,6 +786,63 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			</div>
 
 			{/* Footer buttons removed in select mode; selection is communicated live via onFilesSelected */}
+			
+			{/* Rename Modal */}
+			<Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+				<DialogContent onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+					<DialogHeader>
+						<DialogTitle>Rename item</DialogTitle>
+						<DialogDescription>Enter a new name for the selected item.</DialogDescription>
+					</DialogHeader>
+					<div className="mt-2">
+						<UiInput value={renameNewName} onChange={(e: React.ChangeEvent<HTMLInputElement>)=>setRenameNewName(e.target.value)} placeholder="New name" autoFocus />
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={()=>setRenameOpen(false)}>Cancel</Button>
+						<Button onClick={submitRename} disabled={renameSaving || !renameNewName.trim()}>{renameSaving ? 'Renaming…' : 'Rename'}</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Folder Picker Modal */}
+			<Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+				<DialogContent onClick={(e: React.MouseEvent)=>e.stopPropagation()} className="max-w-xl">
+					<DialogHeader>
+						<DialogTitle>{pickerOp === 'move' ? 'Move to folder' : 'Copy to folder'}</DialogTitle>
+						<DialogDescription>Select a destination folder.</DialogDescription>
+					</DialogHeader>
+					<div className="space-y-2">
+						<div className="flex items-center gap-2 text-sm text-slate-600">
+							<Button variant="link" className="px-0" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>Up one level</Button>
+							<span className="truncate">{pickerPath}</span>
+						</div>
+						<div className="border rounded-md max-h-64 overflow-y-auto">
+							{pickerLoading ? (
+								<div className="p-4 text-center text-slate-600">Loading…</div>
+							) : (
+								<div className="divide-y">
+									{pickerPath !== '/' && (
+										<div className="px-3 py-2 hover:bg-blue-50 cursor-pointer" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>..</div>
+									)}
+									{pickerDirs.map(d => (
+										<div key={d.path} className="px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center gap-2" onClick={()=>loadPickerDirs(d.path)}>
+											<Folder className="w-4 h-4 text-blue-500" />
+											<span className="truncate">{d.name}</span>
+										</div>
+									))}
+									{pickerDirs.length === 0 && (
+										<div className="p-4 text-center text-slate-500">No subfolders</div>
+									)}
+								</div>
+							)}
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={()=>setPickerOpen(false)}>Cancel</Button>
+						<Button onClick={()=>submitPicker(pickerPath)} disabled={pickerLoading}>Select folder</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

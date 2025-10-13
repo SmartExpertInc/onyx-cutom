@@ -34969,6 +34969,12 @@ async def smartdrive_move(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
+        # Ensure destination parent directory exists to avoid 403
+        try:
+            dst_parent = dst.rsplit("/", 1)[0] or "/"
+            await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
+        except Exception as _e:
+            logger.debug(f"[SmartDrive] ensure parent for MOVE failed (non-fatal): { _e }")
         headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.request("MOVE", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
@@ -34996,6 +35002,12 @@ async def smartdrive_copy(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
+        # Ensure destination parent directory exists to avoid 403
+        try:
+            dst_parent = dst.rsplit("/", 1)[0] or "/"
+            await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
+        except Exception as _e:
+            logger.debug(f"[SmartDrive] ensure parent for COPY failed (non-fatal): { _e }")
         headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.request("COPY", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
@@ -35127,25 +35139,23 @@ async def smartdrive_download(
         base = f"{base_url}/remote.php/dav/files/{username}"
         source_url = f"{base}{_encode_dav_path(user_root_prefix + norm_path)}"
 
-        client = httpx.AsyncClient(timeout=None)
-        resp = await client.get(source_url, auth=(username, password), stream=True)
-        if resp.status_code != 200:
-            await client.aclose()
-            raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+        async with httpx.AsyncClient(timeout=None) as client:
+            async with client.stream("GET", source_url, auth=(username, password)) as resp:
+                if resp.status_code != 200:
+                    raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
 
-        filename = _guess_filename_from_path(norm_path)
-        media_type = resp.headers.get("content-type", "application/octet-stream")
-        headers = {
-            "Content-Disposition": f"attachment; filename=\"{filename}\"",
-            "ETag": resp.headers.get("etag", ""),
-        }
+                filename = _guess_filename_from_path(norm_path)
+                media_type = resp.headers.get("content-type", "application/octet-stream")
+                headers = {
+                    "Content-Disposition": f"attachment; filename=\"{filename}\"",
+                    "ETag": resp.headers.get("etag", ""),
+                }
 
-        async def stream_body():
-            async for chunk in resp.aiter_bytes():
-                yield chunk
-            await client.aclose()
+                async def stream_body():
+                    async for chunk in resp.aiter_bytes():
+                        yield chunk
 
-        return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
+                return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
     except HTTPException:
         raise
     except Exception as e:
