@@ -1052,9 +1052,23 @@ export default function ProductViewNewPage() {
                   <div className="p-[25px] pt-0">
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 gap-4 items-center px-[25px] mx-[-25px]" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, borderBottom: '1px solid #E0E0E0' }} >
+                  <div className="grid mb-4 gap-4 items-center px-[25px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, borderBottom: '1px solid #E0E0E0' }} >
                     <div className="text-[14px] font-medium text-[#434343]">
                       Lessons
+                    </div>
+                    {columnVideoLessonEnabled && (
+                      <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#4CFFF0" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
+                      </div>
+                    )}
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FFE149" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
                     </div>
                     <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1070,20 +1084,6 @@ export default function ProductViewNewPage() {
                       </svg>
                       <span>{t('interface.viewNew.onePager', 'One-Pager')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="#FFE149" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
-                    </div>
-                    {columnVideoLessonEnabled && (
-                      <div className="flex flex-col items-center text-[10px] font-medium text-[#434343] justify-center gap-1 p-2">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="#4CFFF0" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
-                      </div>
-                    )}
                   </div>
 
                   {section.lessons && section.lessons.length > 0 && (
@@ -1101,7 +1101,7 @@ export default function ProductViewNewPage() {
                         const actualCreatedCount = columnVideoLessonEnabled ? createdCount : [hasPresentation, hasOnePager, hasQuiz].filter(Boolean).length;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className="grid gap-4 items-center px-[24px] py-[16px] rounded-md" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}`, border: '1px solid #E0E0E0' }} >
+                          <div key={lesson?.id || lessonIndex} className="grid gap-4 items-center px-[24px] py-[16px] rounded-md" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, border: '1px solid #E0E0E0' }} >
                             {/* Lesson Title Column */}
                             <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
@@ -1146,6 +1146,101 @@ export default function ProductViewNewPage() {
                               </div>
                             </div>
                             
+                            {columnVideoLessonEnabled && (
+                              <div className="flex items-center justify-center">
+                                {hasVideoLesson ? (
+                                  <div className="relative group flex items-center justify-center">
+                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                        onClick={() => {
+                                          if (status?.videoLesson?.productId) {
+                                            handleIconClick(status.videoLesson.productId);
+                                          }
+                                        }}
+                                      >
+                                        <Check size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
+                                    {/* Regenerate icon on hover */}
+                                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                      <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                        <div 
+                                          className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                          onClick={() => {
+                                            setShowRegenerateModal({
+                                              isOpen: true,
+                                              lesson: lesson,
+                                              contentType: 'video-lesson',
+                                              existingProductId: status?.videoLesson?.productId || null
+                                            });
+                                          }}
+                                        >
+                                          <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                        </div>
+                                      </CustomTooltip>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                    >
+                                      <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Quiz Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasQuiz ? (
+                                <div className="relative group flex items-center justify-center">
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      onClick={() => {
+                                        if (status?.quiz?.productId) {
+                                          handleIconClick(status.quiz.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                  {/* Regenerate icon on hover */}
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        onClick={() => {
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'quiz',
+                                            existingProductId: status?.quiz?.productId || null
+                                          });
+                                        }}
+                                      >
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
+                                  </div>
+                                </div>
+                              ) : (
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                  <div 
+                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                  >
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                  </div>
+                                </CustomTooltip>
+                              )}
+                            </div>
+
                             {/* Presentation Status Column */}
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
@@ -1239,101 +1334,6 @@ export default function ProductViewNewPage() {
                                 </CustomTooltip>
                               )}
                             </div>
-
-                            {/* Quiz Status Column */}
-                            <div className="flex items-center justify-center">
-                              {hasQuiz ? (
-                                <div className="relative group flex items-center justify-center">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
-                                    <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
-                                      onClick={() => {
-                                        if (status?.quiz?.productId) {
-                                          handleIconClick(status.quiz.productId);
-                                        }
-                                      }}
-                                    >
-                                      <Check size={10} strokeWidth={3.5} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                  {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                      <div 
-                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
-                                        onClick={() => {
-                                          setShowRegenerateModal({
-                                            isOpen: true,
-                                            lesson: lesson,
-                                            contentType: 'quiz',
-                                            existingProductId: status?.quiz?.productId || null
-                                          });
-                                        }}
-                                      >
-                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
-                                      </div>
-                                    </CustomTooltip>
-                                  </div>
-                                </div>
-                              ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
-                                  <div 
-                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
-                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                  >
-                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
-                                  </div>
-                                </CustomTooltip>
-                              )}
-                            </div>
-
-                            {columnVideoLessonEnabled && (
-                              <div className="flex items-center justify-center">
-                                {hasVideoLesson ? (
-                                  <div className="relative group flex items-center justify-center">
-                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
-                                      <div 
-                                        className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
-                                        onClick={() => {
-                                          if (status?.videoLesson?.productId) {
-                                            handleIconClick(status.videoLesson.productId);
-                                          }
-                                        }}
-                                      >
-                                        <Check size={10} strokeWidth={3.5} className="text-white" />
-                                      </div>
-                                    </CustomTooltip>
-                                    {/* Regenerate icon on hover */}
-                                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                      <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                        <div 
-                                          className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
-                                          onClick={() => {
-                                            setShowRegenerateModal({
-                                              isOpen: true,
-                                              lesson: lesson,
-                                              contentType: 'video-lesson',
-                                              existingProductId: status?.videoLesson?.productId || null
-                                            });
-                                          }}
-                                        >
-                                          <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
-                                        </div>
-                                      </CustomTooltip>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
-                                    <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                    >
-                                      <Plus size={10} strokeWidth={3.5} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                )}
-                              </div>
-                            )}
                           </div>
                         );
                       })}
