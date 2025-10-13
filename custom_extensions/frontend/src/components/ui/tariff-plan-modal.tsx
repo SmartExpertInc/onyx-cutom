@@ -346,7 +346,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-5 py-2 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -356,7 +356,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-5 py-2 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
+                    className={`px-4 py-1.5 rounded-full text-xs xl:text-sm font-public-sans font-normal transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
