@@ -327,7 +327,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         <ScrollArea className="h-[90vh] max-h-[820px] w-full">
           <div className="h-[90vh] min-h-[700px] max-h-[820px]">
           <div className="container mx-auto px-3 py-6 xl:py-7">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-10 xl:mb-14">
                 <div className="flex items-center justify-center mb-3 xl:mb-4">

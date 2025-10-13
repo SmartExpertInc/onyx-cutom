@@ -427,7 +427,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
+    <Card className={`group rounded-md shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden h-[400px] ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
@@ -444,58 +444,65 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
+          className="relative h-32 shadow-md flex flex-row"
           style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              displayTitle.split("").reverse().join("")
-            )}99)`,
+            background: `linear-gradient(to right, ${bgColor} 45%, ${bgColor}80 45%)`,
           }}
         >
-          {/* Top row with badge positioned absolutely */}
-          <div className="relative">
-            {/* Private badge positioned absolutely in top-right */}
-            {project.isPrivate ? (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Lock size={18} className="text-gray-600" />
-              </div>
-            ) : (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Users size={18} className="text-gray-600" />
-              </div>
-            )}
+          {/* Left section (45%) */}
+          <div className="w-[45%] flex flex-col justify-between p-4">
+            {/* Top row with badge positioned absolutely */}
+            <div className="relative">
+              {/* Private badge positioned absolutely in top-right */}
+              {project.isPrivate ? (
+                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                  <Lock size={18} className="text-gray-600" />
+                </div>
+              ) : (
+                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                  <Users size={18} className="text-gray-600" />
+                </div>
+              )}
+            </div>
+            
+            {/* Truncated title in center */}
+            <div className="flex items-center justify-center flex-1 px-2">
+              <h3 
+                className="font-semibold text-md text-center leading-tight line-clamp-2"
+                style={{ color: "white" }}
+              >
+                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
+              </h3>
+            </div>
           </div>
           
-           {/* Truncated title in center */}
-           <div className="flex items-center justify-center flex-1 px-2">
-             <h3 
-               className="font-semibold text-md text-center leading-tight line-clamp-2"
-                style={{ color: "white" }}
-             >
-               {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
-             </h3>
-           </div>
+          {/* Right section (55%) with black title */}
+          <div className="w-[55%] flex items-center justify-center p-4">
+            <h3 className="font-semibold text-lg text-center leading-tight text-black">
+              {displayTitle}
+            </h3>
+          </div>
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white px-4 py-3 min-h-28 flex flex-col justify-between gap-2 h-32">
+        <div className="bg-white px-4 py-3 flex flex-col justify-between gap-2 h-48">
         {project.designMicroproductType && (
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
                 {project.designMicroproductType === "Slide Deck" && (
-                  <LayoutTemplate size={17} className="text-[#EFB4FB]" />
+                  <LayoutTemplate size={19} className="font-light text-[#EFB4FB]" />
                 )}
                 {project.designMicroproductType === "Training Plan" && (
-                  <BookOpen size={17} className="text-[#719AF5]" />
+                  <BookOpen size={19} className="font-light text-[#719AF5]" />
                 )}
                 {project.designMicroproductType === "Video Lesson Presentation" && (
-                  <MonitorPlay size={17} className="text-[#06A294]" />
+                  <MonitorPlay size={19} className="font-light text-[#06A294]" />
                 )}
                 {project.designMicroproductType === "Text Presentation" && (
-                  <FileText size={17} className="text-purple-300" />
+                  <FileText size={19} className="font-light text-purple-300" />
                 )}
                 {project.designMicroproductType === "Quiz" && (
-                  <FileQuestion size={17} className="text-[#FBEC9E]" />
+                  <FileQuestion size={19} className="font-light text-[#FBEC9E]" />
                 )}
               </div>
               <span className="text-sm text-gray-500 font-normal">
