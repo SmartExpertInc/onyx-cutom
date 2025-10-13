@@ -315,9 +315,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error('Failed to load');
 			const data = await res.json();
-			const dirs = (data.files || []).filter((i: SmartDriveItem) => i.type === 'directory');
+			const listingPath = (data.path || path || '/');
+			const norm = (p: string) => {
+				if (!p) return '/';
+				let out = p.replace(/\\+/g, '/');
+				if (!out.startsWith('/')) out = '/' + out;
+				return out;
+			};
+			const selfA = norm(listingPath);
+			const selfB = selfA.endsWith('/') ? selfA.slice(0, -1) : selfA + '/';
+			const dirs = (data.files || [])
+				.filter((i: SmartDriveItem) => i.type === 'directory')
+				.filter((i: SmartDriveItem) => {
+					const p = norm(i?.path || '');
+					return p !== selfA && p !== selfB; // hide the folder from within itself
+				});
 			setPickerDirs(dirs);
-			setPickerPath(data.path || path);
+			setPickerPath(listingPath);
 		} catch {
 			setPickerDirs([]);
 		} finally {
