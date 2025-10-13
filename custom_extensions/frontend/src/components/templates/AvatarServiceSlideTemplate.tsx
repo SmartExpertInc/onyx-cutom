@@ -346,8 +346,11 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
           </div>
 
           {/* Subtitle - wrapped in draggable div */}
-          {subtitle && (
-            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
+          {/* CRITICAL FIX: Always render draggable div even if subtitle is empty */}
+          {/* This ensures DragEnhancer assigns consistent indices */}
+          <div data-draggable="true" style={{ display: subtitle ? 'block' : 'none', width: '100%' }}>
+            {subtitle && (
+              <>
               {isEditable && editingSubtitle ? (
                 <InlineEditor
                   initialValue={subtitle}
@@ -391,12 +394,16 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   {subtitle}
                 </h2>
               )}
-            </div>
-          )}
+              </>
+            )}
+          </div>
 
           {/* Content - wrapped in draggable div */}
-          {content && (
-            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
+          {/* CRITICAL FIX: Always render draggable div even if content is empty */}
+          {/* This ensures DragEnhancer assigns consistent indices */}
+          <div data-draggable="true" style={{ display: content ? 'block' : 'none', width: '100%' }}>
+            {content && (
+              <>
               {isEditable && editingContent ? (
                 <InlineEditor
                   initialValue={content}
@@ -440,8 +447,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   {content}
                 </p>
               )}
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Right content - Avatar */}
