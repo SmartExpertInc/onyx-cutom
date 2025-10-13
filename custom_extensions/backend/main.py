@@ -69,6 +69,9 @@ from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
 
+# Product JSON indexing service (for products-as-context feature)
+from app.services.product_json_indexer import upload_product_json_to_onyx
+
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -6184,6 +6187,11 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_parent_outline_id ON projects(parent_outline_id);")
             logger.info("'projects' table updated with lesson plan columns.")
 
+            # --- Add product-as-context column (Onyx document ID for product JSON) ---
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_json_onyx_id TEXT;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_product_json_onyx_id ON projects(product_json_onyx_id);")
+            logger.info("'projects' table updated with product_json_onyx_id column for products-as-context feature.")
+
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
@@ -11245,7 +11253,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         analysis_prompt = f"""        
         Please describe:
         1. What is this file? (image, document, etc.)
-        2. What does it contain or show? (max 200 words)
+        2. What does it contain or show? (min 500 words)
         3. What are the main topics, concepts, or subjects?
         4. What information would be most relevant for lesson planning or content creation?
         
@@ -15365,63 +15373,162 @@ class OutlineWizardFinalize(BaseModel):
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
+
+@app.post("/api/custom/products/{project_id}/ensure-json")
+async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Ensure the product has a JSON uploaded to Onyx and return its document id.
+    Uses the current user's Onyx session to perform the upload if needed.
+    """
+    logger.info(f"[ensure_product_json] === START for product_id={project_id} ===")
+    try:
+        # Verify access and fetch product
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        logger.info(f"[ensure_product_json] User: uuid={user_uuid}, email={user_email}")
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT p.id, p.onyx_user_id, p.product_json_onyx_id, p.microproduct_content, p.project_name
+                FROM projects p
+                WHERE p.id = $1 AND (
+                    p.onyx_user_id = $2 OR EXISTS (
+                        SELECT 1 FROM product_access pa
+                        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                        WHERE pa.product_id = p.id AND wm.user_id = $3 AND wm.status = 'active'
+                    )
+                )
+                """,
+                project_id, user_uuid, user_email,
+            )
+        
+        if not row:
+            logger.warning(f"[ensure_product_json] Product {project_id} not found or access denied for user {user_uuid}")
+            raise HTTPException(status_code=404, detail="Product not found or access denied")
+
+        logger.info(f"[ensure_product_json] Product found: id={row['id']}, name={row.get('project_name')}, existing_onyx_id={row.get('product_json_onyx_id')}")
+
+        if row.get("product_json_onyx_id"):
+            logger.info(f"[ensure_product_json] Product {project_id} already has Onyx ID: {row['product_json_onyx_id']}")
+            return {"product_json_onyx_id": row["product_json_onyx_id"]}
+
+        # Build JSON bytes
+        content = row.get("microproduct_content") or {}
+        logger.info(f"[ensure_product_json] Building JSON from content (keys: {list(content.keys()) if isinstance(content, dict) else 'not-dict'})")
+        try:
+            product_json = json.dumps(content, ensure_ascii=False).encode("utf-8")
+            logger.info(f"[ensure_product_json] JSON size: {len(product_json)} bytes")
+        except Exception as e:
+            logger.error(f"[ensure_product_json] Failed to serialize content: {e}, using empty dict")
+            product_json = json.dumps({}, ensure_ascii=False).encode("utf-8")
+
+        # Upload directly to Onyx using current user's cookies
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie_value:
+            logger.error(f"[ensure_product_json] No session cookie found for product {project_id}")
+            raise HTTPException(status_code=401, detail="Authentication required")
+        cookies = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+        logger.info(f"[ensure_product_json] Session cookie present: {bool(session_cookie_value)}")
+
+        file_name = f"product_{project_id}.json"
+        logger.info(f"[ensure_product_json] Uploading to Onyx: file_name={file_name}, url={ONYX_API_SERVER_URL}")
+        
+        onyx_id = await upload_product_json_to_onyx(ONYX_API_SERVER_URL, cookies, file_name, product_json)
+        logger.info(f"[ensure_product_json] Upload successful, received Onyx ID: {onyx_id}")
+
+        # Persist
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE projects SET product_json_onyx_id=$1 WHERE id=$2",
+                onyx_id, project_id,
+            )
+        logger.info(f"[ensure_product_json] Persisted Onyx ID {onyx_id} to product {project_id}")
+
+        logger.info(f"[ensure_product_json] === SUCCESS for product_id={project_id}, onyx_id={onyx_id} ===")
+        return {"product_json_onyx_id": onyx_id}
+    except HTTPException as he:
+        logger.error(f"[ensure_product_json] HTTPException for product {project_id}: {he.status_code} - {he.detail}")
+        raise
+    except Exception as e:
+        logger.error(f"[ensure_product_json] Unexpected error for product {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to ensure product JSON: {str(e)}")
+
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
 async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_id: str) -> List[int]:
     """
     Map SmartDrive file paths to corresponding Onyx file IDs.
+    Also handles direct Onyx file IDs (numeric strings) from products-as-context feature.
     
     Args:
-        smartdrive_paths: List of SmartDrive file paths to map
+        smartdrive_paths: List of SmartDrive file paths OR Onyx file IDs (as strings) to map
         user_id: Onyx user ID for context filtering
     
     Returns:
-        List of Onyx file IDs that correspond to the SmartDrive paths
+        List of Onyx file IDs that correspond to the SmartDrive paths or direct IDs
     """
     if not smartdrive_paths:
         return []
     
-    try:
-        pool = await get_db_pool()
-        async with pool.acquire() as connection:
-            # Query the smartdrive_imports table to find matching Onyx file IDs
-            placeholders = ','.join(f'${i+2}' for i in range(len(smartdrive_paths)))
-            query = f"""
-                SELECT onyx_file_id, smartdrive_path 
-                FROM smartdrive_imports 
-                WHERE onyx_user_id = $1 
-                AND smartdrive_path IN ({placeholders})
-                AND onyx_file_id IS NOT NULL
-            """
-            
-            params = [user_id] + smartdrive_paths
-            rows = await connection.fetch(query, *params)
-            
-            onyx_file_ids = [row['onyx_file_id'] for row in rows]
-            mapped_paths = [row['smartdrive_path'] for row in rows]
-            
-            logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(onyx_file_ids)} file IDs from {len(smartdrive_paths)} paths for user {user_id}")
-            
-            # Enhanced debugging: Show what we found vs what we were looking for
-            logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {smartdrive_paths}")
-            logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
-            
-            # Log any unmapped paths for debugging
-            unmapped_paths = [path for path in smartdrive_paths if path not in mapped_paths]
-            if unmapped_paths:
-                logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+    # Separate direct Onyx IDs from SmartDrive paths
+    direct_onyx_ids = []
+    actual_paths = []
+    
+    for item in smartdrive_paths:
+        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
+        if item.strip().isdigit():
+            direct_onyx_ids.append(int(item.strip()))
+            logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
+        else:
+            actual_paths.append(item)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Processing {len(direct_onyx_ids)} direct Onyx IDs and {len(actual_paths)} SmartDrive paths")
+    
+    # Start with direct Onyx IDs
+    onyx_file_ids = direct_onyx_ids.copy()
+    
+    # Map SmartDrive paths if any
+    if actual_paths:
+        try:
+            pool = await get_db_pool()
+            async with pool.acquire() as connection:
+                # Query the smartdrive_imports table to find matching Onyx file IDs
+                placeholders = ','.join(f'${i+2}' for i in range(len(actual_paths)))
+                query = f"""
+                    SELECT onyx_file_id, smartdrive_path 
+                    FROM smartdrive_imports 
+                    WHERE onyx_user_id = $1 
+                    AND smartdrive_path IN ({placeholders})
+                    AND onyx_file_id IS NOT NULL
+                """
                 
-                # Show what paths ARE available in the database for this user
-                debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
-                debug_rows = await connection.fetch(debug_query, user_id)
-                available_paths = [row['smartdrive_path'] for row in debug_rows]
-                logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
-            
-            return onyx_file_ids
-            
-    except Exception as e:
-        logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
-        return []
+                params = [user_id] + actual_paths
+                rows = await connection.fetch(query, *params)
+                
+                mapped_file_ids = [row['onyx_file_id'] for row in rows]
+                mapped_paths = [row['smartdrive_path'] for row in rows]
+                
+                onyx_file_ids.extend(mapped_file_ids)
+                
+                logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(mapped_file_ids)} file IDs from {len(actual_paths)} SmartDrive paths for user {user_id}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {actual_paths}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
+                
+                # Log any unmapped paths for debugging
+                unmapped_paths = [path for path in actual_paths if path not in mapped_paths]
+                if unmapped_paths:
+                    logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+                    
+                    # Show what paths ARE available in the database for this user
+                    debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
+                    debug_rows = await connection.fetch(debug_query, user_id)
+                    available_paths = [row['smartdrive_path'] for row in debug_rows]
+                    logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
+                
+        except Exception as e:
+            logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Total Onyx file IDs: {len(onyx_file_ids)} (direct: {len(direct_onyx_ids)}, mapped: {len(onyx_file_ids) - len(direct_onyx_ids)})")
+    return onyx_file_ids
 
 async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
     """Return persona id of the default ContentBuilder assistant (cached).
@@ -34416,6 +34523,287 @@ async def smartdrive_indexing_status(
     except Exception as e:
         logger.error(f"[SmartDrive] indexing-status error: {e}", exc_info=True)
         return {"statuses": {p: None for p in paths}}
+
+
+def _estimate_tokens_from_file_info(file_path: str, file_size_bytes: int, mime_type: str) -> int:
+    """Estimate token count based on file type, size, and MIME type."""
+    file_path_lower = file_path.lower()
+    mime_type_lower = mime_type.lower()
+    
+    # Token estimation ratios (tokens per byte) based on file type
+    if file_path_lower.endswith('.pdf') or 'pdf' in mime_type_lower:
+        # PDFs: ~1 token per 2-3 bytes (2x faster processing)
+        # Larger PDFs tend to have more images/formatting, so lower ratio
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(250, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.doc', '.docx')) or 'word' in mime_type_lower or 'document' in mime_type_lower:
+        # Word docs: ~1 token per 1.5-2 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/1.75  # 1 token per 1.75 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        return max(150, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.txt', '.md', '.rtf')) or 'text' in mime_type_lower:
+        # Plain text: ~1 token per 1-1.5 bytes (2x faster processing)
+        if file_size_bytes < 10_000:  # < 10KB
+            ratio = 1/1  # 1 token per 1 byte (2x faster)
+        elif file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/1.25  # 1 token per 1.25 bytes (2x faster)
+        else:  # >= 100KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        return max(50, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.ppt', '.pptx')) or 'presentation' in mime_type_lower:
+        # PowerPoint: ~1 token per 2.5-3.5 bytes (2x faster processing)
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3.5  # 1 token per 3.5 bytes (2x faster)
+        return max(200, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.xls', '.xlsx')) or 'spreadsheet' in mime_type_lower or 'excel' in mime_type_lower:
+        # Excel: ~1 token per 2-3 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.html', '.htm')) or 'html' in mime_type_lower:
+        # HTML: ~1 token per 1.75 bytes (2x faster processing)
+        ratio = 1/1.75
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.json', '.xml')) or 'json' in mime_type_lower or 'xml' in mime_type_lower:
+        # JSON/XML: ~1 token per 1.25 bytes (2x faster processing)
+        ratio = 1/1.25
+        return max(50, int(file_size_bytes * ratio))
+    
+    else:
+        # Unknown file type: conservative estimate
+        # Assume it's mostly binary with some text content
+        ratio = 1/4  # 1 token per 4 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+
+
+def _estimate_tokens_from_file_type(file_path: str) -> int:
+    """Fallback token estimation based on file type only (when size is unknown)."""
+    file_path_lower = file_path.lower()
+    
+    if file_path_lower.endswith('.pdf'):
+        return 2500  # Average PDF (2x faster)
+    elif file_path_lower.endswith(('.doc', '.docx')):
+        return 1500  # Average Word doc (2x faster)
+    elif file_path_lower.endswith(('.txt', '.md')):
+        return 500   # Average text file (2x faster)
+    elif file_path_lower.endswith(('.ppt', '.pptx')):
+        return 2000  # Average PowerPoint (2x faster)
+    elif file_path_lower.endswith(('.xls', '.xlsx')):
+        return 1000  # Average Excel (2x faster)
+    elif file_path_lower.endswith(('.html', '.htm')):
+        return 750   # Average HTML (2x faster)
+    elif file_path_lower.endswith(('.json', '.xml')):
+        return 400   # Average JSON/XML (2x faster)
+    else:
+        return 1000  # Default for unknown types (2x faster)
+
+
+@app.get("/api/custom/smartdrive/indexing-progress")
+async def smartdrive_indexing_progress(
+    request: Request,
+    paths: List[str] = Query([]),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get detailed indexing progress for SmartDrive files using IndexAttempt data."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"[SmartDrive] IndexingProgress: user_id={onyx_user_id}, raw_paths={paths}")
+        
+        # Normalize paths
+        norm_paths: List[str] = []
+        for p in paths:
+            try:
+                norm_p = await _normalize_smartdrive_path(p)
+                norm_paths.append(norm_p)
+                logger.info(f"[SmartDrive] IndexingProgress: normalized '{p}' -> '{norm_p}'")
+            except Exception as e:
+                logger.error(f"[SmartDrive] IndexingProgress: failed to normalize path '{p}': {e}")
+                continue
+        
+        if not norm_paths:
+            logger.warning(f"[SmartDrive] IndexingProgress: no valid normalized paths")
+            return {"progress": {}}
+
+        # Lookup Onyx file IDs and get token estimates
+        path_to_file_id: Dict[str, str] = {}
+        path_to_tokens: Dict[str, int] = {}
+        
+        async with pool.acquire() as conn:
+            logger.info(f"[SmartDrive] IndexingProgress: querying database for user_id={onyx_user_id}, paths={norm_paths}")
+            rows = await conn.fetch(
+                """
+                SELECT smartdrive_path, onyx_file_id
+                FROM smartdrive_imports
+                WHERE onyx_user_id = $1 AND smartdrive_path = ANY($2::text[])
+                """,
+                str(onyx_user_id),
+                norm_paths,
+            )
+            logger.info(f"[SmartDrive] IndexingProgress: found {len(rows)} records in database")
+            
+        for r in rows:
+            path = r["smartdrive_path"]
+            file_id = str(r["onyx_file_id"])
+            path_to_file_id[path] = file_id
+            logger.info(f"[SmartDrive] IndexingProgress: mapping path='{path}' -> onyx_file_id='{file_id}'")
+
+        if not path_to_file_id:
+            logger.warning(f"[SmartDrive] IndexingProgress: no file mappings found")
+            return {"progress": {p: None for p in norm_paths}}
+
+        # Get token estimates for all files
+        for path in path_to_file_id.keys():
+            try:
+                # Use the existing token-estimate endpoint logic
+                file_id = path_to_file_id[path]
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{ONYX_API_SERVER_URL}/user/file/token-estimate",
+                        params={"file_ids": file_id},
+                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+                    )
+                if resp.is_success:
+                    data = resp.json() or {}
+                    total_tokens = int(data.get("total_tokens") or 0)
+                    path_to_tokens[path] = total_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: path='{path}' tokens={total_tokens}")
+                else:
+                    logger.warning(f"[SmartDrive] IndexingProgress: token estimate request failed for path='{path}': {resp.status_code}")
+                    path_to_tokens[path] = 0
+            except Exception as e:
+                logger.warning(f"[SmartDrive] IndexingProgress: failed to get tokens for path='{path}': {e}")
+                path_to_tokens[path] = 0
+            
+            # If we still have 0 tokens, estimate based on file type and size
+            if path_to_tokens[path] == 0:
+                try:
+                    # Get file size from WebDAV HEAD request
+                    async with pool.acquire() as conn:
+                        username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+                    
+                    base = f"{base_url}/remote.php/dav/files/{username}"
+                    file_url = f"{base}{user_root_prefix}{path}"
+                    
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        head = await client.head(file_url, auth=(username, password))
+                    
+                    if head.is_success:
+                        content_length = head.headers.get("content-length")
+                        mime_type = head.headers.get("content-type", "")
+                        
+                        if content_length and content_length.isdigit():
+                            file_size_bytes = int(content_length)
+                            estimated_tokens = _estimate_tokens_from_file_info(path, file_size_bytes, mime_type)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: estimated tokens for path='{path}' (size={file_size_bytes} bytes, type={mime_type}): {estimated_tokens}")
+                        else:
+                            # Fallback to file type only
+                            estimated_tokens = _estimate_tokens_from_file_type(path)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                    else:
+                        # Fallback to file type only
+                        estimated_tokens = _estimate_tokens_from_file_type(path)
+                        path_to_tokens[path] = estimated_tokens
+                        logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                        
+                except Exception as e:
+                    logger.warning(f"[SmartDrive] IndexingProgress: failed to get file size for path='{path}': {e}")
+                    # Final fallback to file type only
+                    estimated_tokens = _estimate_tokens_from_file_type(path)
+                    path_to_tokens[path] = estimated_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: final fallback token estimate for path='{path}': {estimated_tokens}")
+
+        # First, get the basic indexing status using the existing endpoint
+        file_ids = list(path_to_file_id.values())
+        query_params = []
+        for fid in file_ids:
+            query_params.append(("file_ids", fid))
+        
+        onyx_status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status"
+        logger.info(f"[SmartDrive] IndexingProgress: querying Onyx indexing status at {onyx_status_url} with file_ids={file_ids}")
+        
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                onyx_status_url,
+                params=query_params,
+                cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+            )
+        
+        if not resp.is_success:
+            logger.error(f"[SmartDrive] IndexingProgress: Onyx indexing status request failed: {resp.status_code}")
+            return {"progress": {p: None for p in norm_paths}}
+        
+        status_map = resp.json()  # {file_id: bool}
+        logger.info(f"[SmartDrive] IndexingProgress: Onyx indexing status response: {status_map}")
+
+        # Build progress data based on indexing status
+        progress_data = {}
+        for path, file_id in path_to_file_id.items():
+            is_indexed = bool(status_map.get(str(file_id)))
+            estimated_tokens = path_to_tokens.get(path, 0)
+            
+            if is_indexed:
+                # File is fully indexed
+                progress_data[path] = {
+                    "status": "success",
+                    "time_started": None,
+                    "time_updated": None,
+                    "total_docs_indexed": 1,  # Single file = 1 document
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": True
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is fully indexed")
+            else:
+                # File is still being indexed - provide enhanced progress data
+                # For now, we'll use a simple status with token-based estimation
+                progress_data[path] = {
+                    "status": "in_progress",
+                    "time_started": None,  # We don't have this from the basic endpoint
+                    "time_updated": None,
+                    "total_docs_indexed": 0,
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": False
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is still being indexed")
+
+        # Fill in missing paths
+        for p in norm_paths:
+            if p not in progress_data:
+                progress_data[p] = None
+                logger.info(f"[SmartDrive] IndexingProgress: no data for path='{p}' -> None")
+        
+        logger.info(f"[SmartDrive] IndexingProgress: returning progress data for {len(progress_data)} paths")
+        return {"progress": progress_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] indexing-progress error: {e}", exc_info=True)
+        return {"progress": {p: None for p in paths}}
 
 
 @app.post("/api/custom/smartdrive/move")
