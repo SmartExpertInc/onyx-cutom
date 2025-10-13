@@ -1626,9 +1626,9 @@ export const en = {
     processingPayment: "Processing Payment...",
     contactSales: "Contact Sales",
     subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
-    chooseYourPlan: "Choose your plan",
-    billMonthly: "Bill Monthly",
-    billYearly: "Bill Yearly",
+    chooseYourPlan: "Choose the plan that's right for you",
+    billMonthly: "Monthly",
+    billYearly: "Yearly",
     mostPopular: "Most Popular",
     credits: "Credits",
     storage: "Storage",
@@ -1776,6 +1776,15 @@ export const en = {
           amount: "10 GB storage"
         }
       }
+    },
+    language: {
+      selectPreferred: "Select your preferred language",
+      english: "English",
+      spanish: "Español",
+      ukrainian: "Ukraine",
+      russian: "Russian",
+      describeRole: "Describe your role",
+      describeIndustry: "Describe your industry"
     }
   }
 };

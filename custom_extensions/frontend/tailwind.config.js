@@ -13,9 +13,11 @@ module.exports = {
       backgroundImage: {
         'app-gradient': 'linear-gradient(180deg,var(--gradient-start, #FFF9F5) 0%,var(--gradient-mid1, #ECECFF) 30%,var(--gradient-mid2, #BFD7FF) 65%,var(--gradient-end, #CCE8FF) 100%)',
       },
-    },
-    fontFamily: {
-      sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        'sora': ['Sora', 'ui-sans-serif', 'system-ui'],
+        'public-sans': ['Public Sans', 'ui-sans-serif', 'system-ui'],
+      },
     },
   },
   plugins: [
