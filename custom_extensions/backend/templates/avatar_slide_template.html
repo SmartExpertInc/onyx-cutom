@@ -693,6 +693,851 @@
             border-radius: 0 0 450px 0 !important;
             z-index: 1 !important;
         }
+        
+        /* Course Overview Slide Template */
+        .course-overview-slide {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        
+        .course-overview-slide .left-panel {
+            width: 45%;
+            height: 100%;
+            background: linear-gradient(90deg, #0F58F9 0%, #1023A1 100%);
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .course-overview-slide .right-panel {
+            width: 55%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .course-overview-slide .logo-container {
+            position: absolute;
+            top: 45px;
+            left: 45px;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        .course-overview-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .course-overview-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .course-overview-slide .page-number {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        
+        .course-overview-slide .title-container {
+            position: absolute;
+            top: 50%;
+            left: 75px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .course-overview-slide .title {
+            font-size: 95px;
+            color: white;
+            line-height: 1.1;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            position: relative;
+        }
+        
+        .course-overview-slide .subtitle {
+            font-size: 95px;
+            color: white;
+            line-height: 1.1;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            position: relative;
+        }
+        
+        .course-overview-slide .image-container {
+            position: absolute;
+            bottom: -40px;
+            height: 91%;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .course-overview-slide .course-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        /* Work Life Balance Slide Template */
+        .work-life-balance-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(90deg, #DE57E5 0%, #8863FB 100%);
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .work-life-balance-slide .left-content {
+            width: 60%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .work-life-balance-slide .right-content {
+            width: 40%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .work-life-balance-slide .logo-container {
+            position: absolute;
+            top: 38px;
+            left: 38px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #ffffff;
+        }
+        
+        .work-life-balance-slide .logo-placeholder {
+            width: 45px;
+            height: 45px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .work-life-balance-slide .logo-text {
+            font-size: 21px;
+            font-weight: 300;
+            color: #ffffff;
+        }
+        
+        .work-life-balance-slide .title {
+            position: absolute;
+            top: 22%;
+            left: 90px;
+            transform: translateY(-50%);
+            margin-top: 243px;
+            font-size: 87px;
+            color: #ffffff;
+            line-height: 1.1;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        
+        .work-life-balance-slide .content {
+            position: absolute;
+            top: 39%;
+            left: 90px;
+            margin-top: 46px;
+            margin-left: 9px;
+            width: 750px;
+            font-size: 35px;
+            color: #ffffff;
+            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        
+        .work-life-balance-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .work-life-balance-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .work-life-balance-slide .page-number {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        
+        .work-life-balance-slide .arch-background {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            transform: rotate(90deg);
+            width: 116%;
+            height: 74%;
+            background-color: #ffffff;
+            border-radius: 50% 0 0 50%;
+            z-index: 1;
+        }
+        
+        .work-life-balance-slide .image-container {
+            position: absolute;
+            left: -63px;
+            bottom: -40px;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .work-life-balance-slide .balance-image {
+            height: 850px;
+            border-radius: 15px;
+            object-fit: contain;
+        }
+        
+        /* Phishing Definition Slide Template */
+        .phishing-definition-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .phishing-definition-slide .left-section {
+            width: 50%;
+            height: 100%;
+            background-color: #E0E7FF;
+            padding: 90px;
+            padding-top: 60px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .phishing-definition-slide .right-section {
+            width: 50%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .phishing-definition-slide .title {
+            font-size: 75px;
+            color: #212222;
+            margin-bottom: 23px;
+            line-height: 1.2;
+        }
+        
+        .phishing-definition-slide .definitions-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .phishing-definition-slide .definition-item {
+            font-size: 21px;
+            color: #545555;
+            line-height: 1.5;
+        }
+        
+        .phishing-definition-slide .profile-image {
+            position: absolute;
+            bottom: 140px;
+            left: 90px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        
+        .phishing-definition-slide .profile-img {
+            width: 88%;
+            height: 135%;
+            border-radius: 50%;
+            position: relative;
+            bottom: 0;
+            object-fit: cover;
+        }
+        
+        .phishing-definition-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 20;
+        }
+        
+        .phishing-definition-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(9, 9, 11, 0.3);
+        }
+        
+        .phishing-definition-slide .page-number {
+            color: #09090B;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        
+        .phishing-definition-slide .right-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .phishing-definition-slide .logo-container {
+            position: absolute;
+            bottom: 45px;
+            right: 45px;
+            z-index: 20;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        /* Benefits List Slide Template */
+        .benefits-list-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .benefits-list-slide .top-section {
+            flex: 0 0 640px;
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%);
+            position: relative;
+            padding: 60px 90px;
+            padding-top: 66px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .benefits-list-slide .bottom-section {
+            flex: 1;
+            background-color: #E0E7FF;
+            padding: 20px 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .benefits-list-slide .subtitle-badge {
+            background-color: #ffffff;
+            border-radius: 36px;
+            padding: 14px 27px;
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 38px;
+            width: fit-content;
+        }
+        
+        .benefits-list-slide .subtitle-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+        }
+        
+        .benefits-list-slide .subtitle-text {
+            font-size: 30px;
+            color: #09090BCC;
+            font-weight: 400;
+        }
+        
+        .benefits-list-slide .title {
+            font-size: 72px;
+            color: #FFFFFF;
+            margin-bottom: 15px;
+            line-height: 1.1;
+            min-height: 98px;
+            max-height: 98px;
+            display: flex;
+            font-family: 'Lora', serif;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .benefits-list-slide .description {
+            font-size: 42px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+            max-width: 965px;
+            min-height: 45px;
+            font-weight: 300;
+            letter-spacing: 0.05rem;
+        }
+        
+        .benefits-list-slide .navigation-squares {
+            display: flex;
+            gap: 83px;
+        }
+        
+        .benefits-list-slide .nav-square {
+            width: 83px;
+            height: 83px;
+            border-radius: 3px;
+            border: 3px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 400;
+        }
+        
+        .benefits-list-slide .nav-square.active {
+            background-color: #ffffff;
+            color: #0F58F9;
+        }
+        
+        .benefits-list-slide .nav-square:not(.active) {
+            background-color: transparent;
+            color: #ffffff;
+        }
+        
+        .benefits-list-slide .profile-image {
+            position: absolute;
+            top: 90px;
+            right: 90px;
+            width: 255px;
+            height: 255px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        
+        .benefits-list-slide .profile-img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+        
+        .benefits-list-slide .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            max-width: 1500px;
+            margin-top: 30px;
+        }
+        
+        .benefits-list-slide .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 36px;
+            color: #5E5E5E;
+            letter-spacing: 0.05rem;
+        }
+        
+        .benefits-list-slide .benefit-arrow {
+            width: 15px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        .benefits-list-slide .logo-container {
+            position: absolute;
+            bottom: 45px;
+            right: 45px;
+        }
+        
+        .benefits-list-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .benefits-list-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+        
+        .benefits-list-slide .page-number {
+            color: #09090B;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        
+        /* Impact Statements Slide Template */
+        .impact-statements-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            display: flex;
+            gap: 105px;
+            position: relative;
+            overflow: hidden;
+            padding: 60px 90px;
+            padding-left: 75px;
+            padding-bottom: 98px;
+            padding-top: 60px;
+            padding-right: 60px;
+        }
+        
+        .impact-statements-slide .left-section {
+            width: 45%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .impact-statements-slide .title {
+            max-width: 735px;
+            font-size: 69px;
+            color: #09090B;
+            line-height: 1.2;
+            flex: 1;
+            min-height: 75px;
+            font-family: 'Lora', serif;
+        }
+        
+        .impact-statements-slide .profile-gradient-container {
+            width: 735px;
+            height: 465px;
+            background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .impact-statements-slide .profile-img {
+            width: 80%;
+            height: 110%;
+            position: relative;
+            bottom: -75px;
+            object-fit: contain;
+        }
+        
+        .impact-statements-slide .right-section {
+            display: flex;
+            gap: 23px;
+            width: 55%;
+            height: 100%;
+        }
+        
+        .impact-statements-slide .left-column {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 23px;
+        }
+        
+        .impact-statements-slide .right-column {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .impact-statements-slide .statement-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .impact-statements-slide .statement-card.flex-1 {
+            flex: 1;
+        }
+        
+        .impact-statements-slide .statement-card.fixed-height {
+            height: 465px;
+        }
+        
+        .impact-statements-slide .statement-number {
+            font-size: 87px;
+            color: #263644;
+            min-height: 90px;
+            max-height: 90px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Lora', serif;
+        }
+        
+        .impact-statements-slide .statement-description {
+            font-size: 27px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.4;
+            min-height: 38px;
+            white-space: pre-line;
+        }
+        
+        .impact-statements-slide .logo-container {
+            position: absolute;
+            bottom: 30px;
+            right: 45px;
+        }
+        
+        .impact-statements-slide .page-number-container {
+            position: absolute;
+            bottom: 23px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .impact-statements-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+        
+        .impact-statements-slide .page-number {
+            color: #09090B99;
+            font-size: 26px;
+            font-weight: 300;
+        }
+        
+        /* Hybrid Work Best Practices Slide Template */
+        .hybrid-work-slide {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            background-color: #E0E7FF;
+            display: flex;
+            padding: 60px 90px;
+            padding-right: 0;
+            padding-bottom: 0;
+            padding-left: 53px;
+            padding-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hybrid-work-slide .logo-header {
+            position: absolute;
+            top: 30px;
+            left: 53px;
+            right: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .hybrid-work-slide .logo-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 21px;
+            color: black;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hybrid-work-slide .left-column {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-right: 60px;
+        }
+        
+        .hybrid-work-slide .right-column {
+            width: 55%;
+            height: 555px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .hybrid-work-slide .tag-badge {
+            padding: 12px 27px;
+            display: inline-flex;
+            gap: 15px;
+            border: 3px solid black;
+            border-radius: 75px;
+            font-size: 27px;
+            color: #333333;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 45px;
+            width: fit-content;
+        }
+        
+        .hybrid-work-slide .tag-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-top: 15px;
+            background-color: #3B8BE9;
+        }
+        
+        .hybrid-work-slide .main-statement {
+            font-size: 53px;
+            max-width: 600px;
+            color: black;
+            line-height: 1.2;
+            margin-bottom: 60px;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+        }
+        
+        .hybrid-work-slide .profile-image {
+            width: 255px;
+            height: 255px;
+            border-radius: 50%;
+            overflow: hidden;
+            align-self: flex-start;
+            position: absolute;
+            bottom: 90px;
+            background-color: #0F58F9;
+        }
+        
+        .hybrid-work-slide .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .hybrid-work-slide .practices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 15px;
+            gap: 15px 45px;
+        }
+        
+        .hybrid-work-slide .practice-item {
+            display: flex;
+            flex-direction: column;
+            gap: 23px;
+            align-items: flex-start;
+            margin-bottom: 45px;
+        }
+        
+        .hybrid-work-slide .practice-number {
+            width: 36px;
+            height: 36px;
+            background-color: #0F58F9;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: 600;
+            flex-shrink: 0;
+            border-radius: 3px;
+        }
+        
+        .hybrid-work-slide .practice-title {
+            font-size: 23px;
+            color: black;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hybrid-work-slide .practice-description {
+            font-size: 21px;
+            color: #555555;
+            max-width: 420px;
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hybrid-work-slide .team-image-container {
+            width: 100%;
+            height: 46%;
+            border-radius: 9px;
+            overflow: hidden;
+        }
+        
+        .hybrid-work-slide .team-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 9px;
+            object-fit: cover;
+        }
+        
+        .hybrid-work-slide .logo-container {
+            position: absolute;
+            bottom: 30px;
+            right: 45px;
+        }
+        
+        .hybrid-work-slide .page-number-container {
+            position: absolute;
+            bottom: 23px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .hybrid-work-slide .page-line {
+            width: 30px;
+            height: 1.5px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+        
+        .hybrid-work-slide .page-number {
+            color: #09090B99;
+            font-size: 26px;
+            font-weight: 300;
+        }
     </style>
 </head>
 <body>
@@ -1076,6 +1921,391 @@
                                 {% endif %}
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'course-overview-slide' or templateId == 'course-overview' %}
+                <div class="course-overview-slide">
+                    <!-- Left Panel - Gradient Blue Background -->
+                    <div class="left-panel">
+                        <!-- Logo in top-left corner -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                            {% else %}
+                                Your Logo
+                            {% endif %}
+                        </div>
+
+                        <!-- Page number with line -->
+                        <div class="page-number-container">
+                            <div class="page-line"></div>
+                            <div class="page-number">{{ pageNumber or '01' }}</div>
+                        </div>
+
+                        <!-- Title and Subtitle - Centered vertically -->
+                        <div class="title-container">
+                            <div class="title">{{ title or 'Course' }}</div>
+                            <div class="subtitle">{{ subtitle or 'Overview' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel - White Background with Image -->
+                    <div class="right-panel">
+                        {% if imagePath %}
+                            <div class="image-container">
+                                <img src="{{ imagePath }}" alt="{{ imageAlt or 'Course overview image' }}" class="course-image">
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'work-life-balance-slide' or templateId == 'work-life-balance' %}
+                <div class="work-life-balance-slide">
+                    <!-- Left Content Area -->
+                    <div class="left-content">
+                        <!-- Logo placeholder -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="{{ logoAlt or 'Company logo' }}" style="max-height: 45px; max-width: 180px; object-fit: contain;">
+                            {% else %}
+                                <div class="logo-placeholder">
+                                    <div style="width: 18px; height: 3px; background-color: #ffffff; position: absolute;"></div>
+                                    <div style="width: 3px; height: 18px; background-color: #ffffff; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                                </div>
+                                <span class="logo-text">Your Logo</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Title - Centered vertically -->
+                        <div class="title">{{ title or 'Work-Life' }}</div>
+
+                        <!-- Content -->
+                        <div class="content">{{ content or 'Finding the right balance' }}</div>
+
+                        <!-- Page number with line -->
+                        <div class="page-number-container">
+                            <div class="page-line"></div>
+                            <div class="page-number">{{ pageNumber or '02' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Image Area with Arch -->
+                    <div class="right-content">
+                        <!-- Arch background -->
+                        <div class="arch-background"></div>
+
+                        <!-- Image -->
+                        {% if imagePath %}
+                            <div class="image-container">
+                                <img src="{{ imagePath }}" alt="{{ imageAlt or 'Work-life balance image' }}" class="balance-image">
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'phishing-definition-slide' or templateId == 'phishing-definition' %}
+                <div class="phishing-definition-slide">
+                    <!-- Left section with text -->
+                    <div class="left-section">
+                        <!-- Title -->
+                        <div class="title">{{ title or 'What is phishing?' }}</div>
+
+                        <!-- Definitions -->
+                        <div class="definitions-container">
+                            {% if definitions %}
+                                {% for definition in definitions %}
+                                    <div class="definition-item">{{ definition }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="definition-item">Using data to access a victim's account and withdrawing money or making an online transaction.</div>
+                                <div class="definition-item">Using data to open fake bank accounts or credit cards in the name of the victim.</div>
+                                <div class="definition-item">Using the victim's computer systems to install viruses and worms.</div>
+                                <div class="definition-item">Using data from some systems to gain access to high value organizational data.</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Profile image at bottom left -->
+                        {% if profileImagePath %}
+                            <div class="profile-image">
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile photo' }}" class="profile-img">
+                            </div>
+                        {% endif %}
+
+                        <!-- Page number with line -->
+                        <div class="page-number-container">
+                            <div class="page-line"></div>
+                            <div class="page-number">{{ pageNumber or '06' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Right section with image -->
+                    <div class="right-section">
+                        {% if rightImagePath %}
+                            <img src="{{ rightImagePath }}" alt="{{ rightImageAlt or 'Right side image' }}" class="right-image">
+                        {% endif %}
+
+                        <!-- Logo in bottom-right corner -->
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                            {% else %}
+                                Your Logo
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'benefits-list-slide' or templateId == 'benefits-list' %}
+                <div class="benefits-list-slide">
+                    <!-- Top section with blue gradient background -->
+                    <div class="top-section">
+                        <div>
+                            <!-- Subtitle badge -->
+                            <div class="subtitle-badge">
+                                <div class="subtitle-dot"></div>
+                                <span class="subtitle-text">{{ subtitle or 'Benefits' }}</span>
+                            </div>
+
+                            <!-- Main title -->
+                            <div class="title">{{ title or 'Employee Benefits' }}</div>
+
+                            <!-- Description -->
+                            <div class="description">{{ description or 'What we offer' }}</div>
+                        </div>
+
+                        <!-- Navigation squares -->
+                        <div class="navigation-squares">
+                            {% for i in range(1, (totalSteps or 3) + 1) %}
+                                <div class="nav-square {% if i == (currentStep or 1) %}active{% endif %}">{{ i }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Profile image -->
+                        {% if profileImagePath %}
+                            <div class="profile-image">
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile photo' }}" class="profile-img">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bottom section with benefits list -->
+                    <div class="bottom-section">
+                        <div class="benefits-grid">
+                            {% if benefits %}
+                                {% for benefit in benefits %}
+                                    <div class="benefit-item">
+                                        <svg class="benefit-arrow" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+                                        </svg>
+                                        <span>{{ benefit }}</span>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="benefit-item">
+                                    <svg class="benefit-arrow" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+                                    </svg>
+                                    <span>Health Insurance</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <svg class="benefit-arrow" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+                                    </svg>
+                                    <span>401(k) Matching</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <svg class="benefit-arrow" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+                                    </svg>
+                                    <span>Paid Time Off</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Logo" style="height: 45px; max-width: 180px; object-fit: contain;">
+                        {% else %}
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="width: 45px; height: 45px; border: 3px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 18px; height: 3px; background-color: #09090B; position: absolute;"></div>
+                                    <div style="width: 3px; height: 18px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                                </div>
+                                <span style="font-size: 24px; font-weight: 400; color: #09090B;">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '04' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'impact-statements-slide' or templateId == 'impact-statements' %}
+                <div class="impact-statements-slide">
+                    <!-- Left section with title and profile image -->
+                    <div class="left-section">
+                        <!-- Title -->
+                        <div class="title">{{ title or 'Here are some impact value statements backed by numbers:' }}</div>
+
+                        <!-- Profile image in gradient container -->
+                        <div class="profile-gradient-container">
+                            {% if profileImagePath %}
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Right section with impact statements -->
+                    <div class="right-section">
+                        <!-- Left column (two cards) -->
+                        <div class="left-column">
+                            {% if statements and statements|length > 0 %}
+                                <div class="statement-card flex-1">
+                                    <div class="statement-number">{{ statements[0].number }}</div>
+                                    <div class="statement-description">{{ statements[0].description }}</div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if statements and statements|length > 2 %}
+                                <div class="statement-card fixed-height">
+                                    <div class="statement-number">{{ statements[2].number }}</div>
+                                    <div class="statement-description">{{ statements[2].description }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right column (one card) -->
+                        <div class="right-column">
+                            {% if statements and statements|length > 1 %}
+                                <div class="statement-card flex-1">
+                                    <div class="statement-number">{{ statements[1].number }}</div>
+                                    <div class="statement-description">{{ statements[1].description }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Logo" style="height: 45px; max-width: 180px; object-fit: contain;">
+                        {% else %}
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="width: 45px; height: 45px; border: 3px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 18px; height: 3px; background-color: #09090B; position: absolute;"></div>
+                                    <div style="width: 3px; height: 18px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                                </div>
+                                <span style="font-size: 24px; font-weight: 400; color: #09090B;">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '18' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'hybrid-work-best-practices-slide' or templateId == 'hybrid-work' %}
+                <div class="hybrid-work-slide">
+                    <!-- Logo header -->
+                    <div class="logo-header">
+                        <div class="logo-text">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                            {% else %}
+                                Your Logo
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Left column -->
+                    <div class="left-column">
+                        <div>
+                            <!-- Tag badge -->
+                            <div class="tag-badge">
+                                <div class="tag-dot"></div>
+                                <span>{{ title or 'Hybrid work best practices' }}</span>
+                            </div>
+
+                            <!-- Main statement -->
+                            <div class="main-statement">{{ mainStatement or 'To adopt a hybrid work model, you need the right people, processes, and technology.' }}</div>
+                        </div>
+
+                        <!-- Profile image at bottom -->
+                        {% if profileImagePath %}
+                            <div class="profile-image">
+                                <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right column -->
+                    <div class="right-column">
+                        <!-- Practices grid -->
+                        <div class="practices-grid">
+                            {% if practices %}
+                                {% for practice in practices %}
+                                    <div class="practice-item">
+                                        <div class="practice-number">{{ practice.number }}</div>
+                                        <div>
+                                            <div class="practice-title">{{ practice.title }}</div>
+                                            <div class="practice-description">{{ practice.description }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="practice-item">
+                                    <div class="practice-number">1</div>
+                                    <div>
+                                        <div class="practice-title">Communicate with your employees</div>
+                                        <div class="practice-description">When you roll out hybrid work, your decisions will affect everyone.</div>
+                                    </div>
+                                </div>
+                                <div class="practice-item">
+                                    <div class="practice-number">2</div>
+                                    <div>
+                                        <div class="practice-title">Work with HR and IT</div>
+                                        <div class="practice-description">Working cross-functionally is important.</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Team image at bottom -->
+                        {% if teamImagePath %}
+                            <div class="team-image-container">
+                                <img src="{{ teamImagePath }}" alt="{{ teamImageAlt or 'Team meeting' }}" class="team-image">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Logo" style="height: 45px; max-width: 180px; object-fit: contain;">
+                        {% else %}
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="width: 45px; height: 45px; border: 3px solid #09090B; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 18px; height: 3px; background-color: #09090B; position: absolute;"></div>
+                                    <div style="width: 3px; height: 18px; background-color: #09090B; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                                </div>
+                                <span style="font-size: 24px; font-weight: 400; color: #09090B;">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '11' }}</div>
                     </div>
                 </div>
                 
