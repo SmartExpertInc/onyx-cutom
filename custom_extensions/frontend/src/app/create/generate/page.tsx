@@ -424,6 +424,29 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
+  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15,20]);
+  const [entitlements, setEntitlements] = useState<any | null>(null);
+
+  // Fetch entitlements to decide on slides options
+  useEffect(() => {
+    const loadEntitlements = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const res = await fetch(`${backendUrl}/entitlements/me`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setEntitlements(data);
+        // Merge default options with entitlement-based extended options (additive)
+        const defaultOpts = [5,6,7,8,9,10,12,15,20];
+        const extended = Array.isArray(data?.slides_options) && data.slides_options.length > 0
+          ? data.slides_options
+          : (data?.slides_max > 20 ? [25, 30, 35, 40] : []);
+        const merged = Array.from(new Set([...defaultOpts, ...extended])).sort((a,b)=>a-b);
+        setSlidesOptions(merged);
+      } catch {}
+    };
+    loadEntitlements();
+  }, []);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
@@ -1404,10 +1427,7 @@ function GenerateProductPicker() {
                         <CustomPillSelector
                           value={slidesCount.toString()}
                           onValueChange={(value) => setSlidesCount(Number(value))}
-                          options={Array.from({ length: 14 }, (_, i) => ({
-                            value: (i + 2).toString(),
-                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
-                          }))}
+                          options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
                           icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                           label={t('interface.generate.slides', 'Slides')}
                         />
@@ -1434,10 +1454,7 @@ function GenerateProductPicker() {
                     <CustomPillSelector
                       value={slidesCount.toString()}
                       onValueChange={(value) => setSlidesCount(Number(value))}
-                      options={Array.from({ length: 14 }, (_, i) => ({
-                        value: (i + 2).toString(),
-                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
-                      }))}
+                      options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                       label={t('interface.generate.slides', 'Slides')}
                     />
@@ -1786,10 +1803,7 @@ function GenerateProductPicker() {
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
-              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
-                value: count.toString(),
-                label: `${count} ${t('interface.generate.slides', 'slides')}`
-              }))}
+              options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
               icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
               label={t('interface.generate.slides', 'Slides')}
             />

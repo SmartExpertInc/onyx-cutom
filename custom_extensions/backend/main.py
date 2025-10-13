@@ -117,6 +117,70 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_BILLING_RETURN_URL = os.getenv("STRIPE_BILLING_RETURN_URL")
 
+# Price ID mappings from env (optional but recommended)
+PRICE_TO_TIER: dict[str, str] = {}
+TIER_TO_CREDITS: dict[str, int] = {
+    "pro_monthly": 600,
+    "business_monthly": 2000,
+    "pro_yearly": 7200,
+    "business_yearly": 24000,
+}
+
+def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
+    """Load price id → addon mapping and tier mapping from env once."""
+    addon_map: dict[str, dict] = {}
+    def _reg(price_id: Optional[str], addon_type: str, units: int):
+        if price_id:
+            addon_map[price_id] = {"type": addon_type, "units": units}
+
+    # Connectors recurring (merge env with provided price IDs)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_1"), "connectors", 1)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_5"), "connectors", 5)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_10"), "connectors", 10)
+    # Storage recurring (GB)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_1GB"), "storage", 1)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_5GB"), "storage", 5)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_10GB"), "storage", 10)
+    # One-time credits packs (units = credits amount)
+    _reg(os.getenv("STRIPE_PRICE_CREDITS_100"), "credits", 100)
+    _reg(os.getenv("STRIPE_PRICE_CREDITS_300"), "credits", 300)
+    # Provided mapping (explicit IDs)
+    provided_map = {
+        # credits
+        "price_1SGHlMH2U2KQUmUhkXKhj4g3": ("credits", 100),
+        "price_1SGHm0H2U2KQUmUhG5utzGFf": ("credits", 300),
+        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 1000),
+        # storage (monthly)
+        "price_1SGHjIH2U2KQUmUhpWRcRxxH": ("storage", 1),
+        "price_1SGHk9H2U2KQUmUhLrwnk2tQ": ("storage", 5),
+        "price_1SGHkgH2U2KQUmUh0hI2Mp07": ("storage", 10),
+        # connectors (monthly)
+        "price_1SGHegH2U2KQUmUh4guOuoV7": ("connectors", 1),
+        "price_1SGHgFH2U2KQUmUhS0Blys9w": ("connectors", 5),
+        "price_1SGHgZH2U2KQUmUhSuFJ6SOi": ("connectors", 10),
+    }
+    for pid, (ptype, units) in provided_map.items():
+        addon_map[pid] = {"type": ptype, "units": units}
+
+    # Hard-wired tier price IDs
+    price_to_tier: dict[str, str] = {
+        "price_1SEBM4H2U2KQUmUhkn6A7Hlm": "pro_monthly",      # Pro
+        "price_1SEBTeH2U2KQUmUhi02e1uC9": "business_monthly", # Business
+        "price_1SEBUCH2U2KQUmUhkym5Q9TS": "pro_yearly",       # Pro Yearly
+        "price_1SEBUoH2U2KQUmUhMktbhCsm": "business_yearly",  # Business Yearly
+    }
+    # Also support env vars as fallback
+    def _tier(price_id: Optional[str], tier: str):
+        if price_id:
+            price_to_tier[price_id] = tier
+    _tier(os.getenv("STRIPE_PRICE_PRO_MONTHLY"), "pro_monthly")
+    _tier(os.getenv("STRIPE_PRICE_BUSINESS_MONTHLY"), "business_monthly")
+    _tier(os.getenv("STRIPE_PRICE_PRO_YEARLY"), "pro_yearly")
+    _tier(os.getenv("STRIPE_PRICE_BUSINESS_YEARLY"), "business_yearly")
+    return addon_map, price_to_tier
+
+PRICE_TO_ADDON, PRICE_TO_TIER = _load_price_maps_once()
+
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
@@ -6267,6 +6331,106 @@ async def startup_event():
             
             logger.info("'credit_transactions' table ensured.")
 
+            # Ensure user_billing_addons table (recurring add-ons)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing_addons (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    stripe_customer_id TEXT,
+                    stripe_subscription_id TEXT,
+                    stripe_subscription_item_id TEXT,
+                    stripe_price_id TEXT,
+                    addon_type TEXT CHECK (addon_type IN ('connectors','storage')),
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    status TEXT,
+                    current_period_end TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_user ON user_billing_addons(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_sub ON user_billing_addons(stripe_subscription_id);")
+            logger.info("'user_billing_addons' table ensured.")
+
+            # Ensure credit_grant_events table (audit)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credit_grant_events (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    source TEXT CHECK (source IN ('tier_renewal','one_time_pack')),
+                    amount INTEGER NOT NULL,
+                    stripe_invoice_id TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_grant_user ON credit_grant_events(onyx_user_id);")
+            logger.info("'credit_grant_events' table ensured.")
+
+            # Ensure processed_stripe_events for idempotency
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS processed_stripe_events (
+                    event_id TEXT PRIMARY KEY,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            logger.info("'processed_stripe_events' table ensured.")
+
+            # Ensure user_billing_addons table (recurring add-ons)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing_addons (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    stripe_customer_id TEXT,
+                    stripe_subscription_id TEXT,
+                    stripe_subscription_item_id TEXT,
+                    stripe_price_id TEXT,
+                    addon_type TEXT CHECK (addon_type IN ('connectors','storage')),
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    status TEXT,
+                    current_period_end TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_user ON user_billing_addons(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_sub ON user_billing_addons(stripe_subscription_id);")
+            logger.info("'user_billing_addons' table ensured.")
+
+            # Ensure credit_grant_events table (audit)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credit_grant_events (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    source TEXT CHECK (source IN ('tier_renewal','one_time_pack')),
+                    amount INTEGER NOT NULL,
+                    stripe_invoice_id TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_grant_user ON credit_grant_events(onyx_user_id);")
+            logger.info("'credit_grant_events' table ensured.")
+
+            # Ensure processed_stripe_events for idempotency
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS processed_stripe_events (
+                    event_id TEXT PRIMARY KEY,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            logger.info("'processed_stripe_events' table ensured.")
+
             # Note: User migration is now available only via admin interface
             # Automatic migration on startup has been disabled
             logger.info("User migration is available manually via /api/custom/admin/credits/migrate-users")
@@ -7969,7 +8133,7 @@ def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Opti
     ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
 
     # Choose the best combo that doesn’t fully collide with existing content
-    chosen: list[str] | None = None
+    chosen: Optional[List[str]] = None
     for idx in ranked:
         c = combos[idx]
         # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
@@ -28702,6 +28866,35 @@ async def _fetch_effective_entitlements(onyx_user_id: str, pool: asyncpg.Pool) -
             if overrides["slides_max"] is not None:
                 result["slides_max"] = int(overrides["slides_max"])  # type: ignore
 
+        # Add-ons (connectors/storage) aggregation from user_billing_addons
+        try:
+            rows = await conn.fetch(
+                """
+                SELECT addon_type, COALESCE(quantity,1) AS qty, stripe_price_id, status
+                FROM user_billing_addons
+                WHERE onyx_user_id = $1 AND status IN ('active','trialing')
+                """,
+                onyx_user_id
+            )
+            logger.info(f"[ENTITLEMENTS] Found {len(rows)} active addon(s) for user {onyx_user_id}")
+            add_connectors = 0
+            add_storage = 0
+            for r in rows:
+                addon = PRICE_TO_ADDON.get(r['stripe_price_id'] or '', None)
+                units = int(addon.get('units', 0)) if addon else 0
+                qty = int(r['qty'] or 1)
+                logger.info(f"[ENTITLEMENTS] Addon: type={r['addon_type']}, units={units}, qty={qty}, status={r['status']}, price_id={r['stripe_price_id']}")
+                if r['addon_type'] == 'connectors':
+                    add_connectors += units * qty
+                elif r['addon_type'] == 'storage':
+                    add_storage += units * qty
+            logger.info(f"[ENTITLEMENTS] Base limits: connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
+            result['connectors_limit'] = int(result['connectors_limit']) + add_connectors
+            result['storage_gb'] = int(result['storage_gb']) + add_storage
+            logger.info(f"[ENTITLEMENTS] Final limits (with addons): connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
+        except Exception as e:
+            logger.error(f"[ENTITLEMENTS] Failed to aggregate addons: {e}", exc_info=True)
+
         # Slides options for UI (Pro/Business can choose 25-40)
         if result["slides_max"] > 20 or plan in ("pro", "business"):
             result["slides_options"] = [25, 30, 35, 40]
@@ -28733,7 +28926,7 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
                             # Count only private connectors (same as frontend logic)
                             conn_count = len([c for c in connectors_data if c.get('access_type') == 'private'])
                             logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors from Onyx API for user {onyx_user_id}")
-                        else:
+                else:
                             logger.warning(f"[ENTITLEMENTS] Failed to fetch connectors from Onyx API: {response.status_code}")
             except Exception as e:
                 logger.warning(f"[ENTITLEMENTS] Error fetching connectors from Onyx API: {e}")
@@ -28808,10 +29001,28 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
             logger.warning(f"[ENTITLEMENTS] Error fetching user emails from Onyx API: {e}")
         
         async with pool.acquire() as conn:
+            # Persist any newly fetched emails into cache for future requests
+            try:
+                if user_emails_map:
+                    for _uid, _email in user_emails_map.items():
+                        await conn.execute(
+                            """
+                            INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                            VALUES ($1, $2, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                            """,
+                            _uid,
+                            _email,
+                        )
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Failed to upsert user_email_cache: {e}")
+
             rows = await conn.fetch(
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
+                       uec.email AS cached_email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -28823,14 +29034,16 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
             out = []
             for r in rows:
                 eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
-                # Get email from map, fallback to onyx_user_id
-                user_email = user_emails_map.get(r["onyx_user_id"], r["onyx_user_id"])
+                # Get email from map, fallback to cached email, then onyx_user_id
+                cached_email = dict(r).get("cached_email")
+                user_email = user_emails_map.get(r["onyx_user_id"], cached_email or r["onyx_user_id"]) 
                 out.append({
                     "onyx_user_id": r["onyx_user_id"],
                     "user_name": r["user_name"] or "Unknown",
@@ -28895,6 +29108,46 @@ async def admin_update_entitlements(
     except Exception as e:
         logger.error(f"Error updating entitlements: {e}")
         raise HTTPException(status_code=500, detail="Failed to update entitlements")
+
+
+@app.post("/api/custom/admin/entitlements/refresh-all")
+async def admin_refresh_all_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Refresh base entitlements for all users based on their current plan."""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Get all users with billing records
+            users = await conn.fetch("SELECT onyx_user_id, current_plan FROM user_billing WHERE current_plan IS NOT NULL")
+            
+            updated_count = 0
+            for user in users:
+                onyx_user_id = user['onyx_user_id']
+                plan = user['current_plan'] or 'starter'
+                
+                # Set base entitlements by plan
+                if plan == 'pro':
+                    base_connectors, base_storage, base_slides = 2, 5, 40
+                elif plan == 'business':
+                    base_connectors, base_storage, base_slides = 5, 10, 40
+                else:
+                    base_connectors, base_storage, base_slides = 0, 1, 20
+                
+                await conn.execute(
+                    """
+                    INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                    VALUES ($1, $2, $3, $4, now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                    """,
+                    onyx_user_id, base_connectors, base_storage, base_slides
+                )
+                updated_count += 1
+            
+            logger.info(f"Refreshed entitlements for {updated_count} users")
+            return {"success": True, "updated_count": updated_count}
+    except Exception as e:
+        logger.error(f"Error refreshing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to refresh entitlements")
 
 
 @app.post("/api/custom/billing/portal")
@@ -29039,6 +29292,425 @@ async def create_checkout_session(
         raise HTTPException(status_code=500, detail="Failed to create checkout session")
 
 
+# ============================
+# ADD-ONS CHECKOUT/LIST/CANCEL/ONE-TIME CREDITS
+# ============================
+
+class AddonItem(BaseModel):
+    priceId: Optional[str] = None
+    sku: Optional[str] = None  # e.g., connectors_1, storage_5gb, credits_300
+    quantity: int = 1
+
+class AddonsCheckoutRequest(BaseModel):
+    items: List[AddonItem]
+
+def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
+    if not sku:
+        return None
+    key = sku.lower()
+    # Direct mapping to provided price IDs
+    sku_map = {
+        'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
+        'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
+        'credits_1000': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
+        'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
+        'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
+        'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
+        'connectors_1': 'price_1SGHegH2U2KQUmUh4guOuoV7',
+        'connectors_5': 'price_1SGHgFH2U2KQUmUhS0Blys9w',
+        'connectors_10': 'price_1SGHgZH2U2KQUmUhSuFJ6SOi',
+    }
+    # Fallback to env if present
+    env_overrides = {
+        'connectors_1': os.getenv('STRIPE_PRICE_CONNECTORS_1'),
+        'connectors_5': os.getenv('STRIPE_PRICE_CONNECTORS_5'),
+        'connectors_10': os.getenv('STRIPE_PRICE_CONNECTORS_10'),
+        'storage_1gb': os.getenv('STRIPE_PRICE_STORAGE_1GB'),
+        'storage_5gb': os.getenv('STRIPE_PRICE_STORAGE_5GB'),
+        'storage_10gb': os.getenv('STRIPE_PRICE_STORAGE_10GB'),
+        'credits_100': os.getenv('STRIPE_PRICE_CREDITS_100'),
+        'credits_300': os.getenv('STRIPE_PRICE_CREDITS_300'),
+        'credits_1000': os.getenv('STRIPE_PRICE_CREDITS_1000'),
+    }
+    return env_overrides.get(key) or sku_map.get(key)
+
+@app.post("/api/custom/billing/addons/checkout")
+async def addons_checkout(
+    request: Request,
+    payload: AddonsCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Checkout session for recurring add-ons (subscription mode)."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+        logger.info(f"[BILLING] Addon checkout request from user {onyx_user_id}, items: {len(payload.items)}")
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id, subscription_id, current_plan FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        existing_subscription_id = record.get("subscription_id") if record else None
+        current_plan = record.get("current_plan") if record else None
+        
+        logger.info(f"[BILLING] User {onyx_user_id} current plan: {current_plan}, has subscription: {bool(existing_subscription_id)}")
+        
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(email=user_email or None, metadata={"onyx_user_id": onyx_user_id})
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        line_items = []
+        for it in payload.items:
+            pid = it.priceId or _sku_to_price_id(it.sku)
+            if not pid:
+                raise HTTPException(status_code=400, detail="Missing or invalid priceId/sku")
+            line_items.append({'price': pid, 'quantity': max(1, it.quantity)})
+
+        # If user has an existing active subscription, add items to it instead of creating new subscription
+        if existing_subscription_id:
+            try:
+                logger.info(f"[BILLING] Attempting to add addons to existing subscription {existing_subscription_id}")
+                existing_sub = stripe.Subscription.retrieve(existing_subscription_id)
+                logger.info(f"[BILLING] Existing subscription status: {existing_sub.status}, items count: {len(existing_sub.get('items', {}).get('data', []))}")
+                
+                if existing_sub.status in ['active', 'trialing']:
+                    # Get current_period_end safely from subscription object
+                    current_period_end = (existing_sub.get('current_period_end') if isinstance(existing_sub, dict) 
+                                        else getattr(existing_sub, 'current_period_end', None))
+                    
+                    # Debug: log the subscription object structure
+                    if not current_period_end:
+                        logger.warning(f"[BILLING] current_period_end not found! Subscription type: {type(existing_sub)}, has attr: {hasattr(existing_sub, 'current_period_end')}")
+                        # Try accessing as dict
+                        if hasattr(existing_sub, '__dict__'):
+                            logger.warning(f"[BILLING] Subscription __dict__ keys: {list(existing_sub.__dict__.keys())}")
+                        # Fallback to 0 for now
+                        current_period_end = 0
+                    
+                    logger.info(f"[BILLING] Subscription current_period_end: {current_period_end}")
+                    
+                    # Build map of existing subscription items by price_id
+                    existing_items = existing_sub.get('items', {}).get('data', []) if isinstance(existing_sub, dict) else getattr(existing_sub, 'items', {}).get('data', [])
+                    existing_items_map = {}
+                    for sub_item in existing_items:
+                        price = sub_item.get('price') if isinstance(sub_item, dict) else getattr(sub_item, 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        item_id = sub_item.get('id') if isinstance(sub_item, dict) else getattr(sub_item, 'id', None)
+                        if price_id and item_id:
+                            existing_items_map[price_id] = {
+                                'id': item_id,
+                                'quantity': sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', 1)
+                            }
+                    
+                    logger.info(f"[BILLING] Existing subscription items: {list(existing_items_map.keys())}")
+                    
+                    # Add or update items in existing subscription and sync to DB immediately
+                    addons_updated = []
+                    addons_added = []
+                    async with pool.acquire() as conn:
+                        for idx, item in enumerate(line_items):
+                            logger.info(f"[BILLING] Processing addon item {idx+1}/{len(line_items)}: price_id={item['price']}, quantity={item['quantity']}")
+                            
+                            # Check if item already exists
+                            if item['price'] in existing_items_map:
+                                # Update existing item quantity
+                                existing_item = existing_items_map[item['price']]
+                                new_quantity = int(existing_item['quantity']) + int(item['quantity'])
+                                logger.info(f"[BILLING] Addon already exists (item_id={existing_item['id']}), updating quantity from {existing_item['quantity']} to {new_quantity}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for quantity increase")
+                                
+                                sub_item = stripe.SubscriptionItem.modify(
+                                    existing_item['id'],
+                                    quantity=new_quantity,
+                                )
+                                sub_item_id = existing_item['id']
+                                addons_updated.append(item['price'])
+                            else:
+                                # Create new item
+                                logger.info(f"[BILLING] Adding new addon item: price_id={item['price']}, quantity={item['quantity']}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for new addon")
+                                sub_item = stripe.SubscriptionItem.create(
+                                    subscription=existing_subscription_id,
+                                    price=item['price'],
+                                    quantity=item['quantity'],
+                                )
+                                sub_item_id = sub_item.id
+                                addons_added.append(item['price'])
+                            
+                            # Immediately sync to user_billing_addons
+                            addon = PRICE_TO_ADDON.get(item['price'], None)
+                            if addon and addon.get('type') in ('connectors', 'storage'):
+                                final_quantity = sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', item['quantity'])
+                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={final_quantity}, period_end={current_period_end}")
+                                await conn.execute(
+                                    """
+                                    INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                        stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                    ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                    """,
+                                    sub_item_id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item_id, item['price'],
+                                    addon['type'], final_quantity, existing_sub.status, int(current_period_end)
+                                )
+                    
+                    action = "updated" if addons_updated else "added"
+                    logger.info(f"[BILLING] Successfully processed {len(line_items)} add-on items: {len(addons_added)} added, {len(addons_updated)} updated")
+                    return {
+                        "url": f"{base_url}/custom-projects-ui/payments?addon_{action}=true",
+                        "message": f"Addon(s) {action}. You will be charged prorated amount immediately.",
+                        "immediate_charge": True
+                    }
+                else:
+                    logger.warning(f"[BILLING] Existing subscription status is {existing_sub.status}, not active/trialing. Will create new checkout.")
+            except Exception as e:
+                logger.error(f"[BILLING] Failed to add to existing subscription: {e}, creating new checkout", exc_info=True)
+
+        # Fallback: create new subscription checkout (for users without active subscription)
+        logger.warning(f"[BILLING] Creating NEW subscription checkout for addons (user has no active subscription). Current plan: {current_plan}")
+        logger.warning(f"[BILLING] WARNING: This may create an addon-only subscription! Items: {[item['price'] for item in line_items]}")
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={'onyx_user_id': onyx_user_id, 'purpose': 'addons'}
+        )
+        logger.info(f"[BILLING] Created checkout session: {checkout_session.id}")
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[BILLING] Error creating addons checkout: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create addons checkout session")
+
+class CreditsCheckoutRequest(BaseModel):
+    priceId: Optional[str] = None
+    sku: Optional[str] = None
+    quantity: int = 1
+
+@app.post("/api/custom/billing/credits/checkout")
+async def credits_checkout(
+    request: Request,
+    payload: CreditsCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create Checkout session in payment mode for one-time credits packs."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow("SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1", onyx_user_id)
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(email=user_email or None, metadata={"onyx_user_id": onyx_user_id})
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id) DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id, stripe_customer_id
+                )
+
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        price_id = payload.priceId or _sku_to_price_id(payload.sku)
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Missing or invalid priceId/sku")
+
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=[{'price': price_id, 'quantity': max(1, payload.quantity)}],
+            mode='payment',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={'onyx_user_id': onyx_user_id, 'purpose': 'credits_pack'}
+        )
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating credits checkout: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create credits checkout session")
+
+@app.get("/api/custom/billing/addons")
+async def list_my_addons(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT id, addon_type, quantity, status, current_period_end, stripe_subscription_id, stripe_subscription_item_id, stripe_price_id
+                FROM user_billing_addons
+                WHERE onyx_user_id = $1
+                ORDER BY updated_at DESC
+                """,
+                onyx_user_id
+            )
+        out = []
+        for r in rows:
+            out.append({
+                'id': r['id'],
+                'type': r['addon_type'],
+                'quantity': int(r['quantity'] or 1),
+                'status': r['status'],
+                'next_billing_at': (r['current_period_end'].isoformat() if r['current_period_end'] else None),
+                'stripe_subscription_id': r['stripe_subscription_id'],
+                'stripe_subscription_item_id': r['stripe_subscription_item_id'],
+                'stripe_price_id': r['stripe_price_id'],
+            })
+        return out
+    except Exception as e:
+        logger.error(f"Error listing add-ons: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list add-ons")
+
+class CancelAddonRequest(BaseModel):
+    subscriptionId: Optional[str] = None
+    subscriptionItemId: Optional[str] = None
+    immediate: Optional[bool] = True
+
+@app.post("/api/custom/billing/addons/cancel")
+async def cancel_addon(
+    request: Request,
+    payload: CancelAddonRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+        onyx_user_id = await get_current_onyx_user_id(request)
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        if payload.subscriptionItemId:
+            item = stripe.SubscriptionItem.delete(payload.subscriptionItemId)
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "UPDATE user_billing_addons SET status='canceled', updated_at=now() WHERE id=$1 AND onyx_user_id=$2",
+                    payload.subscriptionItemId, onyx_user_id
+                )
+            return {'status': item.get('deleted') and 'canceled' or 'updated'}
+        elif payload.subscriptionId:
+            if payload.immediate:
+                sub = stripe.Subscription.delete(payload.subscriptionId)
+            else:
+                sub = stripe.Subscription.modify(payload.subscriptionId, cancel_at_period_end=True)
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "UPDATE user_billing_addons SET status='canceled', updated_at=now() WHERE stripe_subscription_id=$1 AND onyx_user_id=$2",
+                    payload.subscriptionId, onyx_user_id
+                )
+            return {'status': sub['status']}
+        else:
+            raise HTTPException(status_code=400, detail="Provide subscriptionItemId or subscriptionId")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error canceling add-on: {e}")
+        raise HTTPException(status_code=500, detail="Failed to cancel add-on")
+
+@app.get("/api/custom/billing/credits/history")
+async def credits_history(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT amount, stripe_invoice_id, created_at
+                FROM credit_grant_events
+                WHERE onyx_user_id = $1 AND source = 'one_time_pack'
+                ORDER BY created_at DESC
+                """,
+                onyx_user_id
+            )
+        return [{ 'amount': int(r['amount'] or 0), 'invoice_id': r['stripe_invoice_id'], 'created_at': r['created_at'].isoformat() } for r in rows]
+    except Exception as e:
+        logger.error(f"Error fetching credits history: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch credits history")
+
+@app.get("/api/custom/billing/catalog")
+async def get_billing_catalog():
+    """Return Stripe price info for our SKUs to show correct prices in UI."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        # List of SKUs we support
+        skus = [
+            'credits_100','credits_300','credits_1000',
+            'storage_1gb','storage_5gb','storage_10gb',
+            'connectors_1','connectors_5','connectors_10',
+        ]
+        out = []
+        for sku in skus:
+            pid = _sku_to_price_id(sku)
+            if not pid:
+                continue
+            try:
+                price = stripe.Price.retrieve(pid)
+                unit_amount = getattr(price, 'unit_amount', None)
+                currency = getattr(price, 'currency', 'usd')
+                recurring = getattr(price, 'recurring', None)
+                interval = (recurring and recurring.get('interval')) or None
+                out.append({
+                    'sku': sku,
+                    'price_id': pid,
+                    'unit_amount': unit_amount,
+                    'currency': currency,
+                    'interval': interval,
+                })
+            except Exception as e:
+                logger.warning(f"Failed to retrieve price {pid} for sku {sku}: {e}")
+        return out
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error building billing catalog: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load billing catalog")
+
 @app.post("/api/custom/billing/webhook")
 async def stripe_webhook(
     request: Request,
@@ -29106,10 +29778,17 @@ async def stripe_webhook(
             except Exception:
                 return base
 
+        # Idempotency: skip already processed events
+        async with pool.acquire() as conn:
+            if await conn.fetchval("SELECT 1 FROM processed_stripe_events WHERE event_id=$1", event['id']):
+                return {"status": "ignored"}
+
         # Handle the event
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
             onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            logger.info(f"[BILLING] checkout.session.completed for user {onyx_user_id}, mode={session.get('mode')}, session_id={session.get('id')}")
             
             if onyx_user_id and session.get('mode') == 'subscription':
                 subscription_id = session.get('subscription')
@@ -29118,30 +29797,131 @@ async def stripe_webhook(
                 # Get subscription details
                 subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
                 
-                # Extract plan info
-                plan = "starter"
+                # Get existing user plan before making any changes
+                existing_plan = None
+                async with pool.acquire() as conn:
+                    existing_record = await conn.fetchrow(
+                        "SELECT current_plan FROM user_billing WHERE onyx_user_id = $1",
+                        onyx_user_id
+                    )
+                    if existing_record:
+                        existing_plan = existing_record['current_plan']
+                
+                logger.info(f"[BILLING] User {onyx_user_id} existing plan: {existing_plan}, subscription items count: {len(subscription.get('items', {}).get('data', []))}")
+                
+                # Extract plan info - LOOP through ALL items to find tier price (not just first!)
+                plan = None
                 interval = None
                 price_id = None
                 
                 items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
                 data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
-                if data_list and len(data_list) > 0:
-                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
-                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
-                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
-                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
-                    
-                    # Infer plan from product name
-                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
-                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
-                    lowered = product_name.lower()
-                    if 'business' in lowered:
-                        plan = 'business'
-                    elif 'pro' in lowered:
-                        plan = 'pro'
                 
-                # Update user billing
+                # Check metadata to see if this is an addon-only purchase
+                is_addon_purchase = session.get('metadata', {}).get('purpose') == 'addons'
+                
+                if data_list:
+                    # Log all items for debugging
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        logger.info(f"[BILLING] Item {idx}: price_id={item_price_id}")
+                    
+                    # Look for base tier price among all items
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            break
+                    
+                    # If no tier price found, try product name fallback on first item
+                    if not plan and len(data_list) > 0:
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                        
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] No tier price found, checking product name: {product_name}")
+                        if 'business' in lowered:
+                            plan = 'business'
+                            price_id = item_price_id
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+                            price_id = item_price_id
+                
+                # CRITICAL FIX: If no plan found (addon-only subscription) and user has existing plan, preserve it
+                if not plan and is_addon_purchase and existing_plan:
+                    logger.warning(f"[BILLING] Addon-only subscription detected for user {onyx_user_id}. Preserving existing plan: {existing_plan}")
+                    plan = existing_plan
+                elif not plan:
+                    logger.warning(f"[BILLING] No tier price found for user {onyx_user_id}, defaulting to starter")
+                    plan = "starter"
+                
+                # Update user billing - preserve plan if this was addon-only purchase
                 async with pool.acquire() as conn:
+                    if is_addon_purchase and not price_id:
+                        # Addon-only purchase: only update subscription_id and status, preserve plan
+                        logger.info(f"[BILLING] Updating billing for addon-only purchase, preserving plan {plan}")
+                        await conn.execute(
+                            """
+                            INSERT INTO user_billing (
+                                onyx_user_id, stripe_customer_id, subscription_status, 
+                                subscription_id, current_plan, updated_at
+                            )
+                            VALUES ($1, $2, $3, $4, $5, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET 
+                                subscription_status = EXCLUDED.subscription_status,
+                                subscription_id = EXCLUDED.subscription_id,
+                                updated_at = now()
+                            """,
+                            onyx_user_id, customer_id, subscription.status,
+                            subscription_id, plan
+                        )
+                        
+                        # Sync addon items to user_billing_addons for addon-only subscriptions
+                        try:
+                            logger.info(f"[BILLING] Syncing addon items from addon-only subscription to database")
+                            current_period_end = (subscription.get('current_period_end') if isinstance(subscription, dict) 
+                                                else getattr(subscription, 'current_period_end', 0)) or 0
+                            
+                            if data_list:
+                                for item_data in data_list:
+                                    price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                                    item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                                    item_id = item_data.get('id') if isinstance(item_data, dict) else getattr(item_data, 'id', None)
+                                    item_quantity = item_data.get('quantity') if isinstance(item_data, dict) else getattr(item_data, 'quantity', 1)
+                                    
+                                    addon = PRICE_TO_ADDON.get(item_price_id, None)
+                                    if addon and addon.get('type') in ('connectors', 'storage'):
+                                        logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item_quantity}, price_id={item_price_id}")
+                                        await conn.execute(
+                                            """
+                                            INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                                stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                            ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                            """,
+                                            item_id, onyx_user_id, customer_id, subscription_id, item_id, item_price_id,
+                                            addon['type'], item_quantity, subscription.status, int(current_period_end)
+                                        )
+                                logger.info(f"[BILLING] Successfully synced {len(data_list)} addon items to database")
+                        except Exception as addon_sync_err:
+                            logger.error(f"[BILLING] Failed to sync addon items from addon-only subscription: {addon_sync_err}", exc_info=True)
+                    else:
+                        # Normal plan purchase: update everything including plan
+                        logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
                     await conn.execute(
                         """
                         INSERT INTO user_billing (
@@ -29171,39 +29951,91 @@ async def stripe_webhook(
                 except Exception as cancel_err:
                     logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
                 
-                # Compute and persist entitlements (apply overrides later at read time)
-                try:
-                    base_ents = _derive_entitlements_from_subscription(subscription)
-                    # Slides cap by plan
-                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
-                    async with pool.acquire() as conn:
-                        await conn.execute(
-                            """
-                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
-                            VALUES ($1, $2, $3, $4, now())
-                            ON CONFLICT (onyx_user_id)
-                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
-                            """,
-                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
-                        )
-                except Exception as e:
-                    logger.warning(f"Failed to persist base entitlements: {e}")
+                # Compute and persist entitlements based on plan tier
+                # Only update base entitlements if this is NOT an addon-only purchase
+                if not is_addon_purchase or price_id:
+                    try:
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
+                            logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                                VALUES ($1, $2, $3, $4, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                                """,
+                                onyx_user_id, base_connectors, base_storage, base_slides
+                            )
+                    except Exception as e:
+                            logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
+                else:
+                    logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
                 
-                logger.info(f"Updated billing for user {onyx_user_id}: {plan} ({interval})")
+                logger.info(f"[BILLING] Updated billing for user {onyx_user_id}: plan={plan}, interval={interval}, is_addon_purchase={is_addon_purchase}")
+
+            # One-time credits purchase via Checkout Session (mode=payment)
+            if onyx_user_id and session.get('mode') == 'payment':
+                try:
+                    line_items = stripe.checkout.Session.list_line_items(session['id'])
+                    total_credits = 0
+                    for li in line_items.data:
+                        price_id = getattr(getattr(li, 'price', None), 'id', None)
+                        qty = int(getattr(li, 'quantity', 1) or 1)
+                        addon = PRICE_TO_ADDON.get(price_id or '', None)
+                        if addon and addon.get('type') == 'credits':
+                            total_credits += int(addon.get('units', 0)) * qty
+                    if total_credits > 0:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                UPDATE user_credits
+                                SET credits_balance = credits_balance + $2,
+                                    credits_purchased = credits_purchased + $2,
+                                    updated_at = now()
+                                WHERE onyx_user_id = $1
+                                """,
+                                onyx_user_id, total_credits
+                            )
+                            await conn.execute(
+                                """
+                                INSERT INTO credit_grant_events (id, onyx_user_id, source, amount, stripe_invoice_id, created_at)
+                                VALUES ($1, $2, 'one_time_pack', $3, NULL, now())
+                                """,
+                                str(uuid.uuid4()), onyx_user_id, total_credits
+                            )
+                except Exception as ce:
+                    logger.error(f"Failed to grant one-time credits: {ce}")
 
         elif event['type'] == 'customer.subscription.updated':
-            subscription = event['data']['object']
-            customer_id = subscription.get('customer') if isinstance(subscription, dict) else getattr(subscription, 'customer', None)
+            subscription_obj = event['data']['object']
+            subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
+            customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
+            
+            logger.info(f"[BILLING] customer.subscription.updated event: subscription_id={subscription_id}, customer_id={customer_id}")
+            
+            # Re-fetch subscription with expanded product data to ensure we have all info
+            subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+            logger.info(f"[BILLING] Subscription status: {subscription.get('status')}, items count: {len(subscription.get('items', {}).get('data', []))}")
             
             # Find user by customer ID
             async with pool.acquire() as conn:
                 user_record = await conn.fetchrow(
-                    "SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1",
+                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
                     customer_id
                 )
             
             if user_record:
                 onyx_user_id = user_record['onyx_user_id']
+                existing_plan = user_record['current_plan']
+                logger.info(f"[BILLING] Found user {onyx_user_id} with existing plan: {existing_plan}")
                 try:
                     # Cache email if present in customer object
                     cust = stripe.Customer.retrieve(customer_id)
@@ -29222,58 +30054,176 @@ async def stripe_webhook(
                 except Exception as e:
                     logger.warning(f"Failed to cache user email: {e}")
                 
-                # Extract updated plan info
-                plan = "starter"
+                # Extract updated plan info - find base tier price (not add-ons)
+                plan = None
                 interval = None
                 price_id = None
                 
                 items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
                 data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
-                if data_list and len(data_list) > 0:
-                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
-                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
-                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
-                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                if data_list:
+                    # Log all items for debugging
+                    logger.info(f"[BILLING] Subscription items:")
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        is_tier = item_price_id in PRICE_TO_TIER
+                        is_addon = item_price_id in PRICE_TO_ADDON
+                        logger.info(f"[BILLING]   Item {idx}: price_id={item_price_id}, is_tier={is_tier}, is_addon={is_addon}")
                     
-                    # Infer plan from product name
-                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
-                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
-                    lowered = product_name.lower()
-                    if 'business' in lowered:
-                        plan = 'business'
-                    elif 'pro' in lowered:
-                        plan = 'pro'
+                    # Look for base tier price among all items
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            break
+                    
+                    # If no tier price found, try product name fallback on first item
+                    if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found among items, trying product name fallback")
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                        
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] Product name: '{product_name}'")
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+                        
+                        if plan:
+                            logger.info(f"[BILLING] Inferred plan from product name: {plan}")
+                        else:
+                            logger.warning(f"[BILLING] Could not infer plan from product name")
                 
-                # Update user billing
-                async with pool.acquire() as conn:
-                    await conn.execute(
-                        """
-                        UPDATE user_billing 
-                        SET subscription_status = $2, current_price_id = $3, 
-                            current_plan = $4, current_interval = $5, updated_at = now()
-                        WHERE onyx_user_id = $1
-                        """,
-                        onyx_user_id, subscription['status'], price_id, plan, interval
-                    )
-                
-                # Also refresh base entitlements on subscription update
-                try:
-                    base_ents = _derive_entitlements_from_subscription(subscription)
-                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                # Only update user_billing if we found a base tier plan (don't overwrite with add-ons)
+                if plan:
+                    logger.info(f"[BILLING] Found base tier plan '{plan}', updating user_billing")
                     async with pool.acquire() as conn:
                         await conn.execute(
                             """
-                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
-                            VALUES ($1, $2, $3, $4, now())
-                            ON CONFLICT (onyx_user_id)
-                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            UPDATE user_billing 
+                            SET subscription_status = $2, current_price_id = $3, 
+                                current_plan = $4, current_interval = $5, updated_at = now()
+                            WHERE onyx_user_id = $1
                             """,
-                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                            onyx_user_id, subscription['status'], price_id, plan, interval
                         )
-                except Exception as e:
-                    logger.warning(f"Failed to persist base entitlements on update: {e}")
+                    logger.info(f"[BILLING] Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
+                else:
+                    # No base tier found - this is likely just add-ons being added
+                    # Only update status, preserve existing plan
+                    logger.info(f"[BILLING] No base tier found in subscription update for user {onyx_user_id}, preserving existing plan '{existing_plan}'")
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE user_billing 
+                            SET subscription_status = $2, updated_at = now()
+                            WHERE onyx_user_id = $1
+                            """,
+                            onyx_user_id, subscription['status']
+                        )
+                    plan = existing_plan  # Use existing plan for entitlements update below
+                    logger.info(f"[BILLING] Using existing plan '{plan}' for entitlements calculation")
                 
-                logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
+                # Refresh base entitlements on subscription update (for both cases)
+                if plan:
+                    try:
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
+                        logger.info(f"[BILLING] Updating base entitlements for plan '{plan}': connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                                VALUES ($1, $2, $3, $4, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                                """,
+                                onyx_user_id, base_connectors, base_storage, base_slides
+                            )
+                        logger.info(f"[BILLING] Successfully updated base entitlements for user {onyx_user_id}")
+                    except Exception as e:
+                        logger.error(f"[BILLING] Failed to persist base entitlements on update: {e}", exc_info=True)
+
+        elif event['type'] == 'invoice.paid':
+            invoice = event['data']['object']
+            customer_id = invoice.get('customer')
+            async with pool.acquire() as conn:
+                rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+            if rec:
+                onyx_user_id = rec['onyx_user_id']
+                # Grant credits for base tier renewal
+                try:
+                    total_tier_credits = 0
+                    for li in invoice.get('lines', {}).get('data', []):
+                        price = (li.get('price') or {})
+                        pid = price.get('id')
+                        tier_key = PRICE_TO_TIER.get(pid or '', '')
+                        if tier_key:
+                            total_tier_credits += TIER_TO_CREDITS.get(tier_key, 0)
+                    if total_tier_credits > 0:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                UPDATE user_credits
+                                SET credits_balance = credits_balance + $2,
+                                    credits_purchased = credits_purchased + $2,
+                                    updated_at = now()
+                                WHERE onyx_user_id = $1
+                                """,
+                                onyx_user_id, total_tier_credits
+                            )
+                            await conn.execute(
+                                """
+                                INSERT INTO credit_grant_events (id, onyx_user_id, source, amount, stripe_invoice_id, created_at)
+                                VALUES ($1, $2, 'tier_renewal', $3, $4, now())
+                                """,
+                                str(uuid.uuid4()), onyx_user_id, total_tier_credits, invoice.get('id')
+                            )
+                except Exception as te:
+                    logger.error(f"Failed to grant tier renewal credits: {te}")
+
+                # Sync recurring add-ons status from subscription
+                try:
+                    sub_id = invoice.get('subscription')
+                    if sub_id:
+                        sub = stripe.Subscription.retrieve(sub_id, expand=['items.data.price'])
+                        async with pool.acquire() as conn:
+                            for it in sub['items']['data']:
+                                price_id = it['price']['id']
+                                addon = PRICE_TO_ADDON.get(price_id, None)
+                                if addon and addon.get('type') in ('connectors','storage'):
+                                    await conn.execute(
+                                        """
+                                        INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                            stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                        ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                        """,
+                                        it['id'], onyx_user_id, customer_id, sub_id, it['id'], price_id,
+                                        addon['type'], int(it.get('quantity') or 1), sub['status'], int(sub.get('current_period_end') or 0)
+                                    )
+                except Exception as ae:
+                    logger.error(f"Failed to sync add-ons: {ae}")
 
         elif event['type'] == 'customer.subscription.deleted':
             subscription = event['data']['object']
@@ -29293,6 +30243,12 @@ async def stripe_webhook(
             
             logger.info(f"Cancelled subscription for customer {customer_id}")
 
+        # Mark processed
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("INSERT INTO processed_stripe_events (event_id, created_at) VALUES ($1, now()) ON CONFLICT DO NOTHING", event['id'])
+        except Exception:
+            pass
         return {"status": "success"}
     
     except HTTPException:
@@ -29869,6 +30825,7 @@ async def get_users_with_features(
                 SELECT 
                     uc.onyx_user_id AS user_id,
                     uc.name AS user_name,
+                    uec.email AS cached_email,
                     uf.feature_name,
                     uf.is_enabled,
                     uf.created_at,
@@ -29880,6 +30837,7 @@ async def get_users_with_features(
                 LEFT JOIN user_features uf ON uc.onyx_user_id = uf.user_id
                 LEFT JOIN feature_definitions fd 
                     ON uf.feature_name = fd.feature_name AND fd.is_active = true
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.onyx_user_id, fd.category, fd.display_name
             """)
             
@@ -29887,8 +30845,9 @@ async def get_users_with_features(
             for row in rows:
                 user_id = row['user_id']
                 if user_id not in users_features:
-                    # Get email from map, fallback to user_id
-                    user_email = user_emails_map.get(user_id, user_id)
+                    # Get email from map, fallback to cache, then user_id
+                    cached_email = dict(row).get('cached_email')
+                    user_email = user_emails_map.get(user_id, cached_email or user_id)
                     users_features[user_id] = {
                         'user_id': user_id,
                         'user_email': user_email,
