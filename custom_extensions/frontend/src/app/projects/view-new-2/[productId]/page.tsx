@@ -871,10 +871,10 @@ export default function ProductViewNewPage() {
     <main 
       className="font-inter min-h-screen"
       style={{
-        background: '#F0F0F0'
+        background: '#F8F8F8'
       }}
     >
-      <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px] mb-6" style={{ borderBottom: '1px solid #E4E4E7' }}>
+      <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-7xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
           <div className="flex items-center gap-x-8">
             <button
@@ -957,28 +957,11 @@ export default function ProductViewNewPage() {
 
             {/* User Dropdown */}
             <UserDropdown />
-
-            {/* Download PDF button for Course Outline
-            <button
-              onClick={() => {}}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
-              style={{
-                backgroundColor: '#0F58F9',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-              title="Download content as PDF"
-            >
-              <Download size={14} style={{ color: 'white' }} /> Download PDF
-            </button> */}
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto flex flex-col py-4 md:py-8">
+      <div className="max-w-7xl mx-auto flex flex-col">
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
           <div className="px-4 md:px-8 lg:px-[120px]">
@@ -998,7 +981,7 @@ export default function ProductViewNewPage() {
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-3 space-y-4">
             {/* Course Info Bar */}
-            <div className="flex justify-between items-center py-4">
+            <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">
                 <span>{totalModules} modules</span>
                 <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
