@@ -129,19 +129,21 @@ class HTMLTemplateService:
                 actual_canvas_dims = metadata.get('canvasDimensions') if metadata else None
                 
                 if actual_canvas_dims:
-                    editor_width = actual_canvas_dims.get('width', 1174)
-                    editor_height = actual_canvas_dims.get('height', 600)
+                    editor_width = actual_canvas_dims.get('width', 720)
+                    editor_height = actual_canvas_dims.get('height', 405)
                     logger.info(f"")
                     logger.info(f"✅ Using ACTUAL canvas dimensions from metadata!")
                     logger.info(f"   Actual width: {editor_width:.2f}px")
                     logger.info(f"   Actual height: {editor_height:.2f}px")
                 else:
-                    editor_width = 1174
-                    editor_height = 600
+                    # Updated fallback to match actual editor canvas dimensions (720×405)
+                    # This matches the measured canvas in the video editor with zoom: 0.6
+                    editor_width = 720
+                    editor_height = 405
                     logger.info(f"")
-                    logger.info(f"⚠️ No actual canvas dimensions in metadata, using design defaults")
-                    logger.info(f"   Fallback width: {editor_width}px")
-                    logger.info(f"   Fallback height: {editor_height}px")
+                    logger.info(f"⚠️ No actual canvas dimensions in metadata, using editor canvas defaults")
+                    logger.info(f"   Fallback width: {editor_width}px (16:9 aspect ratio)")
+                    logger.info(f"   Fallback height: {editor_height}px (16:9 aspect ratio)")
                 
                 logger.info(f"")
                 logger.info(f"═══════════════════════════════════════════════════════════════════════════")
@@ -159,12 +161,12 @@ class HTMLTemplateService:
                 logger.info(f"    - Source: {'metadata.canvasDimensions' if actual_canvas_dims else 'fallback defaults'}")
                 if not actual_canvas_dims:
                     logger.info(f"    - ⚠️ Using fallback - may cause positioning errors!")
-                logger.info(f"  Design Editor Canvas (reference):")
-                logger.info(f"    - Width:  1174px")
-                logger.info(f"    - Height: 600px")
-                logger.info(f"    - Aspect Ratio: {(1174/600):.6f} (1.957:1)")
-                if actual_canvas_dims and abs(editor_width - 1174) > 1:
-                    logger.info(f"    - ⚠️ MISMATCH: Actual canvas is {((editor_width/1174 - 1)*100):.2f}% different!")
+                logger.info(f"  Standard Editor Canvas (reference):")
+                logger.info(f"    - Width:  720px")
+                logger.info(f"    - Height: 405px")
+                logger.info(f"    - Aspect Ratio: {(720/405):.6f} (1.778:1 - 16:9)")
+                if actual_canvas_dims and abs(editor_width - 720) > 1:
+                    logger.info(f"    - ⚠️ MISMATCH: Actual canvas is {((editor_width/720 - 1)*100):.2f}% different from standard!")
                 logger.info(f"  Video Canvas (Backend):")
                 logger.info(f"    - Width:  1920px")
                 logger.info(f"    - Height: 1080px")

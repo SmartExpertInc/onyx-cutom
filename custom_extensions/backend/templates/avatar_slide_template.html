@@ -706,9 +706,10 @@
         {% set EDITOR_WIDTH = metadata.canvasDimensions.width %}
         {% set EDITOR_HEIGHT = metadata.canvasDimensions.height %}
     {% else %}
-        {# Fallback to design dimensions if no metadata #}
-        {% set EDITOR_WIDTH = 1174 %}
-        {% set EDITOR_HEIGHT = 600 %}
+        {# Fallback to actual editor canvas dimensions (720×405 - 16:9 aspect ratio) #}
+        {# These match the measured canvas dimensions in the video editor #}
+        {% set EDITOR_WIDTH = 720 %}
+        {% set EDITOR_HEIGHT = 405 %}
     {% endif %}
     
     {# Video canvas dimensions (always 1920×1080) #}

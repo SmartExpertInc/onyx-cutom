@@ -192,10 +192,10 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       console.log('      - Width:', actualWidth.toFixed(2) + 'px', actualWidth !== 1174 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
       console.log('      - Height:', actualHeight.toFixed(2) + 'px', actualHeight !== 600 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
       console.log('      - Aspect Ratio:', (actualWidth / actualHeight).toFixed(3), `(${actualWidth.toFixed(0)}:${actualHeight.toFixed(0)})`);
-      console.log('    Design Editor Canvas (hardcoded):');
-      console.log('      - Width: 1174px (defined)');
-      console.log('      - Height: 600px (defined)');
-      console.log('      - Aspect Ratio:', (1174 / 600).toFixed(3), '(1.957:1)');
+      console.log('    Standard Editor Canvas (720×405 - 16:9):');
+      console.log('      - Width: 720px (standard)');
+      console.log('      - Height: 405px (standard)');
+      console.log('      - Aspect Ratio:', (720 / 405).toFixed(3), '(1.778:1 - 16:9)');
       console.log('    Video Canvas:');
       console.log('      - Width: 1920px (defined)');
       console.log('      - Height: 1080px (defined)');
@@ -206,19 +206,19 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
         scaleX: (1920 / actualWidth).toFixed(6) + ` (1920/${actualWidth.toFixed(0)})`,
         scaleY: (1080 / actualHeight).toFixed(6) + ` (1080/${actualHeight.toFixed(0)})`
       });
-      console.log('    ❌ OLD (WRONG) Scale Factors:', {
-        scaleX: (1920 / 1174).toFixed(6) + ' (1920/1174)',
-        scaleY: (1080 / 600).toFixed(6) + ' (1080/600)'
+      console.log('    📊 Standard Scale Factors (720×405 baseline):', {
+        scaleX: (1920 / 720).toFixed(6) + ' (1920/720) = 2.667',
+        scaleY: (1080 / 405).toFixed(6) + ' (1080/405) = 2.667'
       });
       console.log('  🔢 Expected Scaled Position (using ACTUAL canvas):', {
         scaledX: (position.x * (1920 / actualWidth)).toFixed(2),
         scaledY: (position.y * (1080 / actualHeight)).toFixed(2)
       });
-      console.log('  ⚠️ CRITICAL: Canvas size mismatch detected!', {
-        designWidth: 1174,
+      console.log('  📊 Canvas Size Analysis:', {
+        standardWidth: 720,
         actualWidth: actualWidth.toFixed(2),
-        widthError: ((actualWidth / 1174 - 1) * 100).toFixed(2) + '%',
-        impactOnScaling: 'Scale factor will be ' + (((1920/actualWidth) / (1920/1174) - 1) * 100).toFixed(2) + '% off'
+        widthDifference: ((actualWidth / 720 - 1) * 100).toFixed(2) + '%',
+        scalingAccuracy: Math.abs((actualWidth / 720 - 1) * 100) < 1 ? '✅ Within 1%' : '⚠️ Significant difference'
       });
     }
     
