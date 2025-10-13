@@ -169,6 +169,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	};
 
 	const onRowClick = (idx: number, it: SmartDriveItem, e: React.MouseEvent) => {
+		// Ignore clicks originating from interactive controls inside the row
+		const target = e.target as HTMLElement;
+		if (target && target.closest('[data-sd-interactive]')) return;
 		if (it.type === 'directory') {
 			setCurrentPath(it.path.endsWith('/') ? it.path : `${it.path}/`);
 			return;
@@ -864,9 +867,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							}}
 							data-sd-row
 						>
-										<div className="w-8">
-											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-										</div>
+							<div className="w-8" data-sd-interactive onMouseDown={(e)=>e.stopPropagation()} onClick={(e)=>e.stopPropagation()}>
+								<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
+							</div>
 										<div className="w-5 h-5">
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 										</div>
@@ -900,17 +903,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="w-44 text-right text-sm text-slate-700">{it.modified ? formatDate(it.modified) : ''}</div>
 										<div className="w-8 flex justify-end">
 											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+									<DropdownMenuTrigger asChild>
+										<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()} onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
 														<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
 													</Button>
 												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-													<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+									<DropdownMenuContent align="end" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()}>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('rename');}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('delete');}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('download');}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</div>
