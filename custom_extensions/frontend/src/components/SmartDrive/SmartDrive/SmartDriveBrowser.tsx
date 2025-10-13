@@ -281,7 +281,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				} else if (srcItem && srcItem.type === 'directory') {
 					to = to.endsWith('/') ? to : `${to}/`;
 				}
-				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}`);
+				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}, URL=${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`);
 				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
