@@ -1179,7 +1179,7 @@ function GenerateProductPicker() {
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-[#FAFAFA] text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
@@ -1843,7 +1843,7 @@ function GenerateProductPicker() {
                       className="flex flex-row justify-between items-center w-full p-2 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer relative opacity-80 hover:opacity-100"
                       style={{ backdropFilter: "blur(2px)", minHeight: 80, backgroundColor: "#FDFDFD", border: "1px solid #E0E0E0", color: "#71717A" }}
                     >
-                      <span className="text-left leading-tight flex-1">{examples[index]}</span>
+                      <span className="text-left leading-tight flex-1 pr-2">{examples[index]}</span>Te
                       <span className="absolute top-1 right-2 text-xl leading-none" style={{ color: "#71717A", fontWeight: 200 }}>+</span>
                     </button>
                   ) : (
