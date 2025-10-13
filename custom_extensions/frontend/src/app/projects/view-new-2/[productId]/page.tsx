@@ -986,7 +986,7 @@ export default function ProductViewNewPage() {
       <div className="max-w-7xl mx-auto flex flex-col">
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-4 md:px-8 lg:px-[120px]">
+          <div className="px-4 md:px-8 lg:px-[120px] mt-6">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
@@ -999,7 +999,7 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 md:px-8 lg:px-[100px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-3 space-y-4">
             {/* Course Info Bar */}
@@ -1088,7 +1088,7 @@ export default function ProductViewNewPage() {
                   <div className="p-[25px] pt-0">
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, borderBottom: '1px solid #E0E0E0' }} >
+                  <div className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, borderBottom: '1px solid #E0E0E0' }} >
                     <div className="text-[14px] font-medium text-[#434343]">
                       Lessons
                     </div>
@@ -1137,7 +1137,7 @@ export default function ProductViewNewPage() {
                         const actualCreatedCount = columnVideoLessonEnabled ? createdCount : [hasPresentation, hasOnePager, hasQuiz].filter(Boolean).length;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className="grid gap-4 items-center pl-[24px] py-[16px] rounded-md" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 80px' : ''} 80px 80px 80px`, border: '1px solid #E0E0E0' }} >
+                          <div key={lesson?.id || lessonIndex} className="grid gap-4 items-center pl-[24px] py-[16px] rounded-md" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #E0E0E0' }} >
                             {/* Lesson Title Column */}
                             <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
@@ -1188,7 +1188,7 @@ export default function ProductViewNewPage() {
                                   <div className="relative group flex items-center justify-center">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
-                                        className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                        className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-2"
                                         onClick={() => {
                                           setShowRegenerateModal({
                                             isOpen: true,
@@ -1204,7 +1204,7 @@ export default function ProductViewNewPage() {
                                       </div>
                                     </CustomTooltip>
                                     {/* View icon on hover */}
-                                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-4">
                                       <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                         <div 
                                           className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
@@ -1215,7 +1215,7 @@ export default function ProductViewNewPage() {
                                             }
                                           }}
                                         >
-                                          <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                          <Eye size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                         </div>
                                       </CustomTooltip>
                                     </div>
@@ -1227,7 +1227,7 @@ export default function ProductViewNewPage() {
                                       style={{ border: '1px solid #0F58F9' }}
                                       onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                     >
-                                      <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                      <Plus size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                     </div>
                                   </CustomTooltip>
                                 )}
@@ -1240,7 +1240,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-2"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1256,7 +1256,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* View icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-4">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
@@ -1267,7 +1267,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1279,7 +1279,7 @@ export default function ProductViewNewPage() {
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
-                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1291,7 +1291,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-2"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1307,7 +1307,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* View icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-4">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
@@ -1318,7 +1318,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1330,7 +1330,7 @@ export default function ProductViewNewPage() {
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
-                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1342,7 +1342,7 @@ export default function ProductViewNewPage() {
                                 <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                     <div 
-                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      className="w-[30px] h-[30px] rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-200 group-hover:-translate-x-2"
                                       onClick={() => {
                                         setShowRegenerateModal({
                                           isOpen: true,
@@ -1358,7 +1358,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* View icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-4">
                                     <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
                                         className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
@@ -1369,7 +1369,7 @@ export default function ProductViewNewPage() {
                                           }
                                         }}
                                       >
-                                        <Eye size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                        <Eye size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1381,7 +1381,7 @@ export default function ProductViewNewPage() {
                                     style={{ border: '1px solid #0F58F9' }}
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
-                                    <Plus size={15} strokeWidth={3.5} className="text-[#0F58F9]" />
+                                    <Plus size={15} strokeWidth={2} className="text-[#0F58F9]" />
                                   </div>
                                 </CustomTooltip>
                               )}
