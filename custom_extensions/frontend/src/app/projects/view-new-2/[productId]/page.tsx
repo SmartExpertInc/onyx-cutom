@@ -1037,7 +1037,7 @@ export default function ProductViewNewPage() {
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg overflow-hidden">
                   {/* Module Header */}
-                  <div className="bg-[#CCDBFC] px-[12px] py-[20px]">
+                  <div className="bg-[#CCDBFC] px-[12px] py-[24px]">
                   {isEditingField('sectionTitle', index) ? (
                     <input
                       type="text"
@@ -1063,16 +1063,16 @@ export default function ProductViewNewPage() {
                       >
                         {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
                       </h2>
-                        <span className="bg-white text-[#797979] text-[12px] px-2 py-1 rounded">
-                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
-                        </span>
                       <button
                         onClick={() => startEditing('sectionTitle', index)}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center cursor-pointer"
                         title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
                       >
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
                       </button>
+                        <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full ml-3">
+                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
+                        </span>
                     </div>
                   )}
                   </div>
@@ -1162,7 +1162,7 @@ export default function ProductViewNewPage() {
                                   </span>
                                   <button
                                     onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center cursor-pointer"
                                     title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
                                   >
                                     <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
