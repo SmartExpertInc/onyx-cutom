@@ -830,6 +830,7 @@ export default function CourseOutlineClient() {
       if (!res.ok) {
         // Check for insufficient credits (402)
         if (res.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
           setShowInsufficientCreditsModal(true);
           return;
         }

@@ -1041,6 +1041,7 @@ export default function LessonPresentationClient() {
         const errorText = await res.text();
         // Check for insufficient credits (402)
         if (res.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
           setShowInsufficientCreditsModal(true);
           return;
         }

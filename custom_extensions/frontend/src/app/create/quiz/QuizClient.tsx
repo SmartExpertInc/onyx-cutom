@@ -1001,6 +1001,7 @@ export default function QuizClient() {
       if (!response.ok) {
         // Check for insufficient credits (402)
         if (response.status === 402) {
+          setIsCreatingFinal(false); // Stop the finalization animation
           setShowInsufficientCreditsModal(true);
           return;
         }

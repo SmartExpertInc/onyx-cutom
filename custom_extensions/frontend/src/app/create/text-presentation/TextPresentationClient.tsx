@@ -1158,6 +1158,7 @@ export default function TextPresentationClient() {
         const errorText = await response.text();
         // Check for insufficient credits (402)
         if (response.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
           setShowInsufficientCreditsModal(true);
           return;
         }
