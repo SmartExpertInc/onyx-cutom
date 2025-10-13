@@ -646,7 +646,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         {/* Navigation Buttons */}
         <div className="px-8 pt-6 pb-6">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
-            <div className="grid grid-cols-2 gap-16">
+            <div className="flex justify-between items-center gap-4">
               {/* Previous Button */}
               {surveyStep > 1 ? (
                 <Button
@@ -662,7 +662,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               )}
               
               {/* Main Action Button */}
-              <div>
+              <div className="flex-1 max-w-xs">
                 {surveyStep === 4 && selectedCategory === 'work' ? (
                   <Button
                     onClick={completeSurvey}

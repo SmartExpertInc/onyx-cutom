@@ -670,7 +670,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] radius-md font-medium public-sans" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
+        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] rounded-md font-medium public-sans" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
         <button 
           onClick={onAddOnsModalOpen}
           className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-semibold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
