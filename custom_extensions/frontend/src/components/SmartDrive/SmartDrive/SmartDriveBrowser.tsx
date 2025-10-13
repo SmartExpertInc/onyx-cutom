@@ -91,6 +91,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [pickerDirs, setPickerDirs] = useState<SmartDriveItem[]>([]);
 	const [pickerLoading, setPickerLoading] = useState(false);
 	const [pickerSelected, setPickerSelected] = useState<string[]>([]);
+	const [dragOverPath, setDragOverPath] = useState<string | null>(null);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -790,8 +791,79 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									}
 								};
 								
-								return (
-									<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
+					return (
+						<div
+							key={it.path}
+							className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${dragOverPath===it.path ? 'bg-blue-100/60' : 'hover:bg-blue-50/50'}`}
+							onClick={(e)=>onRowClick(idx, it, e)}
+							// Drag a row (file or folder)
+							draggable
+							onDragStart={(e)=>{
+								try {
+									// Determine which paths are being dragged
+									const hasItSelected = selected.has(it.path);
+									const paths = hasItSelected && selected.size>0 ? Array.from(selected) : [it.path];
+									e.dataTransfer.setData('application/x-sd-paths', JSON.stringify(paths));
+									e.dataTransfer.effectAllowed = 'move';
+								} catch {}
+							}}
+							onDragEnd={()=> setDragOverPath(null)}
+							// Accept drop if this row is a folder target
+							onDragOver={(e)=>{
+								if (it.type !== 'directory') return;
+								e.preventDefault();
+								setDragOverPath(it.path);
+							}}
+							onDragLeave={(e)=>{
+								if ((e.target as HTMLElement).closest('[data-sd-row]')) return;
+								setDragOverPath(prev => prev===it.path ? null : prev);
+							}}
+							onDrop={async (e)=>{
+								if (it.type !== 'directory') return;
+								e.preventDefault();
+								setDragOverPath(null);
+								try {
+									const raw = e.dataTransfer.getData('application/x-sd-paths');
+									const paths: string[] = raw ? JSON.parse(raw) : [];
+									if (!paths || paths.length===0) return;
+									setBusy(true);
+									const destFolder = it.path.endsWith('/') ? it.path : `${it.path}/`;
+									for (const p of paths) {
+										// Prevent moving a folder into itself or descendant
+										const normDest = destFolder;
+										const normSrc = p.endsWith('/') ? p : `${p}`;
+										if (normDest === normSrc || normDest.startsWith(normSrc)) {
+											continue;
+										}
+
+										const baseName = p.split('/').pop() || '';
+										let to = `${destFolder}${baseName}`.replace(/\/+?/g, '/');
+										const srcItem = items.find(i => i.path === p);
+										if (srcItem && srcItem.type === 'file') {
+											to = to.replace(/\/$/, '');
+										} else if (srcItem && srcItem.type === 'directory') {
+											to = to.endsWith('/') ? to : `${to}/`;
+										}
+										console.log(`[SmartDrive] dnd move: from=${p} to=${to}`);
+										const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
+											method: 'POST',
+											headers: { 'Content-Type': 'application/json' },
+											credentials: 'same-origin',
+											body: JSON.stringify({ from: p, to })
+										});
+										if (!res.ok) {
+											console.error('[SmartDrive] dnd move failed:', await res.text());
+										}
+									}
+									await fetchList(currentPath);
+								} catch (err) {
+									console.error('[SmartDrive] dnd error:', err);
+								} finally {
+									setBusy(false);
+								}
+							}}
+							data-sd-row
+						>
 										<div className="w-8">
 											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
 										</div>
