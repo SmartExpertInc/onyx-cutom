@@ -13,6 +13,7 @@ interface ComponentBasedSlideRendererProps {
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -21,7 +22,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   onSlideUpdate,
   onTemplateChange,
   theme,
-  getPlaceholderGenerationState
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
@@ -131,6 +133,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           isEditable={isEditable}
           onUpdate={handlePropsUpdate}
           onSlideUpdate={onSlideUpdate}
+          isVideoMode={isVideoMode}
         >
           <TemplateComponent {...templateProps} />
         </HybridTemplateBase>
@@ -165,6 +168,7 @@ interface ComponentBasedSlideDeckRendererProps {
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -174,7 +178,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   onSlideUpdate,
   onTemplateChange,
   theme,
-  getPlaceholderGenerationState
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -205,6 +210,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             onTemplateChange={onTemplateChange}
             theme={theme}
             getPlaceholderGenerationState={getPlaceholderGenerationState}
+            isVideoMode={isVideoMode}
           />
         </div>
       ))}

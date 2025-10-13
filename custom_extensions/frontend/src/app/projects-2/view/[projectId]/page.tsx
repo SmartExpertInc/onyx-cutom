@@ -804,6 +804,7 @@ export default function Projects2ViewPage() {
                         }
                       }}
                       theme="default"
+                      isVideoMode={true}
                     />
                       </div>
                     </div>
