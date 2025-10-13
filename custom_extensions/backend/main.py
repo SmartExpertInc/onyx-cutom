@@ -34977,7 +34977,8 @@ async def smartdrive_move(
         # Ensure destination parent directory exists to avoid 403
         try:
             dst_parent = dst.rsplit("/", 1)[0] or "/"
-            await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
+            # Don't encode here - _ensure_folder_tree will encode internally
+            await _ensure_folder_tree(base, _ensure_trailing_slash(user_root_prefix + dst_parent), auth=(username, password))
         except Exception as _e:
             logger.debug(f"[SmartDrive] ensure parent for MOVE failed (non-fatal): {_e}")
         
@@ -35078,7 +35079,8 @@ async def smartdrive_copy(
         # Ensure destination parent directory exists to avoid 403
         try:
             dst_parent = dst.rsplit("/", 1)[0] or "/"
-            await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
+            # Don't encode here - _ensure_folder_tree will encode internally
+            await _ensure_folder_tree(base, _ensure_trailing_slash(user_root_prefix + dst_parent), auth=(username, password))
         except Exception as _e:
             logger.debug(f"[SmartDrive] ensure parent for COPY failed (non-fatal): {_e}")
         
