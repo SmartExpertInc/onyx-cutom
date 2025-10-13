@@ -34969,9 +34969,9 @@ async def smartdrive_move(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{_encode_dav_path(f"{user_root_prefix}{dst}")}", "Overwrite": "T"}
+        headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("MOVE", f"{base}{_encode_dav_path(f"{user_root_prefix}{src}")}", auth=(username, password), headers=headers)
+            resp = await client.request("MOVE", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
         if resp.status_code in (201, 204):
             return {"success": True}
         raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
@@ -34996,9 +34996,9 @@ async def smartdrive_copy(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{_encode_dav_path(f"{user_root_prefix}{dst}")}", "Overwrite": "T"}
+        headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("COPY", f"{base}{_encode_dav_path(f"{user_root_prefix}{src}")}", auth=(username, password), headers=headers)
+            resp = await client.request("COPY", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
         if resp.status_code in (201, 204):
             return {"success": True}
         raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
@@ -35028,7 +35028,7 @@ async def smartdrive_delete(
         results: List[Dict[str, Any]] = []
         async with httpx.AsyncClient(timeout=60.0) as client:
             for p in norm_paths:
-                resp = await client.delete(f"{base}{_encode_dav_path(f"{user_root_prefix}{p}")}", auth=(username, password))
+                resp = await client.delete(f"{base}{_encode_dav_path(user_root_prefix + p)}", auth=(username, password))
                 ok = resp.status_code in (200, 204)
                 results.append({"path": p, "success": ok, "status": resp.status_code, "error": None if ok else _dav_error(resp)})
         if any(not r["success"] for r in results):
@@ -35084,7 +35084,7 @@ async def smartdrive_token_estimate(
                 pass
         # Otherwise use HEAD to get Content-Length and approximate
         base = f"{base_url}/remote.php/dav/files/{username}"
-        file_url = f"{base}{_encode_dav_path(f"{user_root_prefix}{norm_path}")}"
+        file_url = f"{base}{_encode_dav_path(user_root_prefix + norm_path)}"
         async with httpx.AsyncClient(timeout=15.0) as client:
             head = await client.head(file_url, auth=(username, password))
         if not head.is_success:
@@ -35125,7 +35125,7 @@ async def smartdrive_download(
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
         base = f"{base_url}/remote.php/dav/files/{username}"
-        source_url = f"{base}{_encode_dav_path(f"{user_root_prefix}{norm_path}")}"
+        source_url = f"{base}{_encode_dav_path(user_root_prefix + norm_path)}"
 
         client = httpx.AsyncClient(timeout=None)
         resp = await client.get(source_url, auth=(username, password), stream=True)
