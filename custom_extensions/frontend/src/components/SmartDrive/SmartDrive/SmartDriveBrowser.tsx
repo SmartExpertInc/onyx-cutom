@@ -271,19 +271,26 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			for (const p of Array.from(selected)) {
 				const destBase = targetFolder.endsWith('/') ? targetFolder : `${targetFolder}/`;
 				const to = `${destBase}${p.split('/').pop()}`.replace(/\/+/, '/');
+				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}`);
 				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					credentials: 'same-origin',
 					body: JSON.stringify({ from: p, to })
 				});
-				if (!res.ok) throw new Error(await res.text());
+				if (!res.ok) {
+					const errorText = await res.text();
+					console.error(`[SmartDrive] ${pickerOp} failed:`, errorText);
+					throw new Error(errorText);
+				}
+				console.log(`[SmartDrive] ${pickerOp} succeeded for ${p}`);
 			}
 			setPickerOpen(false);
 			clearSel();
 			await fetchList(currentPath);
 		} catch (e) {
-			alert(`${pickerOp} failed`);
+			console.error(`[SmartDrive] ${pickerOp} error:`, e);
+			alert(`${pickerOp} failed: ${e}`);
 		} finally {
 			setBusy(false);
 		}
@@ -639,6 +646,28 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const canDelete = selected.size > 0;
 	const canMoveCopy = selected.size > 0;
 	const canDownload = Array.from(selected).some(p => items.find(i => i.path === p && i.type === 'file'));
+	
+	// Check if picker destination is valid (not current path, not a selected item)
+	const isValidPickerDestination = useMemo(() => {
+		// Normalize paths for comparison
+		const normPickerPath = pickerPath.endsWith('/') ? pickerPath : `${pickerPath}/`;
+		const normCurrentPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+		
+		// Can't move to the same folder
+		if (normPickerPath === normCurrentPath) return false;
+		
+		// Can't move a folder into itself or its children
+		const selectedPaths = Array.from(selected);
+		for (const selPath of selectedPaths) {
+			const normSelPath = selPath.endsWith('/') ? selPath : `${selPath}/`;
+			// If picker path is the selected item or a child of it
+			if (normPickerPath === normSelPath || normPickerPath.startsWith(normSelPath)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}, [pickerPath, currentPath, selected]);
 
 	// In select mode, notify parent on every selection change to enable downstream buttons immediately
 	useEffect(() => {
@@ -850,7 +879,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={()=>setPickerOpen(false)}>Cancel</Button>
-						<Button onClick={()=>submitPicker(pickerPath)} disabled={pickerLoading}>Select folder</Button>
+						<Button onClick={()=>submitPicker(pickerPath)} disabled={pickerLoading || !isValidPickerDestination}>
+							Select folder
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

@@ -181,18 +181,80 @@ Or in case of errors:
 
 - `custom_extensions/backend/main.py`:
   - `smartdrive_download()` - Changed to public link approach (lines 35167-35193)
-  - `smartdrive_move()` - Added proxy detection and retry logic, improved logging (lines 34959-35028)
-  - `smartdrive_copy()` - Added proxy detection and retry logic, improved logging (lines 35031-35101)
+  - `smartdrive_move()` - Added proxy detection, retry logic, file mapping updates (lines 34959-35053)
+  - `smartdrive_copy()` - Added proxy detection and retry logic, improved logging (lines 35056-35101)
 
 - `custom_extensions/frontend/src/components/SmartDrive/SmartDrive/SmartDriveBrowser.tsx`:
-  - `download()` - Updated to fetch download URL from API and open in new tab (lines 619-636)
+  - `download()` - Updated to fetch download URL from API and open in new tab (lines 619-643)
+  - `submitPicker()` - Added comprehensive logging (lines 267-297)
+  - `isValidPickerDestination` - New validation logic for folder picker (lines 650-670)
+  - Folder picker button - Disabled when destination is invalid (line 882)
+
+## Additional Fixes (Follow-up)
+
+### 4. File Mapping Updates on Rename/Move ✅
+
+**Problem**: When files are renamed or moved, the mapping between Nextcloud file paths and Onyx file IDs wasn't updated.
+
+**Solution**: Added automatic update of the `smartdrive_imports` table after successful rename/move operations:
+```python
+# After successful MOVE
+await conn.execute(
+    """
+    UPDATE smartdrive_imports 
+    SET smartdrive_path = $1, imported_at = NOW()
+    WHERE onyx_user_id = $2 AND smartdrive_path = $3
+    """,
+    dst, onyx_user_id, src
+)
+```
+
+### 5. Move/Copy Debugging Improvements ✅
+
+**Problem**: Move operations weren't working with no logs appearing.
+
+**Solution**: Added comprehensive logging in both frontend and backend:
+- Frontend logs show from/to paths and operation results
+- Backend logs already showed detailed request/response info
+- Added error handling with detailed error messages
+
+### 6. Folder Picker Invalid Destinations ✅
+
+**Problem**: The move/copy destination picker allowed selecting:
+- The current folder (moving to same location)
+- Selected items themselves (moving a folder into itself)
+
+**Solution**: Added validation logic that disables the "Select folder" button when:
+- Picker path equals current browser path
+- Picker path is a selected item or child of a selected item
+
+```typescript
+const isValidPickerDestination = useMemo(() => {
+    const normPickerPath = pickerPath.endsWith('/') ? pickerPath : `${pickerPath}/`;
+    const normCurrentPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+    
+    // Can't move to the same folder
+    if (normPickerPath === normCurrentPath) return false;
+    
+    // Can't move a folder into itself or its children
+    for (const selPath of Array.from(selected)) {
+        const normSelPath = selPath.endsWith('/') ? selPath : `${selPath}/`;
+        if (normPickerPath === normSelPath || normPickerPath.startsWith(normSelPath)) {
+            return false;
+        }
+    }
+    return true;
+}, [pickerPath, currentPath, selected]);
+```
 
 ## Impact
 
 - ✅ Downloads now work correctly using public download links (1-day expiry)
 - ✅ Rename operations automatically handle proxy configurations with retry logic
 - ✅ Move/Copy operations work reliably with automatic proxy detection
-- ✅ Better debugging capability with comprehensive logging
+- ✅ File path mappings automatically update when files are renamed or moved
+- ✅ Folder picker prevents invalid destinations (same folder, circular moves)
+- ✅ Better debugging capability with comprehensive logging in frontend and backend
 - ✅ All operations handle WebDAV responses according to RFC 4918 specification
 - ✅ Automatic handling of Nextcloud instances behind proxies (e.g., `/smartdrive` prefix)
 

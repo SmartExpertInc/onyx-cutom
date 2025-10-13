@@ -34996,6 +34996,20 @@ async def smartdrive_move(
         
         # WebDAV MOVE success codes: 201 (Created), 204 (No Content), 200 (OK)
         if resp.status_code in (200, 201, 204):
+            # Update the file path mapping in smartdrive_imports table
+            try:
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        UPDATE smartdrive_imports 
+                        SET smartdrive_path = $1, imported_at = NOW()
+                        WHERE onyx_user_id = $2 AND smartdrive_path = $3
+                        """,
+                        dst, onyx_user_id, src
+                    )
+                    logger.info(f"[SmartDrive] Updated file mapping: {src} -> {dst}")
+            except Exception as map_err:
+                logger.warning(f"[SmartDrive] Failed to update file mapping: {map_err}")
             return {"success": True}
         
         # If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
@@ -35013,6 +35027,20 @@ async def smartdrive_move(
             
             logger.info(f"[SmartDrive] MOVE retry response: status={resp2.status_code}")
             if resp2.status_code in (200, 201, 204):
+                # Update the file path mapping in smartdrive_imports table
+                try:
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE smartdrive_imports 
+                            SET smartdrive_path = $1, imported_at = NOW()
+                            WHERE onyx_user_id = $2 AND smartdrive_path = $3
+                            """,
+                            dst, onyx_user_id, src
+                        )
+                        logger.info(f"[SmartDrive] Updated file mapping (retry): {src} -> {dst}")
+                except Exception as map_err:
+                    logger.warning(f"[SmartDrive] Failed to update file mapping (retry): {map_err}")
                 return {"success": True}
             error_detail = _dav_error(resp2)
             logger.error(f"[SmartDrive] MOVE retry failed: status={resp2.status_code}, detail={error_detail}")
