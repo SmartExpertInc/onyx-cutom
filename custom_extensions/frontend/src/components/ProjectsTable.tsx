@@ -46,7 +46,8 @@ import {
   ClipboardCheck,
   TableOfContents,
   Search,
-  ArrowDownUp
+  ArrowDownUp,
+  Check
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -3714,50 +3715,62 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       {!trashMode && (
         <div className="flex items-center gap-4 mb-6">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-5">
             <button
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "all" 
-                  ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-gray-500 text-gray-500 hover:text-gray-700"
+                  ? "border-[#719AF5] text-[#719AF5]" 
+                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("all")}
             >
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.7826 0.625H1.44922M13.4492 4.625H1.44922M9.51589 8.55833H1.44922" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               All
             </button>
             <button
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "created" 
-                  ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-gray-500 text-gray-500 hover:text-gray-700"
+                  ? "border-[#719AF5] text-[#719AF5]" 
+                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("created")}
             >
+              <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11.2492 13.541V12.0966C11.2492 11.3304 10.9542 10.5956 10.4291 10.0538C9.90402 9.51205 9.19182 9.20768 8.44922 9.20768H4.24922C3.50661 9.20768 2.79442 9.51205 2.26932 10.0538C1.74422 10.5956 1.44922 11.3304 1.44922 12.0966V13.541M15.4492 13.541V12.0966C15.4488 11.4565 15.2423 10.8347 14.8622 10.3288C14.4821 9.82291 13.9499 9.46159 13.3492 9.30157M11.2492 0.634905C11.8515 0.794011 12.3853 1.15541 12.7666 1.66213C13.1478 2.16885 13.3547 2.79206 13.3547 3.43352C13.3547 4.07497 13.1478 4.69818 12.7666 5.2049C12.3853 5.71162 11.8515 6.07302 11.2492 6.23213M9.14922 3.4299C9.14922 5.02539 7.89562 6.31879 6.34922 6.31879C4.80282 6.31879 3.54922 5.02539 3.54922 3.4299C3.54922 1.83442 4.80282 0.541016 6.34922 0.541016C7.89562 0.541016 9.14922 1.83442 9.14922 3.4299Z" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               Created by you
             </button>
             <button
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "shared" 
-                  ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-gray-500 text-gray-500 hover:text-gray-700"
+                  ? "border-[#719AF5] text-[#719AF5]" 
+                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("shared")}
             >
+              <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5.17589 8.80273L9.72922 11.4561M9.72255 4.13606L5.17589 6.78939M13.4492 3.12939C13.4492 4.23396 12.5538 5.12939 11.4492 5.12939C10.3446 5.12939 9.44922 4.23396 9.44922 3.12939C9.44922 2.02482 10.3446 1.12939 11.4492 1.12939C12.5538 1.12939 13.4492 2.02482 13.4492 3.12939ZM5.44922 7.79606C5.44922 8.90063 4.55379 9.79606 3.44922 9.79606C2.34465 9.79606 1.44922 8.90063 1.44922 7.79606C1.44922 6.69149 2.34465 5.79606 3.44922 5.79606C4.55379 5.79606 5.44922 6.69149 5.44922 7.79606ZM13.4492 12.4627C13.4492 13.5673 12.5538 14.4627 11.4492 14.4627C10.3446 14.4627 9.44922 13.5673 9.44922 12.4627C9.44922 11.3582 10.3446 10.4627 11.4492 10.4627C12.5538 10.4627 13.4492 11.3582 13.4492 12.4627Z" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               Shared with you
             </button>
             <button
-              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-2 transition-colors ${
                 activeTab === "favorites" 
-                  ? "border-[#0F58F9] text-[#0F58F9]" 
-                  : "border-gray-500 text-gray-500 hover:text-gray-700"
+                  ? "border-[#719AF5] text-[#719AF5]" 
+                  : "border-[#8D8D95] text-[#B8B8BC] hover:text-gray-700"
               }`}
               onClick={() => setActiveTab("favorites")}
             >
+              <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.82013 1.41315C6.96675 0.961894 7.60516 0.961896 7.75178 1.41315L8.93544 5.0561C9.00102 5.25791 9.18908 5.39454 9.40127 5.39454H13.2317C13.7062 5.39454 13.9034 6.0017 13.5196 6.28059L10.4207 8.53206C10.249 8.65678 10.1772 8.87786 10.2428 9.07967L11.4264 12.7226C11.5731 13.1739 11.0566 13.5491 10.6727 13.2702L7.57385 11.0188C7.40218 10.894 7.16973 10.894 6.99806 11.0188L3.89918 13.2702C3.51532 13.5491 2.99884 13.1739 3.14546 12.7226L4.32913 9.07967C4.3947 8.87786 4.32287 8.65678 4.1512 8.53206L1.05232 6.28059C0.668457 6.0017 0.865736 5.39454 1.34021 5.39454H5.17064C5.38283 5.39454 5.57089 5.25791 5.63646 5.0561L6.82013 1.41315Z" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-width="0.979592"/>
+              </svg>
               Favorites
             </button>
           </nav>
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+          <div className="relative flex-1 left-20 min-w-0">
+            <Search className="absolute left-23 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
             <Input
               type="text"
               variant="shadow"
@@ -3767,16 +3780,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               className="pl-10"
             />
           </div>
-          <div className="flex items-center p-4 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
-            <ArrowDownUp size={16} />
+          <div className="flex items-center p-2.5 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+            <ArrowDownUp size={16} className="text-[#71717A]" />
           </div>
            <div className="flex items-center gap-4">
-           {viewMode === "grid" && (
             <DropdownMenu>
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
-                   className="flex border border-gray-200 items-center gap-2 text-sm font-semibold"
+                   className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
                  >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.1328 9.03369C11.1811 9.03369 12.0569 9.77835 12.2568 10.7681L12.3438 11.1997L12.2568 11.6313C12.0569 12.6211 11.1812 13.3667 10.1328 13.3667C9.08455 13.3666 8.20964 12.621 8.00977 11.6313L7.92188 11.1997L8.00977 10.7681C8.20972 9.77847 9.08462 9.03382 10.1328 9.03369ZM10.1328 9.1001C8.97322 9.10024 8.03334 10.0401 8.0332 11.1997C8.0332 12.3594 8.97312 13.3002 10.1328 13.3003C11.2926 13.3003 12.2334 12.3595 12.2334 11.1997C12.2333 10.04 11.2925 9.1001 10.1328 9.1001ZM1.59961 11.1665H7.4707L7.80566 11.1997L7.4707 11.2329H1.59961C1.58129 11.2328 1.56641 11.2181 1.56641 11.1997C1.56655 11.1815 1.58138 11.1666 1.59961 11.1665ZM12.7959 11.1665H14.3994C14.4177 11.1665 14.4325 11.1815 14.4326 11.1997C14.4326 11.2181 14.4178 11.2329 14.3994 11.2329H12.7959L12.46 11.1997L12.7959 11.1665ZM5.86621 2.6333C6.91458 2.6333 7.79034 3.37885 7.99023 4.36865L8.07617 4.79932L7.99023 5.23193C7.79027 6.22164 6.91452 6.96631 5.86621 6.96631C4.81796 6.96622 3.94211 6.22162 3.74219 5.23193L3.65527 4.79932L3.74219 4.36865C3.94207 3.37891 4.81792 2.63339 5.86621 2.6333ZM5.86621 2.69971C4.7065 2.69981 3.7666 3.64056 3.7666 4.80029C3.76678 5.95988 4.70661 6.8998 5.86621 6.8999C7.0259 6.8999 7.96662 5.95994 7.9668 4.80029C7.9668 3.64049 7.02601 2.69971 5.86621 2.69971ZM1.59961 4.76709H3.2041L3.53906 4.79932L3.2041 4.8335H1.59961C1.58137 4.83343 1.56658 4.81851 1.56641 4.80029C1.56641 4.78193 1.58126 4.76716 1.59961 4.76709ZM8.5293 4.76709H14.3994C14.4178 4.76709 14.4326 4.78191 14.4326 4.80029C14.4324 4.81852 14.4177 4.8335 14.3994 4.8335H8.5293L8.19238 4.79932L8.5293 4.76709Z" fill="#09090B" stroke="#18181B"/>
@@ -3784,8 +3796,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    {contentTypeFilter}
                  </Button>
                </DropdownMenuTrigger>
-               <DropdownMenuContent className="w-48">
-                 <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+               <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-gray-100">
+                 <DropdownMenuLabel className="px-4 py-3 border-b border-gray-100">
                    <p className="font-semibold text-sm text-gray-900">
                      {t("interface.filterBy", "Filter by")}
                    </p>
@@ -3793,27 +3805,35 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                  <DropdownMenuSeparator />
                  {contentTypeFilters.map((filter) => {
                    const Icon = contentTypeFilterIcons[filter];
+                   const isSelected = contentTypeFilter === filter;
                    return (
                      <DropdownMenuItem
                        key={filter}
                        onClick={() => setContentTypeFilter(filter)}
-                       className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                         contentTypeFilter === filter 
-                           ? "bg-blue-50 text-blue-700 font-semibold" 
-                           : "text-gray-700 hover:bg-gray-50"
+                       className={`flex items-center justify-between px-4 py-3 text-sm transition-colors ${
+                         isSelected 
+                           ? "bg-[#E0ECFF] text-[#3366FF] font-medium" 
+                           : "text-gray-900 hover:bg-gray-50"
                        }`}
                      >
-                       <Icon size={16} />
-                       {filter}
+                       <div className="flex items-center gap-3">
+                         <Icon 
+                           size={16} 
+                           className={isSelected ? "text-[#3366FF]" : "text-gray-600"} 
+                         />
+                         <span>{filter}</span>
+                       </div>
+                       {isSelected && (
+                         <Check size={16} className="text-[#3366FF]" />
+                       )}
                      </DropdownMenuItem>
                    );
                  })}
                </DropdownMenuContent>
              </DropdownMenu>
-            )}
 
             {/* Content Type Filter - only show in list view */}
-            {viewMode === "list" && (
+            {/* {viewMode === "list" && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button
@@ -3851,7 +3871,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   })}
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
+            )} */}
 
             {/* PDF Download Button - only show in list view */}
             {/* {viewMode === "list" && (

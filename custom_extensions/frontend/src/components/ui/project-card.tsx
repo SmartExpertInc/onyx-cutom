@@ -446,7 +446,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div 
           className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex justify-between"
         >
-          <div className="absolute top-0 left-0 w-[45%] h-full" style={{ backgroundColor: bgColor }} />
+          <div className="absolute top-0 left-0 w-[45%] h-full" style={{
+            backgroundColor: bgColor,
+            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+              displayTitle.split("").reverse().join("")
+            )}99)`,
+          }} />
           {/* Top row with badge positioned absolutely */}
           <div className="relative">
             {/* Private badge positioned absolutely in top-right */}
@@ -461,11 +466,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}
           </div>
           
-           {/* Truncated title in center */}
-           <div className="p-2 w-[55%]" style={{ backgroundColor: bgColor }}>
-            <div className="flex items-center justify-center flex-1 px-2">
+            {/* Truncated title in center */}
+            <div className="p-2 w-[55%]" style={{ backgroundColor: `${bgColor}80` }}>
+            <div className="flex items-center pt-2 justify-center flex-1 px-2">
              <h3 
-               className="font-semibold text-md text-center leading-tight line-clamp-3"
+               className="font-semibold text-md text-left leading-tight line-clamp-5"
                 style={{ color: "black" }}
              >
                {displayTitle}

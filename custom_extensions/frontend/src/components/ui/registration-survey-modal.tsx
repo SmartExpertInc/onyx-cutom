@@ -317,7 +317,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-full max-w-[1280px] min-h-[500px] max-h-[85vh] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto flex flex-col">
+          <div className="relative z-10 w-full max-w-[1280px] h-[85vh] min-h-[600px] max-h-[800px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto flex flex-col">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
             {/* ContentBuilder Logo */}
@@ -407,8 +407,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
           {/* Main Content */}
-          <ScrollArea className="flex-1">
-            <div className="px-8 pb-1">
+          <ScrollArea className="flex-1 overflow-y-auto">
+            <div className="px-8 pb-8">
           <div className={`transition-all duration-300 ease-in-out ${
             isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
           }`}>
@@ -645,7 +645,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </ScrollArea>
         
         {/* Navigation Buttons */}
-        <div className="px-8 pt-6 mb-15">
+        <div className="flex-shrink-0 px-8 pt-4 pb-6">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
             <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}
