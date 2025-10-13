@@ -34966,21 +34966,41 @@ async def smartdrive_move(
         onyx_user_id = await get_current_onyx_user_id(request)
         src = await _normalize_smartdrive_path(payload.get("from") or "/")
         dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        
+        logger.info(f"[SmartDrive] MOVE request: from={src} to={dst}")
+        
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        
         base = f"{base_url}/remote.php/dav/files/{username}"
+        
         # Ensure destination parent directory exists to avoid 403
         try:
             dst_parent = dst.rsplit("/", 1)[0] or "/"
             await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
         except Exception as _e:
-            logger.debug(f"[SmartDrive] ensure parent for MOVE failed (non-fatal): { _e }")
-        headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
+            logger.debug(f"[SmartDrive] ensure parent for MOVE failed (non-fatal): {_e}")
+        
+        # Build source and destination URLs
+        source_url = f"{base}{_encode_dav_path(user_root_prefix + src)}"
+        dest_url = f"{base}{_encode_dav_path(user_root_prefix + dst)}"
+        
+        headers = {"Destination": dest_url, "Overwrite": "T"}
+        
+        logger.info(f"[SmartDrive] MOVE: {source_url} -> Destination: {dest_url}")
+        
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("MOVE", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
-        if resp.status_code in (201, 204):
+            resp = await client.request("MOVE", source_url, auth=(username, password), headers=headers)
+        
+        logger.info(f"[SmartDrive] MOVE response: status={resp.status_code}")
+        
+        # WebDAV MOVE success codes: 201 (Created), 204 (No Content), 200 (OK)
+        if resp.status_code in (200, 201, 204):
             return {"success": True}
-        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+        
+        error_detail = _dav_error(resp)
+        logger.error(f"[SmartDrive] MOVE failed: status={resp.status_code}, detail={error_detail}")
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=error_detail)
     except HTTPException:
         raise
     except Exception as e:
@@ -34999,21 +35019,41 @@ async def smartdrive_copy(
         onyx_user_id = await get_current_onyx_user_id(request)
         src = await _normalize_smartdrive_path(payload.get("from") or "/")
         dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        
+        logger.info(f"[SmartDrive] COPY request: from={src} to={dst}")
+        
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        
         base = f"{base_url}/remote.php/dav/files/{username}"
+        
         # Ensure destination parent directory exists to avoid 403
         try:
             dst_parent = dst.rsplit("/", 1)[0] or "/"
             await _ensure_folder_tree(base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + dst_parent)), auth=(username, password))
         except Exception as _e:
-            logger.debug(f"[SmartDrive] ensure parent for COPY failed (non-fatal): { _e }")
-        headers = {"Destination": f"{base}{_encode_dav_path(user_root_prefix + dst)}", "Overwrite": "T"}
+            logger.debug(f"[SmartDrive] ensure parent for COPY failed (non-fatal): {_e}")
+        
+        # Build source and destination URLs
+        source_url = f"{base}{_encode_dav_path(user_root_prefix + src)}"
+        dest_url = f"{base}{_encode_dav_path(user_root_prefix + dst)}"
+        
+        headers = {"Destination": dest_url, "Overwrite": "T"}
+        
+        logger.info(f"[SmartDrive] COPY: {source_url} -> Destination: {dest_url}")
+        
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("COPY", f"{base}{_encode_dav_path(user_root_prefix + src)}", auth=(username, password), headers=headers)
-        if resp.status_code in (201, 204):
+            resp = await client.request("COPY", source_url, auth=(username, password), headers=headers)
+        
+        logger.info(f"[SmartDrive] COPY response: status={resp.status_code}")
+        
+        # WebDAV COPY success codes: 201 (Created), 204 (No Content), 200 (OK)
+        if resp.status_code in (200, 201, 204):
             return {"success": True}
-        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+        
+        error_detail = _dav_error(resp)
+        logger.error(f"[SmartDrive] COPY failed: status={resp.status_code}, detail={error_detail}")
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=error_detail)
     except HTTPException:
         raise
     except Exception as e:
