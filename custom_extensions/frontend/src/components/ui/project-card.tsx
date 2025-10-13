@@ -427,7 +427,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-md shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden h-[400px] ${
+    <Card className={`group rounded-md shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
@@ -446,46 +446,39 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div 
           className="relative h-32 shadow-md flex flex-row"
           style={{
-            background: `linear-gradient(to right, ${bgColor} 45%, ${bgColor}80 45%)`,
+            backgroundColor: bgColor,
+            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+              displayTitle.split("").reverse().join("")
+            )}99)`,
           }}
         >
           {/* Left section (45%) */}
           <div className="w-[45%] flex flex-col justify-between p-4">
             {/* Top row with badge positioned absolutely */}
-            <div className="relative">
-              {/* Private badge positioned absolutely in top-right */}
-              {project.isPrivate ? (
-                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                  <Lock size={18} className="text-gray-600" />
-                </div>
-              ) : (
-                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                  <Users size={18} className="text-gray-600" />
-                </div>
-              )}
-            </div>
-            
-            {/* Truncated title in center */}
-            <div className="flex items-center justify-center flex-1 px-2">
-              <h3 
-                className="font-semibold text-md text-center leading-tight line-clamp-2"
-                style={{ color: "white" }}
-              >
-                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
-              </h3>
-            </div>
           </div>
           
           {/* Right section (55%) with black title */}
           <div className="w-[55%] flex items-center justify-center p-4">
-            <h3 className="font-semibold text-lg text-center leading-tight text-black">
-              {displayTitle}
-            </h3>
+          <div className="relative">
+              {/* Private badge positioned absolutely in top-right */}
+              {project.isPrivate ? (
+                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1 py-1 border border-gray-200">
+                  <Lock size={18} className="text-gray-600" />
+                </div>
+              ) : (
+                <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1 py-1 border border-gray-200">
+                  <Users size={18} className="text-gray-600" />
+                </div>
+              )}
+            </div>
+             <h3 className="font-semibold text-md text-left leading-tight text-black line-clamp-5">
+               {displayTitle}
+             </h3>
           </div>
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white px-4 py-3 flex flex-col justify-between gap-2 h-48">
+        <div className="bg-white px-4 py-3 flex flex-col justify-between gap-2">
         {project.designMicroproductType && (
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
@@ -512,7 +505,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           <div className="h-1 w-full border-b border-[#E0E0E0]" />
           {/* Project title */}
-          <h3 className="font-bold text-gray-900 text-base leading-tight" title={displayTitle}>
+          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2" title={displayTitle}>
             {displayTitle}
           </h3>
           
