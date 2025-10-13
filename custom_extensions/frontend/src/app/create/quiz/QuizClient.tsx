@@ -13,6 +13,8 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -47,6 +49,10 @@ export default function QuizClient() {
   const [error, setError] = useState<string | null>(null);
   const [isCreatingFinal, setIsCreatingFinal] = useState(false);
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
 
   // Get parameters from URL
   const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(searchParams?.get("prompt") || ""));
@@ -993,6 +999,11 @@ export default function QuizClient() {
       });
 
       if (!response.ok) {
+        // Check for insufficient credits (402)
+        if (response.status === 402) {
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -1956,6 +1967,22 @@ export default function QuizClient() {
           <LoadingAnimation message={t('interface.generate.finalizingQuiz', 'Finalizing quiz...')} />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => setShowInsufficientCreditsModal(false)}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 

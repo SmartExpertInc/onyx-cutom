@@ -20,6 +20,8 @@ import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -234,6 +236,10 @@ export default function LessonPresentationClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
 
 
 
@@ -1033,6 +1039,11 @@ export default function LessonPresentationClient() {
 
       if (!res.ok) {
         const errorText = await res.text();
+        // Check for insufficient credits (402)
+        if (res.status === 402) {
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
         throw new Error(errorText || `HTTP ${res.status}`);
       }
 
@@ -2138,6 +2149,22 @@ export default function LessonPresentationClient() {
           <LoadingAnimation message="Finalizing lesson..." />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => setShowInsufficientCreditsModal(false)}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 

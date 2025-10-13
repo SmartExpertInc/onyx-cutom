@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -294,6 +296,10 @@ export default function CourseOutlineClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
   
   // Track whether user has manually edited the preview content
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -821,7 +827,14 @@ export default function CourseOutlineClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        // Check for insufficient credits (402)
+        if (res.status === 402) {
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
+        throw new Error(await res.text());
+      }
 
       let data;
       
@@ -1799,6 +1812,22 @@ export default function CourseOutlineClient() {
         <LoadingAnimation message={t('interface.courseOutline.finalizingProduct', 'Finalizing product...')} />
       </div>
     )}
+    
+    {/* Insufficient Credits Modal */}
+    <InsufficientCreditsModal
+      isOpen={showInsufficientCreditsModal}
+      onClose={() => setShowInsufficientCreditsModal(false)}
+      onBuyMore={() => {
+        setShowInsufficientCreditsModal(false);
+        setShowAddonsModal(true);
+      }}
+    />
+    
+    {/* Add-ons Modal */}
+    <ManageAddonsModal 
+      isOpen={showAddonsModal} 
+      onClose={() => setShowAddonsModal(false)} 
+    />
     </>
   );
 } 

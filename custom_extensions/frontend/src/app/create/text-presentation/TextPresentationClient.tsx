@@ -14,6 +14,8 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -209,6 +211,10 @@ export default function TextPresentationClient() {
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
 
   // Display mode state
   const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
@@ -1150,6 +1156,11 @@ export default function TextPresentationClient() {
 
       if (!response.ok) {
         const errorText = await response.text();
+        // Check for insufficient credits (402)
+        if (response.status === 402) {
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
         throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
@@ -2148,6 +2159,22 @@ export default function TextPresentationClient() {
           <LoadingAnimation message={t('interface.generate.finalizingPresentation', 'Finalizing presentation...')} />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => setShowInsufficientCreditsModal(false)}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 
