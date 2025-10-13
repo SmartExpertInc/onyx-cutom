@@ -8823,7 +8823,122 @@ async def auto_provision_nextcloud_user(onyx_user_id: str, pool: asyncpg.Pool) -
         return False
 
 
-async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool) -> UserCredits:
+async def provision_smartdrive_for_new_user(onyx_user_id: str, user_name: str, pool: asyncpg.Pool):
+    """Background task to provision SmartDrive account for a new user"""
+    try:
+        async with pool.acquire() as conn:
+            # Create SmartDrive account placeholder for new user
+            try:
+                await conn.execute(
+                    """
+                    INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (onyx_user_id) DO NOTHING
+                    """,
+                    onyx_user_id,
+                    '{}',  # Empty JSON cursor
+                    datetime.now(timezone.utc),
+                    datetime.now(timezone.utc)
+                )
+                logger.info(f"Created SmartDrive account placeholder for new user: {onyx_user_id}")
+                
+                # Auto-provision Nextcloud user account and clean up default files
+                # This used to happen when users first visited SmartDrive tab, now happens during registration
+                base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
+                nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
+                nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
+                
+                if nc_admin_user and nc_admin_pass:
+                    import secrets
+                    import re as _re
+                    
+                    # Generate Nextcloud user ID and password
+                    raw_id = str(onyx_user_id)
+                    sanitized = _re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
+                    userid = f"sd_{sanitized[:24]}"
+                    new_password = secrets.token_urlsafe(16)
+
+                    # Normalize base URL to https if needed
+                    from urllib.parse import urlparse
+                    parsed = urlparse(base_url)
+                    if parsed.scheme == "http":
+                        base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
+                    else:
+                        base_url = (base_url or "").rstrip("/")
+                    ocs_base = base_url
+
+                    # Create Nextcloud user
+                    headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
+                    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                        create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
+                        create_resp = await client.post(
+                            create_url,
+                            data={"userid": userid, "password": new_password},
+                            headers=headers,
+                            auth=(nc_admin_user, nc_admin_pass)
+                        )
+                        
+                        # Parse OCS response
+                        ocs_ok = False
+                        reset_needed = False
+                        try:
+                            j = create_resp.json()
+                            sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
+                            if sc == 100:
+                                ocs_ok = True
+                            elif sc == 102:
+                                reset_needed = True
+                        except Exception:
+                            pass
+                            
+                        if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
+                            # User exists, reset password
+                            update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
+                            update_resp = await client.put(
+                                update_url,
+                                data={"key": "password", "value": new_password},
+                                headers=headers,
+                                auth=(nc_admin_user, nc_admin_pass)
+                            )
+                            if update_resp.status_code not in (200, 201, 204):
+                                logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code}")
+                        elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
+                            logger.error(f"Failed to create Nextcloud user: {create_resp.status_code}")
+                            raise Exception("Failed to create Nextcloud user")
+
+                    # Save encrypted credentials
+                    encrypted = encrypt_password(new_password)
+                    await conn.execute(
+                        """
+                        UPDATE smartdrive_accounts
+                        SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                        WHERE onyx_user_id = $1
+                        """,
+                        onyx_user_id, userid, encrypted, base_url, datetime.now(timezone.utc)
+                    )
+
+                    # Clean default skeleton files using comprehensive cleanup function
+                    try:
+                        deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
+                    except Exception as cleanup_error:
+                        logger.error(f"[SmartDrive] Failed to cleanup default files for user {userid}: {cleanup_error}")
+                        # Don't fail the whole process if cleanup fails
+
+                    logger.info(f"[SmartDrive] Auto-provisioned Nextcloud account for new user: {onyx_user_id} -> {userid}")
+                else:
+                    logger.warning(f"Nextcloud admin credentials not configured, SmartDrive account will need manual setup for user: {onyx_user_id}")
+                    
+            except Exception as e:
+                logger.error(f"Error creating/provisioning SmartDrive account for new user {onyx_user_id}: {e}")
+                # Don't raise exception to avoid blocking user creation
+            
+            logger.info(f"[SmartDrive Background] Completed SmartDrive provisioning for user {onyx_user_id} ({user_name})")
+    except Exception as e:
+        logger.error(f"[SmartDrive Background] Fatal error in SmartDrive provisioning for {onyx_user_id}: {e}")
+
+
+async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool, background_tasks: BackgroundTasks = None) -> UserCredits:
     """Get user credits or create if doesn't exist"""
     async with pool.acquire() as conn:
         # Try to get existing credits
@@ -8845,113 +8960,16 @@ async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: as
         # Assign default "Normal (HR)" user type to new users
         await assign_default_user_type(onyx_user_id, conn)
         
-        # Create SmartDrive account placeholder for new user
-        try:
-            await conn.execute(
-                """
-                INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (onyx_user_id) DO NOTHING
-                """,
-                onyx_user_id,
-                '{}',  # Empty JSON cursor
-                datetime.now(timezone.utc),
-                datetime.now(timezone.utc)
-            )
-            logger.info(f"Created SmartDrive account placeholder for new user: {onyx_user_id}")
-            
-            # Auto-provision Nextcloud user account and clean up default files
-            # This used to happen when users first visited SmartDrive tab, now happens during registration
-            base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
-            nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
-            nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
-            
-            if nc_admin_user and nc_admin_pass:
-                import secrets
-                import re as _re
-                
-                # Generate Nextcloud user ID and password
-                raw_id = str(onyx_user_id)
-                sanitized = _re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
-                userid = f"sd_{sanitized[:24]}"
-                new_password = secrets.token_urlsafe(16)
-
-                # Normalize base URL to https if needed
-                from urllib.parse import urlparse
-                parsed = urlparse(base_url)
-                if parsed.scheme == "http":
-                    base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
-                else:
-                    base_url = (base_url or "").rstrip("/")
-                ocs_base = base_url
-
-                # Create Nextcloud user
-                headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
-                async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-                    create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
-                    create_resp = await client.post(
-                        create_url,
-                        data={"userid": userid, "password": new_password},
-                        headers=headers,
-                        auth=(nc_admin_user, nc_admin_pass)
-                    )
-                    
-                    # Parse OCS response
-                    ocs_ok = False
-                    reset_needed = False
-                    try:
-                        j = create_resp.json()
-                        sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
-                        if sc == 100:
-                            ocs_ok = True
-                        elif sc == 102:
-                            reset_needed = True
-                    except Exception:
-                        pass
-                        
-                    if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
-                        # User exists, reset password
-                        update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
-                        update_resp = await client.put(
-                            update_url,
-                            data={"key": "password", "value": new_password},
-                            headers=headers,
-                            auth=(nc_admin_user, nc_admin_pass)
-                        )
-                        if update_resp.status_code not in (200, 201, 204):
-                            logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code}")
-                    elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
-                        logger.error(f"Failed to create Nextcloud user: {create_resp.status_code}")
-                        raise Exception("Failed to create Nextcloud user")
-
-                # Save encrypted credentials
-                encrypted = encrypt_password(new_password)
-                await conn.execute(
-                    """
-                    UPDATE smartdrive_accounts
-                    SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
-                    WHERE onyx_user_id = $1
-                    """,
-                    onyx_user_id, userid, encrypted, base_url, datetime.now(timezone.utc)
-                )
-
-                # Clean default skeleton files using comprehensive cleanup function
-                try:
-                    deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                    logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
-                except Exception as cleanup_error:
-                    logger.error(f"[SmartDrive] Failed to cleanup default files for user {userid}: {cleanup_error}")
-                    # Don't fail the whole process if cleanup fails
-
-                logger.info(f"[SmartDrive] Auto-provisioned Nextcloud account for new user: {onyx_user_id} -> {userid}")
-            else:
-                logger.warning(f"Nextcloud admin credentials not configured, SmartDrive account will need manual setup for user: {onyx_user_id}")
-                
-        except Exception as e:
-            logger.error(f"Error creating/provisioning SmartDrive account for new user {onyx_user_id}: {e}")
-            # Don't raise exception to avoid blocking user creation
+        logger.info(f"Created credits and assigned user type for new user {onyx_user_id} ({user_name}) with 100 credits")
         
-        logger.info(f"Auto-migrated new user {onyx_user_id} ({user_name}) with 100 credits, Normal (HR) user type, and SmartDrive account")
+        # Schedule SmartDrive provisioning in background if BackgroundTasks available
+        if background_tasks:
+            background_tasks.add_task(provision_smartdrive_for_new_user, onyx_user_id, user_name, pool)
+            logger.info(f"[SmartDrive] Scheduled background provisioning for new user: {onyx_user_id}")
+        else:
+            # Fallback: provision inline if no background tasks (e.g., during migration)
+            await provision_smartdrive_for_new_user(onyx_user_id, user_name, pool)
+        
         return UserCredits(**dict(new_credits_row))
 
 def calculate_product_credits(product_type: str, content_data: dict = None) -> int:
@@ -28950,6 +28968,7 @@ async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), o
 @app.get("/api/custom/credits/me", response_model=UserCredits)
 async def get_my_credits(
     request: Request,
+    background_tasks: BackgroundTasks,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Get current user's credit balance (auto-creates if new user)"""
@@ -28957,7 +28976,8 @@ async def get_my_credits(
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # This will auto-create the user if they don't exist yet
-        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        # SmartDrive provisioning happens in background to return credits faster
+        credits = await get_or_create_user_credits(onyx_user_id, "User", pool, background_tasks)
         return credits
     except Exception as e:
         logger.error(f"Error getting user credits: {e}")
