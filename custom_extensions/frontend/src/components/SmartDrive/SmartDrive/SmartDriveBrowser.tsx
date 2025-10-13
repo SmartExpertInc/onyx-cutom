@@ -257,9 +257,27 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		void loadPickerDirs(currentPath || '/');
 	};
 
+	// Start move/copy for explicit paths
+	const doMoveCopyForPaths = (op: 'move' | 'copy', paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		setPickerOp(op);
+		setPickerPath(currentPath || '/');
+		setPickerSelected(paths);
+		setPickerOpen(true);
+		void loadPickerDirs(currentPath || '/');
+	};
+
 	const openRename = () => {
 		if (selected.size !== 1) return;
 		const p = Array.from(selected)[0];
+		setRenameFromPath(p);
+		setRenameNewName(p.split('/').pop() || '');
+		setRenameOpen(true);
+	};
+
+	// Open rename for a specific path (without relying on selection)
+	const openRenameForPath = (p: string) => {
+		if (!p) return;
 		setRenameFromPath(p);
 		setRenameNewName(p.split('/').pop() || '');
 		setRenameOpen(true);
@@ -821,17 +839,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						</div>
 						<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
 							{filtered.map((it, idx) => {
-						const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-							switch(action) {
-								case 'rename': openRenameForPath(it.path); break;
-								case 'move': doMoveCopyForPaths('move', [it.path]); break;
-								case 'copy': doMoveCopyForPaths('copy', [it.path]); break;
-								case 'delete': delPaths([it.path]); break;
-								case 'download': if (it.type==='file') void downloadPath(it.path); break;
-							}
-						};
+								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+									switch(action) {
+										case 'rename': openRenameForPath(it.path); break;
+										case 'move': doMoveCopyForPaths('move', [it.path]); break;
+										case 'copy': doMoveCopyForPaths('copy', [it.path]); break;
+										case 'delete': delPaths([it.path]); break;
+										case 'download': if (it.type === 'file') void downloadPath(it.path); break;
+									}
+								};
 								
-					return (
+								return (
 						<div
 							key={it.path}
 							className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${dragOverPath===it.path ? 'bg-blue-100/60' : 'hover:bg-blue-50/50'}`}
@@ -905,8 +923,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							data-sd-row
 						>
 							<div className="w-8" data-sd-interactive onMouseDown={(e)=>e.stopPropagation()} onClick={(e)=>e.stopPropagation()}>
-								<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-							</div>
+											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
+										</div>
 										<div className="w-5 h-5">
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 										</div>
@@ -940,17 +958,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="w-44 text-right text-sm text-slate-700">{it.modified ? formatDate(it.modified) : ''}</div>
 										<div className="w-8 flex justify-end">
 											<DropdownMenu>
-									<DropdownMenuTrigger asChild>
+												<DropdownMenuTrigger asChild>
 										<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()} onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
 														<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
 													</Button>
 												</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()}>
-										<DropdownMenuItem onSelect={()=> handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-										<DropdownMenuItem onSelect={()=> handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-										<DropdownMenuItem onSelect={()=> handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-										<DropdownMenuItem onSelect={()=> handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={()=> handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('rename');}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('delete');}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('download');}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</div>
@@ -1024,24 +1042,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			</Dialog>
 		</div>
 	);
-};
-
-// Start move/copy for explicit paths
-const doMoveCopyForPaths = (op: 'move' | 'copy', paths: string[]) => {
-    if (!paths || paths.length === 0) return;
-    setPickerOp(op);
-    setPickerPath(currentPath || '/');
-    setPickerSelected(paths);
-    setPickerOpen(true);
-    void loadPickerDirs(currentPath || '/');
-};
-
-// Open rename for a specific path (without relying on selection)
-const openRenameForPath = (p: string) => {
-    if (!p) return;
-    setRenameFromPath(p);
-    setRenameNewName(p.split('/').pop() || '');
-    setRenameOpen(true);
 };
 
 function formatSize(bytes?: number | null): string {
