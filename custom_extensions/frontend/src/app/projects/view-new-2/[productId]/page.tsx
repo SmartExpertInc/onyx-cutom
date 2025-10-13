@@ -12,6 +12,7 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
+import { UserDropdown } from '@/components/UserDropdown';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -874,71 +875,88 @@ export default function ProductViewNewPage() {
       }}
     >
       <div className="max-w-7xl mx-auto flex flex-col">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <header className="sticky top-0 z-50 h-16 bg-white mb-6 flex flex-row justify-between items-center gap-4 p-[14px] -mx-4 md:-mx-8 px-[14px] md:px-8" style={{ borderBottom: '1px solid #E4E4E7' }}>
           <div className="flex items-center gap-x-4">
             <button
-              onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[8px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-              style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-            >
-              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {t('interface.viewNew.back', 'Back')}
-            </button>
-
-            <button
               onClick={() => { if (typeof window !== 'undefined') window.location.href = '/projects'; }}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              className="flex items-center justify-center bg-white rounded-md h-9 px-3 transition-all duration-200 hover:shadow-lg cursor-pointer"
               style={{
-                color: '#0F58F9',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
+                border: '1px solid #E4E4E7'
               }}
             >
-              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
-              {t('interface.viewNew.openProducts', 'Open Products')}
+              <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.6963 11.831L10.5205 10.4425C10.7998 9.65925 10.7368 8.78439 10.3321 8.04194L12.1168 6.47327C13.0972 7.07503 14.4037 6.95757 15.256 6.11902C16.248 5.143 16.248 3.56044 15.256 2.58438C14.2639 1.60832 12.6553 1.60832 11.6633 2.58438C10.8818 3.35329 10.7164 4.4981 11.1659 5.42681L9.38103 6.99572C8.52665 6.41397 7.43676 6.31227 6.50015 6.69182L4.44195 3.90514C5.18026 2.95143 5.10743 1.58407 4.22185 0.712658C3.25607 -0.237553 1.69021 -0.237553 0.724374 0.712658C-0.241458 1.66292 -0.241458 3.20358 0.724374 4.15379C1.41786 4.8361 2.42044 5.02835 3.28829 4.73105L5.34675 7.51798C4.33025 8.69104 4.38442 10.4545 5.5115 11.5633C5.53315 11.5846 5.55541 11.6046 5.57772 11.6252L3.58345 15.0689C2.75458 14.8761 1.84648 15.0971 1.20005 15.7332C0.207993 16.7093 0.207993 18.292 1.20005 19.268C2.1921 20.244 3.80065 20.244 4.79266 19.268C5.77434 18.3022 5.78405 16.7428 4.82279 15.7645L6.81691 12.3211C7.81832 12.604 8.93798 12.37 9.74277 11.6194L11.9207 13.0089C11.7816 13.6442 11.9624 14.3339 12.4642 14.8276C13.2504 15.601 14.5247 15.601 15.3107 14.8276C16.0968 14.0542 16.0968 12.8004 15.3107 12.027C14.598 11.326 13.4839 11.2606 12.6963 11.831ZM2.06068 16.9455C2.01235 16.9994 1.96687 17.0503 1.92225 17.0941C1.86665 17.1488 1.79068 17.2154 1.69641 17.244C1.57799 17.28 1.45699 17.2483 1.36425 17.1571C1.12173 16.9185 1.21448 16.4671 1.58003 16.1076C1.94568 15.7479 2.40428 15.6566 2.64689 15.8953C2.73958 15.9864 2.77175 16.1055 2.73516 16.2221C2.70609 16.3148 2.6384 16.3898 2.58286 16.4443C2.53824 16.4881 2.4865 16.5328 2.43167 16.5804C2.3684 16.6352 2.30284 16.6918 2.2383 16.7552C2.17381 16.8187 2.11633 16.8832 2.06068 16.9455ZM12.0433 2.95853C12.4088 2.59888 12.8675 2.50753 13.11 2.74618C13.2027 2.83733 13.235 2.95643 13.1983 3.07303C13.1692 3.16583 13.1015 3.24073 13.046 3.29534C13.0015 3.33909 12.9498 3.38384 12.8949 3.43134C12.8315 3.48619 12.7661 3.54279 12.7015 3.60624C12.6369 3.66979 12.5794 3.73434 12.5236 3.79664C12.4755 3.85044 12.4298 3.90149 12.3854 3.94529C12.3299 3.99994 12.2537 4.06654 12.1595 4.09519C12.0409 4.13114 11.92 4.09949 11.8273 4.00824C11.5849 3.76959 11.6777 3.31814 12.0433 2.95853ZM1.56229 1.89272C1.51513 1.94522 1.47087 1.99482 1.42772 2.03747C1.3737 2.09062 1.2996 2.15537 1.20772 2.18342C1.09241 2.21832 0.974611 2.18757 0.884304 2.09887C0.648195 1.86652 0.738654 1.42707 1.0946 1.07696C1.45049 0.726758 1.89694 0.637857 2.13315 0.870209C2.22341 0.95901 2.25486 1.07496 2.21914 1.18836C2.19063 1.27871 2.12492 1.35161 2.07085 1.40466C2.02745 1.44737 1.97703 1.49102 1.92367 1.53707C1.86203 1.59037 1.7982 1.64557 1.73543 1.70737C1.67257 1.76922 1.61641 1.83212 1.56229 1.89272ZM5.96558 7.78808C6.40227 7.35838 6.95001 7.24938 7.23979 7.53443C7.35057 7.64348 7.38904 7.78563 7.34539 7.92493C7.31042 8.03584 7.22967 8.12519 7.1633 8.19054C7.11009 8.24289 7.04819 8.29614 6.98274 8.35294C6.90722 8.41849 6.82896 8.48604 6.75181 8.56189C6.67467 8.63784 6.60596 8.71479 6.53949 8.78924C6.48176 8.85359 6.42743 8.91449 6.37427 8.96674C6.3079 9.03224 6.21709 9.11155 6.10437 9.14585C5.96289 9.1888 5.81835 9.15105 5.70741 9.042C5.41784 8.75669 5.52888 8.21779 5.96558 7.78808ZM13.0368 13.1053C12.9927 13.1486 12.9323 13.2014 12.8577 13.2241C12.7639 13.2525 12.6682 13.2275 12.5946 13.1552C12.4023 12.9662 12.4758 12.6086 12.7656 12.3236C13.0551 12.0386 13.4186 11.9663 13.6108 12.1555C13.6841 12.2276 13.7097 12.322 13.6807 12.4144C13.6577 12.488 13.604 12.5472 13.56 12.5905C13.5248 12.6251 13.4838 12.6606 13.4404 12.6982C13.3904 12.7415 13.3383 12.7865 13.2872 12.8368C13.2361 12.8871 13.1903 12.9381 13.1464 12.9876C13.1081 13.0303 13.072 13.0706 13.0368 13.1053Z" fill="#0F58F9"/>
+              </svg>
             </button>
+            <div className="flex items-center gap-2">
+              <svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 6.44444C13 5.2657 12.5364 4.13524 11.7113 3.30175C10.8861 2.46825 9.76695 2 8.6 2H2V18.6667H9.7C10.5752 18.6667 11.4146 19.0179 12.0335 19.643C12.6523 20.2681 13 21.1159 13 22M13 6.44444V22M13 6.44444C13 5.2657 13.4636 4.13524 14.2887 3.30175C15.1139 2.46825 16.233 2 17.4 2H24V18.6667H16.3C15.4248 18.6667 14.5854 19.0179 13.9665 19.643C13.3477 20.2681 13 21.1159 13 22" stroke="#719AF5" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <h1 className="text-[#191D30] font-semibold text-[24px] leading-none">
+                {(() => {
+                  const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+                  return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
+                })()}
+              </h1>
+            </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* Smart Edit button for Course Outline */}
+            {/* AI Agent button for Course Outline */}
             {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                 style={{
-                  backgroundColor: '#8B5CF6',
-                  color: 'white',
+                  backgroundColor: '#FFFFFF',
+                  color: '#0F58F9',
                   fontSize: '14px',
                   fontWeight: '600',
                   lineHeight: '140%',
-                  letterSpacing: '0.05em'
+                  letterSpacing: '0.05em',
+                  border: '1px solid #0F58F9'
                 }}
-                title="Smart edit with AI"
+                title="AI Agent"
               >
-                <Sparkles size={14} style={{ color: 'white' }} /> {t('actions.smartEdit', 'Smart Edit')}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {t('actions.aiAgent', 'AI Agent')}
               </button>
             )}
+
+            {/* Export button */}
+            <button
+              className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+              style={{
+                backgroundColor: '#0F58F9',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
+              title="Export"
+            >
+              <svg width="9" height="12" viewBox="0 0 9 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.74154 8.67253V1.18945M4.74154 8.67253L1.53451 5.4655M4.74154 8.67253L7.94857 5.4655M8.48307 10.8105H1" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {t('actions.export', 'Export')}
+            </button>
 
             {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && scormEnabled && (
               <ToastProvider>
                 <ScormDownloadButton
                   courseOutlineId={Number(productId)}
                   label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
-                  className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
+                  className="rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
                   style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
                 />
               </ToastProvider>
             )}
+
+            {/* User Dropdown */}
+            <UserDropdown />
 
             {/* Download PDF button for Course Outline
             <button
@@ -957,7 +975,7 @@ export default function ProductViewNewPage() {
               <Download size={14} style={{ color: 'white' }} /> Download PDF
             </button> */}
           </div>
-        </div>
+        </header>
 
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
