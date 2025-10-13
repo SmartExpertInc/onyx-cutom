@@ -1025,11 +1025,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							<Button variant="link" className="px-0" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>Up one level</Button>
 							<span className="truncate">{pickerPath}</span>
 						</div>
-						<div className="border rounded-md max-h-64 overflow-y-auto">
+						<div className="border border-gray-200 rounded-md max-h-64 overflow-y-auto">
 							{pickerLoading ? (
 								<div className="p-4 text-center text-slate-600">Loading…</div>
 							) : (
-								<div className="divide-y">
+								<div className="divide-y divide-gray-200">
 									{pickerPath !== '/' && (
 										<div className="px-3 py-2 hover:bg-blue-50 cursor-pointer" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>..</div>
 									)}

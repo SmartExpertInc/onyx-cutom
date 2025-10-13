@@ -435,10 +435,14 @@ export default function CreateFromSpecificFilesPage() {
     <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
+        <div className="absolute left-8 top-1/2 transform -translate-y-1/2 flex items-center gap-4">
           <Link
             href="/create"
             className="group flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            onClick={(e) => {
+              e.preventDefault();
+              router.push('/create');
+            }}
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
             {t('interface.back', 'Back')}
