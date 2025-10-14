@@ -348,6 +348,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                         <div className="ml-3">
                           <p className="text-sm text-amber-800 font-medium"><strong>Important Notes</strong></p>
                           <div className="mt-2 text-sm text-amber-700">
+                            <Text className="font-semibold text-lg"> How it works? </Text>
                             {children}
                           </div>
                         </div>
@@ -359,9 +360,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'notion':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.notion.title', 'How it works?')}
-                          </Text>
                           <Text>
                             The Notion connector uses the Notion search API to fetch all pages that the connector has access to within a workspace. For follow up indexing runs, the connector only retrieves pages that have been updated since the last indexing attempt.
                           </Text>
@@ -400,9 +398,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'google_drive':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.google_drive.title', 'Setting up the Google Drive Connector')}
+                          <Text>
+                            The Google Drive connector indexes documents in your Drive. Currently, it supports:
                           </Text>
+                          <Bullets items={[
+                            <p>Google: Docs, Sheets, and Slides</p>,
+                            <p>Microsoft: Word, Excel, and PowerPoint</p>,
+                            <p>PDF, CSV, and TXT files</p>,
+                            <p>Certain other document, plaintext, and image files</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your Google Drive, you need to create a Google Cloud service account and configure it properly:
                           </Text>
