@@ -963,21 +963,65 @@ export default function QuizClient() {
                 const titleMatch = accumulatedText.match(/"quizTitle"\s*:\s*"([^"]+)"/);
                 const title = titleMatch ? titleMatch[1] : "Generating Quiz...";
                 
-                // Count questions being generated
-                const questionMatches = accumulatedText.match(/"question_text"\s*:\s*"([^"]+)"/g);
-                const questionCount = questionMatches ? questionMatches.length : 0;
+                // Extract complete question objects with all fields including explanations
+                const questionObjects = [];
+                const questionPattern = /\{[^}]*"question_type"[^}]*"question_text"[^}]*\}/g;
+                const questionMatches = accumulatedText.match(questionPattern);
+                
+                if (questionMatches) {
+                  questionMatches.forEach((questionStr) => {
+                    try {
+                      const questionObj = JSON.parse(questionStr);
+                      if (questionObj.question_text) {
+                        questionObjects.push(questionObj);
+                      }
+                    } catch (e) {
+                      // Skip malformed question objects
+                    }
+                  });
+                }
+                
+                const questionCount = questionObjects.length;
                 
                 // Create simple markdown preview
                 displayText = `# ${title}\n\n`;
                 if (questionCount > 0) {
                   displayText += `**Generating ${questionCount} question${questionCount > 1 ? 's' : ''}...**\n\n`;
                   
-                  // Show partial questions if we can extract them
-                  questionMatches?.forEach((match, index) => {
-                    const questionText = match.match(/"question_text"\s*:\s*"([^"]+)"/)?.[1];
-                    if (questionText) {
-                      displayText += `${index + 1}. **${questionText}**\n\n`;
+                  // Show partial questions with all available fields
+                  questionObjects.forEach((question, index) => {
+                    displayText += `${index + 1}. **${question.question_text}**\n\n`;
+                    
+                    // Add options if available
+                    if (question.options && Array.isArray(question.options)) {
+                      question.options.forEach((opt: any) => {
+                        displayText += `${opt.id}) ${opt.text}\n`;
+                      });
+                      displayText += `\n`;
                     }
+                    
+                    // Add correct answer if available
+                    if (question.correct_option_id) {
+                      displayText += `**Correct:** ${question.correct_option_id}\n`;
+                    } else if (question.correct_option_ids) {
+                      displayText += `**Correct:** ${question.correct_option_ids.join(', ')}\n`;
+                    } else if (question.correct_matches) {
+                      displayText += `**Correct matches:** ${JSON.stringify(question.correct_matches)}\n`;
+                    } else if (question.correct_order) {
+                      displayText += `**Correct order:** ${question.correct_order.join(' → ')}\n`;
+                    } else if (question.acceptable_answers) {
+                      displayText += `**Acceptable answers:**\n`;
+                      question.acceptable_answers.forEach((ans: string) => {
+                        displayText += `- ${ans}\n`;
+                      });
+                    }
+                    
+                    // Add explanation if available
+                    if (question.explanation) {
+                      displayText += `\n**Explanation:** ${question.explanation}\n`;
+                    }
+                    
+                    displayText += '\n---\n\n';
                   });
                 } else {
                   displayText += "**Generating questions...**\n\n";
