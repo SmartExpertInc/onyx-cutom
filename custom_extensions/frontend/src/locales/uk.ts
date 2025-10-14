@@ -1570,6 +1570,8 @@ export const uk = {
       lessonsTotal: "уроків всього",
       collapseAll: "Згорнути Все",
       lesson: "урок",
+      lessonsGenitiveSingle: "уроки",
+      lessonsGenitivePlural: "уроків",
       lessons: "Уроки",
       created: "створено",
       create: "Створити",

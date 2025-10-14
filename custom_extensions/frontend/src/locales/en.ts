@@ -1475,6 +1475,8 @@ export const en = {
       lessonsTotal: "lessons total",
       collapseAll: "Collapse All",
       lesson: "lesson",
+      lessonsGenitiveSingle: "lessons",
+      lessonsGenitivePlural: "lessons",
       lessons: "lessons",
       created: "created",
       create: "Create",

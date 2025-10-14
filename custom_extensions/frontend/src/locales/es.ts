@@ -1562,6 +1562,8 @@ export const es = {
       lessonsTotal: "lecciones en total",
       collapseAll: "Contraer Todo",
       lesson: "lección",
+      lessonsGenitiveSingle: "lecciones",
+      lessonsGenitivePlural: "lecciones",
       lessons: "lecciones",
       created: "creado",
       create: "Crear",

@@ -1096,7 +1096,13 @@ export default function ProductViewNewPage() {
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
                       </button>
                         <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full">
-                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? t('interface.viewNew.lesson', 'lesson') : t('interface.viewNew.lessons', 'lessons')}
+                          {section.lessons?.length || 0} {(() => {
+                            const count = section.lessons?.length || 0;
+                            const form = getSlavicPluralForm(count);
+                            if (form === 'one') return t('interface.viewNew.lesson', 'lesson');
+                            if (form === 'few') return t('interface.viewNew.lessonsGenitiveSingle', 'lessons');
+                            return t('interface.viewNew.lessonsGenitivePlural', 'lessons');
+                          })()}
                         </span>
                     </div>
                   )}

@@ -1539,6 +1539,8 @@ export const ru = {
       lessonsTotal: "уроков всего",
       collapseAll: "Свернуть Все",
       lesson: "урок",
+      lessonsGenitiveSingle: "урока",
+      lessonsGenitivePlural: "уроков",
       lessons: "Уроки",
       created: "создано",
       create: "Создать",
