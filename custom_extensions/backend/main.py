@@ -702,6 +702,11 @@ class UserCredits(BaseModel):
     updated_at: datetime
     model_config = {"from_attributes": True}
 
+# Response model for admin credits list with enriched identity fields
+class AdminUserCredits(UserCredits):
+    email: Optional[str] = None
+    display_identity: Optional[str] = None
+
 class CreditTransactionRequest(BaseModel):
     user_email: str
     amount: int
@@ -30551,7 +30556,7 @@ async def cancel_subscription(
         logger.error(f"Error canceling subscription: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to cancel subscription")
 
-@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
+@app.get("/api/custom/admin/credits/users", response_model=List[AdminUserCredits])
 async def list_all_user_credits(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
@@ -30717,7 +30722,7 @@ async def list_all_user_credits(
                     )
                     db_join_table = None
 
-            enriched: list[UserCredits] = []
+            enriched: list[AdminUserCredits] = []
             stats_total = 0
             stats_from_db = 0
             stats_from_api = 0
@@ -30748,7 +30753,7 @@ async def list_all_user_credits(
                         stats_from_db += 1 if display_identity == resolved_email else stats_from_cache
                 else:
                     unresolved.append(d["onyx_user_id"])
-                enriched.append(UserCredits(**d))
+                enriched.append(AdminUserCredits(**d))
 
             try:
                 logger.info(
