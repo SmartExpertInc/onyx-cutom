@@ -348,7 +348,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                         <div className="ml-3">
                           <p className="text-sm text-amber-800 font-medium"><strong>Important Notes</strong></p>
                           <div className="mt-2 text-sm text-amber-700">
-                            <Text className="font-semibold text-lg"> How it works? </Text>
                             {children}
                           </div>
                         </div>
@@ -360,6 +359,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'notion':
                       return (
                         <div>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
                             The Notion connector uses the Notion search API to fetch all pages that the connector has access to within a workspace. For follow up indexing runs, the connector only retrieves pages that have been updated since the last indexing attempt.
                           </Text>
@@ -398,6 +398,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'google_drive':
                       return (
                         <div>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
                             The Google Drive connector indexes documents in your Drive. Currently, it supports:
                           </Text>
@@ -450,8 +451,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'slack':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.slack.title', 'Setting up the Slack Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Slack connector indexes all public channels for a given workspace.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Slack workspace, you need to create a Slack app and configure it with the necessary permissions:
@@ -502,9 +504,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'github':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.github.title', 'Setting up the GitHub Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Github Connector picks up all of the Pull Requests and Issues in a specified repository.
                           </Text>
+                          <Bullets items={[
+                            <p>It will index both Open and Closed PRs. This includes the Title and Summary</p>,
+                            <p>It will index Issues and comments both Open and Closed</p>,
+                            <p>Includes certain other metadata such as the URL, creator, etc</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your GitHub repositories, you need to create a Personal Access Token with the appropriate permissions:
                           </Text>
@@ -545,9 +553,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gitlab':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.gitlab.title', 'Setting up the GitLab Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The GitLab Connector picks up all of the Pull Requests and Issues in a specified repository.
                           </Text>
+                          <Bullets items={[
+                            <p>It will index both Open and Closed PRs. This includes the Title and Summary</p>,
+                            <p>It will index Issues and comments both Open and Closed</p>,
+                            <p>Includes certain other metadata such as the URL, creator, etc</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your GitLab repositories, you need to create a Personal Access Token with the appropriate permissions:
                           </Text>
@@ -593,8 +607,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'confluence':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.confluence.title', 'Setting up the Confluence Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Confluence connector pulls in all pages and comments from the specified spaces/pages.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Confluence instance, you need to create an Atlassian API token and configure the connection:
@@ -634,9 +649,16 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'jira':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.jira.title', 'Setting up the Jira Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            For every jira issue this connector will pull:
                           </Text>
+                          <Bullets items={[
+                            <p>Title</p>,
+                            <p>Description</p>,
+                            <p>Common fields</p>,
+                            <p>Comments</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your Jira instance, you need to create an Atlassian API token and configure the connection:
                           </Text>
@@ -680,9 +702,14 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'zendesk':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.zendesk.title', 'Setting up the Zendesk Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                          The Zendesk Connector can sync content from your Zendesk instance, supporting two content types:
                           </Text>
+                          <Bullets items={[
+                            <p>Articles: Syncs all published Articles from your company’s Help Center</p>,
+                            <p>Tickets: Syncs Support Tickets with their comments and metadata</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your Zendesk instance, you need to create an API token and configure the connection:
                           </Text>
@@ -715,10 +742,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Zendesk subdomain is the part before ".zendesk.com" in your Zendesk URL.</p>
                             <p>Make sure you have read access to all Zendesk content you want to index before creating the credential.</p>
-                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
+                            <p>Tickets: Requires Zendesk Support Product to be active.</p>
                           </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://support.zendesk.com/hc/en-us/articles/4408889192858" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -730,8 +756,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'asana':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.asana.title', 'Setting up the Asana Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                          The Asana connector pulls in tasks and their associated comments from specified projects or all projects in a workspace.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Asana workspace, you need to create a Personal Access Token with the appropriate permissions:
@@ -777,8 +804,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'airtable':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.airtable.title', 'Setting up the Airtable Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Airtable connector pulls in tables from Airtable. The Airtable connector indexes the table name, table type, and contents of the table.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Airtable bases, you need to create a Personal Access Token with the appropriate permissions:
@@ -825,8 +853,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'dropbox':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.dropbox.title', 'Setting up the Dropbox Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The connector recursively pulls all files from the root directory of your Dropbox account. It is currently not possible to pull files only from specific directories.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Dropbox account, you need to create a Dropbox app and generate an access token:
@@ -858,10 +887,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your Dropbox files</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Access tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the app has the necessary permissions to access the Dropbox files you want to index.</p>
-                            <p>Access tokens don't expire automatically, but you can revoke them at any time from the App Console.</p>
-                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                            <p>The connector will only pull once upon initialization. If you would like to pull more documents, you must generate a new access token, put that token into the connector, and re-initialize the connector.</p>
                           </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -873,7 +900,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 's3':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.s3.title', 'Get AWS S3 Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The S3 connector pulls in all objects from the specified Amazon S3 bucket. It supports various file formats including PDF, DOC, DOCX, TXT, and more.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.s3.step1', 'Go to AWS Console → IAM → Users (or Roles for IAM role method).')}</>,
                             <>{t('connectors.instructions.s3.step2', 'For Access Key method: Create a new user or use existing user.')}</>,
@@ -892,8 +922,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'r2':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.r2.title', 'Setting up the Cloudflare R2 Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The R2 connector pulls in all documents from the specified Cloudflare R2 bucket. It supports various file formats including PDF, DOC, DOCX, TXT, and more.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Cloudflare R2 storage, you need to create an API token with the appropriate permissions:
@@ -940,8 +971,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'google_cloud_storage':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.gcs.title', 'Setting up the Google Cloud Storage Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Google Cloud Storage connector pulls in all documents from the specified GCS bucket. It supports various file formats including PDF, DOC, DOCX, TXT, and more.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Google Cloud Storage buckets, you need to create a service account with the appropriate permissions:
@@ -994,8 +1026,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'oci_storage':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.oci.title', 'Setting up the Oracle Cloud Infrastructure Storage Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Oracle Cloud Infrastructure (OCI) Storage connector pulls in all documents from the specified OCI bucket. It supports various file formats including PDF, DOC, DOCX, TXT, and more.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Oracle Cloud Infrastructure (OCI) Object Storage, you need to create API credentials and configure the appropriate permissions:
@@ -1060,8 +1093,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'teams':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.sharepoint.title', 'Setting up the Microsoft SharePoint/Teams Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            Connector will go through all configured sites belonging to an organization and index all the documents attached to that site.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Microsoft SharePoint and Teams, you need to create an Azure App Registration with the appropriate Microsoft Graph permissions:
@@ -1128,8 +1162,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gmail':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.gmail.title', 'Setting up the Gmail Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Gmail connector ingests your mails. Currently supports plain text emails.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Gmail account, you need to create a Google Cloud service account with domain-wide delegation and configure it properly:
@@ -1196,21 +1231,12 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           </Text>
                         </div>
                       );
-                    case 'teams':
-                      return (
-                        <div>
-                          <Text><span className="font-semibold">{t('connectors.instructions.teams.title', 'Microsoft Teams Access')}</span></Text>
-                          <Bullets items={[
-                            <>{t('connectors.instructions.teams.step1', 'Register an app in Azure and grant Microsoft Graph read scopes for channels/messages as permitted by your organization.')}</>,
-                            <>{t('connectors.instructions.teams.step2', 'Provide the app credentials accordingly.')}</>,
-                          ]} />
-                        </div>
-                      );
                     case 'discord':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.discord.title', 'Setting up the Discord Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Discord connector indexes all channels for all servers(guilds) mentioned.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Discord server, you need to create a Discord bot and configure it with the necessary permissions:
@@ -1280,7 +1306,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'zulip':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.zulip.title', 'Get Zulip Bot Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Zulip connector pulls in all streams and topics according to the permissions assigned to the bot user.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.zulip.step1', 'Log into your Zulip organization as an admin.')}</>,
                             <>{t('connectors.instructions.zulip.step2', 'Go to Settings → Your bots → Add a new bot.')}</>,
@@ -1295,7 +1324,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gitbook':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.gitbook.title', 'Get GitBook Access Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The GitBook connector will pull in all the documentation content from your specified GitBook spaces.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.gitbook.step1', 'Log into your GitBook account.')}</>,
                             <>{t('connectors.instructions.gitbook.step2', 'Go to Settings → Developer settings.')}</>,
@@ -1313,7 +1345,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'bookstack':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.bookstack.title', 'Get BookStack API Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The BookStack connector fetches all shelves, books, chapters and pages from the connected instance upon connector setup.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.bookstack.step1', 'Log into your BookStack instance as an admin.')}</>,
                             <>{t('connectors.instructions.bookstack.step2', 'Go to Settings → Users → [Your User] → API Tokens.')}</>,
@@ -1333,7 +1368,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'google_site':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.google_sites.title', 'Prepare Google Sites Content')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            Export your Google Site, and then upload the zip to Contentbuilder. It will then index all your pages.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.google_sites.step1', 'Open your Google Site in a web browser.')}</>,
                             <>{t('connectors.instructions.google_sites.step2', 'Use browser tools or a web scraper to download the HTML content.')}</>,
@@ -1347,7 +1385,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'productboard':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.productboard.title', 'Get Productboard Access Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Productboard connector pulls in all the Features, Components, Products, and Objectives into Contentbuilder. At this time, the Productboard APIs does not support pulling in Releases or Notes.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.productboard.step1', 'Log into your Productboard account as an admin.')}</>,
                             <>{t('connectors.instructions.productboard.step2', 'Go to Settings → Integrations → API.')}</>,
@@ -1365,7 +1406,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'highspot':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.highspot.title', 'Get Highspot API Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Highspot connector indexes documents from your Highspot instance. It can index either specific spots you add or all spots where you have view access and download permissions.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.highspot.step1', 'Log into your Highspot account as an admin.')}</>,
                             <>{t('connectors.instructions.highspot.step2', 'Go to Settings → Integrations → API.')}</>,
@@ -1384,7 +1428,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'loopio':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.loopio.title', 'Get Loopio API Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Loopio connector pulls in all the documents from your Loopio instance.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.loopio.step1', 'Log into your Loopio account as an admin.')}</>,
                             <>{t('connectors.instructions.loopio.step2', 'Go to Settings → Integrations → API Access.')}</>,
@@ -1402,7 +1449,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'guru':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.guru.title', 'Get Guru API Credentials')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Guru connector pulls in all the Cards your user has access to based on a User Access Token.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.guru.step1', 'Log into your Guru account as an admin.')}</>,
                             <>{t('connectors.instructions.guru.step2', 'Go to Settings → API Access.')}</>,
@@ -1423,7 +1473,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'slab':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.slab.title', 'Get Slab Bot Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
                             <>{t('connectors.instructions.slab.step2', 'Go to Settings → Developer → API.')}</>,
@@ -1440,8 +1493,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'salesforce':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.salesforce.title', 'Setting up the Salesforce Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Salesforce connector indexes documents from your Salesforce. These documents organized around the Objects that you indicate.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Salesforce org, you need to obtain your security token and configure the connection:
@@ -1493,8 +1547,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'hubspot':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.hubspot.title', 'Setting up the HubSpot Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The HubSpot connector pulls in data from your HubSpot CRM, including:
+                            <Bullets items={[
+                              <p><strong>Tickets</strong> - Support tickets with their title, content, associated emails and notes</p>,
+                              <p><strong>Companies</strong> - Company records with associated data and relationships</p>,
+                              <p><strong>Deals</strong> - Sales opportunities with pipeline information and associated contacts</p>,
+                              <p><strong>Contacts</strong> - Contact records with their information and associated activities</p>,
+                            ]} />
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your HubSpot account, you need to create a private app with the appropriate permissions:
@@ -1559,8 +1620,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gong':
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.gong.title', 'Setting up the Gong Connector')}
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Gong connector pulls in the transcripts of calls recorded via Gong. The Gong connector indexes the call title, call description, and contents of the actual transcript.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Gong account, you need to create API credentials with the appropriate permissions:
@@ -1620,7 +1682,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'fireflies':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.fireflies.title', 'Get Fireflies.ai API Key')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                          The Fireflies connector indexes meetings from your Fireflies account.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.fireflies.step1', 'Log into your Fireflies.ai account.')}</>,
                             <>{t('connectors.instructions.fireflies.step2', 'Go to Settings → Integrations → API.')}</>,
@@ -1638,7 +1703,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'web':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.web.title', 'Configure Web Scraper')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Web Connector scrapes sites based on a base URL.
+                            <Bullets items={[
+                              <p>It only indexes files from the same domain and containing the same base path.</p>,
+                              <p>It will index pages reachable via hyperlinks from the base URL.</p>,
+                              <p>The text contents are cleaned up via some heuristics and some metadata such as the page Title is extracted.</p>,
+                            ]} />
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.web.step1', 'Identify the website URL you want to scrape (e.g., https://docs.yourcompany.com).')}</>,
                             <>{t('connectors.instructions.web.step2', 'Choose scraping method: "recursive" for full site, "single" for one page, or "sitemap" to follow sitemap.xml.')}</>,
@@ -1647,17 +1720,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <>{t('connectors.instructions.web.step5', 'Configure advanced options like scrolling if the site uses dynamic content loading.')}</>,
                           ]} />
                           <Text className="mt-2 text-gray-600">{t('connectors.instructions.web.note', 'The web scraper respects robots.txt and rate limits to avoid overwhelming target sites.')}</Text>
-                          <ImportantNotes>
-                            <p>It only indexes files from the same domain and containing the same base path.</p>
-                            <p>It will index pages reachable via hyperlinks from the base URL.</p>
-                            <p>The text contents are cleaned up via some heuristics and some metadata such as the page Title is extracted.</p>
-                          </ImportantNotes>
                         </div>
                       );
                     case 'axero':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.axero.title', 'Get Axero API Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Axero connector pulls in all the documents from your Axero instance.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.axero.step1', 'Log into your Axero intranet as an admin.')}</>,
                             <>{t('connectors.instructions.axero.step2', 'Go to Control Panel → Configuration → API Settings.')}</>,
@@ -1675,7 +1746,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'egnyte':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.egnyte.title', 'Get Egnyte Access Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Egnyte connector pulls in files stored in Egnyte. The Egnyte connector indexes the file name, file type, and contents of the file.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.egnyte.step1', 'Log into your Egnyte domain as an admin.')}</>,
                             <>{t('connectors.instructions.egnyte.step2', 'Go to Settings → Integrations → API Tokens.')}</>,
@@ -1694,7 +1768,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'wikipedia':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.wikipedia.title', 'Configure Wikipedia Indexing')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Wikipedia connector indexes pages from Wikipedia.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.wikipedia.step1', 'Choose your target Wikipedia language edition (e.g., "en" for English).')}</>,
                             <>{t('connectors.instructions.wikipedia.step2', 'Identify specific categories or pages you want to index.')}</>,
@@ -1712,7 +1789,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'mediawiki':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.mediawiki.title', 'Configure MediaWiki Access')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The MediaWiki connector indexes pages from MediaWiki.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.mediawiki.step1', 'Identify your MediaWiki site URL (e.g., https://wiki.yourcompany.com).')}</>,
                             <>{t('connectors.instructions.mediawiki.step2', 'Choose the language code for your wiki (usually "en").')}</>,
@@ -1727,7 +1807,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'discourse':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.discourse.title', 'Get Discourse API Key')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Discourse connector indexes documents from your Discourse Topics.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.discourse.step1', 'Log into your Discourse forum as an admin.')}</>,
                             <>{t('connectors.instructions.discourse.step2', 'Go to Admin → API → Keys.')}</>,
@@ -1746,7 +1829,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'file':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.file.title', 'Upload Files for Indexing')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The File Connector indexes user uploaded files. Currently supports .txt, .pdf, .docx, .pptx, .xlsx, .csv, .md, .mdx, .conf, .log, .json, .tsv, .xml, .yml, .yaml, .eml, and .epub files. You can also upload a .zip containing these files - If there are other file types in the zip, the other file types are ignored.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.file.step1', 'Prepare the documents you want to index (PDF, DOCX, TXT, etc.).')}</>,
                             <>{t('connectors.instructions.file.step2', 'Organize files in folders if you want to maintain structure.')}</>,
@@ -1760,7 +1846,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'document360':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.document360.title', 'Get Document360 API Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Document360 connector will pull in all the articles given the workspace and categories that the user specifies. Articles in Document360 should be saved in HTML format.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.document360.step1', 'Log into your Document360 account as an admin.')}</>,
                             <>{t('connectors.instructions.document360.step2', 'Go to Settings → API.')}</>,
@@ -1778,7 +1867,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'clickup':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.clickup.title', 'Get ClickUp API Token')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The ClickUp connector will pull in all tasks from the ClickUp workspace, or specific space(s), list(s), folder(s) specified by the user.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.clickup.step1', 'Log into your ClickUp account.')}</>,
                             <>{t('connectors.instructions.clickup.step2', 'Go to Settings → Apps → API.')}</>,
@@ -1796,7 +1888,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'linear':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.linear.title', 'Get Linear API Key')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Linear connector pulls in all the Linear issues and the associated comments.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.linear.step1', 'Log into your Linear account.')}</>,
                             <>{t('connectors.instructions.linear.step2', 'Go to Settings → Account → API.')}</>,
@@ -1815,7 +1910,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'freshdesk':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.freshdesk.title', 'Get Freshdesk API Key')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Freshdesk connector indexes tickets from your Freshdesk account.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.freshdesk.step1', 'Log into your Freshdesk account as an admin.')}</>,
                             <>{t('connectors.instructions.freshdesk.step2', 'Go to Admin → Profile Settings.')}</>,
@@ -1833,7 +1931,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'xenforo':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.xenforo.title', 'Get XenForo Access')}</Text>
+                          <Text className="font-semibold text-lg"> How it works? </Text>
+                          <Text>
+                            The Xenforo Connector scrapes forums or threads from the specified URL.
+                          </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.xenforo.step1', 'Log into your XenForo forum as an admin.')}</>,
                             <>{t('connectors.instructions.xenforo.step2', 'Go to Admin CP → Setup → API keys.')}</>,
@@ -1848,9 +1949,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     default:
                       return (
                         <div>
-                          <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.default.title', 'Setting up the Connector')}
-                          </Text>
                           <Text>
                             {t('connectors.instructions.default.text', "To connect this service to Contentbuilder, you'll need to obtain the appropriate credentials from your source system's admin panel or developer settings.")}
                           </Text>
