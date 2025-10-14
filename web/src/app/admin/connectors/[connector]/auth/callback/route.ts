@@ -22,7 +22,7 @@ export const GET = async (request: NextRequest) => {
   });
 
   if (!response.ok) {
-    return NextResponse.redirect(new URL("/auth/error", getDomain(request)));
+    return NextResponse.redirect(new URL("/custom-projects-ui/projects?tab=smart-drive", getDomain(request)));
   }
 
   const authCookieName =
@@ -32,7 +32,7 @@ export const GET = async (request: NextRequest) => {
 
   if (requestCookies.get(authCookieName)?.value?.toLowerCase() === "true") {
     return NextResponse.redirect(
-      new URL(`/custom-projects-ui/projects?tab=smart-drive`, getDomain(request))
+      new URL("/custom-projects-ui/projects?tab=smart-drive", getDomain(request))
     );
   }
 
