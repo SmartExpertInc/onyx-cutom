@@ -3735,7 +3735,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 >
                   <div>
                   <Plus size={16} className="text-white" />
-                  <span className="font-bold tracking-wide">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
+                  <span className="font-bold tracking-wider">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
                   <span className="ml-1.5 rounded-full bg-white text-[#0F58F9] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
@@ -3935,18 +3935,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               )} */}
 
               <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
-                <Button
+                <button
                   onClick={() => setViewMode("grid")}
                   className={`rounded-full p-2 w-10 h-10 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <LayoutGrid className="w-6 h-6" />
-                </Button>
-                <Button
+                  <LayoutGrid strokeWidth={1} className="w-6 h-6" />
+                </button>
+                <button
                   onClick={() => setViewMode("list")}
                   className={`rounded-full p-2 w-10 h-10 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <List className="w-6 h-6" />
-                </Button>
+                  <List strokeWidth={1} className="w-6 h-6" />
+                </button>
               </div>
             </div>
           </div>
@@ -4176,7 +4176,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           {/* Pagination Controls */}
           {viewMode === "list" && visibleProjects.length > 0 && (
             <div className="flex items-center justify-end mt-4 px-4 py-3 bg-white rounded-lg">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-7">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[var(--main-text)]">Rows per page:</span>
                   <DropdownMenu>
@@ -4209,7 +4209,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   Page {currentPage} of {totalPages}
                 </span>
                 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage === 1}
