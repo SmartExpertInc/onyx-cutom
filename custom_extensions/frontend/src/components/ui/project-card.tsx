@@ -486,19 +486,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
                 {project.designMicroproductType === "Slide Deck" && (
-                  <LayoutTemplate size={20} strokeWidth={1.5} className="font-light text-[#EFB4FB]" />
+                  <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#EFB4FB]" />
                 )}
                 {project.designMicroproductType === "Training Plan" && (
-                  <BookOpen size={20} strokeWidth={1.5} className="font-light text-[#719AF5]" />
+                  <BookOpen size={20} strokeWidth={1} className="font-light text-[#719AF5]" />
                 )}
                 {project.designMicroproductType === "Video Lesson Presentation" && (
-                  <MonitorPlay size={20} strokeWidth={1.5} className="font-light text-[#06A294]" />
+                  <MonitorPlay size={20} strokeWidth={1} className="font-light text-[#06A294]" />
                 )}
                 {project.designMicroproductType === "Text Presentation" && (
-                  <FileText size={20} strokeWidth={1.5} className="font-light text-purple-300" />
+                  <FileText size={20} strokeWidth={1} className="font-light text-purple-300" />
                 )}
                 {project.designMicroproductType === "Quiz" && (
-                  <FileQuestion size={20} strokeWidth={1.5} className="font-light text-[#FBEC9E]" />
+                  <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBEC9E]" />
                 )}
               </div>
               <span className="text-sm text-gray-500 font-normal">
@@ -531,7 +531,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <span className="text-sm font-semibold text-gray-700 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-500 leading-tight">
+                <span className="text-[10px] text-gray-500 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>

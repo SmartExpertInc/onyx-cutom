@@ -690,7 +690,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
           className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-bold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
         >
           <Coins strokeWidth={1.5} size={16} className="font-normal text-[#8808A2]" />
-          {userCredits !== null ? `${userCredits} ${t('interface.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
+          {userCredits !== null ? `${userCredits} ${t('interface.courseOutline.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
         </button>
         <Button variant="outline" onClick={onSurveyModalOpen}>
           <MessageSquare size={16} className="mr-2" />

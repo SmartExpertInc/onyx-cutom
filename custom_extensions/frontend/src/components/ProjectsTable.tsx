@@ -1407,7 +1407,7 @@ const ProjectRowMenu: React.FC<{
         className="text-[#09090B] shadow-none border-none hover:text-gray-900 cursor-pointer"
         onClick={handleMenuToggle}
       >
-        <MoreHorizontal size={20} />
+        <MoreHorizontal strokeWidth={1.5} size={20} />
       </Button>
       {menuOpen &&
         createPortal(
@@ -3735,7 +3735,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 >
                   <div>
                   <Plus size={16} className="text-white" />
-                  {auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}
+                  <span className="font-bold tracking-wide">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
                   <span className="ml-1.5 rounded-full bg-white text-[#0F58F9] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
@@ -3937,15 +3937,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
                 <Button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-full p-2 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
+                  className={`rounded-full p-2 w-10 h-10 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <LayoutGrid size={24} />
+                  <LayoutGrid className="w-6 h-6" />
                 </Button>
                 <Button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-full p-2 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
+                  className={`rounded-full p-2 w-10 h-10 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <List size={24} />
+                  <List className="w-6 h-6" />
                 </Button>
               </div>
             </div>
@@ -4096,19 +4096,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 flex items-center justify-center">
                                 {p.designMicroproductType === "Slide Deck" && (
-                                  <LayoutTemplate size={19} strokeWidth={1} className="font-light text-[#EFB4FB]" />
+                                  <LayoutTemplate size={20} strokeWidth={1} className="font-light text-[#EFB4FB]" />
                                 )}
                                 {p.designMicroproductType === "Training Plan" && (
-                                  <BookOpen size={19} strokeWidth={1} className="font-light text-[#719AF5]" />
+                                  <BookOpen size={20} strokeWidth={1} className="font-light text-[#719AF5]" />
                                 )}
                                 {(p.designMicroproductType === "Video" || p.designMicroproductType === "Video Lesson Presentation") && (
-                                  <MonitorPlay size={19} strokeWidth={1} className="font-light text-[#06A294]" />
+                                  <MonitorPlay size={20} strokeWidth={1} className="font-light text-[#06A294]" />
                                 )}
                                 {p.designMicroproductType === "Text Presentation" && (
-                                  <FileText size={19} strokeWidth={1} className="font-light text-purple-300" />
+                                  <FileText size={20} strokeWidth={1} className="font-light text-purple-300" />
                                 )}
                                 {p.designMicroproductType === "Quiz" && (
-                                  <FileQuestion size={19} strokeWidth={1} className="font-light text-[#FBEC9E]" />
+                                  <FileQuestion size={20} strokeWidth={1} className="font-light text-[#FBEC9E]" />
                                 )}
                               </div>
                               <span className="text-sm text-gray-500 font-normal">
@@ -4119,7 +4119,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "-"
                           )}
                         </TableCell>
-                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm font-regular text-gray-900">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
