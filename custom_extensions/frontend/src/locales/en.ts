@@ -4,6 +4,7 @@ export const en = {
     lesson: "LESSON",
     save: "Save",
     saving: "Saving...",
+    close: "Close",
     confirmCancelEdit:
       "Are you sure you want to cancel? Any unsaved changes will be lost.",
     errorDetails: "Details:",
@@ -14,6 +15,12 @@ export const en = {
     downloadPdf: "Download PDF",
     saveErrorTitle: "Save Error:",
     rendering: "Rendering content...",
+  },
+  insufficientCredits: {
+    title: "Insufficient Credits",
+    message:
+      "You cannot create new products right now due to insufficient credits for this operation. Please purchase more credits to continue.",
+    buyMore: "Buy More"
   },
   qualityTiers: {
     basic: "Basic",

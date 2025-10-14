@@ -3,6 +3,7 @@
 import React from 'react';
 import { AlertTriangle, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface InsufficientCreditsModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export default function InsufficientCreditsModal({
   onBuyMore 
 }: InsufficientCreditsModalProps) {
   if (!isOpen) return null;
+  const { t } = useLanguage();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
@@ -25,13 +27,15 @@ export default function InsufficientCreditsModal({
           <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">Insufficient Credits</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('insufficientCredits.title', 'Insufficient Credits')}</h3>
         </div>
         
         {/* Message */}
         <p className="text-sm text-gray-700 mb-6 leading-relaxed">
-          You cannot create new products at the moment due to insufficient credits for this operation. 
-          Please purchase more credits to continue creating content.
+          {t(
+            'insufficientCredits.message',
+            'You cannot create new products right now due to insufficient credits for this operation. Please purchase more credits to continue.'
+          )}
         </p>
         
         {/* Action buttons */}
@@ -41,14 +45,14 @@ export default function InsufficientCreditsModal({
             onClick={onClose}
             className="px-4 py-2"
           >
-            Close
+            {t('common.close', 'Close')}
           </Button>
           <Button 
             onClick={onBuyMore} 
             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white flex items-center gap-2"
           >
             <CreditCard className="w-4 h-4" />
-            Buy More
+            {t('insufficientCredits.buyMore', 'Buy More')}
           </Button>
         </div>
       </div>
