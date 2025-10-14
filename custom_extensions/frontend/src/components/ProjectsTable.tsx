@@ -1404,7 +1404,7 @@ const ProjectRowMenu: React.FC<{
     <div ref={menuRef} className="inline-block">
       <Button
         ref={buttonRef}
-        className="text-gray-400 shadow-none border-none hover:text-gray-600 cursor-pointer"
+        className="text-[#09090B] shadow-none border-none hover:text-gray-900 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
@@ -3750,9 +3750,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       {!trashMode && (
         <div className="flex justify-between gap-4 mb-4">
-          <nav className="flex pb-1 h-8">
+          <nav className="flex pb-1 h-8 pt-2">
             <button
-              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "all" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3765,7 +3765,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               All
             </button>
             <button
-              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "created" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3778,7 +3778,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Created by you
             </button>
             <button
-              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "shared" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3791,7 +3791,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Shared with you
             </button>
             <button
-              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "favorites" 
                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3805,8 +3805,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             </button>
           </nav>
           <div className="flex gap-2">
-            <div className="relative w-75">
-              <Search className="absolute left-3 top-1/2 h-9 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+            <div className="relative w-75 h-9">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
               <Input
                 type="text"
                 variant="shadow"
@@ -3817,7 +3817,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               />
             </div>
             <div 
-              className="flex items-center px-2 py-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="flex items-center px-2 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
                 setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
@@ -3974,7 +3974,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <>
           {/* List view (table/row style) */}
           <div
-            className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
+            className={`bg-white rounded-xl border border-[#E0E0E0] overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
           >
@@ -4187,6 +4187,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="text-[var(--main-text)]" align="end">
+                      <DropdownMenuItem onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}>
+                        5
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}>
                         10
                       </DropdownMenuItem>
