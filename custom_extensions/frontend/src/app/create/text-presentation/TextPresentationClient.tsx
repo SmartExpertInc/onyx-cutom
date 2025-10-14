@@ -1008,10 +1008,13 @@ export default function TextPresentationClient() {
             }
 
             // Try to parse accumulated JSON and convert to display format
+            // PARTIAL JSON PARSING: Try to parse even incomplete JSON to show partial preview
             let jsonParsedSuccessfully = false;
+            let partialDisplayText = "";
+            
             try {
               const parsed = JSON.parse(accumulatedJsonText);
-              console.log('[TEXT_PRESENTATION_JSON_PARSE] JSON parsed successfully. Type:', typeof parsed, 'Has textTitle:', !!parsed.textTitle, 'Has contentBlocks:', !!parsed.contentBlocks);
+              console.log('[TEXT_PRESENTATION_JSON_PARSE] ✅ JSON parsed successfully. Type:', typeof parsed, 'Has textTitle:', !!parsed.textTitle, 'Has contentBlocks:', !!parsed.contentBlocks);
               
               if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
                 console.log('[TEXT_PRESENTATION_JSON_STREAM] ✅ Successfully parsed JSON during streaming, blocks:', parsed.contentBlocks.length);
@@ -1027,6 +1030,7 @@ export default function TextPresentationClient() {
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalContent(displayText);
                 jsonParsedSuccessfully = true;
+                partialDisplayText = displayText;
                 
                 // Make textarea visible now that we have formatted content
                 if (!textareaVisible) {
@@ -1038,25 +1042,70 @@ export default function TextPresentationClient() {
                 console.log('[TEXT_PRESENTATION_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
               }
             } catch (e) {
-              // Incomplete JSON, continue accumulating - this is normal during streaming
+              // Incomplete JSON - try partial JSON parsing for live preview
               const errorMsg = e instanceof Error ? e.message : String(e);
+              
+              // Try to extract and display partial content blocks as they arrive
+              try {
+                // Look for complete content blocks in the accumulated text, even if overall JSON is incomplete
+                const partialMatch = accumulatedJsonText.match(/"textTitle"\s*:\s*"([^"]+)"/);
+                const blocksMatch = accumulatedJsonText.match(/"contentBlocks"\s*:\s*\[([\s\S]*)/);
+                
+                if (partialMatch && blocksMatch) {
+                  const title = partialMatch[1];
+                  let partialBlocks = [];
+                  
+                  // Try to parse individual complete block objects
+                  const blocksText = blocksMatch[1];
+                  // Look for complete block objects (ending with })
+                  const completeBlocksPattern = /\{[^}]*"type"[^}]*"sectionTitle"[^}]*"text"[^}]*\}/g;
+                  const matches = blocksText.match(completeBlocksPattern);
+                  
+                  if (matches) {
+                    partialBlocks = matches.map((bStr: string) => {
+                      try {
+                        return JSON.parse(bStr);
+                      } catch {
+                        return null;
+                      }
+                    }).filter(Boolean);
+                  }
+                  
+                  if (partialBlocks.length > 0) {
+                    const partialParsed = {
+                      textTitle: title,
+                      contentBlocks: partialBlocks
+                    };
+                    partialDisplayText = convertTextJsonToDisplay(partialParsed);
+                    console.log('[TEXT_PRESENTATION_PARTIAL_PARSE] 📺 Showing partial preview:', partialBlocks.length, 'blocks');
+                    setContent(partialDisplayText);
+                    jsonParsedSuccessfully = true;
+                    
+                    if (!textareaVisible) {
+                      setTextareaVisible(true);
+                    }
+                  }
+                }
+              } catch (partialError) {
+                // Partial parsing also failed, that's ok
+              }
+              
               if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
                 // Only log occasionally to avoid spam
                 console.log('[TEXT_PRESENTATION_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
               }
             }
 
-            // LIVE PREVIEW: Show raw accumulating text while JSON is incomplete (like presentations do)
+            // If no JSON parsing worked at all, show raw text as fallback
             if (!jsonParsedSuccessfully && accumulatedText) {
-              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing raw accumulated text during streaming, length:', accumulatedText.length);
+              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing raw accumulated text, length:', accumulatedText.length);
               setContent(accumulatedText);
-            }
-
-            // Make textarea visible as soon as we have meaningful text
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-            if (hasMeaningfulText && !textareaVisible) {
-              console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible, content length:', accumulatedText.length);
-              setTextareaVisible(true);
+              
+              const hasMeaningfulText = /\S/.test(accumulatedText);
+              if (hasMeaningfulText && !textareaVisible) {
+                console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible');
+                setTextareaVisible(true);
+              }
             }
           }
         } catch (e: any) {
