@@ -32,7 +32,7 @@ export const GET = async (request: NextRequest) => {
 
   if (requestCookies.get(authCookieName)?.value?.toLowerCase() === "true") {
     return NextResponse.redirect(
-      new URL(`/admin/connectors/${connector}`, getDomain(request))
+      new URL(`/custom-projects-ui/projects?tab=smart-drive`, getDomain(request))
     );
   }
 

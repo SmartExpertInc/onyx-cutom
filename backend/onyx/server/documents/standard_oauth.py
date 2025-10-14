@@ -108,10 +108,9 @@ def oauth_authorize(
     )
 
     # store state in redis
-    #if not desired_return_url:
-    #   desired_return_url = f"{base_url}/admin/connectors/{source}?step=0" # Default Onyx redirect
-
-    desired_return_url = f"{base_url}/custom-projects-ui/projects?tab=smart-drive" # Custom Smart Drive redirect
+    if not desired_return_url:
+        desired_return_url = f"{base_url}/admin/connectors/{source}?step=0" # Default Onyx redirect
+    #   desired_return_url = f"{base_url}/custom-projects-ui/projects?tab=smart-drive" # Custom Smart Drive redirect
 
     redis_client = get_redis_client(tenant_id=tenant_id)
     state = str(uuid.uuid4())
