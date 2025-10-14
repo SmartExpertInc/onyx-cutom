@@ -3750,7 +3750,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       {!trashMode && (
         <div className="flex justify-between gap-4 mb-4">
-          <nav className="flex pb-1 h-8 pt-2">
+          <nav className="flex pb-1 h-8 pt-2 mt-2">
             <button
               className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "all" 
@@ -3817,7 +3817,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               />
             </div>
             <div 
-              className="flex items-center px-2 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="flex items-center px-3 h-9 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
                 setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
