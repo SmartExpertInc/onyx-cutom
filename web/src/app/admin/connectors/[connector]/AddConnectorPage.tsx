@@ -141,7 +141,7 @@ export default function AddConnector({
   const [isAuthorizeVisible, setIsAuthorizeVisible] = useState(false);
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentPageUrl(window.location.href);
+      setCurrentPageUrl(window.location.origin + "/custom-projects-ui/projects?tab=smart-drive");
     }
 
     if (EE_ENABLED && (NEXT_PUBLIC_CLOUD_ENABLED || NEXT_PUBLIC_TEST_ENV)) {
