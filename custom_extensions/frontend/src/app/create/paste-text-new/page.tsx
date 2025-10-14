@@ -595,7 +595,7 @@ export default function PasteTextPage() {
         )}
 
         {/* Additional subtitle */}
-        <p className="text-center text-[#FBFAFF] text-sm mt-[18px]">
+        <p className="text-center text-[#FBFAFF] text-sm mt-[18px] mb-[8px]">
           {t('interface.pasteText.pasteInstructions', 'Paste in the notes, outline or text content you\'d like to use')}
         </p>
 
@@ -605,10 +605,10 @@ export default function PasteTextPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Type or paste in content here')}
-            className="w-full h-40 p-6" />
+            className="w-full h-[170px] p-6 placeholder:text-[#5D5D7980]" />
 
           <div className="mt-2 flex justify-between items-center">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-[#FFFFFF]">
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
             </div>
             {warning && (
@@ -624,11 +624,11 @@ export default function PasteTextPage() {
 
         {/* Mode selection */}
         <div className="w-[90%]">
-          <h3 className="text-lg font-semibold text-[#FBFAFF] mb-4 text-center">
+          <h3 className="text-lg text-[#FBFAFF] mb-4 text-center">
             {t('interface.pasteText.howToUseText', 'What do you want to do with this content?')}
           </h3>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ModeSelectionCard 
               Icon={ContextIcon}
               title={t('interface.pasteText.useAsContext', 'Use as Context')}

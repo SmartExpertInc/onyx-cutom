@@ -60,12 +60,12 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
           )}
         </div>
         
-        <CardContent className="relative p-6 h-full flex flex-row gap-4">
+        <CardContent className="relative p-4 h-full flex flex-row gap-4">
           {/* Icon section */}
           {Icon && (
             <div className="flex items-start justify-center flex-shrink-0">
               <Icon 
-                size={53} 
+                size={28} 
                 className={cn(iconColor)} 
               />
             </div>
