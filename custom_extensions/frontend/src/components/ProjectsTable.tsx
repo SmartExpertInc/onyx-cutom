@@ -2984,15 +2984,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
     if (diffDays === 1) return t("interface.today", "Today");
     if (diffDays === 2) return t("interface.yesterday", "Yesterday");
-    if (diffDays <= 7) {
+    if (diffDays <= 6) {
       const days = diffDays - 1;
       const unit = days === 1 ? "day" : "days";
       return t("interface.daysAgo", `{days} ${unit} ago`).replace("{days}", days.toString());
     }
-    if (diffDays === 7 || diffDays === 8) {
+    if (diffDays >= 7 && diffDays <= 13) {
       return t("interface.lastWeek", "Last week");
     }
-    if (diffDays <= 30) {
+    if (diffDays >= 14 && diffDays <= 27) {
       const weeks = Math.floor(diffDays / 7);
       const unit = weeks === 1 ? "week" : "weeks";
       return t("interface.weeksAgo", `{weeks} ${unit} ago`).replace("{weeks}", weeks.toString());
@@ -3943,7 +3943,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-500"}`}
+                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
                 >
                   <LayoutGrid strokeWidth={1} className="w-6 h-6" />
                 </button>

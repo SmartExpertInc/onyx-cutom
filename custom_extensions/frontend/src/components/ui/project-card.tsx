@@ -378,21 +378,27 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
     if (diffDays === 1) return t("interface.today", "Today");
     if (diffDays === 2) return t("interface.yesterday", "Yesterday");
-    if (diffDays <= 7)
-      return t("interface.daysAgo", "{days} days ago").replace(
-        "{days}",
-        (diffDays - 1).toString()
-      );
-    if (diffDays <= 30)
-      return t("interface.weeksAgo", "{weeks} weeks ago").replace(
-        "{weeks}",
-        Math.floor(diffDays / 7).toString()
-      );
-    if (diffDays <= 365)
-      return t("interface.monthsAgo", "{months} months ago").replace(
-        "{months}",
-        Math.floor(diffDays / 30).toString()
-      );
+    if (diffDays <= 6) {
+      const days = diffDays - 1;
+      const unit = days === 1 ? "day" : "days";
+      return t("interface.daysAgo", `{days} ${unit} ago`).replace("{days}", days.toString());
+    }
+    if (diffDays >= 7 && diffDays <= 13) {
+      return t("interface.lastWeek", "Last week");
+    }
+    if (diffDays >= 14 && diffDays <= 27) {
+      const weeks = Math.floor(diffDays / 7);
+      const unit = weeks === 1 ? "week" : "weeks";
+      return t("interface.weeksAgo", `{weeks} ${unit} ago`).replace("{weeks}", weeks.toString());
+    }
+    if (diffDays >= 28 && diffDays <= 31) {
+      return t("interface.lastMonth", "Last month");
+    }
+    if (diffDays <= 365) {
+      const months = Math.floor(diffDays / 30);
+      const unit = months === 1 ? "month" : "months";
+      return t("interface.monthsAgo", `{months} ${unit} ago`).replace("{months}", months.toString());
+    }
 
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -531,7 +537,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <span className="text-sm font-semibold text-gray-700 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-[10px] text-gray-500 leading-tight">
+                <span className="text-[11px] text-gray-500 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
