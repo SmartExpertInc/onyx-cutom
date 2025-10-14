@@ -62,7 +62,7 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
           {Icon && (
             <div className="flex items-start justify-center flex-shrink-0">
               <Icon 
-                size={28} 
+                size={22} 
                 className={cn(iconColor)} 
               />
             </div>
