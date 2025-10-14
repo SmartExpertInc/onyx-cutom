@@ -966,6 +966,8 @@ export const en = {
     daysAgo: "{days} days ago",
     weeksAgo: "{weeks} weeks ago",
     monthsAgo: "{months} months ago",
+    lastWeek: "Last week",
+    lastMonth: "Last month",
 
     // Create page
     createWithAI: "Create with AI",

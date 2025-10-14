@@ -898,6 +898,8 @@ export const uk = {
     daysAgo: "{days} днів тому",
     weeksAgo: "{weeks} тижнів тому",
     monthsAgo: "{months} місяців тому",
+    lastWeek: "Минулого тижня",
+    lastMonth: "Минулого місяця",
 
     // Create page
     createWithAI: "Створити з ШІ",

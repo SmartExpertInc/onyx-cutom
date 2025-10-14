@@ -912,6 +912,8 @@ export const ru = {
     daysAgo: "{days} дней назад",
     weeksAgo: "{weeks} недель назад",
     monthsAgo: "{months} месяцев назад",
+    lastWeek: "На прошлой неделе",
+    lastMonth: "В прошлом месяце",
 
     // Create page
     createWithAI: "Создать с ИИ",

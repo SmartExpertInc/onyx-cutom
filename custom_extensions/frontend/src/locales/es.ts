@@ -886,6 +886,8 @@ export const es = {
     daysAgo: "hace {days} días",
     weeksAgo: "hace {weeks} semanas",
     monthsAgo: "hace {months} meses",
+    lastWeek: "La semana pasada",
+    lastMonth: "El mes pasado",
 
     // Create page
     createWithAI: "Crear con IA",

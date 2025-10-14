@@ -2989,10 +2989,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       const unit = days === 1 ? "day" : "days";
       return t("interface.daysAgo", `{days} ${unit} ago`).replace("{days}", days.toString());
     }
+    if (diffDays === 7 || diffDays === 8) {
+      return t("interface.lastWeek", "Last week");
+    }
     if (diffDays <= 30) {
       const weeks = Math.floor(diffDays / 7);
       const unit = weeks === 1 ? "week" : "weeks";
       return t("interface.weeksAgo", `{weeks} ${unit} ago`).replace("{weeks}", weeks.toString());
+    }
+    if (diffDays >= 28 && diffDays <= 31) {
+      return t("interface.lastMonth", "Last month");
     }
     if (diffDays <= 365) {
       const months = Math.floor(diffDays / 30);
@@ -3735,7 +3741,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 >
                   <div>
                   <Plus size={16} className="text-white" />
-                  <span className="font-bold tracking-wider">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
+                  <span className="font-bold tracking-wider pr-2">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
                   <span className="ml-1.5 rounded-full bg-white text-[#0F58F9] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
@@ -3937,13 +3943,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-[#888888]"}`}
+                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-500"}`}
                 >
                   <LayoutGrid strokeWidth={1} className="w-6 h-6" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-[#888888]"}`}
+                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
                 >
                   <List strokeWidth={1.5} className="w-6 h-6" />
                 </button>
