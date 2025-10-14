@@ -2189,7 +2189,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     >
   >({});
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-    title: 48,
+    title: 75,
     created: 15,
     creator: 15,
     numberOfLessons: 13,
