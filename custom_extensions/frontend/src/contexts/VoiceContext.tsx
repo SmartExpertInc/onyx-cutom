@@ -27,6 +27,14 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage on mount
   useEffect(() => {
     console.log('🎤 [VOICE_CONTEXT] ========== VOICE CONTEXT INITIALIZATION ==========');
+    
+    // Only access localStorage in browser environment
+    if (typeof window === 'undefined') {
+      console.log('🎤 [VOICE_CONTEXT] Skipping localStorage access during SSR');
+      console.log('🎤 [VOICE_CONTEXT] ========== VOICE CONTEXT INITIALIZATION COMPLETED ==========');
+      return;
+    }
+    
     const savedVoice = localStorage.getItem('selectedVoice');
     if (savedVoice) {
       try {
@@ -67,12 +75,17 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     
     setSelectedVoiceState(voice);
     
-    if (voice) {
-      localStorage.setItem('selectedVoice', JSON.stringify(voice));
-      console.log('🎤 [VOICE_CONTEXT] ✅ Voice saved to localStorage');
+    // Only access localStorage in browser environment
+    if (typeof window !== 'undefined') {
+      if (voice) {
+        localStorage.setItem('selectedVoice', JSON.stringify(voice));
+        console.log('🎤 [VOICE_CONTEXT] ✅ Voice saved to localStorage');
+      } else {
+        localStorage.removeItem('selectedVoice');
+        console.log('🎤 [VOICE_CONTEXT] ✅ Voice cleared from localStorage');
+      }
     } else {
-      localStorage.removeItem('selectedVoice');
-      console.log('🎤 [VOICE_CONTEXT] ✅ Voice cleared from localStorage');
+      console.log('🎤 [VOICE_CONTEXT] Skipping localStorage operations during SSR');
     }
     console.log('🎤 [VOICE_CONTEXT] ========== VOICE STATE UPDATE COMPLETED ==========');
   };
@@ -87,6 +100,13 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
 export function useVoice() {
   const context = useContext(VoiceContext);
   if (context === undefined) {
+    // During SSR/static generation, return a default context
+    if (typeof window === 'undefined') {
+      return {
+        selectedVoice: null,
+        setSelectedVoice: () => {}
+      };
+    }
     throw new Error('useVoice must be used within a VoiceProvider');
   }
   return context;
