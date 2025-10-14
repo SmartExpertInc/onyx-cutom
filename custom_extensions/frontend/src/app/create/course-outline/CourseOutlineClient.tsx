@@ -300,6 +300,7 @@ export default function CourseOutlineClient() {
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
   const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
   
   // Track whether user has manually edited the preview content
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -831,6 +832,7 @@ export default function CourseOutlineClient() {
         // Check for insufficient credits (402)
         if (res.status === 402) {
           setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
           setShowInsufficientCreditsModal(true);
           return;
         }
@@ -1817,9 +1819,13 @@ export default function CourseOutlineClient() {
     {/* Insufficient Credits Modal */}
     <InsufficientCreditsModal
       isOpen={showInsufficientCreditsModal}
-      onClose={() => setShowInsufficientCreditsModal(false)}
+      onClose={() => {
+        setShowInsufficientCreditsModal(false);
+        setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+      }}
       onBuyMore={() => {
         setShowInsufficientCreditsModal(false);
+        setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
         setShowAddonsModal(true);
       }}
     />

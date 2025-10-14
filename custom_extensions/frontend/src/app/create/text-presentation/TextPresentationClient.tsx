@@ -215,6 +215,7 @@ export default function TextPresentationClient() {
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
   const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
   // Display mode state
   const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
@@ -1159,6 +1160,7 @@ export default function TextPresentationClient() {
         // Check for insufficient credits (402)
         if (response.status === 402) {
           setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
           setShowInsufficientCreditsModal(true);
           return;
         }
@@ -2164,9 +2166,13 @@ export default function TextPresentationClient() {
       {/* Insufficient Credits Modal */}
       <InsufficientCreditsModal
         isOpen={showInsufficientCreditsModal}
-        onClose={() => setShowInsufficientCreditsModal(false)}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
         onBuyMore={() => {
           setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
           setShowAddonsModal(true);
         }}
       />

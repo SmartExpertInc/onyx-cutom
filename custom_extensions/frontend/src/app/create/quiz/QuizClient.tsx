@@ -53,6 +53,7 @@ export default function QuizClient() {
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
   const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
   // Get parameters from URL
   const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(searchParams?.get("prompt") || ""));
@@ -1002,6 +1003,7 @@ export default function QuizClient() {
         // Check for insufficient credits (402)
         if (response.status === 402) {
           setIsCreatingFinal(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
           setShowInsufficientCreditsModal(true);
           return;
         }
@@ -1972,9 +1974,13 @@ export default function QuizClient() {
       {/* Insufficient Credits Modal */}
       <InsufficientCreditsModal
         isOpen={showInsufficientCreditsModal}
-        onClose={() => setShowInsufficientCreditsModal(false)}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
         onBuyMore={() => {
           setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
           setShowAddonsModal(true);
         }}
       />

@@ -240,6 +240,7 @@ export default function LessonPresentationClient() {
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
   const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
 
 
@@ -925,6 +926,12 @@ export default function LessonPresentationClient() {
       slidesFound: slideCount
     });
 
+    // Don't trigger regeneration if we're handling insufficient credits
+    if (isHandlingInsufficientCredits) {
+      console.log(`[RESTART_SKIP] Skipping regeneration due to insufficient credits handling`);
+      return;
+    }
+
     if (slideCount === 0) {
       if (formatRetryCounter < 2) {
         console.log(`[RESTART_TRIGGER] Triggering restart attempt ${formatRetryCounter + 1}/2`);
@@ -943,7 +950,7 @@ export default function LessonPresentationClient() {
         setFormatRetryCounter(0);
       }
     }
-  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
@@ -1042,7 +1049,10 @@ export default function LessonPresentationClient() {
         // Check for insufficient credits (402)
         if (res.status === 402) {
           setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
           setShowInsufficientCreditsModal(true);
+          // Clear timeout since we're not proceeding
+          clearTimeout(timeoutId);
           return;
         }
         throw new Error(errorText || `HTTP ${res.status}`);
@@ -2154,9 +2164,13 @@ export default function LessonPresentationClient() {
       {/* Insufficient Credits Modal */}
       <InsufficientCreditsModal
         isOpen={showInsufficientCreditsModal}
-        onClose={() => setShowInsufficientCreditsModal(false)}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
         onBuyMore={() => {
           setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
           setShowAddonsModal(true);
         }}
       />
