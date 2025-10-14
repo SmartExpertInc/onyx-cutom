@@ -958,7 +958,7 @@ export default function ProductViewNewPage() {
             )}
 
             {/* Export button */}
-              <button
+              {/* <button
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                 style={{
                 backgroundColor: '#0F58F9',
@@ -974,7 +974,7 @@ export default function ProductViewNewPage() {
                 <path d="M4.74154 8.67253V1.18945M4.74154 8.67253L1.53451 5.4655M4.74154 8.67253L7.94857 5.4655M8.48307 10.8105H1" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               {t('actions.export', 'Export')}
-              </button>
+              </button> */}
 
             {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && scormEnabled && (
               <ToastProvider>

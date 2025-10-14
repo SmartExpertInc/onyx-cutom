@@ -395,7 +395,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
-            href="/create/paste-text"
+            href="/create/paste-text-new"
             gradientFrom="from-blue-300"
             gradientTo="to-purple-200"
             iconColor="text-blue-600"
