@@ -931,9 +931,11 @@ export default function QuizClient() {
   // Once streaming is done, detect JSON and convert to display format
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
+      console.log('[QUIZ_JSON_DETECT] Checking if content is JSON, length:', quizData.length);
       // First try to detect if this is JSON
       try {
         const parsed = JSON.parse(quizData);
+        console.log('[QUIZ_JSON_DETECT] Successfully parsed JSON:', { hasTitle: !!parsed.quizTitle, hasQuestions: !!parsed.questions });
         if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
           // Convert JSON to display format
           let displayText = `Quiz Title: ${parsed.quizTitle}\n\n`;
@@ -980,14 +982,17 @@ export default function QuizClient() {
             displayText += '\n';
           });
           
+          console.log('[QUIZ_JSON_DETECT] Converting JSON to display format, questions:', parsed.questions.length);
           setQuizData(displayText);
           setOriginalQuizData(displayText);
           // Store the original JSON for fast-path finalization
           setOriginalJsonResponse(quizData);
+          console.log('[QUIZ_JSON_DETECT] Stored original JSON response for finalization');
           setFirstLineRemoved(true);
           return;
         }
       } catch (e) {
+        console.log('[QUIZ_JSON_DETECT] Not valid JSON or missing required fields:', e);
         // Not JSON, continue with original logic
       }
       
@@ -1033,6 +1038,7 @@ export default function QuizClient() {
       let contentToSend = quizData;
       // Use stored original JSON response if available
       const originalJsonToSend = originalJsonResponse || undefined;
+      console.log('[QUIZ_FINALIZE] originalJsonResponse available:', !!originalJsonToSend, 'length:', originalJsonToSend?.length || 0);
       let isCleanContent = false;
 
       if (hasUserEdits && editedTitleIds.size > 0) {

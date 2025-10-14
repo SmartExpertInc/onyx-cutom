@@ -27731,6 +27731,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # Fast-path: if client provided originalJsonResponse, try to accept it directly if valid
         provided_json = getattr(payload, 'originalJsonResponse', None)
+        logger.info(f"[QUIZ_FINALIZE_FASTPATH] Checking for originalJsonResponse: {provided_json is not None}, type: {type(provided_json)}, length: {len(provided_json) if isinstance(provided_json, str) else 0}")
         if isinstance(provided_json, str):
             try:
                 candidate = json.loads(provided_json)
