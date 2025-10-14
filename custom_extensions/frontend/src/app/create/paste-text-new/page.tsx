@@ -310,7 +310,7 @@ export default function PasteTextPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-white relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center py-8 px-6 bg-white relative overflow-hidden"
     >
       {/* Decorative gradient background */}
       <div 
@@ -341,16 +341,12 @@ export default function PasteTextPage() {
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-4xl flex flex-col gap-8 items-center relative z-10">
-        {/* Headings */}
-        <div className="w-full flex flex-col gap-3 items-center">
-          <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">
-            {t('interface.pasteText.title', 'Paste in text')}
-          </h1>
-          <p className="text-center text-[#FAFAFA] text-lg -mt-1">
-            {t('interface.pasteText.subtitle', 'What would you like to create today?')}
-          </p>
-        </div>
+      <div className="w-full max-w-4xl flex flex-col gap-3 items-center relative z-10">
+
+        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.pasteText.title', 'Paste in text')}</h1>
+        <p className="text-center text-[#FAFAFA] text-lg -mt-1">
+          {t('interface.pasteText.subtitle', 'What would you like to create today?')}
+        </p>
 
         {/* Product selector */}
         <div 
@@ -416,7 +412,7 @@ export default function PasteTextPage() {
 
         {/* Dropdown chips - Course */}
         {activeProduct === "Course" && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 my-1">
             <CustomPillSelector
               value={`${modulesCount} ${t('interface.generate.modules', 'Modules')}`}
               onValueChange={(value) => setModulesCount(Number(value.split(' ')[0]))}
@@ -451,7 +447,7 @@ export default function PasteTextPage() {
 
         {/* Dropdown chips - Video Lesson */}
         {activeProduct === "Video Lesson" && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 my-1">
             <CustomPillSelector
               value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
               onValueChange={(value) => setSlidesCount(Number(value.split(' ')[0]))}
@@ -477,7 +473,7 @@ export default function PasteTextPage() {
 
         {/* Dropdown chips - Quiz */}
         {activeProduct === "Quiz" && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 my-1">
             <CustomPillSelector
               value={quizLanguage}
               onValueChange={setQuizLanguage}
@@ -516,7 +512,7 @@ export default function PasteTextPage() {
 
         {/* Dropdown chips - Presentation */}
         {activeProduct === "Presentation" && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 my-1">
             <CustomPillSelector
               value={language}
               onValueChange={setLanguage}
@@ -542,7 +538,7 @@ export default function PasteTextPage() {
 
         {/* Dropdown chips - One-Pager */}
         {activeProduct === "One-Pager" && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 my-1">
             <CustomPillSelector
               value={language}
               onValueChange={setLanguage}
@@ -553,6 +549,33 @@ export default function PasteTextPage() {
                 { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
               ]}
               label={t('interface.language', 'Language')}
+            />
+            <CustomPillSelector
+              value={textLength}
+              onValueChange={setTextLength}
+              options={[
+                { value: t('interface.generate.short', 'short'), label: t('interface.generate.short', 'Short') },
+                { value: t('interface.generate.medium', 'medium'), label: t('interface.generate.medium', 'Medium') },
+                { value: t('interface.generate.long', 'long'), label: t('interface.generate.long', 'Long') }
+              ]}
+              label={t('interface.generate.length', 'Length')}
+            />
+            <CustomMultiSelector
+              selectedValues={textStyles}
+              onSelectionChange={setTextStyles}
+              options={[
+                { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+              ]}
+              label={t('interface.generate.styles', 'Styles')}
+              placeholder={t('interface.generate.selectStyles', 'Select styles')}
             />
           </div>
         )}
@@ -617,15 +640,17 @@ export default function PasteTextPage() {
         </div>
 
         {/* Generate button */}
-        <Button
-          onClick={handleGenerate}
-          disabled={!text.trim() || !mode}
-          size="lg"
-          className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold shadow-lg"
-        >
-          <Sparkles size={20} />
-          {t('interface.generate.generate', 'Generate')}
-        </Button>
+        <div className="flex justify-center mt-3 mb-4">
+          <Button
+            onClick={handleGenerate}
+            disabled={!text.trim() || !mode}
+            size="lg"
+            className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold shadow-lg"
+          >
+            <Sparkles size={20} />
+            {t('interface.generate.generate', 'Generate')}
+          </Button>
+        </div>
       </div>
 
       {/* Feedback button */}
