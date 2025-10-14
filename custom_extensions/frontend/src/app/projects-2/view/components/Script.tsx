@@ -7,6 +7,8 @@ import DictionaryModal from './DictionaryModal';
 // NEW: Import Video Lesson types
 import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+// Import Voice Context
+import { useVoice } from '@/contexts/VoiceContext';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
@@ -25,6 +27,9 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playTime, setPlayTime] = useState(0);
+  
+  // Get selected voice from context
+  const { selectedVoice } = useVoice();
   // Get current slide data from either structure
   const currentSlide = componentBasedSlideDeck 
     ? componentBasedSlideDeck.slides?.find(s => s.slideId === currentSlideId)
@@ -267,7 +272,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             )}
           </div>
 
-          {/* Language/User Selector Button */}
+          {/* Voice Selector Button */}
           <div className="relative w-full sm:w-auto">
             <button
               onClick={() => setIsLanguageModalOpen(true)}
@@ -276,7 +281,12 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
                 <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
               </svg>
-              <span className="text-sm font-medium text-gray-700">US - Leesa</span>
+              <span className="text-sm font-medium text-gray-700">
+                {selectedVoice 
+                  ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
+                  : 'Select Voice'
+                }
+              </span>
             </button>
           </div>
         </div>
