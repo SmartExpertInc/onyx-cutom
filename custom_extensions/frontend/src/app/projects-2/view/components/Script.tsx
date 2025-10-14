@@ -38,13 +38,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   // Use voiceover text from current slide or fallback to placeholder
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
   
-  const [scriptContent, setScriptContent] = useState(defaultPlaceholder);
-  
   // Function to handle script content changes
   const handleScriptContentChange = (newContent: string) => {
-    setScriptContent(newContent);
-    
-    // Save changes back to video lesson data if we have the necessary props
+    // Save changes directly to parent without updating local state
+    // This prevents re-renders that would reset cursor position
     if (onTextChange && currentSlide) {
       if (componentBasedSlideDeck?.slides) {
         // Handle component-based slide deck
@@ -107,23 +104,17 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     };
   }, [isPlaying]);
 
-  // Update script content when current slide changes
+  // Update text content when current slide changes (using ref to avoid re-renders)
   useEffect(() => {
-    if (currentSlide?.voiceoverText) {
-      setScriptContent(currentSlide.voiceoverText);
-    } else {
-      setScriptContent(defaultPlaceholder);
+    if (textAreaRef.current) {
+      const newContent = currentSlide?.voiceoverText || defaultPlaceholder;
+      
+      // Only update if content actually changed to avoid unnecessary DOM updates
+      if (textAreaRef.current.textContent !== newContent) {
+        textAreaRef.current.textContent = newContent;
+      }
     }
-  }, [currentSlide?.voiceoverText, defaultPlaceholder]);
-
-  // Update script content when video lesson data or current slide ID changes
-  useEffect(() => {
-    if (currentSlide?.voiceoverText) {
-      setScriptContent(currentSlide.voiceoverText);
-    } else {
-      setScriptContent(defaultPlaceholder);
-    }
-  }, [videoLessonData, componentBasedSlideDeck, currentSlideId, currentSlide, defaultPlaceholder]);
+  }, [currentSlide?.voiceoverText, currentSlideId, defaultPlaceholder]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
@@ -131,7 +122,6 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   console.log('Script - currentSlideId:', currentSlideId);
   console.log('Script - currentSlide:', currentSlide);
   console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
-  console.log('Script - scriptContent:', scriptContent);
 
   // Play handler
   const handlePlay = () => {
@@ -299,8 +289,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             suppressContentEditableWarning
             className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
             style={{ whiteSpace: 'pre-wrap', height: '200px' }}
-            dangerouslySetInnerHTML={{ __html: scriptContent }}
-            onInput={(e) => handleScriptContentChange(e.currentTarget.innerHTML)}
+            onInput={(e) => handleScriptContentChange(e.currentTarget.textContent || '')}
           />
         </div>
       </div>
