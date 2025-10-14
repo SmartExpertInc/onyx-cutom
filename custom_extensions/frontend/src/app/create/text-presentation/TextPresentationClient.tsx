@@ -946,6 +946,23 @@ export default function TextPresentationClient() {
                   accumulatedJsonText += buffer;
                 }
               }
+              
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ========== STREAMING FINISHED ==========');
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Total accumulated JSON length:', accumulatedJsonText.length);
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Full accumulated JSON:');
+              console.log(accumulatedJsonText);
+              console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ========================================');
+              
+              // Try final parse
+              try {
+                const finalParsed = JSON.parse(accumulatedJsonText);
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ✅ Final JSON parse successful');
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Has textTitle:', !!finalParsed.textTitle, 'Has contentBlocks:', !!finalParsed.contentBlocks);
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] Block count:', finalParsed.contentBlocks?.length);
+              } catch (e) {
+                console.log('[TEXT_PRESENTATION_STREAM_COMPLETE] ❌ Final JSON parse FAILED:', e instanceof Error ? e.message : String(e));
+              }
+              
               setStreamDone(true);
               break;
             }
@@ -983,29 +1000,46 @@ export default function TextPresentationClient() {
             let jsonParsedSuccessfully = false;
             try {
               const parsed = JSON.parse(accumulatedJsonText);
+              console.log('[TEXT_PRESENTATION_JSON_PARSE] JSON parsed successfully. Type:', typeof parsed, 'Has textTitle:', !!parsed.textTitle, 'Has contentBlocks:', !!parsed.contentBlocks);
+              
               if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
-                console.log('[TEXT_PRESENTATION_JSON_STREAM] Successfully parsed JSON during streaming, blocks:', parsed.contentBlocks.length);
+                console.log('[TEXT_PRESENTATION_JSON_STREAM] ✅ Successfully parsed JSON during streaming, blocks:', parsed.contentBlocks.length);
+                console.log('[TEXT_PRESENTATION_JSON_STREAM] Text title:', parsed.textTitle);
+                console.log('[TEXT_PRESENTATION_JSON_STREAM] First block type:', parsed.contentBlocks[0]?.type);
+                
                 // Convert JSON to display format
                 const displayText = convertTextJsonToDisplay(parsed);
+                console.log('[TEXT_PRESENTATION_JSON_STREAM] Display text length:', displayText.length, 'Preview:', displayText.substring(0, 100) + '...');
+                
                 setContent(displayText);
                 // Store the original JSON for fast-path finalization
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalContent(displayText);
                 jsonParsedSuccessfully = true;
+              } else {
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] ❌ JSON parsed but missing required fields. textTitle:', !!parsed?.textTitle, 'contentBlocks:', !!parsed?.contentBlocks);
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
               }
             } catch (e) {
-              // Incomplete JSON, continue accumulating
-              // This is normal during streaming
+              // Incomplete JSON, continue accumulating - this is normal during streaming
+              const errorMsg = e instanceof Error ? e.message : String(e);
+              if (accumulatedJsonText.length > 100) {
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] JSON parse failed (incomplete):', errorMsg.substring(0, 100));
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] Accumulated text length:', accumulatedJsonText.length, 'chars');
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] Text preview:', accumulatedJsonText.substring(0, 200) + '...');
+              }
             }
 
             // Show accumulated text while JSON is being built (if not yet parsed successfully)
             if (!jsonParsedSuccessfully && accumulatedText) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] Showing raw accumulated text, length:', accumulatedText.length);
               setContent(accumulatedText);
             }
 
             // Make textarea visible when we have content
             const hasMeaningfulText = /\S/.test(accumulatedText);
             if (hasMeaningfulText && !textareaVisible) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] Making textarea visible, content length:', accumulatedText.length);
               setTextareaVisible(true);
             }
           }

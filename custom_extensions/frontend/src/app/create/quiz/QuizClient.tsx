@@ -887,6 +887,23 @@ export default function QuizClient() {
                   accumulatedJsonText += buffer;
                 }
               }
+              
+              console.log('[QUIZ_STREAM_COMPLETE] ========== STREAMING FINISHED ==========');
+              console.log('[QUIZ_STREAM_COMPLETE] Total accumulated JSON length:', accumulatedJsonText.length);
+              console.log('[QUIZ_STREAM_COMPLETE] Full accumulated JSON:');
+              console.log(accumulatedJsonText);
+              console.log('[QUIZ_STREAM_COMPLETE] ========================================');
+              
+              // Try final parse
+              try {
+                const finalParsed = JSON.parse(accumulatedJsonText);
+                console.log('[QUIZ_STREAM_COMPLETE] ✅ Final JSON parse successful');
+                console.log('[QUIZ_STREAM_COMPLETE] Has quizTitle:', !!finalParsed.quizTitle, 'Has questions:', !!finalParsed.questions);
+                console.log('[QUIZ_STREAM_COMPLETE] Question count:', finalParsed.questions?.length);
+              } catch (e) {
+                console.log('[QUIZ_STREAM_COMPLETE] ❌ Final JSON parse FAILED:', e instanceof Error ? e.message : String(e));
+              }
+              
               setStreamDone(true);
               break;
             }
@@ -924,29 +941,46 @@ export default function QuizClient() {
             let jsonParsedSuccessfully = false;
             try {
               const parsed = JSON.parse(accumulatedJsonText);
+              console.log('[QUIZ_JSON_PARSE] JSON parsed successfully. Type:', typeof parsed, 'Has quizTitle:', !!parsed.quizTitle, 'Has questions:', !!parsed.questions);
+              
               if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
-                console.log('[QUIZ_JSON_STREAM] Successfully parsed JSON during streaming, questions:', parsed.questions.length);
+                console.log('[QUIZ_JSON_STREAM] ✅ Successfully parsed JSON during streaming, questions:', parsed.questions.length);
+                console.log('[QUIZ_JSON_STREAM] Quiz title:', parsed.quizTitle);
+                console.log('[QUIZ_JSON_STREAM] First question:', parsed.questions[0]?.question_text?.substring(0, 50) + '...');
+                
                 // Convert JSON to display format
                 const displayText = convertQuizJsonToDisplay(parsed);
+                console.log('[QUIZ_JSON_STREAM] Display text length:', displayText.length, 'Preview:', displayText.substring(0, 100) + '...');
+                
                 setQuizData(displayText);
                 // Store the original JSON for fast-path finalization
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalQuizData(displayText);
                 jsonParsedSuccessfully = true;
+              } else {
+                console.log('[QUIZ_JSON_PARSE] ❌ JSON parsed but missing required fields. quizTitle:', !!parsed?.quizTitle, 'questions:', !!parsed?.questions);
+                console.log('[QUIZ_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
               }
             } catch (e) {
-              // Incomplete JSON, continue accumulating
-              // This is normal during streaming
+              // Incomplete JSON, continue accumulating - this is normal during streaming
+              const errorMsg = e instanceof Error ? e.message : String(e);
+              if (accumulatedJsonText.length > 100) {
+                console.log('[QUIZ_JSON_PARSE] JSON parse failed (incomplete):', errorMsg.substring(0, 100));
+                console.log('[QUIZ_JSON_PARSE] Accumulated text length:', accumulatedJsonText.length, 'chars');
+                console.log('[QUIZ_JSON_PARSE] Text preview:', accumulatedJsonText.substring(0, 200) + '...');
+              }
             }
 
             // Show accumulated text while JSON is being built (if not yet parsed successfully)
             if (!jsonParsedSuccessfully && accumulatedText) {
+              console.log('[QUIZ_PREVIEW] Showing raw accumulated text, length:', accumulatedText.length);
               setQuizData(accumulatedText);
             }
 
             // Make textarea visible when we have content
             const hasMeaningfulText = /\S/.test(accumulatedText);
             if (hasMeaningfulText && !textareaVisible) {
+              console.log('[QUIZ_PREVIEW] Making textarea visible, content length:', accumulatedText.length);
               setTextareaVisible(true);
             }
           }
