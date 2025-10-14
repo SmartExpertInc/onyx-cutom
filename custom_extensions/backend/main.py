@@ -30596,36 +30596,75 @@ async def list_all_user_credits(
             pass
 
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT 
-                    uc.id,
-                    uc.onyx_user_id,
-                    uc.name,
-                    uec.email AS cached_email,
-                    uc.credits_balance,
-                    uc.total_credits_used,
-                    uc.credits_purchased,
-                    uc.last_purchase_date,
-                    -- prefer real plan from billing; default to 'starter' when missing
-                    COALESCE(ub.current_plan, 'starter') ||
-                    CASE WHEN ub.current_interval IS NOT NULL THEN
-                        ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
-                    ELSE '' END AS subscription_tier,
-                    uc.created_at,
-                    uc.updated_at
-                FROM user_credits uc
-                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
-                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
-                ORDER BY uc.updated_at DESC
-                """
-            )
+            # Attempt 1: join to Onyx users table named "user" (FastAPI Users default)
+            try:
+                rows = await conn.fetch(
+                    """
+                    SELECT 
+                        uc.id,
+                        uc.onyx_user_id,
+                        uc.name,
+                        u1.email AS db_email,
+                        uec.email AS cached_email,
+                        uc.credits_balance,
+                        uc.total_credits_used,
+                        uc.credits_purchased,
+                        uc.last_purchase_date,
+                        -- prefer real plan from billing; default to 'starter' when missing
+                        COALESCE(ub.current_plan, 'starter') ||
+                        CASE WHEN ub.current_interval IS NOT NULL THEN
+                            ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                        ELSE '' END AS subscription_tier,
+                        uc.created_at,
+                        uc.updated_at
+                    FROM user_credits uc
+                    LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN "user" u1 ON (u1.id::text = uc.onyx_user_id OR u1.email = uc.onyx_user_id)
+                    ORDER BY uc.updated_at DESC
+                    """
+                )
+                db_join_table = '"user"'
+            except Exception as e_user_table:
+                logger.warning(f"[CREDITS] Join to table 'user' failed, trying 'users': {e_user_table}")
+                # Attempt 2: join to Onyx users table named users
+                rows = await conn.fetch(
+                    """
+                    SELECT 
+                        uc.id,
+                        uc.onyx_user_id,
+                        uc.name,
+                        u2.email AS db_email,
+                        uec.email AS cached_email,
+                        uc.credits_balance,
+                        uc.total_credits_used,
+                        uc.credits_purchased,
+                        uc.last_purchase_date,
+                        COALESCE(ub.current_plan, 'starter') ||
+                        CASE WHEN ub.current_interval IS NOT NULL THEN
+                            ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                        ELSE '' END AS subscription_tier,
+                        uc.created_at,
+                        uc.updated_at
+                    FROM user_credits uc
+                    LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN users u2 ON (u2.id::text = uc.onyx_user_id OR u2.email = uc.onyx_user_id)
+                    ORDER BY uc.updated_at DESC
+                    """
+                )
+                db_join_table = 'users'
 
             enriched: list[UserCredits] = []
+            stats_total = 0
+            stats_from_db = 0
+            stats_from_api = 0
+            stats_from_cache = 0
+            unresolved: list[str] = []
             for row in rows:
                 d = dict(row)
                 # Determine email: Onyx API map, then cached, else None
-                resolved_email = user_emails_map.get(d["onyx_user_id"], d.get("cached_email"))
+                resolved_email = d.get("db_email") or user_emails_map.get(d["onyx_user_id"], d.get("cached_email"))
                 # Compute display identity: email → meaningful name → onyx_user_id
                 name_val = (d.get("name") or "").strip()
                 display_identity = (
@@ -30637,7 +30676,26 @@ async def list_all_user_credits(
                 d["display_identity"] = display_identity
                 # Remove helper
                 d.pop("cached_email", None)
+                d.pop("db_email", None)
+                stats_total += 1
+                if resolved_email:
+                    if resolved_email == user_emails_map.get(d["onyx_user_id"], None):
+                        stats_from_api += 1
+                    elif resolved_email:
+                        # came from DB join or cache; prefer to count DB explicitly
+                        stats_from_db += 1 if display_identity == resolved_email else stats_from_cache
+                else:
+                    unresolved.append(d["onyx_user_id"])
                 enriched.append(UserCredits(**d))
+
+            try:
+                logger.info(
+                    f"[CREDITS] Users listed: total={stats_total}, from_db_join={stats_from_db}, from_api={stats_from_api}, from_cache={stats_from_cache}, unresolved={len(unresolved)}, db_table={db_join_table}"
+                )
+                if unresolved:
+                    logger.debug(f"[CREDITS] Unresolved user identifiers (sample): {unresolved[:10]}")
+            except Exception:
+                pass
 
             return enriched
     except Exception as e:
