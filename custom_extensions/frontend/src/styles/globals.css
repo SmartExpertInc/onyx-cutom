@@ -192,6 +192,7 @@ html {
   --generate-card-border-active: 59 130 246; /* blue-500 */
   --generate-card-icon: 75 85 99; /* gray-600 */
   --generate-card-icon-active: 59 130 246; /* blue-500 */
+  --main-text: oklch(0.5517 0.0138 285.94);
 }
 
 .dark {
@@ -291,6 +292,7 @@ html {
   --generate-card-border-active: 59 130 246; /* blue-500 */
   --generate-card-icon: 148 163 184; /* slate-400 */
   --generate-card-icon-active: 59 130 246; /* blue-500 */
+  --main-text: oklch(0.5517 0.0138 285.94);
 }
 
 @layer base {
