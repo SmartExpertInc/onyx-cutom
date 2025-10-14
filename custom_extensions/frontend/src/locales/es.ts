@@ -1122,9 +1122,9 @@ export const es = {
     },
     // Paste Text Page
     pasteText: {
-      title: "Pega tu texto",
-      subtitle:
-        "Ingresa o pega tu contenido de texto a continuación y elige cómo te gustaría usarlo",
+      title: "Pegar texto",
+      subtitle: "¿Qué le gustaría crear hoy?",
+      pasteInstructions: "Pegue las notas, esquema o contenido de texto que desee utilizar",
       textPlaceholder:
         "Pega tu texto, notas, esquema o cualquier contenido con el que te gustaría trabajar...",
       characters: "{count} caracteres",
@@ -1132,13 +1132,13 @@ export const es = {
         "El texto es muy grande y será procesado como un archivo. Esto puede tomar un tiempo.",
       textLarge:
         "El texto es grande y será comprimido para un procesamiento óptimo.",
-      howToUseText: "¿Cómo te gustaría usar este texto?",
+      howToUseText: "¿Qué quieres hacer con este contenido?",
       useAsContext: "Usar como contexto",
       useAsContextDescription:
-        "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo. Mejor para notas, investigación o información de fondo.",
+        "La IA utilizará su texto como material de referencia y contexto para crear nuevo contenido educativo. Mejor para notas, investigación o información de fondo.",
       useAsBase: "Usar como base",
       useAsBaseDescription:
-        "La IA mejorará y formateará tu estructura de texto existente, preservando tu contenido mientras lo convierte en un producto educativo apropiado. Mejor para borradores o esquemas existentes.",
+        "La IA mejorará y formateará la estructura de su texto existente, preservando su contenido mientras lo convierte en un producto educativo adecuado. Mejor para borradores o esquemas existentes.",
       continueToGenerate: "Continuar a generar",
     },
     // From Files Page

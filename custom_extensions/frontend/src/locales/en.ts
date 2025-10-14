@@ -1148,6 +1148,22 @@ export const en = {
       zephyr: "Zephyr",
     },
 
+    // Paste Text page
+    pasteText: {
+      title: "Paste in text",
+      subtitle: "What would you like to create today?",
+      pasteInstructions: "Paste in the notes, outline or text content you'd like to use",
+      textPlaceholder: "Paste your text, notes, outline, or any content you'd like to work with...",
+      characters: "{count} characters",
+      textLarge: "Text is large and will be compressed for optimal processing.",
+      textVeryLarge: "Text is very large and will be processed as a file. This may take a while.",
+      howToUseText: "What do you want to do with this content?",
+      useAsContext: "Use as Context",
+      useAsContextDescription: "The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.",
+      useAsBase: "Use as Base",
+      useAsBaseDescription: "The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.",
+    },
+
     // Theme picker translations
     themePicker: {
       title: "Presentation Themes",
