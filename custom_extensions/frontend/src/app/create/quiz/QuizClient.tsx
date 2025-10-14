@@ -921,6 +921,7 @@ export default function QuizClient() {
             }
 
             // Try to parse accumulated JSON and convert to display format
+            let jsonParsedSuccessfully = false;
             try {
               const parsed = JSON.parse(accumulatedJsonText);
               if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
@@ -931,19 +932,20 @@ export default function QuizClient() {
                 // Store the original JSON for fast-path finalization
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalQuizData(displayText);
-                // Make textarea visible
-                if (!textareaVisible) {
-                  setTextareaVisible(true);
-                }
+                jsonParsedSuccessfully = true;
               }
             } catch (e) {
               // Incomplete JSON, continue accumulating
               // This is normal during streaming
             }
 
-            // Fallback: Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(accumulatedText);
+            // Show accumulated text while JSON is being built (if not yet parsed successfully)
+            if (!jsonParsedSuccessfully && accumulatedText) {
+              setQuizData(accumulatedText);
+            }
 
+            // Make textarea visible when we have content
+            const hasMeaningfulText = /\S/.test(accumulatedText);
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
             }

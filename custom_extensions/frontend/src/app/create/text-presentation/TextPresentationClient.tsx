@@ -980,6 +980,7 @@ export default function TextPresentationClient() {
             }
 
             // Try to parse accumulated JSON and convert to display format
+            let jsonParsedSuccessfully = false;
             try {
               const parsed = JSON.parse(accumulatedJsonText);
               if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
@@ -990,27 +991,22 @@ export default function TextPresentationClient() {
                 // Store the original JSON for fast-path finalization
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalContent(displayText);
-                // Make textarea visible
-                if (!textareaVisible) {
-                  setTextareaVisible(true);
-                }
+                jsonParsedSuccessfully = true;
               }
             } catch (e) {
               // Incomplete JSON, continue accumulating
               // This is normal during streaming
             }
 
-            // Fallback: Determine if this buffer now contains some real (non-whitespace) text
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-
-            if (hasMeaningfulText && !textareaVisible) {
-              setTextareaVisible(true);
-
+            // Show accumulated text while JSON is being built (if not yet parsed successfully)
+            if (!jsonParsedSuccessfully && accumulatedText) {
+              setContent(accumulatedText);
             }
 
-            // Force state update to ensure UI reflects content changes (only for plain text fallback)
-            if (accumulatedText && accumulatedText !== content && !originalJsonResponse) {
-              setContent(accumulatedText);
+            // Make textarea visible when we have content
+            const hasMeaningfulText = /\S/.test(accumulatedText);
+            if (hasMeaningfulText && !textareaVisible) {
+              setTextareaVisible(true);
             }
           }
         } catch (e: any) {

@@ -28745,12 +28745,13 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             logger.info("No edit information available - using AI parser path")
         
         # Fast-path: check if aiResponse is already JSON (like presentations)
+        parsed_text_presentation_from_fastpath = None
         try:
             candidate = json.loads(payload.aiResponse)
             # Basic schema checks for TextPresentationDetails
             if isinstance(candidate, dict) and 'textTitle' in candidate and 'contentBlocks' in candidate:
                 logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is valid JSON, using directly without AI parsing")
-                parsed_text_presentation = TextPresentationDetails(**candidate)  # type: ignore
+                parsed_text_presentation_from_fastpath = TextPresentationDetails(**candidate)  # type: ignore
                 use_direct_parser = False
                 use_ai_parser = False
                 # Proceed to save with parsed_text_presentation below
@@ -28760,39 +28761,49 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
 
         # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser and 'parsed_text_presentation' not in locals():
-            # DIRECT PARSER PATH: Use cached content directly since no changes were made
-            logger.info("Using direct parser path for text presentation finalization")
-            
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-        elif use_ai_parser and 'parsed_text_presentation' not in locals():
-            # AI PARSER PATH: Use the provided content (which may be clean titles only)
-            logger.info("Using AI parser path for text presentation finalization")
-            
-            # NEW: Check if we have clean content (only titles without descriptions)
-            if getattr(payload, 'isCleanContent', False):
-                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+        if parsed_text_presentation_from_fastpath:
+            # Fast-path succeeded, use it directly
+            logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Using parsed JSON from fast-path")
+            parsed_text_presentation = parsed_text_presentation_from_fastpath
+        else:
+            # Need to parse with AI
+            if use_direct_parser:
+                # DIRECT PARSER PATH: Use cached content directly since no changes were made
+                logger.info("Using direct parser path for text presentation finalization")
                 
-                # Parse the clean content to identify sections that need content generation
-                content_to_parse = await _generate_content_for_clean_titles(
-                    clean_content=payload.aiResponse,
-                    original_content=payload.originalContent,
-                    language=payload.language
-                )
+                # Use the original content for parsing since no changes were made
+                content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            elif use_ai_parser:
+                # AI PARSER PATH: Use the provided content (which may be clean titles only)
+                logger.info("Using AI parser path for text presentation finalization")
+                
+                # NEW: Check if we have clean content (only titles without descriptions)
+                if getattr(payload, 'isCleanContent', False):
+                    logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                    
+                    # Parse the clean content to identify sections that need content generation
+                    content_to_parse = await _generate_content_for_clean_titles(
+                        clean_content=payload.aiResponse,
+                        original_content=payload.originalContent,
+                        language=payload.language
+                    )
+                else:
+                    content_to_parse = payload.aiResponse
             else:
+                # Fallback - shouldn't happen but just in case
+                logger.warning("No parsing path selected, using aiResponse as fallback")
                 content_to_parse = payload.aiResponse
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
-            ai_response=content_to_parse,
-            project_name=project_name,  # Use consistent project name
-            target_model=TextPresentationDetails,
-            default_error_model_instance=TextPresentationDetails(
-                textTitle=project_name,
-                contentBlocks=[],
-                detectedLanguage=payload.language
-            ),
+            
+            # Parse the text presentation data using LLM - only call once with consistent project name
+            parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,  # Use consistent project name
+                target_model=TextPresentationDetails,
+                default_error_model_instance=TextPresentationDetails(
+                    textTitle=project_name,
+                    contentBlocks=[],
+                    detectedLanguage=payload.language
+                ),
             dynamic_instructions=f"""
             You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
             This product is for general text like introductions, goal descriptions, etc.
