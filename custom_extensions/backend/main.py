@@ -27299,6 +27299,26 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
 
+    # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
+    try:
+        json_preview_instructions_quiz = f"""
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Quiz preview, strictly following this example structure:
+{DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Include exact fields: quizTitle, questions[], detectedLanguage.
+- Each question MUST include: question_type, question_text, and appropriate fields based on type
+  (options[] + correct_option_id | options[] + correct_option_ids[] | prompts[] + options[] + correct_matches{{}} | items_to_sort[] + correct_order[] | acceptable_answers[]), and explanation.
+- Use exact field names and value shapes as in the example. Preserve original language across all text.
+"""
+        wizard_message = wizard_message + json_preview_instructions_quiz
+        logger.info("[QUIZ_PREVIEW] Added JSON-only preview instructions")
+    except Exception as e:
+        logger.warning(f"[QUIZ_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
         assistant_reply: str = ""
@@ -27709,8 +27729,25 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
+        # Fast-path: if client provided originalJsonResponse, try to accept it directly if valid
+        provided_json = getattr(payload, 'originalJsonResponse', None)
+        if isinstance(provided_json, str):
+            try:
+                candidate = json.loads(provided_json)
+                # Basic schema checks for QuizData
+                if isinstance(candidate, dict) and 'quizTitle' in candidate and 'questions' in candidate:
+                    logger.info("[QUIZ_FINALIZE_FASTPATH] Using provided originalJsonResponse without AI parsing")
+                    parsed_quiz = QuizData(**candidate)  # type: ignore
+                    use_direct_parser = False
+                    use_ai_parser = False
+                    # Proceed to save with parsed_quiz below
+                else:
+                    logger.info("[QUIZ_FINALIZE_FASTPATH] Provided originalJsonResponse failed schema check; falling back")
+            except Exception as e:
+                logger.info(f"[QUIZ_FINALIZE_FASTPATH] Provided originalJsonResponse not valid JSON: {e}")
+
         # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
+        if use_direct_parser and 'parsed_quiz' not in locals():
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
             logger.info("Using direct parser path for quiz finalization")
             
@@ -27762,7 +27799,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
             )
             logger.info("Direct parser path completed successfully")
-        else:
+        elif use_ai_parser and 'parsed_quiz' not in locals():
             # AI PARSER PATH: Use AI for parsing (original behavior)
             logger.info("Using AI parser path for quiz finalization")
             
@@ -28307,6 +28344,25 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
 
+    # Force JSON-ONLY preview output for Text Presentation to enable immediate parsed preview (like Course Outline)
+    try:
+        json_preview_instructions_text = f"""
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
+{DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Include exact fields: textTitle, contentBlocks[], detectedLanguage.
+- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, etc.).
+- Preserve original language across all text.
+"""
+        wizard_message = wizard_message + json_preview_instructions_text
+        logger.info("[TEXT_PRESENTATION_PREVIEW] Added JSON-only preview instructions")
+    except Exception as e:
+        logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
+
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
         assistant_reply: str = ""
@@ -28690,14 +28746,31 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             use_ai_parser = True
             logger.info("No edit information available - using AI parser path")
         
+        # Fast-path: if client provided originalJsonResponse, try to accept it directly if valid
+        provided_json = getattr(payload, 'originalJsonResponse', None)
+        if isinstance(provided_json, str):
+            try:
+                candidate = json.loads(provided_json)
+                # Basic schema checks for TextPresentationDetails
+                if isinstance(candidate, dict) and 'textTitle' in candidate and 'contentBlocks' in candidate:
+                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Using provided originalJsonResponse without AI parsing")
+                    parsed_text_presentation = TextPresentationDetails(**candidate)  # type: ignore
+                    use_direct_parser = False
+                    use_ai_parser = False
+                    # Proceed to save with parsed_text_presentation below
+                else:
+                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Provided originalJsonResponse failed schema check; falling back")
+            except Exception as e:
+                logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] Provided originalJsonResponse not valid JSON: {e}")
+
         # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
+        if use_direct_parser and 'parsed_text_presentation' not in locals():
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
             logger.info("Using direct parser path for text presentation finalization")
             
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-        else:
+        elif use_ai_parser and 'parsed_text_presentation' not in locals():
             # AI PARSER PATH: Use the provided content (which may be clean titles only)
             logger.info("Using AI parser path for text presentation finalization")
             

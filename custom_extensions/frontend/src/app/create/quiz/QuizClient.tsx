@@ -969,6 +969,14 @@ export default function QuizClient() {
     try {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = quizData;
+      // If the streamed preview is already JSON, keep a copy to send for fast-path finalize
+      let originalJsonResponse: string | undefined;
+      try {
+        const maybeJson = JSON.parse(quizData);
+        if (maybeJson && typeof maybeJson === 'object') {
+          originalJsonResponse = quizData;
+        }
+      } catch {}
       let isCleanContent = false;
 
       if (hasUserEdits && editedTitleIds.size > 0) {
@@ -1003,6 +1011,8 @@ export default function QuizClient() {
           originalContent: originalQuizData,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // If available, include the original JSON to allow backend to skip parsing
+          ...(originalJsonResponse ? { originalJsonResponse } : {}),
           // Add connector context if creating from connectors
           ...(fromConnectors && {
             fromConnectors: true,

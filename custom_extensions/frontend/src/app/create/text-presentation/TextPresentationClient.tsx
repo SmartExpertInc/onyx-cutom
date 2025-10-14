@@ -1138,6 +1138,15 @@ export default function TextPresentationClient() {
       console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
       console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
 
+      // If the streamed preview is already JSON, include it to allow backend to skip parsing
+      let originalJsonResponse: string | undefined;
+      try {
+        const maybeJson = JSON.parse(content);
+        if (maybeJson && typeof maybeJson === 'object') {
+          originalJsonResponse = content;
+        }
+      } catch {}
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
@@ -1149,6 +1158,7 @@ export default function TextPresentationClient() {
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,
+          ...(originalJsonResponse ? { originalJsonResponse } : {}),
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
