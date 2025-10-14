@@ -26,28 +26,55 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
 
   // Load from localStorage on mount
   useEffect(() => {
+    console.log('🎤 [VOICE_CONTEXT] ========== VOICE CONTEXT INITIALIZATION ==========');
     const savedVoice = localStorage.getItem('selectedVoice');
     if (savedVoice) {
       try {
         const voice = JSON.parse(savedVoice);
+        console.log('🎤 [VOICE_CONTEXT] Loading saved voice from localStorage:', {
+          character: voice.character,
+          voiceId: voice.voice,
+          provider: voice.voiceProvider,
+          locale: voice.locale
+        });
         setSelectedVoiceState(voice);
-        console.log('🎤 [VOICE_CONTEXT] Loaded voice from localStorage:', voice.character);
+        console.log('🎤 [VOICE_CONTEXT] ✅ Voice loaded successfully from localStorage');
       } catch (error) {
-        console.error('🎤 [VOICE_CONTEXT] Error loading voice from localStorage:', error);
+        console.error('🎤 [VOICE_CONTEXT] ❌ Failed to parse saved voice:', error);
+        localStorage.removeItem('selectedVoice');
+        console.log('🎤 [VOICE_CONTEXT] Removed corrupted voice data from localStorage');
       }
+    } else {
+      console.log('🎤 [VOICE_CONTEXT] No saved voice found in localStorage');
     }
+    console.log('🎤 [VOICE_CONTEXT] ========== VOICE CONTEXT INITIALIZATION COMPLETED ==========');
   }, []);
 
   // Save to localStorage when voice changes
   const setSelectedVoice = (voice: ElaiVoice | null) => {
+    console.log('🎤 [VOICE_CONTEXT] ========== VOICE STATE UPDATE ==========');
+    if (voice) {
+      console.log('🎤 [VOICE_CONTEXT] Setting new voice:', {
+        character: voice.character,
+        voiceId: voice.voice,
+        provider: voice.voiceProvider,
+        locale: voice.locale,
+        premium: voice.premium
+      });
+    } else {
+      console.log('🎤 [VOICE_CONTEXT] Clearing voice selection');
+    }
+    
     setSelectedVoiceState(voice);
+    
     if (voice) {
       localStorage.setItem('selectedVoice', JSON.stringify(voice));
-      console.log('🎤 [VOICE_CONTEXT] Voice saved to localStorage:', voice.character);
+      console.log('🎤 [VOICE_CONTEXT] ✅ Voice saved to localStorage');
     } else {
       localStorage.removeItem('selectedVoice');
-      console.log('🎤 [VOICE_CONTEXT] Voice cleared from localStorage');
+      console.log('🎤 [VOICE_CONTEXT] ✅ Voice cleared from localStorage');
     }
+    console.log('🎤 [VOICE_CONTEXT] ========== VOICE STATE UPDATE COMPLETED ==========');
   };
 
   return (

@@ -29860,7 +29860,12 @@ async def create_presentation(request: Request):
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
+        # NEW: Extract voice parameters
+        voice_id = body.get("voiceId")
+        voice_provider = body.get("voiceProvider")
+        
         # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
@@ -29873,6 +29878,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - quality: {quality}")
         logger.info(f"  - resolution: {resolution}")
         logger.info(f"  - project_name: {project_name}")
+        
+        # NEW: Log voice parameters
+        logger.info("🎤 [MAIN_ENDPOINT] Voice parameters received:")
+        logger.info(f"  - voice_id: {voice_id}")
+        logger.info(f"  - voice_provider: {voice_provider}")
+        logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
         
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
@@ -29900,9 +29911,12 @@ async def create_presentation(request: Request):
             layout=layout,
             quality=quality,
             resolution=tuple(resolution),
-            project_name=project_name
+            project_name=project_name,
+            voice_id=voice_id,  # NEW: Pass voice ID
+            voice_provider=voice_provider  # NEW: Pass voice provider
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
+        logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)

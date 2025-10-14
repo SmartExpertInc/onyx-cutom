@@ -78,7 +78,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -86,6 +86,8 @@ class ElaiVideoGenerationService:
             project_name: Name of the project
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use
+            voice_id: Voice ID from Elai API (optional)
+            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
             
         Returns:
             Dict containing result with success status and video ID
@@ -95,6 +97,8 @@ class ElaiVideoGenerationService:
         logger.info(f"  - Project name: {project_name}")
         logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
         logger.info(f"  - Avatar code: {avatar_code}")
+        logger.info(f"  - Voice ID: {voice_id}")
+        logger.info(f"  - Voice Provider: {voice_provider}")
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
@@ -294,9 +298,9 @@ class ElaiVideoGenerationService:
                     "animation": "fade_in",
                     "language": "English",
                     "speech": " ".join(cleaned_texts),
-                    "voice": "en-US-AriaNeural",
+                    "voice": voice_id if voice_id else "en-US-AriaNeural",
                     "voiceType": "text",
-                    "voiceProvider": "azure"
+                    "voiceProvider": voice_provider if voice_provider else "azure"
                 }],
                 "tags": ["video_lesson", "generated", "presentation"],
                 "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
@@ -351,13 +355,15 @@ class ElaiVideoGenerationService:
                 "error": f"Failed to create video: {str(e)}"
             }
 
-    async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any], voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
         Create a video with the given slides and avatar data.
         
         Args:
             slides_data: List of slide data with voiceover text
             avatar_data: Avatar configuration data
+            voice_id: Voice ID from Elai API (optional)
+            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
             
         Returns:
             Dict containing video creation response
@@ -530,11 +536,21 @@ class ElaiVideoGenerationService:
                     "animation": "fade_in",
                     "language": "English",
                     "speech": slide.get("voiceover_text", ""),
-                    "voice": avatar_data.get("voice", "en-US-AriaNeural"),
+                    "voice": voice_id if voice_id else avatar_data.get("voice", "en-US-AriaNeural"),
                     "voiceType": "text",
-                    "voiceProvider": avatar_data.get("voice_provider", "azure")
+                    "voiceProvider": voice_provider if voice_provider else avatar_data.get("voice_provider", "azure")
                 }
                 elai_slides.append(elai_slide)
+            
+            # Log voice parameters used in Elai API payload
+            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE PARAMETERS IN ELAI PAYLOAD ==========")
+            for i, slide in enumerate(elai_slides):
+                logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Slide {i+1} voice configuration:")
+                logger.info(f"  - Voice: {slide.get('voice')}")
+                logger.info(f"  - Voice Provider: {slide.get('voiceProvider')}")
+                logger.info(f"  - Voice Type: {slide.get('voiceType')}")
+                logger.info(f"  - Speech Text: {slide.get('speech', '')[:100]}...")
+            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE PARAMETERS LOGGED ==========")
             
             # Prepare video request
             video_request = {
@@ -546,18 +562,32 @@ class ElaiVideoGenerationService:
             }
             
             # Create video
+            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== ELAI API CALL STARTED ==========")
+            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Making POST request to: {self.api_base}/videos")
+            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Request payload summary:")
+            logger.info(f"  - Video name: {video_request['name']}")
+            logger.info(f"  - Slides count: {len(video_request['slides'])}")
+            logger.info(f"  - Format: {video_request['format']}")
+            logger.info(f"  - Resolution: {video_request['resolution']}")
+            
             response = await self.client.post(
                 f"{self.api_base}/videos",
                 headers=self.headers,
                 json=video_request
             )
             
+            logger.info(f"🎤 [ELAI_VIDEO_GENERATION] Elai API response status: {response.status_code}")
+            logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== ELAI API CALL COMPLETED ==========")
+            
             if response.is_success:
                 result = response.json()
-                logger.info(f"Video created successfully: {result.get('_id')}")
+                video_id = result.get('_id')
+                logger.info(f"🎤 [ELAI_VIDEO_GENERATION] ✅ Video created successfully with ID: {video_id}")
+                logger.info("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE INTEGRATION SUCCESS ==========")
                 return result
             else:
-                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
+                logger.error(f"🎤 [ELAI_VIDEO_GENERATION] ❌ Failed to create video: {response.status_code} - {response.text}")
+                logger.error("🎤 [ELAI_VIDEO_GENERATION] ========== VOICE INTEGRATION FAILED ==========")
                 raise Exception(f"Video creation failed: {response.status_code}")
                 
         except Exception as e:
@@ -913,13 +943,15 @@ class ElaiVideoGenerationService:
             logger.warning(f"🎬 [VIDEO_ANALYSIS] Could not analyze video: {str(e)}")
             # Don't fail the whole process if analysis fails
     
-    async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any], voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
         Complete video generation process: create, render, and wait for completion.
         
         Args:
             slides_data: List of slide data with voiceover text
             avatar_data: Avatar configuration data
+            voice_id: Voice ID from Elai API (optional)
+            voice_provider: Voice provider (azure, elevenlabs, etc.) (optional)
             
         Returns:
             Dict containing result with success status and download URL
@@ -938,7 +970,7 @@ class ElaiVideoGenerationService:
                     return {"success": False, "error": f"Slide {i + 1} has no voiceover text"}
             
             # Create video
-            video_data = await self.create_video(slides_data, avatar_data)
+            video_data = await self.create_video(slides_data, avatar_data, voice_id, voice_provider)
             video_id = video_data.get("_id")
             
             if not video_id:

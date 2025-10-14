@@ -128,7 +128,15 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   // Initialize temporary selection from global selection when modal opens
   useEffect(() => {
     if (isOpen && globalSelectedVoice) {
+      console.log('🎤 [VOICE_PICKER] Modal opened with existing global voice selection:', {
+        character: globalSelectedVoice.character,
+        voiceId: globalSelectedVoice.voice,
+        provider: globalSelectedVoice.voiceProvider,
+        locale: globalSelectedVoice.locale
+      });
       setTempSelectedVoice(globalSelectedVoice);
+    } else if (isOpen) {
+      console.log('🎤 [VOICE_PICKER] Modal opened without existing voice selection');
     }
   }, [isOpen, globalSelectedVoice]);
 
@@ -136,6 +144,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   useEffect(() => {
     const fetchVoices = async () => {
       try {
+        console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH STARTED ==========');
+        console.log('🎤 [VOICE_PICKER] Fetching voices from Elai API...');
+        console.log('🎤 [VOICE_PICKER] API Endpoint: https://apis.elai.io/api/v1/voices');
+        
         setLoading(true);
         const response = await fetch('https://apis.elai.io/api/v1/voices', {
           method: 'GET',
@@ -145,26 +157,46 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           }
         });
 
+        console.log('🎤 [VOICE_PICKER] API Response Status:', response.status);
+        
         if (!response.ok) {
+          console.error('🎤 [VOICE_PICKER] Failed to fetch voices:', response.status);
           throw new Error(`Failed to fetch voices: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('🎤 [VOICE_PICKER] API Response received');
+        console.log('🎤 [VOICE_PICKER] Language groups count:', data.length);
         
         // Flatten the nested structure (array of language groups with male/female arrays)
         const allVoices: ElaiVoice[] = [];
+        let maleCount = 0;
+        let femaleCount = 0;
+        
         data.forEach((languageGroup: any) => {
           if (languageGroup.male && Array.isArray(languageGroup.male)) {
             allVoices.push(...languageGroup.male);
+            maleCount += languageGroup.male.length;
           }
           if (languageGroup.female && Array.isArray(languageGroup.female)) {
             allVoices.push(...languageGroup.female);
+            femaleCount += languageGroup.female.length;
           }
         });
 
+        console.log('🎤 [VOICE_PICKER] Voices extracted:');
+        console.log('🎤 [VOICE_PICKER] - Total voices:', allVoices.length);
+        console.log('🎤 [VOICE_PICKER] - Male voices:', maleCount);
+        console.log('🎤 [VOICE_PICKER] - Female voices:', femaleCount);
+        console.log('🎤 [VOICE_PICKER] - Azure voices:', allVoices.filter(v => v.voiceProvider === 'azure').length);
+        console.log('🎤 [VOICE_PICKER] - ElevenLabs voices:', allVoices.filter(v => v.voiceProvider === 'elevenlabs').length);
+        console.log('🎤 [VOICE_PICKER] - Premium voices:', allVoices.filter(v => v.premium).length);
+        console.log('🎤 [VOICE_PICKER] ========== VOICE FETCH COMPLETED ==========');
+
         setVoices(allVoices);
       } catch (error) {
-        console.error('Error fetching voices:', error);
+        console.error('🎤 [VOICE_PICKER] ❌ Error fetching voices:', error);
+        console.error('🎤 [VOICE_PICKER] Error details:', error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
@@ -179,8 +211,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const handlePlayVoice = (e: React.MouseEvent, voice: ElaiVoice) => {
     e.stopPropagation(); // Prevent voice selection when clicking play button
     
+    console.log('🎤 [VOICE_PICKER] Play button clicked for voice:', {
+      character: voice.character,
+      voiceId: voice.voice,
+      provider: voice.voiceProvider,
+      hasUrl: !!voice.url
+    });
+    
     // If clicking the same voice that's playing, stop it
     if (playingVoice === voice.voice) {
+      console.log('🎤 [VOICE_PICKER] Stopping currently playing voice');
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
@@ -191,26 +231,32 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
     
     // Stop any currently playing audio
     if (audioRef.current) {
+      console.log('🎤 [VOICE_PICKER] Stopping previous audio');
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
     
     // Play the new voice preview
     if (voice.url) {
+      console.log('🎤 [VOICE_PICKER] Starting audio playback from URL:', voice.url.substring(0, 50) + '...');
       const audio = new Audio(voice.url);
       audioRef.current = audio;
       
       audio.play().catch((error) => {
-        console.error('Error playing audio:', error);
+        console.error('🎤 [VOICE_PICKER] ❌ Error playing audio:', error);
         setPlayingVoice(null);
       });
       
       setPlayingVoice(voice.voice);
+      console.log('🎤 [VOICE_PICKER] ✅ Audio playback started successfully');
       
       // Reset playing state when audio ends
       audio.onended = () => {
+        console.log('🎤 [VOICE_PICKER] Audio playback ended');
         setPlayingVoice(null);
       };
+    } else {
+      console.warn('🎤 [VOICE_PICKER] ⚠️ No audio URL available for voice:', voice.character);
     }
   };
 
@@ -712,7 +758,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                  <div 
                    key={voice.voice || index} 
                    className="mb-4 group"
-                   onClick={() => setTempSelectedVoice(voice)}
+                   onClick={() => {
+                     console.log('🎤 [VOICE_PICKER] Voice item clicked:', {
+                       character: voice.character,
+                       voiceId: voice.voice,
+                       provider: voice.voiceProvider,
+                       locale: voice.locale,
+                       premium: voice.premium
+                     });
+                     setTempSelectedVoice(voice);
+                   }}
                  >
                    <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
                      tempSelectedVoice?.voice === voice.voice 
@@ -938,23 +993,33 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             >
               Cancel
             </button>
-            <button
-              onClick={() => {
-                if (tempSelectedVoice) {
-                  setGlobalSelectedVoice(tempSelectedVoice);
-                  console.log('🎤 [VOICE_PICKER] Voice applied to global context:', {
-                    character: tempSelectedVoice.character,
-                    voiceId: tempSelectedVoice.voice,
-                    provider: tempSelectedVoice.voiceProvider
-                  });
-                }
-                onClose();
-              }}
-              className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              disabled={!tempSelectedVoice}
-            >
-              Apply voice
-            </button>
+             <button
+               onClick={() => {
+                 if (tempSelectedVoice) {
+                   console.log('🎤 [VOICE_PICKER] ========== APPLY VOICE STARTED ==========');
+                   console.log('🎤 [VOICE_PICKER] Applying voice to global context:', {
+                     character: tempSelectedVoice.character,
+                     voiceId: tempSelectedVoice.voice,
+                     provider: tempSelectedVoice.voiceProvider,
+                     locale: tempSelectedVoice.locale,
+                     premium: tempSelectedVoice.premium,
+                     tags: tempSelectedVoice.tags
+                   });
+                   
+                   setGlobalSelectedVoice(tempSelectedVoice);
+                   
+                   console.log('🎤 [VOICE_PICKER] ✅ Voice successfully applied to global context');
+                   console.log('🎤 [VOICE_PICKER] ========== APPLY VOICE COMPLETED ==========');
+                 } else {
+                   console.warn('🎤 [VOICE_PICKER] ⚠️ No voice selected to apply');
+                 }
+                 onClose();
+               }}
+               className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+               disabled={!tempSelectedVoice}
+             >
+               Apply voice
+             </button>
           </div>
         </div>
       </div>

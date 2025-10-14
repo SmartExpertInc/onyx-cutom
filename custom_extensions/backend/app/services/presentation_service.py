@@ -40,6 +40,9 @@ class PresentationRequest:
     quality: str = "high"  # high, medium, low
     resolution: tuple = (1920, 1080)
     project_name: str = "Generated Presentation"
+    # NEW: Voice parameters
+    voice_id: Optional[str] = None  # Voice ID from Elai API
+    voice_provider: Optional[str] = None  # Voice provider (azure, elevenlabs, etc.)
 
 @dataclass
 class PresentationJob:
@@ -182,6 +185,14 @@ class ProfessionalPresentationService:
         try:
             job_id = str(uuid.uuid4())
             
+            # Log voice parameters
+            logger.info("🎤 [PRESENTATION_SERVICE] ========== PRESENTATION CREATION STARTED ==========")
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Job ID: {job_id}")
+            logger.info("🎤 [PRESENTATION_SERVICE] Voice parameters received:")
+            logger.info(f"  - voice_id: {request.voice_id}")
+            logger.info(f"  - voice_provider: {request.voice_provider}")
+            logger.info("🎤 [PRESENTATION_SERVICE] ========== VOICE PARAMETERS LOGGED ==========")
+            
             # Create job tracking
             job = PresentationJob(
                 job_id=job_id,
@@ -278,6 +289,12 @@ class ProfessionalPresentationService:
             logger.info(f"  - Avatar Code: {request.avatar_code}")
             logger.info(f"  - Voiceover Texts Count: {len(request.voiceover_texts)}")
             logger.info(f"  - Slides Data Provided: {bool(request.slides_data)}")
+            
+            # Log voice parameters
+            logger.info("🎤 [PRESENTATION_PROCESSING] Voice parameters:")
+            logger.info(f"  - Voice ID: {request.voice_id}")
+            logger.info(f"  - Voice Provider: {request.voice_provider}")
+            logger.info("🎤 [PRESENTATION_PROCESSING] ========== VOICE PARAMETERS LOGGED ==========")
             
             if request.slides_data:
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Slides data analysis:")
@@ -881,10 +898,13 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Auto-selected avatar: {avatar_code}")
             
             # Create video with Elai API
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Calling video generation with voice parameters: voice_id={request.voice_id}, voice_provider={request.voice_provider}")
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
                 voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
+                avatar_code=avatar_code,
+                voice_id=request.voice_id,
+                voice_provider=request.voice_provider
             )
             
             if not result["success"]:
@@ -1060,10 +1080,13 @@ class ProfessionalPresentationService:
         """
         try:
             # Create video with Elai API
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Calling video generation with voice parameters: voice_id={request.voice_id}, voice_provider={request.voice_provider}")
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
                 voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
+                avatar_code=avatar_code,
+                voice_id=request.voice_id,
+                voice_provider=request.voice_provider
             )
             
             if not result["success"]:
