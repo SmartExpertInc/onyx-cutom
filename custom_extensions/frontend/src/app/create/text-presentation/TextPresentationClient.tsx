@@ -459,7 +459,18 @@ export default function TextPresentationClient() {
   };
 
   // Use useMemo to recalculate lessonList when content changes
-  const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
+  const lessonList = React.useMemo(() => {
+    const lessons = parseContentIntoLessons(content);
+    console.log('[TEXT_PRESENTATION_LESSON_LIST] Content length:', content.length, 'Parsed lessons:', lessons.length);
+    if (lessons.length > 0) {
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] First lesson title:', lessons[0].title);
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] First lesson content preview:', lessons[0].content.substring(0, 100) + '...');
+    } else if (content.length > 0) {
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] ❌ No lessons parsed from content!');
+      console.log('[TEXT_PRESENTATION_LESSON_LIST] Content preview:', content.substring(0, 500) + '...');
+    }
+    return lessons;
+  }, [content]);
 
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {

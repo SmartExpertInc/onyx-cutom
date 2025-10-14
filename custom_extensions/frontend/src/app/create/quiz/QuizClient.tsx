@@ -179,49 +179,51 @@ export default function QuizClient() {
   };
 
   // Helper function to convert quiz JSON to display format
+  // IMPORTANT: Must match the format expected by parseQuizIntoQuestions()
   const convertQuizJsonToDisplay = (parsed: any): string => {
-    let displayText = `Quiz Title: ${parsed.quizTitle}\n\n`;
+    let displayText = `# ${parsed.quizTitle}\n\n`;
     
     parsed.questions.forEach((q: any, index: number) => {
-      displayText += `Question ${index + 1}: ${q.question_text}\n`;
+      // Use the format expected by parseQuizIntoQuestions: "1. **Question text**"
+      displayText += `${index + 1}. **${q.question_text}**\n\n`;
       
       if (q.question_type === 'multiple-choice' && q.options) {
         q.options.forEach((opt: any) => {
           displayText += `${opt.id}) ${opt.text}\n`;
         });
-        displayText += `Correct: ${q.correct_option_id}\n`;
+        displayText += `\n**Correct:** ${q.correct_option_id}\n`;
       } else if (q.question_type === 'multi-select' && q.options) {
         q.options.forEach((opt: any) => {
           displayText += `${opt.id}) ${opt.text}\n`;
         });
-        displayText += `Correct: ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
+        displayText += `\n**Correct:** ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
       } else if (q.question_type === 'matching' && q.prompts && q.options) {
-        displayText += `Match the following:\n`;
+        displayText += `**Match the following:**\n`;
         q.prompts.forEach((p: any) => {
           displayText += `${p.id}) ${p.text}\n`;
         });
-        displayText += `With:\n`;
+        displayText += `\n**With:**\n`;
         q.options.forEach((opt: any) => {
           displayText += `${opt.id}) ${opt.text}\n`;
         });
-        displayText += `Correct matches: ${JSON.stringify(q.correct_matches)}\n`;
+        displayText += `\n**Correct matches:** ${JSON.stringify(q.correct_matches)}\n`;
       } else if (q.question_type === 'sorting' && q.items_to_sort) {
-        displayText += `Arrange in order:\n`;
+        displayText += `**Arrange in order:**\n`;
         q.items_to_sort.forEach((item: any) => {
           displayText += `- ${item.text}\n`;
         });
-        displayText += `Correct order: ${q.correct_order?.join(' → ') || 'N/A'}\n`;
+        displayText += `\n**Correct order:** ${q.correct_order?.join(' → ') || 'N/A'}\n`;
       } else if (q.question_type === 'open-answer' && q.acceptable_answers) {
-        displayText += `Acceptable answers:\n`;
+        displayText += `**Acceptable answers:**\n`;
         q.acceptable_answers.forEach((ans: string) => {
           displayText += `- ${ans}\n`;
         });
       }
       
       if (q.explanation) {
-        displayText += `Explanation: ${q.explanation}\n`;
+        displayText += `\n**Explanation:** ${q.explanation}\n`;
       }
-      displayText += '\n';
+      displayText += '\n---\n\n';
     });
     
     return displayText;
