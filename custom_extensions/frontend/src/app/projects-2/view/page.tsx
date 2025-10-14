@@ -24,8 +24,7 @@ import AvatarSettings from './components/AvatarSettings';
 import ShapeSettings from './components/ShapeSettings';
 import OptionPopup from './components/OptionPopup';
 import TemplateSelector from './components/TemplateSelector';
-// NEW: Import SlideAddButton and types
-import { SlideAddButton } from '@/components/SlideAddButton';
+// NEW: Import types
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import AvatarDataProvider from './components/AvatarDataService';
@@ -140,6 +139,11 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // Function to open template selector panel
+  const handleOpenTemplateSelector = () => {
+    setActiveComponent('templates');
   };
 
 
@@ -375,6 +379,7 @@ export default function Projects2ViewPage() {
             onSlideSelect={handleSlideSelect}
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
+            onOpenTemplateSelector={handleOpenTemplateSelector}
           />
         </div>
       </div>
