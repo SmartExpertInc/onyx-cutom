@@ -959,31 +959,24 @@ export default function QuizClient() {
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalQuizData(displayText);
                 jsonParsedSuccessfully = true;
+                
+                // Make textarea visible now that we have formatted content
+                if (!textareaVisible) {
+                  console.log('[QUIZ_PREVIEW] ✅ Making textarea visible with formatted content');
+                  setTextareaVisible(true);
+                }
               } else {
                 console.log('[QUIZ_JSON_PARSE] ❌ JSON parsed but missing required fields. quizTitle:', !!parsed?.quizTitle, 'questions:', !!parsed?.questions);
                 console.log('[QUIZ_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
               }
             } catch (e) {
               // Incomplete JSON, continue accumulating - this is normal during streaming
+              // DON'T show preview yet - wait until JSON is complete and can be parsed
               const errorMsg = e instanceof Error ? e.message : String(e);
-              if (accumulatedJsonText.length > 100) {
-                console.log('[QUIZ_JSON_PARSE] JSON parse failed (incomplete):', errorMsg.substring(0, 100));
-                console.log('[QUIZ_JSON_PARSE] Accumulated text length:', accumulatedJsonText.length, 'chars');
-                console.log('[QUIZ_JSON_PARSE] Text preview:', accumulatedJsonText.substring(0, 200) + '...');
+              if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
+                // Only log occasionally to avoid spam
+                console.log('[QUIZ_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
               }
-            }
-
-            // Show accumulated text while JSON is being built (if not yet parsed successfully)
-            if (!jsonParsedSuccessfully && accumulatedText) {
-              console.log('[QUIZ_PREVIEW] Showing raw accumulated text, length:', accumulatedText.length);
-              setQuizData(accumulatedText);
-            }
-
-            // Make textarea visible when we have content
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-            if (hasMeaningfulText && !textareaVisible) {
-              console.log('[QUIZ_PREVIEW] Making textarea visible, content length:', accumulatedText.length);
-              setTextareaVisible(true);
             }
           }
         } catch (error: any) {

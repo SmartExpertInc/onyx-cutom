@@ -1027,31 +1027,24 @@ export default function TextPresentationClient() {
                 setOriginalJsonResponse(accumulatedJsonText);
                 setOriginalContent(displayText);
                 jsonParsedSuccessfully = true;
+                
+                // Make textarea visible now that we have formatted content
+                if (!textareaVisible) {
+                  console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible with formatted content');
+                  setTextareaVisible(true);
+                }
               } else {
                 console.log('[TEXT_PRESENTATION_JSON_PARSE] ❌ JSON parsed but missing required fields. textTitle:', !!parsed?.textTitle, 'contentBlocks:', !!parsed?.contentBlocks);
                 console.log('[TEXT_PRESENTATION_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
               }
             } catch (e) {
               // Incomplete JSON, continue accumulating - this is normal during streaming
+              // DON'T show preview yet - wait until JSON is complete and can be parsed
               const errorMsg = e instanceof Error ? e.message : String(e);
-              if (accumulatedJsonText.length > 100) {
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] JSON parse failed (incomplete):', errorMsg.substring(0, 100));
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] Accumulated text length:', accumulatedJsonText.length, 'chars');
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] Text preview:', accumulatedJsonText.substring(0, 200) + '...');
+              if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
+                // Only log occasionally to avoid spam
+                console.log('[TEXT_PRESENTATION_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
               }
-            }
-
-            // Show accumulated text while JSON is being built (if not yet parsed successfully)
-            if (!jsonParsedSuccessfully && accumulatedText) {
-              console.log('[TEXT_PRESENTATION_PREVIEW] Showing raw accumulated text, length:', accumulatedText.length);
-              setContent(accumulatedText);
-            }
-
-            // Make textarea visible when we have content
-            const hasMeaningfulText = /\S/.test(accumulatedText);
-            if (hasMeaningfulText && !textareaVisible) {
-              console.log('[TEXT_PRESENTATION_PREVIEW] Making textarea visible, content length:', accumulatedText.length);
-              setTextareaVisible(true);
             }
           }
         } catch (e: any) {
