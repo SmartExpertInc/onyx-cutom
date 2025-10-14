@@ -158,6 +158,7 @@ export default function QuizClient() {
   // NEW: Track user edits like in Course Outline
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalQuizData, setOriginalQuizData] = useState<string>("");
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string>("");
 
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -927,9 +928,70 @@ export default function QuizClient() {
     }
   }, [quizData, textareaVisible]);
 
-  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  // Once streaming is done, detect JSON and convert to display format
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
+      // First try to detect if this is JSON
+      try {
+        const parsed = JSON.parse(quizData);
+        if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
+          // Convert JSON to display format
+          let displayText = `Quiz Title: ${parsed.quizTitle}\n\n`;
+          
+          parsed.questions.forEach((q: any, index: number) => {
+            displayText += `Question ${index + 1}: ${q.question_text}\n`;
+            
+            if (q.question_type === 'multiple-choice' && q.options) {
+              q.options.forEach((opt: any) => {
+                displayText += `${opt.id}) ${opt.text}\n`;
+              });
+              displayText += `Correct: ${q.correct_option_id}\n`;
+            } else if (q.question_type === 'multi-select' && q.options) {
+              q.options.forEach((opt: any) => {
+                displayText += `${opt.id}) ${opt.text}\n`;
+              });
+              displayText += `Correct: ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
+            } else if (q.question_type === 'matching' && q.prompts && q.options) {
+              displayText += `Match the following:\n`;
+              q.prompts.forEach((p: any) => {
+                displayText += `${p.id}) ${p.text}\n`;
+              });
+              displayText += `With:\n`;
+              q.options.forEach((opt: any) => {
+                displayText += `${opt.id}) ${opt.text}\n`;
+              });
+              displayText += `Correct matches: ${JSON.stringify(q.correct_matches)}\n`;
+            } else if (q.question_type === 'sorting' && q.items_to_sort) {
+              displayText += `Arrange in order:\n`;
+              q.items_to_sort.forEach((item: any) => {
+                displayText += `- ${item.text}\n`;
+              });
+              displayText += `Correct order: ${q.correct_order?.join(' → ') || 'N/A'}\n`;
+            } else if (q.question_type === 'open-answer' && q.acceptable_answers) {
+              displayText += `Acceptable answers:\n`;
+              q.acceptable_answers.forEach((ans: string) => {
+                displayText += `- ${ans}\n`;
+              });
+            }
+            
+            if (q.explanation) {
+              displayText += `Explanation: ${q.explanation}\n`;
+            }
+            displayText += '\n';
+          });
+          
+          setQuizData(displayText);
+          setOriginalQuizData(displayText);
+          // Store the original JSON for fast-path finalization
+          setOriginalJsonResponse(quizData);
+          setFirstLineRemoved(true);
+          return;
+        }
+      } catch (e) {
+        // Not JSON, continue with original logic
+      }
+      
+      // Original logic for plain text
       const parts = quizData.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -969,14 +1031,8 @@ export default function QuizClient() {
     try {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = quizData;
-      // If the streamed preview is already JSON, keep a copy to send for fast-path finalize
-      let originalJsonResponse: string | undefined;
-      try {
-        const maybeJson = JSON.parse(quizData);
-        if (maybeJson && typeof maybeJson === 'object') {
-          originalJsonResponse = quizData;
-        }
-      } catch {}
+      // Use stored original JSON response if available
+      const originalJsonToSend = originalJsonResponse || undefined;
       let isCleanContent = false;
 
       if (hasUserEdits && editedTitleIds.size > 0) {
@@ -1012,7 +1068,7 @@ export default function QuizClient() {
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
           // If available, include the original JSON to allow backend to skip parsing
-          ...(originalJsonResponse ? { originalJsonResponse } : {}),
+          ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
           // Add connector context if creating from connectors
           ...(fromConnectors && {
             fromConnectors: true,

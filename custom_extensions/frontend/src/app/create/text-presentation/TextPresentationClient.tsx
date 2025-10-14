@@ -230,6 +230,7 @@ export default function TextPresentationClient() {
   // Smart change handling states (similar to QuizClient)
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalContent, setOriginalContent] = useState<string>("");
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string>("");
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
@@ -1056,9 +1057,82 @@ export default function TextPresentationClient() {
   }, [loading, length, selectedStyles, currentPrompt, language]);
 
 
-  // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
+  // Once streaming is done, detect JSON and convert to display format
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
+      // First try to detect if this is JSON
+      try {
+        const parsed = JSON.parse(content);
+        if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
+          // Convert JSON to display format
+          let displayText = `# ${parsed.textTitle}\n\n`;
+          
+          parsed.contentBlocks.forEach((block: any) => {
+            if (block.type === 'headline') {
+              const level = block.level || 2;
+              const prefix = '#'.repeat(level);
+              displayText += `${prefix} ${block.text}\n\n`;
+            } else if (block.type === 'paragraph') {
+              displayText += `${block.text}\n\n`;
+            } else if (block.type === 'bullet_list' && block.items) {
+              block.items.forEach((item: any) => {
+                if (typeof item === 'string') {
+                  displayText += `- ${item}\n`;
+                } else if (item.type === 'bullet_list') {
+                  item.items.forEach((subItem: any) => {
+                    if (typeof subItem === 'string') {
+                      displayText += `  - ${subItem}\n`;
+                    } else if (subItem.type === 'numbered_list') {
+                      subItem.items.forEach((numItem: any, idx: number) => {
+                        displayText += `    ${idx + 1}. ${numItem}\n`;
+                      });
+                    }
+                  });
+                } else if (item.type === 'numbered_list') {
+                  item.items.forEach((numItem: any, idx: number) => {
+                    displayText += `  ${idx + 1}. ${numItem}\n`;
+                  });
+                }
+              });
+              displayText += '\n';
+            } else if (block.type === 'numbered_list' && block.items) {
+              block.items.forEach((item: any, idx: number) => {
+                if (typeof item === 'string') {
+                  displayText += `${idx + 1}. ${item}\n`;
+                } else if (item.type === 'bullet_list') {
+                  // Handle nested bullet list in numbered item
+                  item.items.forEach((subItem: any, subIdx: number) => {
+                    if (subItem.type === 'headline') {
+                      displayText += `  ${idx + 1}.${subIdx + 1} ${subItem.text}\n`;
+                    } else if (subItem.type === 'paragraph') {
+                      displayText += `     ${subItem.text}\n`;
+                    }
+                  });
+                }
+              });
+              displayText += '\n';
+            } else if (block.type === 'table' && block.headers && block.rows) {
+              // Simple table representation
+              displayText += `| ${block.headers.join(' | ')} |\n`;
+              displayText += `| ${block.headers.map(() => '---').join(' | ')} |\n`;
+              block.rows.forEach((row: any) => {
+                displayText += `| ${row.join(' | ')} |\n`;
+              });
+              displayText += '\n';
+            }
+          });
+          
+          setContent(displayText);
+          // Store the original JSON for fast-path finalization
+          setOriginalJsonResponse(content);
+          setFirstLineRemoved(true);
+          return;
+        }
+      } catch (e) {
+        // Not JSON, continue with original logic
+      }
+      
+      // Original logic for plain text
       const parts = content.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -1138,14 +1212,8 @@ export default function TextPresentationClient() {
       console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
       console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
 
-      // If the streamed preview is already JSON, include it to allow backend to skip parsing
-      let originalJsonResponse: string | undefined;
-      try {
-        const maybeJson = JSON.parse(content);
-        if (maybeJson && typeof maybeJson === 'object') {
-          originalJsonResponse = content;
-        }
-      } catch {}
+      // Use stored original JSON response if available
+      const originalJsonToSend = originalJsonResponse || undefined;
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -1158,7 +1226,7 @@ export default function TextPresentationClient() {
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,
-          ...(originalJsonResponse ? { originalJsonResponse } : {}),
+          ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
