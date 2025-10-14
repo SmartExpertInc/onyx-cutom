@@ -1214,8 +1214,9 @@ export default function TextPresentationClient() {
       console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
       console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
 
-      // Use stored original JSON response if available
-      const originalJsonToSend = originalJsonResponse || undefined;
+      // Like presentations: send original JSON as aiResponse if available
+      console.log('[TEXT_PRESENTATION_FINALIZE] originalJsonResponse available:', !!originalJsonResponse, 'length:', originalJsonResponse?.length || 0);
+      console.log('[TEXT_PRESENTATION_FINALIZE] Sending as aiResponse:', originalJsonResponse ? 'JSON' : 'display text');
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -1223,12 +1224,11 @@ export default function TextPresentationClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: contentToSend,
+          aiResponse: originalJsonResponse || contentToSend,
           prompt: currentPrompt,
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,
-          ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),

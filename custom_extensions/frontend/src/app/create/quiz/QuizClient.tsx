@@ -1035,14 +1035,12 @@ export default function QuizClient() {
     setIsCreatingFinal(true);
     const activeProductType = sessionStorage.getItem('activeProductType');
     try {
-      // NEW: Prepare content based on whether user made edits
-      let contentToSend = quizData;
-      // Use stored original JSON response if available
-      const originalJsonToSend = originalJsonResponse || undefined;
-      console.log('[QUIZ_FINALIZE] originalJsonResponse state:', originalJsonResponse);
-      console.log('[QUIZ_FINALIZE] originalJsonToSend:', originalJsonToSend);
-      console.log('[QUIZ_FINALIZE] originalJsonResponse available:', !!originalJsonToSend, 'length:', originalJsonToSend?.length || 0);
+      // Like presentations: send original JSON as aiResponse if available, otherwise send display text
+      let contentToSend = originalJsonResponse || quizData;
       let isCleanContent = false;
+
+      console.log('[QUIZ_FINALIZE] originalJsonResponse available:', !!originalJsonResponse, 'length:', originalJsonResponse?.length || 0);
+      console.log('[QUIZ_FINALIZE] Sending as aiResponse:', originalJsonResponse ? 'JSON' : 'display text');
 
       if (hasUserEdits && editedTitleIds.size > 0) {
         // User edited question titles - send clean questions for regeneration
@@ -1071,8 +1069,6 @@ export default function QuizClient() {
         originalContent: originalQuizData,
         // NEW: Indicate if content is clean (questions only)
         isCleanContent: isCleanContent,
-        // If available, include the original JSON to allow backend to skip parsing
-        ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
         // Add connector context if creating from connectors
         ...(fromConnectors && {
           fromConnectors: true,
@@ -1085,8 +1081,7 @@ export default function QuizClient() {
       };
 
       console.log('[QUIZ_FINALIZE] Payload being sent:', {
-        hasOriginalJsonResponse: !!payloadToSend.originalJsonResponse,
-        originalJsonResponseLength: payloadToSend.originalJsonResponse?.length || 0,
+        aiResponseIsJSON: originalJsonResponse ? true : false,
         aiResponseLength: payloadToSend.aiResponse?.length || 0
       });
 

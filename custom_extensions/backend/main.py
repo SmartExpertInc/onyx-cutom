@@ -27729,23 +27729,20 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
-        # Fast-path: if client provided originalJsonResponse, try to accept it directly if valid
-        provided_json = getattr(payload, 'originalJsonResponse', None)
-        logger.info(f"[QUIZ_FINALIZE_FASTPATH] Checking for originalJsonResponse: {provided_json is not None}, type: {type(provided_json)}, length: {len(provided_json) if isinstance(provided_json, str) else 0}")
-        if isinstance(provided_json, str):
-            try:
-                candidate = json.loads(provided_json)
-                # Basic schema checks for QuizData
-                if isinstance(candidate, dict) and 'quizTitle' in candidate and 'questions' in candidate:
-                    logger.info("[QUIZ_FINALIZE_FASTPATH] Using provided originalJsonResponse without AI parsing")
-                    parsed_quiz = QuizData(**candidate)  # type: ignore
-                    use_direct_parser = False
-                    use_ai_parser = False
-                    # Proceed to save with parsed_quiz below
-                else:
-                    logger.info("[QUIZ_FINALIZE_FASTPATH] Provided originalJsonResponse failed schema check; falling back")
-            except Exception as e:
-                logger.info(f"[QUIZ_FINALIZE_FASTPATH] Provided originalJsonResponse not valid JSON: {e}")
+        # Fast-path: check if aiResponse is already JSON (like presentations)
+        try:
+            candidate = json.loads(payload.aiResponse)
+            # Basic schema checks for QuizData
+            if isinstance(candidate, dict) and 'quizTitle' in candidate and 'questions' in candidate:
+                logger.info("[QUIZ_FINALIZE_FASTPATH] aiResponse is valid JSON, using directly without AI parsing")
+                parsed_quiz = QuizData(**candidate)  # type: ignore
+                use_direct_parser = False
+                use_ai_parser = False
+                # Proceed to save with parsed_quiz below
+            else:
+                logger.info("[QUIZ_FINALIZE_FASTPATH] aiResponse is JSON but missing required fields; falling back to AI parser")
+        except Exception as e:
+            logger.info(f"[QUIZ_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
 
         # NEW: Choose parsing strategy based on user edits
         if use_direct_parser and 'parsed_quiz' not in locals():
@@ -28747,22 +28744,20 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             use_ai_parser = True
             logger.info("No edit information available - using AI parser path")
         
-        # Fast-path: if client provided originalJsonResponse, try to accept it directly if valid
-        provided_json = getattr(payload, 'originalJsonResponse', None)
-        if isinstance(provided_json, str):
-            try:
-                candidate = json.loads(provided_json)
-                # Basic schema checks for TextPresentationDetails
-                if isinstance(candidate, dict) and 'textTitle' in candidate and 'contentBlocks' in candidate:
-                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Using provided originalJsonResponse without AI parsing")
-                    parsed_text_presentation = TextPresentationDetails(**candidate)  # type: ignore
-                    use_direct_parser = False
-                    use_ai_parser = False
-                    # Proceed to save with parsed_text_presentation below
-                else:
-                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Provided originalJsonResponse failed schema check; falling back")
-            except Exception as e:
-                logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] Provided originalJsonResponse not valid JSON: {e}")
+        # Fast-path: check if aiResponse is already JSON (like presentations)
+        try:
+            candidate = json.loads(payload.aiResponse)
+            # Basic schema checks for TextPresentationDetails
+            if isinstance(candidate, dict) and 'textTitle' in candidate and 'contentBlocks' in candidate:
+                logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is valid JSON, using directly without AI parsing")
+                parsed_text_presentation = TextPresentationDetails(**candidate)  # type: ignore
+                use_direct_parser = False
+                use_ai_parser = False
+                # Proceed to save with parsed_text_presentation below
+            else:
+                logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is JSON but missing required fields; falling back to AI parser")
+        except Exception as e:
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
 
         # NEW: Choose parsing strategy based on user edits
         if use_direct_parser and 'parsed_text_presentation' not in locals():
