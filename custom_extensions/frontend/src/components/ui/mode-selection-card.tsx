@@ -33,27 +33,30 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
         ref={ref}
         className={cn(
           "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
-          "bg-white border-2 border-[#E0E0E0] shadow-md",
-          "hover:bg-[#F2F8FF] hover:border-[#0F58F9] hover:shadow-xl",
-          "active:bg-[#F2F8FF] active:border-[#0F58F9] active:shadow-xl",
+          "shadow-md",
+          "hover:shadow-xl",
+          "active:shadow-xl",
           isSelected
             ? "bg-[#F2F8FF] border-[#0F58F9] shadow-xl"
-            : "",
+            : "bg-[#FDFDFD] border-[#E0E0E0]",
           disabled
             ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)]",
+            : "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)] hover:bg-[#F2F8FF] hover:border-[#0F58F9] active:bg-[#F2F8FF] active:border-[#0F58F9]",
           className
         )}
+        style={isSelected ? { borderWidth: '2px' } : { borderWidth: '1px' }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderWidth = '2px')}
+        onMouseLeave={(e) => !isSelected && (e.currentTarget.style.borderWidth = '1px')}
         {...props}
       >
         {/* Selection Indicator */}
-        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
+        <div className={`absolute top-4 right-4 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
           isSelected
             ? 'bg-blue-600 border-blue-600'
             : 'border-gray-300 group-hover:border-blue-400'
         }`}>
           {isSelected && (
-            <Check size={14} className="text-white" />
+            <Check size={10} className="text-white" />
           )}
         </div>
         
@@ -74,8 +77,8 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
               {title && (
                 <h3 
                   className={cn(
-                    "text-2xl font-semibold text-left leading-tight tracking-[0.01em] transition-all duration-200",
-                    "opacity-80 group-hover:opacity-100 group-active:opacity-100 group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"
+                    "text-lg font-semibold text-left leading-tight tracking-[0.01em] transition-all duration-200",
+                    "opacity-80 group-hover:opacity-100 group-active:opacity-100"
                   )}
                   style={{ color: '#0D001B' }}
                 >
@@ -84,8 +87,8 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
               )}
               {description && (
                 <p 
-                  className="text-base text-left leading-[130%]"
-                  style={{ color: '#71717A' }}
+                  className="text-left leading-[150%]"
+                  style={{ color: '#71717A', fontSize: '12px' }}
                 >
                   {description}
                 </p>

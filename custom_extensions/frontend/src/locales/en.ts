@@ -1163,9 +1163,9 @@ export const en = {
       textLarge: "Text is large and will be compressed for optimal processing.",
       textVeryLarge: "Text is very large and will be processed as a file. This may take a while.",
       howToUseText: "What do you want to do with this content?",
-      useAsContext: "Use as Context",
+      useAsContext: "Use as context",
       useAsContextDescription: "The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.",
-      useAsBase: "Use as Base",
+      useAsBase: "Use as base",
       useAsBaseDescription: "The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.",
     },
 
