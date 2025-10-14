@@ -460,11 +460,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {/* Lock/Users icon positioned absolutely in top-right */}
             {project.isPrivate ? (
               <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Lock size={18} className="text-gray-600" />
+                <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
               </div>
             ) : (
               <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Users size={18} className="text-gray-600" />
+                <Users size={18} strokeWidth={1.5} className="text-gray-600" />
               </div>
             )}
             
@@ -486,19 +486,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
                 {project.designMicroproductType === "Slide Deck" && (
-                  <LayoutTemplate size={19} className="font-light text-[#EFB4FB]" />
+                  <LayoutTemplate size={19} strokeWidth={1} className="font-light text-[#EFB4FB]" />
                 )}
                 {project.designMicroproductType === "Training Plan" && (
-                  <BookOpen size={19} className="font-light text-[#719AF5]" />
+                  <BookOpen size={19} strokeWidth={1} className="font-light text-[#719AF5]" />
                 )}
                 {project.designMicroproductType === "Video Lesson Presentation" && (
-                  <MonitorPlay size={19} className="font-light text-[#06A294]" />
+                  <MonitorPlay size={19} strokeWidth={1} className="font-light text-[#06A294]" />
                 )}
                 {project.designMicroproductType === "Text Presentation" && (
-                  <FileText size={19} className="font-light text-purple-300" />
+                  <FileText size={19} strokeWidth={1} className="font-light text-purple-300" />
                 )}
                 {project.designMicroproductType === "Quiz" && (
-                  <FileQuestion size={19} className="font-light text-[#FBEC9E]" />
+                  <FileQuestion size={19} strokeWidth={1} className="font-light text-[#FBEC9E]" />
                 )}
               </div>
               <span className="text-sm text-gray-500 font-normal">

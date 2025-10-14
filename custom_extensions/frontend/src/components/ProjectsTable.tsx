@@ -47,7 +47,11 @@ import {
   TableOfContents,
   Search,
   ArrowDownUp,
-  Check
+  Check,
+  LayoutTemplate,
+  BookOpen,
+  MonitorPlay,
+  FileQuestion
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -3580,12 +3584,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     "Quiz",
     "Video Lesson"
   ];
-  const contentTypeFilterIcons: Record<string, LucideIcon> = {
-    "All": Home,
-    "Course": TableOfContents,
-    "Presentation": Presentation,
-    "Quiz": HelpCircle,
-    "Video Lesson": Video,
+
+  const AllIcon: React.FC<{ stroke?: string }> = ({ stroke }) => (
+    <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10.3333 1.06689H1M13 5.06689H1M9.06667 9.00023H1" stroke={stroke} stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+  );
+
+  const contentTypeFilterIcons: Record<string, LucideIcon | React.ComponentType<any>> = {
+    "All": AllIcon,
+    "Course": BookOpen,
+    "Presentation": LayoutTemplate,
+    "Quiz": FileQuestion,
+    "Video Lesson": MonitorPlay,
   };
 
   // Add PDF download function
@@ -3689,7 +3700,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   return (
     <div>
       {!trashMode && (
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
               <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
                 <Button 
@@ -3714,10 +3725,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {/* Navigation Panel */}
 
       {!trashMode && (
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <nav className="flex">
             <button
-              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "all" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3743,7 +3754,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Created by you
             </button>
             <button
-              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "shared" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3756,7 +3767,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Shared with you
             </button>
             <button
-              className={`pb-2 px-5 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "favorites" 
                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3769,7 +3780,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Favorites
             </button>
           </nav>
-          <div className="relative w-120 ml-auto">
+          <div className="relative w-80 ml-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
             <Input
               type="text"
@@ -3780,7 +3791,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               className="pl-10"
             />
           </div>
-          <div className="flex items-center p-2.5 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+          <div 
+            className="flex items-center p-2.5 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+            onClick={() => {
+              setSortBy('created');
+              setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+            }}
+          >
             <ArrowDownUp size={16} className="text-[#71717A]" />
           </div>
            <div className="flex items-center gap-4">
@@ -3819,7 +3836,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                        <div className={`flex items-center gap-3 ${isSelected ? "text-[#0F58F9]" : "text-gray-900"}`}>
                          <Icon 
                            size={16} 
+                           stroke={isSelected ? "#3366FF" : "#09090B"}
                            className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
+                           strokeWidth={1}
                          />
                          <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filter}</span>
                        </div>
@@ -4046,9 +4065,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     >
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
-                            <span className="text-gray-500 font-medium">
-                              {getProductTypeDisplayName(p.designMicroproductType)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 flex items-center justify-center">
+                                {p.designMicroproductType === "Slide Deck" && (
+                                  <LayoutTemplate size={19} strokeWidth={1} className="font-light text-[#EFB4FB]" />
+                                )}
+                                {p.designMicroproductType === "Training Plan" && (
+                                  <BookOpen size={19} strokeWidth={1} className="font-light text-[#719AF5]" />
+                                )}
+                                {p.designMicroproductType === "Video Lesson Presentation" && (
+                                  <MonitorPlay size={19} strokeWidth={1} className="font-light text-[#06A294]" />
+                                )}
+                                {p.designMicroproductType === "Text Presentation" && (
+                                  <FileText size={19} strokeWidth={1} className="font-light text-purple-300" />
+                                )}
+                                {p.designMicroproductType === "Quiz" && (
+                                  <FileQuestion size={19} strokeWidth={1} className="font-light text-[#FBEC9E]" />
+                                )}
+                              </div>
+                              <span className="text-sm text-gray-500 font-normal">
+                                {getProductTypeDisplayName(p.designMicroproductType)}
+                              </span>
+                            </div>
                           ) : (
                             "-"
                           )}

@@ -501,7 +501,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
           onClick={() => onFolderSelect(null)}
         >
-          <Home size={18} className='font-normal' />
+          <Home size={18} strokeWidth={1.5} className='font-normal' />
           <span>{t('interface.products', 'Products')}</span>
         </Link>
         <Link
@@ -512,7 +512,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             onFolderSelect(null);
           }}
         >
-          <HardDrive size={18} className='font-normal' />
+          <HardDrive size={18} strokeWidth={1.5} className='font-normal' />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
         </Link>
         {offersTabEnabled && (
@@ -524,7 +524,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             onFolderSelect(null);
           }}
           >
-            <FileText size={18} className='font-normal' />
+            <FileText size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.offers', 'Offers')}</span>
           </Link>
         )}
@@ -534,7 +534,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => onFolderSelect(null)}
           >
-            <ClipboardCheck size={18} className='font-normal' />
+            <ClipboardCheck size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.audits', 'Audits')}</span>
           </Link>
         )}
@@ -544,7 +544,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
             onClick={() => onFolderSelect(null)}
           >
-            <Users size={18} className='font-normal' />
+            <Users size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.workspace', 'Workspace')}</span>
           </Link>
         )}
@@ -557,7 +557,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             onFolderSelect(null);
           }}
           >
-            <Upload size={18} className='font-normal' />
+            <Upload size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
           </Link>
         )}
@@ -585,7 +585,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <p className="mb-2 text-gray-700 leading-relaxed">{t('interface.organizeCourses', 'Organize your courses into folders, keep them structured and work more efficiently')}</p>
             <button className="inline-flex text-blue-600 items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
               </svg>
               {t('interface.createFirstFolder', 'Create First Folder')}
             </button>
@@ -618,12 +618,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <nav className="flex flex-col gap-1 mt-auto">
         {eventPostersEnabled && (
           <Link href="/create/event-poster/questionnaire" className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900">
-            <Presentation size={18} className='font-normal' />
+            <Presentation size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.eventPoster', 'Event Poster')}</span>
           </Link>
         )}
         <Link href="/projects?tab=trash" className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}>
-          <Trash2 size={18} className='font-normal' />
+          <Trash2 size={18} strokeWidth={1.5} className='font-normal' />
           <span>{t('interface.trash', 'Trash')}</span>
         </Link>
       </nav>
