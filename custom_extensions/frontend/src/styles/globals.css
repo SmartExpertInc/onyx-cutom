@@ -31,9 +31,9 @@
   font-family: 'Lora', serif;
 }
 
-/* Mont Regular as default font for non-slide components */
+/* Inter as default font for non-slide components */
 * {
-  font-family: 'Mont Regular', 'Mont', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 *, *::before, *::after {
@@ -51,7 +51,7 @@ html, body {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-family: 'Mont Regular', 'Mont', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-weight: 400;
   font-size: 18px;
 }

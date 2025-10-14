@@ -226,11 +226,11 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         boxSizing: 'border-box'
       }}>
 
-        {/* Logo in top-left corner */}
+        {/* Logo in top-left corner - MATCHES HTML */}
         <div style={{
           position: 'absolute',
-          top: '30px',
-          left: '30px'
+          top: '2.5%',
+          left: '2.5%'
         }}>
           <YourLogo
             logoPath={logoPath}
@@ -241,19 +241,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           />
         </div>
 
-        {/* Page number with line */}
+        {/* Page number with line - MATCHES HTML */}
         <div style={{
           position: 'absolute',
-          bottom: '30px',
-          left: '0px',
+          bottom: '2.5%',
+          left: '0',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '0.7%'
         }}>
           {/* Small line */}
           <div style={{
-            width: '20px',
-            height: '1px',
+            width: '1.67%',
+            height: '0.19%',
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }} />
           {/* Page number */}
@@ -265,9 +265,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               className="page-number-editor"
               style={{
                 color: '#ffffff',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
-                width: '30px',
+                width: 'auto',
                 height: 'auto'
               }}
             />
@@ -276,7 +276,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onClick={() => isEditable && setEditingPageNumber(true)}
               style={{
                 color: '#ffffff',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
@@ -287,15 +287,15 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           )}
         </div>
 
-        {/* Title and Subtitle - Centered vertically */}
+        {/* Title and Subtitle - Centered vertically - MATCHES HTML */}
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '50px',
+          left: '4.17%',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px'
+          gap: '0.83%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -304,7 +304,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleTitleCancel}
               className="course-overview-title-editor"
               style={{
-                fontSize: '63px',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -316,7 +316,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
-                fontSize: '63px',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -336,7 +336,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleSubtitleCancel}
               className="course-overview-subtitle-editor"
               style={{
-                fontSize: '63px',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -348,7 +348,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
             <div
               onClick={() => isEditable && setEditingSubtitle(true)}
               style={{
-                fontSize: '63px',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -382,9 +382,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           isEditable={isEditable}
           style={{
             position: 'absolute',
-            bottom: '-27px',
+            bottom: '-2.24%',
             height: '91%',
-            borderRadius: '10px'
+            borderRadius: '0.83%'
           }}
         />
       </div>

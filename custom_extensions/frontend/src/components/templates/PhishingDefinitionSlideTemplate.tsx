@@ -231,22 +231,22 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
 
   return (
     <div className="phishing-definition-slide-template inter-theme" style={slideStyles}>
-      {/* Left section with text */}
+      {/* Left section with text - MATCHES HTML: padding: 96px, paddingTop: 64px */}
       <div style={{
         width: '50%',
         height: '100%',
         backgroundColor: '#E0E7FF',
-        padding: '60px',
-        paddingTop: '40px',
+        padding: '5%',
+        paddingTop: '3.33%',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative'
       }}>
-        {/* Title */}
+        {/* Title - MATCHES HTML: fontSize: 80px, marginBottom: 24px */}
         <div style={{
-          fontSize: '50px',
+          fontSize: '4.17vw',
           color: '#212222',
-          marginBottom: '15px',
+          marginBottom: '1.25%',
           lineHeight: '1.2'
         }}>
           {isEditable && editingTitle ? (
@@ -275,19 +275,19 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           )}
         </div>
 
-        {/* Definitions */}
+        {/* Definitions - MATCHES HTML: gap: 32px, marginBottom: 64px, fontSize: 22px */}
         <div style={{
           flex: '1',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
-          marginBottom: '40px'
+          gap: '1.67%',
+          marginBottom: '3.33%'
         }}>
           {currentDefinitions.map((definition, index) => (
             <div
               key={index}
               style={{
-                fontSize: '14px',
+                fontSize: '1.15vw',
                 color: '#545555',
                 lineHeight: '1.5'
               }}
@@ -300,7 +300,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
                   multiline={true}
                   className="definition-editor"
                   style={{
-                    fontSize: '14px',
+                    fontSize: '1.15vw',
                     color: '#545555',
                     lineHeight: '1.5'
                   }}
@@ -320,13 +320,13 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           ))}
         </div>
 
-        {/* Profile image at bottom left */}
+        {/* Profile image at bottom left - MATCHES HTML: bottom: 149px, left: 96px, width: 256px, height: 256px */}
         <div style={{
           position: 'absolute',
-          bottom: '93px',
-          left: '60px',
-          width: '160px',
-          height: '160px',
+          bottom: '7.76%',
+          left: '5%',
+          width: '13.33%',
+          height: '23.7%',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#ffffff'
@@ -349,20 +349,20 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           />
         </div>
 
-        {/* Page number with line */}
+        {/* Page number with line - MATCHES HTML: bottom: 48px, gap: 13px, line: 32px × 1.5px, fontSize: 27px */}
         <div style={{
           position: 'absolute',
-          bottom: '30px',
-          left: '0px',
+          bottom: '2.5%',
+          left: '0',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '0.68%',
           zIndex: 20
         }}>
           {/* Small line */}
           <div style={{
-            width: '20px',
-            height: '1px',
+            width: '1.67%',
+            height: '0.14%',
             backgroundColor: 'rgba(9, 9, 11, 0.3)'
           }} />
           {/* Page number */}
@@ -374,9 +374,9 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               className="page-number-editor"
               style={{
                 color: '#09090B',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
-                width: '30px',
+                width: 'auto',
                 height: 'auto'
               }}
             />
@@ -385,7 +385,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               onClick={() => isEditable && setEditingPageNumber(true)}
               style={{
                 color: '#09090B',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
@@ -418,11 +418,11 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           }}
         />
 
-        {/* Logo in bottom-right corner */}
+        {/* Logo in bottom-right corner - MATCHES HTML: bottom: 48px, right: 48px, fontSize: 26px */}
         <div style={{
           position: 'absolute',
-          bottom: '30px',
-          right: '30px',
+          bottom: '2.5%',
+          right: '2.5%',
           zIndex: 20
         }}>
           <YourLogo
@@ -431,6 +431,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             isEditable={isEditable}
             color="#ffffff"
             text="Your Logo"
+            fontSize="1.35vw"
           />
         </div>
       </div>
