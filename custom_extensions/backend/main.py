@@ -30571,26 +30571,59 @@ async def list_all_user_credits(
                     response = await client.get(users_url, cookies=cookies_to_forward)
                     if response.status_code == 200:
                         users_data = response.json()
-                        users_iterable = (
-                            users_data.get("users", []) if isinstance(users_data, dict) else (users_data if isinstance(users_data, list) else [])
-                        )
+                        # Log top-level keys and shape for troubleshooting
+                        try:
+                            if isinstance(users_data, dict):
+                                logger.info(f"[CREDITS] Onyx /manage/users keys: {list(users_data.keys())}")
+                            else:
+                                logger.info(f"[CREDITS] Onyx /manage/users returned list of len={len(users_data)}")
+                        except Exception:
+                            pass
+
+                        # Normalize to a flat list of user snapshots
+                        users_iterable: list[dict] = []
+                        if isinstance(users_data, dict):
+                            if 'users' in users_data and isinstance(users_data['users'], list):
+                                users_iterable = users_data['users']
+                            else:
+                                accepted = users_data.get('accepted', []) or []
+                                slack_users = users_data.get('slack_users', []) or []
+                                invited = users_data.get('invited', []) or []
+                                # We only map accepted + slack user emails
+                                users_iterable = []
+                                if isinstance(accepted, list):
+                                    users_iterable += accepted
+                                if isinstance(slack_users, list):
+                                    users_iterable += slack_users
+                                # invited is email strings; skip
+                        elif isinstance(users_data, list):
+                            users_iterable = users_data
+
+                        # Build id->email map (handles different field names)
                         for user in users_iterable:
                             try:
                                 user_id_val = (
-                                    user.get("userId")
-                                    or user.get("id")
-                                    or user.get("uuid")
-                                    or user.get("user_id")
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
                                 )
                                 email_val = (
-                                    user.get("email")
-                                    or user.get("userEmail")
-                                    or user.get("primary_email")
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
                                 )
                                 if user_id_val and email_val:
                                     user_emails_map[str(user_id_val)] = str(email_val)
                             except Exception:
                                 continue
+
+                        # Log a small sample of the mapping for debugging
+                        try:
+                            sample_items = list(user_emails_map.items())[:5]
+                            logger.info(f"[CREDITS] Onyx users mapped: count={len(user_emails_map)}, sample={sample_items}")
+                        except Exception:
+                            pass
         except Exception:
             # Non-fatal; we'll fallback to cache
             pass
