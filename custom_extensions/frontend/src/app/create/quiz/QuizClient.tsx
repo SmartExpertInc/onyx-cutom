@@ -988,6 +988,7 @@ export default function QuizClient() {
           // Store the original JSON for fast-path finalization
           setOriginalJsonResponse(quizData);
           console.log('[QUIZ_JSON_DETECT] Stored original JSON response for finalization');
+          setTextareaVisible(true); // Make textarea visible
           setFirstLineRemoved(true);
           return;
         }
@@ -1038,6 +1039,8 @@ export default function QuizClient() {
       let contentToSend = quizData;
       // Use stored original JSON response if available
       const originalJsonToSend = originalJsonResponse || undefined;
+      console.log('[QUIZ_FINALIZE] originalJsonResponse state:', originalJsonResponse);
+      console.log('[QUIZ_FINALIZE] originalJsonToSend:', originalJsonToSend);
       console.log('[QUIZ_FINALIZE] originalJsonResponse available:', !!originalJsonToSend, 'length:', originalJsonToSend?.length || 0);
       let isCleanContent = false;
 

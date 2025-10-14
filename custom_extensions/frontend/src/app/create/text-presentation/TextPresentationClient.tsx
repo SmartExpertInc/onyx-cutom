@@ -1125,6 +1125,8 @@ export default function TextPresentationClient() {
           setContent(displayText);
           // Store the original JSON for fast-path finalization
           setOriginalJsonResponse(content);
+          console.log('[TEXT_PRESENTATION_JSON_DETECT] Stored original JSON response for finalization');
+          setTextareaVisible(true); // Make textarea visible
           setFirstLineRemoved(true);
           return;
         }
