@@ -924,6 +924,10 @@ export const ru = {
     onePager: "Одна страница",
     videoTable: "Видео",
     favorites: "Избранное",
+    
+    // Pagination
+    rowsPerPage: "Строк на странице:",
+    pageOf: "Страница {currentPage} из {totalPages}",
 
     // Create page
     createWithAI: "Создать с ИИ",
@@ -1738,6 +1742,13 @@ export const ru = {
     collaboration: "Совместная работа",
     current: "Текущий",
     purchasePlan: "Купить план",
+    getStarted: "Начать",
+    saveOnYearly: "Экономьте 15% на годовом плане!",
+    bestForPersonalUse: "Идеально для личного использования",
+    whatYouGet: "Что вы получаете:",
+    allFreeFeaturesPlus: "Все бесплатные функции, плюс:",
+    allStarterFeaturesPlus: "Все функции стартового плана, плюс:",
+    allBusinessFeaturesPlus: "Все функции бизнес-плана, плюс:",
     plans: {
       starter: {
         name: "Начальный (Бесплатный)",

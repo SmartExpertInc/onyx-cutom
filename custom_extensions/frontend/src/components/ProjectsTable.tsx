@@ -4188,7 +4188,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <div className="flex items-center justify-end mt-4 px-4 py-3 bg-white rounded-lg">
               <div className="flex items-center gap-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[var(--main-text)]">Rows per page:</span>
+                  <span className="text-sm text-[var(--main-text)]">{t("interface.rowsPerPage", "Rows per page:")}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="h-8 w-[70px] border-[#E4E4E7] rounded-md bg-white shadow-sm justify-between text-[var(--main-text)]">
@@ -4216,7 +4216,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </DropdownMenu>
                 </div>
                 <span className="text-sm text-[var(--main-text)]">
-                  Page {currentPage} of {totalPages}
+                  {t("interface.pageOf", "Page {currentPage} of {totalPages}")
+                    .replace("{currentPage}", currentPage.toString())
+                    .replace("{totalPages}", totalPages.toString())}
                 </span>
                 
                 <div className="flex items-center gap-2">

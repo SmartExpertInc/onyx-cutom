@@ -36,6 +36,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [portalLoading, setPortalLoading] = useState(false);
   const [currentPlanId, setCurrentPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
   const [lastLoadedPlanId, setLastLoadedPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
+  const [modalHeight, setModalHeight] = useState(0);
+  const modalRef = React.useRef<HTMLDivElement>(null);
   const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
     const p = (planRaw || 'starter').toLowerCase();
     if (p.includes('business')) return 'business';
@@ -43,6 +45,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     if (p.includes('enterprise')) return 'enterprise';
     return 'starter';
   };
+
+  useEffect(() => {
+    if (modalRef.current) {
+      const height = modalRef.current.offsetHeight;
+      setModalHeight(height);
+    }
+  }, [open, billingCycle]);
 
   useEffect(() => {
     const loadCurrentPlan = async () => {
@@ -325,7 +334,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         </button>
         
         <ScrollArea className="h-[93vh] max-h-[750px] w-full">
-          <div className="h-[93vh] min-h-[600px] max-h-[750px]">
+          <div ref={modalRef} className="h-[93vh] min-h-[600px] max-h-[750px]">
           <div className="container mx-auto px-6 py-4 xl:py-5 xl:px-8">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
@@ -341,7 +350,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 </div>
                 <h1 className="text-xl xl:text-2xl font-bold text-[#434343] mb-2 xl:mb-3 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
-                <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans"><span className="sora-font font-bold">Save 15%</span> on yearly plan!</p>
+                <p className="text-blue-700 font-normal text-xs mb-1 font-public-sans">{t('tariffPlan.saveOnYearly', 'Save 15% on yearly plan!')}</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
@@ -401,7 +410,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     {/* Card Header */}
                     <div className="p-4 pt-5">
                       <h3 className="text-lg xl:text-xl font-bold text-[#0D001B] font-public-sans mb-1">{plan.name}</h3>
-                      <p className="text-xs xl:text-sm text-[#0D001B] font-public-sans mb-3">Best for personal use</p>
+                      <p className="text-xs xl:text-sm text-[#0D001B] font-public-sans mb-3">{t('tariffPlan.bestForPersonalUse', 'Best for personal use')}</p>
                       <div className="text-gray-900">
                         <span className="text-2xl xl:text-3xl font-public-sans font-bold">
                           {getPrice(plan)}
@@ -436,12 +445,12 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
                       <h4 className="text-sm xl:text-sm font-medium font-public-sans text-[#434343] pt-5 xl:pt-6 mb-3">
-                        {plan.id === 'starter' ? 'What you get:' : 
-                         plan.id === 'pro' ? 'All free features, plus:' :
-                         plan.id === 'business' ? 'All starter features, plus:' :
-                         'All business features, plus:'}
+                        {plan.id === 'starter' ? t('tariffPlan.whatYouGet', 'What you get:') : 
+                         plan.id === 'pro' ? t('tariffPlan.allFreeFeaturesPlus', 'All free features, plus:') :
+                         plan.id === 'business' ? t('tariffPlan.allStarterFeaturesPlus', 'All starter features, plus:') :
+                         t('tariffPlan.allBusinessFeaturesPlus', 'All business features, plus:')}
                       </h4>
-                      <div className="space-y-3 mb-6 font-public-sans flex-grow">
+                      <div className={`${modalHeight > 710 ? 'space-y-5' : 'space-y-3'} mb-6 font-public-sans flex-grow`}>
                         <div className="flex items-center">
                           <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 font-medium flex-shrink-0" />
                           <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">

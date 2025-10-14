@@ -978,6 +978,11 @@ export const en = {
     onePager: "One-Pager",
     favorites: "Favorites",
     videoTable: "Video",
+    
+    // Pagination
+    rowsPerPage: "Rows per page:",
+    pageOf: "Page {currentPage} of {totalPages}",
+    
     // Create page
     createWithAI: "Create with AI",
     howToGetStarted: "How do you want to create a product?",
@@ -1647,6 +1652,13 @@ export const en = {
     collaboration: "Collaboration",
     current: "Current",
     purchasePlan: "Purchase Plan",
+    getStarted: "Get started",
+    saveOnYearly: "Save 15% on yearly plan!",
+    bestForPersonalUse: "Best for personal use",
+    whatYouGet: "What you get:",
+    allFreeFeaturesPlus: "All free features, plus:",
+    allStarterFeaturesPlus: "All starter features, plus:",
+    allBusinessFeaturesPlus: "All business features, plus:",
     plans: {
       starter: {
         name: "Starter (Free)",

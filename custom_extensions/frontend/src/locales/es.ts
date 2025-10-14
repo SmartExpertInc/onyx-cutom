@@ -898,6 +898,10 @@ export const es = {
     onePager: "One-Pager",
     videoTable: "Video",
     favorites: "Favoritos",
+    
+    // Pagination
+    rowsPerPage: "Filas por página:",
+    pageOf: "Página {currentPage} de {totalPages}",
 
     // Create page
     createWithAI: "Crear con IA",
@@ -1763,6 +1767,13 @@ export const es = {
     collaboration: "Colaboración",
     current: "Actual",
     purchasePlan: "Comprar plan",
+    getStarted: "Comenzar",
+    saveOnYearly: "¡Ahorra 15% en el plan anual!",
+    bestForPersonalUse: "Ideal para uso personal",
+    whatYouGet: "Lo que obtienes:",
+    allFreeFeaturesPlus: "Todas las funciones gratuitas, más:",
+    allStarterFeaturesPlus: "Todas las funciones del plan inicial, más:",
+    allBusinessFeaturesPlus: "Todas las funciones del plan empresarial, más:",
     plans: {
       starter: {
         name: "Inicial (Gratis)",

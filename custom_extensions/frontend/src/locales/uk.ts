@@ -910,6 +910,10 @@ export const uk = {
     onePager: "Одна сторінка",
     videoTable: "Відео",
     favorites: "Обране",
+    
+    // Pagination
+    rowsPerPage: "Рядків на сторінці:",
+    pageOf: "Сторінка {currentPage} з {totalPages}",
 
     // Create page
     createWithAI: "Створити з ШІ",
@@ -1743,6 +1747,13 @@ export const uk = {
     collaboration: "Співпраця",
     current: "Поточний",
     purchasePlan: "Придбати план",
+    getStarted: "Розпочати",
+    saveOnYearly: "Економте 15% на річному плані!",
+    bestForPersonalUse: "Ідеально для особистого використання",
+    whatYouGet: "Що ви отримуєте:",
+    allFreeFeaturesPlus: "Всі безкоштовні функції, плюс:",
+    allStarterFeaturesPlus: "Всі функції стартового плану, плюс:",
+    allBusinessFeaturesPlus: "Всі функції бізнес-плану, плюс:",
     plans: {
       starter: {
         name: "Початковий (Безкоштовний)",
