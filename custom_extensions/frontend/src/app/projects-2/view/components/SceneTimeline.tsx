@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import { SlideAddButton } from '@/components/SlideAddButton';
 
 interface Scene {
   id: string;
@@ -236,57 +235,6 @@ export default function SceneTimeline({
             </React.Fragment>
           ))}
 
-          {/* Add Slide Button - positioned at the end */}
-          {(videoLessonData || componentBasedSlideDeck) && onAddSlide ? (
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="h-16 flex items-center justify-center">
-                <SlideAddButton
-                  currentSlideCount={(componentBasedSlideDeck?.slides.length || videoLessonData?.slides.length || 0)}
-                  onAddSlide={onAddSlide}
-                  isVisible={true}
-                  position="relative"
-                  left="auto"
-                  top="auto"
-                  transform="none"
-                  containerStyle={{
-                    width: '64px',
-                    height: '64px'
-                  }}
-                />
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">Add Slide</span>
-              </div>
-            </div>
-          ) : (
-            // Debug: Show which condition is failing
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="h-16 flex items-center justify-center">
-                <div 
-                  className="bg-red-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors"
-                  style={getSceneRectangleStyles()}
-                  onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'componentBasedSlideDeck:', !!componentBasedSlideDeck, 'onAddSlide:', !!onAddSlide)}
-                >
-                  <svg 
-                    className="w-8 h-8 text-red-600" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">Debug</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );

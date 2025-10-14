@@ -23,6 +23,7 @@ import ImageSettings from './components/ImageSettings';
 import AvatarSettings from './components/AvatarSettings';
 import ShapeSettings from './components/ShapeSettings';
 import OptionPopup from './components/OptionPopup';
+import TemplateSelector from './components/TemplateSelector';
 // NEW: Import SlideAddButton and types
 import { SlideAddButton } from '@/components/SlideAddButton';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
@@ -296,6 +297,11 @@ export default function Projects2ViewPage() {
           onAiButtonClick={handleAiButtonClick} 
           videoLessonData={videoLessonData}
           currentSlideId={currentSlideId}
+        />;
+      case 'templates':
+        return <TemplateSelector 
+          currentSlideCount={videoLessonData?.slides?.length || 0}
+          onAddSlide={handleAddSlide}
         />;
       case 'background':
         return <Background />;
