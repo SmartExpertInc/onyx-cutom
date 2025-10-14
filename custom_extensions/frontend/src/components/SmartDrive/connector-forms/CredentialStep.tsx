@@ -330,7 +330,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                   );
                   
                   const Bullets = ({ items }: { items: React.ReactNode[] }) => (
-                    <ul className="list-disc pl-6 space-y-2 mb-4">
+                    <ul className="list-disc pl-6 space-y-1 mb-4">
                       {items.map((it, i) => (
                         <li key={i} className="text-gray-700">{it}</li>
                       ))}
@@ -413,32 +413,40 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           </Text>
                           <Steps items={[
                             <><strong>Create a Google Cloud Project:</strong><br />
-                              • Go to the <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Cloud Console</a><br />
-                              • Create a new project or select an existing one<br />
-                              • Enable the Google Drive API for your project</>,
-                            <><strong>Create a Service Account:</strong><br />
-                              • Navigate to <strong>IAM & Admin → Service Accounts</strong><br />
-                              • Click <strong>"Create Service Account"</strong><br />
+                              • Go to the <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Cloud Console</a><br />
+                              • Create a new project or select an existing one</>,
+                            <><strong>Enable Google Drive API:</strong><br />
+                              • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Google Drive API</strong></>,
+                            <><strong>Enable Admin SDK API:</strong><br />
+                              • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=admin.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Admin SDK API</strong></>,
+                            <><strong>Enable Google Sheets API:</strong><br />
+                              • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=sheets.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Google Sheets API</strong></>,
+                            <><strong>Enable Google Docs API:</strong><br />
+                              • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=docs.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Google Docs API</strong></>,
+                            <><strong>Set up OAuth consent screen:</strong><br />
+                              • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
+                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
                               • Enter a descriptive name (e.g., "ContentBuilder")<br />
-                              • Add a description and click <strong>"Create and Continue"</strong></>,
-                            <><strong>Generate Service Account Key:</strong><br />
-                              • In the service account list, click on your newly created service account<br />
-                              • Go to the <strong>"Keys"</strong> tab<br />
-                              • Click <strong>"Add Key" → "Create new key"</strong><br />
-                              • Select <strong>"JSON"</strong> format and click <strong>"Create"</strong><br />
-                              • Download the JSON key file to your computer</>,
-                            <><strong>Configure Domain-Wide Delegation (Optional):</strong><br />
-                              • For organization-wide access, enable domain-wide delegation<br />
-                              • Note the service account's client ID for later use<br />
-                              • In Google Admin Console, add the client ID to the domain-wide delegation list</>,
-                            <><strong>Share Google Drive Files:</strong><br />
-                              • Share the specific Google Drive folders/files you want to index with the service account email<br />
-                              • The service account email can be found in the downloaded JSON file (client_email field)<br />
-                              • Grant <strong>"Viewer"</strong> permissions to the service account</>,
-                            <><strong>Configure Contentbuilder:</strong><br />
-                              • Upload the downloaded JSON key file in the credential form<br />
-                              • Enter the primary admin email address (for domain-wide delegation)<br />
-                              • Click <strong>"Create Credential"</strong> to save the connection</>,
+                              • For the required emails, use any email of your choice<br />
+                              • Click <strong>SAVE AND CONTINUE</strong></>,
+                            <><strong>Set up scopes:</strong><br />
+                              • Add the scope <code>.../auth/drive.readonly</code> for <strong>Google Drive API</strong><br />
+                              • Add the scope <code>.../auth/drive.metadata.readonly</code> for <strong>Google Drive API</strong><br />
+                              • Add the scope <code>.../auth/admin.directory.user.readonly</code> for <strong>Admin SDK API</strong><br />
+                              • Add the scope <code>.../auth/admin.directory.group.readonly</code> for <strong>Admin SDK API</strong></>,
+                            <><strong>Set up test users:</strong><br />
+                              • This is only applicable for users without a Google Organization<br />
+                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
+                              • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new documents.<br/>
+                              • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
+                            <><strong>Create credentials:</strong><br />
+                              • Go to the Credentials tab and select <strong>+ CREATE CREDENTIALS → OAuth client ID</strong><br />
+                              • Choose <strong>Web application</strong> and give it some name like ContentBuilderConnector<br />
+                              • Add a <strong>Authorized JavaScript origins</strong><br/>
+                              • Add <code>https://ml.contentbuilder.ai</code><br/>
+                              • Add a <strong>Authorized redirect URIs</strong><br/>
+                              • Add <code>---</code><br/>
+                              • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
                           ]} />
                           <ImportantNotes>
                             <p>The service account must have access to all Google Drive files you want to index. Share folders/files with the service account email address.</p>
@@ -543,10 +551,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your accessible GitHub repositories</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p><strong>VERY IMPORTANT:</strong> For permission sync to work, users must have their email address publicly visible in their GitHub profile.</p>
                             <p>For private repositories, you must select the <code>repo</code> scope. Public repositories only need <code>public_repo</code>.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
-                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
                         </div>
                       );
@@ -592,16 +599,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>For self-hosted GitLab instances, make sure the instance URL is accessible from the Contentbuilder server.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
-                            <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.gitlab.link', 'Go to GitLab Personal Access Tokens →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'confluence':
@@ -636,13 +636,11 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • In the Contentbuilder credential form, enter your Confluence username<br />
                               • Paste the API token from Atlassian<br />
                               • Enter your Confluence base URL<br />
-                              • Click <strong>"Create Credential"</strong> to save the connection</>,
+                              • Click <strong>Create Credential</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Confluence username is usually your email address, not a display name.</p>
                             <p>Make sure you have read access to all Confluence spaces you want to index before creating the credential.</p>
-                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
                         </div>
                       );
@@ -687,16 +685,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Jira username is usually your email address, not a display name.</p>
                             <p>Make sure you have read access to all Jira projects you want to index before creating the credential.</p>
-                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.jira.link', 'Go to Atlassian API Tokens →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'zendesk':
@@ -704,7 +695,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                         <div>
                           <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
-                          The Zendesk Connector can sync content from your Zendesk instance, supporting two content types:
+                            The Zendesk Connector can sync content from your Zendesk instance, supporting two content types:
                           </Text>
                           <Bullets items={[
                             <p>Articles: Syncs all published Articles from your company’s Help Center</p>,
@@ -765,7 +756,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           </Text>
                           <Steps items={[
                             <><strong>Access Asana Developer Console:</strong><br />
-                              • Go to <a href="https://app.asana.com/0/developer-console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Asana Developer Console</a><br />
+                              • Go to <a href="https://app.asana.com/0/my-apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Asana Developer Console</a><br />
                               • Log in with your Asana account credentials<br />
                               • Navigate to <strong>My Profile Settings → Apps → Manage Developer Apps</strong></>,
                             <><strong>Create a Personal Access Token:</strong><br />
@@ -794,11 +785,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <p>Tokens don't expire automatically, but you can revoke them at any time from the Developer Console.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://app.asana.com/0/developer-console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.asana.link', 'Go to Asana Developer Console →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'airtable':
@@ -838,16 +824,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your accessible Airtable bases</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the token has access to all Airtable bases you want to index.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
-                            <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://airtable.com/create/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.airtable.link', 'Go to Airtable Personal Access Tokens →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'dropbox':
@@ -890,11 +869,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <p>Make sure the app has the necessary permissions to access the Dropbox files you want to index.</p>
                             <p>The connector will only pull once upon initialization. If you would like to pull more documents, you must generate a new access token, put that token into the connector, and re-initialize the connector.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.dropbox.link', 'Go to Dropbox App Console →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 's3':
@@ -961,11 +935,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <p>You can create multiple API tokens with different permissions for different use cases.</p>
                             <p>If you lose the secret key, you'll need to create a new API token - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.r2.link', 'Go to Cloudflare API Tokens →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'google_cloud_storage':
@@ -1016,11 +985,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <p>You can create multiple service accounts with different permissions for different use cases.</p>
                             <p>If you lose the JSON key file, you'll need to generate a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.gcs.link', 'Go to Google Cloud Service Accounts →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'oci_storage':
@@ -1180,55 +1144,37 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Search for "Gmail API"<br />
                               • Click on <strong>"Gmail API"</strong> from the results<br />
                               • Click <strong>"Enable"</strong> to activate the API for your project</>,
-                            <><strong>Create a Service Account:</strong><br />
-                              • Go to <strong>IAM & Admin → Service Accounts</strong><br />
-                              • Click <strong>"Create Service Account"</strong><br />
-                              • Enter a name (e.g., "contentbuilder-gmail")<br />
-                              • Add a description (e.g., "Service account for ContentBuilder to access Gmail")<br />
-                              • Click <strong>"Create and Continue"</strong><br />
-                              • Skip the "Grant access" step for now<br />
-                              • Click <strong>"Done"</strong></>,
-                            <><strong>Generate Service Account Key:</strong><br />
-                              • In the service account list, click on your newly created service account<br />
-                              • Go to the <strong>"Keys"</strong> tab<br />
-                              • Click <strong>"Add Key" → "Create new key"</strong><br />
-                              • Select <strong>"JSON"</strong> format<br />
-                              • Click <strong>"Create"</strong><br />
-                              • Download the JSON key file to your computer</>,
-                            <><strong>Configure Domain-Wide Delegation:</strong><br />
-                              • In the service account details, go to the <strong>"Details"</strong> tab<br />
-                              • Click <strong>"Enable Google Workspace Domain-wide Delegation"</strong><br />
-                              • Add a product name (e.g., "ContentBuilder")<br />
-                              • Click <strong>"Save"</strong><br />
-                              • Copy the <strong>Client ID</strong> that's displayed</>,
-                            <><strong>Configure Google Admin Console:</strong><br />
-                              • Go to the <a href="https://admin.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Admin Console</a><br />
-                              • Navigate to <strong>Security → API Controls</strong><br />
-                              • Click <strong>"Domain-wide Delegation"</strong><br />
-                              • Click <strong>"Add new"</strong><br />
-                              • Enter the Client ID from the previous step<br />
-                              • Add the following OAuth scopes:<br />
-                              • <code>https://www.googleapis.com/auth/gmail.readonly</code><br />
-                              • <code>https://www.googleapis.com/auth/gmail.metadata</code><br />
-                              • Click <strong>"Authorize"</strong></>,
+                            <><strong>Set up OAuth consent screen:</strong><br />
+                              • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
+                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder")<br />
+                              • For the required emails, use any email of your choice<br />
+                              • Click <strong>SAVE AND CONTINUE</strong></>,
+                            <><strong>Set up scopes:</strong><br />
+                              • Add the scope <code>.../auth/gmail.readonly</code> for <strong>Gmail API</strong><br />
+                              • Click <strong>SAVE AND CONTINUE</strong></>,
+                            <><strong>Set up test users:</strong><br />
+                              • This is only applicable for users without a Google Organization<br />
+                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
+                              • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new documents.<br/>
+                              • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
+                            <><strong>Create credentials:</strong><br />
+                              • Go to the Credentials tab and select <strong>+ CREATE CREDENTIALS → OAuth client ID</strong><br />
+                              • Choose <strong>Web application</strong> and give it some name like ContentBuilderConnector<br />
+                              • Add a <strong>Authorized JavaScript origins</strong><br/>
+                              • Add <code>https://ml.contentbuilder.ai</code><br/>
+                              • Add a <strong>Authorized redirect URIs</strong><br/>
+                              • Add <code>---</code><br/>
+                              • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
                             <><strong>Configure Contentbuilder:</strong><br />
                               • Upload the downloaded JSON key file in the credential form<br />
-                              • Enter the primary admin email address (for domain-wide delegation)<br />
+                              • Complete OAuth flow by clicking <strong>Authorize with Google</strong> in the next step<br />
                               • Specify the Gmail labels or folders you want to index (optional)<br />
-                              • Click <strong>"Create Credential"</strong> to save the connection</>,
+                              • Click <strong>Create Credential</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p>Domain-wide delegation is required for accessing Gmail accounts. This must be configured in Google Admin Console.</p>
-                            <p>Make sure you have admin privileges in Google Workspace to configure domain-wide delegation.</p>
-                            <p>The service account will have access to all Gmail accounts in your domain based on the configured scopes.</p>
-                            <p>For personal Gmail accounts, you may need to use OAuth2 flow instead of service account authentication.</p>
                             <p>Keep the JSON key file secure - it contains sensitive authentication information.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.gmail.link', 'Go to Google Cloud Service Accounts →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'discord':
@@ -1294,13 +1240,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <p>The bot must be invited to all Discord servers you want to index. It cannot access servers it's not a member of.</p>
                             <p>Make sure the bot has the necessary permissions in each server and channel you want to index.</p>
                             <p>Message Content Intent is required to read message content. Without it, the bot can only see message metadata.</p>
-                            <p>If you lose a bot token, you'll need to generate a new one - the old one cannot be recovered.</p>
                           </ImportantNotes>
-                          <Text className="mt-2">
-                            <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                              {t('connectors.instructions.discord.link', 'Go to Discord Developer Portal →')}
-                            </a>
-                          </Text>
                         </div>
                       );
                     case 'zulip':
@@ -1550,13 +1490,13 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
                             The HubSpot connector pulls in data from your HubSpot CRM, including:
-                            <Bullets items={[
-                              <p><strong>Tickets</strong> - Support tickets with their title, content, associated emails and notes</p>,
-                              <p><strong>Companies</strong> - Company records with associated data and relationships</p>,
-                              <p><strong>Deals</strong> - Sales opportunities with pipeline information and associated contacts</p>,
-                              <p><strong>Contacts</strong> - Contact records with their information and associated activities</p>,
-                            ]} />
                           </Text>
+                          <Bullets items={[
+                            <p><strong>Tickets</strong> - Support tickets with their title, content, associated emails and notes</p>,
+                            <p><strong>Companies</strong> - Company records with associated data and relationships</p>,
+                            <p><strong>Deals</strong> - Sales opportunities with pipeline information and associated contacts</p>,
+                            <p><strong>Contacts</strong> - Contact records with their information and associated activities</p>,
+                          ]} />
                           <Text>
                             To authorize Contentbuilder to connect to your HubSpot account, you need to create a private app with the appropriate permissions:
                           </Text>
@@ -1576,28 +1516,13 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add a description (e.g., "Private app for ContentBuilder to access HubSpot data")<br />
                               • Click <strong>"Create app"</strong> to proceed</>,
                             <><strong>Configure App Scopes:</strong><br />
-                              • In the <strong>"Scopes"</strong> tab, enable the following permissions:<br />
-                              • <strong>Content:</strong><br />
-                              • <code>content</code> - Read access to content<br />
-                              • <code>blog</code> - Read access to blog posts<br />
-                              • <code>knowledge</code> - Read access to knowledge base articles<br />
-                              • <strong>CRM:</strong><br />
-                              • <code>crm.objects.contacts.read</code> - Read contacts<br />
-                              • <code>crm.objects.companies.read</code> - Read companies<br />
-                              • <code>crm.objects.deals.read</code> - Read deals<br />
-                              • <code>crm.objects.tickets.read</code> - Read tickets<br />
-                              • <strong>Marketing:</strong><br />
-                              • <code>marketing</code> - Read access to marketing content</>,
-                            <><strong>Generate Access Token:</strong><br />
-                              • Go to the <strong>"Auth"</strong> tab<br />
-                              • Click <strong>"Generate token"</strong><br />
-                              • Copy the generated access token<br />
-                              • <strong>Important:</strong> Store this token securely - you won't be able to see it again<br />
-                              • The token will be used to authenticate API requests</>,
-                            <><strong>Test API Access:</strong><br />
-                              • Use the HubSpot API Explorer to test your token<br />
-                              • Try making a simple API call to verify permissions<br />
-                              • Ensure the token has access to the data you want to index</>,
+                              • Under <strong>Scopes</strong> (top bar), select the appropriate scopes based on what data you want to index:<br />
+                              • For <strong>Tickets</strong>: Select the <code>Tickets</code> scope<br />
+                              • For <strong>Companies</strong>: Select the <code>Companies</code> scope<br />
+                              • For <strong>Deals</strong>: Select the <code>Deals</code> scope<br />
+                              • For <strong>Contacts</strong>: Select the <code>Contacts</code> scope</>,
+                            <><strong>Copy Access Token:</strong><br />
+                              • Copy the Access Token that is shown when the App is created</>,
                             <><strong>Configure Contentbuilder:</strong><br />
                               • In the Contentbuilder credential form, paste the access token<br />
                               • Specify the HubSpot objects you want to index (contacts, deals, tickets, etc.)<br />
@@ -1628,42 +1553,17 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             To authorize Contentbuilder to connect to your Gong account, you need to create API credentials with the appropriate permissions:
                           </Text>
                           <Steps items={[
-                            <><strong>Access Gong Account:</strong><br />
+                            <><strong>Obtain API credentials:</strong><br />
                               • Go to the <a href="https://app.gong.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Gong App</a><br />
-                              • Log in with your Gong account credentials<br />
-                              • Ensure you have admin or super admin permissions<br />
-                              • Navigate to the main dashboard</>,
-                            <><strong>Navigate to API Settings:</strong><br />
-                              • Click on your profile picture in the top-right corner<br />
-                              • Select <strong>"Settings"</strong> from the dropdown menu<br />
-                              • In the left sidebar, go to <strong>"Integrations"</strong><br />
-                              • Click on <strong>"REST API"</strong> to access API settings</>,
-                            <><strong>Create API Credentials:</strong><br />
-                              • In the REST API section, click <strong>"Create New Credential"</strong><br />
-                              • Enter a descriptive name (e.g., "ContentBuilder Integration")<br />
-                              • Add a description (e.g., "API credentials for ContentBuilder to access Gong data")<br />
-                              • Click <strong>"Create"</strong> to generate the credentials</>,
-                            <><strong>Configure API Permissions:</strong><br />
-                              • Select the appropriate permissions for your use case:<br />
-                              • <strong>"Read Calls"</strong> - Access to call recordings and transcripts<br />
-                              • <strong>"Read Users"</strong> - Access to user information<br />
-                              • <strong>"Read Workspaces"</strong> - Access to workspace data<br />
-                              • <strong>"Read Analytics"</strong> - Access to analytics data<br />
-                              • Ensure all required permissions are enabled</>,
-                            <><strong>Generate Access Credentials:</strong><br />
-                              • After creating the credential, you'll see two important values:<br />
-                              • <strong>Access Key:</strong> A unique identifier for your API credential<br />
-                              • <strong>Access Key Secret:</strong> A secret key for authentication<br />
-                              • <strong>Important:</strong> Copy both values immediately - you won't be able to see the secret again</>,
-                            <><strong>Test API Access:</strong><br />
-                              • Use the Gong API documentation to test your credentials<br />
-                              • Try making a simple API call to verify permissions<br />
-                              • Ensure the credentials have access to the data you want to index</>,
+                              • Get an <strong>Access Key</strong> and <strong>Access Key Secret</strong> to pull in Gong transcripts</>,
+                            <><strong>Open Company Settings:</strong><br />
+                              • As an admin, go to <strong>Company Settings</strong> on the right of the top options bar<br />
+                              • Open Ecosystem → API<br />
+                              • Next, find the <strong>Ecosystem</strong> block and select <strong>API</strong></>,
+                            <><strong>Generate API keys:</strong><br />
+                              • Once there, select <code>API KEYS</code> (it’s right next to <code>INTEGRATIONS</code>). Click <code>GET API KEY</code> and note down the ACCESS KEY and ACCESS KEY SECRET</>,
                             <><strong>Configure Contentbuilder:</strong><br />
-                              • In the Contentbuilder credential form, enter the Access Key<br />
-                              • Enter the Access Key Secret<br />
-                              • Specify the Gong objects you want to index (calls, users, analytics, etc.)<br />
-                              • Set any filtering criteria if needed<br />
+                              • Provide the Access Key and Access Key Secret from the previous step<br />
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
@@ -1706,12 +1606,12 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
                             The Web Connector scrapes sites based on a base URL.
-                            <Bullets items={[
-                              <p>It only indexes files from the same domain and containing the same base path.</p>,
-                              <p>It will index pages reachable via hyperlinks from the base URL.</p>,
-                              <p>The text contents are cleaned up via some heuristics and some metadata such as the page Title is extracted.</p>,
-                            ]} />
                           </Text>
+                          <Bullets items={[
+                            <p>It only indexes files from the same domain and containing the same base path.</p>,
+                            <p>It will index pages reachable via hyperlinks from the base URL.</p>,
+                            <p>The text contents are cleaned up via some heuristics and some metadata such as the page Title is extracted.</p>,
+                          ]} />
                           <Steps items={[
                             <>{t('connectors.instructions.web.step1', 'Identify the website URL you want to scrape (e.g., https://docs.yourcompany.com).')}</>,
                             <>{t('connectors.instructions.web.step2', 'Choose scraping method: "recursive" for full site, "single" for one page, or "sitemap" to follow sitemap.xml.')}</>,
