@@ -883,9 +883,9 @@ interface ColumnVisibility {
   title: boolean;
   created: boolean;
   creator: boolean;
-  numberOfLessons: boolean;
-  estCreationTime: boolean;
-  estCompletionTime: boolean;
+  // numberOfLessons: boolean;
+  // estCreationTime: boolean;
+  // estCompletionTime: boolean;
   type: boolean;
 }
 
@@ -893,9 +893,9 @@ interface ColumnWidths {
   title: number;
   created: number;
   creator: number;
-  numberOfLessons: number;
-  estCreationTime: number;
-  estCompletionTime: number;
+  // numberOfLessons: number;
+  // estCreationTime: number;
+  // estCompletionTime: number;
   type: number;
 }
 
@@ -2189,12 +2189,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     >
   >({});
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-    title: 75,
-    created: 15,
-    creator: 15,
-    numberOfLessons: 13,
-    estCreationTime: 13.5,
-    estCompletionTime: 13.5,
+    title: 70,
+    created: 13,
+    creator: 13,
+    // numberOfLessons: 13,
+    // estCreationTime: 13.5,
+    // estCompletionTime: 13.5,
     type: 5,
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -3836,6 +3836,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
+                    type="button"
                     variant="sort" 
                     className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
                   >
@@ -4039,7 +4040,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     </TableHead>
                   <TableHead
                     className="px-3 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
-                    style={{ width: "80px" }}
+                    style={{ width: "20px" }}
                   >
                     {/* {t("interface.actions", "ACTIONS")} */}
                   </TableHead>

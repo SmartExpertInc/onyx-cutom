@@ -683,7 +683,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
           </clipPath>
           </defs>
         </svg>
-            Get Unlimited AI</Button>
+            {t("interface.getUnlimitedAI", "Get Unlimited AI")}</Button>
         <button 
           onClick={onAddOnsModalOpen}
           className="flex items-center gap-2 bg-[#F7E0FC] hover:bg-[#EBD5F0]/90 text-sm font-bold text-[#8808A2] px-3 py-2 rounded-md transition-all duration-200 cursor-pointer"
