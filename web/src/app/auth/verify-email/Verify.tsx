@@ -37,7 +37,8 @@ export function Verify({ user }: { user: User | null }) {
       // Use window.location.href to force a full page reload,
       // ensuring app re-initializes with the new state (including
       // server-side provider values)
-      window.location.href = firstUser ? "/chat?new_team=true" : "/chat";
+      // window.location.href = firstUser ? "/chat?new_team=true" : "/chat"; // Default Onyx redirect
+      window.location.href = "/custom-projects-ui/projects"; // Custom redirect
     } else {
       const errorDetail = (await response.json()).detail;
       setError(
