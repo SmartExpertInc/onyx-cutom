@@ -117,8 +117,8 @@ export default function SceneTimeline({
   })();
 
   return (
-    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(-5%)' }}>
-      <div className="flex items-end gap-4 overflow-x-auto">
+    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'auto', minHeight: '120px' }}>
+      <div className="flex items-end gap-4 overflow-x-auto pb-2">
           {/* Play Button with Time */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="relative flex items-center justify-center h-16">
@@ -237,35 +237,38 @@ export default function SceneTimeline({
             </React.Fragment>
           ))}
 
-          {/* Add Slide Button - Opens Templates Panel */}
-          {(videoLessonData || componentBasedSlideDeck) && onOpenTemplateSelector && (
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="h-16 flex items-center justify-center">
-                <button
-                  onClick={onOpenTemplateSelector}
-                  className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
-                  title="Add new slide"
+          {/* Add Slide Button - Opens Templates Panel - ALWAYS SHOW */}
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className="h-16 flex items-center justify-center">
+              <button
+                onClick={() => {
+                  console.log('Plus button clicked, onOpenTemplateSelector:', onOpenTemplateSelector);
+                  if (onOpenTemplateSelector) {
+                    onOpenTemplateSelector();
+                  }
+                }}
+                className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
+                title="Add new slide"
+              >
+                <svg 
+                  className="w-8 h-8 text-white" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
                 >
-                  <svg 
-                    className="w-8 h-8 text-white" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">Add Slide</span>
-              </div>
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                  />
+                </svg>
+              </button>
             </div>
-          )}
+            <div className="h-8 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-700">Add Slide</span>
+            </div>
+          </div>
         </div>
       </div>
     );
