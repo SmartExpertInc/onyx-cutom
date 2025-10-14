@@ -68,8 +68,11 @@ export default function Projects2ViewPage() {
   const [isOptionPopupOpen, setIsOptionPopupOpen] = useState<boolean>(false);
   const [optionPopupPosition, setOptionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // NEW: Video Lesson slide management state
-  const [videoLessonData, setVideoLessonData] = useState<VideoLessonData | undefined>(undefined);
+  // NEW: Video Lesson slide management state - Initialize with empty slides
+  const [videoLessonData, setVideoLessonData] = useState<VideoLessonData>({
+    title: 'Video Lesson',
+    slides: []
+  });
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const [isVideoLessonMode, setIsVideoLessonMode] = useState<boolean>(false);
 
@@ -86,10 +89,8 @@ export default function Projects2ViewPage() {
   //   setScenes(prevScenes => [...prevScenes, newScene]);
   // };
 
-  // NEW: Function to add new slide (called by SlideAddButton)
+  // NEW: Function to add new slide (called by TemplateSelector)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
-    if (!videoLessonData) return;
-
     // Convert ComponentBasedSlide to VideoLessonSlideData
     const videoLessonSlide: VideoLessonSlideData = {
       slideId: newSlide.slideId,
@@ -111,6 +112,9 @@ export default function Projects2ViewPage() {
     
     // Save to backend
     saveVideoLessonData(updatedData);
+    
+    // Switch back to script view after adding slide
+    setActiveComponent('script');
   };
 
   // NEW: Function to save Video Lesson data
@@ -134,11 +138,9 @@ export default function Projects2ViewPage() {
   // NEW: Function to handle slide selection
   const handleSlideSelect = (slideId: string) => {
     setCurrentSlideId(slideId);
-    if (videoLessonData) {
-      const updatedData = { ...videoLessonData, currentSlideId: slideId };
-      setVideoLessonData(updatedData);
-      saveVideoLessonData(updatedData);
-    }
+    const updatedData = { ...videoLessonData, currentSlideId: slideId };
+    setVideoLessonData(updatedData);
+    saveVideoLessonData(updatedData);
   };
 
   // Function to open template selector panel

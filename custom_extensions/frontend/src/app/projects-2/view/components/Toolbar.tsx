@@ -108,11 +108,6 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       icon: User
     },
     {
-      id: 'templates',
-      label: 'Templates',
-      icon: Plus
-    },
-    {
       id: 'background',
       label: 'Background',
       icon: 'custom-background'
