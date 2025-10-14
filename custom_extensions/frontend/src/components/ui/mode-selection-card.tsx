@@ -33,15 +33,12 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
         ref={ref}
         className={cn(
           "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
-          "shadow-md",
-          "hover:shadow-xl",
-          "active:shadow-xl",
           isSelected
-            ? "bg-[#F2F8FF] border-[#0F58F9] shadow-xl"
-            : "bg-[#FDFDFD] border-[#E0E0E0]",
+            ? "bg-[#F2F8FF]/70 border-[#0F58F9]"
+            : "bg-[#FDFDFD]/70 border-[#E0E0E0]",
           disabled
             ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)] hover:bg-[#F2F8FF] hover:border-[#0F58F9] active:bg-[#F2F8FF] active:border-[#0F58F9]",
+            : "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)] hover:bg-[#F2F8FF]/80 hover:border-[#0F58F9] active:bg-[#F2F8FF]/80 active:border-[#0F58F9]",
           className
         )}
         style={isSelected ? { borderWidth: '2px' } : { borderWidth: '1px' }}

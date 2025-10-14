@@ -608,7 +608,7 @@ export default function PasteTextPage() {
             className="w-full h-[170px] p-6 placeholder:text-[#5D5D7980]" />
 
           <div className="mt-2 flex justify-between items-center">
-            <div className="text-sm text-[#FFFFFF]">
+            <div className="text-xs text-[#FFFFFF]">
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
             </div>
             {warning && (
@@ -657,7 +657,7 @@ export default function PasteTextPage() {
             onClick={handleGenerate}
             disabled={!text.trim() || !mode}
             size="lg"
-            className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold shadow-lg"
+            className="px-8 py-3 rounded-full border border-[#0F58F9] bg-[#0F58F9] text-white text-lg font-semibold shadow-lg cursor-pointer"
           >
             <Sparkles size={20} />
             {t('interface.generate.generate', 'Generate')} {
