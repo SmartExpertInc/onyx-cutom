@@ -26,6 +26,7 @@ import ImageSettings from '../components/ImageSettings';
 import AvatarSettings from '../components/AvatarSettings';
 import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
+import TemplateSelector from '../components/TemplateSelector';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import AvatarDataProvider from '../components/AvatarDataService';
@@ -109,6 +110,9 @@ export default function Projects2ViewPage() {
       
       // Save to backend
       saveVideoLessonData(updatedDeck);
+      
+      // Switch back to script view after adding slide
+      setActiveComponent('script');
     } else if (videoLessonData) {
       // Handle old video lesson structure (legacy)
       const videoLessonSlide: VideoLessonSlideData = {
@@ -137,6 +141,9 @@ export default function Projects2ViewPage() {
       
       // Save to backend
       saveVideoLessonData(updatedData);
+      
+      // Switch back to script view after adding slide
+      setActiveComponent('script');
     } else {
       console.error('❌ handleAddSlide: No valid data structure found!', {
         isComponentBasedVideoLesson,
@@ -198,6 +205,13 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // Function to open template selector panel
+  const handleOpenTemplateSelector = () => {
+    console.log('🔍 Opening template selector, current activeComponent:', activeComponent);
+    setActiveComponent('templates');
+    console.log('✅ Set activeComponent to templates');
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -637,6 +651,11 @@ export default function Projects2ViewPage() {
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
         />;
+      case 'templates':
+        return <TemplateSelector 
+          currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
+          onAddSlide={handleAddSlide}
+        />;
       case 'background':
         return <Background />;
       case 'music':
@@ -832,6 +851,7 @@ export default function Projects2ViewPage() {
             onSlideSelect={handleSlideSelect}
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
+            onOpenTemplateSelector={handleOpenTemplateSelector}
           />
         </div>
       </div>
