@@ -8,6 +8,7 @@ import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
 import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
+import { useVoice } from '@/contexts/VoiceContext';
 
 interface EmailInput {
   id: string;
@@ -54,6 +55,9 @@ export default function VideoEditorHeader({
   // Use global avatar context instead of local state
   const { defaultAvatar } = useAvatarDisplay();
   
+  // Use global voice context
+  const { selectedVoice } = useVoice();
+  
   // Debug logging for avatar context
   useEffect(() => {
     console.log('🎬 [VIDEO_GENERATION] Avatar context updated:', {
@@ -64,6 +68,16 @@ export default function VideoEditorHeader({
       variantCode: defaultAvatar?.selectedVariant?.code
     });
   }, [defaultAvatar]);
+  
+  // Debug logging for voice context
+  useEffect(() => {
+    console.log('🎤 [VOICE_CONTEXT] Voice context updated:', {
+      hasSelectedVoice: !!selectedVoice,
+      character: selectedVoice?.character,
+      voice: selectedVoice?.voice,
+      provider: selectedVoice?.voiceProvider
+    });
+  }, [selectedVoice]);
   
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
@@ -474,12 +488,20 @@ export default function VideoEditorHeader({
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
+        voiceId: selectedVoice?.voice || null,  // Add selected voice ID
+        voiceProvider: selectedVoice?.voiceProvider || null,  // Add voice provider
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
         resolution: [1920, 1080]
       };
+      
+      console.log('🎤 [VIDEO_GENERATION] Including voice in payload:', {
+        voiceId: selectedVoice?.voice,
+        voiceProvider: selectedVoice?.voiceProvider,
+        character: selectedVoice?.character
+      });
 
               console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
 

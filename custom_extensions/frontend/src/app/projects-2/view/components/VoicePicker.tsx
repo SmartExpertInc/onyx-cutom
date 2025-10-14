@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Globe, Cake, Briefcase, ChevronDown, ChevronRight, Volume2, Check, RotateCcw } from 'lucide-react';
+import { useVoice } from '@/contexts/VoiceContext';
 
 // Custom Radio Wave Icon
 const RadioWaveIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
@@ -99,6 +100,8 @@ interface ElaiVoice {
 }
 
 export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectVoice }: VoicePickerProps) {
+  const { selectedVoice: globalSelectedVoice, setSelectedVoice: setGlobalSelectedVoice } = useVoice();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [accentDropdownOpen, setAccentDropdownOpen] = useState(false);
   const [ageDropdownOpen, setAgeDropdownOpen] = useState(false);
@@ -113,7 +116,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
   const [voices, setVoices] = useState<ElaiVoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVoice, setSelectedVoice] = useState<ElaiVoice | null>(null);
+  const [tempSelectedVoice, setTempSelectedVoice] = useState<ElaiVoice | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   
   const accentRef = useRef<HTMLDivElement>(null);
@@ -121,6 +124,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const toneRef = useRef<HTMLDivElement>(null);
   const scenarioRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize temporary selection from global selection when modal opens
+  useEffect(() => {
+    if (isOpen && globalSelectedVoice) {
+      setTempSelectedVoice(globalSelectedVoice);
+    }
+  }, [isOpen, globalSelectedVoice]);
 
   // Fetch voices from Elai API
   useEffect(() => {
@@ -698,19 +708,19 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             ) : voices.length === 0 ? (
               <div className="text-center py-8 text-gray-500">No voices found</div>
             ) : (
-              voices.map((voice, index) => (
-                <div 
-                  key={voice.voice || index} 
-                  className="mb-4 group"
-                  onClick={() => setSelectedVoice(voice)}
-                >
-                  <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
-                    selectedVoice?.voice === voice.voice 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-300 bg-white hover:bg-gray-50'
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      {/* Radio wave icon / Play button */}
+               voices.map((voice, index) => (
+                 <div 
+                   key={voice.voice || index} 
+                   className="mb-4 group"
+                   onClick={() => setTempSelectedVoice(voice)}
+                 >
+                   <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
+                     tempSelectedVoice?.voice === voice.voice 
+                       ? 'border-blue-500 bg-blue-50' 
+                       : 'border-gray-300 bg-white hover:bg-gray-50'
+                   }`}>
+                <div className="flex items-center gap-3">
+                  {/* Radio wave icon / Play button */}
                       <div 
                         className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
                         onClick={(e) => handlePlayVoice(e, voice)}
@@ -720,61 +730,61 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                             <div className="flex gap-0.5">
                               <div className="w-1 h-3 bg-gray-600"></div>
                               <div className="w-1 h-3 bg-gray-600"></div>
-                            </div>
-                          </div>
+                    </div>
+                  </div>
                         ) : (
                           <>
-                            <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
-                            <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                              <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
-                            </div>
+                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    </div>
                           </>
                         )}
-                      </div>
-                      
-                      {/* Text and badges */}
-                      <div className="flex flex-col gap-2">
+                  </div>
+                  
+                  {/* Text and badges */}
+                  <div className="flex flex-col gap-2">
                         <span className="text-gray-900 font-medium">{voice.character}</span>
                         <div className="flex gap-2 flex-wrap">
                           {voice.name && (
-                            <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
                               {voice.name}
-                            </span>
+                      </span>
                           )}
                           {voice.premium && (
-                            <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
-                                <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
-                              </svg>
+                      <span className="px-2 py-1 text-yellow-700 text-[10px] rounded-full flex items-center gap-1" style={{ backgroundColor: '#FCF6E6' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" className="text-yellow-700">
+                          <path fill="currentColor" fillRule="evenodd" d="M8.75 6.5a3.25 3.25 0 0 1 6.5 0v6a3.25 3.25 0 0 1-6.5 0zM12 4.75a1.75 1.75 0 0 0-1.75 1.75v6a1.75 1.75 0 1 0 3.5 0v-6A1.75 1.75 0 0 0 12 4.75m-5 7a.75.75 0 0 1 .75.75a4.25 4.25 0 0 0 8.5 0a.75.75 0 0 1 1.5 0a5.75 5.75 0 0 1-5 5.701v1.049H15a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1 0-1.5h2.25v-1.049a5.75 5.75 0 0 1-5-5.701a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
+                        </svg>
                               <span>Premium</span>
-                            </span>
+                      </span>
                           )}
                           {voice.tags && voice.tags.slice(0, 2).map((tag, i) => (
                             <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] rounded-full">
                               {tag}
-                            </span>
+                      </span>
                           ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Action buttons - visible on hover */}
-                    <div className="hidden group-hover:flex items-center gap-2">
-                      <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                        <div className="flex gap-1 items-center justify-center h-4 w-4">
-                          <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                          <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                          <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
-                        </div>
-                      </button>
-                      <button className="p-2 rounded hover:bg-gray-200 transition-colors">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
-                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 </div>
+                
+                {/* Action buttons - visible on hover */}
+                <div className="hidden group-hover:flex items-center gap-2">
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <div className="flex gap-1 items-center justify-center h-4 w-4">
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                      <div className="w-0.5 h-0.5 bg-gray-600 rounded-full"></div>
+                    </div>
+                  </button>
+                  <button className="p-2 rounded hover:bg-gray-200 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
               ))
             )}
 
@@ -782,28 +792,28 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           
           {/* Right Panel - Voice Details with its own scrolling */}
           <div className="w-80 bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-y-auto min-h-0">
-            {selectedVoice ? (
+            {tempSelectedVoice ? (
               <>
                 {/* Row 1: Voice name title */}
                 <div className="mb-2">
-                  <h3 className="text-xl text-gray-900">{selectedVoice.character}</h3>
+                  <h3 className="text-xl text-gray-900">{tempSelectedVoice.character}</h3>
                 </div>
                 
                 {/* Row 2: Flag + locale */}
-                {selectedVoice.name && (
+                {tempSelectedVoice.name && (
                   <div className="flex items-center gap-2 mb-3">
-                    {selectedVoice.icon === 'us' && <AmericanFlag size={16} />}
-                    {selectedVoice.icon === 'gb' && <BritishFlag size={16} />}
-                    {selectedVoice.icon === 'au' && <AustralianFlag size={16} />}
-                    <span className="text-xs text-gray-700">{selectedVoice.name}</span>
+                    {tempSelectedVoice.icon === 'us' && <AmericanFlag size={16} />}
+                    {tempSelectedVoice.icon === 'gb' && <BritishFlag size={16} />}
+                    {tempSelectedVoice.icon === 'au' && <AustralianFlag size={16} />}
+                    <span className="text-xs text-gray-700">{tempSelectedVoice.name}</span>
                   </div>
                 )}
                 
                 {/* Row 3: Badges */}
-                {selectedVoice.tags && selectedVoice.tags.length > 0 && (
+                {tempSelectedVoice.tags && tempSelectedVoice.tags.length > 0 && (
                   <div className="mb-3">
                     <div className="flex flex-wrap gap-2">
-                      {selectedVoice.tags.map((tag, index) => (
+                      {tempSelectedVoice.tags.map((tag, index) => (
                         <span
                           key={index}
                           className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
@@ -864,14 +874,14 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 8: Play Sample button */}
-            {selectedVoice && (
+            {tempSelectedVoice && (
               <button 
-                onClick={(e) => handlePlayVoice(e, selectedVoice)}
+                onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               >
                 <Volume2 size={16} className="text-gray-700" />
                 <span className="text-sm font-medium text-gray-700">
-                  {playingVoice === selectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
+                  {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
                 </span>
               </button>
             )}
@@ -930,10 +940,18 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </button>
             <button
               onClick={() => {
-                // Handle apply voice logic here
+                if (tempSelectedVoice) {
+                  setGlobalSelectedVoice(tempSelectedVoice);
+                  console.log('🎤 [VOICE_PICKER] Voice applied to global context:', {
+                    character: tempSelectedVoice.character,
+                    voiceId: tempSelectedVoice.voice,
+                    provider: tempSelectedVoice.voiceProvider
+                  });
+                }
                 onClose();
               }}
               className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              disabled={!tempSelectedVoice}
             >
               Apply voice
             </button>

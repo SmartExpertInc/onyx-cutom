@@ -538,3 +538,593 @@ responce:
           "upbeat",
           "middle-aged"
         ],
+
+
+
+
+
+
+
+
+
+        # Voice Integration Verification with Official Documentation
+
+After analyzing the Elai API documentation, here are the **critical corrections**:
+
+---
+
+## 🔴 **PROBLEM: Incorrect Payload Structure**
+
+### **Your Current Code (INCORRECT):**
+```python
+video_request = {
+    "slides": [{
+        "voice": "en-US-AriaNeural",  # ← WRONG LOCATION
+        "voiceType": "text",
+        "voiceProvider": "azure"
+    }]
+}
+```
+
+### **Correct Structure According to Documentation:**
+
+---
+
+## ✅ **CORRECT REQUEST**
+
+According to Elai documentation, there are **TWO ways** to specify voice:
+
+### **Method 1: Voice at VIDEO Level (Recommended)**
+
+```python
+video_request = {
+    "name": "Test Video",
+    
+    # ← VOICE AT VIDEO LEVEL (applies to all slides)
+    "voice": {
+        "voiceId": "en-US-AriaNeural",
+        "provider": "azure",
+        "style": "friendly"  # Optional for Azure
+    },
+    
+    "slides": [{
+        "id": 1,
+        "speech": "Your text here",
+        "canvas": { ... },
+        "avatar": { ... }
+    }],
+    
+    "format": "1_1",
+    "resolution": "1080p"
+}
+```
+
+### **Method 2: Voice at SLIDE Level**
+
+```python
+video_request = {
+    "name": "Test Video",
+    
+    "slides": [{
+        "id": 1,
+        "speech": "Your text here",
+        
+        # ← VOICE AT SLIDE LEVEL
+        "voice": {
+            "voiceId": "en-US-AriaNeural",
+            "provider": "azure",
+            "style": "friendly"
+        },
+        
+        "canvas": { ... },
+        "avatar": { ... }
+    }],
+    
+    "format": "1_1",
+    "resolution": "1080p"
+}
+```
+
+---
+
+## 🔧 **CORRECTED CODE**
+
+### **1. Fix `video_generation_service.py`**
+
+```python
+async def create_video_from_texts(
+    self,
+    project_name: str,
+    voiceover_texts: List[str],
+    avatar_code: str,
+    voice_id: Optional[str] = None,
+    voice_style: Optional[str] = None
+) -> Dict[str, Any]:
+    """Create video with Elai API - CORRECTED VERSION"""
+    
+    try:
+        # 1. Validate inputs
+        if not voiceover_texts or len(voiceover_texts) == 0:
+            raise ValueError("No voiceover texts provided")
+        
+        # 2. Get avatar data
+        avatars_result = await self.get_avatars()
+        if not avatars_result.get("success"):
+            raise Exception("Failed to fetch avatars")
+        
+        # 3. Parse avatar code
+        base_code = avatar_code.split('.')[0] if '.' in avatar_code else avatar_code
+        variant_code = avatar_code.split('.')[1] if '.' in avatar_code else None
+        
+        # 4. Find avatar
+        avatar_data = None
+        for avatar in avatars_result.get("avatars", []):
+            if avatar.get("code") == base_code:
+                avatar_data = avatar
+                break
+        
+        if not avatar_data:
+            raise Exception(f"Avatar '{base_code}' not found")
+        
+        # 5. Get canvas URL
+        avatar_canvas_url = None
+        if variant_code and "variants" in avatar_data:
+            for variant in avatar_data["variants"]:
+                if variant.get("code") == variant_code:
+                    avatar_canvas_url = variant.get("canvas")
+                    break
+        
+        if not avatar_canvas_url:
+            avatar_canvas_url = avatar_data.get("canvas")
+        
+        if not avatar_canvas_url or not avatar_canvas_url.startswith("https://"):
+            raise Exception(f"Invalid canvas URL for avatar '{avatar_code}'")
+        
+        # 6. Determine voice
+        voice_config = self._build_voice_config(
+            voice_id=voice_id,
+            voice_style=voice_style,
+            avatar_gender=avatar_data.get("gender", "female")
+        )
+        
+        # 7. Construct Elai API payload (CORRECTED)
+        video_request = {
+            "name": project_name,
+            
+            # ← VOICE AT VIDEO LEVEL (applies to all slides)
+            "voice": voice_config,
+            
+            "slides": [{
+                "id": 1,
+                "canvas": {
+                    "objects": [{
+                        "type": "avatar",
+                        "left": 151.5,
+                        "top": 36,
+                        "fill": "#4868FF",
+                        "scaleX": 0.3,
+                        "scaleY": 0.3,
+                        "width": 1080,
+                        "height": 1080,
+                        "src": avatar_canvas_url,
+                        "avatarType": "transparent",
+                        "animation": {
+                            "type": None,
+                            "exitType": None
+                        }
+                    }],
+                    "background": "#110c35",
+                    "version": "4.4.0"
+                },
+                "avatar": {
+                    "code": avatar_code,
+                    "gender": avatar_data.get("gender"),
+                    "canvas": avatar_canvas_url
+                },
+                "animation": "fade_in",
+                "language": "English",
+                "speech": " ".join(voiceover_texts)
+                # ← NO voice/voiceType/voiceProvider here!
+            }],
+            "tags": ["video_lesson", "generated", "presentation"],
+            "format": "1_1",
+            "resolution": "1080p"
+        }
+        
+        # 8. Make API call
+        logger.info(f"Creating video with voice: {voice_config}")
+        
+        response = requests.post(
+            f"{self.base_url}/videos",
+            headers={
+                "Authorization": f"Bearer {self.api_token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            json=video_request,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            error_msg = f"Elai API error: {response.status_code} - {response.text}"
+            logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg
+            }
+        
+        result = response.json()
+        video_id = result.get("_id")
+        
+        if not video_id:
+            raise Exception("No video ID in response")
+        
+        logger.info(f"✅ Video created: {video_id} with voice {voice_config['voiceId']}")
+        
+        return {
+            "success": True,
+            "videoId": video_id,
+            "message": "Video created successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating video: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+def _build_voice_config(
+    self,
+    voice_id: Optional[str],
+    voice_style: Optional[str],
+    avatar_gender: str
+) -> Dict[str, str]:
+    """
+    Build voice configuration object according to Elai API spec
+    
+    Returns:
+        {
+            "voiceId": "en-US-AriaNeural",
+            "provider": "azure",
+            "style": "friendly"  # optional
+        }
+    """
+    # Default voices by gender
+    default_voices = {
+        "female": {
+            "voiceId": "en-US-AriaNeural",
+            "provider": "azure"
+        },
+        "male": {
+            "voiceId": "en-US-AndrewMultilingualNeural",
+            "provider": "azure"
+        }
+    }
+    
+    # Use provided voice or default
+    if voice_id:
+        # Detect provider from voiceId
+        if voice_id.startswith("en-"):
+            provider = "azure"
+        elif len(voice_id) == 20:  # ElevenLabs IDs are 20 chars
+            provider = "elevenlabs"
+        else:
+            provider = "azure"  # fallback
+        
+        config = {
+            "voiceId": voice_id,
+            "provider": provider
+        }
+    else:
+        config = default_voices.get(
+            avatar_gender.lower(),
+            default_voices["female"]
+        )
+    
+    # Add style if provided (Azure only)
+    if voice_style and config["provider"] == "azure":
+        config["style"] = voice_style
+    
+    logger.info(f"Voice config: {config}")
+    return config
+```
+
+---
+
+## 📋 **EXAMPLES OF CORRECT REQUESTS**
+
+### **Example 1: Azure Voice with Style**
+
+```python
+video_request = {
+    "name": "Professional Presentation",
+    
+    "voice": {
+        "voiceId": "en-US-TonyNeural",
+        "provider": "azure",
+        "style": "friendly"
+    },
+    
+    "slides": [{
+        "id": 1,
+        "speech": "Welcome to our course on AI",
+        "canvas": { ... },
+        "avatar": {
+            "code": "neyson.business",
+            "canvas": "https://d3u63mhbhkevz8.cloudfront.net/..."
+        }
+    }]
+}
+```
+
+### **Example 2: ElevenLabs Voice (Premium)**
+
+```python
+video_request = {
+    "name": "Premium Narration",
+    
+    "voice": {
+        "voiceId": "nPczCjzI2devNBz1zQrb",  # Brian from ElevenLabs
+        "provider": "elevenlabs"
+    },
+    
+    "slides": [{
+        "id": 1,
+        "speech": "This uses a premium voice from ElevenLabs",
+        "canvas": { ... },
+        "avatar": { ... }
+    }]
+}
+```
+
+### **Example 3: Different Voices per Slide**
+
+```python
+video_request = {
+    "name": "Multi-voice Video",
+    
+    "slides": [
+        {
+            "id": 1,
+            "speech": "Introduction by female voice",
+            "voice": {
+                "voiceId": "en-US-AriaNeural",
+                "provider": "azure",
+                "style": "cheerful"
+            },
+            "avatar": { ... }
+        },
+        {
+            "id": 2,
+            "speech": "Main content by male voice",
+            "voice": {
+                "voiceId": "en-US-TonyNeural",
+                "provider": "azure",
+                "style": "friendly"
+            },
+            "avatar": { ... }
+        }
+    ]
+}
+```
+
+---
+
+## 🧪 **TEST SCRIPT**
+
+```python
+import requests
+import json
+
+def test_elai_voice_integration():
+    """Test voice integration with actual Elai API"""
+    
+    API_TOKEN = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
+    BASE_URL = "https://apis.elai.io/api/v1"
+    
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    
+    # Test 1: Fetch voices
+    print("📋 Fetching available voices...")
+    response = requests.get(f"{BASE_URL}/voices", headers=headers)
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code == 200:
+        voices = response.json()
+        print(f"✅ Found {len(voices)} language groups")
+        
+        # Show English voices
+        for lang in voices:
+            if lang.get("name") == "English":
+                male_count = len(lang.get("male", []))
+                female_count = len(lang.get("female", []))
+                print(f"   Male: {male_count}, Female: {female_count}")
+    
+    print("\n" + "="*50 + "\n")
+    
+    # Test 2: Create video with Azure voice + style
+    print("🎬 Creating test video with Azure voice...")
+    
+    test_payload = {
+        "name": "Voice Test - Azure Friendly",
+        
+        "voice": {
+            "voiceId": "en-US-TonyNeural",
+            "provider": "azure",
+            "style": "friendly"
+        },
+        
+        "slides": [{
+            "id": 1,
+            "canvas": {
+                "objects": [{
+                    "type": "avatar",
+                    "left": 151.5,
+                    "top": 36,
+                    "scaleX": 0.3,
+                    "scaleY": 0.3,
+                    "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+                    "avatarType": "transparent",
+                    "animation": {"type": None, "exitType": None}
+                }],
+                "background": "#110c35",
+                "version": "4.4.0"
+            },
+            "avatar": {
+                "code": "neyson.business",
+                "gender": "male",
+                "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+            },
+            "animation": "fade_in",
+            "language": "English",
+            "speech": "This is a test of the Azure voice integration with friendly style."
+        }],
+        "tags": ["test", "voice_integration"],
+        "format": "1_1",
+        "resolution": "1080p"
+    }
+    
+    print(f"Payload:\n{json.dumps(test_payload, indent=2)}")
+    
+    response = requests.post(
+        f"{BASE_URL}/videos",
+        headers=headers,
+        json=test_payload
+    )
+    
+    print(f"\nStatus: {response.status_code}")
+    print(f"Response:\n{json.dumps(response.json(), indent=2)}")
+    
+    if response.status_code == 200:
+        video_id = response.json().get("_id")
+        print(f"\n✅ Video created successfully!")
+        print(f"   Video ID: {video_id}")
+        print(f"   You can check status at: {BASE_URL}/videos/{video_id}")
+    else:
+        print(f"\n❌ Failed to create video")
+        print(f"   Error: {response.text}")
+    
+    print("\n" + "="*50 + "\n")
+    
+    # Test 3: ElevenLabs voice
+    print("🎬 Creating test video with ElevenLabs voice...")
+    
+    elevenlabs_payload = {
+        "name": "Voice Test - ElevenLabs Brian",
+        
+        "voice": {
+            "voiceId": "nPczCjzI2devNBz1zQrb",  # Brian
+            "provider": "elevenlabs"
+        },
+        
+        "slides": [{
+            "id": 1,
+            "canvas": {
+                "objects": [{
+                    "type": "avatar",
+                    "left": 151.5,
+                    "top": 36,
+                    "scaleX": 0.3,
+                    "scaleY": 0.3,
+                    "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+                    "avatarType": "transparent",
+                    "animation": {"type": None, "exitType": None}
+                }],
+                "background": "#110c35",
+                "version": "4.4.0"
+            },
+            "avatar": {
+                "code": "neyson.business",
+                "gender": "male",
+                "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+            },
+            "animation": "fade_in",
+            "language": "English",
+            "speech": "This is a test using the premium Brian voice from ElevenLabs."
+        }],
+        "tags": ["test", "elevenlabs", "premium"],
+        "format": "1_1",
+        "resolution": "1080p"
+    }
+    
+    response = requests.post(
+        f"{BASE_URL}/videos",
+        headers=headers,
+        json=elevenlabs_payload
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code == 200:
+        video_id = response.json().get("_id")
+        print(f"✅ ElevenLabs video created!")
+        print(f"   Video ID: {video_id}")
+    else:
+        print(f"❌ Failed: {response.text}")
+
+if __name__ == "__main__":
+    test_elai_voice_integration()
+```
+
+---
+
+## 📊 **KEY CHANGES**
+
+### **BEFORE (Incorrect):**
+```python
+"slides": [{
+    "voice": "en-US-AriaNeural",  # ❌ Wrong
+    "voiceType": "text",          # ❌ Wrong
+    "voiceProvider": "azure"      # ❌ Wrong
+}]
+```
+
+### **AFTER (Correct):**
+```python
+# Option 1: Video-level voice
+"voice": {
+    "voiceId": "en-US-AriaNeural",
+    "provider": "azure",
+    "style": "friendly"  # optional
+}
+
+# Option 2: Slide-level voice
+"slides": [{
+    "voice": {
+        "voiceId": "en-US-AriaNeural",
+        "provider": "azure",
+        "style": "friendly"
+    }
+}]
+```
+
+---
+
+## ⚠️ **IMPORTANT NOTES**
+
+1. **Provider Detection**: 
+   - Azure voices: start with `en-`, `es-`, etc.
+   - ElevenLabs voices: 20-character IDs (e.g., `nPczCjzI2devNBz1zQrb`)
+
+2. **Voice Styles**:
+   - Work **only for Azure** voices
+   - ElevenLabs doesn't support styles
+   - Available styles: `friendly`, `cheerful`, `sad`, `angry`, `excited`, etc.
+
+3. **Premium Voices**:
+   - ElevenLabs voices are premium (may cost more)
+   - Check `"premium": true` in `/voices` response
+
+4. **Fallback Logic**:
+   - Always have a default voice in case the selected one is unavailable
+   - Check Elai response for errors
+
+---
+
+**Run the test script and verify everything works!** 🚀
