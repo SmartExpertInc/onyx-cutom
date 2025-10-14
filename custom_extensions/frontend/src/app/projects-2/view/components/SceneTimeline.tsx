@@ -240,16 +240,11 @@ export default function SceneTimeline({
           {/* Add Slide Button - Opens Templates Panel - ALWAYS SHOW */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="h-16 flex items-center justify-center">
-              <button
-                onClick={() => {
-                  console.log('Plus button clicked, onOpenTemplateSelector:', onOpenTemplateSelector);
-                  if (onOpenTemplateSelector) {
-                    onOpenTemplateSelector();
-                  }
-                }}
-                className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
-                title="Add new slide"
-              >
+                <button
+                  onClick={onOpenTemplateSelector}
+                  className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
+                  title="Add new slide"
+                >
                 <svg 
                   className="w-8 h-8 text-white" 
                   fill="none" 

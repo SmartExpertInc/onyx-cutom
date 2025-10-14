@@ -209,9 +209,7 @@ export default function Projects2ViewPage() {
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
-    console.log('🔍 Opening template selector, current activeComponent:', activeComponent);
     setActiveComponent('templates');
-    console.log('✅ Set activeComponent to templates');
   };
 
   // NEW: Function to handle text changes (for Script component)

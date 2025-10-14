@@ -12,8 +12,6 @@ interface TemplateSelectorProps {
 export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
   // Get available templates
   const availableTemplates = getAllTemplates();
-  
-  console.log('📋 TemplateSelector rendered, available templates:', availableTemplates.length);
 
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
@@ -37,12 +35,6 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
         version: '1.0'
       }
     };
-
-    console.log('🔍 TemplateSelector: Creating new slide:', {
-      templateId,
-      template,
-      newSlide
-    });
 
     onAddSlide(newSlide);
   };

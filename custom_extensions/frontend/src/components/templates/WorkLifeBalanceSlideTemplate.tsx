@@ -224,14 +224,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         position: 'relative',
         zIndex: 2
       }}>
-        {/* Logo placeholder */}
+        {/* Logo placeholder - MATCHES HTML: top: 40px, left: 40px, gap: 16px */}
         <div style={{
           position: 'absolute',
-          top: '25px',
-          left: '25px',
+          top: '2.08%',
+          left: '2.08%',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '0.83%',
           color: '#ffffff'
         }}>
           {logoPath ? (
@@ -290,13 +290,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-        {/* Title - Centered vertically */}
+        {/* Title - MATCHES HTML: top: 22%, left: 96px, marginTop: 259px, fontSize: 93px */}
         <div style={{ 
           position: 'absolute',
           top: '22%',
-          left: '60px',
-          transform: 'translateY(-50%)',
-          marginBottom: '40px'
+          left: '5%',
+          transform: 'translateY(-50%)'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -305,8 +304,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               onCancel={handleTitleCancel}
               className="work-life-balance-title-editor"
               style={{
-                marginTop: '162px',
-                fontSize: '58px',
+                marginTop: '24%',
+                fontSize: '4.84vw',
                 color: '#ffffff',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -317,8 +316,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
-                marginTop: '162px',
-                fontSize: '58px',
+                marginTop: '24%',
+                fontSize: '4.84vw',
                 color: '#ffffff',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -332,11 +331,11 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-        {/* Content */}
+        {/* Content - MATCHES HTML: top: 39%, left: 96px, marginTop: 50px, marginLeft: 10px, width: 800px, fontSize: 37px */}
         <div style={{ 
           position: 'absolute',
           top: '39%',
-          left: '60px',
+          left: '5%'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor
@@ -346,10 +345,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               multiline={true}
               className="work-life-balance-content-editor"
               style={{
-                marginTop: '31px',
-                marginLeft: '6px',
-                width: '451px',
-                fontSize: '24px',
+                marginTop: '4.6%',
+                marginLeft: '0.5%',
+                width: '41.67%',
+                fontSize: '1.93vw',
                 color: '#ffffff',
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,
@@ -360,10 +359,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             <div
               onClick={() => isEditable && setEditingContent(true)}
               style={{
-                marginTop: '31px',
-                marginLeft: '6px',
-                width: '500px',
-                fontSize: '23px',
+                marginTop: '4.6%',
+                marginLeft: '0.5%',
+                width: '41.67%',
+                fontSize: '1.93vw',
                 color: '#ffffff',
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -377,19 +376,19 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           )}
         </div>
 
-        {/* Page number with line */}
+        {/* Page number with line - MATCHES HTML: bottom: 48px, gap: 13px, line: 32px × 2px */}
         <div style={{
           position: 'absolute',
-          bottom: '30px',
-          left: '0px',
+          bottom: '2.5%',
+          left: '0',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '0.68%'
         }}>
           {/* Small line */}
           <div style={{
-            width: '20px',
-            height: '1px',
+            width: '1.67%',
+            height: '0.19%',
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }} />
           {/* Page number */}
@@ -401,9 +400,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               className="page-number-editor"
               style={{
                 color: '#ffffff',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
-                width: '30px',
+                width: 'auto',
                 height: 'auto'
               }}
             />
@@ -412,7 +411,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               onClick={() => isEditable && setEditingPageNumber(true)}
               style={{
                 color: '#ffffff',
-                fontSize: '17px',
+                fontSize: '1.4vw',
                 fontWeight: '300',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
@@ -446,11 +445,11 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           zIndex: 1
         }} />
 
-        {/* Image */}
+        {/* Image - MATCHES HTML: left: -67px, bottom: -43px, height: 904px, borderRadius: 16px */}
         <div style={{
           position: 'absolute',
-          left: '-42px',
-          bottom: '-27px',
+          left: '-3.49%',
+          bottom: '-3.98%',
           zIndex: 2,
           width: '100%',
           display: 'flex',
@@ -464,8 +463,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             description="Work-life balance image"
             isEditable={isEditable}
             style={{
-              height: '565px',
-              borderRadius: '10px',
+              height: '83.7%',
+              borderRadius: '0.83%',
               objectFit: 'contain'
             }}
           />
