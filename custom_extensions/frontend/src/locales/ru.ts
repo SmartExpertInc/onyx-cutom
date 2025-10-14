@@ -921,7 +921,7 @@ export const ru = {
     presentation: "Презентация",
     quiz: "Тест",
     videoLesson: "Видео урок",
-    onePager: "Одностраничный запрос",
+    onePager: "Одна страница",
     videoTable: "Видео",
     favorites: "Избранное",
 

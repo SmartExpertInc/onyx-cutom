@@ -907,7 +907,7 @@ export const uk = {
     presentation: "Презентація",
     quiz: "Тест",
     videoLesson: "Відео урок",
-    onePager: "Односторінковий запит",
+    onePager: "Одна сторінка",
     videoTable: "Відео",
     favorites: "Обране",
 
