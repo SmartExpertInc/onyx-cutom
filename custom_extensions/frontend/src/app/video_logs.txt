@@ -1,36 +1,540 @@
-✅ Video lesson data saved successfully
-6The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
-1963-e9ef366dfbfc03f6.js:1 🎬 [GENERATE_MODAL] Start generation button clicked
-1963-e9ef366dfbfc03f6.js:1 🎬 [GENERATE_MODAL] onGenerationStart callback: async()=>{console.log("\uD83C\uDFAC [VIDEO_GENERATION] handleVideoGeneration called"),console.log("\uD83C\uDFAC [VIDEO_GENERATION] Global defaultAvatar:",X);let e=null==X?void 0:X.avatar,t=null==X?vo…
-1963-e9ef366dfbfc03f6.js:1 🎬 [GENERATE_MODAL] Current generationStatus: idle
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] handleVideoGeneration called
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Global defaultAvatar: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Using selected avatar from global context: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Generation started with data: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Starting video generation with avatar: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Extracting slide data...
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] videoLessonData: undefined
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] currentSlideId: slide-1759497683333-6zsx5x14n
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in componentBasedSlideDeck: 1 slides
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck: Array(0)
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Slide data extracted successfully
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Slides count: 1
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Theme: dark-purple
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Voiceover texts count: 0
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Request payload: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Final request payload: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Making API request to: /api/custom-projects-backend/presentations
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] API response status: 200
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] API response data: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Presentation job created successfully: de245447-3b7c-4cbb-873b-42fa5094cc32
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Closing GenerateModal and opening GenerationCompletedModal
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Starting polling for job completion...
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Polling job status for: de245447-3b7c-4cbb-873b-42fa5094cc32
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Status response: Object
-1963-e9ef366dfbfc03f6.js:1 🎬 [VIDEO_GENERATION] Job progress: 10 Status: failed
-1684-614c13b884d04a5e.js:1 🎬 [VIDEO_GENERATION] Video generation failed: Slide video generation failed: No PNGs generated successfully
-window.console.error @ 1684-614c13b884d04a5e.js:1Understand this error
-1684-614c13b884d04a5e.js:1 🎬 [VIDEO_GENERATION] Status check error: Error: Slide video generation failed: No PNGs generated successfully
-    at 1963-e9ef366dfbfc03f6.js:1:303480
+import requests
+
+url = "https://apis.elai.io/api/v1/voices"
+
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer 5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
+}
+
+response = requests.get(url, headers=headers)
+
+print(response.text)
+
+
+responce:
+[
+  {
+    "name": "English",
+    "male": [
+      {
+        "voiceProvider": "azure",
+        "character": "Andrew M",
+        "name": "English (United States)",
+        "locale": "en-US",
+        "voice": "en-US-AndrewMultilingualNeural",
+        "icon": "us",
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-andrewmultilingualneural-en-us.mp3",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "voiceProvider": "azure",
+        "character": "Tony",
+        "name": "English (United States)",
+        "locale": "en-US",
+        "voice": "en-US-TonyNeural",
+        "icon": "us",
+        "styleList": [
+          "angry",
+          "cheerful",
+          "excited",
+          "friendly",
+          "hopeful",
+          "sad",
+          "shouting",
+          "terrified",
+          "unfriendly",
+          "whispering"
+        ],
+        "defaultStyle": "friendly",
+        "stylePreview": {
+          "angry": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:angry-en-us.mp3",
+          "cheerful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:cheerful-en-us.mp3",
+          "excited": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:excited-en-us.mp3",
+          "friendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:friendly-en-us.mp3",
+          "hopeful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:hopeful-en-us.mp3",
+          "sad": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:sad-en-us.mp3",
+          "shouting": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:shouting-en-us.mp3",
+          "terrified": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:terrified-en-us.mp3",
+          "unfriendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:unfriendly-en-us.mp3",
+          "whispering": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural:whispering-en-us.mp3"
+        },
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-tonyneural-en-us.mp3",
+        "approxDurationCoeficient": 20
+      },
+      {
+        "voiceProvider": "azure",
+        "character": "Davis",
+        "name": "English (United States)",
+        "locale": "en-US",
+        "voice": "en-US-DavisNeural",
+        "icon": "us",
+        "styleList": [
+          "chat",
+          "angry",
+          "cheerful",
+          "excited",
+          "friendly",
+          "hopeful",
+          "sad",
+          "shouting",
+          "terrified",
+          "unfriendly",
+          "whispering"
+        ],
+        "defaultStyle": "friendly",
+        "stylePreview": {
+          "chat": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:chat-en-us.mp3",
+          "angry": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:angry-en-us.mp3",
+          "cheerful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:cheerful-en-us.mp3",
+          "excited": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:excited-en-us.mp3",
+          "friendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:friendly-en-us.mp3",
+          "hopeful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:hopeful-en-us.mp3",
+          "sad": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:sad-en-us.mp3",
+          "shouting": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:shouting-en-us.mp3",
+          "terrified": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:terrified-en-us.mp3",
+          "unfriendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:unfriendly-en-us.mp3",
+          "whispering": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural:whispering-en-us.mp3"
+        },
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-davisneural-en-us.mp3",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "voiceProvider": "azure",
+        "character": "Jason",
+        "name": "English (United States)",
+        "locale": "en-US",
+        "voice": "en-US-JasonNeural",
+        "icon": "us",
+        "styleList": [
+          "angry",
+          "cheerful",
+          "excited",
+          "friendly",
+          "hopeful",
+          "sad",
+          "shouting",
+          "terrified",
+          "unfriendly",
+          "whispering"
+        ],
+        "defaultStyle": "friendly",
+        "stylePreview": {
+          "angry": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:angry-en-us.mp3",
+          "cheerful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:cheerful-en-us.mp3",
+          "excited": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:excited-en-us.mp3",
+          "friendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:friendly-en-us.mp3",
+          "hopeful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:hopeful-en-us.mp3",
+          "sad": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:sad-en-us.mp3",
+          "shouting": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:shouting-en-us.mp3",
+          "terrified": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:terrified-en-us.mp3",
+          "unfriendly": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:unfriendly-en-us.mp3",
+          "whispering": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural:whispering-en-us.mp3"
+        },
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-jasonneural-en-us.mp3",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "voiceProvider": "azure",
+        "character": "Ryan",
+        "name": "English (United Kingdom)",
+        "locale": "en-GB",
+        "voice": "en-GB-RyanNeural",
+        "icon": "gb",
+        "styleList": [
+          "cheerful",
+          "chat"
+        ],
+        "stylePreview": {
+          "cheerful": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-gb-ryanneural:cheerful-en-us.mp3",
+          "chat": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-gb-ryanneural:chat-en-us.mp3"
+        },
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-gb-ryanneural-en-us.mp3",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "voiceProvider": "azure",
+        "character": "Brian M",
+        "name": "English (United States)",
+        "locale": "en-US",
+        "voice": "en-US-BrianMultilingualNeural",
+        "icon": "us",
+        "url": "https://d3u63mhbhkevz8.cloudfront.net/voices/azure/azure-en-us-brianmultilingualneural-en-us.mp3",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Roger",
+        "voice": "CwhRBWXzGAHq8TQ4Fs17",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "social-media",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/CwhRBWXzGAHq8TQ4Fs17/58ee3ff5-f6f2-4628-93b8-e38eb31806b0.mp3",
+        "order": 0,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us"
+      },
+      {
+        "character": "Chris",
+        "voice": "iP95p4xoKVk53GoZ742B",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "conversational",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/iP95p4xoKVk53GoZ742B/3f4bde72-cc48-40dd-829f-57fbf906f4d7.mp3",
+        "order": 1,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 19
+      },
+      {
+        "character": "Brian",
+        "voice": "nPczCjzI2devNBz1zQrb",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "narration",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/nPczCjzI2devNBz1zQrb/2dd3e72c-4fd3-42f1-93ea-abc5d4e5aa1d.mp3",
+        "order": 2,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 19
+      },
+      {
+        "character": "Sam",
+        "voice": "yoZ06aMxZJJ28mfd3POQ",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "fast-paced",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/yoZ06aMxZJJ28mfd3POQ/b017ad02-8d18-4456-ad92-55c85ecf6363.mp3",
+        "order": 3,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "character": "Antoni",
+        "voice": "ErXwobaYiN019PkySvjV",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "well-rounded",
+          "calm"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/ErXwobaYiN019PkySvjV/2d5ab2a3-4578-470f-b797-6331e46a7d55.mp3",
+        "order": 4,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Adam",
+        "voice": "pNInz6obpgDQGcFmaJgB",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "deep",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/pNInz6obpgDQGcFmaJgB/d6905d7a-dd26-4187-bfff-1bd3a5ea7cac.mp3",
+        "order": 4,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Josh",
+        "voice": "TxGEqnHWrfWFTfGW9XjX",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "deep",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/TxGEqnHWrfWFTfGW9XjX/47de9a7e-773a-42a8-b410-4aa90c581216.mp3",
+        "order": 5,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "character": "Arnold",
+        "voice": "VR6AewLTigWG4xSOukaG",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "crisp",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/VR6AewLTigWG4xSOukaG/49a22885-80d5-48e8-87a3-076fc9193d9a.mp3",
+        "order": 5,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "character": "Bill",
+        "voice": "pqHfZKP75CvOlQylNhV4",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "strong",
+          "old"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/pqHfZKP75CvOlQylNhV4/d782b3ff-84ba-4029-848c-acf01285524d.mp3",
+        "order": 5,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 16
+      },
+      {
+        "character": "Jessie",
+        "voice": "t0jbNlBVZ17f02VDIeMI",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "fast-paced",
+          "old"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/t0jbNlBVZ17f02VDIeMI/e26939e3-61a4-4872-a41d-33922cfbdcdc.mp3",
+        "order": 6,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 19
+      },
+      {
+        "character": "Michael",
+        "voice": "flq6f7yk4E4fJM5XTYuZ",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "orutund",
+          "old"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/flq6f7yk4E4fJM5XTYuZ/c6431a82-f7d2-4905-b8a4-a631960633d6.mp3",
+        "order": 7,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Liam",
+        "voice": "TX3LPaxmHKxFdv7VOQHJ",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "neutral",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/TX3LPaxmHKxFdv7VOQHJ/63148076-6363-42db-aea8-31424308b92c.mp3",
+        "order": 8,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 20
+      },
+      {
+        "character": "Harry",
+        "voice": "SOYHLrjzK2X1ezoPC6cr",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "anxious",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/SOYHLrjzK2X1ezoPC6cr/86d178f6-f4b6-4e0e-85be-3de19f490794.mp3",
+        "order": 9,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "character": "Patrick",
+        "voice": "ODq5zmih8GrVes37Dizd",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "shouty",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/ODq5zmih8GrVes37Dizd/0ebec87a-2569-4976-9ea5-0170854411a9.mp3",
+        "order": 10,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 20
+      },
+      {
+        "character": "Thomas",
+        "voice": "GBv7mTt0atIp3Br8iCZE",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "calm",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/GBv7mTt0atIp3Br8iCZE/98542988-5267-4148-9a9e-baa8c4f14644.mp3",
+        "order": 11,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Drew",
+        "voice": "29vD33N1CtxCmqQRPOHJ",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "well-rounded",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/29vD33N1CtxCmqQRPOHJ/b99fc51d-12d3-4312-b480-a8a45a7d51ef.mp3",
+        "order": 12,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 16
+      },
+      {
+        "character": "Paul",
+        "voice": "5Q0t7uMcjvnagumLfvZi",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "narration",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/5Q0t7uMcjvnagumLfvZi/a4aaa30e-54c4-44a4-8e46-b9b00505d963.mp3",
+        "order": 13,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Callum",
+        "voice": "N2lVS1w4EtoT3dr4eOWO",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "masculine",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/N2lVS1w4EtoT3dr4eOWO/ac833bd8-ffda-4938-9ebc-b0f99ca25481.mp3",
+        "order": 14,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Giovanni",
+        "voice": "zcAOhNBS3c14rBihAFp1",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "italian-accent",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/zcAOhNBS3c14rBihAFp1/e7410f8f-4913-4cb8-8907-784abee5aff8.mp3",
+        "order": 15,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Ethan",
+        "voice": "g5CIjZEefAph4nQFvHAz",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "whisper",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/g5CIjZEefAph4nQFvHAz/26acfa99-fdec-43b8-b2ee-e49e75a3ac16.mp3",
+        "order": 16,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 16
+      },
+      {
+        "character": "Clyde",
+        "voice": "2EiwWnXFnvU5JabPnv8n",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "masculine",
+          "middle-aged"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/2EiwWnXFnvU5JabPnv8n/65d80f52-703f-4cae-a91d-75d4e200ed02.mp3",
+        "order": 17,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "us",
+        "approxDurationCoeficient": 14
+      },
+      {
+        "character": "George",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "raspy",
+          "narration"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/JBFqnCBsd6RMkjVDRZzb/e6206d1a-0721-4787-aafb-06a6e705cac5.mp3",
+        "order": 19,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "gb",
+        "approxDurationCoeficient": 17
+      },
+      {
+        "character": "Dave",
+        "voice": "CYw3kZ02Hs0563khs1Fj",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "essex-accent",
+          "young"
+        ],
+        "url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/CYw3kZ02Hs0563khs1Fj/872cb056-45d3-419e-b5c6-de2b387a93a0.mp3",
+        "order": 20,
+        "name": "English (United States)",
+        "locale": "en-US",
+        "icon": "gb",
+        "approxDurationCoeficient": 18
+      },
+      {
+        "character": "Joseph",
+        "voice": "Zlb1dXrM653N07WRdFW3",
+        "voiceProvider": "elevenlabs",
+        "premium": true,
+        "tags": [
+          "upbeat",
+          "middle-aged"
+        ],
