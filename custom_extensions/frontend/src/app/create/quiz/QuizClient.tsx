@@ -956,73 +956,67 @@ export default function QuizClient() {
                   throw new Error("Missing required fields");
                 }
               } catch (e) {
-                // JSON incomplete or invalid - create simple readable preview from raw text
-                console.log('[QUIZ_PREVIEW] 📝 Creating readable preview from raw text');
+                // JSON incomplete or invalid - try to parse partial question objects
+                console.log('[QUIZ_PREVIEW] 📝 Creating readable preview from incomplete JSON');
                 
                 // Extract quiz title if available
                 const titleMatch = accumulatedText.match(/"quizTitle"\s*:\s*"([^"]+)"/);
                 const title = titleMatch ? titleMatch[1] : "Generating Quiz...";
                 
-                // Extract complete question objects with all fields including explanations
-                const questionObjects: any[] = [];
-                const questionPattern = /\{[^}]*"question_type"[^}]*"question_text"[^}]*\}/g;
-                const questionMatches = accumulatedText.match(questionPattern);
-                
-                if (questionMatches) {
-                  questionMatches.forEach((questionStr) => {
-                    try {
-                      const questionObj = JSON.parse(questionStr);
-                      if (questionObj.question_text) {
-                        questionObjects.push(questionObj);
-                      }
-                    } catch (e) {
-                      // Skip malformed question objects
-                    }
-                  });
-                }
-                
-                const questionCount = questionObjects.length;
-                
-                // Create simple markdown preview
                 displayText = `# ${title}\n\n`;
-                if (questionCount > 0) {
-                  displayText += `**Generating ${questionCount} question${questionCount > 1 ? 's' : ''}...**\n\n`;
+                
+                // Try to extract individual question objects (even if the JSON array isn't closed)
+                const questionsArrayMatch = accumulatedText.match(/"questions"\s*:\s*\[([^\]]*)/);
+                if (questionsArrayMatch) {
+                  const questionsText = questionsArrayMatch[1];
                   
-                  // Show partial questions with all available fields
-                  questionObjects.forEach((question, index) => {
-                    displayText += `${index + 1}. **${question.question_text}**\n\n`;
+                  // Split by question boundaries (looking for opening braces of question objects)
+                  // Match each question object, even if incomplete
+                  const questionPattern = /\{[^}]*"question_type"[^}]*?"question_text"[^}]*?\}/g;
+                  const partialQuestions = questionsText.match(questionPattern);
+                  
+                  if (partialQuestions && partialQuestions.length > 0) {
+                    console.log('[QUIZ_PREVIEW] 📝 Extracted', partialQuestions.length, 'partial questions');
                     
-                    // Add options if available
-                    if (question.options && Array.isArray(question.options)) {
-                      question.options.forEach((opt: any) => {
-                        displayText += `${opt.id}) ${opt.text}\n`;
-                      });
-                      displayText += `\n`;
-                    }
-                    
-                    // Add correct answer if available
-                    if (question.correct_option_id) {
-                      displayText += `**Correct:** ${question.correct_option_id}\n`;
-                    } else if (question.correct_option_ids) {
-                      displayText += `**Correct:** ${question.correct_option_ids.join(', ')}\n`;
-                    } else if (question.correct_matches) {
-                      displayText += `**Correct matches:** ${JSON.stringify(question.correct_matches)}\n`;
-                    } else if (question.correct_order) {
-                      displayText += `**Correct order:** ${question.correct_order.join(' → ')}\n`;
-                    } else if (question.acceptable_answers) {
-                      displayText += `**Acceptable answers:**\n`;
-                      question.acceptable_answers.forEach((ans: string) => {
-                        displayText += `- ${ans}\n`;
-                      });
-                    }
-                    
-                    // Add explanation if available
-                    if (question.explanation) {
-                      displayText += `\n**Explanation:** ${question.explanation}\n`;
-                    }
-                    
-                    displayText += '\n---\n\n';
-                  });
+                    partialQuestions.forEach((qStr, index) => {
+                      try {
+                        // Try to parse this individual question
+                        const q = JSON.parse(qStr);
+                        
+                        // Format like convertQuizJsonToDisplay does
+                        displayText += `${index + 1}. **${q.question_text}**\n\n`;
+                        
+                        // Add options if available
+                        if (q.question_type === 'multiple-choice' && q.options) {
+                          q.options.forEach((opt: any) => {
+                            displayText += `${opt.id}) ${opt.text}\n`;
+                          });
+                          if (q.correct_option_id) {
+                            displayText += `\n**Correct:** ${q.correct_option_id}\n`;
+                          }
+                        } else if (q.question_type === 'multi-select' && q.options) {
+                          q.options.forEach((opt: any) => {
+                            displayText += `${opt.id}) ${opt.text}\n`;
+                          });
+                          if (q.correct_option_ids) {
+                            displayText += `\n**Correct:** ${q.correct_option_ids.join(', ')}\n`;
+                          }
+                        }
+                        
+                        // Add explanation if available
+                        if (q.explanation) {
+                          displayText += `\n**Explanation:** ${q.explanation}\n`;
+                        }
+                        
+                        displayText += '\n---\n\n';
+                      } catch (parseErr) {
+                        // This question object is malformed, skip it
+                        console.log('[QUIZ_PREVIEW] ⚠️ Skipped malformed question', index + 1);
+                      }
+                    });
+                  } else {
+                    displayText += "**Generating questions...**\n\n";
+                  }
                 } else {
                   displayText += "**Generating questions...**\n\n";
                 }
@@ -1032,9 +1026,9 @@ export default function QuizClient() {
               
               // Make textarea visible as soon as we have content
               const hasMeaningfulText = /\S/.test(accumulatedText);
-              if (hasMeaningfulText && !textareaVisible) {
+            if (hasMeaningfulText && !textareaVisible) {
                 console.log('[QUIZ_PREVIEW] ✅ Making textarea visible');
-                setTextareaVisible(true);
+              setTextareaVisible(true);
               }
             }
           }
