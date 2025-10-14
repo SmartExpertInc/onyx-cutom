@@ -34,6 +34,9 @@ import {
   AlertTriangle,
   ChevronRight,
   ChevronDown,
+  ChevronLeft,
+  ChevronsLeft,
+  ChevronsRight,
   CheckSquare,
   Square,
   ArrowDownToLine,
@@ -51,7 +54,11 @@ import {
   LayoutTemplate,
   BookOpen,
   MonitorPlay,
-  FileQuestion
+  FileQuestion,
+  FileStack,
+  ClipboardPenLine,
+  Users,
+  Calendar
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -105,7 +112,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
       return <HelpCircle size={iconSize} className={iconClass} />;
     case "Slide Deck":
       return <Presentation size={iconSize} className={iconClass} />;
-    case "Video Lesson Presentation":
+    case "Video":
       return <Video size={iconSize} className={iconClass} />;
     case "Text Presentation":
       return <FileText size={iconSize} className={iconClass} />;
@@ -1157,7 +1164,7 @@ const FolderRow: React.FC<{
                     text={p.title}
                     columnWidthPercent={columnWidths.title}
                     href={trashMode ? "#" : (
-                      p.designMicroproductType === "Video Lesson Presentation" 
+                      p.designMicroproductType === "Video" 
                         ? `/projects-2/view/${p.id}`
                         : (p.designMicroproductType === "Training Plan"
                           ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
@@ -2167,6 +2174,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [folderProjects, setFolderProjects] = useState<
     Record<number, Project[]>
   >({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [lessonDataCache, setLessonDataCache] = useState<
     Record<
       number,
@@ -2203,7 +2212,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       // 1) Prefer explicitly stored instance name if it's provided and not a generic template label
       const instanceName: string | undefined = p?.projectName?.trim() || p?.microproduct_name?.trim();
       const genericNames = new Set([
-        'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video Lesson Presentation'
+        'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video'
       ]);
       if (instanceName && !genericNames.has(instanceName)) {
         return instanceName;
@@ -2973,21 +2982,21 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
     if (diffDays === 1) return t("interface.today", "Today");
     if (diffDays === 2) return t("interface.yesterday", "Yesterday");
-    if (diffDays <= 7)
-      return t("interface.daysAgo", "{days} days ago").replace(
-        "{days}",
-        (diffDays - 1).toString()
-      );
-    if (diffDays <= 30)
-      return t("interface.weeksAgo", "{weeks} weeks ago").replace(
-        "{weeks}",
-        Math.floor(diffDays / 7).toString()
-      );
-    if (diffDays <= 365)
-      return t("interface.monthsAgo", "{months} months ago").replace(
-        "{months}",
-        Math.floor(diffDays / 30).toString()
-      );
+    if (diffDays <= 7) {
+      const days = diffDays - 1;
+      const unit = days === 1 ? "day" : "days";
+      return t("interface.daysAgo", `{days} ${unit} ago`).replace("{days}", days.toString());
+    }
+    if (diffDays <= 30) {
+      const weeks = Math.floor(diffDays / 7);
+      const unit = weeks === 1 ? "week" : "weeks";
+      return t("interface.weeksAgo", `{weeks} ${unit} ago`).replace("{weeks}", weeks.toString());
+    }
+    if (diffDays <= 365) {
+      const months = Math.floor(diffDays / 30);
+      const unit = months === 1 ? "month" : "months";
+      return t("interface.monthsAgo", `{months} ${unit} ago`).replace("{months}", months.toString());
+    }
 
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -3582,7 +3591,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     "Course", 
     "Presentation",
     "Quiz",
-    "Video Lesson"
+    "Video Lesson",
+    "One-Pager",
   ];
 
   const AllIcon: React.FC<{ stroke?: string }> = ({ stroke }) => (
@@ -3597,6 +3607,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     "Presentation": LayoutTemplate,
     "Quiz": FileQuestion,
     "Video Lesson": MonitorPlay,
+    "One-Pager": FileText,
   };
 
   // Add PDF download function
@@ -3669,6 +3680,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         )
       : getProjectsForFolder(folderId)
     : getProjectsForFolder(folderId);
+
+  // Pagination logic
+  const totalPages = Math.ceil(visibleProjects.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedProjects = visibleProjects.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, contentTypeFilter, folderId]);
 
   const visibleUnassignedProjects =
     viewMode === "list"
@@ -3780,15 +3802,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Favorites
             </button>
           </nav>
-          <div className="relative w-80 ml-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+          <div className="relative w-75 ml-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
             <Input
               type="text"
               variant="shadow"
               placeholder={t('interface.searchPlaceholderProjects', 'Search...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 placeholder:text-[#71717A]"
             />
           </div>
           <div 
@@ -3797,6 +3819,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               setSortBy('created');
               setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
             }}
+            title="Sort by creation date"
           >
             <ArrowDownUp size={16} className="text-[#71717A]" />
           </div>
@@ -3911,13 +3934,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
               <Button
                 onClick={() => setViewMode("grid")}
-                className={`rounded-full p-1 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
+                className={`rounded-full p-1 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-sm" : "bg-gray-100 text-gray-600"}`}
               >
                 <LayoutGrid size={20} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
-                className={`rounded-full p-1 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5]" : "bg-gray-100 text-gray-600"}`}
+                className={`rounded-full p-1 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-sm" : "bg-gray-100 text-gray-600"}`}
               >
                 <List size={20} />
               </Button>
@@ -3944,33 +3967,34 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ))}
           </div>
         ) : (
-          // List view (table/row style)
+          <>
+          {/* List view (table/row style) */}
           <div
             className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
           >
             <Table
-              className="min-w-full divide-y divide-gray-200"
+              className="min-w-full divide-y divide-gray-200 rounded-md"
             >
               <TableHeader className="bg-white">
                 <TableRow>
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
                       <div className="flex items-center gap-2">
-                        <TypeIcon size={15} />
+                        <FileStack strokeWidth={1} className="text-[#71717A]" size={15} />
                         {t("interface.type", "Type")}
                       </div>
                     </TableHead>
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.title}%` }}
                       onClick={() => handleSort('title')}
                     >
                       <div className="flex items-center gap-2">
-                        <TitleIcon size={15} />
+                        <ClipboardPenLine strokeWidth={1} className="text-[#71717A]" size={15} />
                         {t("interface.title", "Title")}
                         {sortBy === 'title' && (
                           <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
@@ -3978,12 +4002,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     </TableHead>
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.creator}%` }}
                       onClick={() => handleSort('creator')}
                     >
                       <div className="flex items-center gap-2">
-                        <CreatorIcon size={15} />
+                        <Users strokeWidth={1} className="text-[#71717A]" size={15} />
                         {t("interface.creator", "Creator")}
                         {sortBy === 'creator' && (
                           <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
@@ -3991,12 +4015,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     </TableHead>
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.created}%` }}
                       onClick={() => handleSort('created')}
                     >
                       <div className="flex items-center gap-2">
-                        <CreatedIcon size={15} />
+                        <Calendar strokeWidth={1} className="text-[#71717A]" size={15} />
                         {t("interface.created", "Created")}
                         {sortBy === 'created' && (
                           <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
@@ -4004,7 +4028,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     </TableHead>
                   <TableHead
-                    className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
+                    className="px-3 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
                     {/* {t("interface.actions", "ACTIONS")} */}
@@ -4013,7 +4037,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </TableHeader>
               <TableBody className="bg-white divide-y divide-gray-100">
                 {/* Show filtered projects based on folder */}
-                {visibleProjects.map((p: Project, index: number) => (
+                {paginatedProjects.map((p: Project, index: number) => (
                     <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
@@ -4063,7 +4087,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         handleDragEnd(e);
                       }}
                     >
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 flex items-center justify-center">
@@ -4073,7 +4097,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 {p.designMicroproductType === "Training Plan" && (
                                   <BookOpen size={19} strokeWidth={1} className="font-light text-[#719AF5]" />
                                 )}
-                                {p.designMicroproductType === "Video Lesson Presentation" && (
+                                {p.designMicroproductType === "Video" && (
                                   <MonitorPlay size={19} strokeWidth={1} className="font-light text-[#06A294]" />
                                 )}
                                 {p.designMicroproductType === "Text Presentation" && (
@@ -4091,14 +4115,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "-"
                           )}
                         </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
                               href={trashMode ? "#" : (
-                                p.designMicroproductType === "Video Lesson Presentation" 
+                                p.designMicroproductType === "Video" 
                                   ? `/projects-2/view/${p.id}`
                                   : (p.designMicroproductType === "Training Plan"
                                     ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
@@ -4108,17 +4132,21 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             />
                           </span>
                         </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100%" viewBox="0 0 288 288" enableBackground="new 0 0 288 288" xmlSpace="preserve">
+                            <path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M126.764687,243.325195   C129.743134,252.333206 134.648621,260.277374 136.916687,270.400635   C128.787888,268.256714 124.842384,262.069458 118.092896,258.664429   C119.308434,262.129517 120.328094,264.713470 121.101715,267.369141   C121.528847,268.835388 122.829292,270.669861 120.802452,271.840027   C119.127396,272.807129 118.008667,271.188202 116.981483,270.234497   C108.673660,262.520996 100.574516,254.570007 93.602295,245.621414   C88.185638,238.669373 83.379593,231.244629 78.121811,224.163879   C76.570457,222.074600 74.951332,219.858124 71.795006,218.364532   C68.604797,223.381012 67.569160,229.950348 62.030056,233.435074   C57.042271,236.572968 52.403023,240.231232 48.189892,244.138397   C45.385746,241.875366 46.767834,240.212723 47.577496,238.707336   C49.391239,235.335022 51.005894,231.772644 53.326328,228.770523   C62.297386,217.164062 61.618809,203.921829 60.225838,190.532364   C59.637970,184.881699 58.121010,179.383667 56.273403,174.050064   C50.275124,156.734436 50.554508,139.405197 55.733799,122.029739   C62.114437,100.624023 71.474792,81.173080 89.520638,66.695068   C119.857658,42.355949 155.847946,46.867363 183.390152,65.028984   C195.984482,73.333817 202.778366,86.450531 207.319687,100.443886   C220.159134,140.006592 218.619019,179.070526 202.323807,217.448044   C200.306015,222.200226 198.362686,226.984711 196.286087,231.710846   C195.603226,233.264999 195.330215,235.434372 192.021210,235.111679   C191.544830,225.995117 195.513290,217.500610 196.057571,208.130676   C186.909927,218.816956 176.217575,226.728729 162.932022,230.703110   C149.899185,234.601883 136.731003,234.265442 123.138283,230.953323   C123.345345,235.782639 125.523560,239.224625 126.764687,243.325195  M185.937988,124.180367   C182.732666,120.860306 179.360062,117.776848 175.175842,116.061447   C174.700089,116.430336 174.488876,116.507607 174.448608,116.637764   C172.698914,122.294319 164.988434,125.525246 167.817322,133.128540   C168.200027,134.157150 166.720673,135.102341 165.533051,135.391510   C163.605209,135.860962 161.647766,136.208862 159.377701,136.674805   C161.062805,138.449005 158.214310,139.753845 159.124908,141.856583   C161.031693,146.259705 159.627502,149.741455 155.057053,151.480652   C150.993805,153.026840 148.155334,151.062866 145.905991,145.527100   C145.726746,145.085938 145.432755,144.691406 144.954224,143.863846   C137.083755,146.571548 128.703262,146.706116 120.616859,148.478226   C113.820236,149.967682 110.196198,154.742355 110.369339,161.682526   C110.497734,166.829453 110.875473,171.978714 111.357933,177.106628   C112.634392,190.673721 114.232536,204.188416 118.169258,217.317474   C119.010086,220.121689 120.495758,221.867783 123.294586,222.868378   C133.616211,226.558395 144.297134,227.233017 154.796295,224.977173   C188.680298,217.696838 208.119064,187.382095 201.187790,153.323090   C200.214066,148.538284 199.843994,143.435669 195.424133,139.194107   C196.030853,141.250153 196.680496,142.586060 196.783371,143.962845   C197.089066,148.054352 194.487030,151.278244 190.663040,151.840393   C187.177460,152.352798 183.730301,149.776413 182.993546,146.178833   C182.302444,142.804062 185.592300,139.810059 183.053772,136.266769   C182.079926,136.181213 180.250900,136.130341 178.463898,135.829727   C176.965042,135.577560 175.410370,134.980118 175.073807,133.291550   C174.670563,131.268509 176.178680,130.222519 177.756851,129.593262   C179.907227,128.735870 182.201141,128.237198 184.347412,127.371315   C185.434494,126.932739 187.927521,127.160950 185.937988,124.180367  z"/>
+                            <path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M184.497925,205.505127   C177.387009,214.158386 168.161636,212.015427 159.502716,210.813339   C153.161850,209.933029 147.837357,205.318619 141.258728,204.622986   C140.498917,204.542648 139.769547,203.878281 139.995148,202.334045   C142.825668,200.859970 146.206512,201.612762 149.324982,201.480194   C158.448822,201.092361 166.947464,196.727951 176.287842,197.627457   C179.712128,197.957230 182.802567,198.591614 185.588547,200.581680   C188.543945,202.692780 187.912109,204.213242 184.497925,205.505127  M159.784851,207.163208   C165.244186,209.836899 170.631027,207.250763 176.056244,206.667542   C170.672363,206.667542 165.288498,206.667542 159.784851,207.163208  M165.001892,203.486176   C170.099594,203.086731 175.197296,202.687271 180.294998,202.287827   C175.071182,203.026901 169.459641,199.147293 165.001892,203.486176  z"/>
+                            <path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M173.344406,161.090042   C180.438629,158.990570 189.808182,167.157059 188.872223,176.054337   C188.152618,182.894730 178.548767,187.131531 172.244995,183.602051   C172.711761,181.630249 174.450790,182.014267 175.808838,181.629318   C179.330368,180.631119 183.150757,179.894424 183.894775,175.375717   C184.567642,171.289154 181.416046,165.869278 177.394379,163.900024   C175.949905,163.192734 174.040115,163.263535 173.344406,161.090042  z"/>
+                            </svg>
+                          </div>
                             You
                           </span>
                         </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
                         </TableCell>
                       <TableCell
@@ -4140,6 +4168,70 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </TableBody>
             </Table>
           </div>
+          
+          {/* Pagination Controls */}
+          {viewMode === "list" && visibleProjects.length > 0 && (
+            <div className="flex items-center justify-between mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">Rows per page:</span>
+                <select
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+                
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="First page"
+                  >
+                    <ChevronsLeft size={16} />
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Previous page"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Next page"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Last page"
+                  >
+                    <ChevronsRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          </>
         )
       ) : (
         <div className="text-center p-8 text-gray-500">
