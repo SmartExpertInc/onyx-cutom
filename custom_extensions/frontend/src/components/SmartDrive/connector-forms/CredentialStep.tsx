@@ -445,7 +445,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add a <strong>Authorized JavaScript origins</strong><br/>
                               • Add <code>https://ml.contentbuilder.ai</code><br/>
                               • Add a <strong>Authorized redirect URIs</strong><br/>
-                              • Add <code>---</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/connector/oauth/callback/google-drive</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/manage/connector/google-drive/callback</code><br/>
                               • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
                           ]} />
                           <ImportantNotes>
@@ -1164,7 +1165,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add a <strong>Authorized JavaScript origins</strong><br/>
                               • Add <code>https://ml.contentbuilder.ai</code><br/>
                               • Add a <strong>Authorized redirect URIs</strong><br/>
-                              • Add <code>---</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/connector/oauth/callback/google-drive</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/manage/connector/google-drive/callback</code><br/>
                               • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
                             <><strong>Configure Contentbuilder:</strong><br />
                               • Upload the downloaded JSON key file in the credential form<br />
