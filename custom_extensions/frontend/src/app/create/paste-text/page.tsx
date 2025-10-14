@@ -2,14 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Home as HomeIcon, ChevronRight, FileText, Sparkles, ArrowLeft } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { HeadTextCustom } from "@/components/ui/head-text-custom";
 import { CustomCard } from "@/components/ui/custom-card";
 
 export default function PasteTextPage() {
@@ -80,23 +78,47 @@ export default function PasteTextPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-white relative overflow-hidden"
     >
+      {/* Decorative gradient background */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1100px',
+          height: '2100px',
+          left: '50%',
+          top: '50%',
+          borderRadius: '999px',
+          background: 'linear-gradient(180deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
+          transform: 'translate(-50%, -50%) rotate(120deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+
       {/* back button absolute top-left */}
       <Link
         href="/create"
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+        style={{ 
+          color: '#000000',
+          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
+        }}
       >
-        <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+        <span>&lt;</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
         {/* Headings */}
-        <HeadTextCustom 
-          text={t('interface.pasteText.title', 'Paste Your Text')} 
-          description={t('interface.pasteText.subtitle', 'Enter or paste your text content below and choose how you\'d like to use it')}
-        />
+        <div className="w-full flex flex-col gap-3 items-center">
+          <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">
+            {t('interface.pasteText.title', 'Paste Your Text')}
+          </h1>
+          <p className="text-center text-[#FAFAFA] text-lg -mt-1">
+            {t('interface.pasteText.subtitle', 'Enter or paste your text content below and choose how you\'d like to use it')}
+          </p>
+        </div>
 
         {/* Text input area */}
         <div className="w-full">
@@ -163,6 +185,31 @@ export default function PasteTextPage() {
           {t('interface.pasteText.continueToGenerate', 'Continue to Generate')}
         </Button>
       </div>
+
+      {/* Feedback button */}
+      <button
+        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
+        style={{
+          width: '38px',
+          height: '98px',
+        }}
+        onClick={() => {
+          // Add your feedback handler here
+          console.log('Feedback clicked');
+        }}
+      >
+        <span
+          className="font-medium opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
+          style={{
+            fontSize: '14px',
+            color: '#0F58F9',
+            transform: 'rotate(-90deg)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Feedback
+        </span>
+      </button>
     </main>
   );
 } 

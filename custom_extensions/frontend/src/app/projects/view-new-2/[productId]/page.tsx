@@ -938,7 +938,7 @@ export default function ProductViewNewPage() {
                   letterSpacing: '0.05em',
                   border: '1px solid #0F58F9'
                 }}
-                title="AI Agent"
+                title={t('actions.aiAgent', 'AI Agent')}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1006,9 +1006,9 @@ export default function ProductViewNewPage() {
             {/* Course Info Bar */}
             <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">
-                <span>{totalModules} modules</span>
+                <span>{totalModules} {t('interface.viewNew.modules', 'modules')}</span>
                 <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
-                <span>{totalLessons} lessons total</span>
+                <span>{totalLessons} {t('interface.viewNew.lessonsTotal', 'lessons total')}</span>
               </div>
                   <button
                 className="flex items-center gap-2 bg-transparent rounded-md h-9 px-3 transition-all duration-200 hover:bg-gray-50 cursor-pointer"
@@ -1020,7 +1020,7 @@ export default function ProductViewNewPage() {
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M3 4.5L6 7.5L9 4.5" stroke="#797979" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="text-[#797979] text-[14px] font-medium">Collapse All</span>
+                <span className="text-[#797979] text-[14px] font-medium">{t('interface.viewNew.collapseAll', 'Collapse All')}</span>
                   </button>
             </div>
 
@@ -1072,7 +1072,7 @@ export default function ProductViewNewPage() {
                           <Edit3 size={14} className="text-[#0F58F9] hover:text-blue-700" />
                       </button>
                         <span className="bg-white text-[#797979] text-[12px] px-2 py-[5px] rounded-full">
-                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? 'lesson' : 'lessons'}
+                          {section.lessons?.length || 0} {section.lessons?.length === 1 ? t('interface.viewNew.lesson', 'lesson') : t('interface.viewNew.lessons', 'lessons')}
                         </span>
                     </div>
                   )}
@@ -1091,7 +1091,7 @@ export default function ProductViewNewPage() {
                   {/* Product Types Header */}
                   <div className="grid mb-4 gap-4 items-center px-[25px] py-[10px] mx-[-25px]" style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, borderBottom: '1px solid #E0E0E0' }} >
                     <div className="text-[14px] font-medium text-[#434343]">
-                      Lessons
+                      {t('interface.viewNew.lessons', 'Lessons')}
                     </div>
                     {columnVideoLessonEnabled && (
                       <div className="flex flex-col items-center text-[12px] font-medium text-[#434343] justify-center gap-1 p-2">
@@ -1179,7 +1179,7 @@ export default function ProductViewNewPage() {
                                     style={{ width: `${(actualCreatedCount / totalProducts) * 100}%` }}
                                   />
                                 </div>
-                                <span className="text-[#797979] text-[9px]">{actualCreatedCount}/{totalProducts} created</span>
+                                <span className="text-[#797979] text-[9px]">{actualCreatedCount}/{totalProducts} {t('interface.viewNew.created', 'created')}</span>
                               </div>
                             </div>
                             
