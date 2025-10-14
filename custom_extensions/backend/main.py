@@ -30628,32 +30628,61 @@ async def list_all_user_credits(
             except Exception as e_user_table:
                 logger.warning(f"[CREDITS] Join to table 'user' failed, trying 'users': {e_user_table}")
                 # Attempt 2: join to Onyx users table named users
-                rows = await conn.fetch(
-                    """
-                    SELECT 
-                        uc.id,
-                        uc.onyx_user_id,
-                        uc.name,
-                        u2.email AS db_email,
-                        uec.email AS cached_email,
-                        uc.credits_balance,
-                        uc.total_credits_used,
-                        uc.credits_purchased,
-                        uc.last_purchase_date,
-                        COALESCE(ub.current_plan, 'starter') ||
-                        CASE WHEN ub.current_interval IS NOT NULL THEN
-                            ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
-                        ELSE '' END AS subscription_tier,
-                        uc.created_at,
-                        uc.updated_at
-                    FROM user_credits uc
-                    LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
-                    LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
-                    LEFT JOIN users u2 ON (u2.id::text = uc.onyx_user_id OR u2.email = uc.onyx_user_id)
-                    ORDER BY uc.updated_at DESC
-                    """
-                )
-                db_join_table = 'users'
+                try:
+                    rows = await conn.fetch(
+                        """
+                        SELECT 
+                            uc.id,
+                            uc.onyx_user_id,
+                            uc.name,
+                            u2.email AS db_email,
+                            uec.email AS cached_email,
+                            uc.credits_balance,
+                            uc.total_credits_used,
+                            uc.credits_purchased,
+                            uc.last_purchase_date,
+                            COALESCE(ub.current_plan, 'starter') ||
+                            CASE WHEN ub.current_interval IS NOT NULL THEN
+                                ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                            ELSE '' END AS subscription_tier,
+                            uc.created_at,
+                            uc.updated_at
+                        FROM user_credits uc
+                        LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN users u2 ON (u2.id::text = uc.onyx_user_id OR u2.email = uc.onyx_user_id)
+                        ORDER BY uc.updated_at DESC
+                        """
+                    )
+                    db_join_table = 'users'
+                except Exception as e_users_table:
+                    logger.warning(f"[CREDITS] Join to table 'users' also failed; falling back to API/cache only: {e_users_table}")
+                    # Fallback: query without joining any users table
+                    rows = await conn.fetch(
+                        """
+                        SELECT 
+                            uc.id,
+                            uc.onyx_user_id,
+                            uc.name,
+                            NULL::text AS db_email,
+                            uec.email AS cached_email,
+                            uc.credits_balance,
+                            uc.total_credits_used,
+                            uc.credits_purchased,
+                            uc.last_purchase_date,
+                            COALESCE(ub.current_plan, 'starter') ||
+                            CASE WHEN ub.current_interval IS NOT NULL THEN
+                                ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                            ELSE '' END AS subscription_tier,
+                            uc.created_at,
+                            uc.updated_at
+                        FROM user_credits uc
+                        LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                        ORDER BY uc.updated_at DESC
+                        """
+                    )
+                    db_join_table = None
 
             enriched: list[UserCredits] = []
             stats_total = 0
@@ -30690,7 +30719,7 @@ async def list_all_user_credits(
 
             try:
                 logger.info(
-                    f"[CREDITS] Users listed: total={stats_total}, from_db_join={stats_from_db}, from_api={stats_from_api}, from_cache={stats_from_cache}, unresolved={len(unresolved)}, db_table={db_join_table}"
+                    f"[CREDITS] Users listed: total={stats_total}, from_db_join={stats_from_db}, from_api={stats_from_api}, from_cache={stats_from_cache}, unresolved={len(unresolved)}, db_table={db_join_table or 'none'}"
                 )
                 if unresolved:
                     logger.debug(f"[CREDITS] Unresolved user identifiers (sample): {unresolved[:10]}")
