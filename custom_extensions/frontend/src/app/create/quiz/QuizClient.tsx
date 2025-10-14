@@ -948,6 +948,22 @@ export default function QuizClient() {
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
 
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsCreatingFinal(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
+    }
+
     setIsCreatingFinal(true);
     const activeProductType = sessionStorage.getItem('activeProductType');
     try {
