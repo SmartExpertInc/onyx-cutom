@@ -690,6 +690,9 @@ class UserCredits(BaseModel):
     id: int
     onyx_user_id: str
     name: str
+    # Optional identity fields for richer admin display
+    email: Optional[str] = None
+    display_identity: Optional[str] = None
     credits_balance: int
     total_credits_used: int
     credits_purchased: int
@@ -30557,6 +30560,41 @@ async def list_all_user_credits(
     await verify_admin_user(request)
     
     try:
+        # Build a map of Onyx user IDs to emails from Onyx API; fallback to local cache
+        user_emails_map: dict[str, str] = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        users_iterable = (
+                            users_data.get("users", []) if isinstance(users_data, dict) else (users_data if isinstance(users_data, list) else [])
+                        )
+                        for user in users_iterable:
+                            try:
+                                user_id_val = (
+                                    user.get("userId")
+                                    or user.get("id")
+                                    or user.get("uuid")
+                                    or user.get("user_id")
+                                )
+                                email_val = (
+                                    user.get("email")
+                                    or user.get("userEmail")
+                                    or user.get("primary_email")
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+        except Exception:
+            # Non-fatal; we'll fallback to cache
+            pass
+
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 """
@@ -30564,6 +30602,7 @@ async def list_all_user_credits(
                     uc.id,
                     uc.onyx_user_id,
                     uc.name,
+                    uec.email AS cached_email,
                     uc.credits_balance,
                     uc.total_credits_used,
                     uc.credits_purchased,
@@ -30577,10 +30616,30 @@ async def list_all_user_credits(
                     uc.updated_at
                 FROM user_credits uc
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
-            return [UserCredits(**dict(row)) for row in rows]
+
+            enriched: list[UserCredits] = []
+            for row in rows:
+                d = dict(row)
+                # Determine email: Onyx API map, then cached, else None
+                resolved_email = user_emails_map.get(d["onyx_user_id"], d.get("cached_email"))
+                # Compute display identity: email → meaningful name → onyx_user_id
+                name_val = (d.get("name") or "").strip()
+                display_identity = (
+                    resolved_email
+                    or (name_val if name_val and name_val.lower() != "user" else None)
+                    or d["onyx_user_id"]
+                )
+                d["email"] = resolved_email
+                d["display_identity"] = display_identity
+                # Remove helper
+                d.pop("cached_email", None)
+                enriched.append(UserCredits(**d))
+
+            return enriched
     except Exception as e:
         logger.error(f"Error listing user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")

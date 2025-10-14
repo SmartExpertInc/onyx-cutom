@@ -30,6 +30,8 @@ interface UserCredits {
   id: number;
   onyx_user_id: string;
   name: string;
+  email?: string;
+  display_identity?: string;
   credits_balance: number;
   total_credits_used: number;
   credits_purchased: number;
@@ -189,9 +191,9 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
               >
                 <TableCell>
                   <Box>
-                    <Typography variant="body2" fontWeight="medium">
-                      {user.name}
-                    </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                      {user.display_identity || user.email || (user.name && user.name !== 'User' ? user.name : user.onyx_user_id)}
+                  </Typography>
                   </Box>
                 </TableCell>
                 <TableCell>

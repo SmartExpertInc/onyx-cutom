@@ -10,6 +10,8 @@ interface UserCredits {
   id: number;
   onyx_user_id: string;
   name: string;
+  email?: string;
+  display_identity?: string;
   credits_balance: number;
   total_credits_used: number;
   credits_purchased: number;
@@ -76,7 +78,12 @@ const CreditsTab: React.FC = () => {
       }
 
       const userData = await usersResponse.json();
-      setUsers(userData);
+      // Safety: compute display_identity if backend not yet deployed
+      const normalized = (Array.isArray(userData) ? userData : []).map((u: any) => ({
+        ...u,
+        display_identity: u.display_identity || u.email || ((u.name && u.name !== 'User') ? u.name : u.onyx_user_id),
+      }));
+      setUsers(normalized);
 
       // Fetch questionnaires (don't fail if this endpoint fails)
       if (questionnairesResponse.ok) {
@@ -101,8 +108,11 @@ const CreditsTab: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = (user.display_identity || '').toLowerCase().includes(term) ||
+      (user.email || '').toLowerCase().includes(term) ||
+      user.name.toLowerCase().includes(term) ||
+      user.onyx_user_id.toLowerCase().includes(term);
     const tier = (user.subscription_tier || 'starter').toLowerCase();
     const matchesTier = tierFilter === 'all' ? true : tier.includes(tierFilter);
     return matchesSearch && matchesTier;
