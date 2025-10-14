@@ -964,7 +964,7 @@ export default function QuizClient() {
                 const title = titleMatch ? titleMatch[1] : "Generating Quiz...";
                 
                 // Extract complete question objects with all fields including explanations
-                const questionObjects = [];
+                const questionObjects: any[] = [];
                 const questionPattern = /\{[^}]*"question_type"[^}]*"question_text"[^}]*\}/g;
                 const questionMatches = accumulatedText.match(questionPattern);
                 
