@@ -242,6 +242,68 @@ export default function TextPresentationClient() {
     }
   };
 
+  // Helper function to convert text presentation JSON to display format
+  const convertTextJsonToDisplay = (parsed: any): string => {
+    let displayText = `# ${parsed.textTitle}\n\n`;
+    
+    parsed.contentBlocks.forEach((block: any) => {
+      if (block.type === 'headline') {
+        const level = block.level || 2;
+        const prefix = '#'.repeat(level);
+        displayText += `${prefix} ${block.text}\n\n`;
+      } else if (block.type === 'paragraph') {
+        displayText += `${block.text}\n\n`;
+      } else if (block.type === 'bullet_list' && block.items) {
+        block.items.forEach((item: any) => {
+          if (typeof item === 'string') {
+            displayText += `- ${item}\n`;
+          } else if (item.type === 'bullet_list') {
+            item.items.forEach((subItem: any) => {
+              if (typeof subItem === 'string') {
+                displayText += `  - ${subItem}\n`;
+              } else if (subItem.type === 'numbered_list') {
+                subItem.items.forEach((numItem: any, idx: number) => {
+                  displayText += `    ${idx + 1}. ${numItem}\n`;
+                });
+              }
+            });
+          } else if (item.type === 'numbered_list') {
+            item.items.forEach((numItem: any, idx: number) => {
+              displayText += `  ${idx + 1}. ${numItem}\n`;
+            });
+          }
+        });
+        displayText += '\n';
+      } else if (block.type === 'numbered_list' && block.items) {
+        block.items.forEach((item: any, idx: number) => {
+          if (typeof item === 'string') {
+            displayText += `${idx + 1}. ${item}\n`;
+          } else if (item.type === 'bullet_list') {
+            // Handle nested bullet list in numbered item
+            item.items.forEach((subItem: any, subIdx: number) => {
+              if (subItem.type === 'headline') {
+                displayText += `  ${idx + 1}.${subIdx + 1} ${subItem.text}\n`;
+              } else if (subItem.type === 'paragraph') {
+                displayText += `     ${subItem.text}\n`;
+              }
+            });
+          }
+        });
+        displayText += '\n';
+      } else if (block.type === 'table' && block.headers && block.rows) {
+        // Simple table representation
+        displayText += `| ${block.headers.join(' | ')} |\n`;
+        displayText += `| ${block.headers.map(() => '---').join(' | ')} |\n`;
+        block.rows.forEach((row: any) => {
+          displayText += `| ${row.join(' | ')} |\n`;
+        });
+        displayText += '\n';
+      }
+    });
+    
+    return displayText;
+  };
+
   // FIXED: Alternative parsing method for when header-based parsing fails
   const parseContentAlternatively = (content: string) => {
     const lessons = [];
@@ -864,6 +926,7 @@ export default function TextPresentationClient() {
 
           let buffer = "";
           let accumulatedText = "";
+          let accumulatedJsonText = "";
 
           while (true) {
             const { done, value } = await reader.read();
@@ -875,12 +938,12 @@ export default function TextPresentationClient() {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
-                    setContent(accumulatedText);
+                    accumulatedJsonText += pkt.text;
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
-                  setContent(accumulatedText);
+                  accumulatedJsonText += buffer;
                 }
               }
               setStreamDone(true);
@@ -902,7 +965,7 @@ export default function TextPresentationClient() {
 
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
-                  setContent(accumulatedText);
+                  accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
                   break;
@@ -912,11 +975,32 @@ export default function TextPresentationClient() {
               } catch (e) {
                 // If not JSON, treat as plain text
                 accumulatedText += line + '\n';
-                setContent(accumulatedText);
+                accumulatedJsonText += line + '\n';
               }
             }
 
-            // Determine if this buffer now contains some real (non-whitespace) text
+            // Try to parse accumulated JSON and convert to display format
+            try {
+              const parsed = JSON.parse(accumulatedJsonText);
+              if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
+                console.log('[TEXT_PRESENTATION_JSON_STREAM] Successfully parsed JSON during streaming, blocks:', parsed.contentBlocks.length);
+                // Convert JSON to display format
+                const displayText = convertTextJsonToDisplay(parsed);
+                setContent(displayText);
+                // Store the original JSON for fast-path finalization
+                setOriginalJsonResponse(accumulatedJsonText);
+                setOriginalContent(displayText);
+                // Make textarea visible
+                if (!textareaVisible) {
+                  setTextareaVisible(true);
+                }
+              }
+            } catch (e) {
+              // Incomplete JSON, continue accumulating
+              // This is normal during streaming
+            }
+
+            // Fallback: Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
 
             if (hasMeaningfulText && !textareaVisible) {
@@ -924,8 +1008,8 @@ export default function TextPresentationClient() {
 
             }
 
-            // Force state update to ensure UI reflects content changes
-            if (accumulatedText && accumulatedText !== content) {
+            // Force state update to ensure UI reflects content changes (only for plain text fallback)
+            if (accumulatedText && accumulatedText !== content && !originalJsonResponse) {
               setContent(accumulatedText);
             }
           }
@@ -1057,84 +1141,12 @@ export default function TextPresentationClient() {
   }, [loading, length, selectedStyles, currentPrompt, language]);
 
 
-  // Once streaming is done, detect JSON and convert to display format
+  // Fallback: Process plain text content after streaming is done (only if JSON wasn't already parsed)
   useEffect(() => {
-    if (streamDone && !firstLineRemoved) {
-      // First try to detect if this is JSON
-      try {
-        const parsed = JSON.parse(content);
-        if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
-          // Convert JSON to display format
-          let displayText = `# ${parsed.textTitle}\n\n`;
-          
-          parsed.contentBlocks.forEach((block: any) => {
-            if (block.type === 'headline') {
-              const level = block.level || 2;
-              const prefix = '#'.repeat(level);
-              displayText += `${prefix} ${block.text}\n\n`;
-            } else if (block.type === 'paragraph') {
-              displayText += `${block.text}\n\n`;
-            } else if (block.type === 'bullet_list' && block.items) {
-              block.items.forEach((item: any) => {
-                if (typeof item === 'string') {
-                  displayText += `- ${item}\n`;
-                } else if (item.type === 'bullet_list') {
-                  item.items.forEach((subItem: any) => {
-                    if (typeof subItem === 'string') {
-                      displayText += `  - ${subItem}\n`;
-                    } else if (subItem.type === 'numbered_list') {
-                      subItem.items.forEach((numItem: any, idx: number) => {
-                        displayText += `    ${idx + 1}. ${numItem}\n`;
-                      });
-                    }
-                  });
-                } else if (item.type === 'numbered_list') {
-                  item.items.forEach((numItem: any, idx: number) => {
-                    displayText += `  ${idx + 1}. ${numItem}\n`;
-                  });
-                }
-              });
-              displayText += '\n';
-            } else if (block.type === 'numbered_list' && block.items) {
-              block.items.forEach((item: any, idx: number) => {
-                if (typeof item === 'string') {
-                  displayText += `${idx + 1}. ${item}\n`;
-                } else if (item.type === 'bullet_list') {
-                  // Handle nested bullet list in numbered item
-                  item.items.forEach((subItem: any, subIdx: number) => {
-                    if (subItem.type === 'headline') {
-                      displayText += `  ${idx + 1}.${subIdx + 1} ${subItem.text}\n`;
-                    } else if (subItem.type === 'paragraph') {
-                      displayText += `     ${subItem.text}\n`;
-                    }
-                  });
-                }
-              });
-              displayText += '\n';
-            } else if (block.type === 'table' && block.headers && block.rows) {
-              // Simple table representation
-              displayText += `| ${block.headers.join(' | ')} |\n`;
-              displayText += `| ${block.headers.map(() => '---').join(' | ')} |\n`;
-              block.rows.forEach((row: any) => {
-                displayText += `| ${row.join(' | ')} |\n`;
-              });
-              displayText += '\n';
-            }
-          });
-          
-          setContent(displayText);
-          // Store the original JSON for fast-path finalization
-          setOriginalJsonResponse(content);
-          console.log('[TEXT_PRESENTATION_JSON_DETECT] Stored original JSON response for finalization');
-          setTextareaVisible(true); // Make textarea visible
-          setFirstLineRemoved(true);
-          return;
-        }
-      } catch (e) {
-        // Not JSON, continue with original logic
-      }
+    if (streamDone && !firstLineRemoved && !originalJsonResponse) {
+      console.log('[TEXT_PRESENTATION_FALLBACK] Processing plain text content, length:', content.length);
       
-      // Original logic for plain text
+      // Original logic for plain text (only runs if JSON wasn't parsed during streaming)
       const parts = content.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -1144,7 +1156,7 @@ export default function TextPresentationClient() {
       }
       setFirstLineRemoved(true);
     }
-  }, [streamDone, firstLineRemoved, content]);
+  }, [streamDone, firstLineRemoved, content, originalJsonResponse]);
 
   // NEW: Store original content after stream completion
   useEffect(() => {

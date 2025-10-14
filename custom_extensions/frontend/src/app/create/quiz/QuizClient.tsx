@@ -178,6 +178,55 @@ export default function QuizClient() {
     }
   };
 
+  // Helper function to convert quiz JSON to display format
+  const convertQuizJsonToDisplay = (parsed: any): string => {
+    let displayText = `Quiz Title: ${parsed.quizTitle}\n\n`;
+    
+    parsed.questions.forEach((q: any, index: number) => {
+      displayText += `Question ${index + 1}: ${q.question_text}\n`;
+      
+      if (q.question_type === 'multiple-choice' && q.options) {
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `Correct: ${q.correct_option_id}\n`;
+      } else if (q.question_type === 'multi-select' && q.options) {
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `Correct: ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
+      } else if (q.question_type === 'matching' && q.prompts && q.options) {
+        displayText += `Match the following:\n`;
+        q.prompts.forEach((p: any) => {
+          displayText += `${p.id}) ${p.text}\n`;
+        });
+        displayText += `With:\n`;
+        q.options.forEach((opt: any) => {
+          displayText += `${opt.id}) ${opt.text}\n`;
+        });
+        displayText += `Correct matches: ${JSON.stringify(q.correct_matches)}\n`;
+      } else if (q.question_type === 'sorting' && q.items_to_sort) {
+        displayText += `Arrange in order:\n`;
+        q.items_to_sort.forEach((item: any) => {
+          displayText += `- ${item.text}\n`;
+        });
+        displayText += `Correct order: ${q.correct_order?.join(' → ') || 'N/A'}\n`;
+      } else if (q.question_type === 'open-answer' && q.acceptable_answers) {
+        displayText += `Acceptable answers:\n`;
+        q.acceptable_answers.forEach((ans: string) => {
+          displayText += `- ${ans}\n`;
+        });
+      }
+      
+      if (q.explanation) {
+        displayText += `Explanation: ${q.explanation}\n`;
+      }
+      displayText += '\n';
+    });
+    
+    return displayText;
+  };
+
   const quizExamples: { short: string; detailed: string }[] = [
     {
       short: t('interface.generate.quizExamples.moreChallenging.short', 'Make questions more challenging'),
@@ -818,6 +867,7 @@ export default function QuizClient() {
           const decoder = new TextDecoder();
           let buffer = "";
           let accumulatedText = "";
+          let accumulatedJsonText = "";
 
           while (true) {
             const { done, value } = await reader.read();
@@ -829,12 +879,12 @@ export default function QuizClient() {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
                     accumulatedText += pkt.text;
-                    setQuizData(accumulatedText);
+                    accumulatedJsonText += pkt.text;
                   }
                 } catch (e) {
                   // If not JSON, treat as plain text
                   accumulatedText += buffer;
-                  setQuizData(accumulatedText);
+                  accumulatedJsonText += buffer;
                 }
               }
               setStreamDone(true);
@@ -856,7 +906,7 @@ export default function QuizClient() {
 
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
-                  setQuizData(accumulatedText);
+                  accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
                   break;
@@ -866,11 +916,32 @@ export default function QuizClient() {
               } catch (e) {
                 // If not JSON, treat as plain text
                 accumulatedText += line;
-                setQuizData(accumulatedText);
+                accumulatedJsonText += line;
               }
             }
 
-            // Determine if this buffer now contains some real (non-whitespace) text
+            // Try to parse accumulated JSON and convert to display format
+            try {
+              const parsed = JSON.parse(accumulatedJsonText);
+              if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
+                console.log('[QUIZ_JSON_STREAM] Successfully parsed JSON during streaming, questions:', parsed.questions.length);
+                // Convert JSON to display format
+                const displayText = convertQuizJsonToDisplay(parsed);
+                setQuizData(displayText);
+                // Store the original JSON for fast-path finalization
+                setOriginalJsonResponse(accumulatedJsonText);
+                setOriginalQuizData(displayText);
+                // Make textarea visible
+                if (!textareaVisible) {
+                  setTextareaVisible(true);
+                }
+              }
+            } catch (e) {
+              // Incomplete JSON, continue accumulating
+              // This is normal during streaming
+            }
+
+            // Fallback: Determine if this buffer now contains some real (non-whitespace) text
             const hasMeaningfulText = /\S/.test(accumulatedText);
 
             if (hasMeaningfulText && !textareaVisible) {
@@ -928,76 +999,12 @@ export default function QuizClient() {
     }
   }, [quizData, textareaVisible]);
 
-  // Once streaming is done, detect JSON and convert to display format
+  // Fallback: Process plain text content after streaming is done (only if JSON wasn't already parsed)
   useEffect(() => {
-    if (streamDone && !firstLineRemoved) {
-      console.log('[QUIZ_JSON_DETECT] Checking if content is JSON, length:', quizData.length);
-      // First try to detect if this is JSON
-      try {
-        const parsed = JSON.parse(quizData);
-        console.log('[QUIZ_JSON_DETECT] Successfully parsed JSON:', { hasTitle: !!parsed.quizTitle, hasQuestions: !!parsed.questions });
-        if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
-          // Convert JSON to display format
-          let displayText = `Quiz Title: ${parsed.quizTitle}\n\n`;
-          
-          parsed.questions.forEach((q: any, index: number) => {
-            displayText += `Question ${index + 1}: ${q.question_text}\n`;
-            
-            if (q.question_type === 'multiple-choice' && q.options) {
-              q.options.forEach((opt: any) => {
-                displayText += `${opt.id}) ${opt.text}\n`;
-              });
-              displayText += `Correct: ${q.correct_option_id}\n`;
-            } else if (q.question_type === 'multi-select' && q.options) {
-              q.options.forEach((opt: any) => {
-                displayText += `${opt.id}) ${opt.text}\n`;
-              });
-              displayText += `Correct: ${q.correct_option_ids?.join(', ') || 'N/A'}\n`;
-            } else if (q.question_type === 'matching' && q.prompts && q.options) {
-              displayText += `Match the following:\n`;
-              q.prompts.forEach((p: any) => {
-                displayText += `${p.id}) ${p.text}\n`;
-              });
-              displayText += `With:\n`;
-              q.options.forEach((opt: any) => {
-                displayText += `${opt.id}) ${opt.text}\n`;
-              });
-              displayText += `Correct matches: ${JSON.stringify(q.correct_matches)}\n`;
-            } else if (q.question_type === 'sorting' && q.items_to_sort) {
-              displayText += `Arrange in order:\n`;
-              q.items_to_sort.forEach((item: any) => {
-                displayText += `- ${item.text}\n`;
-              });
-              displayText += `Correct order: ${q.correct_order?.join(' → ') || 'N/A'}\n`;
-            } else if (q.question_type === 'open-answer' && q.acceptable_answers) {
-              displayText += `Acceptable answers:\n`;
-              q.acceptable_answers.forEach((ans: string) => {
-                displayText += `- ${ans}\n`;
-              });
-            }
-            
-            if (q.explanation) {
-              displayText += `Explanation: ${q.explanation}\n`;
-            }
-            displayText += '\n';
-          });
-          
-          console.log('[QUIZ_JSON_DETECT] Converting JSON to display format, questions:', parsed.questions.length);
-          setQuizData(displayText);
-          setOriginalQuizData(displayText);
-          // Store the original JSON for fast-path finalization
-          setOriginalJsonResponse(quizData);
-          console.log('[QUIZ_JSON_DETECT] Stored original JSON response for finalization');
-          setTextareaVisible(true); // Make textarea visible
-          setFirstLineRemoved(true);
-          return;
-        }
-      } catch (e) {
-        console.log('[QUIZ_JSON_DETECT] Not valid JSON or missing required fields:', e);
-        // Not JSON, continue with original logic
-      }
+    if (streamDone && !firstLineRemoved && !originalJsonResponse) {
+      console.log('[QUIZ_FALLBACK] Processing plain text content, length:', quizData.length);
       
-      // Original logic for plain text
+      // Original logic for plain text (only runs if JSON wasn't parsed during streaming)
       const parts = quizData.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
@@ -1005,12 +1012,12 @@ export default function QuizClient() {
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setQuizData(trimmed);
 
-        // NEW: Save original content for change detection
+        // Save original content for change detection
         setOriginalQuizData(trimmed);
       }
       setFirstLineRemoved(true);
     }
-  }, [streamDone, firstLineRemoved, quizData]);
+  }, [streamDone, firstLineRemoved, quizData, originalJsonResponse]);
 
 
   const handleCreateFinal = async () => {
@@ -1050,34 +1057,34 @@ export default function QuizClient() {
       }
 
       const payloadToSend = {
-        aiResponse: contentToSend,
-        prompt: currentPrompt,
-        outlineId: selectedOutlineId,
-        lesson: selectedLesson,
-        courseName: courseName,
-        questionTypes: selectedQuestionTypes.join(','),
-        language: selectedLanguage,
-        fromFiles: fromFiles,
-        fromText: fromText,
-        folderIds: memoizedFolderIds.join(','),
-        fileIds: memoizedFileIds.join(','),
-        textMode: textMode,
-        questionCount: selectedQuestionCount,
-        folderId: folderContext?.folderId || undefined,
-        // NEW: Send information about user edits
-        hasUserEdits: hasUserEdits,
-        originalContent: originalQuizData,
-        // NEW: Indicate if content is clean (questions only)
-        isCleanContent: isCleanContent,
-        // Add connector context if creating from connectors
-        ...(fromConnectors && {
-          fromConnectors: true,
-          connectorIds: connectorIds.join(','),
-          connectorSources: connectorSources.join(','),
-          ...(selectedFiles.length > 0 && {
-            selectedFiles: selectedFiles.join(','),
+          aiResponse: contentToSend,
+          prompt: currentPrompt,
+          outlineId: selectedOutlineId,
+          lesson: selectedLesson,
+          courseName: courseName,
+          questionTypes: selectedQuestionTypes.join(','),
+          language: selectedLanguage,
+          fromFiles: fromFiles,
+          fromText: fromText,
+          folderIds: memoizedFolderIds.join(','),
+          fileIds: memoizedFileIds.join(','),
+          textMode: textMode,
+          questionCount: selectedQuestionCount,
+          folderId: folderContext?.folderId || undefined,
+          // NEW: Send information about user edits
+          hasUserEdits: hasUserEdits,
+          originalContent: originalQuizData,
+          // NEW: Indicate if content is clean (questions only)
+          isCleanContent: isCleanContent,
+          // Add connector context if creating from connectors
+          ...(fromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+            ...(selectedFiles.length > 0 && {
+              selectedFiles: selectedFiles.join(','),
+            }),
           }),
-        }),
       };
 
       console.log('[QUIZ_FINALIZE] Payload being sent:', {
