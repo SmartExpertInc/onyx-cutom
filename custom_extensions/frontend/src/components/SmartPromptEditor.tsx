@@ -231,7 +231,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <button
             onClick={handleConfirmChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: '#059669',
               color: 'white',
@@ -254,7 +254,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <button
             onClick={handleRevertChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: '#6B7280',
               color: 'white',

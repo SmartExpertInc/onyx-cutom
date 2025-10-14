@@ -112,6 +112,16 @@ export default function ProductViewNewPage() {
   const columnVideoLessonEnabled = false;
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
+  // Helper function for Slavic pluralization (Russian, Ukrainian)
+  const getSlavicPluralForm = (count: number): 'one' | 'few' | 'many' => {
+    const lastDigit = count % 10;
+    const lastTwoDigits = count % 100;
+    
+    if (lastDigit === 1 && lastTwoDigits !== 11) return 'one';
+    if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) return 'few';
+    return 'many';
+  };
+  
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -958,7 +968,7 @@ export default function ProductViewNewPage() {
                   lineHeight: '140%',
                   letterSpacing: '0.05em'
                 }}
-              title="Export"
+              title={t('actions.export', 'Export')}
               >
               <svg width="9" height="12" viewBox="0 0 9 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.74154 8.67253V1.18945M4.74154 8.67253L1.53451 5.4655M4.74154 8.67253L7.94857 5.4655M8.48307 10.8105H1" stroke="white" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1006,9 +1016,23 @@ export default function ProductViewNewPage() {
             {/* Course Info Bar */}
             <div className="flex justify-between items-center py-3 mb-0">
               <div className="flex items-center gap-2 text-[#797979] text-[14px]">
-                <span>{totalModules} {t('interface.viewNew.modules', 'modules')}</span>
+                <span>
+                  {totalModules} {(() => {
+                    const form = getSlavicPluralForm(totalModules);
+                    if (form === 'one') return t('interface.viewNew.module', 'module');
+                    if (form === 'few') return t('interface.viewNew.modulesGenitive', 'modules');
+                    return t('interface.viewNew.modules', 'modules');
+                  })()}
+                </span>
                 <span className="w-1 h-1 rounded-full bg-[#797979]"></span>
-                <span>{totalLessons} {t('interface.viewNew.lessonsTotal', 'lessons total')}</span>
+                <span>
+                  {totalLessons} {(() => {
+                    const form = getSlavicPluralForm(totalLessons);
+                    if (form === 'one') return t('interface.viewNew.lessonSingular', 'lesson total');
+                    if (form === 'few') return t('interface.viewNew.lessonsGenitive', 'lessons total');
+                    return t('interface.viewNew.lessonsTotal', 'lessons total');
+                  })()}
+                </span>
               </div>
                   <button
                 className="flex items-center gap-2 bg-transparent rounded-md h-9 px-3 transition-all duration-200 hover:bg-gray-50 cursor-pointer"

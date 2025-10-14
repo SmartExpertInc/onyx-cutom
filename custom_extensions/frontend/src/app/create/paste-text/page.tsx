@@ -82,7 +82,7 @@ export default function PasteTextPage() {
     >
       {/* Decorative gradient background */}
       <div 
-        className="absolute pointer-events-none"
+        className="absolute pointer-events-none z-0"
         style={{
           width: '1100px',
           height: '2100px',
@@ -109,7 +109,7 @@ export default function PasteTextPage() {
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
+      <div className="w-full max-w-4xl flex flex-col gap-8 items-center relative z-10">
         {/* Headings */}
         <div className="w-full flex flex-col gap-3 items-center">
           <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">
@@ -188,7 +188,7 @@ export default function PasteTextPage() {
 
       {/* Feedback button */}
       <button
-        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
+        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group z-10"
         style={{
           width: '38px',
           height: '98px',
