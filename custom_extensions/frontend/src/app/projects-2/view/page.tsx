@@ -146,7 +146,9 @@ export default function Projects2ViewPage() {
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
+    console.log('🔍 Opening template selector, current activeComponent:', activeComponent);
     setActiveComponent('templates');
+    console.log('✅ Set activeComponent to templates');
   };
 
 
@@ -277,6 +279,8 @@ export default function Projects2ViewPage() {
   };
 
   const renderSidebarComponent = () => {
+    console.log('🔍 renderSidebarComponent called, activeComponent:', activeComponent, 'selectedElement:', selectedElement);
+    
     // If an element is selected, show its settings
     if (selectedElement) {
       switch (selectedElement) {
@@ -298,27 +302,36 @@ export default function Projects2ViewPage() {
     }
 
     // Otherwise show the active component
+    console.log('🎨 Rendering component for activeComponent:', activeComponent);
+    
     switch (activeComponent) {
       case 'script':
+        console.log('📝 Rendering Script');
         return <Script 
           onAiButtonClick={handleAiButtonClick} 
           videoLessonData={videoLessonData}
           currentSlideId={currentSlideId}
         />;
       case 'templates':
+        console.log('📋 Rendering TemplateSelector');
         return <TemplateSelector 
           currentSlideCount={videoLessonData?.slides?.length || 0}
           onAddSlide={handleAddSlide}
         />;
       case 'background':
+        console.log('🖼️ Rendering Background');
         return <Background />;
       case 'music':
+        console.log('🎵 Rendering Music');
         return <Music />;
       case 'transition':
+        console.log('🔄 Rendering Transition');
         return <Transition />;
       case 'comments':
+        console.log('💬 Rendering Comments');
         return <Comments />;
       default:
+        console.log('📝 Rendering Script (default)');
         return <Script 
           onAiButtonClick={handleAiButtonClick} 
           videoLessonData={videoLessonData}

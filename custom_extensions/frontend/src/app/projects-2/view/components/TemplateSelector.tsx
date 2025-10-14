@@ -12,6 +12,8 @@ interface TemplateSelectorProps {
 export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
   // Get available templates
   const availableTemplates = getAllTemplates();
+  
+  console.log('📋 TemplateSelector rendered, available templates:', availableTemplates.length);
 
   // Add new slide with template selection
   const handleAddSlide = (templateId: string) => {
@@ -46,8 +48,13 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   };
 
   return (
-    <div className="h-full bg-white relative w-full border-0 overflow-y-auto">
+    <div className="h-full bg-white relative w-full border-2 border-blue-500 overflow-y-auto" style={{ minHeight: '400px' }}>
       <div className="relative z-10 flex flex-col items-start justify-start w-full p-4">
+        {/* DEBUG: Visible indicator */}
+        <div className="w-full mb-2 p-2 bg-green-200 text-green-900 text-xs font-bold rounded">
+          ✅ TEMPLATE SELECTOR IS RENDERED!
+        </div>
+        
         {/* Header */}
         <div className="w-full mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Choose Template</h2>
