@@ -32,10 +32,10 @@ const ModeSelectionCard = React.forwardRef<HTMLDivElement, ModeSelectionCardProp
       <Card
         ref={ref}
         className={cn(
-          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           isSelected
-            ? "bg-[#F2F8FF]/70 border-[#0F58F9]"
-            : "bg-[#FDFDFD]/70 border-[#E0E0E0]",
+            ? "bg-[#F2F8FF]/80 border-[#0F58F9]"
+            : "bg-[#FDFDFD]/80 border-[#E0E0E0]",
           disabled
             ? "opacity-50 cursor-not-allowed"
             : "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)] hover:bg-[#F2F8FF]/80 hover:border-[#0F58F9] active:bg-[#F2F8FF]/80 active:border-[#0F58F9]",
