@@ -123,16 +123,16 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
 };
 
 // Helper function to get display name for product types
-const getProductTypeDisplayName = (type: string): string => {
+const getProductTypeDisplayName = (type: string, t: (key: string, defaultValue?: string) => string): string => {
   switch (type) {
     case "Training Plan":
-      return "Course";
+      return t("interface.course", "Course");
     case "Slide Deck":
-      return "Presentation";
+      return t("interface.presentation", "Presentation");
     case "Text Presentation":
-      return "One-pager";
+      return t("interface.onePager", "One-pager");
     case "Video Lesson Presentation":
-      return "Video";
+      return t("interface.videoTable", "Video");
     default:
       return type;
   }
@@ -1149,7 +1149,7 @@ const FolderRow: React.FC<{
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
-                    {getProductTypeDisplayName(p.designMicroproductType)}
+                    {getProductTypeDisplayName(p.designMicroproductType, t)}
                   </span>
                 ) : (
                   "-"
@@ -3595,12 +3595,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
   // Content type filters for list view
   const contentTypeFilters = [
-    "All",
-    "Course", 
-    "Presentation",
-    "Quiz",
-    "Video Lesson",
-    "One-Pager",
+    t("interface.all", "All"),
+    t("interface.course", "Course"), 
+    t("interface.presentation", "Presentation"),
+    t("interface.quiz", "Quiz"),
+    t("interface.videoLesson", "Video Lesson"),
+    t("interface.onePager", "One-Pager"),
   ];
 
   const AllIcon: React.FC<{ stroke?: string }> = ({ stroke }) => (
@@ -3768,7 +3768,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10.7826 0.625H1.44922M13.4492 4.625H1.44922M9.51589 8.55833H1.44922" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              All
+              {t("interface.all", "All")}
             </button>
             <button
               className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
@@ -3781,7 +3781,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11.2492 13.541V12.0966C11.2492 11.3304 10.9542 10.5956 10.4291 10.0538C9.90402 9.51205 9.19182 9.20768 8.44922 9.20768H4.24922C3.50661 9.20768 2.79442 9.51205 2.26932 10.0538C1.74422 10.5956 1.44922 11.3304 1.44922 12.0966V13.541M15.4492 13.541V12.0966C15.4488 11.4565 15.2423 10.8347 14.8622 10.3288C14.4821 9.82291 13.9499 9.46159 13.3492 9.30157M11.2492 0.634905C11.8515 0.794011 12.3853 1.15541 12.7666 1.66213C13.1478 2.16885 13.3547 2.79206 13.3547 3.43352C13.3547 4.07497 13.1478 4.69818 12.7666 5.2049C12.3853 5.71162 11.8515 6.07302 11.2492 6.23213M9.14922 3.4299C9.14922 5.02539 7.89562 6.31879 6.34922 6.31879C4.80282 6.31879 3.54922 5.02539 3.54922 3.4299C3.54922 1.83442 4.80282 0.541016 6.34922 0.541016C7.89562 0.541016 9.14922 1.83442 9.14922 3.4299Z" stroke={`${activeTab === "created" ? "#719AF5" : "#8D8D95"}`} stroke-opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Created by you
+              {t("interface.createdByYou", "Created by you")}
             </button>
             <button
               className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
@@ -3794,7 +3794,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5.17589 8.80273L9.72922 11.4561M9.72255 4.13606L5.17589 6.78939M13.4492 3.12939C13.4492 4.23396 12.5538 5.12939 11.4492 5.12939C10.3446 5.12939 9.44922 4.23396 9.44922 3.12939C9.44922 2.02482 10.3446 1.12939 11.4492 1.12939C12.5538 1.12939 13.4492 2.02482 13.4492 3.12939ZM5.44922 7.79606C5.44922 8.90063 4.55379 9.79606 3.44922 9.79606C2.34465 9.79606 1.44922 8.90063 1.44922 7.79606C1.44922 6.69149 2.34465 5.79606 3.44922 5.79606C4.55379 5.79606 5.44922 6.69149 5.44922 7.79606ZM13.4492 12.4627C13.4492 13.5673 12.5538 14.4627 11.4492 14.4627C10.3446 14.4627 9.44922 13.5673 9.44922 12.4627C9.44922 11.3582 10.3446 10.4627 11.4492 10.4627C12.5538 10.4627 13.4492 11.3582 13.4492 12.4627Z" stroke={`${activeTab === "shared" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Shared with you
+              {t("interface.sharedWithYou", "Shared with you")}
             </button>
             <button
               className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
@@ -3807,7 +3807,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6.82013 1.41315C6.96675 0.961894 7.60516 0.961896 7.75178 1.41315L8.93544 5.0561C9.00102 5.25791 9.18908 5.39454 9.40127 5.39454H13.2317C13.7062 5.39454 13.9034 6.0017 13.5196 6.28059L10.4207 8.53206C10.249 8.65678 10.1772 8.87786 10.2428 9.07967L11.4264 12.7226C11.5731 13.1739 11.0566 13.5491 10.6727 13.2702L7.57385 11.0188C7.40218 10.894 7.16973 10.894 6.99806 11.0188L3.89918 13.2702C3.51532 13.5491 2.99884 13.1739 3.14546 12.7226L4.32913 9.07967C4.3947 8.87786 4.32287 8.65678 4.1512 8.53206L1.05232 6.28059C0.668457 6.0017 0.865736 5.39454 1.34021 5.39454H5.17064C5.38283 5.39454 5.57089 5.25791 5.63646 5.0561L6.82013 1.41315Z" stroke={`${activeTab === "favorites" ? "#719AF5" : "#8D8D95"}`} stroke-width="0.979592"/>
               </svg>
-              Favorites
+              {t("interface.favorites", "Favorites")}
             </button>
           </nav>
           <div className="flex gap-2">
@@ -4118,7 +4118,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )}
                               </div>
                               <span className="text-sm text-gray-500 font-normal">
-                                {getProductTypeDisplayName(p.designMicroproductType)}
+                                {getProductTypeDisplayName(p.designMicroproductType, t)}
                               </span>
                             </div>
                           ) : (

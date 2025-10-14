@@ -562,13 +562,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           </Link>
         )}
       </nav>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
           <span>{isSearching ? t('interface.searchResults', 'Search Results') : t('interface.recentFolders', 'Recent Folders')}</span>
           <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
         
-        {/* Folder Search Bar */}
         <div className="relative mb-3">
           <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -614,7 +613,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
           </div>
         )}
-      </div>
+      </div> */}
       <nav className="flex flex-col gap-1 mt-auto">
         {eventPostersEnabled && (
           <Link href="/create/event-poster/questionnaire" className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900">

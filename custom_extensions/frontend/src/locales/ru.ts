@@ -915,6 +915,16 @@ export const ru = {
     lastWeek: "На прошлой неделе",
     lastMonth: "В прошлом месяце",
 
+    // Filter menu
+    filterBy: "Фильтр",
+    course: "Курс",
+    presentation: "Презентация",
+    quiz: "Тест",
+    videoLesson: "Видео урок",
+    onePager: "Одностраничный запрос",
+    videoTable: "Видео",
+    favorites: "Избранное",
+
     // Create page
     createWithAI: "Создать с ИИ",
     howToGetStarted: "Как вы хотите создать продукт?",
@@ -953,7 +963,6 @@ export const ru = {
 
     // Filters
     recentlyViewed: "Недавно просмотренные",
-    favorites: "Избранное",
 
     // Authentication
     checkingAuthentication: "Проверка аутентификации...",

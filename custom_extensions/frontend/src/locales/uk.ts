@@ -901,6 +901,16 @@ export const uk = {
     lastWeek: "Минулого тижня",
     lastMonth: "Минулого місяця",
 
+    // Filter menu
+    filterBy: "Фільтр",
+    course: "Курс",
+    presentation: "Презентація",
+    quiz: "Тест",
+    videoLesson: "Відео урок",
+    onePager: "Односторінковий запит",
+    videoTable: "Відео",
+    favorites: "Обране",
+
     // Create page
     createWithAI: "Створити з ШІ",
     howToGetStarted: "Як ви хочете створити продукт?",
@@ -938,7 +948,6 @@ export const uk = {
 
     // Filters
     recentlyViewed: "Нещодавно переглянуті",
-    favorites: "Обране",
 
     // Authentication
     checkingAuthentication: "Перевірка аутентифікації...",

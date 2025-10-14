@@ -417,16 +417,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     );
   };
 
-  const getProductTypeDisplayName = (type: string): string => {
+  const getProductTypeDisplayName = (type: string, t: (key: string, defaultValue?: string) => string): string => {
     switch (type) {
       case "Training Plan":
-        return "Course";
+        return t("interface.course", "Course");
       case "Slide Deck":
-        return "Presentation";
+        return t("interface.presentation", "Presentation");
       case "Text Presentation":
-        return "Onepager";
+        return t("interface.onePager", "One-pager");
       case "Video Lesson Presentation":
-        return "Video Lesson";
+        return t("interface.videoLesson", "Video Lesson");
       default:
         return type;
     }
@@ -508,7 +508,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 )}
               </div>
               <span className="text-sm text-gray-500 font-normal">
-                {getProductTypeDisplayName(project.designMicroproductType)}
+                {getProductTypeDisplayName(project.designMicroproductType, t)}
               </span>
             </div>
           )}

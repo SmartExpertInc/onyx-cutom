@@ -969,6 +969,15 @@ export const en = {
     lastWeek: "Last week",
     lastMonth: "Last month",
 
+    // Filter menu
+    filterBy: "Filter by",
+    course: "Course",
+    presentation: "Presentation",
+    quiz: "Quiz",
+    videoLesson: "Video Lesson",
+    onePager: "One-Pager",
+    favorites: "Favorites",
+    videoTable: "Video",
     // Create page
     createWithAI: "Create with AI",
     howToGetStarted: "How do you want to create a product?",
@@ -1005,7 +1014,6 @@ export const en = {
 
     // Filters
     recentlyViewed: "Recently viewed",
-    favorites: "Favorites",
 
     // Authentication
     checkingAuthentication: "Checking authentication...",

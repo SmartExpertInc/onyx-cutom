@@ -889,6 +889,16 @@ export const es = {
     lastWeek: "La semana pasada",
     lastMonth: "El mes pasado",
 
+    // Filter menu
+    filterBy: "Filtrar por",
+    course: "Curso",
+    presentation: "Presentación",
+    quiz: "Cuestionario",
+    videoLesson: "Lección de video",
+    onePager: "One-Pager",
+    videoTable: "Video",
+    favorites: "Favoritos",
+
     // Create page
     createWithAI: "Crear con IA",
     howToGetStarted: "¿Cómo quieres crear un producto?",
@@ -927,7 +937,6 @@ export const es = {
 
     // Filters
     recentlyViewed: "Visto recientemente",
-    favorites: "Favoritos",
 
     // Authentication
     checkingAuthentication: "Verificando autenticación...",
