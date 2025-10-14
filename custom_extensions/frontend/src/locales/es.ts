@@ -1366,6 +1366,7 @@ export const es = {
       retryGeneration: "Reintentar generación",
       quizContentPlaceholder: "El contenido del cuestionario aparecerá aquí...",
       creatingQuiz: "Creando cuestionario...",
+      generate: "Generar",
       finalizingQuiz: "Finalizando cuestionario...",
       words: "palabras",
       questionSingular: "pregunta",

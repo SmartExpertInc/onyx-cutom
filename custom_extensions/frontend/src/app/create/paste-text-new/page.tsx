@@ -46,7 +46,7 @@ export default function PasteTextPage() {
   
   // Quiz configuration
   const [quizLanguage, setQuizLanguage] = useState(t('interface.english', 'English'));
-  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>(["multiple-choice"]);
+  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>(["multiple-choice", "multi-select", "matching", "sorting", "open-answer"]);
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
   
   // Additional configuration for video lesson and presentation

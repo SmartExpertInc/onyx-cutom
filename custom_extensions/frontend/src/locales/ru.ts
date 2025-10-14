@@ -1382,6 +1382,7 @@ export const ru = {
       retryGeneration: "Повторить генерацию",
       quizContentPlaceholder: "Контент теста появится здесь...",
       creatingQuiz: "Создание теста...",
+      generate: "Генерировать",
       finalizingQuiz: "Завершение теста...",
       words: "слов",
       questionSingular: "вопрос",

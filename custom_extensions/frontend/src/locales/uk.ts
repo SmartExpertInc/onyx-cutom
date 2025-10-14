@@ -1373,6 +1373,7 @@ export const uk = {
       retryGeneration: "Повторити генерацію",
       quizContentPlaceholder: "Контент тесту з'явиться тут...",
       creatingQuiz: "Створення тесту...",
+      generate: "Генерувати",
       finalizingQuiz: "Завершення тесту...",
       words: "слів",
       questionSingular: "питання",
