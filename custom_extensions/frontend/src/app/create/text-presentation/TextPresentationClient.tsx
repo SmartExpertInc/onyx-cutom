@@ -1039,12 +1039,24 @@ export default function TextPresentationClient() {
               }
             } catch (e) {
               // Incomplete JSON, continue accumulating - this is normal during streaming
-              // DON'T show preview yet - wait until JSON is complete and can be parsed
               const errorMsg = e instanceof Error ? e.message : String(e);
               if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
                 // Only log occasionally to avoid spam
                 console.log('[TEXT_PRESENTATION_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
               }
+            }
+
+            // LIVE PREVIEW: Show raw accumulating text while JSON is incomplete (like presentations do)
+            if (!jsonParsedSuccessfully && accumulatedText) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing raw accumulated text during streaming, length:', accumulatedText.length);
+              setContent(accumulatedText);
+            }
+
+            // Make textarea visible as soon as we have meaningful text
+            const hasMeaningfulText = /\S/.test(accumulatedText);
+            if (hasMeaningfulText && !textareaVisible) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible, content length:', accumulatedText.length);
+              setTextareaVisible(true);
             }
           }
         } catch (e: any) {
