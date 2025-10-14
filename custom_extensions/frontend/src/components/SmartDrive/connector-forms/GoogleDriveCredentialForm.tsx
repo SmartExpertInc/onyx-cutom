@@ -396,7 +396,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
               size="sm"
               onClick={() => handleDeleteCredentials()}
               disabled={isDeleting}
-              className="ml-4"
+              className="ml-4 bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? "Deleting..." : "Delete Credentials"}
             </Button>
