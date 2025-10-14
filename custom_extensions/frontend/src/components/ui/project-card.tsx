@@ -481,7 +481,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white px-4 py-3 flex flex-col justify-between gap-2">
+        <div className="bg-white px-4 py-3 pt-2 flex flex-col justify-between gap-2">
         {project.designMicroproductType && (
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 flex items-center justify-center">
@@ -506,9 +506,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </span>
             </div>
           )}
-          <div className="h-1 w-full border-b border-[#E0E0E0]" />
+          <div className="w-full border-b border-[#E0E0E0]" />
           {/* Project title */}
-          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-1" title={displayTitle}>
+          <h3 className="font-bold h-10 text-gray-900 text-base leading-tight line-clamp-2" title={displayTitle}>
             {displayTitle}
           </h3>
           

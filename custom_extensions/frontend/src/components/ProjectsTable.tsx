@@ -3752,7 +3752,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between gap-4 mb-4">
           <nav className="flex">
             <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "all" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3765,7 +3765,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               All
             </button>
             <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "created" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3778,7 +3778,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Created by you
             </button>
             <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "shared" 
                   ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3791,7 +3791,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Shared with you
             </button>
             <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
+              className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "favorites" 
                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
                   : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
@@ -3804,9 +3804,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               Favorites
             </button>
           </nav>
-          <div className="flex gap-y-2">
-            <div className="relative w-75 ml-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+          <div className="flex gap-2">
+            <div className="relative w-75">
+              <Search className="absolute left-3 top-1/3 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
               <Input
                 type="text"
                 variant="shadow"
@@ -4137,7 +4137,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </TableCell>
                         <TableCell className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center gap-2">
+                          <span className="inline-flex items-center text-[var(--main-text)] gap-2">
                             <div
                               className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
                             >
@@ -4154,7 +4154,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           {formatDate(p.createdAt)}
                         </TableCell>
                       <TableCell
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
+                        className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ProjectRowMenu
@@ -4175,13 +4175,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           
           {/* Pagination Controls */}
           {viewMode === "list" && visibleProjects.length > 0 && (
-            <div className="flex items-center justify-between mt-4 px-4 py-3 bg-white rounded-lg">
+            <div className="flex items-center justify-end mt-4 px-4 py-3 bg-white rounded-lg">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[var(--main-text)]">Rows per page:</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-8 w-[70px] border-[#E4E4E7] shadow-sm justify-between text-[var(--main-text)]">
+                      <Button variant="outline" className="h-8 w-[70px] border-[#E4E4E7] rounded-md bg-white shadow-sm justify-between text-[var(--main-text)]">
                         {rowsPerPage}
                         <ChevronsUpDown strokeWidth={1} className="ml-2 h-4 w-4 shrink-0 opacity-50 text-[var(--main-text)]" />
                       </Button>
@@ -4210,7 +4210,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <button
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage === 1}
-                    className="px-2 py-2 border border-gray-300 rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="First page"
                   >
                     <ChevronsLeft size={16} />
@@ -4218,7 +4218,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <button
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-2 py-2 border border-gray-300 rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Previous page"
                   >
                     <ChevronLeft size={16} />
@@ -4226,7 +4226,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <button
                     onClick={() => setCurrentPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="px-2 py-2 border border-gray-300 rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Next page"
                   >
                     <ChevronRight size={16} />
@@ -4234,7 +4234,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <button
                     onClick={() => setCurrentPage(totalPages)}
                     disabled={currentPage === totalPages}
-                    className="px-2 py-2 border border-gray-300 rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-[var(--main-text)] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Last page"
                   >
                     <ChevronsRight size={16} />

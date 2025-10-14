@@ -435,7 +435,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
-                      <h4 className="text-sm xl:text-base font-medium font-public-sans text-[#434343] pt-5 xl:pt-6 mb-3">
+                      <h4 className="text-sm xl:text-sm font-medium font-public-sans text-[#434343] pt-5 xl:pt-6 mb-3">
                         {plan.id === 'starter' ? 'What you get:' : 
                          plan.id === 'pro' ? 'All free features, plus:' :
                          plan.id === 'business' ? 'All starter features, plus:' :
@@ -444,21 +444,21 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       <div className="space-y-3 mb-6 font-public-sans flex-grow">
                         <div className="flex items-center">
                           <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 font-medium flex-shrink-0" />
-                          <span className="text-xs xl:text-sm font-normal text-[#71717A]">
+                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
                             <span className="font-semibold">{t('tariffPlan.credits', 'Credits')}</span>: {plan.credits}
                           </span>
                         </div>
 
                         <div className="flex items-center">
                           <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                          <span className="text-xs xl:text-sm font-normal text-[#71717A]">
+                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
                             <span className="font-semibold">{t('tariffPlan.storage', 'Storage')}</span>: {plan.storage}
                           </span>
                         </div>
 
                         <div className="flex items-center">
                           <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                          <span className="text-xs xl:text-sm font-normal text-[#71717A]">
+                          <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
                              <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>: {plan.support}
                           </span>
                         </div>
@@ -466,7 +466,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {plan.connectors !== '-' && (
                           <div className="flex items-center">
                             <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                            <span className="text-xs xl:text-sm font-normal text-[#71717A]">
+                            <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
                               <span className="font-semibold">{t('tariffPlan.connectors', 'Connectors')}</span>: {plan.connectors}
                             </span>
                           </div>
@@ -475,7 +475,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {plan.collaboration !== '-' && (
                           <div className="flex items-center">
                             <Check className="w-4 h-4 xl:w-5 xl:h-5 text-blue-600 mr-2.5 flex-shrink-0" />
-                            <span className="text-xs xl:text-sm font-normal text-[#71717A]">
+                            <span className="text-xs xl:text-[13px] font-normal text-[#71717A]">
                               <span className="font-semibold">{t('tariffPlan.collaboration', 'Collaboration')}</span>: {plan.collaboration}
                             </span>
                           </div>
