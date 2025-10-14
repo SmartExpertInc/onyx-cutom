@@ -1051,43 +1051,51 @@ export default function QuizClient() {
         console.log("Sending clean questions for regeneration:", contentToSend);
       }
 
+      const payloadToSend = {
+        aiResponse: contentToSend,
+        prompt: currentPrompt,
+        outlineId: selectedOutlineId,
+        lesson: selectedLesson,
+        courseName: courseName,
+        questionTypes: selectedQuestionTypes.join(','),
+        language: selectedLanguage,
+        fromFiles: fromFiles,
+        fromText: fromText,
+        folderIds: memoizedFolderIds.join(','),
+        fileIds: memoizedFileIds.join(','),
+        textMode: textMode,
+        questionCount: selectedQuestionCount,
+        folderId: folderContext?.folderId || undefined,
+        // NEW: Send information about user edits
+        hasUserEdits: hasUserEdits,
+        originalContent: originalQuizData,
+        // NEW: Indicate if content is clean (questions only)
+        isCleanContent: isCleanContent,
+        // If available, include the original JSON to allow backend to skip parsing
+        ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
+        // Add connector context if creating from connectors
+        ...(fromConnectors && {
+          fromConnectors: true,
+          connectorIds: connectorIds.join(','),
+          connectorSources: connectorSources.join(','),
+          ...(selectedFiles.length > 0 && {
+            selectedFiles: selectedFiles.join(','),
+          }),
+        }),
+      };
+
+      console.log('[QUIZ_FINALIZE] Payload being sent:', {
+        hasOriginalJsonResponse: !!payloadToSend.originalJsonResponse,
+        originalJsonResponseLength: payloadToSend.originalJsonResponse?.length || 0,
+        aiResponseLength: payloadToSend.aiResponse?.length || 0
+      });
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          aiResponse: contentToSend,
-          prompt: currentPrompt,
-          outlineId: selectedOutlineId,
-          lesson: selectedLesson,
-          courseName: courseName,
-          questionTypes: selectedQuestionTypes.join(','),
-          language: selectedLanguage,
-          fromFiles: fromFiles,
-          fromText: fromText,
-          folderIds: memoizedFolderIds.join(','),
-          fileIds: memoizedFileIds.join(','),
-          textMode: textMode,
-          questionCount: selectedQuestionCount,
-          folderId: folderContext?.folderId || undefined,
-          // NEW: Send information about user edits
-          hasUserEdits: hasUserEdits,
-          originalContent: originalQuizData,
-          // NEW: Indicate if content is clean (questions only)
-          isCleanContent: isCleanContent,
-          // If available, include the original JSON to allow backend to skip parsing
-          ...(originalJsonToSend ? { originalJsonResponse: originalJsonToSend } : {}),
-          // Add connector context if creating from connectors
-          ...(fromConnectors && {
-            fromConnectors: true,
-            connectorIds: connectorIds.join(','),
-            connectorSources: connectorSources.join(','),
-            ...(selectedFiles.length > 0 && {
-              selectedFiles: selectedFiles.join(','),
-            }),
-          }),
-        }),
+        body: JSON.stringify(payloadToSend),
       });
 
       if (!response.ok) {
