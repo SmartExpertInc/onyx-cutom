@@ -37,6 +37,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   const [clientId, setClientId] = useState<string>('');
   const [existingCredential, setExistingCredential] = useState<Credential | null>(null);
   const [isCheckingCredentials, setIsCheckingCredentials] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Function to refresh credential check
   const refreshCredentialCheck = async () => {
@@ -75,6 +76,37 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   useEffect(() => {
     refreshCredentialCheck();
   }, []);
+
+  // Function to delete app credentials
+  const handleDeleteCredentials = async () => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {      
+      // Delete app credentials
+      let response = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential", {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Reset state
+        setClientId('');
+        setUploadedCredentialType(null);
+        setExistingCredential(null);
+        setError(null);
+        
+        // Refresh credential check to update existing credential status
+        await refreshCredentialCheck();
+      } else {
+        const errorMsg = await response.text();
+        setError(`Failed to delete credentials - ${errorMsg}`);
+      }
+    } catch (err) {
+      setError(`Failed to delete credentials - ${err}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
@@ -346,16 +378,28 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       {/* Show uploaded credentials */}
       {(clientId) && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center gap-2">
-            <CheckIcon className="w-5 h-5 text-green-600" />
-            <div>
-              <p className="text-sm font-medium text-green-800">
-                Credentials uploaded successfully
-              </p>
-              <p className="text-xs text-green-600">
-                {`Client ID: ${clientId}`}
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckIcon className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="text-sm font-medium text-green-800">
+                  Credentials uploaded successfully
+                </p>
+                <p className="text-xs text-green-600">
+                  {`Client ID: ${clientId}`}
+                </p>
+              </div>
             </div>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => handleDeleteCredentials()}
+              disabled={isDeleting}
+              className="ml-4"
+            >
+              {isDeleting ? "Deleting..." : "Delete Credentials"}
+            </Button>
           </div>
         </div>
       )}
