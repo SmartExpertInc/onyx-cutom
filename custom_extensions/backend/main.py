@@ -32733,7 +32733,39 @@ async def google_drive_authorize(credential_id: str, request: Request):
             )
             
             if response.is_success:
-                return response.json()
+                # Create response with JSON data
+                from fastapi.responses import JSONResponse
+                json_response = JSONResponse(content=response.json())
+                
+                # Forward all Set-Cookie headers from the original response
+                for cookie_header in response.headers.get_list("set-cookie"):
+                    # Parse the cookie header to extract name, value, and attributes
+                    cookie_parts = cookie_header.split(";")
+                    cookie_name_value = cookie_parts[0].strip()
+                    if "=" in cookie_name_value:
+                        cookie_name, cookie_value = cookie_name_value.split("=", 1)
+                        
+                        # Extract cookie attributes
+                        cookie_attrs = {}
+                        for part in cookie_parts[1:]:
+                            part = part.strip()
+                            if "=" in part:
+                                attr_name, attr_value = part.split("=", 1)
+                                cookie_attrs[attr_name.lower()] = attr_value
+                            else:
+                                cookie_attrs[part.lower()] = True
+                        
+                        # Set the cookie with proper attributes
+                        json_response.set_cookie(
+                            key=cookie_name,
+                            value=cookie_value,
+                            httponly=cookie_attrs.get("httponly", False),
+                            secure=cookie_attrs.get("secure", False),
+                            samesite=cookie_attrs.get("samesite", "lax"),
+                            max_age=int(cookie_attrs.get("max-age", 0)) if cookie_attrs.get("max-age") else None
+                        )
+                
+                return json_response
             else:
                 logger.error(f"Failed to get Google Drive authorization URL: {response.text}")
                 raise HTTPException(
