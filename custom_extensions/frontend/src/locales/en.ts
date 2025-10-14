@@ -1032,6 +1032,11 @@ export const en = {
       onePagerQuestion:
         "Do you want to create a one-pager from an existing Course Outline?",
       promptPlaceholder: "Describe what you'd like to make...",
+      promptPlaceholderFromFiles: "Describe what you'd like to make from your files...",
+      promptPlaceholderFromText: "Describe what you'd like to make from your text...",
+      examples: "Examples",
+      examplePrompts: "Example prompts",
+      shuffleExamples: "Shuffle",
       // Additional keys for preview pages
       loading: "Generating...",
       back: "Back",
