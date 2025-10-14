@@ -3750,7 +3750,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
       {!trashMode && (
         <div className="flex justify-between gap-4 mb-4">
-          <nav className="flex">
+          <nav className="flex pb-1 h-8">
             <button
               className={`pb-1 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
                 activeTab === "all" 
@@ -3806,18 +3806,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           </nav>
           <div className="flex gap-2">
             <div className="relative w-75">
-              <Search className="absolute left-3 top-1/3 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+              <Search className="absolute left-3 top-1/2 h-9 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
               <Input
                 type="text"
                 variant="shadow"
                 placeholder={t('interface.searchPlaceholderProjects', 'Search...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 placeholder:text-[#71717A]"
+                className="pl-10 placeholder:text-[#71717A] placeholder:text-sm"
               />
             </div>
             <div 
-              className="flex items-center p-2.5 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="flex items-center px-2 py-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
                 setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
@@ -3864,7 +3864,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             size={16} 
                             stroke={isSelected ? "#3366FF" : "#09090B"}
                             className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
-                            strokeWidth={1}
+                            strokeWidth={1.5}
                           />
                           <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filter}</span>
                         </div>
@@ -3937,15 +3937,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
                 <Button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-full p-1 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
+                  className={`rounded-full p-2 ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <LayoutGrid size={20} />
+                  <LayoutGrid size={24} />
                 </Button>
                 <Button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-full p-1 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
+                  className={`rounded-full p-2 ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-600"}`}
                 >
-                  <List size={20} />
+                  <List size={24} />
                 </Button>
               </div>
             </div>
@@ -4091,7 +4091,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         handleDragEnd(e);
                       }}
                     >
-                        <TableCell className="px-3 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 flex items-center justify-center">
@@ -4119,7 +4119,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "-"
                           )}
                         </TableCell>
-                        <TableCell className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
@@ -4136,7 +4136,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             />
                           </span>
                         </TableCell>
-                        <TableCell className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center text-[var(--main-text)] gap-2">
                             <div
                               className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
@@ -4150,11 +4150,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             You
                           </span>
                         </TableCell>
-                        <TableCell className="px-3 py-3 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
                         </TableCell>
                       <TableCell
-                        className="px-3 py-3 whitespace-nowrap text-right text-sm font-medium relative"
+                        className="px-2 py-2 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ProjectRowMenu

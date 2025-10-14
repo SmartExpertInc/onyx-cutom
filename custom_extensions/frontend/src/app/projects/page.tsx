@@ -671,9 +671,9 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
 
   return (
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
+      <h1 className="text-3xl font-semibold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] flex items-center gap-2 rounded-md font-medium public-sans text-sm" onClick={onTariffModalOpen}>
+        <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] flex items-center gap-2 rounded-md font-medium public-sans text-xs" onClick={onTariffModalOpen}>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
           <g clip-path="url(#clip0_308_17348)">
           <path d="M12.3176 11.7968C11.8825 11.9633 11.6458 12.2012 11.4774 12.6356C11.3107 12.2012 11.0724 11.9649 10.6372 11.7968C11.0724 11.6303 11.3091 11.394 11.4774 10.9579C11.6442 11.3924 11.8825 11.6287 12.3176 11.7968ZM11.5382 4.99568C11.9153 3.5935 12.4306 3.07794 13.8366 2.70096C12.4322 2.3245 11.9158 1.81001 11.5382 0.40625C11.1611 1.80843 10.6458 2.32399 9.23981 2.70096C10.6442 3.07743 11.1606 3.59192 11.5382 4.99568ZM11.9486 7.88981C11.9486 7.7577 11.8798 7.5982 11.6872 7.5445C10.1118 7.10467 9.12471 6.60253 8.38772 5.86735C7.65079 5.13161 7.14678 4.14608 6.70788 2.57315C6.65409 2.38089 6.49433 2.31215 6.36201 2.31215C6.22969 2.31215 6.06993 2.38089 6.01615 2.57315C5.57561 4.14608 5.07266 5.13155 4.33631 5.86735C3.5983 6.60418 2.61227 7.1063 1.03681 7.5445C0.844242 7.5982 0.775391 7.75771 0.775391 7.88981C0.775391 8.02192 0.844242 8.18143 1.03681 8.23513C2.61227 8.67496 3.59932 9.1771 4.33631 9.91227C5.07431 10.6491 5.57725 11.6335 6.01615 13.2065C6.06994 13.3987 6.2297 13.4675 6.36201 13.4675C6.49434 13.4675 6.6541 13.3987 6.70788 13.2065C7.14842 11.6335 7.65137 10.6481 8.38772 9.91227C9.12573 9.17545 10.1118 8.67332 11.6872 8.23513C11.8798 8.18142 11.9486 8.02192 11.9486 7.88981Z" fill="#06A294"/>
