@@ -1146,6 +1146,11 @@ export const en = {
       deloitte: "Deloitte",
       lunaria: "Lunaria",
       zephyr: "Zephyr",
+      generateCourseOutline: "Generate Course",
+      generateVideoLesson: "Generate Video Lesson",
+      generatePresentation: "Generate Presentation",
+      generateQuiz: "Generate Quiz",
+      generateOnePager: "Generate One-Pager",
     },
 
     // Paste Text page
@@ -1153,7 +1158,7 @@ export const en = {
       title: "Paste in text",
       subtitle: "What would you like to create today?",
       pasteInstructions: "Paste in the notes, outline or text content you'd like to use",
-      textPlaceholder: "Paste your text, notes, outline, or any content you'd like to work with...",
+      textPlaceholder: "Type or paste in content here",
       characters: "{count} characters",
       textLarge: "Text is large and will be compressed for optimal processing.",
       textVeryLarge: "Text is very large and will be processed as a file. This may take a while.",

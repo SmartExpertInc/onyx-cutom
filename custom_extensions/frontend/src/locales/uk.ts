@@ -1134,8 +1134,7 @@ export const uk = {
       title: "Вставити текст",
       subtitle: "Що ви хочете створити сьогодні?",
       pasteInstructions: "Вставте нотатки, план або текстовий вміст, який ви хочете використовувати",
-      textPlaceholder:
-        "Вставте ваш текст, нотатки, план або будь-який контент, з яким ви хочете працювати...",
+      textPlaceholder: "Введіть або вставте вміст тут",
       characters: "{count} символів",
       textVeryLarge:
         "Текст дуже великий і буде оброблений як файл. Це може зайняти деякий час.",
@@ -1334,6 +1333,7 @@ export const uk = {
       lunaria: "Lunaria",
       zephyr: "Zephyr",
       generateCourseOutline: "Генерувати план курсу",
+      generateVideoLesson: "Генерувати відео-урок",
       generatePresentation: "Генерувати презентацію",
       generateQuiz: "Генерувати тест",
       generateOnePager: "Генерувати односторінку",

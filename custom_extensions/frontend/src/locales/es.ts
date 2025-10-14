@@ -1125,8 +1125,7 @@ export const es = {
       title: "Pegar texto",
       subtitle: "¿Qué le gustaría crear hoy?",
       pasteInstructions: "Pegue las notas, esquema o contenido de texto que desee utilizar",
-      textPlaceholder:
-        "Pega tu texto, notas, esquema o cualquier contenido con el que te gustaría trabajar...",
+      textPlaceholder: "Escriba o pegue el contenido aquí",
       characters: "{count} caracteres",
       textVeryLarge:
         "El texto es muy grande y será procesado como un archivo. Esto puede tomar un tiempo.",
@@ -1326,6 +1325,7 @@ export const es = {
       lunaria: "Lunaria",
       zephyr: "Zephyr",
       generateCourseOutline: "Generar plan del curso",
+      generateVideoLesson: "Generar lección de video",
       generatePresentation: "Generar presentación",
       generateQuiz: "Generar cuestionario",
       generateOnePager: "Generar una página",

@@ -2,16 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { FileText, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CustomCard } from "@/components/ui/custom-card";
+import { ModeSelectionCard } from "@/components/ui/mode-selection-card";
 import { GenerateCard } from "@/components/ui/generate-card";
 import { CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
+
+// Custom icon for "Use as Context"
+const ContextIcon: React.FC<{ className?: string; size?: number }> = ({ className, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M3 1C2.46957 1 1.96086 1.21071 1.58579 1.58579C1.21071 1.96086 1 2.46957 1 3M17 1C17.5304 1 18.0391 1.21071 18.4142 1.58579C18.7893 1.96086 19 2.46957 19 3M19 17C19 17.5304 18.7893 18.0391 18.4142 18.4142C18.0391 18.7893 17.5304 19 17 19M3 19C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17M7 1H8M7 19H8M12 1H13M12 19H13M1 7V8M19 7V8M1 12V13M19 12V13M5 6H13M5 10H15M5 14H11" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+// Custom icon for "Use as Base"
+const BaseIcon: React.FC<{ className?: string; size?: number }> = ({ className, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M11.7979 5.4993L14.4976 8.19888M3.69868 4.59944V8.19888M16.2975 11.7983V15.3978M8.19825 1V2.79972M5.49851 6.39916H1.89886M18.0973 13.598H14.4976M9.09816 1.89986H7.29833M18.6732 2.47577L17.5214 1.32395C17.4201 1.22165 17.2996 1.14044 17.1667 1.08502C17.0339 1.02959 16.8914 1.00106 16.7474 1.00106C16.6035 1.00106 16.461 1.02959 16.3281 1.08502C16.1953 1.14044 16.0748 1.22165 15.9735 1.32395L1.32291 15.9737C1.22061 16.0749 1.13939 16.1955 1.08397 16.3283C1.02854 16.4611 1 16.6036 1 16.7476C1 16.8915 1.02854 17.034 1.08397 17.1668C1.13939 17.2997 1.22061 17.4202 1.32291 17.5214L2.4748 18.6733C2.57543 18.7767 2.69576 18.8588 2.82869 18.915C2.96161 18.9711 3.10444 19 3.24873 19C3.39301 19 3.53584 18.9711 3.66876 18.915C3.80169 18.8588 3.92202 18.7767 4.02265 18.6733L18.6732 4.02353C18.7766 3.92291 18.8588 3.80258 18.915 3.66967C18.9711 3.53675 19 3.39393 19 3.24965C19 3.10537 18.9711 2.96255 18.915 2.82964C18.8588 2.69672 18.7766 2.57639 18.6732 2.47577Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 export default function PasteTextPage() {
   const router = useRouter();
@@ -581,16 +595,16 @@ export default function PasteTextPage() {
         )}
 
         {/* Additional subtitle */}
-        <p className="text-center text-[#FAFAFA] text-lg">
+        <p className="text-center text-[#FBFAFF] text-lg">
           {t('interface.pasteText.pasteInstructions', 'Paste in the notes, outline or text content you\'d like to use')}
         </p>
 
         {/* Text input area */}
-        <div className="w-full">
+        <div className="w-[90%]">
           <Textarea 
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
+            placeholder={t('interface.pasteText.textPlaceholder', 'Type or paste in content here')}
             className="w-full h-40 p-6" />
 
           <div className="mt-2 flex justify-between items-center">
@@ -609,28 +623,26 @@ export default function PasteTextPage() {
         </div>
 
         {/* Mode selection */}
-        <div className="w-full max-w-4xl">
-          <h3 className="text-lg font-semibold text-[#FFFFFF] mb-4 text-center">
+        <div className="w-[90%]">
+          <h3 className="text-lg font-semibold text-[#FBFAFF] mb-4 text-center">
             {t('interface.pasteText.howToUseText', 'What do you want to do with this content?')}
           </h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <CustomCard 
-              Icon={FileText}
+            <ModeSelectionCard 
+              Icon={ContextIcon}
               title={t('interface.pasteText.useAsContext', 'Use as Context')}
               description={t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-              selectable={true}
               isSelected={mode === "context"}
               onSelect={() => setMode("context")}
               iconColor="text-blue-600"
               labelColor="text-blue-600"
             />
             
-            <CustomCard 
-              Icon={Sparkles}
+            <ModeSelectionCard 
+              Icon={BaseIcon}
               title={t('interface.pasteText.useAsBase', 'Use as Base')}
               description={t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-              selectable={true}
               isSelected={mode === "base"}
               onSelect={() => setMode("base")}
               iconColor="text-purple-600"
@@ -648,7 +660,14 @@ export default function PasteTextPage() {
             className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold shadow-lg"
           >
             <Sparkles size={20} />
-            {t('interface.generate.generate', 'Generate')}
+            {t('interface.generate.generate', 'Generate')} {
+              activeProduct === "Course" ? t('interface.generate.courseOutline', 'Course') :
+              activeProduct === "Video Lesson" ? t('interface.generate.videoLesson', 'Video Lesson') :
+              activeProduct === "Quiz" ? t('interface.generate.quiz', 'Quiz') :
+              activeProduct === "Presentation" ? t('interface.generate.presentation', 'Presentation') :
+              activeProduct === "One-Pager" ? t('interface.generate.onePager', 'One-Pager') :
+              ''
+            }
           </Button>
         </div>
       </div>

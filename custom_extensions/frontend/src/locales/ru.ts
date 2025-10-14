@@ -1143,8 +1143,7 @@ export const ru = {
       title: "Вставить текст",
       subtitle: "Что вы хотите создать сегодня?",
       pasteInstructions: "Вставьте заметки, план или текстовое содержание, которое вы хотите использовать",
-      textPlaceholder:
-        "Вставьте ваш текст, заметки, план или любой контент, с которым вы хотите работать...",
+      textPlaceholder: "Введите или вставьте содержимое здесь",
       characters: "{count} символов",
       textVeryLarge:
         "Текст очень большой и будет обработан как файл. Это может занять некоторое время.",
@@ -1343,6 +1342,7 @@ export const ru = {
       lunaria: "Lunaria",
       zephyr: "Zephyr",
       generateCourseOutline: "Генерировать план курса",
+      generateVideoLesson: "Генерировать видео-урок",
       generatePresentation: "Генерировать презентацию",
       generateQuiz: "Генерировать тест",
       generateOnePager: "Генерировать одностраничник",
