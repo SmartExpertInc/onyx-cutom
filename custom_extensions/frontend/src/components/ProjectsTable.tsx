@@ -3826,7 +3826,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             >
               <ArrowDownUp size={16} className="text-[#71717A]" />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 -mt-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -4039,7 +4039,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="bg-white divide-y divide-gray-100">
+              <TableBody className="bg-white divide-y divide-[#E0E0E0]">
                 {/* Show filtered projects based on folder */}
                 {paginatedProjects.map((p: Project, index: number) => (
                     <TableRow
@@ -4154,7 +4154,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           {formatDate(p.createdAt)}
                         </TableCell>
                       <TableCell
-                        className="px-2 py-2 whitespace-nowrap text-right text-sm font-medium relative"
+                        className="px-2 pr-5 py-2 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ProjectRowMenu

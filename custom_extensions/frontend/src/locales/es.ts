@@ -1204,7 +1204,7 @@ export const es = {
       lessonsTotal: "lecciones en total",
       pressEnterToSplit: "Presiona",
       toSplitLessons: "para dividir lecciones",
-      credits: "créditos",
+      credits: "Créditos",
       generate: "Generar",
       helpComingSoon: "Ayuda (próximamente)",
       brief: "Breve",

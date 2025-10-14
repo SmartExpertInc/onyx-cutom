@@ -1213,7 +1213,7 @@ export const uk = {
       lessonsTotal: "уроків всього",
       pressEnterToSplit: "Натисніть",
       toSplitLessons: "щоб розділити уроки",
-      credits: "кредитів",
+      credits: "Кредитів",
       generate: "Генерувати",
       helpComingSoon: "Допомога (незабаром)",
       brief: "Короткий",

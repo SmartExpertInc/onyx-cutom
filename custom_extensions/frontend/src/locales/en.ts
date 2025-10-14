@@ -1188,7 +1188,7 @@ export const en = {
       fluxKontextFast: "Flux Kontext Fast",
       fluxKontextHQ: "Flux Kontext HQ",
       stableDiffusion: "Stable Diffusion 2.1",
-      credits: "credits",
+      credits: "Credits",
       generate: "Generate",
       helpComingSoon: "Help (coming soon)",
       examples: {

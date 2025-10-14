@@ -1222,7 +1222,7 @@ export const ru = {
       lessonsTotal: "уроков всего",
       pressEnterToSplit: "Нажмите",
       toSplitLessons: "чтобы разделить уроки",
-      credits: "кредитов",
+      credits: "Кредитов",
       generate: "Генерировать",
       helpComingSoon: "Справка (скоро)",
       brief: "Краткий",
