@@ -302,7 +302,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900">
-                  {connectorName} Credential Setup Guide
+                  {connectorName} Connector Setup Guide
                 </h3>
                 <button
                   onClick={() => setHelpModalOpen(false)}
@@ -346,7 +346,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           </svg>
                         </div>
                         <div className="ml-3">
-                          <p className="text-sm text-amber-800 font-medium">Important Notes</p>
+                          <p className="text-sm text-amber-800 font-medium"><strong>Important Notes</strong></p>
                           <div className="mt-2 text-sm text-amber-700">
                             {children}
                           </div>
@@ -360,7 +360,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                       return (
                         <div>
                           <Text className="font-semibold text-lg">
-                            {t('connectors.instructions.notion.title', 'Setting up the Notion Connector')}
+                            {t('connectors.instructions.notion.title', 'How it works?')}
+                          </Text>
+                          <Text>
+                            The Notion connector uses the Notion search API to fetch all pages that the connector has access to within a workspace. For follow up indexing runs, the connector only retrieves pages that have been updated since the last indexing attempt.
                           </Text>
                           <Text>
                             To authorize Contentbuilder to connect to your Notion workspace, follow these steps:
@@ -387,7 +390,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your authorized Notion content</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Indexing runs periodically. To limit content, remove the integration from specific pages or databases in Notion.</p>
+                            <p>Indexing runs periodically. To limit content, remove the integration from specific pages or databases in Notion.</p>
                             <p>Make sure to grant the integration access to all pages and databases you want to index before creating the credential.</p>
                             <p>The integration only has read access and cannot modify your Notion content.</p>
                           </ImportantNotes>
@@ -433,7 +436,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> The service account must have access to all Google Drive files you want to index. Share folders/files with the service account email address.</p>
+                            <p>The service account must have access to all Google Drive files you want to index. Share folders/files with the service account email address.</p>
                             <p>For organization-wide access, domain-wide delegation must be configured in Google Admin Console.</p>
                             <p>The service account only has read access and cannot modify your Google Drive content.</p>
                             <p>Make sure the Google Drive API is enabled in your Google Cloud project.</p>
@@ -485,7 +488,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing messages from channels the bot has access to</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> The bot must be invited to all channels you want to index. It cannot access channels it's not a member of.</p>
+                            <p>The bot must be invited to all channels you want to index. It cannot access channels it's not a member of.</p>
                             <p>For private channels, a channel administrator must manually invite the bot.</p>
                             <p>The bot only has read access and cannot send messages or modify your Slack content.</p>
                             <p>Make sure all required scopes are added before installing the app to your workspace.</p>
@@ -528,7 +531,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your accessible GitHub repositories</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>For private repositories, you must select the <code>repo</code> scope. Public repositories only need <code>public_repo</code>.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
                             <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
@@ -571,7 +574,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>For self-hosted GitLab instances, make sure the instance URL is accessible from the Contentbuilder server.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
                             <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
@@ -617,7 +620,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Confluence username is usually your email address, not a display name.</p>
                             <p>Make sure you have read access to all Confluence spaces you want to index before creating the credential.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
@@ -658,7 +661,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Jira username is usually your email address, not a display name.</p>
                             <p>Make sure you have read access to all Jira projects you want to index before creating the credential.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
@@ -708,7 +711,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> API tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>API tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Your Zendesk subdomain is the part before ".zendesk.com" in your Zendesk URL.</p>
                             <p>Make sure you have read access to all Zendesk content you want to index before creating the credential.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
@@ -755,7 +758,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your accessible Asana content</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the token has the necessary scopes to access the Asana content you want to index.</p>
                             <p>Tokens don't expire automatically, but you can revoke them at any time from the Developer Console.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
@@ -803,7 +806,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your accessible Airtable bases</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Personal Access Tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the token has access to all Airtable bases you want to index.</p>
                             <p>Tokens have expiration dates. Set up a reminder to renew them before they expire.</p>
                             <p>If you lose a token, you'll need to create a new one - the old one cannot be recovered.</p>
@@ -851,7 +854,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your Dropbox files</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Access tokens are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Access tokens are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the app has the necessary permissions to access the Dropbox files you want to index.</p>
                             <p>Access tokens don't expire automatically, but you can revoke them at any time from the App Console.</p>
                             <p>If you lose a token, you'll need to generate a new one - the old one cannot be recovered.</p>
@@ -918,7 +921,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> API credentials are like passwords - keep them secure and never share them publicly.</p>
+                            <p>API credentials are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the API token has the necessary permissions to access the R2 bucket you want to index.</p>
                             <p>You can create multiple API tokens with different permissions for different use cases.</p>
                             <p>If you lose the secret key, you'll need to create a new API token - the old one cannot be recovered.</p>
@@ -972,7 +975,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Service account credentials are like passwords - keep them secure and never share them publicly.</p>
+                            <p>Service account credentials are like passwords - keep them secure and never share them publicly.</p>
                             <p>Make sure the service account has the necessary permissions to access the GCS buckets you want to index.</p>
                             <p>You can create multiple service accounts with different permissions for different use cases.</p>
                             <p>If you lose the JSON key file, you'll need to generate a new one - the old one cannot be recovered.</p>
@@ -987,15 +990,61 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'oci_storage':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.oci.title', 'Get Oracle Cloud Infrastructure Storage Credentials')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.oci.title', 'Setting up the Oracle Cloud Infrastructure Storage Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Oracle Cloud Infrastructure (OCI) Object Storage, you need to create API credentials and configure the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.oci.step1', 'Go to Oracle Cloud Console → Identity & Security → Users.')}</>,
-                            <>{t('connectors.instructions.oci.step2', 'Select a user and go to Customer Secret Keys.')}</>,
-                            <>{t('connectors.instructions.oci.step3', 'Generate a new Customer Secret Key and copy it.')}</>,
-                            <>{t('connectors.instructions.oci.step4', 'Find your Namespace in Object Storage → Buckets (shown at top).')}</>,
-                            <>{t('connectors.instructions.oci.step5', 'Find your Region identifier (e.g., us-ashburn-1) from the console URL.')}</>,
-                            <>{t('connectors.instructions.oci.step6', 'Enter the Namespace, Region, Access Key (username), and Secret Key here.')}</>,
+                            <><strong>Access Oracle Cloud Console:</strong><br />
+                              • Go to the <a href="https://cloud.oracle.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Oracle Cloud Console</a><br />
+                              • Log in with your Oracle Cloud account credentials<br />
+                              • Select your tenancy from the region selector in the top-right corner</>,
+                            <><strong>Create or Select a User:</strong><br />
+                              • Navigate to <strong>Identity & Security → Users</strong><br />
+                              • Either select an existing user or create a new one for API access<br />
+                              • For new users, provide a name, email, and description<br />
+                              • Ensure the user has appropriate permissions for Object Storage</>,
+                            <><strong>Generate API Credentials:</strong><br />
+                              • Click on your selected user to open user details<br />
+                              • Scroll down to <strong>"API Keys"</strong> section<br />
+                              • Click <strong>"Add API Key"</strong><br />
+                              • Choose <strong>"Generate API Key Pair"</strong><br />
+                              • Download the private key file (.pem) - you'll need this later<br />
+                              • Copy the <strong>Fingerprint</strong> that's displayed</>,
+                            <><strong>Create Customer Secret Key (Alternative Method):</strong><br />
+                              • In the user details, scroll to <strong>"Customer Secret Keys"</strong><br />
+                              • Click <strong>"Generate Secret Key"</strong><br />
+                              • Enter a description (e.g., "ContentBuilder Access")<br />
+                              • Click <strong>"Generate Secret Key"</strong><br />
+                              • <strong>Important:</strong> Copy the secret key immediately - you won't be able to see it again</>,
+                            <><strong>Gather Required Information:</strong><br />
+                              • <strong>User OCID:</strong> Found in user details (starts with ocid1.user...)<br />
+                              • <strong>Tenancy OCID:</strong> Found in tenancy details (starts with ocid1.tenancy...)<br />
+                              • <strong>Region:</strong> Your OCI region (e.g., us-ashburn-1, us-phoenix-1)<br />
+                              • <strong>Namespace:</strong> Go to Object Storage → Buckets, shown at the top<br />
+                              • <strong>API Key/Secret:</strong> Either the .pem file content or customer secret key</>,
+                            <><strong>Configure Object Storage Permissions:</strong><br />
+                              • Go to <strong>Identity & Security → Policies</strong><br />
+                              • Create a policy with the following statement:<br />
+                              • <code>Allow user [username] to manage objects in tenancy</code><br />
+                              • Or for specific buckets: <code>Allow user [username] to manage objects in compartment [compartment-name] where target.bucket.name='[bucket-name]'</code></>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter your User OCID<br />
+                              • Enter your Tenancy OCID<br />
+                              • Paste the region identifier (e.g., us-ashburn-1)<br />
+                              • Enter the namespace from Object Storage<br />
+                              • For API Key method: Upload the .pem file content<br />
+                              • For Secret Key method: Enter the customer secret key<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>Make sure the user has the necessary permissions to access the Object Storage buckets you want to index.</p>
+                            <p>For production environments, consider using a dedicated service user with minimal required permissions.</p>
+                            <p>If you lose the secret key, you'll need to generate a new one - the old one cannot be recovered.</p>
+                            <p>Region identifiers are case-sensitive and must match exactly (e.g., us-ashburn-1, not us-Ashburn-1).</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://cloud.oracle.com/identity/users" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.oci.link', 'Go to Oracle Cloud Users →')}
@@ -1007,13 +1056,64 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'teams':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.sharepoint.title', 'Get Microsoft App Registration')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.sharepoint.title', 'Setting up the Microsoft SharePoint/Teams Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Microsoft SharePoint and Teams, you need to create an Azure App Registration with the appropriate Microsoft Graph permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.sharepoint.step1', 'Go to Azure Portal → App registrations → New registration.')}</>,
-                            <>{t('connectors.instructions.sharepoint.step2', 'Create app with appropriate Microsoft Graph permissions.')}</>,
-                            <>{t('connectors.instructions.sharepoint.step3', 'Generate a client secret and copy the Client ID, Secret, and Directory (Tenant) ID.')}</>,
-                            <>{t('connectors.instructions.sharepoint.step4', 'Enter Client ID, Client Secret, and Directory ID in the form.')}</>,
+                            <><strong>Access Azure Portal:</strong><br />
+                              • Go to the <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Azure Portal</a><br />
+                              • Log in with your Microsoft 365 admin account<br />
+                              • Navigate to <strong>Azure Active Directory → App registrations</strong><br />
+                              • Click <strong>"New registration"</strong></>,
+                            <><strong>Register Your Application:</strong><br />
+                              • Enter a name (e.g., "ContentBuilder Connector")<br />
+                              • Select <strong>"Accounts in this organizational directory only"</strong><br />
+                              • Leave Redirect URI empty for now<br />
+                              • Click <strong>"Register"</strong> to create the app</>,
+                            <><strong>Configure API Permissions:</strong><br />
+                              • In your app, go to <strong>"API permissions"</strong><br />
+                              • Click <strong>"Add a permission"</strong><br />
+                              • Select <strong>"Microsoft Graph"</strong><br />
+                              • Choose <strong>"Application permissions"</strong><br />
+                              • Add the following permissions:<br />
+                              • <code>Sites.Read.All</code> - Read items in all site collections<br />
+                              • <code>Files.Read.All</code> - Read files in all site collections<br />
+                              • <code>Group.Read.All</code> - Read all groups<br />
+                              • <code>Channel.ReadBasic.All</code> - Read basic channel information<br />
+                              • <code>ChannelMessage.Read.All</code> - Read channel messages<br />
+                              • <code>Team.ReadBasic.All</code> - Read basic team information</>,
+                            <><strong>Grant Admin Consent:</strong><br />
+                              • Click <strong>"Grant admin consent for [Your Organization]"</strong><br />
+                              • Confirm the consent to grant all permissions<br />
+                              • This step requires admin privileges</>,
+                            <><strong>Create Client Secret:</strong><br />
+                              • Go to <strong>"Certificates & secrets"</strong><br />
+                              • Click <strong>"New client secret"</strong><br />
+                              • Enter a description (e.g., "ContentBuilder Secret")<br />
+                              • Select expiration period (recommended: 24 months)<br />
+                              • Click <strong>"Add"</strong><br />
+                              • <strong>Important:</strong> Copy the secret value immediately - you won't be able to see it again</>,
+                            <><strong>Gather Required Information:</strong><br />
+                              • <strong>Application (client) ID:</strong> Found in the "Overview" section<br />
+                              • <strong>Directory (tenant) ID:</strong> Found in the "Overview" section<br />
+                              • <strong>Client Secret:</strong> The value you copied from the previous step<br />
+                              • <strong>Tenant Domain:</strong> Your organization's domain (e.g., yourcompany.onmicrosoft.com)</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter the Application (client) ID<br />
+                              • Enter the Directory (tenant) ID<br />
+                              • Paste the client secret value<br />
+                              • Enter your tenant domain<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>Admin consent is required for application permissions. Contact your Microsoft 365 administrator if you don't have the necessary privileges.</p>
+                            <p>Make sure the app has access to all SharePoint sites and Teams you want to index.</p>
+                            <p>Client secrets have expiration dates. Set up a reminder to renew them before they expire.</p>
+                            <p>If you lose a client secret, you'll need to create a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.sharepoint.link', 'Go to Azure App Registrations →')}
@@ -1024,15 +1124,67 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gmail':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.gmail.title', 'Get Gmail Service Account')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.gmail.title', 'Setting up the Gmail Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Gmail account, you need to create a Google Cloud service account with domain-wide delegation and configure it properly:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.gmail.step1', 'Go to Google Cloud Console → IAM & Admin → Service Accounts.')}</>,
-                            <>{t('connectors.instructions.gmail.step2', 'Create a new service account with a descriptive name like "contentbuilder-gmail".')}</>,
-                            <>{t('connectors.instructions.gmail.step3', 'Generate and download a JSON key file for the service account.')}</>,
-                            <>{t('connectors.instructions.gmail.step4', 'Enable Gmail API in Google Cloud Console → APIs & Services → Library.')}</>,
-                            <>{t('connectors.instructions.gmail.step5', 'In Google Admin Console, enable domain-wide delegation for the service account.')}</>,
-                            <>{t('connectors.instructions.gmail.step6', 'Upload the JSON key file and provide the primary admin email address.')}</>,
+                            <><strong>Access Google Cloud Console:</strong><br />
+                              • Go to the <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Cloud Console</a><br />
+                              • Log in with your Google account credentials<br />
+                              • Create a new project or select an existing one<br />
+                              • Note your project ID for later use</>,
+                            <><strong>Enable Gmail API:</strong><br />
+                              • Navigate to <strong>APIs & Services → Library</strong><br />
+                              • Search for "Gmail API"<br />
+                              • Click on <strong>"Gmail API"</strong> from the results<br />
+                              • Click <strong>"Enable"</strong> to activate the API for your project</>,
+                            <><strong>Create a Service Account:</strong><br />
+                              • Go to <strong>IAM & Admin → Service Accounts</strong><br />
+                              • Click <strong>"Create Service Account"</strong><br />
+                              • Enter a name (e.g., "contentbuilder-gmail")<br />
+                              • Add a description (e.g., "Service account for ContentBuilder to access Gmail")<br />
+                              • Click <strong>"Create and Continue"</strong><br />
+                              • Skip the "Grant access" step for now<br />
+                              • Click <strong>"Done"</strong></>,
+                            <><strong>Generate Service Account Key:</strong><br />
+                              • In the service account list, click on your newly created service account<br />
+                              • Go to the <strong>"Keys"</strong> tab<br />
+                              • Click <strong>"Add Key" → "Create new key"</strong><br />
+                              • Select <strong>"JSON"</strong> format<br />
+                              • Click <strong>"Create"</strong><br />
+                              • Download the JSON key file to your computer</>,
+                            <><strong>Configure Domain-Wide Delegation:</strong><br />
+                              • In the service account details, go to the <strong>"Details"</strong> tab<br />
+                              • Click <strong>"Enable Google Workspace Domain-wide Delegation"</strong><br />
+                              • Add a product name (e.g., "ContentBuilder")<br />
+                              • Click <strong>"Save"</strong><br />
+                              • Copy the <strong>Client ID</strong> that's displayed</>,
+                            <><strong>Configure Google Admin Console:</strong><br />
+                              • Go to the <a href="https://admin.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Google Admin Console</a><br />
+                              • Navigate to <strong>Security → API Controls</strong><br />
+                              • Click <strong>"Domain-wide Delegation"</strong><br />
+                              • Click <strong>"Add new"</strong><br />
+                              • Enter the Client ID from the previous step<br />
+                              • Add the following OAuth scopes:<br />
+                              • <code>https://www.googleapis.com/auth/gmail.readonly</code><br />
+                              • <code>https://www.googleapis.com/auth/gmail.metadata</code><br />
+                              • Click <strong>"Authorize"</strong></>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • Upload the downloaded JSON key file in the credential form<br />
+                              • Enter the primary admin email address (for domain-wide delegation)<br />
+                              • Specify the Gmail labels or folders you want to index (optional)<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>Domain-wide delegation is required for accessing Gmail accounts. This must be configured in Google Admin Console.</p>
+                            <p>Make sure you have admin privileges in Google Workspace to configure domain-wide delegation.</p>
+                            <p>The service account will have access to all Gmail accounts in your domain based on the configured scopes.</p>
+                            <p>For personal Gmail accounts, you may need to use OAuth2 flow instead of service account authentication.</p>
+                            <p>Keep the JSON key file secure - it contains sensitive authentication information.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.gmail.link', 'Go to Google Cloud Service Accounts →')}
@@ -1053,15 +1205,67 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'discord':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.discord.title', 'Get a Discord Bot Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.discord.title', 'Setting up the Discord Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Discord server, you need to create a Discord bot and configure it with the necessary permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.discord.step1', 'Go to Discord Developer Portal and create a new application.')}</>,
-                            <>{t('connectors.instructions.discord.step2', 'In the Bot section, click "Add Bot" to create a bot user.')}</>,
-                            <>{t('connectors.instructions.discord.step3', 'Under Token, click "Copy" to get your bot token.')}</>,
-                            <>{t('connectors.instructions.discord.step4', 'In Bot Permissions, enable "Read Messages/View Channels" and "Read Message History".')}</>,
-                            <>{t('connectors.instructions.discord.step5', 'Invite the bot to your Discord server using the OAuth2 URL generator.')}</>,
-                            <>{t('connectors.instructions.discord.step6', 'Paste the bot token here and create the credential.')}</>,
+                            <><strong>Access Discord Developer Portal:</strong><br />
+                              • Go to the <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Discord Developer Portal</a><br />
+                              • Log in with your Discord account credentials<br />
+                              • Click <strong>"New Application"</strong> to create a new app<br />
+                              • Enter a name (e.g., "ContentBuilder Bot")<br />
+                              • Click <strong>"Create"</strong></>,
+                            <><strong>Create a Bot User:</strong><br />
+                              • In your application, go to the <strong>"Bot"</strong> section in the sidebar<br />
+                              • Click <strong>"Add Bot"</strong> to create a bot user<br />
+                              • Confirm the creation by clicking <strong>"Yes, do it!"</strong><br />
+                              • Customize the bot's username and avatar if desired</>,
+                            <><strong>Configure Bot Permissions:</strong><br />
+                              • In the <strong>"Bot"</strong> section, scroll down to <strong>"Privileged Gateway Intents"</strong><br />
+                              • Enable the following intents:<br />
+                              • <strong>"Message Content Intent"</strong> - Required to read message content<br />
+                              • <strong>"Server Members Intent"</strong> - Required to access member information<br />
+                              • <strong>"Presence Intent"</strong> - Optional, for user presence information</>,
+                            <><strong>Generate Bot Token:</strong><br />
+                              • In the <strong>"Bot"</strong> section, find the <strong>"Token"</strong> section<br />
+                              • Click <strong>"Copy"</strong> to copy your bot token<br />
+                              • <strong>Important:</strong> Keep this token secure - it acts as your bot's password<br />
+                              • Never share this token publicly or commit it to version control</>,
+                            <><strong>Configure Bot Permissions (Scopes):</strong><br />
+                              • Go to the <strong>"OAuth2"</strong> section in the sidebar<br />
+                              • Scroll down to <strong>"Scopes"</strong><br />
+                              • Select the following scopes:<br />
+                              • <code>bot</code> - Allows the bot to join servers<br />
+                              • <code>messages.read</code> - Read messages in channels<br />
+                              • <code>guilds</code> - Access server information</>,
+                            <><strong>Set Bot Permissions:</strong><br />
+                              • In the <strong>"OAuth2"</strong> section, scroll to <strong>"Bot Permissions"</strong><br />
+                              • Select the following permissions:<br />
+                              • <strong>"Read Messages"</strong> - Read messages in text channels<br />
+                              • <strong>"Read Message History"</strong> - Read message history in channels<br />
+                              • <strong>"View Channels"</strong> - See channels in the server<br />
+                              • <strong>"Send Messages"</strong> - Optional, for bot responses</>,
+                            <><strong>Invite Bot to Your Server:</strong><br />
+                              • In the <strong>"OAuth2"</strong> section, scroll to <strong>"URL Generator"</strong><br />
+                              • Select the scopes and permissions you configured<br />
+                              • Copy the generated URL<br />
+                              • Open the URL in a new tab and select your Discord server<br />
+                              • Click <strong>"Authorize"</strong> to add the bot to your server</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the bot token<br />
+                              • Enter your Discord server ID (right-click server name → Copy Server ID)<br />
+                              • Specify the channels you want to index (optional)<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>The bot must be invited to all Discord servers you want to index. It cannot access servers it's not a member of.</p>
+                            <p>Make sure the bot has the necessary permissions in each server and channel you want to index.</p>
+                            <p>Message Content Intent is required to read message content. Without it, the bot can only see message metadata.</p>
+                            <p>If you lose a bot token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.discord.link', 'Go to Discord Developer Portal →')}
@@ -1207,6 +1411,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               {t('connectors.instructions.guru.link', 'Learn about Guru API →')}
                             </a>
                           </Text>
+                          <ImportantNotes>
+                            <p>The Guru connector pulls in all the Cards your user has access to based on a User Access Token.</p>
+                          </ImportantNotes>
                         </div>
                       );
                     case 'slab':
@@ -1221,6 +1428,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <>{t('connectors.instructions.slab.step5', 'Enter the bot token in the "Slab Bot Token" field.')}</>,
                           ]} />
                           <Text className="mt-2 text-gray-600">{t('connectors.instructions.slab.note', 'Your base URL should look like: https://yourteam.slab.com/')}</Text>
+                          <ImportantNotes>
+                            <p>Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.</p>
+                          </ImportantNotes>
                         </div>
                       );
                     case 'salesforce':
@@ -1263,7 +1473,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Security tokens expire when you change your password. You'll need to reset the token after password changes.</p>
+                            <p>Security tokens expire when you change your password. You'll need to reset the token after password changes.</p>
                             <p>Make sure to use the correct environment type (production vs sandbox) as this affects which data Contentbuilder can access.</p>
                             <p>Your user account must have API access enabled and appropriate permissions to read the Salesforce objects you want to index.</p>
                             <p>Security tokens are case-sensitive and should be entered exactly as received in the email.</p>
@@ -1279,15 +1489,62 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'hubspot':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.hubspot.title', 'Get HubSpot Access Token')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.hubspot.title', 'Setting up the HubSpot Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your HubSpot account, you need to create a private app with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.hubspot.step1', 'Log into your HubSpot account as an admin.')}</>,
-                            <>{t('connectors.instructions.hubspot.step2', 'Go to Settings → Integrations → Private Apps.')}</>,
-                            <>{t('connectors.instructions.hubspot.step3', 'Create a new private app with a descriptive name.')}</>,
-                            <>{t('connectors.instructions.hubspot.step4', 'In Scopes, enable read permissions for content, contacts, deals, and tickets.')}</>,
-                            <>{t('connectors.instructions.hubspot.step5', 'Generate the access token and copy it.')}</>,
-                            <>{t('connectors.instructions.hubspot.step6', 'Paste the access token here to create the credential.')}</>,
+                            <><strong>Access HubSpot Account:</strong><br />
+                              • Go to the <a href="https://app.hubspot.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">HubSpot App</a><br />
+                              • Log in with your HubSpot account credentials<br />
+                              • Ensure you have admin or super admin permissions<br />
+                              • Select the correct HubSpot account if you have multiple</>,
+                            <><strong>Navigate to Private Apps:</strong><br />
+                              • Click the <strong>Settings</strong> icon (gear) in the top navigation<br />
+                              • Go to <strong>Integrations → Private Apps</strong><br />
+                              • Click <strong>"Create a private app"</strong><br />
+                              • If you don't see this option, contact your HubSpot admin</>,
+                            <><strong>Create a New Private App:</strong><br />
+                              • Enter an app name (e.g., "ContentBuilder Integration")<br />
+                              • Add a description (e.g., "Private app for ContentBuilder to access HubSpot data")<br />
+                              • Click <strong>"Create app"</strong> to proceed</>,
+                            <><strong>Configure App Scopes:</strong><br />
+                              • In the <strong>"Scopes"</strong> tab, enable the following permissions:<br />
+                              • <strong>Content:</strong><br />
+                              • <code>content</code> - Read access to content<br />
+                              • <code>blog</code> - Read access to blog posts<br />
+                              • <code>knowledge</code> - Read access to knowledge base articles<br />
+                              • <strong>CRM:</strong><br />
+                              • <code>crm.objects.contacts.read</code> - Read contacts<br />
+                              • <code>crm.objects.companies.read</code> - Read companies<br />
+                              • <code>crm.objects.deals.read</code> - Read deals<br />
+                              • <code>crm.objects.tickets.read</code> - Read tickets<br />
+                              • <strong>Marketing:</strong><br />
+                              • <code>marketing</code> - Read access to marketing content</>,
+                            <><strong>Generate Access Token:</strong><br />
+                              • Go to the <strong>"Auth"</strong> tab<br />
+                              • Click <strong>"Generate token"</strong><br />
+                              • Copy the generated access token<br />
+                              • <strong>Important:</strong> Store this token securely - you won't be able to see it again<br />
+                              • The token will be used to authenticate API requests</>,
+                            <><strong>Test API Access:</strong><br />
+                              • Use the HubSpot API Explorer to test your token<br />
+                              • Try making a simple API call to verify permissions<br />
+                              • Ensure the token has access to the data you want to index</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, paste the access token<br />
+                              • Specify the HubSpot objects you want to index (contacts, deals, tickets, etc.)<br />
+                              • Set any filtering criteria if needed<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>Make sure the private app has the necessary scopes to access the HubSpot data you want to index.</p>
+                            <p>Private apps are account-specific and will only have access to the HubSpot account where they were created.</p>
+                            <p>If you lose an access token, you'll need to generate a new one - the old one cannot be recovered.</p>
+                            <p>Some HubSpot features may require additional permissions or premium subscriptions.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://developers.hubspot.com/docs/api/private-apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.hubspot.link', 'Learn about HubSpot Private Apps →')}
@@ -1298,14 +1555,57 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     case 'gong':
                       return (
                         <div>
-                          <Text className="font-semibold">{t('connectors.instructions.gong.title', 'Get Gong API Credentials')}</Text>
+                          <Text className="font-semibold text-lg">
+                            {t('connectors.instructions.gong.title', 'Setting up the Gong Connector')}
+                          </Text>
+                          <Text>
+                            To authorize Contentbuilder to connect to your Gong account, you need to create API credentials with the appropriate permissions:
+                          </Text>
                           <Steps items={[
-                            <>{t('connectors.instructions.gong.step1', 'Log into your Gong account as an admin.')}</>,
-                            <>{t('connectors.instructions.gong.step2', 'Go to Settings → Integrations → REST API.')}</>,
-                            <>{t('connectors.instructions.gong.step3', 'Create a new API credential with read permissions.')}</>,
-                            <>{t('connectors.instructions.gong.step4', 'Copy the Access Key and Access Key Secret.')}</>,
-                            <>{t('connectors.instructions.gong.step5', 'Enter both the Gong Access Key and Gong Access Key Secret in the form.')}</>,
+                            <><strong>Access Gong Account:</strong><br />
+                              • Go to the <a href="https://app.gong.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Gong App</a><br />
+                              • Log in with your Gong account credentials<br />
+                              • Ensure you have admin or super admin permissions<br />
+                              • Navigate to the main dashboard</>,
+                            <><strong>Navigate to API Settings:</strong><br />
+                              • Click on your profile picture in the top-right corner<br />
+                              • Select <strong>"Settings"</strong> from the dropdown menu<br />
+                              • In the left sidebar, go to <strong>"Integrations"</strong><br />
+                              • Click on <strong>"REST API"</strong> to access API settings</>,
+                            <><strong>Create API Credentials:</strong><br />
+                              • In the REST API section, click <strong>"Create New Credential"</strong><br />
+                              • Enter a descriptive name (e.g., "ContentBuilder Integration")<br />
+                              • Add a description (e.g., "API credentials for ContentBuilder to access Gong data")<br />
+                              • Click <strong>"Create"</strong> to generate the credentials</>,
+                            <><strong>Configure API Permissions:</strong><br />
+                              • Select the appropriate permissions for your use case:<br />
+                              • <strong>"Read Calls"</strong> - Access to call recordings and transcripts<br />
+                              • <strong>"Read Users"</strong> - Access to user information<br />
+                              • <strong>"Read Workspaces"</strong> - Access to workspace data<br />
+                              • <strong>"Read Analytics"</strong> - Access to analytics data<br />
+                              • Ensure all required permissions are enabled</>,
+                            <><strong>Generate Access Credentials:</strong><br />
+                              • After creating the credential, you'll see two important values:<br />
+                              • <strong>Access Key:</strong> A unique identifier for your API credential<br />
+                              • <strong>Access Key Secret:</strong> A secret key for authentication<br />
+                              • <strong>Important:</strong> Copy both values immediately - you won't be able to see the secret again</>,
+                            <><strong>Test API Access:</strong><br />
+                              • Use the Gong API documentation to test your credentials<br />
+                              • Try making a simple API call to verify permissions<br />
+                              • Ensure the credentials have access to the data you want to index</>,
+                            <><strong>Configure Contentbuilder:</strong><br />
+                              • In the Contentbuilder credential form, enter the Access Key<br />
+                              • Enter the Access Key Secret<br />
+                              • Specify the Gong objects you want to index (calls, users, analytics, etc.)<br />
+                              • Set any filtering criteria if needed<br />
+                              • Click <strong>"Create Credential"</strong> to save the connection</>,
                           ]} />
+                          <ImportantNotes>
+                            <p>Make sure the API credential has the necessary permissions to access the Gong data you want to index.</p>
+                            <p>Gong API credentials are account-specific and will only have access to the Gong account where they were created.</p>
+                            <p>If you lose an access key secret, you'll need to create a new credential - the old one cannot be recovered.</p>
+                            <p>Some Gong features may require additional permissions or premium subscriptions.</p>
+                          </ImportantNotes>
                           <Text className="mt-2">
                             <a href="https://help.gong.io/hc/en-us/articles/115005055646" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                               {t('connectors.instructions.gong.link', 'Learn about Gong API →')}
@@ -1343,6 +1643,11 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             <>{t('connectors.instructions.web.step5', 'Configure advanced options like scrolling if the site uses dynamic content loading.')}</>,
                           ]} />
                           <Text className="mt-2 text-gray-600">{t('connectors.instructions.web.note', 'The web scraper respects robots.txt and rate limits to avoid overwhelming target sites.')}</Text>
+                          <ImportantNotes>
+                            <p>It only indexes files from the same domain and containing the same base path.</p>
+                            <p>It will index pages reachable via hyperlinks from the base URL.</p>
+                            <p>The text contents are cleaned up via some heuristics and some metadata such as the page Title is extracted.</p>
+                          </ImportantNotes>
                         </div>
                       );
                     case 'axero':
@@ -1432,20 +1737,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               {t('connectors.instructions.discourse.link', 'Learn about Discourse API →')}
                             </a>
                           </Text>
-                        </div>
-                      );
-                    case 'google_sites':
-                      return (
-                        <div>
-                          <Text className="font-semibold">{t('connectors.instructions.google_sites.title', 'Prepare Google Sites Content')}</Text>
-                          <Steps items={[
-                            <>{t('connectors.instructions.google_sites.step1', 'Open your Google Site in a web browser.')}</>,
-                            <>{t('connectors.instructions.google_sites.step2', 'Use browser tools or a web scraper to download the HTML content.')}</>,
-                            <>{t('connectors.instructions.google_sites.step3', 'Create a ZIP file containing all the HTML files and assets.')}</>,
-                            <>{t('connectors.instructions.google_sites.step4', 'Note your Google Site\'s public URL.')}</>,
-                            <>{t('connectors.instructions.google_sites.step5', 'Upload the ZIP file and enter the base URL here.')}</>,
-                          ]} />
-                          <Text className="mt-2 text-gray-600">{t('connectors.instructions.google_sites.note', 'This connector requires pre-downloaded HTML content as Google Sites doesn\'t provide a direct API.')}</Text>
                         </div>
                       );
                     case 'file':
@@ -1573,7 +1864,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Contentbuilder will start indexing your authorized content</>,
                           ]} />
                           <ImportantNotes>
-                            <p><strong>Important:</strong> Make sure the credentials have the necessary permissions to read the data you want to index.</p>
+                            <p>Make sure the credentials have the necessary permissions to read the data you want to index.</p>
                             <p>Keep your credentials secure and never share them publicly - they act as passwords to your data.</p>
                             <p>If you need help with a specific connector, check the official Contentbuilder documentation for detailed setup instructions.</p>
                           </ImportantNotes>
