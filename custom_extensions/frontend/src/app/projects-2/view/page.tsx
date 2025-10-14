@@ -70,8 +70,9 @@ export default function Projects2ViewPage() {
 
   // NEW: Video Lesson slide management state - Initialize with empty slides
   const [videoLessonData, setVideoLessonData] = useState<VideoLessonData>({
-    title: 'Video Lesson',
-    slides: []
+    mainPresentationTitle: 'Video Lesson',
+    slides: [],
+    detectedLanguage: 'en'
   });
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const [isVideoLessonMode, setIsVideoLessonMode] = useState<boolean>(false);
