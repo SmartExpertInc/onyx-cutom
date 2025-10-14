@@ -191,9 +191,14 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
               >
                 <TableCell>
                   <Box>
-                  <Typography variant="body2" fontWeight="medium">
+                    <Typography variant="body2" fontWeight="medium">
                       {user.display_identity || user.email || (user.name && user.name !== 'User' ? user.name : user.onyx_user_id)}
-                  </Typography>
+                    </Typography>
+                    {user.email && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        {user.email}
+                      </Typography>
+                    )}
                   </Box>
                 </TableCell>
                 <TableCell>
@@ -293,9 +298,19 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-black">
-                User Profile: {selectedUserProfile.onyx_user_id}
-              </h3>
+              <div>
+                <h3 className="text-lg font-medium text-black">
+                  User Profile
+                </h3>
+                {(() => {
+                  const profileUser = users.find(u => u.onyx_user_id === selectedUserProfile.onyx_user_id);
+                  return profileUser?.email ? (
+                    <p className="text-sm text-gray-600 mt-1">{profileUser.email}</p>
+                  ) : (
+                    <p className="text-sm text-gray-600 mt-1">{selectedUserProfile.onyx_user_id}</p>
+                  );
+                })()}
+              </div>
               <button
                 onClick={closeProfileModal}
                 className="text-gray-400 hover:text-gray-600"
