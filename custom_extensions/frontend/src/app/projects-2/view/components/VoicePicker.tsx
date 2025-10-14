@@ -114,11 +114,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
   const [voices, setVoices] = useState<ElaiVoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVoice, setSelectedVoice] = useState<ElaiVoice | null>(null);
+  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   
   const accentRef = useRef<HTMLDivElement>(null);
   const ageRef = useRef<HTMLDivElement>(null);
   const toneRef = useRef<HTMLDivElement>(null);
   const scenarioRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Fetch voices from Elai API
   useEffect(() => {
@@ -162,6 +164,45 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       fetchVoices();
     }
   }, [isOpen]);
+
+  // Handle voice preview playback
+  const handlePlayVoice = (e: React.MouseEvent, voice: ElaiVoice) => {
+    e.stopPropagation(); // Prevent voice selection when clicking play button
+    
+    // If clicking the same voice that's playing, stop it
+    if (playingVoice === voice.voice) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setPlayingVoice(null);
+      return;
+    }
+    
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    // Play the new voice preview
+    if (voice.url) {
+      const audio = new Audio(voice.url);
+      audioRef.current = audio;
+      
+      audio.play().catch((error) => {
+        console.error('Error playing audio:', error);
+        setPlayingVoice(null);
+      });
+      
+      setPlayingVoice(voice.voice);
+      
+      // Reset playing state when audio ends
+      audio.onended = () => {
+        setPlayingVoice(null);
+      };
+    }
+  };
 
   // Accent options with country flags
   const accentOptions = [
@@ -287,6 +328,18 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [accentDropdownOpen, ageDropdownOpen, toneDropdownOpen, scenarioDropdownOpen]);
+
+  // Cleanup audio when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      setPlayingVoice(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -658,11 +711,25 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                   }`}>
                     <div className="flex items-center gap-3">
                       {/* Radio wave icon / Play button */}
-                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300">
-                        <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
-                        <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                          <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
-                        </div>
+                      <div 
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
+                        onClick={(e) => handlePlayVoice(e, voice)}
+                      >
+                        {playingVoice === voice.voice ? (
+                          <div className="flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                            <div className="flex gap-0.5">
+                              <div className="w-1 h-3 bg-gray-600"></div>
+                              <div className="w-1 h-3 bg-gray-600"></div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
+                            <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                              <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                            </div>
+                          </>
+                        )}
                       </div>
                       
                       {/* Text and badges */}
@@ -797,10 +864,17 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 8: Play Sample button */}
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors">
-              <Volume2 size={16} className="text-gray-700" />
-              <span className="text-sm font-medium text-gray-700">Play Sample</span>
-            </button>
+            {selectedVoice && (
+              <button 
+                onClick={(e) => handlePlayVoice(e, selectedVoice)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              >
+                <Volume2 size={16} className="text-gray-700" />
+                <span className="text-sm font-medium text-gray-700">
+                  {playingVoice === selectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
+                </span>
+              </button>
+            )}
           </div>
         </div>
         </div>
