@@ -1007,100 +1007,54 @@ export default function TextPresentationClient() {
               }
             }
 
-            // Try to parse accumulated JSON and convert to display format
-            // PARTIAL JSON PARSING: Try to parse even incomplete JSON to show partial preview
-            let jsonParsedSuccessfully = false;
-            let partialDisplayText = "";
-            
-            try {
-              const parsed = JSON.parse(accumulatedJsonText);
-              console.log('[TEXT_PRESENTATION_JSON_PARSE] ✅ JSON parsed successfully. Type:', typeof parsed, 'Has textTitle:', !!parsed.textTitle, 'Has contentBlocks:', !!parsed.contentBlocks);
+            // LIVE PREVIEW: Show content immediately during streaming (like presentations do)
+            if (accumulatedText) {
+              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing accumulated text during streaming, length:', accumulatedText.length);
               
-              if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
-                console.log('[TEXT_PRESENTATION_JSON_STREAM] ✅ Successfully parsed JSON during streaming, blocks:', parsed.contentBlocks.length);
-                console.log('[TEXT_PRESENTATION_JSON_STREAM] Text title:', parsed.textTitle);
-                console.log('[TEXT_PRESENTATION_JSON_STREAM] First block type:', parsed.contentBlocks[0]?.type);
-                
-                // Convert JSON to display format
-                const displayText = convertTextJsonToDisplay(parsed);
-                console.log('[TEXT_PRESENTATION_JSON_STREAM] Display text length:', displayText.length, 'Preview:', displayText.substring(0, 100) + '...');
-                
-                setContent(displayText);
-                // Store the original JSON for fast-path finalization
-                setOriginalJsonResponse(accumulatedJsonText);
-                setOriginalContent(displayText);
-                jsonParsedSuccessfully = true;
-                partialDisplayText = displayText;
-                
-                // Make textarea visible now that we have formatted content
-                if (!textareaVisible) {
-                  console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible with formatted content');
-                  setTextareaVisible(true);
-                }
-              } else {
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] ❌ JSON parsed but missing required fields. textTitle:', !!parsed?.textTitle, 'contentBlocks:', !!parsed?.contentBlocks);
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
-              }
-            } catch (e) {
-              // Incomplete JSON - try partial JSON parsing for live preview
-              const errorMsg = e instanceof Error ? e.message : String(e);
-              
-              // Try to extract and display partial content blocks as they arrive
+              // Try to parse as complete JSON first
+              let displayText = "";
               try {
-                // Look for complete content blocks in the accumulated text, even if overall JSON is incomplete
-                const partialMatch = accumulatedJsonText.match(/"textTitle"\s*:\s*"([^"]+)"/);
-                const blocksMatch = accumulatedJsonText.match(/"contentBlocks"\s*:\s*\[([\s\S]*)/);
-                
-                if (partialMatch && blocksMatch) {
-                  const title = partialMatch[1];
-                  let partialBlocks = [];
-                  
-                  // Try to parse individual complete block objects
-                  const blocksText = blocksMatch[1];
-                  // Look for complete block objects (ending with })
-                  const completeBlocksPattern = /\{[^}]*"type"[^}]*"sectionTitle"[^}]*"text"[^}]*\}/g;
-                  const matches = blocksText.match(completeBlocksPattern);
-                  
-                  if (matches) {
-                    partialBlocks = matches.map((bStr: string) => {
-                      try {
-                        return JSON.parse(bStr);
-                      } catch {
-                        return null;
-                      }
-                    }).filter(Boolean);
-                  }
-                  
-                  if (partialBlocks.length > 0) {
-                    const partialParsed = {
-                      textTitle: title,
-                      contentBlocks: partialBlocks
-                    };
-                    partialDisplayText = convertTextJsonToDisplay(partialParsed);
-                    console.log('[TEXT_PRESENTATION_PARTIAL_PARSE] 📺 Showing partial preview:', partialBlocks.length, 'blocks');
-                    setContent(partialDisplayText);
-                    jsonParsedSuccessfully = true;
-                    
-                    if (!textareaVisible) {
-                      setTextareaVisible(true);
-                    }
-                  }
+                const parsed = JSON.parse(accumulatedText);
+                if (parsed && typeof parsed === 'object' && parsed.textTitle && parsed.contentBlocks) {
+                  console.log('[TEXT_PRESENTATION_JSON_STREAM] ✅ Complete JSON parsed, blocks:', parsed.contentBlocks.length);
+                  displayText = convertTextJsonToDisplay(parsed);
+                  setOriginalJsonResponse(accumulatedText);
+                  setOriginalContent(displayText);
+                } else {
+                  throw new Error("Missing required fields");
                 }
-              } catch (partialError) {
-                // Partial parsing also failed, that's ok
+              } catch (e) {
+                // JSON incomplete or invalid - create simple readable preview from raw text
+                console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Creating readable preview from raw text');
+                
+                // Extract text title if available
+                const titleMatch = accumulatedText.match(/"textTitle"\s*:\s*"([^"]+)"/);
+                const title = titleMatch ? titleMatch[1] : "Generating Content...";
+                
+                // Count sections being generated
+                const sectionMatches = accumulatedText.match(/"sectionTitle"\s*:\s*"([^"]+)"/g);
+                const sectionCount = sectionMatches ? sectionMatches.length : 0;
+                
+                // Create simple markdown preview
+                displayText = `# ${title}\n\n`;
+                if (sectionCount > 0) {
+                  displayText += `**Generating ${sectionCount} section${sectionCount > 1 ? 's' : ''}...**\n\n`;
+                  
+                  // Show partial sections if we can extract them
+                  sectionMatches?.forEach((match, index) => {
+                    const sectionTitle = match.match(/"sectionTitle"\s*:\s*"([^"]+)"/)?.[1];
+                    if (sectionTitle) {
+                      displayText += `## ${sectionTitle}\n\n`;
+                    }
+                  });
+                } else {
+                  displayText += "**Generating content sections...**\n\n";
+                }
               }
               
-              if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
-                // Only log occasionally to avoid spam
-                console.log('[TEXT_PRESENTATION_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
-              }
-            }
-
-            // If no JSON parsing worked at all, show raw text as fallback
-            if (!jsonParsedSuccessfully && accumulatedText) {
-              console.log('[TEXT_PRESENTATION_PREVIEW] 📺 Showing raw accumulated text, length:', accumulatedText.length);
-              setContent(accumulatedText);
+              setContent(displayText);
               
+              // Make textarea visible as soon as we have content
               const hasMeaningfulText = /\S/.test(accumulatedText);
               if (hasMeaningfulText && !textareaVisible) {
                 console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Making textarea visible');

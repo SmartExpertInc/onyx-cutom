@@ -939,100 +939,54 @@ export default function QuizClient() {
               }
             }
 
-            // Try to parse accumulated JSON and convert to display format
-            // PARTIAL JSON PARSING: Try to parse even incomplete JSON to show partial preview
-            let jsonParsedSuccessfully = false;
-            let partialDisplayText = "";
-            
-            try {
-              const parsed = JSON.parse(accumulatedJsonText);
-              console.log('[QUIZ_JSON_PARSE] ✅ JSON parsed successfully. Type:', typeof parsed, 'Has quizTitle:', !!parsed.quizTitle, 'Has questions:', !!parsed.questions);
+            // LIVE PREVIEW: Show content immediately during streaming (like presentations do)
+            if (accumulatedText) {
+              console.log('[QUIZ_PREVIEW] 📺 Showing accumulated text during streaming, length:', accumulatedText.length);
               
-              if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
-                console.log('[QUIZ_JSON_STREAM] ✅ Successfully parsed JSON during streaming, questions:', parsed.questions.length);
-                console.log('[QUIZ_JSON_STREAM] Quiz title:', parsed.quizTitle);
-                console.log('[QUIZ_JSON_STREAM] First question:', parsed.questions[0]?.question_text?.substring(0, 50) + '...');
-                
-                // Convert JSON to display format
-                const displayText = convertQuizJsonToDisplay(parsed);
-                console.log('[QUIZ_JSON_STREAM] Display text length:', displayText.length, 'Preview:', displayText.substring(0, 100) + '...');
-                
-                setQuizData(displayText);
-                // Store the original JSON for fast-path finalization
-                setOriginalJsonResponse(accumulatedJsonText);
-                setOriginalQuizData(displayText);
-                jsonParsedSuccessfully = true;
-                partialDisplayText = displayText;
-                
-                // Make textarea visible now that we have formatted content
-                if (!textareaVisible) {
-                  console.log('[QUIZ_PREVIEW] ✅ Making textarea visible with formatted content');
-                  setTextareaVisible(true);
-                }
-              } else {
-                console.log('[QUIZ_JSON_PARSE] ❌ JSON parsed but missing required fields. quizTitle:', !!parsed?.quizTitle, 'questions:', !!parsed?.questions);
-                console.log('[QUIZ_JSON_PARSE] Parsed object keys:', parsed ? Object.keys(parsed).join(', ') : 'null');
-              }
-            } catch (e) {
-              // Incomplete JSON - try partial JSON parsing for live preview
-              const errorMsg = e instanceof Error ? e.message : String(e);
-              
-              // Try to extract and display partial questions as they arrive
+              // Try to parse as complete JSON first
+              let displayText = "";
               try {
-                // Look for complete questions in the accumulated text, even if overall JSON is incomplete
-                const partialMatch = accumulatedJsonText.match(/"quizTitle"\s*:\s*"([^"]+)"/);
-                const questionsMatch = accumulatedJsonText.match(/"questions"\s*:\s*\[([\s\S]*)/);
-                
-                if (partialMatch && questionsMatch) {
-                  const title = partialMatch[1];
-                  let partialQuestions = [];
-                  
-                  // Try to parse individual complete question objects
-                  const questionText = questionsMatch[1];
-                  // Look for complete question objects (ending with })
-                  const completeQuestionsPattern = /\{[^}]*"question_type"[^}]*"question_text"[^}]*\}/g;
-                  const matches = questionText.match(completeQuestionsPattern);
-                  
-                  if (matches) {
-                    partialQuestions = matches.map((qStr: string) => {
-                      try {
-                        return JSON.parse(qStr);
-                      } catch {
-                        return null;
-                      }
-                    }).filter(Boolean);
-                  }
-                  
-                  if (partialQuestions.length > 0) {
-                    const partialParsed = {
-                      quizTitle: title,
-                      questions: partialQuestions
-                    };
-                    partialDisplayText = convertQuizJsonToDisplay(partialParsed);
-                    console.log('[QUIZ_PARTIAL_PARSE] 📺 Showing partial preview:', partialQuestions.length, 'questions');
-                    setQuizData(partialDisplayText);
-                    jsonParsedSuccessfully = true;
-                    
-                    if (!textareaVisible) {
-                      setTextareaVisible(true);
-                    }
-                  }
+                const parsed = JSON.parse(accumulatedText);
+                if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
+                  console.log('[QUIZ_JSON_STREAM] ✅ Complete JSON parsed, questions:', parsed.questions.length);
+                  displayText = convertQuizJsonToDisplay(parsed);
+                  setOriginalJsonResponse(accumulatedText);
+                  setOriginalQuizData(displayText);
+                } else {
+                  throw new Error("Missing required fields");
                 }
-              } catch (partialError) {
-                // Partial parsing also failed, that's ok
+              } catch (e) {
+                // JSON incomplete or invalid - create simple readable preview from raw text
+                console.log('[QUIZ_PREVIEW] 📝 Creating readable preview from raw text');
+                
+                // Extract quiz title if available
+                const titleMatch = accumulatedText.match(/"quizTitle"\s*:\s*"([^"]+)"/);
+                const title = titleMatch ? titleMatch[1] : "Generating Quiz...";
+                
+                // Count questions being generated
+                const questionMatches = accumulatedText.match(/"question_text"\s*:\s*"([^"]+)"/g);
+                const questionCount = questionMatches ? questionMatches.length : 0;
+                
+                // Create simple markdown preview
+                displayText = `# ${title}\n\n`;
+                if (questionCount > 0) {
+                  displayText += `**Generating ${questionCount} question${questionCount > 1 ? 's' : ''}...**\n\n`;
+                  
+                  // Show partial questions if we can extract them
+                  questionMatches?.forEach((match, index) => {
+                    const questionText = match.match(/"question_text"\s*:\s*"([^"]+)"/)?.[1];
+                    if (questionText) {
+                      displayText += `${index + 1}. **${questionText}**\n\n`;
+                    }
+                  });
+                } else {
+                  displayText += "**Generating questions...**\n\n";
+                }
               }
               
-              if (accumulatedJsonText.length > 100 && accumulatedJsonText.length % 500 < 50) {
-                // Only log occasionally to avoid spam
-                console.log('[QUIZ_JSON_PARSE] Waiting for complete JSON... (', accumulatedJsonText.length, 'chars accumulated)');
-              }
-            }
-
-            // If no JSON parsing worked at all, show raw text as fallback
-            if (!jsonParsedSuccessfully && accumulatedText) {
-              console.log('[QUIZ_PREVIEW] 📺 Showing raw accumulated text, length:', accumulatedText.length);
-              setQuizData(accumulatedText);
+              setQuizData(displayText);
               
+              // Make textarea visible as soon as we have content
               const hasMeaningfulText = /\S/.test(accumulatedText);
               if (hasMeaningfulText && !textareaVisible) {
                 console.log('[QUIZ_PREVIEW] ✅ Making textarea visible');
