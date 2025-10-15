@@ -28206,57 +28206,91 @@ CRITICAL REQUIREMENTS:
 # Default text presentation JSON example for LLM parsing
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "AI in Education: Transforming Learning for the Future",
+  "textTitle": "Organizing Neighbor Support During Crisis Situations",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "Understanding AI-Powered Learning Systems" },
-    { "type": "paragraph", "text": "Artificial Intelligence is revolutionizing education by creating personalized learning experiences that adapt to each student's unique needs and pace. Modern AI systems can analyze student performance in real-time, identify knowledge gaps, and automatically adjust content difficulty to optimize learning outcomes. These intelligent tutoring systems have demonstrated a 34% improvement in student engagement compared to traditional teaching methods." },
+    { "type": "headline", "level": 2, "text": "Introduction" },
+    { "type": "paragraph", "text": "In times of crisis, community support can be a vital lifeline that makes the difference between struggle and survival. Organizing neighbor support not only helps those in immediate need but also strengthens community bonds and creates lasting relationships that extend far beyond the emergency situation. This presentation will outline effective strategies for mobilizing neighbors during emergencies, ensuring everyone is prepared, supported, and connected to resources they may need in challenging times." },
+    { "type": "headline", "level": 2, "text": "📋 Importance of Community Support", "iconName": "info" },
     {
       "type": "bullet_list",
       "items": [
-        "Adaptive Learning Platforms: AI algorithms analyze student responses and learning patterns to create customized educational pathways. These systems adjust content presentation, difficulty levels, and practice exercises based on individual performance, ensuring students master concepts before progressing to more advanced material.",
-        {
-          "type": "bullet_list",
-          "iconName": "chevronRight",
-          "items": [
-            "Real-time Assessment: AI continuously evaluates student understanding through quiz responses, assignment submissions, and interaction patterns. This ongoing assessment allows the system to identify struggling students early and provide targeted interventions before they fall behind.",
-            "Content Personalization: Machine learning models recommend specific resources, videos, and exercises tailored to each student's learning style. Visual learners receive more diagrams and videos, while analytical learners get problem-solving activities and detailed explanations.",
-            {
-              "type": "numbered_list",
-              "items": [
-                "Data Collection Phase: The AI system gathers baseline data through initial assessments and observes how students interact with various content types. This typically takes 2-3 weeks and helps establish learning preferences and current knowledge levels.",
-                "Optimization Phase: Based on collected data, the algorithm begins making personalized recommendations and adjusting content delivery. Teachers can monitor these adjustments through dashboards and override recommendations when necessary."
-              ]
-            }
-          ]
-        },
-        "Automated Grading and Feedback: AI-powered grading systems can evaluate essays, code submissions, and open-ended responses within seconds, providing detailed feedback on grammar, logic, and content quality. This frees up teacher time for one-on-one mentoring while ensuring students receive immediate, constructive feedback on their work.",
-        {
-          "type": "numbered_list",
-          "items": [
-            "Implementation Strategy: Begin by piloting AI grading with objective assignments like multiple-choice tests and coding exercises. Track accuracy rates and student satisfaction before expanding to more subjective content like essays and creative projects.",
-            "Quality Assurance Process: Have teachers review a random sample of AI-graded assignments weekly to ensure accuracy and fairness. Use this feedback to fine-tune the AI models and maintain educational standards across all automated assessments."
-          ]
-        },
-        "Predictive Analytics for Student Success: AI systems analyze historical data to predict which students are at risk of falling behind or dropping out. Early warning systems alert educators to intervention opportunities, enabling targeted support before academic problems escalate."
+        "**Strengthens Resilience**: Communities that actively support each other can recover significantly faster from crises and emerge stronger than before. When neighbors work together, they pool resources, share knowledge, and create support networks that help everyone bounce back more quickly from difficult situations.",
+        "**Enhances Safety**: Neighbors looking out for one another can dramatically reduce risks and improve overall safety for everyone in the community. Regular check-ins, shared awareness of potential hazards, and coordinated emergency responses create a protective network that benefits all residents, especially vulnerable individuals who may need extra assistance.",
+        "**Builds Trust**: Collaborative efforts during difficult times foster deep trust and meaningful cooperation among residents that can last for years. When people work together to overcome challenges, they develop stronger relationships, better communication patterns, and a shared sense of purpose that transforms neighborhoods into genuine communities."
       ]
     },
-    { "type": "alert", "alertType": "info", "title": "Data Privacy Considerations", "text": "When implementing AI systems in education, institutions must prioritize student data protection and comply with regulations like FERPA and COPPA. Ensure all AI vendors use encrypted data storage, provide transparent data usage policies, and allow students and parents to opt out of data collection. Schools should conduct regular privacy audits and maintain clear documentation of how student data is collected, processed, and protected." },
-    { "type": "paragraph", "text": "The integration of AI in education represents a fundamental shift in how we approach teaching and learning. While technology cannot replace the human connection between teachers and students, it can amplify educator effectiveness and provide personalized support at scale. Research from MIT and Stanford shows that schools combining AI tools with strong teacher training see learning gains 2-3 times higher than those using technology alone, highlighting the importance of thoughtful implementation strategies.", "isRecommendation": true },
+    { "type": "headline", "level": 2, "text": "🚀 Steps to Organize Support", "iconName": "info" },
     {
       "type": "numbered_list",
       "items": [
-        "Start with Teacher Training: Invest in comprehensive professional development before deploying AI tools in classrooms. Teachers need to understand how AI systems work, interpret their recommendations, and integrate them into existing curricula. Successful implementations typically dedicate 15-20 hours of training before launch.",
         {
           "type": "bullet_list",
           "items": [
-            "Technical Skills Workshop: Provide hands-on training with the specific AI platforms your school will use. Teachers should practice navigating dashboards, interpreting analytics, and troubleshooting common issues in a low-stakes environment before introducing tools to students.",
-            "Pedagogical Integration: Help teachers design lesson plans that leverage AI strengths while maintaining human oversight. Focus on using AI for routine tasks like grading and content delivery, freeing teachers to focus on critical thinking discussions, socio-emotional support, and creative projects."
-          ]
+            { "type": "headline", "level": 3, "text": "Identify Key Resources" },
+            { "type": "paragraph", "text": "Begin by thoroughly assessing what resources are currently available within your community, including essential supplies like food, water, medical equipment, generators, and other emergency items that neighbors may have on hand. Create a detailed inventory of these resources so you know exactly what's available when crisis strikes." },
+            { "type": "paragraph", "text": "Create a comprehensive list of skills and services that neighbors can offer to the community, such as medical assistance, transportation services, childcare, pet care, technical support, language translation, or specialized knowledge that could prove valuable during emergencies. This skills inventory becomes an invaluable resource when coordinating community responses to various challenges." }
+          ],
+          "iconName": "none"
         },
-        "Establish Clear Success Metrics: Define measurable goals for AI implementation such as improved test scores, increased engagement rates, or reduced achievement gaps. Track these metrics quarterly and be prepared to adjust your approach based on data-driven insights rather than assumptions."
+        {
+          "type": "bullet_list",
+          "items": [
+            { "type": "headline", "level": 3, "text": "Establish Communication Channels" },
+            { "type": "paragraph", "text": "Set up a dedicated group chat or social media group specifically for quick emergency updates and ongoing communication between neighbors. Choose platforms that most community members already use and ensure everyone knows how to access and use these channels effectively, even during power outages or internet disruptions when possible." },
+            { "type": "paragraph", "text": "Use multiple communication methods including community bulletin boards, flyers posted in common areas, door-to-door notifications, and email lists to share critical information with all residents. This multi-channel approach ensures that even those without smartphones or internet access can stay informed and connected to community support networks." }
+          ],
+          "iconName": "none"
+        },
+        {
+          "type": "bullet_list",
+          "items": [
+            { "type": "headline", "level": 3, "text": "Create a Support Network" },
+            { "type": "paragraph", "text": "Organize a dedicated group of reliable volunteers who are committed to coordinating support efforts and serving as points of contact during emergencies. Ensure this core team represents diverse areas of your neighborhood so coverage is comprehensive and volunteers can respond quickly to nearby residents who need assistance." },
+            { "type": "paragraph", "text": "Assign specific roles and responsibilities to volunteers based on their unique skills, availability, and comfort levels with different tasks. For example, designate coordinators to manage overall efforts, communicators to disseminate information, logistics specialists to manage resources, and field responders to provide direct assistance to neighbors in need." }
+          ],
+          "iconName": "none"
+        },
+        {
+          "type": "bullet_list",
+          "items": [
+            { "type": "headline", "level": 3, "text": "Plan Regular Meetings" },
+            { "type": "paragraph", "text": "Schedule regular check-in meetings, whether in-person or virtual, to discuss evolving community needs, share updates about available resources, address concerns, and maintain strong connections between neighbors. These meetings should occur both during calm periods (for planning and relationship-building) and during crises (for coordination and rapid response)." },
+            { "type": "paragraph", "text": "Use these meetings strategically to build deeper relationships, strengthen the support network, share success stories, and ensure everyone feels valued and heard within the community. Regular gatherings also help identify emerging leaders, uncover hidden resources or skills, and keep the momentum of community engagement strong even when there's no immediate crisis." }
+          ],
+          "iconName": "none"
+        },
+        {
+          "type": "bullet_list",
+          "items": [
+            { "type": "headline", "level": 3, "text": "Develop Emergency Plans" },
+            { "type": "paragraph", "text": "Create a detailed, written community emergency plan that clearly outlines specific roles, responsibilities, communication protocols, and action steps for various crisis scenarios your neighborhood might face. Include contact information for all key volunteers, locations of emergency supplies, evacuation routes, and designated meeting points so everyone knows exactly what to do when disaster strikes." },
+            { "type": "paragraph", "text": "Ensure that every household has easy access to the emergency plan and clearly understands how to access critical resources, request assistance, and contribute their own skills and resources to support others. Regularly review and update the plan as the community evolves, new members join the neighborhood, or lessons are learned from past experiences." }
+          ],
+          "iconName": "none"
+        }
       ]
     },
-    { "type": "section_break", "style": "dashed" }
+    { "type": "headline", "level": 2, "text": "🔑 Key Considerations", "iconName": "info" },
+    {
+      "type": "bullet_list",
+      "items": [
+        "**Inclusivity**: Ensure that all community members, regardless of age, ability, language spoken, or socioeconomic status, feel genuinely included, valued, and welcomed in the planning process. Actively seek input from diverse voices and make sure your support systems can accommodate the unique needs of every resident, including those who may face barriers to participation.",
+        "**Cultural Sensitivity**: Be deeply aware of and respectful toward cultural differences, religious practices, dietary restrictions, communication preferences, and other cultural factors within your community. Take time to learn about the diverse backgrounds of your neighbors and ensure that support efforts honor and accommodate these differences rather than imposing a one-size-fits-all approach.",
+        "**Flexibility**: Be fully prepared to adapt your plans, strategies, and approaches as situations evolve and new information becomes available. Crisis situations are inherently unpredictable, so maintaining flexibility and being willing to adjust your response based on real-time needs and feedback is essential for effective community support and successful outcomes."
+      ]
+    },
+    { "type": "headline", "level": 2, "text": "💡 Recommendations for Success", "iconName": "info" },
+    {
+      "type": "bullet_list",
+      "items": [
+        "**Engage Local Organizations**: Actively partner with local nonprofits, faith-based organizations, government agencies, schools, and businesses to access additional support, resources, funding, expertise, and volunteer networks. These partnerships can dramatically expand your community's capacity to respond to crises and provide professional guidance on best practices for emergency preparedness and response coordination.",
+        "**Promote Preparedness**: Consistently encourage and help neighbors prepare their own individual emergency kits, family communication plans, evacuation strategies, and disaster supplies so they can be self-sufficient for at least 72 hours. Offer workshops, share checklists, and provide guidance on essential supplies, document preparation, and household emergency planning to increase overall community resilience.",
+        "**Celebrate Successes**: Regularly acknowledge, appreciate, and celebrate the efforts, contributions, and dedication of volunteers and community members who step up to help others. Public recognition, thank-you events, success story sharing, and appreciation ceremonies foster a positive, encouraging environment that motivates continued engagement and attracts new volunteers to join your community support network."
+      ]
+    },
+    { "type": "headline", "level": 2, "text": "📌 Conclusion", "iconName": "info" },
+    { "type": "paragraph", "text": "Organizing neighbor support during crisis situations is absolutely essential for building resilient, connected, and caring communities that can weather any storm together. By following these comprehensive steps and fostering a genuine spirit of collaboration, mutual respect, and shared responsibility, we can ensure that everyone is prepared, supported, and protected in times of need. Together, through coordinated action and compassionate support, we can make a truly significant and lasting difference in our neighborhoods and the lives of all our neighbors." },
+    { "type": "alert", "alertType": "info", "title": "Recommendation", "text": "To effectively implement these strategies and build genuine community connections, consider hosting an engaging community event, neighborhood meeting, or workshop to discuss, plan, and organize neighbor support initiatives in a welcoming, collaborative atmosphere. This can be an excellent way to engage residents of all ages, build a stronger support network, identify volunteer leaders, and create the foundation for lasting community resilience." }
   ],
   "detectedLanguage": "en"
 }
