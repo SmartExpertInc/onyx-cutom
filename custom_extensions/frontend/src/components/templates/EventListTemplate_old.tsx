@@ -199,7 +199,7 @@ const EventListTemplate_old: React.FC<EventListTemplateProps> = ({
             {/* Date */}
             {isEditable && editingIdx === idx && editingField === 'date' ? (
               <InlineEditor
-                initialValue={event.date}
+                initialValue={event.date || ''}
                 onSave={val => handleEventChange(idx, 'date', val)}
                 onCancel={handleEditCancel}
                 multiline={false}
