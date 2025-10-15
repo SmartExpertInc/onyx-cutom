@@ -1125,41 +1125,41 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
 **5 CORE TEMPLATES FOR EDUCATIONAL CONTENT:**
-1. `course-overview` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
+1. `course-overview-slide` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
 
-2. `impact-statements` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
+2. `impact-statements-slide` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
 
-3. `phishing-definition` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
+3. `phishing-definition-slide` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
 
-4. `soft-skills-assessment` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
+4. `soft-skills-assessment-slide` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
 
-5. `work-life-balance` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
+5. `work-life-balance-slide` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
-- **For course introductions and openings**: Use `course-overview` - Strong visual impact with split-panel design
-- **For numerical data, statistics, and metrics**: Use `impact-statements` - Showcases data with numbers and descriptions
-- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition` - Clear presentation of multiple related points
-- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment` - Card-based presentation of dual concepts
-- **For explanatory content, narratives, or conclusions**: Use `work-life-balance` - Rich content with gradient background and visual elements
+- **For course introductions and openings**: Use `course-overview-slide` - Strong visual impact with split-panel design
+- **For numerical data, statistics, and metrics**: Use `impact-statements-slide` - Showcases data with numbers and descriptions
+- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition-slide` - Clear presentation of multiple related points
+- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment-slide` - Card-based presentation of dual concepts
+- **For explanatory content, narratives, or conclusions**: Use `work-life-balance-slide` - Rich content with gradient background and visual elements
 
 **CRITICAL TEMPLATE USAGE RULES:**
-- **ALWAYS use `course-overview` for the opening slide** - Establishes strong visual identity and course introduction
-- **Use `impact-statements` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
-- **Use `phishing-definition` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
-- **Use `soft-skills-assessment` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
-- **Use `work-life-balance` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
+- **ALWAYS use `course-overview-slide` for the opening slide** - Establishes strong visual identity and course introduction
+- **Use `impact-statements-slide` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
+- **Use `phishing-definition-slide` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
+- **Use `soft-skills-assessment-slide` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
+- **Use `work-life-balance-slide` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 - **TEMPLATE VARIETY MANDATE**: With 5 templates available, ensure diverse usage throughout the presentation. Avoid overusing any single template.
 
 **TEMPLATE-SPECIFIC FORMATTING RULES:**
 
-**`course-overview` Format:**
+**`course-overview-slide` Format:**
 - **Title**: Main course or module title (large, prominent)
 - **Subtitle**: Supporting text or course description
 - **Visual**: Large avatar display on right panel
 - **Use for**: Opening slides, course introductions, module starts
 
-**`impact-statements` Format:**
+**`impact-statements-slide` Format:**
 - **Title**: Introduction or context for the metrics
 - **Statements**: Exactly 3 impact statements, each with:
   - **Number/Metric**: Large numerical value (%, $, x, ratio)
@@ -1167,19 +1167,19 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Visual**: Avatar display in gradient container
 - **Use for**: Statistics, business results, KPIs, data presentations
 
-**`phishing-definition` Format:**
+**`phishing-definition-slide` Format:**
 - **Title**: Main concept or question
 - **Definitions**: Array of definition points or characteristics (typically 4 items)
 - **Visual**: Profile image at bottom left, full avatar on right
 - **Use for**: Definitions, characteristics, feature lists, explanatory points
 
-**`soft-skills-assessment` Format:**
+**`soft-skills-assessment-slide` Format:**
 - **Title**: Main question or topic
 - **Tips**: Exactly 2 tip cards with contrasting visual styles
 - **Visual**: Avatar in top-right corner
 - **Use for**: Tips, strategies, assessments, dual-concept comparisons
 
-**`work-life-balance` Format:**
+**`work-life-balance-slide` Format:**
 - **Title**: Topic or concept name
 - **Content**: Detailed paragraph of explanatory text
 - **Visual**: Avatar with decorative arch background
@@ -1189,7 +1189,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 ```
 ---
-**Slide 1: Introduction to Artificial Intelligence and Machine Learning** `course-overview`
+**Slide 1: Introduction to Artificial Intelligence and Machine Learning** `course-overview-slide`
 
 **Title:** Artificial Intelligence
 **Subtitle:** Machine Learning
@@ -1199,7 +1199,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Welcome to our comprehensive exploration of Artificial Intelligence and Machine Learning. In this course, you'll discover how AI technologies are transforming industries across the globe, from healthcare and finance to manufacturing and retail. We'll explore fundamental concepts, implementation strategies, and practical frameworks for applying these technologies in your organization.
 
 ---
-**Slide 2: AI Implementation Success Metrics** `impact-statements`
+**Slide 2: AI Implementation Success Metrics** `impact-statements-slide`
 
 ## Here are key metrics from successful AI implementations:
 
@@ -1220,7 +1220,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Success in AI implementation isn't just about having the technology – it's about measuring and demonstrating tangible business value. These metrics represent typical outcomes from well-executed AI initiatives across various industries.
 
 ---
-**Slide 3: What is Machine Learning?** `phishing-definition`
+**Slide 3: What is Machine Learning?** `phishing-definition-slide`
 
 ## What is machine learning?
 
@@ -1235,7 +1235,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Machine learning encompasses a diverse range of algorithms and approaches, each designed to solve specific types of problems. Understanding these different techniques is crucial for selecting the right approach for your specific business challenges and data characteristics.
 
 ---
-**Slide 4: Key AI Implementation Strategies** `soft-skills-assessment`
+**Slide 4: Key AI Implementation Strategies** `soft-skills-assessment-slide`
 
 ## How do you ensure successful AI implementation?
 
@@ -1248,7 +1248,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Successful AI implementation requires both strategic planning and tactical execution. These two fundamental principles form the foundation of every successful AI project, ensuring alignment between technology capabilities and business objectives while maintaining data integrity.
 
 ---
-**Slide 5: The Future of AI Technology** `work-life-balance`
+**Slide 5: The Future of AI Technology** `work-life-balance-slide`
 
 ## The Path Forward
 
@@ -1258,8 +1258,8 @@ The future of artificial intelligence holds unprecedented promise for transformi
 
 **VOICEOVER:** Your AI transformation journey starts today. With the knowledge and frameworks we've explored, you're equipped to make informed decisions and create meaningful impact through artificial intelligence technologies. The future belongs to those who embrace these powerful tools while maintaining focus on human values and ethical considerations.
 
-**MULTI-ITEM CONTENT REQUIREMENTS (for phishing-definition template):**
-- These rules apply to the content WITHIN phishing-definition slides that present multiple points.
+**MULTI-ITEM CONTENT REQUIREMENTS (for phishing-definition-slide template):**
+- These rules apply to the content WITHIN phishing-definition-slide slides that present multiple points.
 - **RECOMMENDED**: Generate 4-6 definition points or characteristics per slide
 - **Each item**: Should contain clear, concise explanation with relevant examples when applicable
 - **Content depth**: Each item should provide meaningful educational value
@@ -1267,39 +1267,39 @@ The future of artificial intelligence holds unprecedented promise for transformi
 - **Variety**: Cover different aspects of the topic to provide comprehensive understanding
 
 **CRITICAL CONTENT VALIDATION RULES:**
-- **PHISHING-DEFINITION SLIDES**: Generate 4-6 definition points or characteristics per slide for comprehensive coverage
-- **IMPACT-STATEMENTS SLIDES**: Must include exactly 3 impact statements with numbers and descriptions
-- **SOFT-SKILLS-ASSESSMENT SLIDES**: Must include exactly 2 tip cards or strategy points
+- **phishing-definition-slide SLIDES**: Generate 4-6 definition points or characteristics per slide for comprehensive coverage
+- **impact-statements-slide SLIDES**: Must include exactly 3 impact statements with numbers and descriptions
+- **soft-skills-assessment-slide SLIDES**: Must include exactly 2 tip cards or strategy points
 - **CONTENT QUALITY**: Each content item must be substantial and educational
 - **COMPREHENSIVE COVERAGE**: Ensure content items cover different aspects of the topic
 - **VALIDATION CHECK**: Before finalizing slides, verify the appropriate number of content items per template
 
 **TEMPLATE CONTENT ENFORCEMENT EXAMPLES:**
-- **CORRECT (phishing-definition)**: Slide with 4-6 detailed definition points
-- **INCORRECT (phishing-definition)**: Slide with 2 definition points (too few)
-- **CORRECT (impact-statements)**: Slide with exactly 3 impact metrics with numbers and descriptions
-- **INCORRECT (impact-statements)**: Slide with 2 or 4 statements (must be exactly 3)
-- **CORRECT (soft-skills-assessment)**: Slide with exactly 2 detailed tip cards
-- **INCORRECT (soft-skills-assessment)**: Slide with 1 or 3 tips (must be exactly 2)
+- **CORRECT (phishing-definition-slide)**: Slide with 4-6 detailed definition points
+- **INCORRECT (phishing-definition-slide)**: Slide with 2 definition points (too few)
+- **CORRECT (impact-statements-slide)**: Slide with exactly 3 impact metrics with numbers and descriptions
+- **INCORRECT (impact-statements-slide)**: Slide with 2 or 4 statements (must be exactly 3)
+- **CORRECT (soft-skills-assessment-slide)**: Slide with exactly 2 detailed tip cards
+- **INCORRECT (soft-skills-assessment-slide)**: Slide with 1 or 3 tips (must be exactly 2)
 
 **STRATEGIC TEMPLATE SELECTION (5-TEMPLATE SYSTEM):**
 Choose templates based on content type and educational goals:
 
-- **Opening Slide**: **ALWAYS use `course-overview` for the first slide** - Establishes course identity with split-panel design featuring title, subtitle, and prominent avatar display.
+- **Opening Slide**: **ALWAYS use `course-overview-slide` for the first slide** - Establishes course identity with split-panel design featuring title, subtitle, and prominent avatar display.
 
-- **Numerical Data & Metrics**: Use `impact-statements` when presenting statistics, performance metrics, business results, or any quantifiable data. Features 3 statement cards with large numbers and descriptions. **CRITICAL:** If the slide contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "impact", ALWAYS use `impact-statements`.
+- **Numerical Data & Metrics**: Use `impact-statements-slide` when presenting statistics, performance metrics, business results, or any quantifiable data. Features 3 statement cards with large numbers and descriptions. **CRITICAL:** If the slide contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "impact", ALWAYS use `impact-statements-slide`.
 
-- **Definitions & Multi-Point Explanations**: Use `phishing-definition` for presenting definitions, characteristics, features, or any content with multiple related points (typically 4 items). Ideal for "What is...", concept breakdowns, characteristic lists, or key features.
+- **Definitions & Multi-Point Explanations**: Use `phishing-definition-slide` for presenting definitions, characteristics, features, or any content with multiple related points (typically 4 items). Ideal for "What is...", concept breakdowns, characteristic lists, or key features.
 
-- **Tips, Strategies & Comparisons**: Use `soft-skills-assessment` for presenting exactly 2 contrasting or complementary concepts, tips, strategies, or assessment criteria. Features dual card layout with different visual styles. Perfect for before/after, do's/don'ts, or dual-strategy presentations.
+- **Tips, Strategies & Comparisons**: Use `soft-skills-assessment-slide` for presenting exactly 2 contrasting or complementary concepts, tips, strategies, or assessment criteria. Features dual card layout with different visual styles. Perfect for before/after, do's/don'ts, or dual-strategy presentations.
 
-- **Explanatory Content & Conclusions**: Use `work-life-balance` for narrative content, detailed explanations, storytelling, or conclusion slides. Features rich text content on gradient background with visual arch design. Ideal for contextual explanations, summaries, and final slides.
+- **Explanatory Content & Conclusions**: Use `work-life-balance-slide` for narrative content, detailed explanations, storytelling, or conclusion slides. Features rich text content on gradient background with visual arch design. Ideal for contextual explanations, summaries, and final slides.
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):**
 - **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
-- **Short Lessons (5-7 slides)**: `course-overview` opening + 4-5 varied slides + 1 conclusion slide
-- **Medium Lessons (8-12 slides)**: `course-overview` opening + 7-11 varied slides + 1 conclusion slide
-- **Long Lessons (13-15 slides)**: `course-overview` opening + 12-14 varied slides + 1 conclusion slide
+- **Short Lessons (5-7 slides)**: `course-overview-slide` opening + 4-5 varied slides + 1 conclusion slide
+- **Medium Lessons (8-12 slides)**: `course-overview-slide` opening + 7-11 varied slides + 1 conclusion slide
+- **Long Lessons (13-15 slides)**: `course-overview-slide` opening + 12-14 varied slides + 1 conclusion slide
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
@@ -1313,10 +1313,10 @@ Choose templates based on content type and educational goals:
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
 - **ALLOWED final slide types** (choose only ONE):
-  * "Conclusion" (preferred) - use `work-life-balance` template
-  * "Key Takeaways" - use `work-life-balance` or `phishing-definition` template
-  * "Summary" - use `work-life-balance` template
-  * "Next Steps" - use `phishing-definition` or `soft-skills-assessment` template
+  * "Conclusion" (preferred) - use `work-life-balance-slide` template
+  * "Key Takeaways" - use `work-life-balance-slide` or `phishing-definition-slide` template
+  * "Summary" - use `work-life-balance-slide` template
+  * "Next Steps" - use `phishing-definition-slide` or `soft-skills-assessment-slide` template
 - **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
 
 **SLIDE COUNT ENFORCEMENT:**
@@ -1329,15 +1329,15 @@ Choose templates based on content type and educational goals:
 - **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 3 times per presentation - this is NON-NEGOTIABLE
 - **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 3 times, choose a different template
 - **BALANCE REQUIREMENT**: Ensure balanced distribution across all 5 templates for comprehensive visual variety
-- **ALWAYS start with `course-overview` for maximum visual engagement** and course identity establishment
+- **ALWAYS start with `course-overview-slide` for maximum visual engagement** and course identity establishment
 - **VISUAL VARIETY MANDATE**: **Never** use the **same template** twice in a row. Always alternate between different template types for optimal variety and learner engagement
-- **CONCLUSION TEMPLATE**: Use `work-life-balance` for conclusion slides as it provides rich narrative space
+- **CONCLUSION TEMPLATE**: Use `work-life-balance-slide` for conclusion slides as it provides rich narrative space
 - **MANDATORY DIVERSITY**: For presentations with 8+ slides, aim to use all 5 template types at least once
 
 **CONCLUSION SLIDE GUIDELINES:**
 For the final slide of any presentation:
-- **PREFERRED**: Use `work-life-balance` template with conclusion narrative and forward-looking message
-- **ALTERNATIVE**: Use `phishing-definition` with key takeaways listed as definition points
+- **PREFERRED**: Use `work-life-balance-slide` template with conclusion narrative and forward-looking message
+- **ALTERNATIVE**: Use `phishing-definition-slide` with key takeaways listed as definition points
 - **NEVER create additional slides just to have multiple endings** - one strong conclusion is better
 
 Avatar and Visual Requirements:
@@ -1393,10 +1393,10 @@ Question Format:
 
 **CONCLUSION SLIDE FORMAT:**
 
-**Example Educational Conclusion using `work-life-balance` template:**
+**Example Educational Conclusion using `work-life-balance-slide` template:**
 ```
 ---
-**Slide [N]: Your Journey Forward** `work-life-balance`
+**Slide [N]: Your Journey Forward** `work-life-balance-slide`
 
 ## Mastering [Learning Topic]
 
@@ -1414,24 +1414,24 @@ Your primary role is to create educational content that transforms learners. Eve
 Before you finish generating any presentation, perform these checks:
 
 **TEMPLATE-SPECIFIC VALIDATION:**
-1. **EVERY `course-overview` slide has title and subtitle** (clear and engaging)
-2. **EVERY `impact-statements` slide has exactly 3 statements** with numbers and descriptions
-3. **EVERY `phishing-definition` slide has 4-6 definition points** (comprehensive coverage)
-4. **EVERY `soft-skills-assessment` slide has exactly 2 tip cards** (dual-concept presentation)
-5. **EVERY `work-life-balance` slide has substantial narrative content** (not superficial)
+1. **EVERY `course-overview-slide` slide has title and subtitle** (clear and engaging)
+2. **EVERY `impact-statements-slide` slide has exactly 3 statements** with numbers and descriptions
+3. **EVERY `phishing-definition-slide` slide has 4-6 definition points** (comprehensive coverage)
+4. **EVERY `soft-skills-assessment-slide` slide has exactly 2 tip cards** (dual-concept presentation)
+5. **EVERY `work-life-balance-slide` slide has substantial narrative content** (not superficial)
 
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
 - **ALWAYS include practical examples and real-world applications** in your explanations
-- **USE appropriate templates** - `impact-statements` for statistics, `phishing-definition` for lists, `work-life-balance` for narrative text, `soft-skills-assessment` for dual concepts
+- **USE appropriate templates** - `impact-statements-slide` for statistics, `phishing-definition-slide` for lists, `work-life-balance-slide` for narrative text, `soft-skills-assessment-slide` for dual concepts
 - **CREATE exactly ONE final slide** - never multiple ending slides
 - **GENERATE exactly the requested number of slides** with meaningful educational content
 
 **CONTENT ITEM MANDATORY ENFORCEMENT:**
 - **COUNT YOUR CONTENT ITEMS**: Before finalizing any slide, verify the correct number of items per template
-- **PHISHING-DEFINITION**: Must have 4-6 definition points or characteristics
-- **IMPACT-STATEMENTS**: Must have exactly 3 impact statements with numbers and descriptions
-- **SOFT-SKILLS-ASSESSMENT**: Must have exactly 2 tip cards or strategy points
+- **phishing-definition-slide**: Must have 4-6 definition points or characteristics
+- **impact-statements-slide**: Must have exactly 3 impact statements with numbers and descriptions
+- **soft-skills-assessment-slide**: Must have exactly 2 tip cards or strategy points
 - **EACH ITEM SUBSTANTIAL**: Every content item must contain meaningful, detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work against template requirements
@@ -2393,41 +2393,41 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
 **5 CORE TEMPLATES FOR EDUCATIONAL CONTENT:**
-1. `course-overview` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
+1. `course-overview-slide` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
 
-2. `impact-statements` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
+2. `impact-statements-slide` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
 
-3. `phishing-definition` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
+3. `phishing-definition-slide` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
 
-4. `soft-skills-assessment` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
+4. `soft-skills-assessment-slide` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
 
-5. `work-life-balance` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
+5. `work-life-balance-slide` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
-- **For course introductions and openings**: Use `course-overview` - Strong visual impact with split-panel design
-- **For numerical data, statistics, and metrics**: Use `impact-statements` - Showcases data with numbers and descriptions
-- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition` - Clear presentation of multiple related points
-- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment` - Card-based presentation of dual concepts
-- **For explanatory content, narratives, or conclusions**: Use `work-life-balance` - Rich content with gradient background and visual elements
+- **For course introductions and openings**: Use `course-overview-slide` - Strong visual impact with split-panel design
+- **For numerical data, statistics, and metrics**: Use `impact-statements-slide` - Showcases data with numbers and descriptions
+- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition-slide` - Clear presentation of multiple related points
+- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment-slide` - Card-based presentation of dual concepts
+- **For explanatory content, narratives, or conclusions**: Use `work-life-balance-slide` - Rich content with gradient background and visual elements
 
 **CRITICAL TEMPLATE USAGE RULES:**
-- **ALWAYS use `course-overview` for the opening slide** - Establishes strong visual identity and course introduction
-- **Use `impact-statements` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
-- **Use `phishing-definition` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
-- **Use `soft-skills-assessment` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
-- **Use `work-life-balance` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
+- **ALWAYS use `course-overview-slide` for the opening slide** - Establishes strong visual identity and course introduction
+- **Use `impact-statements-slide` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
+- **Use `phishing-definition-slide` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
+- **Use `soft-skills-assessment-slide` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
+- **Use `work-life-balance-slide` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 - **TEMPLATE VARIETY MANDATE**: With 5 templates available, ensure diverse usage throughout the presentation. Avoid overusing any single template.
 
 **TEMPLATE-SPECIFIC FORMATTING RULES:**
 
-**`course-overview` Format:**
+**`course-overview-slide` Format:**
 - **Title**: Main course or module title (large, prominent)
 - **Subtitle**: Supporting text or course description
 - **Visual**: Large avatar display on right panel
 - **Use for**: Opening slides, course introductions, module starts
 
-**`impact-statements` Format:**
+**`impact-statements-slide` Format:**
 - **Title**: Introduction or context for the metrics
 - **Statements**: Exactly 3 impact statements, each with:
   - **Number/Metric**: Large numerical value (%, $, x, ratio)
@@ -2435,19 +2435,19 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Visual**: Avatar display in gradient container
 - **Use for**: Statistics, business results, KPIs, data presentations
 
-**`phishing-definition` Format:**
+**`phishing-definition-slide` Format:**
 - **Title**: Main concept or question
 - **Definitions**: Array of definition points or characteristics (typically 4 items)
 - **Visual**: Profile image at bottom left, full avatar on right
 - **Use for**: Definitions, characteristics, feature lists, explanatory points
 
-**`soft-skills-assessment` Format:**
+**`soft-skills-assessment-slide` Format:**
 - **Title**: Main question or topic
 - **Tips**: Exactly 2 tip cards with contrasting visual styles
 - **Visual**: Avatar in top-right corner
 - **Use for**: Tips, strategies, assessments, dual-concept comparisons
 
-**`work-life-balance` Format:**
+**`work-life-balance-slide` Format:**
 - **Title**: Topic or concept name
 - **Content**: Detailed paragraph of explanatory text
 - **Visual**: Avatar with decorative arch background
@@ -2457,7 +2457,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 ```
 ---
-**Slide 1: Introduction to Artificial Intelligence and Machine Learning** `course-overview`
+**Slide 1: Introduction to Artificial Intelligence and Machine Learning** `course-overview-slide`
 
 **Title:** Artificial Intelligence
 **Subtitle:** Machine Learning
@@ -2467,7 +2467,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Welcome to our comprehensive exploration of Artificial Intelligence and Machine Learning. In this course, you'll discover how AI technologies are transforming industries across the globe, from healthcare and finance to manufacturing and retail. We'll explore fundamental concepts, implementation strategies, and practical frameworks for applying these technologies in your organization.
 
 ---
-**Slide 2: AI Implementation Success Metrics** `impact-statements`
+**Slide 2: AI Implementation Success Metrics** `impact-statements-slide`
 
 ## Here are key metrics from successful AI implementations:
 
@@ -2488,7 +2488,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Success in AI implementation isn't just about having the technology – it's about measuring and demonstrating tangible business value. These metrics represent typical outcomes from well-executed AI initiatives across various industries.
 
 ---
-**Slide 3: What is Machine Learning?** `phishing-definition`
+**Slide 3: What is Machine Learning?** `phishing-definition-slide`
 
 ## What is machine learning?
 
@@ -2503,7 +2503,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Machine learning encompasses a diverse range of algorithms and approaches, each designed to solve specific types of problems. Understanding these different techniques is crucial for selecting the right approach for your specific business challenges and data characteristics.
 
 ---
-**Slide 4: Key AI Implementation Strategies** `soft-skills-assessment`
+**Slide 4: Key AI Implementation Strategies** `soft-skills-assessment-slide`
 
 ## How do you ensure successful AI implementation?
 
@@ -2516,7 +2516,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **VOICEOVER:** Successful AI implementation requires both strategic planning and tactical execution. These two fundamental principles form the foundation of every successful AI project, ensuring alignment between technology capabilities and business objectives while maintaining data integrity.
 
 ---
-**Slide 5: The Future of AI Technology** `work-life-balance`
+**Slide 5: The Future of AI Technology** `work-life-balance-slide`
 
 ## The Path Forward
 
@@ -2526,8 +2526,8 @@ The future of artificial intelligence holds unprecedented promise for transformi
 
 **VOICEOVER:** Your AI transformation journey starts today. With the knowledge and frameworks we've explored, you're equipped to make informed decisions and create meaningful impact through artificial intelligence technologies. The future belongs to those who embrace these powerful tools while maintaining focus on human values and ethical considerations.
 
-**MULTI-ITEM CONTENT REQUIREMENTS (for phishing-definition template):**
-- These rules apply to the content WITHIN phishing-definition slides that present multiple points.
+**MULTI-ITEM CONTENT REQUIREMENTS (for phishing-definition-slide template):**
+- These rules apply to the content WITHIN phishing-definition-slide slides that present multiple points.
 - **RECOMMENDED**: Generate 4-6 definition points or characteristics per slide
 - **Each item**: Should contain clear, concise explanation with relevant examples when applicable
 - **Content depth**: Each item should provide meaningful educational value
@@ -2535,39 +2535,39 @@ The future of artificial intelligence holds unprecedented promise for transformi
 - **Variety**: Cover different aspects of the topic to provide comprehensive understanding
 
 **CRITICAL CONTENT VALIDATION RULES:**
-- **PHISHING-DEFINITION SLIDES**: Generate 4-6 definition points or characteristics per slide for comprehensive coverage
-- **IMPACT-STATEMENTS SLIDES**: Must include exactly 3 impact statements with numbers and descriptions
-- **SOFT-SKILLS-ASSESSMENT SLIDES**: Must include exactly 2 tip cards or strategy points
+- **phishing-definition-slide SLIDES**: Generate 4-6 definition points or characteristics per slide for comprehensive coverage
+- **impact-statements-slide SLIDES**: Must include exactly 3 impact statements with numbers and descriptions
+- **soft-skills-assessment-slide SLIDES**: Must include exactly 2 tip cards or strategy points
 - **CONTENT QUALITY**: Each content item must be substantial and educational
 - **COMPREHENSIVE COVERAGE**: Ensure content items cover different aspects of the topic
 - **VALIDATION CHECK**: Before finalizing slides, verify the appropriate number of content items per template
 
 **TEMPLATE CONTENT ENFORCEMENT EXAMPLES:**
-- **CORRECT (phishing-definition)**: Slide with 4-6 detailed definition points
-- **INCORRECT (phishing-definition)**: Slide with 2 definition points (too few)
-- **CORRECT (impact-statements)**: Slide with exactly 3 impact metrics with numbers and descriptions
-- **INCORRECT (impact-statements)**: Slide with 2 or 4 statements (must be exactly 3)
-- **CORRECT (soft-skills-assessment)**: Slide with exactly 2 detailed tip cards
-- **INCORRECT (soft-skills-assessment)**: Slide with 1 or 3 tips (must be exactly 2)
+- **CORRECT (phishing-definition-slide)**: Slide with 4-6 detailed definition points
+- **INCORRECT (phishing-definition-slide)**: Slide with 2 definition points (too few)
+- **CORRECT (impact-statements-slide)**: Slide with exactly 3 impact metrics with numbers and descriptions
+- **INCORRECT (impact-statements-slide)**: Slide with 2 or 4 statements (must be exactly 3)
+- **CORRECT (soft-skills-assessment-slide)**: Slide with exactly 2 detailed tip cards
+- **INCORRECT (soft-skills-assessment-slide)**: Slide with 1 or 3 tips (must be exactly 2)
 
 **STRATEGIC TEMPLATE SELECTION (5-TEMPLATE SYSTEM):**
 Choose templates based on content type and educational goals:
 
-- **Opening Slide**: **ALWAYS use `course-overview` for the first slide** - Establishes course identity with split-panel design featuring title, subtitle, and prominent avatar display.
+- **Opening Slide**: **ALWAYS use `course-overview-slide` for the first slide** - Establishes course identity with split-panel design featuring title, subtitle, and prominent avatar display.
 
-- **Numerical Data & Metrics**: Use `impact-statements` when presenting statistics, performance metrics, business results, or any quantifiable data. Features 3 statement cards with large numbers and descriptions. **CRITICAL:** If the slide contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "impact", ALWAYS use `impact-statements`.
+- **Numerical Data & Metrics**: Use `impact-statements-slide` when presenting statistics, performance metrics, business results, or any quantifiable data. Features 3 statement cards with large numbers and descriptions. **CRITICAL:** If the slide contains words like "metrics", "statistics", "numbers", "KPIs", "performance", "results", "growth", "financial", "data", "impact", ALWAYS use `impact-statements-slide`.
 
-- **Definitions & Multi-Point Explanations**: Use `phishing-definition` for presenting definitions, characteristics, features, or any content with multiple related points (typically 4 items). Ideal for "What is...", concept breakdowns, characteristic lists, or key features.
+- **Definitions & Multi-Point Explanations**: Use `phishing-definition-slide` for presenting definitions, characteristics, features, or any content with multiple related points (typically 4 items). Ideal for "What is...", concept breakdowns, characteristic lists, or key features.
 
-- **Tips, Strategies & Comparisons**: Use `soft-skills-assessment` for presenting exactly 2 contrasting or complementary concepts, tips, strategies, or assessment criteria. Features dual card layout with different visual styles. Perfect for before/after, do's/don'ts, or dual-strategy presentations.
+- **Tips, Strategies & Comparisons**: Use `soft-skills-assessment-slide` for presenting exactly 2 contrasting or complementary concepts, tips, strategies, or assessment criteria. Features dual card layout with different visual styles. Perfect for before/after, do's/don'ts, or dual-strategy presentations.
 
-- **Explanatory Content & Conclusions**: Use `work-life-balance` for narrative content, detailed explanations, storytelling, or conclusion slides. Features rich text content on gradient background with visual arch design. Ideal for contextual explanations, summaries, and final slides.
+- **Explanatory Content & Conclusions**: Use `work-life-balance-slide` for narrative content, detailed explanations, storytelling, or conclusion slides. Features rich text content on gradient background with visual arch design. Ideal for contextual explanations, summaries, and final slides.
 
 **SLIDE COUNT REQUIREMENTS (MANDATORY):**
 - **Generate EXACTLY the number of slides requested** - if 15 slides requested, create exactly 15 slides with substantial content
-- **Short Lessons (5-7 slides)**: `course-overview` opening + 4-5 varied slides + 1 conclusion slide
-- **Medium Lessons (8-12 slides)**: `course-overview` opening + 7-11 varied slides + 1 conclusion slide
-- **Long Lessons (13-15 slides)**: `course-overview` opening + 12-14 varied slides + 1 conclusion slide
+- **Short Lessons (5-7 slides)**: `course-overview-slide` opening + 4-5 varied slides + 1 conclusion slide
+- **Medium Lessons (8-12 slides)**: `course-overview-slide` opening + 7-11 varied slides + 1 conclusion slide
+- **Long Lessons (13-15 slides)**: `course-overview-slide` opening + 12-14 varied slides + 1 conclusion slide
 - **NEVER generate fewer slides than requested** - create meaningful educational content to reach the target count
 - **NO courtesy slides**: Remove Q&A, Thank You, Contact Info, Additional Resources - end with meaningful content
 - **NEVER create these ending combinations**: "Questions and Discussion" + "Conclusion", "Q&A Session" + "Summary", or any multiple final slides
@@ -2581,10 +2581,10 @@ Choose templates based on content type and educational goals:
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
 - **ALLOWED final slide types** (choose only ONE):
-  * "Conclusion" (preferred) - use `work-life-balance` template
-  * "Key Takeaways" - use `work-life-balance` or `phishing-definition` template
-  * "Summary" - use `work-life-balance` template
-  * "Next Steps" - use `phishing-definition` or `soft-skills-assessment` template
+  * "Conclusion" (preferred) - use `work-life-balance-slide` template
+  * "Key Takeaways" - use `work-life-balance-slide` or `phishing-definition-slide` template
+  * "Summary" - use `work-life-balance-slide` template
+  * "Next Steps" - use `phishing-definition-slide` or `soft-skills-assessment-slide` template
 - **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
 
 **SLIDE COUNT ENFORCEMENT:**
@@ -2597,15 +2597,15 @@ Choose templates based on content type and educational goals:
 - **ABSOLUTE TEMPLATE LIMIT**: NEVER use the same template more than 3 times per presentation - this is NON-NEGOTIABLE
 - **TEMPLATE REPETITION VALIDATION**: Before adding any slide, check how many times that template has been used - if already used 3 times, choose a different template
 - **BALANCE REQUIREMENT**: Ensure balanced distribution across all 5 templates for comprehensive visual variety
-- **ALWAYS start with `course-overview` for maximum visual engagement** and course identity establishment
+- **ALWAYS start with `course-overview-slide` for maximum visual engagement** and course identity establishment
 - **VISUAL VARIETY MANDATE**: **Never** use the **same template** twice in a row. Always alternate between different template types for optimal variety and learner engagement
-- **CONCLUSION TEMPLATE**: Use `work-life-balance` for conclusion slides as it provides rich narrative space
+- **CONCLUSION TEMPLATE**: Use `work-life-balance-slide` for conclusion slides as it provides rich narrative space
 - **MANDATORY DIVERSITY**: For presentations with 8+ slides, aim to use all 5 template types at least once
 
 **CONCLUSION SLIDE GUIDELINES:**
 For the final slide of any presentation:
-- **PREFERRED**: Use `work-life-balance` template with conclusion narrative and forward-looking message
-- **ALTERNATIVE**: Use `phishing-definition` with key takeaways listed as definition points
+- **PREFERRED**: Use `work-life-balance-slide` template with conclusion narrative and forward-looking message
+- **ALTERNATIVE**: Use `phishing-definition-slide` with key takeaways listed as definition points
 - **NEVER create additional slides just to have multiple endings** - one strong conclusion is better
 
 Avatar and Visual Requirements:
@@ -2661,10 +2661,10 @@ Question Format:
 
 **CONCLUSION SLIDE FORMAT:**
 
-**Example Educational Conclusion using `work-life-balance` template:**
+**Example Educational Conclusion using `work-life-balance-slide` template:**
 ```
 ---
-**Slide [N]: Your Journey Forward** `work-life-balance`
+**Slide [N]: Your Journey Forward** `work-life-balance-slide`
 
 ## Mastering [Learning Topic]
 
@@ -2682,24 +2682,24 @@ Your primary role is to create educational content that transforms learners. Eve
 Before you finish generating any presentation, perform these checks:
 
 **TEMPLATE-SPECIFIC VALIDATION:**
-1. **EVERY `course-overview` slide has title and subtitle** (clear and engaging)
-2. **EVERY `impact-statements` slide has exactly 3 statements** with numbers and descriptions
-3. **EVERY `phishing-definition` slide has 4-6 definition points** (comprehensive coverage)
-4. **EVERY `soft-skills-assessment` slide has exactly 2 tip cards** (dual-concept presentation)
-5. **EVERY `work-life-balance` slide has substantial narrative content** (not superficial)
+1. **EVERY `course-overview-slide` slide has title and subtitle** (clear and engaging)
+2. **EVERY `impact-statements-slide` slide has exactly 3 statements** with numbers and descriptions
+3. **EVERY `phishing-definition-slide` slide has 4-6 definition points** (comprehensive coverage)
+4. **EVERY `soft-skills-assessment-slide` slide has exactly 2 tip cards** (dual-concept presentation)
+5. **EVERY `work-life-balance-slide` slide has substantial narrative content** (not superficial)
 
 **CRITICAL CONTENT QUALITY REQUIREMENTS:**
 - **NEVER create shallow or superficial content** - every slide must provide substantial educational value
 - **ALWAYS include practical examples and real-world applications** in your explanations
-- **USE appropriate templates** - `impact-statements` for statistics, `phishing-definition` for lists, `work-life-balance` for narrative text, `soft-skills-assessment` for dual concepts
+- **USE appropriate templates** - `impact-statements-slide` for statistics, `phishing-definition-slide` for lists, `work-life-balance-slide` for narrative text, `soft-skills-assessment-slide` for dual concepts
 - **CREATE exactly ONE final slide** - never multiple ending slides
 - **GENERATE exactly the requested number of slides** with meaningful educational content
 
 **CONTENT ITEM MANDATORY ENFORCEMENT:**
 - **COUNT YOUR CONTENT ITEMS**: Before finalizing any slide, verify the correct number of items per template
-- **PHISHING-DEFINITION**: Must have 4-6 definition points or characteristics
-- **IMPACT-STATEMENTS**: Must have exactly 3 impact statements with numbers and descriptions
-- **SOFT-SKILLS-ASSESSMENT**: Must have exactly 2 tip cards or strategy points
+- **phishing-definition-slide**: Must have 4-6 definition points or characteristics
+- **impact-statements-slide**: Must have exactly 3 impact statements with numbers and descriptions
+- **soft-skills-assessment-slide**: Must have exactly 2 tip cards or strategy points
 - **EACH ITEM SUBSTANTIAL**: Every content item must contain meaningful, detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work against template requirements
@@ -3661,41 +3661,41 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
 **5 CORE TEMPLATES FOR EDUCATIONAL CONTENT:**
-1. `course-overview` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
+1. `course-overview-slide` - Course introduction slides with split-panel design featuring title/subtitle on gradient background and large avatar display. Ideal for opening slides, module introductions, and establishing course identity with strong visual impact.
 
-2. `impact-statements` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
+2. `impact-statements-slide` - Data-driven impact slides showcasing numerical metrics with descriptive statements. Features 3 statement cards with large numbers and explanatory text, plus avatar display. Perfect for presenting statistics, key metrics, business results, and quantifiable outcomes.
 
-3. `phishing-definition` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
+3. `phishing-definition-slide` - Concept explanation slides with title and multiple definition points or key characteristics. Features left panel with content and right panel with avatar. Ideal for presenting definitions, characteristics, features, or multi-point explanations.
 
-4. `soft-skills-assessment` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
+4. `soft-skills-assessment-slide` - Assessment and tips slides presented in card format. Features large title, avatar, and 2 prominent tip cards with different styling. Perfect for presenting strategies, assessments, comparisons, or dual-concept explanations.
 
-5. `work-life-balance` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
+5. `work-life-balance-slide` - Content-rich narrative slides with gradient background and visual arch design. Features title and detailed content text with avatar display. Ideal for explanatory content, conclusions, storytelling, or concept elaboration.
 
 **EDUCATIONAL TEMPLATE SELECTION GUIDE:**
-- **For course introductions and openings**: Use `course-overview` - Strong visual impact with split-panel design
-- **For numerical data, statistics, and metrics**: Use `impact-statements` - Showcases data with numbers and descriptions
-- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition` - Clear presentation of multiple related points
-- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment` - Card-based presentation of dual concepts
-- **For explanatory content, narratives, or conclusions**: Use `work-life-balance` - Rich content with gradient background and visual elements
+- **For course introductions and openings**: Use `course-overview-slide` - Strong visual impact with split-panel design
+- **For numerical data, statistics, and metrics**: Use `impact-statements-slide` - Showcases data with numbers and descriptions
+- **For definitions, characteristics, or multi-point explanations**: Use `phishing-definition-slide` - Clear presentation of multiple related points
+- **For tips, strategies, assessments, or comparisons**: Use `soft-skills-assessment-slide` - Card-based presentation of dual concepts
+- **For explanatory content, narratives, or conclusions**: Use `work-life-balance-slide` - Rich content with gradient background and visual elements
 
 **CRITICAL TEMPLATE USAGE RULES:**
-- **ALWAYS use `course-overview` for the opening slide** - Establishes strong visual identity and course introduction
-- **Use `impact-statements` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
-- **Use `phishing-definition` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
-- **Use `soft-skills-assessment` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
-- **Use `work-life-balance` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
+- **ALWAYS use `course-overview-slide` for the opening slide** - Establishes strong visual identity and course introduction
+- **Use `impact-statements-slide` for any numerical data, statistics, or metrics** - Designed specifically for data-driven content with numbers
+- **Use `phishing-definition-slide` for definitions, lists, or multi-point explanations** - Ideal for presenting multiple related concepts or characteristics
+- **Use `soft-skills-assessment-slide` for dual concepts, comparisons, or strategy presentations** - Perfect for presenting two contrasting or complementary ideas
+- **Use `work-life-balance-slide` for narrative content, detailed explanations, or conclusions** - Best for rich textual content and storytelling
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
 - **TEMPLATE VARIETY MANDATE**: With 5 templates available, ensure diverse usage throughout the presentation. Avoid overusing any single template.
 
 **TEMPLATE-SPECIFIC FORMATTING RULES:**
 
-**`course-overview` Format:**
+**`course-overview-slide` Format:**
 - **Title**: Main course or module title (large, prominent)
 - **Subtitle**: Supporting text or course description
 - **Visual**: Large avatar display on right panel
 - **Use for**: Opening slides, course introductions, module starts
 
-**`impact-statements` Format:**
+**`impact-statements-slide` Format:**
 - **Title**: Introduction or context for the metrics
 - **Statements**: Exactly 3 impact statements, each with:
   - **Number/Metric**: Large numerical value (%, $, x, ratio)
@@ -3703,19 +3703,19 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Visual**: Avatar display in gradient container
 - **Use for**: Statistics, business results, KPIs, data presentations
 
-**`phishing-definition` Format:**
+**`phishing-definition-slide` Format:**
 - **Title**: Main concept or question
 - **Definitions**: Array of definition points or characteristics (typically 4 items)
 - **Visual**: Profile image at bottom left, full avatar on right
 - **Use for**: Definitions, characteristics, feature lists, explanatory points
 
-**`soft-skills-assessment` Format:**
+**`soft-skills-assessment-slide` Format:**
 - **Title**: Main question or topic
 - **Tips**: Exactly 2 tip cards with contrasting visual styles
 - **Visual**: Avatar in top-right corner
 - **Use for**: Tips, strategies, assessments, dual-concept comparisons
 
-**`work-life-balance` Format:**
+**`work-life-balance-slide` Format:**
 - **Title**: Topic or concept name
 - **Content**: Detailed paragraph of explanatory text
 - **Visual**: Avatar with decorative arch background

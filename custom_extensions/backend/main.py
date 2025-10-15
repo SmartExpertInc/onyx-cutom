@@ -1585,7 +1585,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_1_course_overview",
       "slideNumber": 1,
       "slideTitle": "Course Overview",
-      "templateId": "course-overview",
+      "templateId": "course-overview-slide",
       "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn.",
       "props": {
         "title": "Welcome to the Course",
@@ -1600,7 +1600,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_2_impact_statements",
       "slideNumber": 2,
       "slideTitle": "Impact Statistics",
-      "templateId": "impact-statements",
+      "templateId": "impact-statements-slide",
       "voiceoverText": "Let's look at some impressive statistics that demonstrate the real-world impact of what we're learning. These numbers show the tangible benefits and results you can expect to achieve.",
       "props": {
         "title": "Impact Statistics",
@@ -1618,7 +1618,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_3_phishing_definition",
       "slideNumber": 3,
       "slideTitle": "Key Definitions",
-      "templateId": "phishing-definition",
+      "templateId": "phishing-definition-slide",
       "voiceoverText": "Now let's define the key concepts we'll be working with. Understanding these definitions is crucial for building a solid foundation of knowledge.",
       "props": {
         "title": "Key Definitions",
@@ -1637,7 +1637,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_4_soft_skills_assessment",
       "slideNumber": 4,
       "slideTitle": "Assessment Tips",
-      "templateId": "soft-skills-assessment",
+      "templateId": "soft-skills-assessment-slide",
       "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
       "props": {
         "title": "Assessment Tips",
@@ -1655,7 +1655,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_5_work_life_balance",
       "slideNumber": 5,
       "slideTitle": "Conclusion",
-      "templateId": "work-life-balance",
+      "templateId": "work-life-balance-slide",
       "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
       "props": {
         "title": "Conclusion and Next Steps",
@@ -2261,7 +2261,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     }
 
                         # NEW TEMPLATES: Handle new 5-template system for video lesson presentations
-            elif template_id == 'course-overview':
+            elif template_id == 'course-overview-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
                     normalized_props['title'] = 'Course Overview'
@@ -2276,7 +2276,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
                     
-            elif template_id == 'impact-statements':
+            elif template_id == 'impact-statements-slide':
                 # Ensure statements array exists and is properly formatted
                 statements = normalized_props.get('statements', [])
                 if not isinstance(statements, list) or len(statements) < 3:
@@ -2307,7 +2307,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoNew'):
                     normalized_props['logoNew'] = 'https://via.placeholder.com/100x50?text=Logo'
                     
-            elif template_id == 'phishing-definition':
+            elif template_id == 'phishing-definition-slide':
                 # Ensure definitions array exists and is properly formatted
                 definitions = normalized_props.get('definitions', [])
                 if not isinstance(definitions, list) or len(definitions) < 3:
@@ -2342,7 +2342,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoPath'):
                     normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
                     
-            elif template_id == 'soft-skills-assessment':
+            elif template_id == 'soft-skills-assessment-slide':
                 # Ensure tips array exists and is properly formatted
                 tips = normalized_props.get('tips', [])
                 if not isinstance(tips, list) or len(tips) < 2:
@@ -2374,7 +2374,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Assessment Guide'
                     
-            elif template_id == 'work-life-balance':
+            elif template_id == 'work-life-balance-slide':
                 # Ensure required props exist
                 if not normalized_props.get('title'):
                     normalized_props['title'] = 'Conclusion and Next Steps'
@@ -12741,20 +12741,20 @@ Return ONLY the JSON object.
                             if props:
                                 logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} props keys: {list(props.keys())}")
                                 # Log specific props for new templates
-                                if template_id == 'course-overview':
-                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} course-overview props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}'")
-                                elif template_id == 'impact-statements':
+                                if template_id == 'course-overview-slide':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}'")
+                                elif template_id == 'impact-statements-slide':
                                     statements = props.get('statements', [])
-                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} impact-statements: {len(statements)} statements")
-                                elif template_id == 'phishing-definition':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                                elif template_id == 'phishing-definition-slide':
                                     definitions = props.get('definitions', [])
-                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} phishing-definition: {len(definitions)} definitions")
-                                elif template_id == 'soft-skills-assessment':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                                elif template_id == 'soft-skills-assessment-slide':
                                     tips = props.get('tips', [])
-                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} soft-skills-assessment: {len(tips)} tips")
-                                elif template_id == 'work-life-balance':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                                elif template_id == 'work-life-balance-slide':
                                     content = props.get('content', '')
-                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} work-life-balance content: {content[:100]}{'...' if len(content) > 100 else ''}")
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
                             
                             # Log voiceover if present
                             if 'voiceoverText' in slide:
@@ -12878,20 +12878,20 @@ Return ONLY the JSON object.
                     if props:
                         logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
                         # Log specific props for new templates after normalization
-                        if template_id == 'course-overview':
-                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} course-overview props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}', imagePath='{props.get('imagePath', 'NO_IMAGE')}'")
-                        elif template_id == 'impact-statements':
+                        if template_id == 'course-overview-slide':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}', imagePath='{props.get('imagePath', 'NO_IMAGE')}'")
+                        elif template_id == 'impact-statements-slide':
                             statements = props.get('statements', [])
-                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} impact-statements: {len(statements)} statements")
-                        elif template_id == 'phishing-definition':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                        elif template_id == 'phishing-definition-slide':
                             definitions = props.get('definitions', [])
-                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} phishing-definition: {len(definitions)} definitions")
-                        elif template_id == 'soft-skills-assessment':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                        elif template_id == 'soft-skills-assessment-slide':
                             tips = props.get('tips', [])
-                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} soft-skills-assessment: {len(tips)} tips")
-                        elif template_id == 'work-life-balance':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                        elif template_id == 'work-life-balance-slide':
                             content = props.get('content', '')
-                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} work-life-balance content: {content[:100]}{'...' if len(content) > 100 else ''}")
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
