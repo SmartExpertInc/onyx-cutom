@@ -271,7 +271,7 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg focus:shadow-lg transition-all",
           className
         )}
       >
@@ -279,7 +279,7 @@ function CustomPillSelector({
           <span className="text-[#0D001B] text-sm font-medium truncate">{value}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value} className="rounded-full ml-1 mr-1">
             {option.label}
@@ -331,7 +331,7 @@ function CustomMultiSelector({
     <Select open={isOpen} onOpenChange={setIsOpen}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg focus:shadow-lg transition-all",
           className
         )}
       >
@@ -339,7 +339,7 @@ function CustomMultiSelector({
           <span className="text-[#0D001B] text-sm font-medium truncate">{displayText}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}

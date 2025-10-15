@@ -1550,12 +1550,12 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="w-full bg-white border border-[#E0E0E0] rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <Textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
                   placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-[#E0E0E0] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                   style={{ background: "rgba(255,255,255,0.95)" }}
                 />
 
@@ -1566,14 +1566,14 @@ export default function CourseOutlineClient() {
                       key={ex.short}
                       type="button"
                       onClick={() => toggleExample(ex)}
-                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${
+                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full flex items-start cursor-pointer transition-all duration-200 text-black ${
                         selectedExamples.includes(ex.short)
-                          ? 'bg-[#B8D4F0]'
-                          : 'bg-[#D9ECFF] hover:shadow-lg'
+                          ? 'bg-[#A8C5F0]'
+                          : 'bg-[#CCDBFC] hover:shadow-lg'
                       }`}
                     >
-                      {ex.short}
-                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                      <span className="pr-6">{ex.short}</span>
+                      <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
                     </button>
                   ))}
                 </div>
@@ -1596,23 +1596,6 @@ export default function CourseOutlineClient() {
                 </div>
               </div>
             )}
-            <div className="w-full flex justify-center mt-2 mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAdvanced((prev) => !prev);
-                    handleAdvancedModeClick();
-                  }}
-                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
-                  style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
-                  }}
-                >
-                  <Sparkles size={16} />
-                  {t('actions.smartEdit', 'Smart Edit')}
-                </button>
-            </div>
           </>
         )}
 
@@ -1689,10 +1672,10 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                       <Select value={imageSource} onValueChange={setImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-9">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
+                        <SelectContent className="border-[#E0E0E0]" side="top">
                           <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
                           <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
                           <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
@@ -1703,10 +1686,10 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
                       <Select value={aiModel} onValueChange={setAiModel}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-9">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
+                        <SelectContent className="border-[#E0E0E0]" side="top">
                           <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
                           <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
                           <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
@@ -1723,9 +1706,9 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-center">
           {/* Credits required */}
-          <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
             {/* custom stacked-coins svg */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
