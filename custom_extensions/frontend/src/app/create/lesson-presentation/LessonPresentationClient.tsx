@@ -1530,7 +1530,7 @@ export default function LessonPresentationClient() {
           top: '358px',
           left: '433px',
           borderRadius: '450px',
-          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 80%)',
           transform: 'rotate(-110deg)',
           filter: 'blur(100px)',
         }}
@@ -1549,9 +1549,10 @@ export default function LessonPresentationClient() {
         <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+        <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
-          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
+          {/* Page title */}
+          <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
           <div className="flex flex-col gap-4">
@@ -1834,9 +1835,23 @@ export default function LessonPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
-                style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+                className="rounded-[8px] flex flex-col relative"
+                style={{ 
+                  animation: 'fadeInDown 0.25s ease-out both',
+                  background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
+                  border: '1px solid #E0E0E0'
+                }}
               >
+                {/* Header with lesson title */}
+                <div 
+                  className="px-10 py-4 rounded-t-[8px] text-white text-lg font-medium"
+                  style={{ backgroundColor: '#0F58F999' }}
+                >
+                  {selectedLesson || currentPrompt || t('interface.generate.lesson', 'Lesson')}
+                </div>
+                
+                {/* Slides container */}
+                <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
                 {loadingEdit && (
                   <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
                     <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
@@ -1954,6 +1969,7 @@ export default function LessonPresentationClient() {
                     );
                   });
                 })()}
+                </div>
               </div>
             )}
           </section>
