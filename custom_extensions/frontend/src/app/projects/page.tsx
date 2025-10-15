@@ -762,7 +762,7 @@ const ProjectsPageInner: React.FC = () => {
   const isOffersAllowed = isOffers && offersTabEnabled;
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
   const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
-  const isMyProductsAllowed = isMyProducts && myProductsTabEnabled;
+  const isMyProductsAllowed = isMyProducts;
 
   const [isQuestionnaireCompleted, setQuestionnaireCompleted] = useState<boolean | null>(sessionStorage.getItem('questionnaireCompleted') === 'true');
 
@@ -770,6 +770,11 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     console.log('[LMS] State change - isExportLMS:', isExportLMS, 'lmsAccountStatus:', lmsAccountStatus, 'showAccountModal:', showAccountModal);
   }, [isExportLMS, lmsAccountStatus, showAccountModal]);
+
+  // Debug logging for MyProducts routing
+  useEffect(() => {
+    console.log('[MyProducts] Routing debug - currentTab:', currentTab, 'isMyProducts:', isMyProducts, 'isMyProductsAllowed:', isMyProductsAllowed);
+  }, [currentTab, isMyProducts, isMyProductsAllowed]);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {

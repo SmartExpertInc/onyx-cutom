@@ -19,16 +19,16 @@ import {
   Trash2,
   Presentation
 } from 'lucide-react';
-import { UserDropdown } from '../../../components/UserDropdown';
-import LanguageDropdown from '../../../components/LanguageDropdown';
-import { useLanguage } from '../../../contexts/LanguageContext';
+import { UserDropdown } from '../../components/UserDropdown';
+import LanguageDropdown from '../../components/LanguageDropdown';
+import { useLanguage } from '../../contexts/LanguageContext';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
-import AddOnsModal from '../../../components/AddOnsModal';
-import RegistrationSurveyModal from "../../../components/ui/registration-survey-modal";
-import MyProductsTable from '../../../components/MyProductsTable';
-import FolderModal from '../FolderModal';
+import AddOnsModal from '../../components/AddOnsModal';
+import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
+import MyProductsTable from '../../components/MyProductsTable';
+import FolderModal from '../projects/FolderModal';
 import { Button } from '@/components/ui/button';
-import useFeaturePermission from '../../../hooks/useFeaturePermission';
+import useFeaturePermission from '../../hooks/useFeaturePermission';
 
 interface User {
   id: string;
