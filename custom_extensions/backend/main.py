@@ -28768,27 +28768,27 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         else:
             # Need to parse with AI
             if use_direct_parser:
-            # DIRECT PARSER PATH: Use cached content directly since no changes were made
-            logger.info("Using direct parser path for text presentation finalization")
-            
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-            elif use_ai_parser:
-            # AI PARSER PATH: Use the provided content (which may be clean titles only)
-            logger.info("Using AI parser path for text presentation finalization")
-            
-            # NEW: Check if we have clean content (only titles without descriptions)
-            if getattr(payload, 'isCleanContent', False):
-                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                # DIRECT PARSER PATH: Use cached content directly since no changes were made
+                logger.info("Using direct parser path for text presentation finalization")
                 
-                # Parse the clean content to identify sections that need content generation
-                content_to_parse = await _generate_content_for_clean_titles(
-                    clean_content=payload.aiResponse,
-                    original_content=payload.originalContent,
-                    language=payload.language
-                )
-            else:
-                        content_to_parse = payload.aiResponse
+                # Use the original content for parsing since no changes were made
+                content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            elif use_ai_parser:
+                # AI PARSER PATH: Use the provided content (which may be clean titles only)
+                logger.info("Using AI parser path for text presentation finalization")
+                
+                # NEW: Check if we have clean content (only titles without descriptions)
+                if getattr(payload, 'isCleanContent', False):
+                    logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                    
+                    # Parse the clean content to identify sections that need content generation
+                    content_to_parse = await _generate_content_for_clean_titles(
+                        clean_content=payload.aiResponse,
+                        original_content=payload.originalContent,
+                        language=payload.language
+                    )
+                else:
+                    content_to_parse = payload.aiResponse
             else:
                 # Fallback - shouldn't happen but just in case
                 logger.warning("No parsing path selected, using aiResponse as fallback")
