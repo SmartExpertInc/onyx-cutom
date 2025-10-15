@@ -129,7 +129,7 @@ function InlineEditor({
   );
 }
 
-export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { 
+export const HeroTitleSlideTemplate_old: React.FC<HeroTitleSlideProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

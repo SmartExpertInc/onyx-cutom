@@ -18,7 +18,7 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   logoText?: string;
 }
 
-export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
+export const ProblemsGridSlideTemplate_old: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   tag = 'The problem',
   title = 'Problem Name',

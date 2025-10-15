@@ -6,7 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
-export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRiseSlideProps & { theme?: SlideTheme | string }> = ({
+export const ConcentricPhishingRiseSlideTemplate_old: React.FC<ConcentricPhishingRiseSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Phishing rise',
   description = "This has become a growing threat in the world of today, and in 2o16 they hit a 12-year high. Tara Seals' US North America News Reporter, Infosecurity Magazine noted that they Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been a noted that 93% of phishing emails are now ransomware.",

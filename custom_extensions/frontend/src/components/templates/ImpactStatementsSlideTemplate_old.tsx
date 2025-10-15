@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps & {
+export const ImpactStatementsSlideTemplate_old: React.FC<ImpactStatementsSlideProps & {
   theme?: SlideTheme | string;
   pageNumber?: string;
   logoNew?: string;

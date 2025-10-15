@@ -8,7 +8,7 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 import YourLogo from '../YourLogo';
 
-export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesSlideProps & {
+export const CompanyToolsResourcesSlideTemplate_old: React.FC<CompanyToolsResourcesSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

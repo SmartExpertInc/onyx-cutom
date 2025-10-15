@@ -8,7 +8,7 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 import YourLogo from '../YourLogo';
 
-export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string; logoPath?: string; logoText?: string }> = ({
+export const EnterpriseRoadmapSlideTemplate_old: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string; logoPath?: string; logoText?: string }> = ({
   slideId,
   title = 'Enterprise Offerings: Roadmap',
   description = 'These KPIs typically measure performance in a shorter time frame, and are focused on organizational processes and efficiencies. Some examples include sales by region, average monthly transportation costs and cost per acquisition (CPA)',

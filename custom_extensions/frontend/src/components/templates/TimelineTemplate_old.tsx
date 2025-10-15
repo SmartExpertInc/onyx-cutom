@@ -126,7 +126,7 @@ function InlineEditor({
   );
 }
 
-export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
+export const TimelineTemplate_old: React.FC<TimelineTemplateProps> = ({
   slideId,
   title,
   steps = [],

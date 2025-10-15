@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
 
-export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
+export const TwoColumnSlideTemplate_old: React.FC<TwoColumnSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

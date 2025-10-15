@@ -8,7 +8,7 @@ import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { theme?: SlideTheme | string }>= ({
+export const InterestGrowthSlideTemplate_old: React.FC<InterestGrowthSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
   title = 'Interest',
   cards = [

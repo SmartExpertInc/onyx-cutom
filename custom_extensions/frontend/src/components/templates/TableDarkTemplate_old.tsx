@@ -88,7 +88,7 @@ function InlineEditor({
   );
 }
 
-export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
+export const TableDarkTemplate_old: React.FC<TableDarkTemplateProps> = ({
   title = 'This is a table',
   tableData = {
     headers: ['Mars', 'Venus', 'Jupiter'],

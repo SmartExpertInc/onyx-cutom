@@ -140,7 +140,7 @@ function InlineEditor({
   );
 }
 
-export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
+export const BigNumbersTemplate_old: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
   steps,  // Changed from 'items' to 'steps'

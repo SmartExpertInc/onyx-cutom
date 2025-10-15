@@ -114,7 +114,7 @@ function InlineEditor({
   );
 }
 
-const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndicationsTemplateProps> = ({
+const ContraindicationsIndicationsTemplate_old: React.FC<ContraindicationsIndicationsTemplateProps> = ({
   title = 'Contraindications and indications',
   contraindications = [
     'Describe the things patients should do here',

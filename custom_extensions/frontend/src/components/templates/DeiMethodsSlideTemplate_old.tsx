@@ -18,7 +18,7 @@ export interface DeiMethodsProps extends BaseTemplateProps {
   logoText?: string;
 }
 
-export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: SlideTheme | string }> = ({
+export const DeiMethodsSlideTemplate_old: React.FC<DeiMethodsProps & { theme?: SlideTheme | string }> = ({
   headerTitle = 'Methods to Meet DEI Standards',
   section1Title = 'Diverse Recruitment:',
   section1Lines = [

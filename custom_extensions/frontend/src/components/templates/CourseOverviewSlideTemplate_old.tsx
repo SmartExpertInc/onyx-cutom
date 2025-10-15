@@ -122,7 +122,7 @@ function InlineEditor({
   );
 }
 
-export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
+export const CourseOverviewSlideTemplate_old: React.FC<CourseOverviewSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

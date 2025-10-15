@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & {
+export const TableOfContentsSlideTemplate_old: React.FC<TableOfContentsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

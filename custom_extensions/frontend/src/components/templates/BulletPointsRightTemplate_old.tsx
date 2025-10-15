@@ -504,7 +504,7 @@ function UnifiedBulletEditor({
   );
 }
 
-export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & { 
+export const BulletPointsRightTemplate_old: React.FC<BulletPointsRightProps & { 
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };

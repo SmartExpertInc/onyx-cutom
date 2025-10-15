@@ -493,7 +493,7 @@ function UnifiedBulletEditor({
   );
 }
 
-export const BulletPointsTemplate: React.FC<BulletPointsProps & { 
+export const BulletPointsTemplate_old: React.FC<BulletPointsProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

@@ -134,7 +134,7 @@ function InlineEditor({
   );
 }
 
-export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { 
+export const ProcessStepsTemplate_old: React.FC<ProcessStepsProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

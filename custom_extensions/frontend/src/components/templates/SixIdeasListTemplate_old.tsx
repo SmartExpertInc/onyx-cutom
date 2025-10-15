@@ -109,7 +109,7 @@ function InlineEditor({
   );
 }
 
-const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
+const SixIdeasListTemplate_old: React.FC<SixIdeasListTemplateProps> = ({
   title = 'SIX DIFFERENT IDEAS',
   ideas = [
     { number: '01', text: 'Mercury is the smallest planet in the Solar System' },

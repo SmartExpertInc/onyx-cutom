@@ -15,7 +15,7 @@ export interface KeySkillsDataAnalysisProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisProps & { theme?: SlideTheme | string }> = ({
+export const KeySkillsDataAnalysisSlideTemplate_old: React.FC<KeySkillsDataAnalysisProps & { theme?: SlideTheme | string }> = ({
   slideId: _slideId,
   heading = 'Key skills\nfor data analysis:',
   items = [

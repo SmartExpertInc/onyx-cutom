@@ -122,7 +122,7 @@ function InlineEditor({
   );
 }
 
-export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
+export const BarChartSlideTemplate_old: React.FC<BarChartSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

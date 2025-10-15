@@ -156,7 +156,7 @@ const getLocalizedHeaders = (title: string, challenges: string[], solutions: str
   }
 };
 
-export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
+export const ChallengesSolutionsTemplate_old: React.FC<ChallengesSolutionsProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

@@ -27,7 +27,7 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   slideIndex?: number;
 }
 
-export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
+export const DataDrivenInsightsSlideTemplate_old: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
   tag = 'Presentation',
   title = 'Data-Driven Insights: Statistics and Trends',
   description = 'Provide statistics about the market size to show the potential for growth. Share how many customers your company has acquired to date. Share product performance statistics to show how your product compares to competitors, etc.',

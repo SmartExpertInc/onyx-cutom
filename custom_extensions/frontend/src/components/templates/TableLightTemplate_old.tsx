@@ -86,7 +86,7 @@ function InlineEditor({
   );
 }
 
-export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
+export const TableLightTemplate_old: React.FC<TableLightTemplateProps> = ({
   title = 'This is a table',
   tableData = {
     headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],

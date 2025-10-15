@@ -121,7 +121,7 @@ function InlineEditor({
   );
 }
 
-export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlideProps & {
+export const PsychologicalSafetySlideTemplate_old: React.FC<PsychologicalSafetySlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

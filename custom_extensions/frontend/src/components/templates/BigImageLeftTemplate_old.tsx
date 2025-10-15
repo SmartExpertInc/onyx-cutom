@@ -137,7 +137,7 @@ function InlineEditor({
   );
 }
 
-export const BigImageLeftTemplate: React.FC<BigImageLeftProps & { 
+export const BigImageLeftTemplate_old: React.FC<BigImageLeftProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

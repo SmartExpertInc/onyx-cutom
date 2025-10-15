@@ -16,7 +16,7 @@ export interface SoftSkillsDevelopProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & { theme?: SlideTheme | string }> = ({
+export const SoftSkillsDevelopSlideTemplate_old: React.FC<SoftSkillsDevelopProps & { theme?: SlideTheme | string }> = ({
   title = 'How To Develop\nSoft Skills',
   items = [
     { title:'Be an Active Listener', body:'Active listening helps better understand others and fosters meaningful connections.' },

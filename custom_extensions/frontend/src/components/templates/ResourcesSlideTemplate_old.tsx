@@ -14,7 +14,7 @@ export interface ResourcesSlideProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: SlideTheme | string }> = ({
+export const ResourcesSlideTemplate_old: React.FC<ResourcesSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Resources',
   items = [

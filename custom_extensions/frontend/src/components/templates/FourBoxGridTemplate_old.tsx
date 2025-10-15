@@ -131,7 +131,7 @@ function InlineEditor({
   );
 }
 
-export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
+export const FourBoxGridTemplate_old: React.FC<FourBoxGridProps> = ({
   slideId,
   title,
   boxes,

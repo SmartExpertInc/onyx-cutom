@@ -8,7 +8,7 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import SimpleRichTextEditor from '../SimpleRichTextEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
+export const PhishingRiseSlideTemplate_old: React.FC<PhishingRiseSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

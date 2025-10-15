@@ -16,7 +16,7 @@ export interface ChangeManagementTabsProps extends BaseTemplateProps {
   logoNew?: string;
 }
 
-export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsProps & { theme?: SlideTheme | string }> = ({
+export const ChangeManagementTabsSlideTemplate_old: React.FC<ChangeManagementTabsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   topTabs = [
     'Change management fundamentals',

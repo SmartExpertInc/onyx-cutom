@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
 
-export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
+export const SoftSkillsTypesSlideTemplate_old: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
   slideId: _slideId,
   title = 'Types of Soft Skills',
   cards = [

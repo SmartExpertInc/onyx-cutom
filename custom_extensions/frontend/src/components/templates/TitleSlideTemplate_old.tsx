@@ -127,7 +127,7 @@ function InlineEditor({
   );
 }
 
-export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
+export const TitleSlideTemplate_old: React.FC<TitleSlideProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

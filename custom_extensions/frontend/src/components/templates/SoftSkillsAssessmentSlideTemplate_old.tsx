@@ -122,7 +122,7 @@ function InlineEditor({
   );
 }
 
-export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSlideProps & {
+export const SoftSkillsAssessmentSlideTemplate_old: React.FC<SoftSkillsAssessmentSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

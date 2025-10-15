@@ -140,7 +140,7 @@ function InlineEditor({
   );
 }
 
-export const BarChartInfographicsTemplate: React.FC<BarChartInfographicsTemplateProps> = ({
+export const BarChartInfographicsTemplate_old: React.FC<BarChartInfographicsTemplateProps> = ({
   slideId,
   title = 'Bar Chart Infographics',
   chartData = {

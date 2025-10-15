@@ -15,7 +15,7 @@ export interface ImpactValueStatementsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsProps & { theme?: SlideTheme | string }> = ({
+export const ImpactValueStatementsSlideTemplate_old: React.FC<ImpactValueStatementsProps & { theme?: SlideTheme | string }> = ({
   title = 'Impact Value Statements',
   statements = [
     { percentage: '27%', description: 'increase in profit margins of companies' },

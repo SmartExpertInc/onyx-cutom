@@ -27,7 +27,7 @@ export interface ImpactMetricsRightImageProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
+export const ImpactMetricsRightImageSlideTemplate_old: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = '',
   metrics = [

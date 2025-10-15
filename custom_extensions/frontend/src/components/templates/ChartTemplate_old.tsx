@@ -131,7 +131,7 @@ function InlineEditor({
   );
 }
 
-export const ChartTemplate: React.FC<ChartTemplateProps> = ({
+export const ChartTemplate_old: React.FC<ChartTemplateProps> = ({
   slideId,
   title = 'Круговая диаграмма',
   segments = [

@@ -139,7 +139,7 @@ function InlineEditor({
   );
 }
 
-export const BigImageTopTemplate: React.FC<BigImageTopProps & { 
+export const BigImageTopTemplate_old: React.FC<BigImageTopProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

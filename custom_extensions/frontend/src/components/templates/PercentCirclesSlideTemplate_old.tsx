@@ -19,7 +19,7 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   slideIndex?: number;
 }
 
-export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme?: SlideTheme | string }> = ({
+export const PercentCirclesSlideTemplate_old: React.FC<PercentCirclesProps & { theme?: SlideTheme | string }> = ({
   title = '% of Fortune 500 CEOs\nwho are women',
   percent = '10%',
   bottomCards = [

@@ -13,7 +13,7 @@ export interface OralHygieneSignsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { theme?: SlideTheme | string }> = ({
+export const OralHygieneSignsSlideTemplate_old: React.FC<OralHygieneSignsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   heading = 'What are the signs of\npoor oral hygiene?',
   leftItems = [

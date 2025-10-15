@@ -130,7 +130,7 @@ function InlineEditor({
   );
 }
 
-export const TwoColumnTemplate: React.FC<TwoColumnProps & { 
+export const TwoColumnTemplate_old: React.FC<TwoColumnProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;

@@ -21,7 +21,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
-export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
+export const CultureValuesThreeColumnsSlideTemplate_old: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   logoText = 'Your Logo',
   logoPath = '',

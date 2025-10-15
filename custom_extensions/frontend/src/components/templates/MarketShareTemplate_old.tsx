@@ -126,7 +126,7 @@ function InlineEditor({
   );
 }
 
-export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
+export const MarketShareTemplate_old: React.FC<MarketShareTemplateProps> = ({
   slideId,
   title = 'Market share',
   subtitle,

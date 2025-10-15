@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
  
 
-export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
+export const StaySafeTipsSlideTemplate_old: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
   slideId,
   title = '4 tips to staysafe online',
   tips = [

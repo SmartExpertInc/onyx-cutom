@@ -18,7 +18,7 @@ export interface BenefitsAndPerksColumnsProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColumnsProps & { theme?: SlideTheme | string }> = ({
+export const BenefitsAndPerksColumnsSlideTemplate_old: React.FC<BenefitsAndPerksColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId: _slideId,
   logoText = 'Your Logo',
   logoPath = '',

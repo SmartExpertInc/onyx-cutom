@@ -123,7 +123,7 @@ function InlineEditor({
   );
 }
 
-export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlideProps & {
+export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

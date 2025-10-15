@@ -8,7 +8,7 @@ import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 
-export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
+export const BenefitsListSlideTemplate_old: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId: _slideId,

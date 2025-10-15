@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThankYouSlideProps & {
+export const MarketingAgencyThankYouSlideTemplate_old: React.FC<MarketingAgencyThankYouSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

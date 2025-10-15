@@ -20,7 +20,7 @@ export interface ConnectionSlideProps extends BaseTemplateProps {
   vennLabels?: { culture: string; managers: string; teams: string };
 }
 
-export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: SlideTheme | string }> = ({
+export const ConnectionSlideTemplate_old: React.FC<ConnectionSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Connection',
   description = 'Connections create trust, encourage open communication, and build a culture of collaboration.',

@@ -122,7 +122,7 @@ function InlineEditor({
   );
 }
 
-export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & {
+export const WorkLifeBalanceSlideTemplate_old: React.FC<WorkLifeBalanceSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

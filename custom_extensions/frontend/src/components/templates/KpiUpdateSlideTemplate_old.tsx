@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: SlideTheme | string }>= ({
+export const KpiUpdateSlideTemplate_old: React.FC<KpiUpdateSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
   title = 'KPI Update',
   items = [

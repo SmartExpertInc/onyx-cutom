@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
 
-export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlideProps & {
+export const ResilienceBehaviorsSlideTemplate_old: React.FC<ResilienceBehaviorsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

@@ -15,7 +15,7 @@ export interface IntroductionDataAnalysisProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAnalysisProps & { theme?: SlideTheme | string }> = ({
+export const IntroductionDataAnalysisSlideTemplate_old: React.FC<IntroductionDataAnalysisProps & { theme?: SlideTheme | string }> = ({
   title = 'Introduction\nto Data Analysis',
   avatarPath = '',
   iconPath = '',

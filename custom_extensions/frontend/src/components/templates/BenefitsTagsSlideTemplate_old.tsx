@@ -10,7 +10,7 @@ import SimpleRichTextEditor from '../SimpleRichTextEditor';
 
 type TagType = { text: string; isHighlighted?: boolean };
 
-export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
+export const BenefitsTagsSlideTemplate_old: React.FC<BenefitsTagsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

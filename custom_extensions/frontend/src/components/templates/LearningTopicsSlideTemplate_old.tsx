@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
+export const LearningTopicsSlideTemplate_old: React.FC<LearningTopicsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

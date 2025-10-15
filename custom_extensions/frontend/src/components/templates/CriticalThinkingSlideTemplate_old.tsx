@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps & {
+export const CriticalThinkingSlideTemplate_old: React.FC<CriticalThinkingSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

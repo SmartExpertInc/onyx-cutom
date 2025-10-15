@@ -20,7 +20,7 @@ const BACKGROUND_SVG = `
   </svg>
 `;
 
-export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string, panelWidth?: string, panelHeight?: string }> = ({
+export const HighPerformingTeamsSlideTemplate_old: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string, panelWidth?: string, panelHeight?: string }> = ({
   slideId: _slideId,
   title = 'The Power of High-\nPerforming Teams',
   description = 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',

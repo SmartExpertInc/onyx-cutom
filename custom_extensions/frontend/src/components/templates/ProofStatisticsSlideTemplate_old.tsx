@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & {
+export const ProofStatisticsSlideTemplate_old: React.FC<ProofStatisticsSlideProps & {
   theme?: SlideTheme | string;
   pageNumber?: string;
   logoNew?: string;

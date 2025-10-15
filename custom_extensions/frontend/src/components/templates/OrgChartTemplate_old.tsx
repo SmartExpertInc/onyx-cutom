@@ -123,7 +123,7 @@ function InlineEditor({
   );
 }
 
-const OrgChartTemplate: React.FC<OrgChartTemplateProps> = ({
+const OrgChartTemplate_old: React.FC<OrgChartTemplateProps> = ({
   title = 'Космическая галактика команд',
   chartData = [
     { id: 'ceo', title: 'CEO', level: 0, role: 'Галактический лидер', department: 'Центральная звезда' },

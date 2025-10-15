@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
 
-export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
+export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,

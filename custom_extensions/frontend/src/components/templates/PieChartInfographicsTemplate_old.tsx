@@ -118,7 +118,7 @@ function InlineEditor({
   );
 }
 
-export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
+export const PieChartInfographicsTemplate_old: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
   title = 'Revenue Distribution Analysis',
   chartData = {

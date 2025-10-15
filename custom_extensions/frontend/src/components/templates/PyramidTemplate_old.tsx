@@ -140,7 +140,7 @@ function InlineEditor({
   );
 }
 
-export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
+export const PyramidTemplate_old: React.FC<PyramidTemplateProps> = ({
   slideId,
   title,
   subtitle,

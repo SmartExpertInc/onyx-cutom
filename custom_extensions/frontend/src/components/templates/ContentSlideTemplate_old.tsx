@@ -128,7 +128,7 @@ function InlineEditor({
   );
 }
 
-export const ContentSlideTemplate: React.FC<ContentSlideProps & { 
+export const ContentSlideTemplate_old: React.FC<ContentSlideProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   onAutoSave?: () => void;

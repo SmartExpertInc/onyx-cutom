@@ -15,7 +15,7 @@ export interface TopicsSlideProps extends BaseTemplateProps {
   pageNumber?: string;
 }
 
-export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideTheme | string }> = ({
+export const TopicsSlideTemplate_old: React.FC<TopicsSlideProps & { theme?: SlideTheme | string }> = ({
   title = 'Topics',
   topics = [
     'Fixed mindset VS Growth mindset',
