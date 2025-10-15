@@ -28,6 +28,17 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
 
+  // Debug logging for version resolution
+  if (typeof window !== 'undefined' && (window as any).__DEBUG_SLIDE_VERSIONS__) {
+    console.log('🔍 Slide Version Debug:', {
+      slideId: slide.slideId,
+      originalTemplateId: slide.templateId,
+      deckTemplateVersion,
+      resolvedTemplateId: template?.id,
+      templateFound: !!template
+    });
+  }
+
   // Handle template prop updates
   const handlePropsUpdate = (newProps: any) => {
     if (onSlideUpdate) {
@@ -166,6 +177,7 @@ interface ComponentBasedSlideDeckRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
@@ -176,6 +188,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   onSlideUpdate,
   onTemplateChange,
   theme,
+  deckTemplateVersion,
   getPlaceholderGenerationState
 }) => {
   // Safety check for slides array
@@ -206,6 +219,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
             theme={theme}
+            deckTemplateVersion={deckTemplateVersion}
             getPlaceholderGenerationState={getPlaceholderGenerationState}
           />
         </div>
