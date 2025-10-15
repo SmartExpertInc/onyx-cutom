@@ -7,7 +7,7 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -304,6 +304,18 @@ export default function LessonPresentationClient() {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to advanced section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
+  
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
       setAdvancedModeState("Clicked");
@@ -1513,13 +1525,13 @@ export default function LessonPresentationClient() {
       <div 
         className="absolute pointer-events-none"
         style={{
-          width: '1260px',
-          height: '1800px',
+          width: '2260px',
+          height: '2800px',
           top: '358px',
           left: '433px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
-          transform: 'rotate(-120deg)',
+          transform: 'rotate(-110deg)',
           filter: 'blur(100px)',
         }}
       />
@@ -1697,62 +1709,36 @@ export default function LessonPresentationClient() {
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-center">
-                          {/* Language dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                            value={language}
-                              onValueChange={setLanguage}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                                  <span className="text-[#09090B]">{language === 'en' ? `${t('interface.english', 'English')}` : language === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : language === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
-                        </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white" sideOffset={15}>
-                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          {/* Divider */}
-                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          
-                          {/* Slides count dropdown */}
-                          <div className="flex-1 flex items-center justify-center">
-                            <Select
-                              value={slidesCount.toString()}
-                              onValueChange={handleSlidesCountChange}
-                            >
-                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                <div className="flex items-center gap-2">
-                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                                  </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
-                                  <span className="text-[#09090B]">{slidesCount}</span>
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                                  <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                            ))}
-                              </SelectContent>
-                            </Select>
-                        </div>
-                        </div>
+                      <div className="flex flex-wrap justify-center gap-4">
+                        <CustomPillSelector
+                          value={language === 'en' ? t('interface.english', 'English') : language === 'uk' ? t('interface.ukrainian', 'Ukrainian') : language === 'es' ? t('interface.spanish', 'Spanish') : t('interface.russian', 'Russian')}
+                          onValueChange={(value) => {
+                            if (value === t('interface.english', 'English')) setLanguage('en');
+                            else if (value === t('interface.ukrainian', 'Ukrainian')) setLanguage('uk');
+                            else if (value === t('interface.spanish', 'Spanish')) setLanguage('es');
+                            else if (value === t('interface.russian', 'Russian')) setLanguage('ru');
+                          }}
+                          options={[
+                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                          ]}
+                          label={t('interface.language', 'Language')}
+                        />
+                        <CustomPillSelector
+                          value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
+                          onValueChange={(value) => {
+                            const slidesText = t('interface.generate.slides', 'slides');
+                            const num = Number(value.replace(` ${slidesText}`, '').trim());
+                            handleSlidesCountChange(num.toString());
+                          }}
+                          options={Array.from({ length: 14 }, (_, i) => ({
+                            value: `${i + 2} ${t('interface.generate.slides', 'slides')}`,
+                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                          }))}
+                          label={t('interface.generate.slides', 'Slides')}
+                        />
                       </div>
                     )}
                   </>
@@ -1760,62 +1746,36 @@ export default function LessonPresentationClient() {
 
                 {/* Show standalone lesson dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                    <div className="flex items-center">
-                      {/* Language dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <Select
-                        value={language}
-                          onValueChange={setLanguage}
-                        >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                              <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
-                    </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white">
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                      
-                      {/* Slides count dropdown */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <Select
-                          value={slidesCount.toString()}
-                          onValueChange={(value: string) => setSlidesCount(Number(value))}
-                        >
-                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                            <div className="flex items-center gap-2">
-                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                              </svg>
-                              <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
-                              <span className="text-[#09090B]">{slidesCount}</span>
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                        ))}
-                          </SelectContent>
-                        </Select>
-                    </div>
-                    </div>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <CustomPillSelector
+                      value={language === 'en' ? t('interface.english', 'English') : language === 'uk' ? t('interface.ukrainian', 'Ukrainian') : language === 'es' ? t('interface.spanish', 'Spanish') : t('interface.russian', 'Russian')}
+                      onValueChange={(value) => {
+                        if (value === t('interface.english', 'English')) setLanguage('en');
+                        else if (value === t('interface.ukrainian', 'Ukrainian')) setLanguage('uk');
+                        else if (value === t('interface.spanish', 'Spanish')) setLanguage('es');
+                        else if (value === t('interface.russian', 'Russian')) setLanguage('ru');
+                      }}
+                      options={[
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                      ]}
+                      label={t('interface.language', 'Language')}
+                    />
+                    <CustomPillSelector
+                      value={`${slidesCount} ${t('interface.generate.slides', 'slides')}`}
+                      onValueChange={(value) => {
+                        const slidesText = t('interface.generate.slides', 'slides');
+                        const num = Number(value.replace(` ${slidesText}`, '').trim());
+                        setSlidesCount(num);
+                      }}
+                      options={Array.from({ length: 14 }, (_, i) => ({
+                        value: `${i + 2} ${t('interface.generate.slides', 'slides')}`,
+                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                      }))}
+                      label={t('interface.generate.slides', 'Slides')}
+                    />
                   </div>
                 )}
 
@@ -1998,16 +1958,16 @@ export default function LessonPresentationClient() {
             )}
           </section>
 
-          {/* Inline Advanced section & button */}
+          {/* Inline Advanced section */}
           {streamDone && content && (
             <>
               {showAdvanced && (
-                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div ref={advancedSectionRef} className="w-full bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-[#E0E0E0] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                     style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
@@ -2018,11 +1978,14 @@ export default function LessonPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
-                          }`}
+                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full flex items-start cursor-pointer transition-all duration-200 text-black ${
+                          selectedExamples.includes(ex.short)
+                            ? 'bg-[#A8C5F0]'
+                            : 'bg-[#CCDBFC] hover:shadow-lg'
+                        }`}
                       >
-                        {ex.short}
-                        <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
+                        <span className="pr-6">{ex.short}</span>
+                        <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
                       </button>
                     ))}
                   </div>
@@ -2034,34 +1997,13 @@ export default function LessonPresentationClient() {
                         handleApplyLessonEdit();
                         setAdvancedModeState("Used");
                       }}
-                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                      style={{
-                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                        fontWeight: 500
-                      }}
+                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full bg-[#0F58F9] hover:bg-[#0D4AD1] text-[#FFFFFF] font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                     >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
+                      {loadingEdit ? <LoadingAnimation message="Applying..." /> : 'Edit'}
                     </button>
                   </div>
                 </div>
               )}
-              <div className="w-full flex justify-center mt-2 mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAdvanced((prev) => !prev);
-                    handleAdvancedModeClick();
-                  }}
-                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
-                  style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
-                  }}
-                >
-                  <Sparkles size={16} />
-                  Smart Edit
-                </button>
-              </div>
             </>
           )}
 
@@ -2138,19 +2080,34 @@ export default function LessonPresentationClient() {
                 <span>{calculateLessonPresentationCredits(slidesCount)} {t('interface.generate.credits', 'credits')}</span>
               </div>
 
-              {/* Generate button - centered */}
-              <div className="flex items-center gap-3">
+              {/* AI Agent + generate */}
+              <div className="flex items-center gap-[10px]">
                 <button
                   type="button"
-                  onClick={handleGenerateFinal}
-                  className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                  disabled={loading || isGenerating}
+                  onClick={() => {
+                    setShowAdvanced(!showAdvanced);
+                    handleAdvancedModeClick();
+                  }}
+                  className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+                    <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span className="select-none font-semibold">{t('interface.generate.generatePresentation', 'Generate Presentation')}</span>
+                  <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
                 </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleGenerateFinal}
+                    className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                    disabled={loading || isGenerating}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+                    </svg>
+                    <span className="select-none font-semibold">{t('interface.generate.generatePresentation', 'Generate Presentation')}</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
