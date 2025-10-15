@@ -8,7 +8,7 @@ import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
-export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSlideProps & {
+export const AiPharmaMarketGrowthSlideTemplate_old: React.FC<AiPharmaMarketGrowthSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,
