@@ -352,8 +352,7 @@ export default function QuizClient() {
     return [];
   };
 
-  // Hide explanations during streaming by stripping them from the preview content
-  const questionList = parseQuizIntoQuestions(streamDone ? quizData : createCleanQuestionsContent(quizData));
+  const questionList = parseQuizIntoQuestions(quizData);
 
   // Function to get the correct plural form for questions
   const getQuestionPluralForm = (count: number) => {
@@ -500,7 +499,7 @@ export default function QuizClient() {
   };
 
   // NEW: Function to create clean questions without options and answers
-  function createCleanQuestionsContent(content: string): string {
+  const createCleanQuestionsContent = (content: string) => {
     if (!content.trim()) return "";
 
     const questions: string[] = [];
@@ -590,7 +589,7 @@ export default function QuizClient() {
     }
 
     return questions.join('\n\n');
-  }
+  };
 
   const handleTitleCancel = (questionIndex: number) => {
     setEditedTitles(prev => {
