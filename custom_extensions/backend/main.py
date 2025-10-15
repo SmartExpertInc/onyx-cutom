@@ -21744,7 +21744,8 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Randomly select one example to reduce over-reliance on a single pattern
             json_example = random.choice(example_files)
         
-        json_preview_instructions = f"""
+        if not is_video_lesson:
+            json_preview_instructions += f"""
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
@@ -21904,8 +21905,141 @@ CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
 """
-        if is_video_lesson:
-            json_preview_instructions += """
+        else:
+            json_preview_instructions += f"""
+
+
+
+
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
+{json_example}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+This enables immediate parsing without additional LLM calls during finalization.
+
+MANDATORY PREVIEW UI REQUIREMENT:
+- EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
+- Include 4-6 content-rich bullets (10–18 words each), specific and informative.
+- These previewKeyPoints are for preview only and will be ignored/stripped on save.
+- Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Generate exact amout of slides you asked to generate.
+- Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
+- The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
+- Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
+- Preserve original language across all text.
+
+CRITICAL TABLE RULE:
+- If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
+
+CONTENT DENSITY AND LEARNING REQUIREMENTS:
+- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
+- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
+- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
+- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
+- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
+- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+
+General Rules:
+- Do NOT duplicate title and subtitle content; keep them distinct.
+- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
+- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
+- Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
+
+
+
+PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
+Based on presentation design best practices, follow these rules for selecting appropriate images:
+
+1. RELEVANCE OVER AESTHETICS: Images must directly support and enhance your slide's message, not just be decorative.
+   - For business concepts: Use workplace scenarios, professional environments, real business activities
+   - For technical topics: Show actual tools, interfaces, workflows, or realistic work environments
+   - For data/analytics: Use realistic data visualization scenarios, not abstract concepts
+   - For processes: Show people actually performing the process or realistic workflow environments
+
+2. AVOID OVERUSED STOCK PHOTO CLICHÉS:
+   - NO: Handshakes, chess pieces, lightbulbs, arrows hitting targets, people pointing at charts
+   - NO: Overly staged business meetings, fake-looking "diverse teams" in conference rooms
+   - NO: Generic "success" imagery (mountains, climbing, finish lines)
+   - YES: Authentic workplace moments, realistic technology use, genuine professional interactions
+
+3. CONTEXT-SPECIFIC IMAGE SELECTION:
+   - Marketing slides: Real marketing campaigns, authentic customer interactions, actual marketing tools in use
+   - Technology slides: Real developers coding, authentic tech environments, actual software interfaces
+   - Finance slides: Real financial professionals at work, authentic trading floors, actual financial data analysis
+   - Education slides: Real learning environments, authentic teaching moments, actual educational technology
+
+4. REALISTIC WORKPLACE SCENES:
+   - Show people actually using the tools/concepts being discussed
+   - Include authentic details: real computer screens, actual work materials, genuine work environments
+   - Avoid posed or overly perfect scenarios; prefer candid, realistic moments
+   - Include diverse but authentic representation without forced staging
+
+5. VISUAL METAPHORS THAT WORK:
+   - Use concrete, relatable metaphors that enhance understanding
+   - Construction/building for development processes, gardens for growth concepts
+   - Transportation for journey/progress concepts, but make them specific and realistic
+   - Avoid abstract or overused metaphors; prefer specific, actionable imagery
+
+
+
+
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+
+- course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
+  • Purpose: Opening slide for course introduction with strong visual impact
+  • Structure: Split-panel design with title/subtitle on gradient background and large avatar display
+  • Required props: title (main heading), subtitle (course description and learning objectives)
+  • Visual elements: imagePath (professional avatar/instructor image), logoPath (course branding)
+  • Usage: MUST be used as the first slide to welcome learners and set course expectations
+  • Content guidelines: Title should be welcoming and engaging; subtitle should outline what learners will achieve
+
+- impact-statements-slide: title, statements[] (array of {number, description}), profileImagePath, [pageNumber], [logoNew]
+  • Purpose: Showcase key statistics, metrics, or impact data with visual emphasis
+  • Structure: Three prominent cards displaying numerical achievements with descriptive context
+  • Required props: title (section heading), statements (EXACTLY 3 items with 'number' field like "95%" or "3x" and 'description' field explaining significance)
+  • Visual elements: profileImagePath (avatar reinforcing credibility), logoNew (branding element)
+  • Usage: Present compelling data, success rates, performance metrics, or quantifiable outcomes
+  • Content guidelines: Numbers should be impactful (percentages, multipliers, large numbers); descriptions should explain real-world meaning
+
+- phishing-definition-slide: title, definitions[] (array of strings), profileImagePath, [rightImagePath], [pageNumber], [logoPath]
+  • Purpose: Present multiple key definitions, concepts, or educational points in organized list format
+  • Structure: Left panel with title and definition points; right panel with full avatar image
+  • Required props: title (main topic heading), definitions (array of 3-6 detailed definition strings)
+  • Visual elements: profileImagePath (instructor/expert avatar), rightImagePath (supporting visual illustration)
+  • Usage: Define critical terminology, explain key concepts, list important principles or guidelines
+  • Content guidelines: Each definition should be comprehensive (2-3 sentences); use clear, educational language; maintain consistent depth across all definitions
+
+- soft-skills-assessment-slide: title, tips[] (array of {text, isHighlighted}), profileImagePath, [logoPath], [logoText], [pageNumber]
+  • Purpose: Highlight exactly two critical tips, recommendations, or assessment criteria with different visual emphasis
+  • Structure: Large prominent title, avatar display, and two tip cards with contrasting styles (one highlighted, one standard)
+  • Required props: title (assessment or tip category), tips (EXACTLY 2 items with 'text' field containing the tip and 'isHighlighted' boolean)
+  • Visual elements: profileImagePath (expert/instructor image), logoPath (branding), logoText (contextual label like "Assessment Guide")
+  • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
+  • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
+
+- work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
+  • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
+  • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
+  • Required props: title (conclusion or section heading), content (2-4 paragraphs of detailed narrative text)
+  • Visual elements: imagePath (relevant thematic or conclusion image), logoPath (branding)
+  • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
+  • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
+
+MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
+- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
+  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
+  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
+  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
+  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
+  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
+- NO template repetition allowed - each template used EXACTLY ONCE
+- NO additional slides beyond these 5 - maintain strict 5-slide structure
+- NO substitutions - you must use these exact 5 templates in this exact order
+- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.

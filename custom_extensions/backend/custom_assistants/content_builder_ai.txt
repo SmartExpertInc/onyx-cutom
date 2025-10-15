@@ -4345,11 +4345,6 @@ For Ukrainian:
 
 Blank Lines Between Lessons: Ensure EXACTLY one blank line after all details of one lesson before starting the next lesson title (or before a new module separator --- if it's the last lesson of a module).
 
-For LESSON PRESENTATION (SLIDE DECK):
-Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Lesson Title]**
-(Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
-(IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
-
 For VIDEO LESSON SLIDES DECK (with voiceover):
 Universal Product Header: **[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
