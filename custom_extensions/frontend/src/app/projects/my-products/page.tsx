@@ -19,16 +19,16 @@ import {
   Trash2,
   Presentation
 } from 'lucide-react';
-import { UserDropdown } from '../../components/UserDropdown';
-import LanguageDropdown from '../../components/LanguageDropdown';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { UserDropdown } from '../../../components/UserDropdown';
+import LanguageDropdown from '../../../components/LanguageDropdown';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
-import AddOnsModal from '../../components/AddOnsModal';
-import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
-import MyProductsTable from '../../components/MyProductsTable';
-import FolderModal from '../projects/FolderModal';
+import AddOnsModal from '../../../components/AddOnsModal';
+import RegistrationSurveyModal from "../../../components/ui/registration-survey-modal";
+import MyProductsTable from '../../../components/MyProductsTable';
+import FolderModal from '../FolderModal';
 import { Button } from '@/components/ui/button';
-import useFeaturePermission from '../../hooks/useFeaturePermission';
+import useFeaturePermission from '../../../hooks/useFeaturePermission';
 
 interface User {
   id: string;
@@ -46,6 +46,10 @@ const checkAuthentication = async (): Promise<User | null> => {
     }
     const userData = await response.json();
 
+    if (!userData || !userData.id || !userData.email) {
+      return null;
+    }
+
     return {
       id: userData.id,
       email: userData.email,
@@ -59,8 +63,14 @@ const checkAuthentication = async (): Promise<User | null> => {
 // Check if user completed the questionnaire
 const checkQuestionnaireCompletion = async (userId: string): Promise<boolean> => {
   try {
+    if (!userId) {
+      return true; // Default to true if no user ID
+    }
     const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
     const response = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/${userId}/completion`, { credentials: 'same-origin' });
+    if (!response.ok) {
+      return true; // Default to true if request fails
+    }
     const data = await response.json();
     return !!data.completed;
   } catch (error) {
@@ -94,26 +104,36 @@ const fetchFolders = async () => {
 
 // Helper function to build folder tree from flat list
 const buildFolderTree = (folders: any[]): Folder[] => {
+  if (!folders || !Array.isArray(folders)) {
+    return [];
+  }
+
   const folderMap = new Map<number, Folder>();
   const rootFolders: Folder[] = [];
 
   // First pass: create folder objects
   folders.forEach(folder => {
-    folderMap.set(folder.id, {
-      ...folder,
-      children: []
-    });
+    if (folder && folder.id) {
+      folderMap.set(folder.id, {
+        ...folder,
+        children: []
+      });
+    }
   });
 
   // Second pass: build tree structure
   folders.forEach(folder => {
-    const folderObj = folderMap.get(folder.id)!;
-    if (folder.parent_id === null || folder.parent_id === undefined) {
-      rootFolders.push(folderObj);
-    } else {
-      const parent = folderMap.get(folder.parent_id);
-      if (parent) {
-        parent.children!.push(folderObj);
+    if (folder && folder.id) {
+      const folderObj = folderMap.get(folder.id);
+      if (folderObj) {
+        if (folder.parent_id === null || folder.parent_id === undefined) {
+          rootFolders.push(folderObj);
+        } else {
+          const parent = folderMap.get(folder.parent_id);
+          if (parent) {
+            parent.children!.push(folderObj);
+          }
+        }
       }
     }
   });
@@ -207,20 +227,27 @@ const Sidebar: React.FC<SidebarProps> = ({ onFolderSelect, selectedFolderId, fol
 
   // Get the 5 newest folders
   const getNewestFolders = (folders: any[]) => {
+    if (!folders || !Array.isArray(folders)) {
+      return [];
+    }
     return folders
+      .filter(folder => folder && folder.created_at)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 5);
   };
 
   // Filter folders based on search
   const getFilteredFolders = (folders: any[]) => {
+    if (!folders || !Array.isArray(folders)) {
+      return [];
+    }
     if (!folderSearch.trim()) {
       return getNewestFolders(folders);
     }
     
     const searchTerm = folderSearch.toLowerCase();
     return folders.filter(folder => 
-      folder.name.toLowerCase().includes(searchTerm)
+      folder && folder.name && folder.name.toLowerCase().includes(searchTerm)
     );
   };
 
@@ -552,10 +579,14 @@ const MyProductsPageInner: React.FC = () => {
 
   const handleSurveyComplete = async (answers: any) => {
     try {
+      if (!currentUser?.id) {
+        console.error('No current user found');
+        return;
+      }
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       const payload = {
-        user_id: currentUser?.id,
-        answers: answers,
+        user_id: currentUser.id,
+        answers: answers || {},
         completed_at: new Date().toISOString()
       };
       const res = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/add`, {

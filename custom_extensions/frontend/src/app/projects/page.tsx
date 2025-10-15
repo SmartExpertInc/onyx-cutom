@@ -507,7 +507,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>Home</span>
         </Link>
         <Link
-          href="/my-products"
+          href="/projects?tab=my-products"
+          onClick={() => {
+            trackPageView("My products");
+            onFolderSelect(null);
+          }}
           className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
         >
           <FolderOpen size={18} strokeWidth={1.5} className='font-normal' />
