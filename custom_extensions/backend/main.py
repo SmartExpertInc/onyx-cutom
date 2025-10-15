@@ -34491,40 +34491,6 @@ async def set_smartdrive_credentials(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/custom/smartdrive/credentials")
-async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Set or update user's Nextcloud credentials"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        
-        nextcloud_username = data.get('nextcloud_username', '').strip()
-        nextcloud_password = data.get('nextcloud_password', '').strip()
-        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
-        
-        if not nextcloud_username or not nextcloud_password:
-            raise HTTPException(status_code=400, detail="Username and password are required")
-        
-        # Encrypt password
-        encrypted_password = encrypt_password(nextcloud_password)
-        
-        async with pool.acquire() as conn:
-            await conn.execute("""
-                UPDATE smartdrive_accounts 
-                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
-                WHERE onyx_user_id = $1
-            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
-            
-        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
-        return {"success": True, "message": "Nextcloud credentials saved successfully"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error setting SmartDrive credentials: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.get("/api/custom/smartdrive/list")
 async def list_smartdrive_files(
     request: Request,
@@ -36728,6 +36694,7 @@ async def create_smartdrive_connector(
         connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
         credential_id = connector_data.get('credential_id')  # ID of existing credential to use
         name = connector_data.get('name', f'Smart Drive {connector_id}')
+        indexing_start = connector_data.get('indexing_start', None)
         
         if not connector_id:
             raise HTTPException(status_code=400, detail="Connector ID is required")
@@ -36769,6 +36736,9 @@ async def create_smartdrive_connector(
             'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
             'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
         }
+
+        # Connectors that support only load_state input type
+        load_connectors = ['airtable', 'google_sites', 'xenforo', 'web']
         
         # Separate credential fields from connector config fields
         connector_credential_fields = credential_fields.get(connector_id, [])
@@ -36797,16 +36767,14 @@ async def create_smartdrive_connector(
                 'retrieve_blocks', 'include_people', 'include_databases'
             ],
             'slack': [
-                'channel_ids', 'include_public_channels', 'include_private_channels',
-                'include_direct_messages', 'include_thread_replies', 'message_limit'
+                'channels', 'channel_regex_enabled'
             ],
             'github': [
                 'repo_owner', 'repositories', 'include_prs', 'include_issues',
                 'include_code', 'include_releases', 'include_wikis'
             ],
             'confluence': [
-                'confluence_url', 'space_keys', 'include_attachments',
-                'include_archived', 'include_drafts'
+                'is_cloud', 'wiki_base', 'space', 'page_id', 'index_recursively', 'cql_query'
             ],
             'web': [
                 'base_url', 'web_connector_type', 'scroll_before_scraping',
@@ -36819,7 +36787,8 @@ async def create_smartdrive_connector(
             'indexing_scope', 'everything', 'specific_folders',  # Tab structure parameters
             'tabs', 'fields', 'sections',  # Form structure parameters
             'file_types', 'folder_ids',  # Legacy/unsupported parameters
-            'submitEndpoint', 'oauthSupported', 'oauthConfig'  # Form config parameters
+            'submitEndpoint', 'oauthSupported', 'oauthConfig',  # Form config parameters
+            'indexing_start' # Universal indexing start field
         }
         
         # Remove frontend-only parameters
@@ -36851,12 +36820,12 @@ async def create_smartdrive_connector(
         connector_payload = {
             "name": name,
             "source": connector_id,
-            "input_type": "poll",
+            "input_type": "poll" if connector_id not in load_connectors else "load_state",
             "access_type": "private",  # Required field for Smart Drive connectors
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
             "prune_freq": 86400,   # 1 day
-            "indexing_start": None
+            "indexing_start": indexing_start if indexing_start else None
         }
         
         # Helper function to ensure HTTPS for production domains
@@ -37182,6 +37151,251 @@ async def create_credential(request: Request):
     except Exception as e:
         logger.error(f"Error creating credential: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
+
+@app.get("/api/custom/connector/google-drive/authorize/{credential_id}")
+async def google_drive_authorize(credential_id: str, request: Request):
+    """
+    Proxy endpoint to get Google Drive authorization URL.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive authorization endpoint
+            auth_url = ensure_https_url(f"/api/manage/connector/google-drive/authorize/{credential_id}")
+            
+            response = await client.get(
+                auth_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                # Create response with JSON data
+                from fastapi.responses import JSONResponse
+                json_response = JSONResponse(content=response.json())
+                
+                # Forward all Set-Cookie headers from the original response
+                for cookie_header in response.headers.get_list("set-cookie"):
+                    # Parse the cookie header to extract name, value, and attributes
+                    cookie_parts = cookie_header.split(";")
+                    cookie_name_value = cookie_parts[0].strip()
+                    if "=" in cookie_name_value:
+                        cookie_name, cookie_value = cookie_name_value.split("=", 1)
+                        
+                        # Extract cookie attributes
+                        cookie_attrs = {}
+                        for part in cookie_parts[1:]:
+                            part = part.strip()
+                            if "=" in part:
+                                attr_name, attr_value = part.split("=", 1)
+                                cookie_attrs[attr_name.lower()] = attr_value
+                            else:
+                                cookie_attrs[part.lower()] = True
+                        
+                        # Set the cookie with proper attributes
+                        json_response.set_cookie(
+                            key=cookie_name,
+                            value=cookie_value,
+                            httponly=cookie_attrs.get("httponly", False),
+                            secure=cookie_attrs.get("secure", False),
+                            samesite=cookie_attrs.get("samesite", "lax"),
+                            max_age=int(cookie_attrs.get("max-age", 0)) if cookie_attrs.get("max-age") else None
+                        )
+                
+                return json_response
+            else:
+                logger.error(f"Failed to get Google Drive authorization URL: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Google Drive authorization URL: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Google Drive authorization URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Google Drive authorization URL: {str(e)}")
+
+
+@app.put("/api/custom/connector/google-drive/app-credential")
+async def google_drive_put_app_credential(request: Request):
+    """
+    Proxy endpoint to save Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get request body
+        body = await request.body()
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.put(
+                app_cred_url,
+                headers=auth_headers,
+                content=body
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to save Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to save Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error saving Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving Google Drive app credentials: {str(e)}")
+
+@app.get("/api/custom/connector/google-drive/app-credential")
+async def google_drive_get_app_credential(request: Request):
+    """
+    Proxy endpoint to get Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential GET endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.get(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to get Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Google Drive app credentials: {str(e)}")
+
+
+@app.delete("/api/custom/connector/google-drive/app-credential")
+async def google_drive_delete_app_credential(request: Request):
+    """
+    Proxy endpoint to delete Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential DELETE endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.delete(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to delete Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to delete Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error deleting Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting Google Drive app credentials: {str(e)}")
 
 # --- Offers API Endpoints ---
 
