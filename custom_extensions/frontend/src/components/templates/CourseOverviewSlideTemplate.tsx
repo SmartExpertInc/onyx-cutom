@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CourseOverviewSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
@@ -363,7 +364,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         </div>
       </div>
 
-      {/* Right Panel - Theme background with image */}
+      {/* Right Panel - Theme background with avatar */}
       <div style={{
         width: '55%',
         height: '100%',
@@ -373,17 +374,14 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         justifyContent: 'center',
         position: 'relative'
       }}>
-        <ClickableImagePlaceholder
-          imagePath={imagePath}
-          onImageUploaded={handleImageUploaded}
+        <AvatarImageDisplay
           size="LARGE"
           position="CENTER"
-          description="Course overview image"
-          isEditable={isEditable}
           style={{
             position: 'absolute',
             bottom: '-2.24%',
             height: '91%',
+            width: 'auto',
             borderRadius: '0.83%'
           }}
         />

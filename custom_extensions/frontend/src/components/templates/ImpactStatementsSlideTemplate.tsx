@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ImpactStatementsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
@@ -197,7 +198,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           )}
         </div>
 
-        {/* Profile image in gradient container - MATCHES HTML: width: 784px, height: 496px, borderRadius: 13px */}
+        {/* Avatar in gradient container - MATCHES HTML: width: 784px, height: 496px, borderRadius: 13px */}
         <div style={{
           width: '40.83%',
           height: '25.83%',
@@ -208,14 +209,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
+          <AvatarImageDisplay
             size="LARGE"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            fit="contain"
             style={{
               width: '80%',
               height: '110%',

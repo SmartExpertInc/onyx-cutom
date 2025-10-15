@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SoftSkillsAssessmentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
@@ -289,7 +290,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           )}
         </div>
 
-        {/* Profile image */}
+        {/* Avatar */}
         <div style={{
           width: '170px',
           height: '170px',
@@ -297,13 +298,9 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           overflow: 'hidden',
           backgroundColor: '#0F58F9'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
+          <AvatarImageDisplay
             size="LARGE"
             position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
             style={{
               width: '100%',
               height: '100%',

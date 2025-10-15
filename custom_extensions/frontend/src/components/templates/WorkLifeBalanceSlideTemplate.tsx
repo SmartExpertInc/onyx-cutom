@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { WorkLifeBalanceSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
@@ -446,7 +447,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           zIndex: 1
         }} />
 
-        {/* Image */}
+        {/* Avatar */}
         <div style={{
           position: 'absolute',
           left: '-42px',
@@ -457,14 +458,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <ClickableImagePlaceholder
-            imagePath={imagePath}
-            onImageUploaded={handleImageUploaded}
+          <AvatarImageDisplay
+            size="LARGE"
             position="CENTER"
-            description="Work-life balance image"
-            isEditable={isEditable}
             style={{
               height: '565px',
+              width: 'auto',
               borderRadius: '10px',
               objectFit: 'contain'
             }}
