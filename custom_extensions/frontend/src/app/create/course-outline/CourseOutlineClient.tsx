@@ -1443,10 +1443,10 @@ export default function CourseOutlineClient() {
                   </div>
                 )}
                 {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="bg-[#FFFFFF] rounded-[4px] overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
                   {/* Module header with number and title */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
-                    <span className="text-[#0D001B] font-semibold text-xl">{modIdx + 1}.</span>
+                    <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
                     <div className="relative group flex-1">
                       <Input
                         type="text"
@@ -1520,7 +1520,7 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full flex items-center justify-center gap-2 rounded-[12px] text-[#498FFF] py-[19px] font-medium bg-[#FFFFFF] hover:bg-gray-50"
+                className="w-full flex items-center justify-center gap-2 rounded-lg text-[#498FFF] py-[19px] font-medium bg-[#FFFFFF] hover:bg-gray-50"
                 style={{ border: '1px solid #E0E0E0' }}
                 disabled={loading || loadingPreview || isGenerating}
               >
@@ -1528,7 +1528,7 @@ export default function CourseOutlineClient() {
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </Button>
               {/* Status row – identical style mock */}
-              <div className="mt-[30px] flex items-center justify-between text-sm text-[#858587]">
+              <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <span className="flex items-center gap-1">
                   <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
@@ -1550,7 +1550,7 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <div className="w-full bg-white border border-[#E0E0E0] rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="w-full bg-white border border-[#E0E0E0] rounded-xl py-5 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <Textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
@@ -1672,7 +1672,7 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                       <Select value={imageSource} onValueChange={setImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="border-[#E0E0E0]" side="top">
@@ -1686,7 +1686,7 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
                       <Select value={aiModel} onValueChange={setAiModel}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="border-[#E0E0E0]" side="top">
