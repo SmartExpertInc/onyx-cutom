@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { FeedbackButton } from "@/components/ui/feedback-button";
+import { AdvancedEditSection } from "@/components/ui/advanced-edit-section";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 
@@ -1542,52 +1543,24 @@ export default function CourseOutlineClient() {
         </section>
 
         {/* Inline Advanced section & button */}
-        {!loading && preview.length > 0 && (
-          <>
-            {showAdvanced && (
-              <div ref={advancedSectionRef} className="w-full bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <Textarea
-                  value={editPrompt}
-                  onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-[#E0E0E0] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                  style={{ background: "rgba(255,255,255,0.95)" }}
-                />
-
-                {/* Example prompts */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                  {outlineExamples.map((ex) => (
-                    <button
-                      key={ex.short}
-                      type="button"
-                      onClick={() => toggleExample(ex)}
-                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full flex items-start cursor-pointer transition-all duration-200 text-black ${
-                        selectedExamples.includes(ex.short)
-                          ? 'bg-[#A8C5F0]'
-                          : 'bg-[#CCDBFC] hover:shadow-lg'
-                      }`}
-                    >
-                      <span className="pr-6">{ex.short}</span>
-                      <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
-                    </button>
-                  ))}
-                </div>
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    disabled={loadingPreview || !editPrompt.trim()}
-                    onClick={() => {
-                      handleApplyEdit();
-                      setAdvancedModeState("Used");
-                    }}
-                    className="flex items-center gap-2 px-[25px] py-[14px] rounded-full bg-[#0F58F9] hover:bg-[#0D4AD1] text-[#FFFFFF] font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                  >
-                    {loadingPreview ? <LoadingAnimation message="Applying..." /> : 'Edit'}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
+        {!loading && preview.length > 0 && showAdvanced && (
+          <div className="w-full mb-4">
+            <AdvancedEditSection
+              editPrompt={editPrompt}
+              setEditPrompt={setEditPrompt}
+              examples={outlineExamples}
+              selectedExamples={selectedExamples}
+              toggleExample={toggleExample}
+              loadingEdit={loadingPreview}
+              onApplyEdit={() => {
+                handleApplyEdit();
+                setAdvancedModeState("Used");
+              }}
+              advancedSectionRef={advancedSectionRef}
+              placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+              buttonText="Edit"
+            />
+          </div>
         )}
 
         {!loading && preview.length > 0 && (
