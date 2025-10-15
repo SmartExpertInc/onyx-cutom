@@ -28869,8 +28869,20 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             except Exception as e:
                 logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
 
-        # NEW: Choose parsing strategy based on user edits
-        if parsed_text_presentation_from_fastpath:
+        # NEW: Check if we should skip all parsing and go straight to selective merge
+        doing_selective_merge = (getattr(payload, 'isCleanContent', False) and 
+                                getattr(payload, 'editedSectionIndices', None) and 
+                                payload.originalContent)
+        
+        if doing_selective_merge:
+            logger.info("[TEXT_PRESENTATION_FINALIZE_SELECTIVE] Skipping full AI parsing, will do selective merge with targeted generation")
+            # Create a dummy parsed presentation - will be replaced by selective merge below
+            parsed_text_presentation = TextPresentationDetails(
+                textTitle=project_name or "Untitled",
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            )
+        elif parsed_text_presentation_from_fastpath:
             # Fast-path succeeded, use it directly
             logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Using parsed JSON from fast-path")
             parsed_text_presentation = parsed_text_presentation_from_fastpath
@@ -29002,7 +29014,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
 
         logger.info(parsed_text_presentation.contentBlocks)
         
-        # NEW: SELECTIVE SECTION REGENERATION - Merge original sections with newly generated ones
+        # NEW: SELECTIVE SECTION REGENERATION - Generate JSON blocks directly and merge manually
         # If user edited only specific sections, we preserve unchanged sections
         if payload.isCleanContent and payload.editedSectionIndices and payload.originalContent:
             try:
@@ -29010,21 +29022,38 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 edited_indices = set(int(idx.strip()) for idx in payload.editedSectionIndices.split(',') if idx.strip())
                 logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Edited section indices: {edited_indices}")
                 
-                # Only proceed if we have specific edited sections and they're not all sections
-                if edited_indices and len(edited_indices) < len(parsed_text_presentation.contentBlocks):
+                # Parse clean content to get section titles
+                clean_sections = []
+                lines = payload.aiResponse.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
+                    if header_match:
+                        clean_sections.append(header_match.group(2).strip())
+                
+                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(clean_sections)} sections in clean content")
+                
+                # Only proceed if we have specific edited sections
+                if edited_indices and len(edited_indices) < len(clean_sections):
                     logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Starting selective merge for {len(edited_indices)} edited sections")
                     
-                    # Parse original content to extract original sections
-                    original_presentation = None
+                    # Parse original content to extract original JSON (fast-path first, AI fallback)
+                    original_json = None
                     try:
-                        # First try to parse as JSON
-                        original_parsed = json.loads(payload.originalContent)
-                        if isinstance(original_parsed, dict) and 'textTitle' in original_parsed and 'contentBlocks' in original_parsed:
-                            original_presentation = TextPresentationDetails(**original_parsed)
-                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Successfully parsed original content as JSON")
+                        # First try to parse originalContent as JSON
+                        original_json = json.loads(payload.originalContent)
+                        if isinstance(original_json, dict) and 'contentBlocks' in original_json:
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Parsed original as JSON directly (no AI needed)")
+                        else:
+                            original_json = None
                     except:
+                        pass
+                    
+                    # If not JSON, parse with AI (only if needed)
+                    if not original_json:
                         logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Original content is not JSON, parsing with AI")
-                        # Parse with AI
                         original_presentation = await parse_ai_response_with_llm(
                             ai_response=payload.originalContent,
                             project_name=project_name,
@@ -29037,70 +29066,82 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                             dynamic_instructions=f"Parse this text presentation content into structured JSON. Preserve all sections and content exactly as they are.",
                             target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
                         )
+                        original_json = json.loads(original_presentation.json())
                     
-                    # Merge logic: Group content blocks by headline sections
-                    if original_presentation and len(original_presentation.contentBlocks) > 0:
-                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Original has {len(original_presentation.contentBlocks)} blocks")
-                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] New has {len(parsed_text_presentation.contentBlocks)} blocks")
-                        
-                        # Build section map from original content
-                        # A "section" is a headline block followed by its content blocks until the next headline
-                        original_sections = []
-                        current_section_blocks = []
-                        current_section_index = -1
-                        
-                        for block in original_presentation.contentBlocks:
-                            if block.type == 'headline' and block.level == 2:  # Section start
-                                if current_section_blocks:
-                                    original_sections.append(current_section_blocks)
-                                current_section_blocks = [block]
-                                current_section_index += 1
-                            else:
-                                current_section_blocks.append(block)
-                        
-                        # Add last section
-                        if current_section_blocks:
-                            original_sections.append(current_section_blocks)
-                        
-                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(original_sections)} sections in original")
-                        
-                        # Build section map from newly generated content
-                        new_sections = []
-                        current_section_blocks = []
-                        
-                        for block in parsed_text_presentation.contentBlocks:
-                            if block.type == 'headline' and block.level == 2:  # Section start
-                                if current_section_blocks:
-                                    new_sections.append(current_section_blocks)
-                                current_section_blocks = [block]
-                            else:
-                                current_section_blocks.append(block)
-                        
-                        # Add last section
-                        if current_section_blocks:
-                            new_sections.append(current_section_blocks)
-                        
-                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(new_sections)} sections in new content")
-                        
-                        # Merge: For unchanged sections, use original blocks; for edited, use new blocks
-                        if len(original_sections) == len(new_sections):
-                            merged_blocks = []
-                            for i in range(len(new_sections)):
-                                if i not in edited_indices:
-                                    # Use original section
-                                    merged_blocks.extend(original_sections[i])
-                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Preserved original ({len(original_sections[i])} blocks)")
-                                else:
-                                    # Use newly generated section
-                                    merged_blocks.extend(new_sections[i])
-                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Using newly generated ({len(new_sections[i])} blocks)")
-                            
-                            # Update parsed presentation with merged content
-                            parsed_text_presentation.contentBlocks = merged_blocks
-                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(new_sections) - len(edited_indices)} preserved")
+                    # Group original content blocks by section
+                    original_sections = []
+                    current_section_blocks = []
+                    
+                    for block in original_json['contentBlocks']:
+                        if block.get('type') == 'headline' and block.get('level') == 2:
+                            if current_section_blocks:
+                                original_sections.append(current_section_blocks)
+                            current_section_blocks = [block]
                         else:
-                            logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Cannot merge: original has {len(original_sections)} sections vs new has {len(new_sections)}")
-                            logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Using all newly generated content")
+                            current_section_blocks.append(block)
+                    
+                    if current_section_blocks:
+                        original_sections.append(current_section_blocks)
+                    
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(original_sections)} sections in original")
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Need to regenerate sections: {edited_indices}")
+                    
+                    # Generate new JSON blocks for edited sections only (no AI parsing needed!)
+                    new_section_blocks = {}
+                    for idx in edited_indices:
+                        if idx < len(clean_sections):
+                            section_title = clean_sections[idx]
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] 🔄 Generating JSON blocks for section {idx}: {section_title}")
+                            
+                            # Generate JSON blocks directly (1 AI call per edited section)
+                            blocks = await _generate_content_blocks_for_section(
+                                section_title=section_title,
+                                all_section_titles=clean_sections,
+                                language=payload.language
+                            )
+                            new_section_blocks[idx] = blocks
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Generated {len(blocks)} blocks for section {idx}")
+                    
+                    # Manual merge: no AI needed, just array manipulation
+                    if len(original_sections) == len(clean_sections):
+                        merged_blocks = []
+                        
+                        for i in range(len(clean_sections)):
+                            if i not in edited_indices:
+                                # Use original section blocks
+                                merged_blocks.extend(original_sections[i])
+                                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Preserved original ({len(original_sections[i])} blocks)")
+                            else:
+                                # Use newly generated blocks
+                                if i in new_section_blocks:
+                                    merged_blocks.extend(new_section_blocks[i])
+                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Using newly generated ({len(new_section_blocks[i])} blocks)")
+                        
+                        # Convert merged blocks to proper objects
+                        # First, ensure all blocks are dicts for uniform processing
+                        unified_blocks = []
+                        for b in merged_blocks:
+                            if isinstance(b, dict):
+                                unified_blocks.append(b)
+                            elif hasattr(b, 'dict'):
+                                unified_blocks.append(b.dict())
+                            else:
+                                logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Unknown block type: {type(b)}")
+                                unified_blocks.append(b)
+                        
+                        # Parse unified blocks into proper Pydantic models
+                        temp_presentation = TextPresentationDetails.parse_obj({
+                            'textTitle': original_json.get('textTitle', project_name or 'Untitled'),
+                            'contentBlocks': unified_blocks,
+                            'detectedLanguage': payload.language
+                        })
+                        parsed_text_presentation.contentBlocks = temp_presentation.contentBlocks
+                        parsed_text_presentation.textTitle = temp_presentation.textTitle
+                        
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(clean_sections) - len(edited_indices)} preserved")
+                    else:
+                        logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Cannot merge: section count mismatch (original={len(original_sections)}, clean={len(clean_sections)})")
+                        logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Falling back to full regeneration")
                 else:
                     logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] All sections edited or none specified, using all new content")
             except Exception as e:
@@ -32968,10 +33009,100 @@ def _any_text_presentation_changes_made(original_content: str, edited_content: s
         logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
 
-async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
-    """Generate content for clean titles (titles without descriptions)"""
+async def _generate_content_blocks_for_section(section_title: str, all_section_titles: list, language: str) -> list:
+    """
+    Generate content blocks (in JSON format) for a single section.
+    Returns a list of content block dictionaries ready to merge.
+    """
     try:
-        logger.info("Starting content generation for clean titles")
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Generating JSON blocks for section: {section_title}")
+        
+        # Build context of all section titles
+        context_info = "\n".join([f"- {title}" for title in all_section_titles])
+        
+        # Create prompt to generate JSON content blocks directly
+        prompt = f"""You are generating content blocks for a One-Pager document section. Generate the content as a JSON array of content blocks.
+
+**ALL SECTIONS IN THIS DOCUMENT:**
+{context_info}
+
+**YOUR TASK: Generate content blocks for this section:**
+**Section Title:** {section_title}
+
+**CRITICAL REQUIREMENTS:**
+1. Output ONLY a valid JSON array of content blocks
+2. Start with a headline block (level 2) with the section title
+3. Follow with content blocks: paragraphs, bullet_list, numbered_list, etc.
+4. The content MUST be:
+   - Comprehensive and detailed (aim for 200-300 words total)
+   - Educational and informative
+   - Well-structured with multiple blocks
+   - Written in {language} language
+5. Keep in mind the other sections to avoid repetition
+
+**OUTPUT FORMAT (JSON array):**
+```json
+[
+  {{"type": "headline", "level": 2, "text": "Section Title Here"}},
+  {{"type": "paragraph", "text": "Comprehensive paragraph with detailed information..."}},
+  {{"type": "bullet_list", "items": ["Point 1", "Point 2", "Point 3"]}},
+  {{"type": "paragraph", "text": "Another paragraph..."}}
+]
+```
+
+**Available block types:**
+- headline: {{"type": "headline", "level": 2, "text": "..."}}
+- paragraph: {{"type": "paragraph", "text": "...", "isRecommendation": false}}
+- bullet_list: {{"type": "bullet_list", "items": ["...", "..."]}}
+- numbered_list: {{"type": "numbered_list", "items": ["...", "..."]}}
+
+Generate ONLY the JSON array for "{section_title}" section:"""
+        
+        # Get response from OpenAI
+        response = await stream_openai_response_direct(prompt)
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Generated {len(response)} characters")
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Response preview: {response[:200]}")
+        
+        # Parse the JSON response
+        try:
+            # Clean up response - remove markdown code blocks if present
+            cleaned = response.strip()
+            if cleaned.startswith('```'):
+                # Remove ```json or ``` from start
+                lines = cleaned.split('\n')
+                cleaned = '\n'.join(lines[1:-1] if lines[-1].strip() == '```' else lines[1:])
+            
+            blocks = json.loads(cleaned)
+            
+            if not isinstance(blocks, list):
+                logger.error(f"[GENERATE_SECTION_BLOCKS] Response is not a list: {type(blocks)}")
+                raise ValueError("Expected JSON array")
+            
+            logger.info(f"[GENERATE_SECTION_BLOCKS] ✅ Successfully parsed {len(blocks)} content blocks")
+            return blocks
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"[GENERATE_SECTION_BLOCKS] Failed to parse JSON: {e}")
+            logger.error(f"[GENERATE_SECTION_BLOCKS] Raw response: {response[:500]}")
+            
+            # Fallback: create basic blocks manually
+            return [
+                {{"type": "headline", "level": 2, "text": section_title}},
+                {{"type": "paragraph", "text": f"Content for {section_title}. Please refer to the original for detailed information.", "isRecommendation": False}}
+            ]
+            
+    except Exception as e:
+        logger.error(f"[GENERATE_SECTION_BLOCKS] Error generating blocks: {e}", exc_info=True)
+        # Fallback
+        return [
+            {{"type": "headline", "level": 2, "text": section_title}},
+            {{"type": "paragraph", "text": f"Content for {section_title}.", "isRecommendation": False}}
+        ]
+
+async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
+    """Generate content for clean titles (titles without descriptions) - DEPRECATED, kept for compatibility"""
+    try:
+        logger.info("Starting content generation for clean titles (DEPRECATED PATH)")
         
         # Parse the clean content to identify sections
         sections = []
