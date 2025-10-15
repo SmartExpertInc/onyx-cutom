@@ -1231,6 +1231,17 @@ export default function CourseOutlineClient() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to advanced section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
       setAdvancedModeState("Clicked");
@@ -1443,7 +1454,7 @@ export default function CourseOutlineClient() {
                   </div>
                 )}
                 {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden shadow-lg transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
                   {/* Module header with number and title */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
                     <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
@@ -1487,7 +1498,7 @@ export default function CourseOutlineClient() {
                              className="flex items-center gap-2 py-3 px-5"
                              style={{ borderBottom: isLastLesson ? 'none' : '1px solid #E0E0E0' }}
                            >
-                             <span className="text-[#949CA8] text-sm flex-shrink-0">
+                             <span className="text-[#949CA8] text-xs flex-shrink-0">
                                {t('interface.courseOutline.lessonTitle', 'Lesson')} {lessonIdx + 1}:
                              </span>
                              <div className="relative group flex-grow">
@@ -1550,7 +1561,7 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <div className="w-full bg-white border border-[#E0E0E0] rounded-xl py-5 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div ref={advancedSectionRef} className="w-full bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <Textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
