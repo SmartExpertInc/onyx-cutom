@@ -1505,7 +1505,7 @@ export default function LessonPresentationClient() {
 
   return (
     <>
-    <main
+      <main
       className="min-h-screen py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
     >
       {/* Decorative gradient backgrounds */}
@@ -1536,18 +1536,18 @@ export default function LessonPresentationClient() {
         }}
       />
 
-      {/* Back button */}
-      <Link
-        href="/create/generate"
+        {/* Back button */}
+          <Link
+            href="/create/generate"
         className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
-        style={{ 
+          style={{
           color: '#000000',
           background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
         }}
       >
         <span>&lt;</span>
         <span>{t('interface.generate.back', 'Back')}</span>
-      </Link>
+          </Link>
 
         <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
@@ -1817,7 +1817,6 @@ export default function LessonPresentationClient() {
           )}
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.lesson', 'Lesson')} {t('interface.generate.content', 'Content')}</h2>
             {/* Loading state */}
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
@@ -1974,69 +1973,20 @@ export default function LessonPresentationClient() {
             )}
           </section>
 
-          {/* Inline Advanced section */}
-          {streamDone && content && (
-            <>
-              {showAdvanced && (
-                <div ref={advancedSectionRef} className="w-full bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <Textarea
-                    value={editPrompt}
-                    onChange={(e) => setEditPrompt(e.target.value)}
-                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-[#E0E0E0] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.95)" }}
-                  />
-
-                  {/* Example prompts */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                    {lessonExamples.map((ex) => (
-                      <button
-                        key={ex.short}
-                        type="button"
-                        onClick={() => toggleExample(ex)}
-                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full flex items-start cursor-pointer transition-all duration-200 text-black ${
-                          selectedExamples.includes(ex.short)
-                            ? 'bg-[#A8C5F0]'
-                            : 'bg-[#CCDBFC] hover:shadow-lg'
-                        }`}
-                      >
-                        <span className="pr-6">{ex.short}</span>
-                        <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={() => {
-                        handleApplyLessonEdit();
-                        setAdvancedModeState("Used");
-                      }}
-                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full bg-[#0F58F9] hover:bg-[#0D4AD1] text-[#FFFFFF] font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                    >
-                      {loadingEdit ? <LoadingAnimation message="Applying..." /> : 'Edit'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
           {streamDone && content && (
             <section className="flex flex-col gap-3">
-              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
+              <div style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pb-4 border-b border-[#E0E0E0]">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
                     <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                   </div>
                   <button
                     type="button"
-                    className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-1 text-sm text-[#71717AB2] hover:opacity-80 transition-opacity border border-[#71717AB2] rounded-lg px-3 py-2"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717AB2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
                     <span>{t('interface.generate.viewMore', 'View more')}</span>
                   </button>
                 </div>
@@ -2053,18 +2003,27 @@ export default function LessonPresentationClient() {
                           key={theme.id}
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
-                            ? 'bg-[#cee2fd]'
-                            : 'hover:shadow-lg'
+                          className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
+                            ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
+                            : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
                             }`}
                         >
+                          {/* Status indicator circle - top right */}
+                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
+                            ? 'bg-[#0F58F9]'
+                            : 'bg-white border border-[#E0E0E0]'
+                            }`}>
+                            {isSelected && (
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
                             <ThemeSvgComponent />
                           </div>
-                          <div className="flex items-center gap-1 px-2">
-                            <span className={`w-4 ${currentTheme.accentText} ${isSelected ? '' : 'opacity-0'}`}>
-                              ✔
-                            </span>
+                          <div className="flex items-center justify-center px-2">
                             <span className="text-sm text-[#20355D] font-medium select-none">
                               {theme.label}
                             </span>
@@ -2072,8 +2031,54 @@ export default function LessonPresentationClient() {
                         </button>
                       );
                     })}
+                    </div>
                   </div>
                 </div>
+
+                {/* Inline Advanced section */}
+                {showAdvanced && (
+                  <div ref={advancedSectionRef} className="bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mt-3" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                    <Textarea
+                      value={editPrompt}
+                      onChange={(e) => setEditPrompt(e.target.value)}
+                      placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
+                      className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-[#E0E0E0] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                      style={{ background: "rgba(255,255,255,0.95)" }}
+                    />
+
+                    {/* Example prompts */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                      {lessonExamples.map((ex) => (
+                        <button
+                          key={ex.short}
+                          type="button"
+                          onClick={() => toggleExample(ex)}
+                          className={`relative text-left rounded-md px-4 py-3 text-sm w-full flex items-start cursor-pointer transition-all duration-200 text-black ${
+                            selectedExamples.includes(ex.short)
+                              ? 'bg-[#A8C5F0]'
+                              : 'bg-[#CCDBFC] hover:shadow-lg'
+                            }`}
+                        >
+                          <span className="pr-6">{ex.short}</span>
+                          <Plus size={14} className="absolute right-2 top-2" style={{ color: '#0F58F9' }} />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        disabled={loadingEdit || !editPrompt.trim()}
+                        onClick={() => {
+                          handleApplyLessonEdit();
+                          setAdvancedModeState("Used");
+                        }}
+                        className="flex items-center gap-2 px-[25px] py-[14px] rounded-full bg-[#0F58F9] hover:bg-[#0D4AD1] text-[#FFFFFF] font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                      >
+                        {loadingEdit ? <LoadingAnimation message="Applying..." /> : 'Edit'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -2112,18 +2117,18 @@ export default function LessonPresentationClient() {
                   <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
                 </button>
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleGenerateFinal}
+                <button
+                  type="button"
+                  onClick={handleGenerateFinal}
                     className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                    disabled={loading || isGenerating}
-                  >
+                  disabled={loading || isGenerating}
+                >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
                     </svg>
                     <span className="select-none font-semibold">{t('interface.generate.generatePresentation', 'Generate Presentation')}</span>
-                  </button>
-                </div>
+                </button>
+              </div>
               </div>
             </div>
           )}
