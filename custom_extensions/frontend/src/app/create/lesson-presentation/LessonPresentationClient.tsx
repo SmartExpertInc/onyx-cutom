@@ -1890,7 +1890,7 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="bg-white rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
+                      <div key={slideIdx} className="bg-white rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
                         {/* Header with number and title */}
                         <div className="flex items-center gap-2 px-5 py-4 border-b border-[#E0E0E0]">
                           <span className="font-semibold text-lg text-[#0D001B] select-none flex-shrink-0">
@@ -1969,11 +1969,11 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-              <div className="bg-white rounded-xl pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="bg-white rounded-lg pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
                   <div className="flex flex-col">
                     <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.themes', 'Themes')}</h2>
-                    <p className="mt-1 text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                    <p className="text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                   </div>
                   <button
                     type="button"
@@ -2030,7 +2030,7 @@ export default function LessonPresentationClient() {
 
                 {/* Inline Advanced section */}
                 {showAdvanced && (
-                  <div ref={advancedSectionRef} className="bg-white border border-[#E0E0E0] rounded-xl py-8 px-10 flex flex-col gap-3 mt-3" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div ref={advancedSectionRef} className="bg-white border border-[#E0E0E0] rounded-lg py-8 px-10 flex flex-col gap-3 mt-3" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     <Textarea
                       value={editPrompt}
                       onChange={(e) => setEditPrompt(e.target.value)}
