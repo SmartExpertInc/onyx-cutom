@@ -1497,7 +1497,12 @@ export default function TextPresentationClient() {
 
       // Like presentations: send original JSON as aiResponse if available
       console.log('[TEXT_PRESENTATION_FINALIZE] originalJsonResponse available:', !!originalJsonResponse, 'length:', originalJsonResponse?.length || 0);
-      console.log('[TEXT_PRESENTATION_FINALIZE] Sending as aiResponse:', originalJsonResponse ? 'JSON' : 'display text');
+      
+      // Log what we're actually sending
+      const aiResponseToSend = isCleanContent ? contentToSend : (originalJsonResponse || contentToSend);
+      console.log('[TEXT_PRESENTATION_FINALIZE] Sending as aiResponse:', isCleanContent ? 'clean titles' : (originalJsonResponse ? 'original JSON' : 'display text'));
+      console.log('[TEXT_PRESENTATION_FINALIZE] aiResponse length:', aiResponseToSend.length);
+      console.log('[TEXT_PRESENTATION_FINALIZE] aiResponse preview:', aiResponseToSend.substring(0, 200));
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
@@ -1505,7 +1510,9 @@ export default function TextPresentationClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: originalJsonResponse || contentToSend,
+          // CRITICAL: When sections are edited (isCleanContent), send the clean titles (contentToSend)
+          // Otherwise, send original JSON for fast-path parsing
+          aiResponse: aiResponseToSend,
           prompt: currentPrompt,
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
