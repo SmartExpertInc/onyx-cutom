@@ -75,11 +75,11 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   return (
     <div 
       ref={advancedSectionRef} 
-      className="bg-white border border-[#E0E0E0] rounded-lg py-5 px-8 flex flex-col gap-6 mt-3" 
+      className="bg-white border border-[#E0E0E0] rounded-lg py-5 px-8 flex flex-col gap-4 mt-3" 
       style={{ animation: 'fadeInDown 0.25s ease-out both' }}
     >
       {/* Header section with badge */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mb-[10px]">
         {/* AI Agent Badge */}
         <div className="inline-flex items-center gap-2 self-start">
           <span 
@@ -114,7 +114,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       </h3>
 
       {/* Example prompts */}
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-3 mb-[20px]">
         {examples.map((ex) => {
           const isSelected = selectedExamples.includes(ex.short);
           return (
@@ -141,7 +141,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       </div>
 
       {/* Textarea with embedded Send button */}
-      <div className="relative">
+      <div className="relative w-[80%] mx-auto mb-[20px]">
         <Textarea
           value={editPrompt}
           onChange={(e) => setEditPrompt(e.target.value)}
