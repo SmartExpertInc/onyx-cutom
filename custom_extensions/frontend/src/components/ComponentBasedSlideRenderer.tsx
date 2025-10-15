@@ -26,7 +26,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   getPlaceholderGenerationState
 }) => {
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
-  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
+  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
 
   // Debug logging for version resolution (enable with window.__DEBUG_SLIDE_VERSIONS__ = true)
   if (typeof window !== 'undefined' && (window as any).__DEBUG_SLIDE_VERSIONS__) {
