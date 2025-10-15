@@ -950,6 +950,10 @@ export default function QuizClient() {
                 if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
                   console.log('[QUIZ_JSON_STREAM] ✅ Complete JSON parsed, questions:', parsed.questions.length);
                   displayText = convertQuizJsonToDisplay(parsed);
+                  // Hide explanations in live preview; show them only after stream completes
+                  if (!streamDone) {
+                    displayText = displayText.replace(/\n\*\*Explanation:\*\*.*\n/g, '\n');
+                  }
                   setOriginalJsonResponse(accumulatedText);
                   setOriginalQuizData(displayText);
                 } else {
