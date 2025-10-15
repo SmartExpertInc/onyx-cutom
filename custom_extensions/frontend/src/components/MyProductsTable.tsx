@@ -58,9 +58,11 @@ import {
   FileStack,
   ClipboardPenLine,
   Users,
-  Calendar
+  Calendar,
+  FolderPlus
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
+import FolderModal from "../app/projects/FolderModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ProjectCard as CustomProjectCard } from "./ui/project-card";
 import { Button } from "@/components/ui/button"
@@ -2255,6 +2257,15 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
 
+  // Folder modal state
+  const [showFolderModal, setShowFolderModal] = useState(false);
+
+  // Handle folder creation
+  const handleFolderCreated = (newFolder: any) => {
+    setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
+    setShowFolderModal(false);
+  };
+
   // Handle sorting
   const handleSort = (column: typeof sortBy) => {
     if (sortBy === column) {
@@ -3731,87 +3742,18 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
 
   return (
     <div>
-      {!trashMode && (
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-3">
-              <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
-                <Button 
-                  variant="download" 
-                  className="rounded-full font-bold bg-[#0F58F9] font-medium"
-                  onClick={handleCreateProduct}
-                  asChild
-                >
-                  <div>
-                  <Plus size={16} className="text-white" />
-                  <span className="font-bold tracking-wider pr-2">{auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}</span>
-                  <span className="ml-1.5 rounded-full bg-white text-[#0F58F9] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                    AI
-                  </span>
-                  </div>
-                </Button>
-              </Link>
-          </div>
-        </div>
-      )}
-
       {/* Navigation Panel */}
 
       {!trashMode && (
         <div className="flex justify-between gap-4 mb-4">
-          <nav className="flex pb-1 h-8 pt-2 mt-2">
-            <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
-                activeTab === "all" 
-                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
-                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("all")}
+          <div className="flex">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => setShowFolderModal(true)}
             >
-              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.7826 0.625H1.44922M13.4492 4.625H1.44922M9.51589 8.55833H1.44922" stroke={`${activeTab === "all" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              {t("interface.all", "All")}
-            </button>
-            <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
-                activeTab === "created" 
-                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
-                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("created")}
-            >
-              <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.2492 13.541V12.0966C11.2492 11.3304 10.9542 10.5956 10.4291 10.0538C9.90402 9.51205 9.19182 9.20768 8.44922 9.20768H4.24922C3.50661 9.20768 2.79442 9.51205 2.26932 10.0538C1.74422 10.5956 1.44922 11.3304 1.44922 12.0966V13.541M15.4492 13.541V12.0966C15.4488 11.4565 15.2423 10.8347 14.8622 10.3288C14.4821 9.82291 13.9499 9.46159 13.3492 9.30157M11.2492 0.634905C11.8515 0.794011 12.3853 1.15541 12.7666 1.66213C13.1478 2.16885 13.3547 2.79206 13.3547 3.43352C13.3547 4.07497 13.1478 4.69818 12.7666 5.2049C12.3853 5.71162 11.8515 6.07302 11.2492 6.23213M9.14922 3.4299C9.14922 5.02539 7.89562 6.31879 6.34922 6.31879C4.80282 6.31879 3.54922 5.02539 3.54922 3.4299C3.54922 1.83442 4.80282 0.541016 6.34922 0.541016C7.89562 0.541016 9.14922 1.83442 9.14922 3.4299Z" stroke={`${activeTab === "created" ? "#719AF5" : "#8D8D95"}`} stroke-opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              {t("interface.createdByYou", "Created by you")}
-            </button>
-            <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
-                activeTab === "shared" 
-                  ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
-                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("shared")}
-            >
-              <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5.17589 8.80273L9.72922 11.4561M9.72255 4.13606L5.17589 6.78939M13.4492 3.12939C13.4492 4.23396 12.5538 5.12939 11.4492 5.12939C10.3446 5.12939 9.44922 4.23396 9.44922 3.12939C9.44922 2.02482 10.3446 1.12939 11.4492 1.12939C12.5538 1.12939 13.4492 2.02482 13.4492 3.12939ZM5.44922 7.79606C5.44922 8.90063 4.55379 9.79606 3.44922 9.79606C2.34465 9.79606 1.44922 8.90063 1.44922 7.79606C1.44922 6.69149 2.34465 5.79606 3.44922 5.79606C4.55379 5.79606 5.44922 6.69149 5.44922 7.79606ZM13.4492 12.4627C13.4492 13.5673 12.5538 14.4627 11.4492 14.4627C10.3446 14.4627 9.44922 13.5673 9.44922 12.4627C9.44922 11.3582 10.3446 10.4627 11.4492 10.4627C12.5538 10.4627 13.4492 11.3582 13.4492 12.4627Z" stroke={`${activeTab === "shared" ? "#719AF5" : "#8D8D95"}`} stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              {t("interface.sharedWithYou", "Shared with you")}
-            </button>
-            <button
-              className={`pb-2 px-3 text-sm flex items-center gap-2 font-medium border-b-1 transition-colors ${
-                activeTab === "favorites" 
-                 ? "border-b-3 border-[#719AF5] text-[#719AF5]" 
-                  : "border-b-1 border-[#B8B8BC] text-[#8D8D95] hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("favorites")}
-            >
-              <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6.82013 1.41315C6.96675 0.961894 7.60516 0.961896 7.75178 1.41315L8.93544 5.0561C9.00102 5.25791 9.18908 5.39454 9.40127 5.39454H13.2317C13.7062 5.39454 13.9034 6.0017 13.5196 6.28059L10.4207 8.53206C10.249 8.65678 10.1772 8.87786 10.2428 9.07967L11.4264 12.7226C11.5731 13.1739 11.0566 13.5491 10.6727 13.2702L7.57385 11.0188C7.40218 10.894 7.16973 10.894 6.99806 11.0188L3.89918 13.2702C3.51532 13.5491 2.99884 13.1739 3.14546 12.7226L4.32913 9.07967C4.3947 8.87786 4.32287 8.65678 4.1512 8.53206L1.05232 6.28059C0.668457 6.0017 0.865736 5.39454 1.34021 5.39454H5.17064C5.38283 5.39454 5.57089 5.25791 5.63646 5.0561L6.82013 1.41315Z" stroke={`${activeTab === "favorites" ? "#719AF5" : "#8D8D95"}`} stroke-width="0.979592"/>
-              </svg>
-              {t("interface.favorites", "Favorites")}
-            </button>
-          </nav>
+              <FolderPlus size={16} strokeWidth={1.5} className="text-white" /> Add folder
+            </Button>
+          </div>
           <div className="flex gap-2">
             <div className="relative w-75 h-9">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
@@ -3973,6 +3915,11 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                 onDelete={handleDeleteProject}
                 onRestore={handleRestoreProject}
                 onDeletePermanently={handleDeletePermanently}
+                onMoveToFolder={(projectId: number, targetFolderId: number | null) => {
+                  window.dispatchEvent(new CustomEvent("moveProjectToFolder", {
+                    detail: { projectId, folderId: targetFolderId }
+                  }));
+                }}
                 isTrashMode={trashMode}
                 folderId={folderId}
                 t={t}
@@ -4276,6 +4223,14 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         unassignedProjects={getProjectsForFolder(null).filter(
           (p) => !p.folderId
         )}
+      />
+
+      {/* Folder Modal */}
+      <FolderModal
+        open={showFolderModal}
+        onClose={() => setShowFolderModal(false)}
+        onFolderCreated={handleFolderCreated}
+        existingFolders={folders}
       />
     </div>
   );

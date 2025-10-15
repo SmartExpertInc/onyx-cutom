@@ -53,6 +53,7 @@ import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } fro
 import Userback, { UserbackWidget } from '@userback/widget';
 import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
 import { Button } from '@/components/ui/button';
+import MyProductsTable from '@/components/MyProductsTable';
 
 
 interface User {
@@ -512,7 +513,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             trackPageView("My products");
             onFolderSelect(null);
           }}
-          className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
+          className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'my-products' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
         >
           <FolderOpen size={18} strokeWidth={1.5} className='font-normal' />
           <span>My products</span>
@@ -643,7 +644,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -674,11 +675,12 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
     if (isAudits) return t('interface.audits', 'Audits');
+    if (isMyProducts) return t('interface.myProducts', 'My products');
     if (isWorkspace) {
       return workspaceData?.name || t('interface.workspace', 'Workspace');
     }
     if (isExportLMS) return t('interface.exportToLMS', 'Export to LMS');
-    return t('interface.products', 'Products');
+    return t('interface.products', 'Home');
   };
 
   return (
@@ -728,6 +730,7 @@ const ProjectsPageInner: React.FC = () => {
   const isAudits = currentTab === 'audits';
   const isWorkspace = currentTab === 'workspace';
   const isExportLMS = currentTab === 'export-lms';
+  const isMyProducts = currentTab === 'my-products';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -754,10 +757,12 @@ const ProjectsPageInner: React.FC = () => {
   const { isEnabled: offersTabEnabled, loading: offersLoading } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled, loading: workspaceLoading } = useFeaturePermission('workspace_tab');
   const { isEnabled: exportToLMSEnabled, loading: exportLoading } = useFeaturePermission('export_to_lms');
+  const { isEnabled: myProductsTabEnabled, loading: myProductsLoading } = useFeaturePermission('my_products_tab');
   
   const isOffersAllowed = isOffers && offersTabEnabled;
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
   const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
+  const isMyProductsAllowed = isMyProducts && myProductsTabEnabled;
 
   const [isQuestionnaireCompleted, setQuestionnaireCompleted] = useState<boolean | null>(sessionStorage.getItem('questionnaireCompleted') === 'true');
 
@@ -1200,7 +1205,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
       <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
@@ -1213,7 +1218,10 @@ const ProjectsPageInner: React.FC = () => {
               <AuditsTable companyId={selectedFolderId} />
             ) : isWorkspaceAllowed ? (
               <WorkspaceMembers />
-            ) : isExportLMSAllowed ? (
+            ) : isMyProductsAllowed ? (
+              <MyProductsTable />
+            ) : isExportLMSAllowed ?
+            (
               <>
                 {lmsAccountStatus === 'no-account' && (
                   <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />

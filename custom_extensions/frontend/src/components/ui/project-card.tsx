@@ -59,6 +59,7 @@ interface ProjectCardProps {
   onDelete: (id: number, scope: "self" | "all") => void;
   onRestore: (id: number) => void;
   onDeletePermanently: (id: number) => void;
+  onMoveToFolder?: (projectId: number, targetFolderId: number | null) => void;
   isTrashMode: boolean;
   folderId?: number | null;
   t?: (key: string, fallback?: string) => string;
@@ -169,6 +170,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onDelete,
   onRestore,
   onDeletePermanently,
+  onMoveToFolder,
   isTrashMode,
   folderId,
   t = (key: string, fallback?: string) => fallback || key,
@@ -611,6 +613,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       <PenLine size={16} className="text-gray-500" />
                       <span>{t("actions.rename", "Rename...")}</span>
                     </DropdownMenuItem>
+                    {onMoveToFolder && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setMenuOpen(false);
+                          // For now, we'll move to "No folder" (null)
+                          // In a real implementation, you'd show a folder selection modal
+                          onMoveToFolder(project.id, null);
+                        }}
+                      >
+                        <FolderMinus size={16} className="text-gray-500" />
+                        <span>{t("actions.moveToFolder", "Move to folder...")}</span>
+                      </DropdownMenuItem>
+                    )}
                     {/* <DropdownMenuItem>
                       <Star size={16} className="text-gray-500" />
                       <span>
