@@ -2284,7 +2284,9 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
-async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: str | None = None) -> list:
+from typing import Optional
+
+async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: Optional[str] = None) -> list:
     """
     Process a batch of slides in parallel for better performance.
     
@@ -2479,7 +2481,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     theme: str,
     output_filename: str,
     use_cache: bool = True,
-    deck_template_version: str | None = None
+    deck_template_version: Optional[str] = None
 ) -> str:
     """
     Generate a PDF slide deck with dynamic height per slide.
