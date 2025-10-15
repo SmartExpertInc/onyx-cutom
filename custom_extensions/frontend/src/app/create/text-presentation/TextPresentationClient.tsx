@@ -1025,41 +1025,57 @@ export default function TextPresentationClient() {
                 }
               } catch (e) {
                 // JSON incomplete or invalid - create simple readable preview from raw text
-                console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Creating readable preview from raw text');
+                console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Creating readable preview from incomplete JSON');
                 
                 // Extract text title if available
                 const titleMatch = accumulatedText.match(/"textTitle"\s*:\s*"([^"]+)"/);
                 const title = titleMatch ? titleMatch[1] : "Generating Content...";
                 
-                // Extract all section titles
-                const sectionTitleMatches = accumulatedText.match(/"sectionTitle"\s*:\s*"([^"]+)"/g);
-                const sectionCount = sectionTitleMatches ? sectionTitleMatches.length : 0;
-                
-                // Extract all section text content
-                const sectionTextMatches = accumulatedText.match(/"text"\s*:\s*"([^"]+)"/g);
-                
-                // Create simple markdown preview
                 displayText = `# ${title}\n\n`;
-                if (sectionCount > 0) {
-                  displayText += `**Generating ${sectionCount} section${sectionCount > 1 ? 's' : ''}...**\n\n`;
+                
+                // Try to extract contentBlocks array even if JSON is incomplete
+                const contentBlocksMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[([^\]]*)/);
+                if (contentBlocksMatch) {
+                  const blocksText = contentBlocksMatch[1];
                   
-                  // Show partial sections with text if we can extract them
-                  sectionTitleMatches?.forEach((match, index) => {
-                    const sectionTitle = match.match(/"sectionTitle"\s*:\s*"([^"]+)"/)?.[1];
-                    if (sectionTitle) {
-                      displayText += `## ${sectionTitle}\n\n`;
-                      
-                      // Add section text if available for this section
-                      if (sectionTextMatches && sectionTextMatches[index]) {
-                        const sectionText = sectionTextMatches[index].match(/"text"\s*:\s*"([^"]+)"/)?.[1];
-                        if (sectionText) {
-                          displayText += `${sectionText}\n\n`;
-                        }
+                  // Extract all blocks with type and text
+                  // Pattern matches: {"type":"headline","level":2,"text":"Section Title"}
+                  // or {"type":"paragraph","text":"Content text"}
+                  const headlinePattern = /"type"\s*:\s*"headline"[^}]*"text"\s*:\s*"([^"]+)"/g;
+                  const paragraphPattern = /"type"\s*:\s*"paragraph"[^}]*"text"\s*:\s*"([^"]+)"/g;
+                  
+                  const headlines = [];
+                  const paragraphs = [];
+                  
+                  let match;
+                  while ((match = headlinePattern.exec(blocksText)) !== null) {
+                    headlines.push({ index: match.index, text: match[1] });
+                  }
+                  
+                  while ((match = paragraphPattern.exec(blocksText)) !== null) {
+                    paragraphs.push({ index: match.index, text: match[1] });
+                  }
+                  
+                  if (headlines.length > 0 || paragraphs.length > 0) {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Extracted', headlines.length, 'headlines and', paragraphs.length, 'paragraphs');
+                    
+                    // Combine and sort by index to maintain order
+                    const allBlocks = [
+                      ...headlines.map(h => ({ ...h, type: 'headline' })),
+                      ...paragraphs.map(p => ({ ...p, type: 'paragraph' }))
+                    ].sort((a, b) => a.index - b.index);
+                    
+                    // Generate markdown maintaining block order
+                    allBlocks.forEach(block => {
+                      if (block.type === 'headline') {
+                        displayText += `## ${block.text}\n\n`;
+                      } else if (block.type === 'paragraph') {
+                        displayText += `${block.text}\n\n`;
                       }
-                      
-                      displayText += '---\n\n';
-                    }
-                  });
+                    });
+                  } else {
+                    displayText += "**Generating content sections...**\n\n";
+                  }
                 } else {
                   displayText += "**Generating content sections...**\n\n";
                 }
