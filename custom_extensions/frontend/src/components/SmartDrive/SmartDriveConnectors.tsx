@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -794,12 +794,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             
               <div className="flex items-center gap-2">
                 {activeTab === 'smart-drive' && (
-                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md border-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50">
+                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md bg-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50">
                     <Upload className="w-4 h-4 mr-2"/>Upload
                   </Button>)}
                   <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
                 {activeTab === 'smart-drive' && ( 
-                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md border-white border border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50">
+                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50">
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
@@ -810,7 +810,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               </div>
             
             {activeTab === 'smart-drive' && (<div 
-              className="flex items-center px-3 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="flex items-center px-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
                 setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
@@ -976,37 +976,46 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
        <div className="mb-8">
        {entitlements && (
             <div className="bg-white p-6 mb-6">
-              <div className="space-y-4">
-                {/* Connectors Progress */}
-                <div>
-                  <div className="w-full flex justify-between mb-4 items-center bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
-                    </div>
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        entitlements.connectors_used >= entitlements.connectors_limit
-                          ? 'bg-red-400'
-                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                          ? 'bg-yellow-400'
-                          : 'bg-[#719AF5]'
-                      }`}
-                      style={{
-                        width: `${Math.min(
-                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                    <span className="text-gray-600">
-                      {entitlements.connectors_used} / {entitlements.connectors_limit}
-                    </span>
-                  </div>
-                  {entitlements.connectors_used >= entitlements.connectors_limit && (
-                    <div className="mt-2 text-right">
-                      <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
-                    </div>
-                  )}
+              {/* Header with title and search */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
+                <div className="relative w-64 h-9">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                  <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
+                </div>
+              </div>
+              
+              {/* Progress bar section */}
+              <div className="space-y-3">
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      entitlements.connectors_used >= entitlements.connectors_limit
+                        ? 'bg-red-400'
+                        : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                        ? 'bg-yellow-400'
+                        : 'bg-[#719AF5]'
+                    }`}
+                    style={{
+                      width: `${Math.min(
+                        (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">
+                    {entitlements.connectors_used}/{entitlements.connectors_limit} used
+                  </span>
+                  <Button 
+                    className="bg-[#719AF5] text-white rounded-md" 
+                    size="sm" 
+                    onClick={() => setShowAddonsModal(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Buy more connectors
+                  </Button>
                 </div>
               </div>
             </div>
@@ -1036,13 +1045,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                    }}
                  >
                    <CardContent className="p-4">
-                   <div className="flex items-left flex-col gap-3 mb-3">
+                   <div className="flex items-left flex-col gap-1 mb-3">
                      <Image
                        src={connector.logoPath}
                        alt={`${connector.name} logo`}
                        width={40}
                        height={40}
-                       className="object-contain w-8 h-8"
+                       className="object-contain w-10 h-10"
                        priority={false}
                        unoptimized={true}
                      />
@@ -1060,7 +1069,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        )}
                      </div>
                    </div>
-                    <div className="w-full border-t border-[#E0E0E0]"></div>
+                    <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
                    <div className="flex items-center justify-between">
                      <Button
                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -1078,8 +1087,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                            handleConnectClick(connector.id, connector.name);
                          }
                        }}
-                       variant="outline"
-                       className={`text-xs font-medium rounded-sm shadow-sm border ${
+                       className={`text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border ${
                          hasConnectors 
                            ? 'border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50' 
                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -1169,13 +1177,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         }}
                       >
                         <CardContent className="p-4">
-                          <div className="flex items-left flex-col gap-3 mb-3">
+                          <div className="flex items-left flex-col gap-1 mb-3">
                             <Image
                               src={connector.logoPath}
                               alt={`${connector.name} logo`}
                               width={40}
                               height={40}
-                              className="object-contain w-8 h-8"
+                              className="object-contain w-10 h-10"
                               priority={false}
                               unoptimized={true}
                             />
@@ -1193,7 +1201,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               )}
                             </div>
                           </div>
-                          <div className="w-full border-t border-[#E0E0E0]"></div>
+                          <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
                           <div className="flex items-center justify-between">
                             <Button
                               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -1211,10 +1219,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                 }
                               }}
                               variant="outline"
-                              className={`text-xs border ${
+                              className={`text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border ${
                                 hasConnectors 
-                                  ? 'border-blue-200 text-blue-600 hover:bg-blue-50' 
-                                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                                   ? 'border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50' 
+                                   : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                               }`}
                             >
                               View Integration
@@ -1228,7 +1236,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                 }
                                 // Handle toggle logic for existing connectors
                               }}
-                              className="isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white"
+                              className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
                             />
                           </div>
 
