@@ -59,10 +59,12 @@ import {
   ClipboardPenLine,
   Users,
   Calendar,
-  FolderPlus
+  FolderPlus,
+  EllipsisVertical
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import FolderModal from "../app/projects/FolderModal";
+import FolderSelectionModal from "./ui/folder-selection-modal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ProjectCard as CustomProjectCard } from "./ui/project-card";
 import { Button } from "@/components/ui/button"
@@ -1266,6 +1268,8 @@ const ProjectRowMenu: React.FC<{
   onRestore: (id: number) => void;
   onDeletePermanently: (id: number) => void;
   folderId?: number | null;
+  folders?: Folder[];
+  onMoveToFolder?: (projectId: number, targetFolderId: number | null) => void;
 }> = ({
   project,
   formatDate,
@@ -1274,6 +1278,8 @@ const ProjectRowMenu: React.FC<{
   onRestore,
   onDeletePermanently,
   folderId,
+  folders = [],
+  onMoveToFolder,
 }) => {
   const { t, language } = useLanguage();
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -1287,6 +1293,7 @@ const ProjectRowMenu: React.FC<{
     "below"
   );
   const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+  const [showFolderSelectionModal, setShowFolderSelectionModal] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const isOutline =
@@ -1501,6 +1508,20 @@ const ProjectRowMenu: React.FC<{
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
                   </Button> */}
+                  {onMoveToFolder && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        setShowFolderSelectionModal(true);
+                      }}
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
+                    >
+                      <FolderPlus size={16} className="text-gray-500" />
+                      <span>{t("actions.moveToFolder", "Move to folder...")}</span>
+                    </Button>
+                  )}
                   {isOutline && qualityTierEnabled && (
                     <Button
                       onClick={(e) => {
@@ -1794,6 +1815,20 @@ const ProjectRowMenu: React.FC<{
           }}
         />
       )}
+
+      {/* Folder Selection Modal */}
+      <FolderSelectionModal
+        isOpen={showFolderSelectionModal}
+        onClose={() => setShowFolderSelectionModal(false)}
+        onSelectFolder={(targetFolderId) => {
+          if (onMoveToFolder) {
+            onMoveToFolder(project.id, targetFolderId);
+          }
+        }}
+        folders={folders}
+        currentFolderId={project.folderId || null}
+        title={`Move '${project.title}'`}
+      />
     </div>
   );
 };
@@ -3749,7 +3784,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between gap-4 mb-4">
           <div className="flex">
             <Button 
-              className="flex items-center gap-2 border border-[var(--border-light)] text-gray-900 px-3 py-2 shadow-sm rounded-md"
+              className="flex items-center gap-2 border border-[var(--border-light)] text-gray-900 px-4 py-2 shadow-sm rounded-md"
               onClick={() => setShowFolderModal(true)}
             >
               <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
@@ -3906,28 +3941,26 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         </div>
       )}
 
-      {/* Folders Section */}
-      {!trashMode && folders.length > 0 && (
+      {/* Folders Section - Only show in grid view mode */}
+      {!trashMode && folders.length > 0 && viewMode === "grid" && (
         <div className="mb-8">
-          {/* Show All button */}
-          <div className="mb-4">
-            <button
-              onClick={() => setSelectedFolderId(null)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedFolderId === null
-                  ? 'bg-blue-500 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Show All Products
-            </button>
-          </div>
+          {/* Show All button - only show when a folder is selected */}
+          {selectedFolderId && (
+            <div className="mb-4">
+              <button
+                onClick={() => setSelectedFolderId(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-b from-gray-50 to-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                {`< Back`}
+              </button>
+            </div>
+          )}
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-5">
             {folders.map((folder) => (
               <div
                 key={folder.id}
-                className={`bg-white border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer ${
+                className={`bg-white border rounded-lg p-2 hover:shadow-md transition-all cursor-pointer ${
                   selectedFolderId === folder.id 
                     ? 'border-blue-500 bg-blue-50 shadow-md' 
                     : 'border-gray-200'
@@ -3938,11 +3971,9 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 flex items-center justify-center">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-[#71717A]">
-                        <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
+                    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#71717A" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-regular text-sm text-gray-900 truncate">{folder.name}</h3>
                       <p className="text-xs text-gray-500">
@@ -3954,7 +3985,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal size={16} className="text-gray-500" />
+                          <EllipsisVertical size={16} className="text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -4090,14 +4121,41 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white divide-y divide-[#E0E0E0]">
-                {/* Show folders first */}
-                {!trashMode && folders.map((folder, index) => (
+                {/* Show back row when inside a folder */}
+                {!trashMode && selectedFolderId && (
+                  <TableRow
+                    className="bg-blue-50 hover:bg-blue-100 transition cursor-pointer border-b-2 border-blue-200"
+                    onClick={() => setSelectedFolderId(null)}
+                  >
+                    <TableCell className="px-3 py-3 whitespace-nowrap" colSpan={5}>
+                      <div className="flex items-center gap-3">
+                        <ChevronLeft size={20} className="text-blue-600" />
+                        <div className="flex items-center gap-2">
+                          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="text-blue-600">
+                            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          <span className="text-sm font-semibold text-blue-900">
+                            {folders.find(f => f.id === selectedFolderId)?.name || 'Folder'} 
+                            <span className="text-blue-600 ml-2">({getProjectsForFolder(selectedFolderId).length} {getProjectsForFolder(selectedFolderId).length === 1 ? 'item' : 'items'})</span>
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+
+                {/* Show folders first - only when not inside a folder */}
+                {!trashMode && !selectedFolderId && folders.map((folder, index) => (
                   <TableRow
                     key={`folder-${folder.id}`}
                     className="hover:bg-gray-50 transition group cursor-pointer"
-                    onClick={() => {
-                      // Handle folder click - could navigate to folder contents
-                      console.log('Folder clicked:', folder.name);
+                    onClick={(e) => {
+                      // Don't trigger if clicking on the dropdown menu
+                      const target = e.target as HTMLElement;
+                      if (target.closest('button') || target.closest('[role="menu"]')) {
+                        return;
+                      }
+                      setSelectedFolderId(folder.id);
                     }}
                   >
                     <TableCell className="px-3 py-3 whitespace-nowrap">
@@ -4111,7 +4169,9 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     </TableCell>
                     <TableCell className="px-3 py-3">
-                      <div className="text-sm font-medium text-gray-900">{folder.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900">{folder.name}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="px-3 py-3">
                       <div className="flex items-center gap-2">
@@ -4127,7 +4187,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                     <TableCell className="px-3 py-3 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <MoreHorizontal size={16} className="text-gray-500" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -4271,6 +4331,12 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           onRestore={handleRestoreProject}
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
+                          folders={folders}
+                          onMoveToFolder={(projectId: number, targetFolderId: number | null) => {
+                            window.dispatchEvent(new CustomEvent("moveProjectToFolder", {
+                              detail: { projectId, folderId: targetFolderId }
+                            }));
+                          }}
                         />
                       </TableCell>
                     </TableRow>

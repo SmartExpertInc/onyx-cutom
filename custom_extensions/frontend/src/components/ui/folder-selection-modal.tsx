@@ -219,7 +219,7 @@ export const FolderSelectionModal: React.FC<FolderSelectionModalProps> = ({
           <Button 
             onClick={handleConfirm}
             disabled={selectedFolderId === undefined}
-            className="bg-gray-600 hover:bg-gray-700"
+            className="bg-blue-600 text-white rounded-full hover:bg-gray-700"
           >
             {t('interface.move', 'Move')}
           </Button>

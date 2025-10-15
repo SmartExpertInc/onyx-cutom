@@ -54,6 +54,7 @@ interface Project {
   createdBy: string;
   createdAt: string;
   isGamma?: boolean;
+  folderId?: number | null;
 }
 
 interface Folder {
@@ -1001,7 +1002,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }
         }}
         folders={folders}
-        currentFolderId={folderId}
+        currentFolderId={project.folderId || null}
         title={`Move '${project.title}'`}
       />
     </Card>
