@@ -4332,7 +4332,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                         <TableCell className="px-3 py-3">
                           <span className="text-sm text-gray-500">Today</span>
                         </TableCell>
-                        <TableCell className="px-2 pr-7 py-2 text-right">
+                        <TableCell className="px-2 pr-5 py-2 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button 
