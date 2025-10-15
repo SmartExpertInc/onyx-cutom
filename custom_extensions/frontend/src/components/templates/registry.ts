@@ -2752,7 +2752,22 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     category: 'content',
     icon: '🟩',
     component: DeiMethodsSlideTemplate,
-    defaultProps: {},
+    defaultProps: {
+      headerTitle: 'Methods to Meet DEI Standards',
+      section1Title: 'Diverse Recruitment:',
+      section1Lines: [
+        'Source candidates from underrepresented groups.',
+        'Use blind screening processes to focus on skills and qualifications.'
+      ],
+      section2Title: 'Mentorship and Sponsorship Programs:',
+      section2Lines: [
+        'Mentor and sponsor diverse talent.',
+        'Create opportunities for growth & advancement.'
+      ],
+      avatarPath: '',
+      logoPath: '',
+      logoText: 'Your Logo'
+    },
     propSchema: {
       headerTitle: { type: 'text', label: 'Header Title', required: true },
       section1Title: { type: 'text', label: 'Section 1 Title', required: true },
