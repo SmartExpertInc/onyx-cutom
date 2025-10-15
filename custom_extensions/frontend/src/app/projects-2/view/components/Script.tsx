@@ -216,7 +216,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           {/* Avatar Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
-              onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
+              onClick={() => {
+                setIsAvatarDropdownOpen(!isAvatarDropdownOpen);
+                // Remove text selection when opening the dropdown
+                if (!isAvatarDropdownOpen) {
+                  window.getSelection()?.removeAllRanges();
+                }
+              }}
               className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <User size={20} className="text-gray-700" />
@@ -270,7 +276,11 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           {/* Language/User Selector Button */}
           <div className="relative w-full sm:w-auto">
             <button
-              onClick={() => setIsLanguageModalOpen(true)}
+              onClick={() => {
+                setIsLanguageModalOpen(true);
+                // Remove text selection when opening the modal
+                window.getSelection()?.removeAllRanges();
+              }}
               className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
@@ -320,7 +330,11 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* AI Button */}
         <div className="relative group" ref={aiButtonRef}>
           <button 
-            onClick={handleAiButtonClick}
+            onClick={() => {
+              handleAiButtonClick();
+              // Remove text selection when opening AI popup
+              window.getSelection()?.removeAllRanges();
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
@@ -337,7 +351,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Pause Button */}
         <div className="relative group" ref={pausePopupRef}>
           <button 
-            onClick={() => setIsPausePopupOpen(!isPausePopupOpen)}
+            onClick={() => {
+              setIsPausePopupOpen(!isPausePopupOpen);
+              // Remove text selection when opening the popup
+              if (!isPausePopupOpen) {
+                window.getSelection()?.removeAllRanges();
+              }
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
@@ -407,7 +427,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Move Button */}
         <div className="relative group">
           <button 
-            onClick={insertMoveMarker}
+            onClick={() => {
+              insertMoveMarker();
+              // Text selection is handled inside insertMoveMarker function
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" className="text-gray-700">
@@ -437,7 +460,11 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Translate Button */}
         <div className="relative group">
           <button 
-            onClick={() => setIsDictionaryModalOpen(true)}
+            onClick={() => {
+              setIsDictionaryModalOpen(true);
+              // Remove text selection when opening dictionary modal
+              window.getSelection()?.removeAllRanges();
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
