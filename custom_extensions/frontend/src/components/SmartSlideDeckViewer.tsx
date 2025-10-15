@@ -391,6 +391,13 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           theme: theme || deck.theme || DEFAULT_SLIDE_THEME
         };
 
+        // 🔍 VERSION DEBUG: Log the templateVersion from the deck
+        console.log('🔍 DECK VERSION INFO:', {
+          templateVersion: deck.templateVersion,
+          deckKeys: Object.keys(deck),
+          fullDeck: deck
+        });
+
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
         // Expose slide data to window object for video generation
@@ -402,7 +409,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentThemeData.colors,
-          templates: deck.slides.map((s: ComponentBasedSlide) => s.templateId)
+          templates: deck.slides.map((s: ComponentBasedSlide) => s.templateId),
+          templateVersion: deckWithTheme.templateVersion
           });
         
         console.log('🎬 Exposed slide data to window for video generation:', (window as any).currentSlideData);

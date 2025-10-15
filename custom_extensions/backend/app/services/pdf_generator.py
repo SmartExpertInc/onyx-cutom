@@ -2305,12 +2305,20 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck
             effective_version = deck_template_version
             if not effective_version:
                 effective_version = (slide_data or {}).get('metadata', {}).get('version')
+            
+            original_template_id = slide_data.get('templateId') if isinstance(slide_data, dict) else None
+            logger.info(f"🔍 PDF VERSION CHECK - Slide {slide_index}: deck_template_version={deck_template_version}, effective_version={effective_version}, original_templateId={original_template_id}")
+            
             if not effective_version or effective_version < 'v2':
                 if isinstance(slide_data, dict) and 'templateId' in slide_data:
                     slide_data = dict(slide_data)
+                    old_template_id = slide_data['templateId']
                     slide_data['templateId'] = f"{slide_data['templateId']}_old"
-        except Exception:
-            pass
+                    logger.info(f"🔄 PDF TEMPLATE MAPPING - Slide {slide_index}: {old_template_id} -> {slide_data['templateId']} (legacy deck)")
+            else:
+                logger.info(f"✅ PDF TEMPLATE UNCHANGED - Slide {slide_index}: Using {original_template_id} (v2+ deck)")
+        except Exception as e:
+            logger.error(f"❌ PDF VERSION MAPPING ERROR - Slide {slide_index}: {e}", exc_info=True)
         task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
         tasks.append(task)
     
@@ -2498,6 +2506,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     """
     pdf_path_in_cache = PDF_CACHE_DIR / output_filename
     
+    logger.info(f"🔍 PDF GENERATION START - deck_template_version={deck_template_version}, slides_count={len(slides_data)}, theme={theme}")
+    
     if use_cache and pdf_path_in_cache.exists():
         logger.info(f"PDF CACHE: Serving cached PDF: {pdf_path_in_cache}")
         return str(pdf_path_in_cache)
@@ -2510,7 +2520,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     start_time = time.time()
     
     try:
-        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}")
+        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}, version: {deck_template_version}")
         
         # Step 1: Calculate heights for all slides with a single browser instance
         logger.info("Calculating slide heights...")
@@ -2936,6 +2946,24 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
     except Exception:
         # Fallback to default on any parsing issue
         theme_value = "dark-purple"
+
+    # Extract deck templateVersion for version-aware rendering
+    deck_template_version = None
+    try:
+        if isinstance(raw_content, dict):
+            deck_template_version = (
+                raw_content.get("templateVersion")
+                or (raw_content.get("details") or {}).get("templateVersion")
+            )
+        elif isinstance(content_obj, dict):
+            deck_template_version = (
+                content_obj.get("templateVersion")
+                or (content_obj.get("details") or {}).get("templateVersion")
+            )
+    except Exception:
+        pass
+    
+    _log.info(f"🔍 PDF DECK VERSION - product_id={product_data['id']}, templateVersion={deck_template_version}, raw_content_type={type(raw_content).__name__}")
 
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
