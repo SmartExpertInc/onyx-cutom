@@ -773,7 +773,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               Smart drive
               {activeTab === 'smart-drive' ? (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8D8D95] rounded-full"></div>)}
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B8B8BC]"></div>)}
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
@@ -787,7 +787,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               Connectors
               {activeTab === 'connectors' ? (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8D8D95] rounded-full"></div>)}
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B8B8BC]"></div>)}
             </button>
           </div>
           <div className="flex gap-2">
@@ -934,11 +934,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       }}
                     />
                   </div>
-                  {entitlements.storage_used_gb >= entitlements.storage_gb && (
                     <div className="mt-2 text-right">
                       <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy more storege</Button>
                     </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -975,19 +973,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
              {/* Popular Connectors Section */}
        <div className="mb-8">
        {entitlements && (
-            <div className="bg-white p-6 mb-6">
+            <div className="bg-white p-1 mb-6">
               {/* Header with title and search */}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
-                <div className="relative w-64 h-9">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
-                  <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
-                </div>
-              </div>
-              
-              {/* Progress bar section */}
-              <div className="space-y-3">
-                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div className="w-[80px] bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
                       entitlements.connectors_used >= entitlements.connectors_limit
@@ -1004,6 +994,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     }}
                   />
                 </div>
+
+              </div>
+              
+              {/* Progress bar section */}
+              <div className="space-y-3">
+                
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
@@ -1071,7 +1067,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                    </div>
                     <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
                    <div className="flex items-center justify-between">
-                     <Button
+                     <button
                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                          e.stopPropagation();
                          if (hasConnectors) {
@@ -1094,7 +1090,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        }`}
                      >
                        View Integration
-                     </Button>
+                     </button>
 
                      <Switch
                        checked={isActive}
@@ -1104,7 +1100,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                          }
                          // Handle toggle logic for existing connectors
                        }}
-                       className="isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white"
+                       className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
                      />
                    </div>
 
@@ -1203,7 +1199,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           </div>
                           <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
                           <div className="flex items-center justify-between">
-                            <Button
+                            <button
                               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                 e.stopPropagation();
                                 if (hasConnectors) {
@@ -1218,7 +1214,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                   handleConnectClick(connector.id, connector.name);
                                 }
                               }}
-                              variant="outline"
                               className={`text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border ${
                                 hasConnectors 
                                    ? 'border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50' 
@@ -1226,7 +1221,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               }`}
                             >
                               View Integration
-                            </Button>
+                            </button>
 
                             <Switch
                               checked={isActive}
