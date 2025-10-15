@@ -12,7 +12,7 @@ const SparkleIcon: React.FC<{ color?: string }> = ({ color = '#5D5D79' }) => (
 
 // Send icon for send button
 const SendIcon: React.FC = () => (
-  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#clip0_493_10723)">
       <path d="M7.33366 0.666992L3.66699 4.33366M7.33366 0.666992L5.00033 7.33366L3.66699 4.33366M7.33366 0.666992L0.666992 3.00033L3.66699 4.33366" stroke="#8808A2" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
     </g>
@@ -163,7 +163,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           type="button"
           disabled={disabled || loadingEdit || !editPrompt.trim()}
           onClick={onApplyEdit}
-          className="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
+          className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
           style={{ 
             borderColor: '#8808A2',
             color: '#8808A2'
