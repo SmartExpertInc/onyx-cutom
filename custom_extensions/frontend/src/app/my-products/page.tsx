@@ -3,7 +3,7 @@
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// import MyProductsTable from '../../components/MyProductsTable';
+import MyProductsTable from '../../components/MyProductsTable';
 import {
   Search,
   ChevronsUpDown,
@@ -1002,17 +1002,7 @@ const MyProductsPageInner: React.FC = () => {
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">My Products</h3>
-              <p className="text-gray-600">This page will show your created products with folder organization.</p>
-              <Button 
-                onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
-                className="mt-4"
-              >
-                <FolderPlus className="mr-2 h-4 w-4" />
-                Add folder
-              </Button>
-            </div>
+            <MyProductsTable folderId={selectedFolderId} />
           )}
         </main>
       </div>
