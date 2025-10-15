@@ -480,8 +480,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               <div className="title-element" style={{
                 fontSize: '60px',
                 color: '#263644',
-                minHeight: '5%',
-                maxHeight: '5%',
                 display: 'flex',
                 alignItems: 'center',
                 overflow: 'hidden',
