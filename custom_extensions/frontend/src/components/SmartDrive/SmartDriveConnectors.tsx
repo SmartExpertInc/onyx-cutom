@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2 } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -70,6 +70,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -602,6 +603,40 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
+      {/* Tabs */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-1">
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab('smart-drive')}
+            className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
+              activeTab === 'smart-drive' 
+                ? 'text-blue-900' 
+                : 'text-gray-700 hover:text-gray-900'
+            }`}
+          >
+            <HardDrive size={16} strokeWidth={1.5} />
+            Smart drive
+            {activeTab === 'smart-drive' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('connectors')}
+            className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
+              activeTab === 'connectors' 
+                ? 'text-blue-900' 
+                : 'text-gray-700 hover:text-gray-900'
+            }`}
+          >
+            <Link2 size={16} strokeWidth={1.5} />
+            Connectors
+            {activeTab === 'connectors' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+            )}
+          </button>
+        </div>
+      </div>
+
       {/* Quota Exceeded Modal */}
       {showQuotaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
@@ -615,91 +650,99 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
         </div>
       )}
-      {/* Usage Progress Bars */}
-      {entitlements && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
-          </div>
-          <div className="space-y-4">
-            {/* Connectors Progress */}
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-700 font-medium">Connectors</span>
-                <span className="text-gray-600">
-                  {entitlements.connectors_used} / {entitlements.connectors_limit}
-                </span>
+      {/* Smart Drive Tab Content */}
+      {activeTab === 'smart-drive' && (
+        <>
+          {/* Usage Progress Bars */}
+          {entitlements && (
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    entitlements.connectors_used >= entitlements.connectors_limit
-                      ? 'bg-red-500'
-                      : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      (entitlements.connectors_used / entitlements.connectors_limit) * 100,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              {entitlements.connectors_used >= entitlements.connectors_limit && (
-                <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+              <div className="space-y-4">
+                {/* Connectors Progress */}
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-700 font-medium">Connectors</span>
+                    <span className="text-gray-600">
+                      {entitlements.connectors_used} / {entitlements.connectors_limit}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        entitlements.connectors_used >= entitlements.connectors_limit
+                          ? 'bg-red-500'
+                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                          ? 'bg-yellow-500'
+                          : 'bg-green-500'
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  {entitlements.connectors_used >= entitlements.connectors_limit && (
+                    <div className="mt-2 text-right">
+                      <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Storage Progress */}
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-700 font-medium">Storage</span>
-                <span className="text-gray-600">
-                  {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    entitlements.storage_used_gb >= entitlements.storage_gb
-                      ? 'bg-red-500'
-                      : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
-                      ? 'bg-yellow-500'
-                      : 'bg-blue-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              {entitlements.storage_used_gb >= entitlements.storage_gb && (
-                <div className="mt-2 text-right">
-                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                {/* Storage Progress */}
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-700 font-medium">Storage</span>
+                    <span className="text-gray-600">
+                      {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        entitlements.storage_used_gb >= entitlements.storage_gb
+                          ? 'bg-red-500'
+                          : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
+                          ? 'bg-yellow-500'
+                          : 'bg-blue-500'
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  {entitlements.storage_used_gb >= entitlements.storage_gb && (
+                    <div className="mt-2 text-right">
+                      <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
+          )}
+
+          {/* Smart Drive Browser Section */}
+          <div className="mb-8">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+            {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+              <SmartDriveFrame />
+            ) : (
+              <SmartDriveBrowser mode="manage" />
+            )}
           </div>
         </div>
+        </>
       )}
 
-      {/* Smart Drive Browser Section */}
-      <div className="mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
-            <SmartDriveFrame />
-          ) : (
-            <SmartDriveBrowser mode="manage" />
-          )}
-        </div>
-      </div>
-
+      {/* Connectors Tab Content */}
+      {activeTab === 'connectors' && (
+        <>
              {/* Popular Connectors Section */}
        <div className="mb-8">
          <div className="flex items-center justify-between mb-6">
@@ -1023,6 +1066,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </div>
           )}
         </div>
+      )}
+        </>
       )}
 
       {/* Connector Creation Modal */}
