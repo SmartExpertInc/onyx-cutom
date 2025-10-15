@@ -372,8 +372,12 @@ export default function TextPresentationClient() {
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
-    if (!content.trim()) return [];
+    if (!content.trim()) {
+      console.log('[PARSE_LESSONS] ⚠️ Empty content');
+      return [];
+    }
 
+    console.log('[PARSE_LESSONS] 🔍 Parsing content, length:', content.length);
     const lessons = [];
 
     // Find all headers (H1-H6) with their positions
@@ -388,6 +392,10 @@ export default function TextPresentationClient() {
         fullMatch: match[0]
       });
     }
+    console.log('[PARSE_LESSONS] 📋 Found', headerMatches.length, 'headers');
+    headerMatches.forEach((h, idx) => {
+      console.log(`[PARSE_LESSONS] Header ${idx + 1}: ${h.level} "${h.title}"`);
+    });
 
     // Process each header to extract its content
     for (let i = 0; i < headerMatches.length; i++) {
@@ -426,11 +434,17 @@ export default function TextPresentationClient() {
           title: title,
           content: cleanedContent || sectionContent.trim() || title // Use title as content if no content found
         });
+        console.log(`[PARSE_LESSONS] ✅ Added lesson ${lessons.length}: "${title}" (${(cleanedContent || sectionContent.trim()).length} chars)`);
+      } else {
+        console.log(`[PARSE_LESSONS] ⏭️ Skipped header: "${title}" (no valid content)`);
       }
     }
 
+    console.log('[PARSE_LESSONS] 📊 Total lessons parsed:', lessons.length);
+
     // FIXED: If no structured content found, try alternative parsing methods instead of hardcoded fallback
     if (lessons.length === 0) {
+      console.log('[PARSE_LESSONS] ⚠️ No lessons parsed from headers, trying alternative parsing');
       // Try parsing by paragraph breaks or bullet points
       const alternativeParsing = parseContentAlternatively(content);
       if (alternativeParsing.length > 0) {
@@ -452,9 +466,11 @@ export default function TextPresentationClient() {
       }
       
       // If absolutely no content, return empty array
+      console.log('[PARSE_LESSONS] ❌ No content could be parsed at all');
       return [];
     }
 
+    console.log('[PARSE_LESSONS] ✅ Returning', lessons.length, 'lessons');
     return lessons;
   };
 
@@ -1026,52 +1042,75 @@ export default function TextPresentationClient() {
               } catch (e) {
                 // JSON incomplete or invalid - create simple readable preview from raw text
                 console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Creating readable preview from incomplete JSON');
+                console.log('[TEXT_PRESENTATION_PREVIEW] Accumulated text length:', accumulatedText.length);
+                console.log('[TEXT_PRESENTATION_PREVIEW] First 500 chars:', accumulatedText.substring(0, 500));
+                console.log('[TEXT_PRESENTATION_PREVIEW] Last 200 chars:', accumulatedText.substring(Math.max(0, accumulatedText.length - 200)));
                 
                 // Extract text title if available
                 const titleMatch = accumulatedText.match(/"textTitle"\s*:\s*"([^"]+)"/);
                 const title = titleMatch ? titleMatch[1] : "Generating Content...";
+                console.log('[TEXT_PRESENTATION_PREVIEW] Extracted title:', title);
                 
                 displayText = `# ${title}\n\n`;
                 
                 // Try to extract contentBlocks array even if JSON is incomplete
-                // Use a greedy match to get ALL content blocks, not just up to first ]
-                const contentBlocksMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[([\s\S]*?)(?:\]\s*,|\]\s*}|$)/);
-                if (contentBlocksMatch) {
-                  const blocksText = contentBlocksMatch[1];
+                // Look for the start of contentBlocks array and capture everything after it
+                const contentBlocksStartMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[/);
+                if (contentBlocksStartMatch && typeof contentBlocksStartMatch.index === 'number') {
+                  const startIndex = contentBlocksStartMatch.index + contentBlocksStartMatch[0].length;
+                  const remainingText = accumulatedText.substring(startIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Found contentBlocks start at index:', startIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Remaining text length:', remainingText.length);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] Remaining text preview:', remainingText.substring(0, 300));
                   
                   // Extract all blocks with type and text
-                  // Pattern matches: {"type":"headline","level":2,"text":"Section Title"}
-                  // or {"type":"paragraph","text":"Content text"}
-                  // Use non-greedy matching to avoid crossing block boundaries
-                  const headlinePattern = /\{\s*"type"\s*:\s*"headline"[^}]*?"text"\s*:\s*"([^"]+)"/g;
-                  const paragraphPattern = /\{\s*"type"\s*:\s*"paragraph"[^}]*?"text"\s*:\s*"([^"]+)"/g;
+                  // We need to match complete blocks that have been fully streamed
+                  // Strategy: Find complete block objects by matching braces and ensuring they're closed
+                  // Look for blocks that are properly terminated with }, or }]
                   
-                  const headlines = [];
-                  const paragraphs = [];
+                  // First, try to extract complete headline blocks (simpler, no nested structures)
+                  const headlinePattern = /\{\s*"type"\s*:\s*"headline"\s*,\s*(?:"level"\s*:\s*\d+\s*,\s*)?"text"\s*:\s*"([^"]+)"\s*(?:,\s*"[^"]+"\s*:\s*[^,}]+)*\}\s*(?:,|\])/g;
                   
+                  // Extract complete paragraph blocks (also simple, no nested structures)
+                  const paragraphPattern = /\{\s*"type"\s*:\s*"paragraph"\s*,\s*"text"\s*:\s*"([^"]+)"\s*(?:,\s*"[^"]+"\s*:\s*[^,}]+)*\}\s*(?:,|\])/g;
+                  
+                  const blocks = [];
                   let match;
-                  while ((match = headlinePattern.exec(blocksText)) !== null) {
-                    headlines.push({ index: match.index, text: match[1] });
+                  
+                  // Extract headlines
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 🔍 Searching for headline blocks...');
+                  while ((match = headlinePattern.exec(remainingText)) !== null) {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Found headline at index', match.index, ':', match[1].substring(0, 50));
+                    blocks.push({ 
+                      type: 'headline', 
+                      text: match[1],
+                      matchIndex: match.index 
+                    });
                   }
                   
-                  while ((match = paragraphPattern.exec(blocksText)) !== null) {
-                    paragraphs.push({ index: match.index, text: match[1] });
+                  // Extract paragraphs
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 🔍 Searching for paragraph blocks...');
+                  while ((match = paragraphPattern.exec(remainingText)) !== null) {
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Found paragraph at index', match.index, ':', match[1].substring(0, 50));
+                    blocks.push({ 
+                      type: 'paragraph', 
+                      text: match[1],
+                      matchIndex: match.index 
+                    });
                   }
                   
-                  if (headlines.length > 0 || paragraphs.length > 0) {
-                    console.log('[TEXT_PRESENTATION_PREVIEW] 📝 Extracted', headlines.length, 'headlines and', paragraphs.length, 'paragraphs');
-                    
-                    // Combine and sort by index to maintain order
-                    const allBlocks = [
-                      ...headlines.map(h => ({ ...h, type: 'headline' })),
-                      ...paragraphs.map(p => ({ ...p, type: 'paragraph' }))
-                    ].sort((a, b) => a.index - b.index);
-                    
-                    console.log('[TEXT_PRESENTATION_PREVIEW] Block order:', allBlocks.map(b => `${b.type}: ${b.text.substring(0, 30)}...`));
-                    
+                  // Sort blocks by their appearance order in the text
+                  blocks.sort((a, b) => a.matchIndex - b.matchIndex);
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 📊 Sorted', blocks.length, 'blocks by appearance order');
+                  
+                  console.log('[TEXT_PRESENTATION_PREVIEW] 📊 Extracted', blocks.length, 'complete blocks');
+                  blocks.forEach((block, idx) => {
+                    console.log(`[TEXT_PRESENTATION_PREVIEW] Block ${idx + 1}: ${block.type} - "${block.text.substring(0, 50)}..."`);
+                  });
+                  
+                  if (blocks.length > 0) {
                     // Generate markdown maintaining block order
-                    // DON'T add status text here - it interferes with header parsing!
-                    allBlocks.forEach(block => {
+                    blocks.forEach(block => {
                       if (block.type === 'headline') {
                         displayText += `## ${block.text}\n\n`;
                       } else if (block.type === 'paragraph') {
@@ -1079,13 +1118,14 @@ export default function TextPresentationClient() {
                       }
                     });
                     
-                    console.log('[TEXT_PRESENTATION_PREVIEW] Generated markdown length:', displayText.length);
-                    console.log('[TEXT_PRESENTATION_PREVIEW] Markdown preview:', displayText.substring(0, 200) + '...');
+                    console.log('[TEXT_PRESENTATION_PREVIEW] ✅ Generated markdown with', blocks.length, 'blocks');
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Markdown length:', displayText.length);
                   } else {
-                    // Only show status if no content yet
+                    console.log('[TEXT_PRESENTATION_PREVIEW] ⚠️ No complete blocks extracted yet');
                     displayText += "**Generating content sections...**\n\n";
                   }
                 } else {
+                  console.log('[TEXT_PRESENTATION_PREVIEW] ⚠️ contentBlocks array not found in JSON yet');
                   displayText += "**Generating content sections...**\n\n";
                 }
               }
