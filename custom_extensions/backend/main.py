@@ -1582,156 +1582,91 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "lessonTitle": "Example Video Lesson with Voiceover",
   "slides": [
     {
-      "slideId": "slide_1_intro",
+      "slideId": "slide_1_course_overview",
       "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "big-image-left",
-      "voiceoverText": "Welcome to this comprehensive lesson. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This introduction sets the stage for what you're about to learn.",
+      "slideTitle": "Course Overview",
+      "templateId": "course-overview",
+      "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn.",
       "props": {
-          "title": "Welcome to the Lesson",
-          "subtitle": "This slide introduces the main topic.",
-          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-          "imageAlt": "Descriptive alt text",
-          "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-          "imageSize": "large"
+        "title": "Welcome to the Course",
+        "subtitle": "This course introduces the main topic and learning objectives",
+        "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
+        "imageAlt": "Course overview illustration",
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "pageNumber": 1
       }
     },
     {
-      "slideId": "slide_2_main",
+      "slideId": "slide_2_impact_statements",
       "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
-      "voiceoverText": "Now let's dive into the core concepts. These fundamental ideas form the foundation of our understanding. We'll explore each concept in detail, ensuring you have a solid grasp before moving forward.",
+      "slideTitle": "Impact Statistics",
+      "templateId": "impact-statements",
+      "voiceoverText": "Let's look at some impressive statistics that demonstrate the real-world impact of what we're learning. These numbers show the tangible benefits and results you can expect to achieve.",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
+        "title": "Impact Statistics",
+        "statements": [
+          { "number": "95%", "description": "Success rate in implementation" },
+          { "number": "3x", "description": "Increase in productivity" },
+          { "number": "50%", "description": "Reduction in time spent" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 2,
+        "logoNew": "https://via.placeholder.com/100x50?text=Logo"
       }
     },
     {
-      "slideId": "slide_3_bullets",
+      "slideId": "slide_3_phishing_definition",
       "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "voiceoverText": "Here are the key takeaways from our lesson. Each of these points represents a critical insight that you should remember. Let me walk you through each one to ensure you understand their significance.",
+      "slideTitle": "Key Definitions",
+      "templateId": "phishing-definition",
+      "voiceoverText": "Now let's define the key concepts we'll be working with. Understanding these definitions is crucial for building a solid foundation of knowledge.",
       "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
+        "title": "Key Definitions",
+        "definitions": [
+          "First important definition with detailed explanation",
+          "Second key concept with comprehensive description",
+          "Third critical term with thorough explanation"
         ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
+        "pageNumber": 3,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
       }
     },
     {
-      "slideId": "slide_4_two_column",
+      "slideId": "slide_4_soft_skills_assessment",
       "slideNumber": 4,
-      "slideTitle": "Comparison Analysis",
-      "templateId": "two-column",
-      "voiceoverText": "Let's examine this topic from two different perspectives. On the left, we have one approach, and on the right, we have another. Both perspectives are valuable and complement each other to give you a complete understanding.",
+      "slideTitle": "Assessment Tips",
+      "templateId": "soft-skills-assessment",
+      "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
       "props": {
-        "title": "Two Column Layout",
-        "leftTitle": "Left Column Title",
-        "leftContent": "Content for the left side with detailed explanations",
-        "rightTitle": "Right Column Title",
-        "rightContent": "Content for the right side with detailed information",
-        "columnRatio": "50-50"
-      }
-    },
-    {
-      "slideId": "slide_5_four_box",
-      "slideNumber": 5,
-      "slideTitle": "Four Key Areas",
-      "templateId": "four-box-grid",
-      "voiceoverText": "Now we'll explore four essential areas that are crucial to understanding this topic. Each box represents a different aspect, and together they provide a comprehensive overview of the subject matter.",
-      "props": {
-        "title": "Main Title for Four Boxes",
-        "boxes": [
-          { "heading": "Box 1 Heading", "text": "Detailed description for the first box" },
-          { "heading": "Box 2 Heading", "text": "Comprehensive explanation for the second box" },
-          { "heading": "Box 3 Heading", "text": "Thorough description for the third box" },
-          { "heading": "Box 4 Heading", "text": "In-depth explanation for the fourth box" }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_6_challenges",
-      "slideNumber": 6,
-      "slideTitle": "Problem Solving",
-      "templateId": "challenges-solutions",
-      "voiceoverText": "Every field has its challenges, but for every challenge, there's a solution. Let's examine the common obstacles you might face and the proven strategies to overcome them effectively.",
-      "props": {
-        "title": "Challenges and Solutions",
-        "challengesTitle": "Common Challenges",
-        "solutionsTitle": "Effective Solutions",
-        "challenges": [
-          "Challenge 1 with detailed explanation of the problem",
-          "Challenge 2 with comprehensive analysis of the issue"
+        "title": "Assessment Tips",
+        "tips": [
+          { "text": "First important tip for success", "isHighlighted": true },
+          { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
-        "solutions": [
-          "Solution 1 with detailed approach and implementation strategy",
-          "Solution 2 with comprehensive methodology and practical steps"
-        ]
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 4,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_7_process",
-      "slideNumber": 7,
-      "slideTitle": "Step-by-Step Process",
-      "templateId": "process-steps",
-      "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
-      "props": {
-        "title": "Implementation Steps",
-        "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_5_table_dark",
+      "slideId": "slide_5_work_life_balance",
       "slideNumber": 5,
-      "slideTitle": "Technology Comparison",
-      "templateId": "table-dark",
-      "voiceoverText": "Let's examine the technology comparison table. This table shows us the key differences between various technologies in terms of performance, security, and cost. Understanding these comparisons helps us make informed decisions.",
+      "slideTitle": "Conclusion",
+      "templateId": "work-life-balance",
+      "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
       "props": {
-        "title": "Technology Comparison",
-        "tableData": {
-          "headers": ["Technology", "Performance", "Security", "Cost"],
-          "rows": [
-            ["React", "High", "Good", "Free"],
-            ["Vue.js", "Medium", "Excellent", "Free"],
-            ["Angular", "High", "Excellent", "Free"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_6_table_light",
-      "slideNumber": 6,
-      "slideTitle": "Product Features",
-      "templateId": "table-light",
-      "voiceoverText": "Now let's look at the product features comparison. This table clearly shows the differences between our various subscription plans, helping you understand what each tier offers.",
-      "props": {
-        "title": "Product Features Comparison",
-        "tableData": {
-          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
-          "rows": [
-            ["Storage", "10GB", "100GB", "Unlimited"],
-            ["Users", "5", "25", "Unlimited"],
-            ["Support", "Email", "Priority", "24/7"]
-          ]
-        }
+        "title": "Conclusion and Next Steps",
+        "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
+        "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
+        "pageNumber": 5,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
       }
     }
   ],
-  "currentSlideId": "slide_1_intro",
+  "currentSlideId": "slide_1_course_overview",
   "detectedLanguage": "en",
   "hasVoiceover": true
 }
@@ -2324,6 +2259,133 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                             ['Characteristic 2', 'Value A2', 'Value B2']
                         ]
                     }
+
+                        # NEW TEMPLATES: Handle new 5-template system for video lesson presentations
+            elif template_id == 'course-overview':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Course Overview'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Course introduction and objectives'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/600x400?text=Course+Image'
+                if not normalized_props.get('imageAlt'):
+                    normalized_props['imageAlt'] = 'Course overview illustration'
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                    
+            elif template_id == 'impact-statements':
+                # Ensure statements array exists and is properly formatted
+                statements = normalized_props.get('statements', [])
+                if not isinstance(statements, list) or len(statements) < 3:
+                    normalized_props['statements'] = [
+                        { "number": "95%", "description": "Success rate in implementation" },
+                        { "number": "3x", "description": "Increase in productivity" },
+                        { "number": "50%", "description": "Reduction in time spent" }
+                    ]
+                else:
+                    # Ensure each statement has required fields
+                    fixed_statements = []
+                    for stmt in statements[:3]:  # Limit to 3 statements
+                        if isinstance(stmt, dict):
+                            fixed_stmt = {
+                                'number': str(stmt.get('number', '0%')),
+                                'description': str(stmt.get('description', 'No description'))
+                            }
+                            fixed_statements.append(fixed_stmt)
+                        else:
+                            fixed_statements.append({'number': '0%', 'description': str(stmt)})
+                    normalized_props['statements'] = fixed_statements
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoNew'):
+                    normalized_props['logoNew'] = 'https://via.placeholder.com/100x50?text=Logo'
+                    
+            elif template_id == 'phishing-definition':
+                # Ensure definitions array exists and is properly formatted
+                definitions = normalized_props.get('definitions', [])
+                if not isinstance(definitions, list) or len(definitions) < 3:
+                    normalized_props['definitions'] = [
+                        "First important definition with detailed explanation",
+                        "Second key concept with comprehensive description", 
+                        "Third critical term with thorough explanation"
+                    ]
+                else:
+                    # Ensure definitions are strings
+                    fixed_definitions = []
+                    for defn in definitions:
+                        if isinstance(defn, str) and defn.strip():
+                            fixed_definitions.append(defn.strip())
+                        elif isinstance(defn, dict):
+                            # Extract text from dict if needed
+                            text = defn.get('text') or defn.get('description') or defn.get('content', '')
+                            if text.strip():
+                                fixed_definitions.append(str(text).strip())
+                    # Pad to at least 3 definitions
+                    while len(fixed_definitions) < 3:
+                        fixed_definitions.append(f"Definition {len(fixed_definitions) + 1}")
+                    normalized_props['definitions'] = fixed_definitions[:6]  # Max 6 definitions
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('rightImagePath'):
+                    normalized_props['rightImagePath'] = 'https://via.placeholder.com/300x200?text=Definition+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                    
+            elif template_id == 'soft-skills-assessment':
+                # Ensure tips array exists and is properly formatted
+                tips = normalized_props.get('tips', [])
+                if not isinstance(tips, list) or len(tips) < 2:
+                    normalized_props['tips'] = [
+                        { "text": "First important tip for success", "isHighlighted": True },
+                        { "text": "Second key recommendation for better results", "isHighlighted": False }
+                    ]
+                else:
+                    # Ensure each tip has required fields
+                    fixed_tips = []
+                    for tip in tips[:2]:  # Limit to 2 tips
+                        if isinstance(tip, dict):
+                            fixed_tip = {
+                                'text': str(tip.get('text', 'No tip text')),
+                                'isHighlighted': bool(tip.get('isHighlighted', False))
+                            }
+                            fixed_tips.append(fixed_tip)
+                        else:
+                            fixed_tips.append({'text': str(tip), 'isHighlighted': False})
+                    normalized_props['tips'] = fixed_tips
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Assessment Guide'
+                    
+            elif template_id == 'work-life-balance':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Conclusion and Next Steps'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/400x300?text=Conclusion+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
         
             normalized_slide['props'] = normalized_props
 
