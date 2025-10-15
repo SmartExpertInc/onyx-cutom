@@ -478,7 +478,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               }}
             >
               <div className="title-element" style={{
-                fontSize: '4.84vw',
+                fontSize: '60px',
                 color: '#263644',
                 minHeight: '5%',
                 maxHeight: '5%',
@@ -494,12 +494,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '4.84vw',
+                      fontSize: '60px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
-                      minHeight: '5%',
-                      maxHeight: '5%'
                     }}
                   />
                 ) : (
@@ -509,7 +507,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '4.84vw',
+                      fontSize: '60px',
                       color: themeBg,
                       fontWeight: 500,
                       width: '100%'
@@ -520,10 +518,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 )}
               </div>
               <div style={{
-                fontSize: '1.51vw',
+                fontSize: '22px',
                 color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
-                minHeight: '2.04%',
                 fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingStatements === 1 ? (
@@ -534,7 +531,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     multiline={true}
                     className="statement-description-editor"
                     style={{
-                      fontSize: '1.51vw',
+                      fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
@@ -548,7 +545,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '1.51vw',
+                      fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
