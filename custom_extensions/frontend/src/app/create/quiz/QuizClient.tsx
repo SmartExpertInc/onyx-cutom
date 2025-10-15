@@ -500,7 +500,7 @@ export default function QuizClient() {
   };
 
   // NEW: Function to create clean questions without options and answers
-  const createCleanQuestionsContent = (content: string) => {
+  function createCleanQuestionsContent(content: string): string {
     if (!content.trim()) return "";
 
     const questions: string[] = [];
@@ -590,7 +590,7 @@ export default function QuizClient() {
     }
 
     return questions.join('\n\n');
-  };
+  }
 
   const handleTitleCancel = (questionIndex: number) => {
     setEditedTitles(prev => {
