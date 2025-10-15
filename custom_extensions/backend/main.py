@@ -13075,6 +13075,10 @@ Return ONLY the JSON object.
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             content_dict['slides'] = normalized_slides
             
+            # ✅ NEW: Set templateVersion='v2' for all newly created presentations
+            content_dict['templateVersion'] = 'v2'
+            logger.info("Set templateVersion='v2' for newly created presentation")
+            
             # Remove hasVoiceover flag for regular slide decks
             if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
                 'hasVoiceover' in content_dict):
