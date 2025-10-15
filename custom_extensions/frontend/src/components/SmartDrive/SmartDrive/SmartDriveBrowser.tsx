@@ -498,19 +498,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						</Button>
 					))}
 				</div>
-				<div className="flex items-center gap-2">
-					<div className="w-64">
-						<Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search files..." className="border-slate-200 focus:border-blue-400" />
-					</div>
-					<Button variant="outline" onClick={onUploadClick} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
-						<Upload className="w-4 h-4 mr-2"/>Upload
-					</Button>
-					<input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
-					<Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
-						<Plus className="w-4 h-4 mr-2"/>New Folder
-					</Button>
-					{/* Per-row actions now handle the rest */}
-				</div>
 			</div>
 
 			{/* Upload progress */}

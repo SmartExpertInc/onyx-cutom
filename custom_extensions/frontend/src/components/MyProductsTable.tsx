@@ -4312,7 +4312,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                         <TableCell className="px-3 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900">{folder.name}</span>
+                            <span className="text-sm font-regular text-gray-900">{folder.name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="px-3 py-3">
@@ -4332,7 +4332,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                         <TableCell className="px-3 py-3">
                           <span className="text-sm text-gray-500">Today</span>
                         </TableCell>
-                        <TableCell className="px-3 py-3 text-right">
+                        <TableCell className="px-2 pr-7 py-2 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button 

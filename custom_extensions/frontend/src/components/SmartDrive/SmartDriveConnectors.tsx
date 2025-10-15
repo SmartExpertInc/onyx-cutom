@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2 } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -13,6 +13,11 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
+import { Input } from '../ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
+import { Progress } from '../ui/progress';
+import { Switch } from '../ui/switch';
 
 interface ConnectorConfig {
   id: string;
@@ -21,6 +26,23 @@ interface ConnectorConfig {
   category: string;
   oauthSupported?: boolean;
 }
+
+export type SmartDriveItem = {
+  name: string;
+  path: string;
+  type: 'file' | 'directory';
+  size?: number | null;
+  modified?: string | null;
+  mime_type?: string | null;
+  etag?: string | null;
+};
+
+type UploadProgress = {
+  filename: string;
+  progress: number; // 0-100
+};
+
+type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string; startedAtMs?: number; durationMs?: number }>;
 
 interface UserConnector {
   id: number; // This is the cc_pair_id (not connector_id) for management API calls
@@ -71,6 +93,132 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  
+  // Additional state for search and file operations
+  const [search, setSearch] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [sortBy, setSortBy] = useState('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [contentTypeFilter, setContentTypeFilter] = useState('all');
+  const [mkdirOpen, setMkdirOpen] = useState(false);
+  const [mkdirName, setMkdirName] = useState('');
+  const uploadInput = useRef<HTMLInputElement>(null);
+  
+  // SmartDrive browser state
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  const [currentPath, setCurrentPath] = useState<string>('/');
+  const [items, setItems] = useState<SmartDriveItem[]>([]);
+  const [smartDriveLoading, setSmartDriveLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [uploading, setUploading] = useState<UploadProgress[]>([]);
+  const [indexing, setIndexing] = useState<IndexingState>({});
+  
+  // Placeholder objects for filter functionality
+  const contentTypeFilterLabels: Record<string, string> = {
+    all: 'All',
+    documents: 'Documents',
+    images: 'Images',
+    videos: 'Videos'
+  };
+  const contentTypeFilterKeys = Object.keys(contentTypeFilterLabels);
+  const contentTypeFilterIcons: Record<string, React.ComponentType<any>> = {
+    all: Search,
+    documents: Search,
+    images: Search,
+    videos: Search
+  };
+  
+  // SmartDrive browser functions
+  const fetchList = useCallback(async (path: string) => {
+    setSmartDriveLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`List failed: ${res.status}`);
+      const data = await res.json();
+      setItems(Array.isArray(data.files) ? data.files : []);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load');
+      setItems([]);
+    } finally {
+      setSmartDriveLoading(false);
+    }
+  }, [CUSTOM_BACKEND_URL]);
+
+  const createFolder = async () => {
+    const name = mkdirName.trim();
+    if (!name) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/mkdir`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setMkdirOpen(false);
+      setMkdirName('');
+      await fetchList(currentPath);
+    } catch (e) {
+      alert('Failed to create folder');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
+    
+    const progress: UploadProgress[] = files.map(f => ({ filename: f.name, progress: 0 }));
+    setUploading(progress);
+    setBusy(true);
+    try {
+      const form = new FormData();
+      for (const f of files) form.append('files', f);
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/upload?path=${encodeURIComponent(currentPath)}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: form,
+      });
+      
+      if (!res.ok && res.status !== 207) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
+      
+      await fetchList(currentPath);
+    } catch (e) {
+      console.error('[SmartDrive] Upload error:', e);
+      alert('Upload failed');
+    } finally {
+      setUploading([]);
+      setBusy(false);
+    }
+  };
+
+  const onUploadClick = () => uploadInput.current?.click();
+  
+  const onUploadChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await uploadFiles(Array.from(files));
+    if (uploadInput.current) uploadInput.current.value = '';
+  };
+
+  // Drag and drop handlers
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+    await uploadFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -461,6 +609,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     };
   }, []); // Remove loadUserConnectors from dependencies to prevent multiple calls
 
+  // SmartDrive browser effect - load files when smart-drive tab is active
+  useEffect(() => {
+    if (activeTab === 'smart-drive') {
+      fetchList(currentPath);
+    }
+  }, [activeTab, currentPath, fetchList]);
+
   const handleBrowseClick = () => {
     setShowFrame(true);
   };
@@ -604,38 +759,133 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-1">
-        <div className="flex">
-          <button
-            onClick={() => setActiveTab('smart-drive')}
-            className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
-              activeTab === 'smart-drive' 
-                ? 'text-blue-900' 
-                : 'text-gray-700 hover:text-gray-900'
-            }`}
-          >
-            <HardDrive size={16} strokeWidth={1.5} />
-            Smart drive
-            {activeTab === 'smart-drive' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('connectors')}
-            className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
-              activeTab === 'connectors' 
-                ? 'text-blue-900' 
-                : 'text-gray-700 hover:text-gray-900'
-            }`}
-          >
-            <Link2 size={16} strokeWidth={1.5} />
-            Connectors
-            {activeTab === 'connectors' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-            )}
-          </button>
+      <div className="flex justify-between gap-4 mb-12">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('smart-drive')}
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
+                activeTab === 'smart-drive' 
+                  ? 'text-blue-900' 
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <HardDrive size={16} strokeWidth={1.5} />
+              Smart drive
+              {activeTab === 'smart-drive' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('connectors')}
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative ${
+                activeTab === 'connectors' 
+                  ? 'text-blue-900' 
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
+            >
+              <Link2 size={16} strokeWidth={1.5} />
+              Connectors
+              {activeTab === 'connectors' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+              )}
+            </button>
+          </div>
+          <div className="flex gap-2">
+            
+              <div className="flex items-center gap-2">
+                <div className="relative w-75 h-9">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                  <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
+                </div>
+                {activeTab === 'smart-drive' && (
+                <Button variant="outline" onClick={onUploadClick} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
+                  <Upload className="w-4 h-4 mr-2"/>Upload
+                </Button>)}
+                <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
+                {activeTab === 'smart-drive' && ( <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
+                  <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
+                </Button>)}
+              </div>
+            
+            {activeTab === 'smart-drive' && (<div 
+              className="flex items-center px-3 h-9 py-1 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              onClick={() => {
+                setSortBy('created');
+                setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+              }}
+              title="Sort by creation date"
+            >
+              <ArrowDownUp size={16} className="text-[#71717A]" />
+            </div>)}
+            {activeTab === 'smart-drive' && (<div className="flex items-center gap-2 -mt-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    type="button"
+                    variant="sort" 
+                    className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.1328 9.03369C11.1811 9.03369 12.0569 9.77835 12.2568 10.7681L12.3438 11.1997L12.2568 11.6313C12.0569 12.6211 11.1812 13.3667 10.1328 13.3667C9.08455 13.3666 8.20964 12.621 8.00977 11.6313L7.92188 11.1997L8.00977 10.7681C8.20972 9.77847 9.08462 9.03382 10.1328 9.03369ZM10.1328 9.1001C8.97322 9.10024 8.03334 10.0401 8.0332 11.1997C8.0332 12.3594 8.97312 13.3002 10.1328 13.3003C11.2926 13.3003 12.2334 12.3595 12.2334 11.1997C12.2333 10.04 11.2925 9.1001 10.1328 9.1001ZM1.59961 11.1665H7.4707L7.80566 11.1997L7.4707 11.2329H1.59961C1.58129 11.2328 1.56641 11.2181 1.56641 11.1997C1.56655 11.1815 1.58138 11.1666 1.59961 11.1665ZM12.7959 11.1665H14.3994C14.4177 11.1665 14.4325 11.1815 14.4326 11.1997C14.4326 11.2181 14.4178 11.2329 14.3994 11.2329H12.7959L12.46 11.1997L12.7959 11.1665ZM5.86621 2.6333C6.91458 2.6333 7.79034 3.37885 7.99023 4.36865L8.07617 4.79932L7.99023 5.23193C7.79027 6.22164 6.91452 6.96631 5.86621 6.96631C4.81796 6.96622 3.94211 6.22162 3.74219 5.23193L3.65527 4.79932L3.74219 4.36865C3.94207 3.37891 4.81792 2.63339 5.86621 2.6333ZM5.86621 2.69971C4.7065 2.69981 3.7666 3.64056 3.7666 4.80029C3.76678 5.95988 4.70661 6.8998 5.86621 6.8999C7.0259 6.8999 7.96662 5.95994 7.9668 4.80029C7.9668 3.64049 7.02601 2.69971 5.86621 2.69971ZM1.59961 4.76709H3.2041L3.53906 4.79932L3.2041 4.8335H1.59961C1.58137 4.83343 1.56658 4.81851 1.56641 4.80029C1.56641 4.78193 1.58126 4.76716 1.59961 4.76709ZM8.5293 4.76709H14.3994C14.4178 4.76709 14.4326 4.78191 14.4326 4.80029C14.4324 4.81852 14.4177 4.8335 14.3994 4.8335H8.5293L8.19238 4.79932L8.5293 4.76709Z" fill="#09090B" stroke="#18181B"/>
+                    </svg>
+                    {contentTypeFilterLabels[contentTypeFilter] || contentTypeFilter}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-white rounded-lg shadow-lg border border-[#E4E4E7]">
+                  <DropdownMenuLabel className="px-3 py-2 border-b border-[#E4E4E7] bg-white">
+                    <p className="font-semibold text-sm text-gray-900">
+                      {t("interface.filterBy", "Filter by")}
+                    </p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="border-[#E4E4E7] text-[#E4E4E7] bg-[#E4E4E7]" />
+                  {contentTypeFilterKeys.map((filterKey) => {
+                    const Icon = contentTypeFilterIcons[filterKey];
+                    const isSelected = contentTypeFilter === filterKey;
+                    const filterLabel = contentTypeFilterLabels[filterKey];
+                    return (
+                      <DropdownMenuItem
+                        key={filterKey}
+                        onClick={() => setContentTypeFilter(filterKey)}
+                        className={`flex items-center justify-between px-2 py-2 text-sm transition-colors bg-white ${
+                          isSelected 
+                            ? "!bg-[#CCDBFC] text-[#0F58F9] font-medium" 
+                            : "text-gray-900 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className={`flex items-center gap-3 ${isSelected ? "text-[#0F58F9]" : "text-gray-900"}`}>
+                          <Icon 
+                            size={16} 
+                            stroke={isSelected ? "#3366FF" : "#09090B"}
+                            className={isSelected ? "text-[#3366FF]" : "text-gray-900"} 
+                            strokeWidth={1.5}
+                          />
+                          <span className={isSelected ? "text-[#3366FF]" : "text-gray-900"}>{filterLabel}</span>
+                        </div>
+                        {isSelected && (
+                          <Check size={16} className="text-[#3366FF]" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {/* <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
+                >
+                  <LayoutGrid strokeWidth={1} className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "list" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
+                >
+                  <List strokeWidth={1.5} className="w-6 h-6" />
+                </button>
+              </div> */}
+            </div>)}
+          </div>
         </div>
-      </div>
 
       {/* Quota Exceeded Modal */}
       {showQuotaModal && (
@@ -656,46 +906,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           {/* Usage Progress Bars */}
           {entitlements && (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
-              </div>
               <div className="space-y-4">
-                {/* Connectors Progress */}
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-700 font-medium">Connectors</span>
-                    <span className="text-gray-600">
-                      {entitlements.connectors_used} / {entitlements.connectors_limit}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        entitlements.connectors_used >= entitlements.connectors_limit
-                          ? 'bg-red-500'
-                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                          ? 'bg-yellow-500'
-                          : 'bg-green-500'
-                      }`}
-                      style={{
-                        width: `${Math.min(
-                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                  {entitlements.connectors_used >= entitlements.connectors_limit && (
-                    <div className="mt-2 text-right">
-                      <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
-                    </div>
-                  )}
-                </div>
-
                 {/* Storage Progress */}
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-700 font-medium">Storage</span>
+                    <span className="text-gray-700 font-medium">Storage used</span>
                     <span className="text-gray-600">
                       {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
                     </span>
@@ -704,10 +919,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
                         entitlements.storage_used_gb >= entitlements.storage_gb
-                          ? 'bg-red-500'
+                          ? 'bg-red-400'
                           : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
-                          ? 'bg-yellow-500'
-                          : 'bg-blue-500'
+                          ? 'bg-yellow-400'
+                          : 'bg-[#719AF5]'
                       }`}
                       style={{
                         width: `${Math.min(
@@ -719,7 +934,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </div>
                   {entitlements.storage_used_gb >= entitlements.storage_gb && (
                     <div className="mt-2 text-right">
-                      <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                      <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy more storege</Button>
                     </div>
                   )}
                 </div>
@@ -727,9 +942,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </div>
           )}
 
+          {/* Upload progress */}
+          {uploading.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {uploading.map(u => (
+                <div key={u.filename} className="flex items-center gap-3 bg-white rounded-lg border border-gray-200 p-3">
+                  <div className="w-48 truncate text-sm text-slate-600">{u.filename}</div>
+                  <Progress value={u.progress} className="w-full" />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Smart Drive Browser Section */}
           <div className="mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6" onDrop={onDrop} onDragOver={onDragOver}>
             {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
@@ -745,6 +972,46 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <>
              {/* Popular Connectors Section */}
        <div className="mb-8">
+       {entitlements && (
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
+              </div>
+              <div className="space-y-4">
+                {/* Connectors Progress */}
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-700 font-medium">Connectors</span>
+                    <span className="text-gray-600">
+                      {entitlements.connectors_used} / {entitlements.connectors_limit}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        entitlements.connectors_used >= entitlements.connectors_limit
+                          ? 'bg-red-400'
+                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                          ? 'bg-yellow-400'
+                          : 'bg-[#719AF5]'
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  {entitlements.connectors_used >= entitlements.connectors_limit && (
+                    <div className="mt-2 text-right">
+                      <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
          <div className="flex items-center justify-between mb-6">
            <h3 className="text-lg font-semibold text-gray-900">{t('interface.popularConnectors', 'Popular Connectors')}</h3>
          </div>
@@ -756,132 +1023,108 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
              const userConnectorsForSource = getConnectorsBySource(connector.id);
              const hasConnectors = userConnectorsForSource.length > 0;
 
+             const isActive = hasConnectors && userConnectorsForSource.some(c => c.status === 'active');
+             const accountCount = userConnectorsForSource.length;
+
              return (
-               <Card
-                 key={connector.id}
-                 className="group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105"
-                 style={{
-                   backgroundColor: 'white',
-                   borderColor: '#e2e8f0',
-                   background: 'white',
-                   borderWidth: '1px',
-                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                 }}
-                 onMouseEnter={(e) => {
-                   e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-                 }}
-                 onMouseLeave={(e) => {
-                   e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-                 }}
-                 onClick={() => handleConnectClick(connector.id, connector.name)}
-               >
-                <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
-                <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
-                 <CardContent className="p-6 relative z-10">
-                   <div className="flex items-center gap-4 mb-4">
-                       <Image
-                         src={connector.logoPath}
-                         alt={`${connector.name} logo`}
-                         width={32}
-                         height={32}
-                         className="object-contain w-8 h-8"
-                         priority={false}
-                         unoptimized={true}
-                       />
+               <div key={connector.id} className="relative">
+                 <Card
+                   className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+                   style={{
+                     backgroundColor: 'white',
+                     borderColor: '#e2e8f0',
+                     borderWidth: '1px'
+                   }}
+                 >
+                   <CardContent className="p-4">
+                   <div className="flex items-center gap-3 mb-3">
+                     <Image
+                       src={connector.logoPath}
+                       alt={`${connector.name} logo`}
+                       width={32}
+                       height={32}
+                       className="object-contain w-8 h-8"
+                       priority={false}
+                       unoptimized={true}
+                     />
                      <div className="flex-1 min-w-0">
-                       <h3 className="text-lg font-semibold text-blue-600 truncate">
+                       <h3 className="text-sm font-semibold text-gray-900 truncate">
                          {connector.name}
                        </h3>
-                     </div>
-                   </div>
-
-                   <div className="flex gap-2">
-                     <Button
-                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                              e.stopPropagation();
-                              handleConnectClick(connector.id, connector.name);
-                            }}
-                       variant="download"
-                       className="flex-1 rounded-full"
-                     >
-                       {t('interface.connect', 'Connect')}
-                     </Button>
-
-                   {hasConnectors && (
-                     <div className="relative">
-                       {userConnectorsForSource.length > 1 ? (
-                         <div className="relative group">
-                           <button 
-                             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                               e.stopPropagation();
-                               setOpenDropdownId(connector.id);
-                             }}
-                             className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1"
-                           >
-                             {t('interface.manage', 'Manage')}
-                             <ChevronDown className="w-3 h-3" />
-                           </button>
-                           <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
-                             openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
-                           }`}>
-                             {userConnectorsForSource.map((userConnector) => (
-                               <button
-                                 key={userConnector.id}
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   console.log('Popular dropdown manage button clicked for connector:', userConnector.id);
-                                   setOpenDropdownId(null); // Close dropdown
-                                   if (!showManagementPage && !isManagementOpening) {
-                                     console.log('Opening management page from popular dropdown for connector ID:', userConnector.id);
-                                     setIsManagementOpening(true);
-                                     setSelectedConnectorId(userConnector.id);
-                                     setShowManagementPage(true);
-                                     setTimeout(() => {
-                                       setIsManagementOpening(false);
-                                     }, 500);
-                                   }
-                                 }}
-                                 className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                               >
-                                 {userConnector.name}
-                               </button>
-                             ))}
-                           </div>
+                       {hasConnectors && (
+                         <div className="flex items-center gap-2 mt-1">
+                           <span className="text-xs text-gray-600">
+                             {accountCount} Account{accountCount !== 1 ? 's' : ''}
+                           </span>
+                           <div className="w-2 h-2 rounded-full bg-pink-500"></div>
                          </div>
-                       ) : (
-                         <Button
-                           variant="outline"
-                           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                             e.stopPropagation();
-                             console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
-                             if (!showManagementPage && !isManagementOpening) {
-                               console.log('Opening management page from single button for connector ID:', userConnectorsForSource[0].id);
-                               setIsManagementOpening(true);
-                               setSelectedConnectorId(userConnectorsForSource[0].id);
-                               setShowManagementPage(true);
-                               setTimeout(() => {
-                                 setIsManagementOpening(false);
-                               }, 500);
-                             }
-                           }}
-                           className="px-4 py-2.5"
-                         >
-                           {t('interface.manage', 'Manage')}
-                         </Button>
                        )}
                      </div>
-                   )}
-                 </div>
-
-                 {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
-                   <div className="mt-4 pt-4 border-t border-gray-100">
-                     <div className="flex items-center justify-between text-sm text-gray-900">
-                       <span className="text-green-600 font-medium">● {t('interface.active', 'Active')}</span>
-                     </div>
                    </div>
-                 )}
-                 </CardContent>
-               </Card>
+
+                   <div className="flex items-center justify-between">
+                     <Button
+                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                         e.stopPropagation();
+                         if (hasConnectors) {
+                           // Handle view integration for existing connectors
+                           if (userConnectorsForSource.length === 1) {
+                             console.log('Opening management page from view integration for connector ID:', userConnectorsForSource[0].id);
+                             setSelectedConnectorId(userConnectorsForSource[0].id);
+                             setShowManagementPage(true);
+                           } else {
+                             setOpenDropdownId(connector.id);
+                           }
+                         } else {
+                           handleConnectClick(connector.id, connector.name);
+                         }
+                       }}
+                       variant="outline"
+                       className={`text-xs border ${
+                         hasConnectors 
+                           ? 'border-blue-200 text-blue-600 hover:bg-blue-50' 
+                           : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                       }`}
+                     >
+                       View Integration
+                     </Button>
+
+                     <Switch
+                       checked={isActive}
+                       onCheckedChange={(checked) => {
+                         if (checked && !hasConnectors) {
+                           handleConnectClick(connector.id, connector.name);
+                         }
+                         // Handle toggle logic for existing connectors
+                       }}
+                       className={isActive ? 'data-[state=checked]:bg-blue-600' : ''}
+                     />
+                   </div>
+
+                   {/* Dropdown for multiple connectors */}
+                   {hasConnectors && userConnectorsForSource.length > 1 && (
+                     <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
+                       openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
+                     }`}>
+                       {userConnectorsForSource.map((userConnector) => (
+                         <button
+                           key={userConnector.id}
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             setOpenDropdownId(null);
+                             setSelectedConnectorId(userConnector.id);
+                             setShowManagementPage(true);
+                           }}
+                           className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                         >
+                           {userConnector.name}
+                         </button>
+                       ))}
+                     </div>
+                   )}
+                   </CardContent>
+                 </Card>
+               </div>
              );
            })}
          </div>
@@ -913,31 +1156,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 {connectors.map((connector) => {
                   const userConnectorsForSource = getConnectorsBySource(connector.id);
                   const hasConnectors = userConnectorsForSource.length > 0;
-                  const hasMultipleConnectors = userConnectorsForSource.length > 1;
+                  const isActive = hasConnectors && userConnectorsForSource.some(c => c.status === 'active');
+                  const accountCount = userConnectorsForSource.length;
 
                   return (
-                    <Card
-                      key={connector.id}
-                      className="group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105"
-                      style={{
-                        backgroundColor: 'white',
-                        borderColor: '#e2e8f0',
-                        background: 'white',
-                        borderWidth: '1px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-                      }}
-                      onClick={() => handleConnectClick(connector.id, connector.name)}
-                    >
-                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
-                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
-                      <CardContent className="p-6 relative z-10">
-                        <div className="flex items-center gap-4 mb-4">
+                    <div key={connector.id} className="relative">
+                      <Card
+                        className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+                        style={{
+                          backgroundColor: 'white',
+                          borderColor: '#e2e8f0',
+                          borderWidth: '1px'
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3 mb-3">
                             <Image
                               src={connector.logoPath}
                               alt={`${connector.name} logo`}
@@ -947,100 +1180,83 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               priority={false}
                               unoptimized={true}
                             />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-blue-600 truncate">
-                              {connector.name}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                              e.stopPropagation();
-                              handleConnectClick(connector.id, connector.name);
-                            }}
-                            variant="download"
-                            className="flex-1 rounded-full"
-                          >
-                            {t('interface.connect', 'Connect')}
-                          </Button>
-
-                        {hasConnectors && (
-                          <div className="relative">
-                            {hasMultipleConnectors ? (
-                              <div className="relative group">
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdownId(connector.id);
-                                  }}
-                                  className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
-                                >
-                                  {t('interface.manage', 'Manage')}
-                                  <ChevronDown className="w-3 h-3" />
-                                </button>
-                                <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
-                                  openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
-                                }`}>
-                                  {userConnectorsForSource.map((userConnector) => (
-                                    <button
-                                      key={userConnector.id}
-                                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                   e.stopPropagation();
-                                   console.log('Dropdown manage button clicked for connector:', userConnector.id);
-                                   setOpenDropdownId(null); // Close dropdown
-                                   if (!showManagementPage && !isManagementOpening) {
-                                     console.log('Opening management page from dropdown for connector ID:', userConnector.id);
-                                     setIsManagementOpening(true);
-                                     setSelectedConnectorId(userConnector.id);
-                                     setShowManagementPage(true);
-                                     setTimeout(() => {
-                                       setIsManagementOpening(false);
-                                     }, 500);
-                                   }
-                                 }}
-                                      className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                                    >
-                                      {userConnector.name}
-                                    </button>
-                                  ))}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-semibold text-gray-900 truncate">
+                                {connector.name}
+                              </h3>
+                              {hasConnectors && (
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs text-gray-600">
+                                    {accountCount} Account{accountCount !== 1 ? 's' : ''}
+                                  </span>
+                                  <div className="w-2 h-2 rounded-full bg-pink-500"></div>
                                 </div>
-                              </div>
-                            ) : (
-                              <Button
-                                variant="outline"
-                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                  e.stopPropagation();
-                                  console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
-                                  if (!showManagementPage && !isManagementOpening) {
-                                    console.log('Opening management page from single button for connector ID:', userConnectorsForSource[0].id);
-                                    setIsManagementOpening(true);
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <Button
+                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                e.stopPropagation();
+                                if (hasConnectors) {
+                                  // Handle view integration for existing connectors
+                                  if (userConnectorsForSource.length === 1) {
                                     setSelectedConnectorId(userConnectorsForSource[0].id);
                                     setShowManagementPage(true);
-                                    setTimeout(() => {
-                                      setIsManagementOpening(false);
-                                    }, 500);
+                                  } else {
+                                    setOpenDropdownId(connector.id);
                                   }
-                                }}
-                                className="flex items-center gap-1 px-3 py-2"
-                              >
-                                {t('interface.manage', 'Manage')}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                                } else {
+                                  handleConnectClick(connector.id, connector.name);
+                                }
+                              }}
+                              variant="outline"
+                              className={`text-xs border ${
+                                hasConnectors 
+                                  ? 'border-blue-200 text-blue-600 hover:bg-blue-50' 
+                                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                              }`}
+                            >
+                              View Integration
+                            </Button>
 
-                      {hasConnectors && userConnectorsForSource.some(c => c.status === 'active') && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center justify-between text-xs text-gray-900">
-                            <span className="text-green-600">● {t('interface.active', 'Active')}</span>
+                            <Switch
+                              checked={isActive}
+                              onCheckedChange={(checked) => {
+                                if (checked && !hasConnectors) {
+                                  handleConnectClick(connector.id, connector.name);
+                                }
+                                // Handle toggle logic for existing connectors
+                              }}
+                              className={isActive ? 'data-[state=checked]:bg-blue-600' : ''}
+                            />
                           </div>
-                        </div>
-                      )}
-                      </CardContent>
-                    </Card>
+
+                          {/* Dropdown for multiple connectors */}
+                          {hasConnectors && userConnectorsForSource.length > 1 && (
+                            <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
+                              openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
+                            }`}>
+                              {userConnectorsForSource.map((userConnector) => (
+                                <button
+                                  key={userConnector.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenDropdownId(null);
+                                    setSelectedConnectorId(userConnector.id);
+                                    setShowManagementPage(true);
+                                  }}
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                >
+                                  {userConnector.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
                   );
                 })}
               </div>
@@ -1123,6 +1339,23 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       )}
       {/* Add-ons Modal */}
       <ManageAddonsModal isOpen={showAddonsModal} onClose={() => setShowAddonsModal(false)} />
+
+      {/* Create Folder Dialog */}
+      <Dialog open={mkdirOpen} onOpenChange={setMkdirOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create folder</DialogTitle>
+            <DialogDescription>Enter a name for the new folder in the current directory.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            <Input value={mkdirName} onChange={(e) => setMkdirName(e.target.value)} placeholder="Folder name" autoFocus />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMkdirOpen(false)}>Cancel</Button>
+            <Button onClick={createFolder} disabled={!mkdirName.trim() || busy}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
