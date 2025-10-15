@@ -207,7 +207,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     }
   };
   return (
-    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full">
+    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full script-container">
+      <style>{`
+        .script-container button {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+      `}</style>
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-start justify-start p-8 pb-20">
 
