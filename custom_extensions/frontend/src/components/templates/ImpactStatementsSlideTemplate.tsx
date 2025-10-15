@@ -277,16 +277,16 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       {/* Page number with line - MATCHES HTML: bottom: 24px, gap: 13px, line: 32px × 1.5px, fontSize: 27px */}
       <div style={{
         position: 'absolute',
-        bottom: '1.25%',
+        bottom: '24px',
         left: '0',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.68%'
+        gap: '13px'
       }}>
         {/* Small line */}
         <div style={{
-          width: '1.67%',
-          height: '0.14%',
+          width: '32px',
+          height: '1.5px',
           backgroundColor: 'rgba(9, 9, 11, 0.6)'
         }} />
         {/* Page number */}
@@ -298,7 +298,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             className="page-number-editor"
             style={{
               color: '#09090B99',
-              fontSize: '1.4vw',
+              fontSize: '27px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               width: 'auto',
@@ -310,7 +310,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
               color: '#09090B99',
-              fontSize: '1.4vw',
+              fontSize: '27px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',
