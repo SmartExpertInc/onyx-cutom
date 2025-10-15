@@ -11571,7 +11571,6 @@ async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
 
 # --- Project and MicroProduct Endpoints ---
-@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     """
     Build source context type and data from a finalize payload.
@@ -11633,7 +11632,7 @@ async def save_slide_creation_error(
         json.dumps(props, ensure_ascii=False),
         error_message
     )
-
+@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
