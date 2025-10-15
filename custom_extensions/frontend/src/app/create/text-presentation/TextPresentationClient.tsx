@@ -1065,7 +1065,10 @@ export default function TextPresentationClient() {
                       ...paragraphs.map(p => ({ ...p, type: 'paragraph' }))
                     ].sort((a, b) => a.index - b.index);
                     
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Block order:', allBlocks.map(b => `${b.type}: ${b.text.substring(0, 30)}...`));
+                    
                     // Generate markdown maintaining block order
+                    // DON'T add status text here - it interferes with header parsing!
                     allBlocks.forEach(block => {
                       if (block.type === 'headline') {
                         displayText += `## ${block.text}\n\n`;
@@ -1073,13 +1076,21 @@ export default function TextPresentationClient() {
                         displayText += `${block.text}\n\n`;
                       }
                     });
+                    
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Generated markdown length:', displayText.length);
+                    console.log('[TEXT_PRESENTATION_PREVIEW] Markdown preview:', displayText.substring(0, 200) + '...');
                   } else {
+                    // Only show status if no content yet
                     displayText += "**Generating content sections...**\n\n";
                   }
                 } else {
                   displayText += "**Generating content sections...**\n\n";
                 }
               }
+              
+              // Log what we're about to set
+              console.log('[TEXT_PRESENTATION_PREVIEW] Setting content, length:', displayText.length);
+              console.log('[TEXT_PRESENTATION_PREVIEW] Content has', (displayText.match(/^#{1,6}\s/gm) || []).length, 'headers');
               
               setContent(displayText);
               
