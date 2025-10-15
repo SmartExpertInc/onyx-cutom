@@ -5,59 +5,27 @@ import React, {
   useRef,
   useEffect,
   useCallback,
-  useMemo,
 } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Lock,
   MoreHorizontal,
-  Home,
   Clock,
-  User,
-  Star,
-  ListFilter ,
   LayoutGrid,
   List,
   Plus,
-  ChevronsUpDown,
   ArrowUpDown,
-  LucideIcon,
-  Share2,
   Trash2,
   PenLine,
-  Copy,
-  Link as LinkIcon,
   RefreshCw,
   AlertTriangle,
-  ChevronRight,
-  ChevronDown,
-  ChevronLeft,
-  ChevronsLeft,
-  ChevronsRight,
-  CheckSquare,
-  Square,
-  ArrowDownToLine,
   Settings,
-  Download,
   Presentation,
   Video,
   HelpCircle,
   FileText,
-  ClipboardCheck,
   TableOfContents,
   Search,
-  ArrowDownUp,
-  Check,
-  LayoutTemplate,
-  BookOpen,
-  MonitorPlay,
-  FileQuestion,
-  FileStack,
-  ClipboardPenLine,
-  Users,
-  Calendar,
   FolderPlus
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
@@ -73,18 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -93,12 +50,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
-import useFeaturePermission from "../hooks/useFeaturePermission";
-import { timeEvent } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
