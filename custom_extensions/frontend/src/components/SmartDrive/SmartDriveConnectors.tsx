@@ -771,9 +771,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             >
               <HardDrive size={16} strokeWidth={1.5} />
               Smart drive
-              {activeTab === 'smart-drive' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-              )}
+              {activeTab === 'smart-drive' ? (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8D8D95] rounded-full"></div>)}
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
@@ -785,9 +785,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             >
               <Workflow size={16} strokeWidth={1.5} />
               Connectors
-              {activeTab === 'connectors' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-              )}
+              {activeTab === 'connectors' ? (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8D8D95] rounded-full"></div>)}
             </button>
           </div>
           <div className="flex gap-2">
