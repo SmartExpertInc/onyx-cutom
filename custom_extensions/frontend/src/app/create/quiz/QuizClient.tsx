@@ -950,10 +950,6 @@ export default function QuizClient() {
                 if (parsed && typeof parsed === 'object' && parsed.quizTitle && parsed.questions) {
                   console.log('[QUIZ_JSON_STREAM] ✅ Complete JSON parsed, questions:', parsed.questions.length);
                   displayText = convertQuizJsonToDisplay(parsed);
-                  // Hide explanations in live preview; show them only after stream completes
-                  if (!streamDone) {
-                    displayText = displayText.replace(/\n\*\*Explanation:\*\*.*\n/g, '\n');
-                  }
                   setOriginalJsonResponse(accumulatedText);
                   setOriginalQuizData(displayText);
                 } else {
@@ -1923,10 +1919,18 @@ export default function QuizClient() {
                             )}
                           </div>
                           {question.content && (
-                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
-                              {question.content.substring(0, 100)}
-                              {question.content.length > 100 && '...'}
-                            </div>
+                            (() => {
+                              // Hide Explanation while streaming; show after streamDone
+                              const contentToShow = streamDone
+                                ? question.content
+                                : question.content.replace(/\n?\*\*Explanation:\*\*[\s\S]*/i, '');
+                              return (
+                                <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                                  {contentToShow.substring(0, 100)}
+                                  {contentToShow.length > 100 && '...'}
+                                </div>
+                              );
+                            })()
                           )}
                         </div>
                       </div>
