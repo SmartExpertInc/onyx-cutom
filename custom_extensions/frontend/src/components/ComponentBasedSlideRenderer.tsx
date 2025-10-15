@@ -25,8 +25,24 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   deckTemplateVersion,
   getPlaceholderGenerationState
 }) => {
+  // 🔍 ALWAYS LOG VERSION RESOLUTION for debugging
+  console.log('🔍 VERSION RESOLVER:', {
+    slideId: slide.slideId,
+    originalTemplateId: slide.templateId,
+    deckTemplateVersion: deckTemplateVersion,
+    deckTemplateVersionType: typeof deckTemplateVersion
+  });
+
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
+
+  // Log the resolved template
+  console.log('✅ RESOLVED TEMPLATE:', {
+    slideId: slide.slideId,
+    resolvedTemplateId: template?.id,
+    templateFound: !!template,
+    templateName: template?.name
+  });
 
   // Debug logging for version resolution
   if (typeof window !== 'undefined' && (window as any).__DEBUG_SLIDE_VERSIONS__) {

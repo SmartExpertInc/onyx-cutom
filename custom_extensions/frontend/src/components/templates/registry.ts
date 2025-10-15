@@ -2953,11 +2953,33 @@ export function getTemplate(templateId: string): TemplateComponentInfo | undefin
 // v1 (missing or < 'v2') -> use `${id}_old`; v2+ -> use id as-is.
 export function resolveTemplateIdForVersion(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): string {
   const effectiveVersion = deckTemplateVersion || defaultVersion || (typeof process !== 'undefined' ? (process.env?.SLIDES_DEFAULT_VERSION || 'v1') : 'v1');
+  
+  // 🔍 ALWAYS LOG for debugging
+  console.log('🔍 resolveTemplateIdForVersion:', {
+    templateId,
+    deckTemplateVersion,
+    defaultVersion,
+    effectiveVersion,
+    isLegacy: !effectiveVersion || effectiveVersion < 'v2'
+  });
+  
   // Simple lexical compare for our v1/v2 scheme
   if (!effectiveVersion || effectiveVersion < 'v2') {
     const candidate = `${templateId}_old`;
-    return SLIDE_TEMPLATE_REGISTRY[candidate] ? candidate : templateId;
+    const exists = !!SLIDE_TEMPLATE_REGISTRY[candidate];
+    const resolved = exists ? candidate : templateId;
+    
+    console.log('🔄 LEGACY DECK - Mapping:', {
+      original: templateId,
+      candidate: candidate,
+      candidateExists: exists,
+      resolved: resolved
+    });
+    
+    return resolved;
   }
+  
+  console.log('✅ V2+ DECK - Using original:', templateId);
   return templateId;
 }
 
