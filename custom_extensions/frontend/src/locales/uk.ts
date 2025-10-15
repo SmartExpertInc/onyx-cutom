@@ -369,7 +369,7 @@ export const uk = {
     exportToLMS: "Експорт до LMS",
     eventPoster: "Постер Події",
     trash: "Кошик",
-    getUnlimitedAI: "Отримати необмежений ШІ",
+    getUnlimitedAI: "Отримати Необмежений ШІ",
     credits: "кредитів",
     loading: "Завантаження...",
 

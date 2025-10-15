@@ -354,7 +354,7 @@ export const es = {
     exportToLMS: "Exportar a LMS",
     eventPoster: "Póster de Evento",
     trash: "Papelera",
-    getUnlimitedAI: "Obtener IA ilimitada",
+    getUnlimitedAI: "Obtener IA Ilimitada",
     credits: "créditos",
     loading: "Cargando...",
 

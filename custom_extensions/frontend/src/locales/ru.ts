@@ -383,7 +383,7 @@ export const ru = {
     exportToLMS: "Экспорт в LMS",
     eventPoster: "Постер Мероприятия",
     trash: "Корзина",
-    getUnlimitedAI: "Получить неограниченный ИИ",
+    getUnlimitedAI: "Получить Неограниченный ИИ",
     credits: "кредитов",
     loading: "Загрузка...",
 

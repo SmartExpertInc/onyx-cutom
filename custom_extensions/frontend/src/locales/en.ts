@@ -403,7 +403,7 @@ export const en = {
     exportToLMS: "Export to LMS",
     eventPoster: "Event Poster",
     trash: "Trash",
-    getUnlimitedAI: "Get unlimited AI",
+    getUnlimitedAI: "Get Unlimited AI",
     credits: "credits",
     loading: "Loading...",
 
