@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -1806,13 +1806,9 @@ export default function LessonPresentationClient() {
               }}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               rows={1}
-                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-[#E0E0E0] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
             />
-              <Edit 
-                size={16} 
-                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
-              />
             </div>
           )}
 
@@ -1896,10 +1892,10 @@ export default function LessonPresentationClient() {
                     return (
                       <div key={slideIdx} className="bg-white rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
                         {/* Header with number and title */}
-                        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#E0E0E0]">
-                          <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0">
-                            {slideIdx + 1}
-                          </div>
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-[#E0E0E0]">
+                          <span className="font-semibold text-lg text-[#0D001B] select-none flex-shrink-0">
+                            {slideIdx + 1}.
+                          </span>
                           <input
                             type="text"
                             value={editedTitles[slideIdx + 1] ?? title}
@@ -1908,7 +1904,7 @@ export default function LessonPresentationClient() {
                               setTitleForSlide(slideIdx, newTitle);
                             }}
                             disabled={!streamDone}
-                            className="flex-1 font-medium text-lg border-none focus:ring-0 text-gray-900 px-0 py-0"
+                            className="flex-1 font-semibold text-lg border-none focus:ring-0 text-[#0D001B] px-0 py-0"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
                         </div>
@@ -1940,13 +1936,13 @@ export default function LessonPresentationClient() {
                               <div className="px-5 py-4 flex flex-col gap-2" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                                 {bullets.slice(0, 5).map((b, i) => (
                                   <div key={i} className="flex items-start gap-2">
-                                    <span className="inline-block w-1.5 h-1.5 bg-[#6091F9] rounded-full mt-1.5 flex-shrink-0" />
+                                    <span className="inline-block w-1 h-1 bg-[#6091F9] rounded-full mt-2 flex-shrink-0" />
                                     <input
                                       type="text"
                                       value={String(b)}
                                       onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
                                       disabled={!streamDone}
-                                      className="text-sm text-gray-800 border-0 px-0 py-0 focus:outline-none focus:ring-0 flex-1"
+                                      className="text-sm text-[#434343CC] border-0 px-0 py-0 focus:outline-none focus:ring-0 flex-1"
                                       placeholder={t('interface.generate.topic', 'Topic') as string}
                                     />
                                   </div>
@@ -1976,8 +1972,8 @@ export default function LessonPresentationClient() {
               <div className="bg-white rounded-xl pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
                   <div className="flex flex-col">
-                    <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                    <p className="mt-1 text-[#434343CC] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                    <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.themes', 'Themes')}</h2>
+                    <p className="mt-1 text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                   </div>
                   <button
                     type="button"
