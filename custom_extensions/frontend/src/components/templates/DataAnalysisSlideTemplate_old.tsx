@@ -122,7 +122,7 @@ function InlineEditor({
   );
 }
 
-export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
+export const DataAnalysisSlideTemplate_old: React.FC<DataAnalysisSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
   slideId,
