@@ -259,6 +259,7 @@ export interface EventListTemplateProps extends BaseTemplateProps {
   subject?: string;
   events: Array<{
     description: string;
+    date?: string;
   }>;
   titleColor?: string;
   descriptionColor?: string;
