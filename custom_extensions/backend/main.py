@@ -21744,6 +21744,8 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Randomly select one example to reduce over-reliance on a single pattern
             json_example = random.choice(example_files)
         
+
+        json_preview_instructions = ""  
         if not is_video_lesson:
             json_preview_instructions += f"""
 
