@@ -610,10 +610,16 @@ const MyProductsTable: React.FC<MyProductsTableProps> = ({ folderId }) => {
                 createdBy: project.creator_name || 'You',
                 createdAt: project.created_at
               }}
-              onSettings={() => handleSettings(project)}
-              onDelete={() => handleDelete(project.id)}
-              onMoveToFolder={(folderId) => handleMoveToFolder(project.id, folderId)}
-              showCreator={false} // Don't show creator since these are all "my products"
+              onDelete={(id) => handleDelete(id)}
+              onRestore={() => {}}
+              onDeletePermanently={() => {}}
+              isTrashMode={false}
+              folderId={folderId}
+              onTierChange={(tier) => {
+                setProjects(prev => prev.map(p => 
+                  p.id === project.id ? { ...p, quality_tier: tier } : p
+                ));
+              }}
             />
           ))}
         </div>
