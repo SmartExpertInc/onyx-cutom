@@ -3905,6 +3905,59 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         </div>
       )}
 
+      {/* Folders Section */}
+      {!trashMode && folders.length > 0 && (
+        <div className="mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {folders.map((folder) => (
+              <div
+                key={folder.id}
+                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  // Handle folder click - could navigate to folder contents
+                  console.log('Folder clicked:', folder.name);
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-gray-600">
+                        <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">{folder.name}</h3>
+                      <p className="text-sm text-gray-500">
+                        {folder.project_count || 0} {folder.project_count === 1 ? 'item' : 'items'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal size={16} className="text-gray-500" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <PenLine size={16} className="text-gray-500" />
+                          <span>Rename</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Trash2 size={16} className="text-gray-500" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {projects.length > 0 ? (
         viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
@@ -3982,7 +4035,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                     >
                       <div className="flex items-center gap-2">
                         <Calendar strokeWidth={1} className="text-[#71717A]" size={15} />
-                        {t("interface.created", "Created")}
+                        {t("interface.edited", "Edited")}
                         {sortBy === 'created' && (
                           <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
                         )}
@@ -3997,6 +4050,62 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white divide-y divide-[#E0E0E0]">
+                {/* Show folders first */}
+                {!trashMode && folders.map((folder, index) => (
+                  <TableRow
+                    key={`folder-${folder.id}`}
+                    className="hover:bg-gray-50 transition group cursor-pointer"
+                    onClick={() => {
+                      // Handle folder click - could navigate to folder contents
+                      console.log('Folder clicked:', folder.name);
+                    }}
+                  >
+                    <TableCell className="px-3 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
+                          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" className="text-gray-600">
+                            <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Folder</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-3 py-3">
+                      <div className="text-sm font-medium text-gray-900">{folder.name}</div>
+                    </TableCell>
+                    <TableCell className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                          <User size={12} className="text-gray-600" />
+                        </div>
+                        <span className="text-sm text-gray-900">You</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-3 py-3">
+                      <span className="text-sm text-gray-500">Today</span>
+                    </TableCell>
+                    <TableCell className="px-3 py-3 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreHorizontal size={16} className="text-gray-500" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <PenLine size={16} className="text-gray-500" />
+                            <span>Rename</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Trash2 size={16} className="text-gray-500" />
+                            <span>Delete</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
                 {/* Show filtered projects based on folder */}
                 {paginatedProjects.map((p: Project, index: number) => (
                     <TableRow
@@ -4108,7 +4217,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </TableCell>
                         <TableCell className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
+                          {formatDate(p.lastViewed || p.createdAt)}
                         </TableCell>
                       <TableCell
                         className="px-2 pr-5 py-2 whitespace-nowrap text-right text-sm font-medium relative"
