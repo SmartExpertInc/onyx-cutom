@@ -27088,6 +27088,8 @@ class QuizWizardFinalize(BaseModel):
     originalContent: Optional[str] = None
     # NEW: indicate if content is clean (questions only, no options/answers)
     isCleanContent: Optional[bool] = False
+    # NEW: indices of edited questions for selective regeneration (comma-separated: "0,2,5")
+    editedQuestionIndices: Optional[str] = None
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -27803,31 +27805,56 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             
             # NEW: Handle clean content (questions only) differently
             if payload.isCleanContent:
-                logger.info("Processing clean content (questions only) - will generate options and answers")
+                # Parse edited question indices if provided
+                edited_indices = set()
+                if payload.editedQuestionIndices:
+                    try:
+                        edited_indices = set(int(idx.strip()) for idx in payload.editedQuestionIndices.split(',') if idx.strip())
+                        logger.info(f"✅ [QUIZ_SELECTIVE_REGEN] Selective regeneration enabled for questions at indices: {sorted(edited_indices)}")
+                    except Exception as e:
+                        logger.warning(f"[QUIZ_SELECTIVE_REGEN] Failed to parse editedQuestionIndices: {e}, will regenerate all")
+                
+                if edited_indices:
+                    logger.info(f"✅ [QUIZ_SELECTIVE_REGEN] Processing {len(edited_indices)} edited questions - will preserve unchanged ones")
+                else:
+                    logger.info("✅ [QUIZ_CLEAN_CONTENT] Processing clean content (questions only) - will generate NEW options AND answers for ALL")
+                
+                logger.info(f"[QUIZ_CLEAN_CONTENT] Input content preview: {payload.aiResponse[:200]}...")
+                logger.info(f"[QUIZ_CLEAN_CONTENT] Language: {payload.language}, Question Types: {payload.questionTypes}")
                 # For clean content, we need to generate complete quiz with options and answers
                 dynamic_instructions = f"""
                 CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
 
-                The AI response contains ONLY quiz questions without options or answers. You need to generate a complete quiz with:
-                1. Multiple choice options (A, B, C, D) for each question
-                2. Correct answers
-                3. Explanations for each answer
+                IMPORTANT: The AI response contains ONLY quiz questions WITHOUT any options, answers, or explanations. You MUST generate ALL of these components from scratch:
+                1. NEW Multiple choice options (A, B, C, D) for EVERY question - create completely new options that fit the question
+                2. NEW Correct answers - determine which option should be correct
+                3. NEW Explanations - write detailed explanations for each answer
 
                 REQUIREMENTS:
                 1. Extract the quiz title from the content or use the lesson name
-                2. For each question, generate:
-                   - "question_type": "multiple-choice" (default)
-                   - "question_text": The question text
-                   - "options": Array with {{"id": "A", "text": "option text"}} for 4 options
-                   - "correct_option_id": "A" (or appropriate letter)
-                   - "explanation": Detailed explanation for the correct answer
+                2. For EACH question, you MUST generate COMPLETELY NEW:
+                   - "question_type": Determine appropriate type based on question (default to "multiple-choice")
+                   - "question_text": Use the exact question text from the input
+                   - "options": Create a BRAND NEW array with 4 options that are:
+                     * Relevant to the specific question being asked
+                     * Plausible but with only one correct answer
+                     * Formatted as {{"id": "A", "text": "option text"}}, {{"id": "B", "text": "option text"}}, etc.
+                   - "correct_option_id": Choose which option letter (A, B, C, or D) is the correct answer
+                   - "explanation": Write a NEW detailed explanation explaining why the correct answer is right and why other options are wrong
 
-                CRITICAL RULES:
-                - Generate realistic and relevant options for each question
-                - Make sure only one option is correct
-                - Provide detailed explanations
-                - Language: {payload.language}
-                - Question types: {payload.questionTypes}
+                CRITICAL RULES FOR OPTION GENERATION:
+                - DO NOT preserve any existing options - generate completely new ones
+                - Each option must be unique and relevant to the question
+                - Only one option should be correct
+                - Options should be challenging but fair
+                - Make distractors (wrong answers) plausible but clearly incorrect
+                - Ensure options are in the correct language: {payload.language}
+                - Question types allowed: {payload.questionTypes}
+                
+                EXAMPLE - If question is "What is the capital of France?":
+                - Generate NEW options like: A) Paris, B) London, C) Berlin, D) Madrid
+                - Set correct_option_id: "A"
+                - Write explanation: "Paris is the capital of France. London is the capital of England, Berlin is the capital of Germany, and Madrid is the capital of Spain."
                 """
             else:
                 # Regular content with options and answers
@@ -27882,6 +27909,78 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
+        
+        # NEW: Selective regeneration - merge original unchanged questions with newly generated edited ones
+        if payload.isCleanContent and payload.editedQuestionIndices and payload.originalContent:
+            try:
+                edited_indices = set(int(idx.strip()) for idx in payload.editedQuestionIndices.split(',') if idx.strip())
+                if edited_indices and len(edited_indices) < len(parsed_quiz.questions):
+                    logger.info(f"[QUIZ_SELECTIVE_MERGE] Starting selective merge for {len(edited_indices)} edited questions")
+                    
+                    # Parse original content to extract original questions
+                    original_quiz = None
+                    try:
+                        # Try parsing as JSON first
+                        original_parsed = json.loads(payload.originalContent)
+                        if isinstance(original_parsed, dict) and 'quizTitle' in original_parsed and 'questions' in original_parsed:
+                            original_quiz = QuizData(**original_parsed)
+                            logger.info(f"[QUIZ_SELECTIVE_MERGE] Parsed original content as JSON: {len(original_quiz.questions)} questions")
+                    except:
+                        # If not JSON, try parsing with LLM
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] Original content not JSON, parsing with LLM")
+                        original_quiz = await parse_ai_response_with_llm(
+                            ai_response=payload.originalContent,
+                            project_name=project_name,
+                            target_model=QuizData,
+                            default_error_model_instance=QuizData(quizTitle=project_name, questions=[], detectedLanguage=payload.language),
+                            dynamic_instructions=f"Parse this quiz content into structured JSON. Preserve all options, answers, and explanations exactly as they are.",
+                            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+                        )
+                    
+                    if original_quiz and len(original_quiz.questions) == len(parsed_quiz.questions):
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] Original quiz has {len(original_quiz.questions)} questions, merging...")
+                        
+                        # Merge: use original options/explanations for unchanged questions
+                        for i in range(len(parsed_quiz.questions)):
+                            if i not in edited_indices:
+                                # This question wasn't edited - restore original options/explanations
+                                if hasattr(original_quiz.questions[i], 'options'):
+                                    parsed_quiz.questions[i].options = original_quiz.questions[i].options
+                                if hasattr(original_quiz.questions[i], 'correct_option_id'):
+                                    parsed_quiz.questions[i].correct_option_id = original_quiz.questions[i].correct_option_id
+                                if hasattr(original_quiz.questions[i], 'correct_option_ids'):
+                                    parsed_quiz.questions[i].correct_option_ids = original_quiz.questions[i].correct_option_ids
+                                if hasattr(original_quiz.questions[i], 'explanation'):
+                                    parsed_quiz.questions[i].explanation = original_quiz.questions[i].explanation
+                                if hasattr(original_quiz.questions[i], 'correct_matches'):
+                                    parsed_quiz.questions[i].correct_matches = original_quiz.questions[i].correct_matches
+                                if hasattr(original_quiz.questions[i], 'correct_order'):
+                                    parsed_quiz.questions[i].correct_order = original_quiz.questions[i].correct_order
+                                if hasattr(original_quiz.questions[i], 'acceptable_answers'):
+                                    parsed_quiz.questions[i].acceptable_answers = original_quiz.questions[i].acceptable_answers
+                                if hasattr(original_quiz.questions[i], 'prompts'):
+                                    parsed_quiz.questions[i].prompts = original_quiz.questions[i].prompts
+                                if hasattr(original_quiz.questions[i], 'items_to_sort'):
+                                    parsed_quiz.questions[i].items_to_sort = original_quiz.questions[i].items_to_sort
+                                
+                                logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Q{i+1}: Preserved original options/explanations (unchanged)")
+                            else:
+                                logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Q{i+1}: Using newly generated options/explanations (edited)")
+                        
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(parsed_quiz.questions) - len(edited_indices)} preserved")
+                    else:
+                        logger.warning(f"[QUIZ_SELECTIVE_MERGE] Cannot merge: original has {len(original_quiz.questions) if original_quiz else 0} questions vs current {len(parsed_quiz.questions)}")
+            except Exception as e:
+                logger.error(f"[QUIZ_SELECTIVE_MERGE] Error during selective merge: {e}", exc_info=True)
+                logger.warning(f"[QUIZ_SELECTIVE_MERGE] Falling back to using all newly generated content")
+        
+        # Log details about generated options if this was clean content
+        if payload.isCleanContent and len(parsed_quiz.questions) > 0:
+            logger.info(f"[QUIZ_CLEAN_CONTENT_RESULT] ✅ Generated complete quiz from clean questions")
+            for i, q in enumerate(parsed_quiz.questions[:3]):  # Log first 3 questions
+                has_options = hasattr(q, 'options') and q.options
+                has_explanation = hasattr(q, 'explanation') and q.explanation
+                logger.info(f"[QUIZ_CLEAN_CONTENT_RESULT] Q{i+1}: {q.question_text[:50]}... | Has options: {has_options} ({len(q.options) if has_options else 0}) | Has explanation: {has_explanation}")
         
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:

@@ -1113,6 +1113,7 @@ export default function QuizClient() {
         contentToSend = createCleanQuestionsContent(quizData);
         isCleanContent = true;
         console.log("Sending clean questions for regeneration:", contentToSend);
+        console.log("Edited question indices:", Array.from(editedTitleIds));
       }
 
       const payloadToSend = {
@@ -1135,6 +1136,8 @@ export default function QuizClient() {
           originalContent: originalQuizData,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // NEW: Send indices of edited questions for selective regeneration
+          editedQuestionIndices: isCleanContent ? Array.from(editedTitleIds).join(',') : undefined,
           // Add connector context if creating from connectors
           ...(fromConnectors && {
             fromConnectors: true,
