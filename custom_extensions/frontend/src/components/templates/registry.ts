@@ -81,8 +81,81 @@ import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSli
 import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
 import TopicsSlideTemplate from './TopicsSlideTemplate';
 
-
-
+// ========== OLD TEMPLATE IMPORTS ==========
+import AiPharmaMarketGrowthSlideTemplate_old from './AiPharmaMarketGrowthSlideTemplate_old';
+import BarChartInfographicsTemplate_old from './BarChartInfographicsTemplate_old';
+import BarChartSlideTemplate_old from './BarChartSlideTemplate_old';
+import BenefitsAndPerksColumnsSlideTemplate_old from './BenefitsAndPerksColumnsSlideTemplate_old';
+import BenefitsListSlideTemplate_old from './BenefitsListSlideTemplate_old';
+import BenefitsTagsSlideTemplate_old from './BenefitsTagsSlideTemplate_old';
+import BigImageLeftTemplate_old from './BigImageLeftTemplate_old';
+import BigImageTopTemplate_old from './BigImageTopTemplate_old';
+import BigNumbersTemplate_old from './BigNumbersTemplate_old';
+import BulletPointsRightTemplate_old from './BulletPointsRightTemplate_old';
+import BulletPointsTemplate_old from './BulletPointsTemplate_old';
+import ChallengesSolutionsTemplate_old from './ChallengesSolutionsTemplate_old';
+import ChangeManagementTabsSlideTemplate_old from './ChangeManagementTabsSlideTemplate_old';
+import ChartTemplate_old from './ChartTemplate_old';
+import CompanyToolsResourcesSlideTemplate_old from './CompanyToolsResourcesSlideTemplate_old';
+import ComparisonSlideTemplate_old from './ComparisonSlideTemplate_old';
+import ConcentricPhishingRiseSlideTemplate_old from './ConcentricPhishingRiseSlideTemplate_old';
+import ConnectionSlideTemplate_old from './ConnectionSlideTemplate_old';
+import ContentSlideTemplate_old from './ContentSlideTemplate_old';
+import ContraindicationsIndicationsTemplate_old from './ContraindicationsIndicationsTemplate_old';
+import CourseOverviewSlideTemplate_old from './CourseOverviewSlideTemplate_old';
+import CourseRulesTimelineSlideTemplate_old from './CourseRulesTimelineSlideTemplate_old';
+import CriticalThinkingSlideTemplate_old from './CriticalThinkingSlideTemplate_old';
+import CultureValuesThreeColumnsSlideTemplate_old from './CultureValuesThreeColumnsSlideTemplate_old';
+import DataAnalysisSlideTemplate_old from './DataAnalysisSlideTemplate_old';
+import DataDrivenInsightsSlideTemplate_old from './DataDrivenInsightsSlideTemplate_old';
+import DeiMethodsSlideTemplate_old from './DeiMethodsSlideTemplate_old';
+import EnterpriseRoadmapSlideTemplate_old from './EnterpriseRoadmapSlideTemplate_old';
+import EventListTemplate_old from './EventListTemplate_old';
+import FourBoxGridTemplate_old from './FourBoxGridTemplate_old';
+import HeroTitleSlideTemplate_old from './HeroTitleSlideTemplate_old';
+import HighPerformingTeamsSlideTemplate_old from './HighPerformingTeamsSlideTemplate_old';
+import HybridWorkBestPracticesSlideTemplate_old from './HybridWorkBestPracticesSlideTemplate_old';
+import ImpactMetricsRightImageSlideTemplate_old from './ImpactMetricsRightImageSlideTemplate_old';
+import ImpactStatementsSlideTemplate_old from './ImpactStatementsSlideTemplate_old';
+import ImpactValueStatementsSlideTemplate_old from './ImpactValueStatementsSlideTemplate_old';
+import InterestGrowthSlideTemplate_old from './InterestGrowthSlideTemplate_old';
+import IntroductionDataAnalysisSlideTemplate_old from './IntroductionDataAnalysisSlideTemplate_old';
+import KeySkillsDataAnalysisSlideTemplate_old from './KeySkillsDataAnalysisSlideTemplate_old';
+import KpiUpdateSlideTemplate_old from './KpiUpdateSlideTemplate_old';
+import LearningTopicsSlideTemplate_old from './LearningTopicsSlideTemplate_old';
+import MarketingAgencyThankYouSlideTemplate_old from './MarketingAgencyThankYouSlideTemplate_old';
+import MarketShareTemplate_old from './MarketShareTemplate_old';
+import MetricsAnalyticsTemplate_old from './MetricsAnalyticsTemplate_old';
+import OralHygieneSignsSlideTemplate_old from './OralHygieneSignsSlideTemplate_old';
+import OrgChartTemplate_old from './OrgChartTemplate_old';
+import PercentCirclesSlideTemplate_old from './PercentCirclesSlideTemplate_old';
+import PhishingDefinitionSlideTemplate_old from './PhishingDefinitionSlideTemplate_old';
+import PhishingRiseSlideTemplate_old from './PhishingRiseSlideTemplate_old';
+import PieChartInfographicsTemplate_old from './PieChartInfographicsTemplate_old';
+import ProblemsGridSlideTemplate_old from './ProblemsGridSlideTemplate_old';
+import ProcessStepsTemplate_old from './ProcessStepsTemplate_old';
+import ProofStatisticsSlideTemplate_old from './ProofStatisticsSlideTemplate_old';
+import PsychologicalSafetySlideTemplate_old from './PsychologicalSafetySlideTemplate_old';
+import PyramidTemplate_old from './PyramidTemplate_old';
+import ResilienceBehaviorsSlideTemplate_old from './ResilienceBehaviorsSlideTemplate_old';
+import ResourcesListSlideTemplate_old from './ResourcesListSlideTemplate_old';
+import ResourcesSlideTemplate_old from './ResourcesSlideTemplate_old';
+import SixIdeasListTemplate_old from './SixIdeasListTemplate_old';
+import SoftSkillsAssessmentSlideTemplate_old from './SoftSkillsAssessmentSlideTemplate_old';
+import SoftSkillsDevelopSlideTemplate_old from './SoftSkillsDevelopSlideTemplate_old';
+import SoftSkillsTypesSlideTemplate_old from './SoftSkillsTypesSlideTemplate_old';
+import SolutionStepsSlideTemplate_old from './SolutionStepsSlideTemplate_old';
+import StaySafeTipsSlideTemplate_old from './StaySafeTipsSlideTemplate_old';
+import TableDarkTemplate_old from './TableDarkTemplate_old';
+import TableLightTemplate_old from './TableLightTemplate_old';
+import TableOfContentsSlideTemplate_old from './TableOfContentsSlideTemplate_old';
+import ThankYouSlideTemplate_old from './ThankYouSlideTemplate_old';
+import TimelineTemplate_old from './TimelineTemplate_old';
+import TitleSlideTemplate_old from './TitleSlideTemplate_old';
+import TopicsSlideTemplate_old from './TopicsSlideTemplate_old';
+import TwoColumnSlideTemplate_old from './TwoColumnSlideTemplate_old';
+import TwoColumnTemplate_old from './TwoColumnTemplate_old';
+import WorkLifeBalanceSlideTemplate_old from './WorkLifeBalanceSlideTemplate_old';
 
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'title-slide': {
@@ -2954,32 +3027,11 @@ export function getTemplate(templateId: string): TemplateComponentInfo | undefin
 export function resolveTemplateIdForVersion(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): string {
   const effectiveVersion = deckTemplateVersion || defaultVersion || (typeof process !== 'undefined' ? (process.env?.SLIDES_DEFAULT_VERSION || 'v1') : 'v1');
   
-  // 🔍 ALWAYS LOG for debugging
-  console.log('🔍 resolveTemplateIdForVersion:', {
-    templateId,
-    deckTemplateVersion,
-    defaultVersion,
-    effectiveVersion,
-    isLegacy: !effectiveVersion || effectiveVersion < 'v2'
-  });
-  
   // Simple lexical compare for our v1/v2 scheme
   if (!effectiveVersion || effectiveVersion < 'v2') {
     const candidate = `${templateId}_old`;
-    const exists = !!SLIDE_TEMPLATE_REGISTRY[candidate];
-    const resolved = exists ? candidate : templateId;
-    
-    console.log('🔄 LEGACY DECK - Mapping:', {
-      original: templateId,
-      candidate: candidate,
-      candidateExists: exists,
-      resolved: resolved
-    });
-    
-    return resolved;
+    return SLIDE_TEMPLATE_REGISTRY[candidate] ? candidate : templateId;
   }
-  
-  console.log('✅ V2+ DECK - Using original:', templateId);
   return templateId;
 }
 
@@ -3056,7 +3108,86 @@ export function validateTemplateProps(templateId: string, props: any): { valid: 
 
 export default SLIDE_TEMPLATE_REGISTRY; 
 
-// Bootstrap `_old` variants for non-avatar templates if not explicitly registered.
+// Register `_old` variants with their actual old components
+// Map template IDs to their _old component imports
+const OLD_TEMPLATE_COMPONENTS: Record<string, any> = {
+  'ai-pharma-market-growth': AiPharmaMarketGrowthSlideTemplate_old,
+  'bar-chart-infographics': BarChartInfographicsTemplate_old,
+  'bar-chart': BarChartSlideTemplate_old,
+  'benefits-and-perks-columns': BenefitsAndPerksColumnsSlideTemplate_old,
+  'benefits-list': BenefitsListSlideTemplate_old,
+  'benefits-tags': BenefitsTagsSlideTemplate_old,
+  'big-image-left': BigImageLeftTemplate_old,
+  'big-image-top': BigImageTopTemplate_old,
+  'big-numbers': BigNumbersTemplate_old,
+  'bullet-points-right': BulletPointsRightTemplate_old,
+  'bullet-points': BulletPointsTemplate_old,
+  'challenges-solutions': ChallengesSolutionsTemplate_old,
+  'change-management-tabs': ChangeManagementTabsSlideTemplate_old,
+  'chart': ChartTemplate_old,
+  'company-tools-resources': CompanyToolsResourcesSlideTemplate_old,
+  'comparison-slide': ComparisonSlideTemplate_old,
+  'concentric-phishing-rise': ConcentricPhishingRiseSlideTemplate_old,
+  'connection': ConnectionSlideTemplate_old,
+  'content-slide': ContentSlideTemplate_old,
+  'contraindications-indications': ContraindicationsIndicationsTemplate_old,
+  'course-overview': CourseOverviewSlideTemplate_old,
+  'course-rules-timeline': CourseRulesTimelineSlideTemplate_old,
+  'critical-thinking': CriticalThinkingSlideTemplate_old,
+  'culture-values-three-columns': CultureValuesThreeColumnsSlideTemplate_old,
+  'data-analysis': DataAnalysisSlideTemplate_old,
+  'data-driven-insights': DataDrivenInsightsSlideTemplate_old,
+  'dei-methods': DeiMethodsSlideTemplate_old,
+  'enterprise-roadmap': EnterpriseRoadmapSlideTemplate_old,
+  'event-list': EventListTemplate_old,
+  'four-box-grid': FourBoxGridTemplate_old,
+  'hero-title-slide': HeroTitleSlideTemplate_old,
+  'high-performing-teams': HighPerformingTeamsSlideTemplate_old,
+  'hybrid-work-best-practices': HybridWorkBestPracticesSlideTemplate_old,
+  'impact-metrics-right-image': ImpactMetricsRightImageSlideTemplate_old,
+  'impact-statements': ImpactStatementsSlideTemplate_old,
+  'impact-value-statements': ImpactValueStatementsSlideTemplate_old,
+  'interest-growth': InterestGrowthSlideTemplate_old,
+  'introduction-data-analysis': IntroductionDataAnalysisSlideTemplate_old,
+  'key-skills-data-analysis': KeySkillsDataAnalysisSlideTemplate_old,
+  'kpi-update': KpiUpdateSlideTemplate_old,
+  'learning-topics': LearningTopicsSlideTemplate_old,
+  'marketing-agency-thank-you': MarketingAgencyThankYouSlideTemplate_old,
+  'market-share': MarketShareTemplate_old,
+  'metrics-analytics': MetricsAnalyticsTemplate_old,
+  'oral-hygiene-signs': OralHygieneSignsSlideTemplate_old,
+  'org-chart': OrgChartTemplate_old,
+  'percent-circles': PercentCirclesSlideTemplate_old,
+  'phishing-definition': PhishingDefinitionSlideTemplate_old,
+  'phishing-rise': PhishingRiseSlideTemplate_old,
+  'pie-chart-infographics': PieChartInfographicsTemplate_old,
+  'problems-grid': ProblemsGridSlideTemplate_old,
+  'process-steps': ProcessStepsTemplate_old,
+  'proof-statistics': ProofStatisticsSlideTemplate_old,
+  'psychological-safety': PsychologicalSafetySlideTemplate_old,
+  'pyramid': PyramidTemplate_old,
+  'resilience-behaviors': ResilienceBehaviorsSlideTemplate_old,
+  'resources-list': ResourcesListSlideTemplate_old,
+  'resources': ResourcesSlideTemplate_old,
+  'six-ideas-list': SixIdeasListTemplate_old,
+  'soft-skills-assessment': SoftSkillsAssessmentSlideTemplate_old,
+  'soft-skills-develop': SoftSkillsDevelopSlideTemplate_old,
+  'soft-skills-types': SoftSkillsTypesSlideTemplate_old,
+  'solution-steps': SolutionStepsSlideTemplate_old,
+  'stay-safe-tips': StaySafeTipsSlideTemplate_old,
+  'table-dark': TableDarkTemplate_old,
+  'table-light': TableLightTemplate_old,
+  'table-of-contents': TableOfContentsSlideTemplate_old,
+  'thank-you': ThankYouSlideTemplate_old,
+  'timeline': TimelineTemplate_old,
+  'title-slide': TitleSlideTemplate_old,
+  'topics': TopicsSlideTemplate_old,
+  'two-column-slide': TwoColumnSlideTemplate_old,
+  'two-column': TwoColumnTemplate_old,
+  'work-life-balance': WorkLifeBalanceSlideTemplate_old,
+};
+
+// Register all _old templates with their actual old components
 (() => {
   try {
     const ids = Object.keys(SLIDE_TEMPLATE_REGISTRY);
@@ -3067,11 +3198,15 @@ export default SLIDE_TEMPLATE_REGISTRY;
       if (isAvatar) continue;
       const oldId = `${id}_old`;
       if (!(oldId in SLIDE_TEMPLATE_REGISTRY)) {
-        SLIDE_TEMPLATE_REGISTRY[oldId] = {
-          ...t,
-          id: oldId,
-          name: `${t.name} (Old)`
-        } as any;
+        const oldComponent = OLD_TEMPLATE_COMPONENTS[id];
+        if (oldComponent) {
+          SLIDE_TEMPLATE_REGISTRY[oldId] = {
+            ...t,
+            id: oldId,
+            name: `${t.name} (Old)`,
+            component: oldComponent  // ← Use the actual _old component!
+          } as any;
+        }
       }
     }
   } catch {}
