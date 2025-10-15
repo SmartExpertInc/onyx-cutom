@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -1322,9 +1322,9 @@ export default function CourseOutlineClient() {
         className="absolute pointer-events-none"
         style={{
           width: '1260px',
-          height: '1600px',
+          height: '1800px',
           top: '358px',
-          left: '533px',
+          left: '433px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
           transform: 'rotate(-120deg)',
@@ -1405,10 +1405,6 @@ export default function CourseOutlineClient() {
               className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
               style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #E0E0E0" }}
             />
-            <Edit 
-              size={16} 
-              className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
-            />
           </div>
           {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
             <Button
@@ -1468,12 +1464,6 @@ export default function CourseOutlineClient() {
                         placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                         disabled={loading || loadingPreview || isGenerating}
                       />
-                      {mod.title && (
-                        <Edit 
-                          size={16} 
-                          className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                        />
-                      )}
                     </div>
                   </div>
 
@@ -1513,12 +1503,6 @@ export default function CourseOutlineClient() {
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                  disabled={loading || loadingPreview || isGenerating}
                                />
-                               {titleLine && (
-                                 <Edit 
-                                   size={16} 
-                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
-                                 />
-                               )}
                              </div>
                            </li>
                          );
