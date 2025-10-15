@@ -1862,9 +1862,9 @@ export default function QuizClient() {
 
                 {/* Display content in card format if questions are available, otherwise show textarea */}
                 {questionList.length > 0 && (
-                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
+                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     {questionList.map((question, idx: number) => (
-                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5" style={{ animation: 'fadeInDown 0.25s ease-out both', animationDelay: `${idx * 40}ms` }}>
                         {/* Left blue square with number */}
                         <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {idx + 1}
