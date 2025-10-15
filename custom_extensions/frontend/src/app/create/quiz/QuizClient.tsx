@@ -352,7 +352,8 @@ export default function QuizClient() {
     return [];
   };
 
-  const questionList = parseQuizIntoQuestions(quizData);
+  // Hide explanations during streaming by stripping them from the preview content
+  const questionList = parseQuizIntoQuestions(streamDone ? quizData : createCleanQuestionsContent(quizData));
 
   // Function to get the correct plural form for questions
   const getQuestionPluralForm = (count: number) => {
@@ -1919,18 +1920,10 @@ export default function QuizClient() {
                             )}
                           </div>
                           {question.content && (
-                            (() => {
-                              // Hide Explanation while streaming; show after streamDone
-                              const contentToShow = streamDone
-                                ? question.content
-                                : question.content.replace(/\n?\*\*Explanation:\*\*[\s\S]*/i, '');
-                              return (
-                                <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
-                                  {contentToShow.substring(0, 100)}
-                                  {contentToShow.length > 100 && '...'}
-                                </div>
-                              );
-                            })()
+                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                              {question.content.substring(0, 100)}
+                              {question.content.length > 100 && '...'}
+                            </div>
                           )}
                         </div>
                       </div>
