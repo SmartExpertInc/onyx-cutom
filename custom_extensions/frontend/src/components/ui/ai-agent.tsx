@@ -146,8 +146,16 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           value={editPrompt}
           onChange={(e) => setEditPrompt(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-5 py-4 pb-14 rounded-lg bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
+          className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
           style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#8808A2';
+            e.target.style.boxShadow = 'none';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#E0E0E0';
+            e.target.style.boxShadow = 'none';
+          }}
         />
         
         {/* Send button positioned inside textarea */}
