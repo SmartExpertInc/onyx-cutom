@@ -28793,9 +28793,9 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 # Fallback - shouldn't happen but just in case
                 logger.warning("No parsing path selected, using aiResponse as fallback")
                 content_to_parse = payload.aiResponse
-        
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
+            
+            # Parse the text presentation data using LLM - only call once with consistent project name
+            parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
             ai_response=content_to_parse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,

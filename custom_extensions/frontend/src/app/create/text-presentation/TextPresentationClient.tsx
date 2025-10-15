@@ -1034,15 +1034,17 @@ export default function TextPresentationClient() {
                 displayText = `# ${title}\n\n`;
                 
                 // Try to extract contentBlocks array even if JSON is incomplete
-                const contentBlocksMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[([^\]]*)/);
+                // Use a greedy match to get ALL content blocks, not just up to first ]
+                const contentBlocksMatch = accumulatedText.match(/"contentBlocks"\s*:\s*\[([\s\S]*?)(?:\]\s*,|\]\s*}|$)/);
                 if (contentBlocksMatch) {
                   const blocksText = contentBlocksMatch[1];
                   
                   // Extract all blocks with type and text
                   // Pattern matches: {"type":"headline","level":2,"text":"Section Title"}
                   // or {"type":"paragraph","text":"Content text"}
-                  const headlinePattern = /"type"\s*:\s*"headline"[^}]*"text"\s*:\s*"([^"]+)"/g;
-                  const paragraphPattern = /"type"\s*:\s*"paragraph"[^}]*"text"\s*:\s*"([^"]+)"/g;
+                  // Use non-greedy matching to avoid crossing block boundaries
+                  const headlinePattern = /\{\s*"type"\s*:\s*"headline"[^}]*?"text"\s*:\s*"([^"]+)"/g;
+                  const paragraphPattern = /\{\s*"type"\s*:\s*"paragraph"[^}]*?"text"\s*:\s*"([^"]+)"/g;
                   
                   const headlines = [];
                   const paragraphs = [];
