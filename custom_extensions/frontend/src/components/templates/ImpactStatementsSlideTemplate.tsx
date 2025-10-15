@@ -150,8 +150,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       }}>
         {/* Title - MATCHES HTML: maxWidth: 784px, fontSize: 74px, minHeight: 45px */}
         <div style={{
-          maxWidth: '40.83%',
-          fontSize: '3.85vw',
+          fontSize: '50px',
           color: '#09090B',
           lineHeight: '1.2',
           flex: 1,
@@ -168,8 +167,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               multiline={true}
               className="impact-title-editor title-element"
               style={{
-                maxWidth: '40.83%',
-                fontSize: '3.85vw',
+                fontSize: '50px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 width: '100%',
@@ -188,7 +186,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '3.85vw',
+                fontSize: '50px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 minHeight: '4.17%'
@@ -201,8 +199,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
         {/* Profile image in gradient container - MATCHES HTML: width: 784px, height: 279px, borderRadius: 13px */}
         <div style={{
-          width: '40.83%',
-          height: '25.83%',
+          width: '100%',
+          height: '47.83%',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
           borderRadius: '0.68%',
           overflow: 'hidden',
@@ -369,10 +367,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             >
               {/* Number - MATCHES HTML: fontSize: 93px, minHeight/maxHeight: 54px */}
               <div className="title-element" style={{
-                fontSize: '4.84vw',
+                fontSize: '60px',
                 color: '#263644',
-                minHeight: '5%',
-                maxHeight: '5%',
                 display: 'flex',
                 alignItems: 'center',
                 overflow: 'hidden',
@@ -385,12 +381,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '4.84vw',
+                      fontSize: '60px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
-                      minHeight: '5%',
-                      maxHeight: '5%'
                     }}
                   />
                 ) : (
@@ -404,10 +398,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       height: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      fontSize: '4.84vw',
+                      fontSize: '60px',
                       color: themeBg,
-                      minHeight: '5%',
-                      maxHeight: '5%',
                       overflow: 'hidden'
                     }}
                   >
@@ -418,10 +410,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
               {/* Description - MATCHES HTML: fontSize: 29px, minHeight: 22px */}
               <div style={{
-                fontSize: '1.51vw',
+                fontSize: '22px',
                 color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
-                minHeight: '2.04%',
                 display: 'flex',
                 alignItems: 'flex-start',
                 fontFamily: 'Inter, sans-serif'
@@ -434,7 +425,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     multiline={true}
                     className="statement-description-editor"
                     style={{
-                      fontSize: '1.51vw',
+                      fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
@@ -449,7 +440,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '1.51vw',
+                      fontSize: '22px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
