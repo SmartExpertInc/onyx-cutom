@@ -254,13 +254,23 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
 }
 
 export interface EventListTemplateProps extends BaseTemplateProps {
+  title?: string;
+  presenter?: string;
+  subject?: string;
   events: Array<{
-    date: string;
     description: string;
   }>;
   titleColor?: string;
   descriptionColor?: string;
   backgroundColor?: string;
+  imagePrompt?: string;
+  imageAlt?: string;
+  imagePath?: string;
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
   theme?: SlideTheme;
 }
 
@@ -402,12 +412,22 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
   subtitle?: string;
   chartData: Array<{
     label: string;
-    description: string;
+    description?: string;
     percentage: number;
     color: string;
+    gradientStart?: string;
+    gradientEnd?: string;
     year?: string;
   }>;
   bottomText?: string;
+  imagePrompt?: string;
+  imageAlt?: string;
+  imagePath?: string;
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
   theme?: SlideTheme;
 }
 

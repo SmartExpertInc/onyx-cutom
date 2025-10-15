@@ -149,8 +149,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
-    backgroundColor: '#3F3395',
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -192,12 +192,12 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   };
 
   return (
-    <div className="psychological-safety-slide-template inter-theme" style={slideStyles}>
+    <div className="psychological-safety-slide-template" style={slideStyles}>
       {/* Main Card */}
       <div style={{
         width: '600px',
         height: '336px',
-        backgroundColor: '#6955F3',
+        backgroundColor: themeAccent,
         borderRadius: '30px',
         padding: '40px',
         display: 'flex',
@@ -237,7 +237,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Title */}
         <div style={{
           fontSize: '30px',
-          color: '#FFFFFF',
+          color: themeBg,
           fontWeight: 'bold',
           lineHeight: '1.2',
           marginTop: '106px',
@@ -250,8 +250,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               multiline={true}
               className="psychological-safety-title-editor"
               style={{
-                fontSize: '30px',
-                color: '#FFFFFF',
+                fontSize: '36px',
+                color: themeBg,
                 fontWeight: 'bold',
                 lineHeight: '1.2'
               }}
@@ -272,7 +272,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Content */}
         <div style={{
           fontSize: '18px',
-          color: '#A496F3',
+          color: themeBg,
           lineHeight: '1.5',
           marginBottom: '5px'
         }}>
@@ -285,7 +285,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               className="psychological-safety-content-editor"
               style={{
                 fontSize: '18px',
-                color: '#A496F3',
+                color: themeBg,
                 lineHeight: '1.5'
               }}
             />

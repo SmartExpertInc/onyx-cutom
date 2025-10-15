@@ -34,10 +34,7 @@ test_slides = [
             "bullets": [
                 "First important point that demonstrates dynamic height calculation",
                 "Second point with more content to test height expansion",
-                "Third point with even more detailed content to ensure the slide grows properly",
-                "Fourth point to make sure we have enough content to exceed minimum height",
-                "Fifth point to test maximum height constraints",
-                "Sixth point to ensure proper bullet point formatting and spacing"
+                "Third point with even more detailed content to ensure the slide grows properly"
             ],
             "bulletStyle": "check"
         }
@@ -50,8 +47,7 @@ test_slides = [
             "bullets": [
                 "Building Trust: Values create a foundation of trust among employees and with clients.",
                 "Guiding Decisions: They serve as a compass for decision-making at all levels.",
-                "Fostering Culture: Values shape our company culture and work environment.",
-                "Driving Success: Aligning with our values leads to greater success and fulfillment."
+                "Fostering Culture: Values shape our company culture and work environment."
             ],
             "bulletStyle": "check"
         }

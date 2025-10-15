@@ -164,21 +164,22 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
+    background: '#ffffff', // Белый фон
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'stretch',
-    padding: '64px',
+    alignItems: 'flex-start',
+    padding: '60px 80px',
     fontFamily: currentTheme.fonts.contentFont
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '2.5rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: currentTheme.colors.titleColor,
+    color: '#000000', // Черный цвет для заголовка на белом фоне
     textAlign: 'left',
     marginBottom: '40px',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const gridStyles: React.CSSProperties = {
@@ -186,36 +187,36 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     gridTemplateColumns: '1fr 1fr',
     gridTemplateRows: '1fr 1fr',
     gap: '24px',
-    width: '100%',
-    flex: 1
+    width: '100%'
   };
 
   const boxStyles: React.CSSProperties = {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    background: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)', // Синий градиент как в теме
     borderRadius: '8px',
     padding: '20px',
-    color: currentTheme.colors.contentColor,
+    color: '#ffffff', // Белый цвет текста
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    boxShadow: '0 1px 0 0 #393963',
-    border: '1px solid #393963',
-    minHeight: '160px'
+    minHeight: '200px',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
   };
 
   const headingStyles: React.CSSProperties = {
     fontSize: '1.5rem',
-    color: currentTheme.colors.contentColor,
+    color: '#ffffff', // Белый цвет для заголовков в блоках
     marginBottom: '12px',
     fontFamily: currentTheme.fonts.titleFont,
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const textStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    color: currentTheme.colors.contentColor,
+    fontSize: '1rem',
+    color: '#ffffff', // Белый цвет для текста в блоках
     fontFamily: currentTheme.fonts.contentFont,
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    opacity: 0.9
   };
 
   // Handle title editing

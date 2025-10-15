@@ -4,8 +4,122 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import PresentationImageUpload from '../PresentationImageUpload';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   theme?: SlideTheme | string;
@@ -17,7 +131,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   address = '374 Creekside Road Palmetto',
   postalCode = 'F134221',
   companyName = 'Company name',
-  logoNew = '',
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   backgroundColor,
@@ -27,8 +140,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText,
-  pageNumber = '03'
+  voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -36,8 +148,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [editingAddress, setEditingAddress] = useState(false);
   const [editingPostalCode, setEditingPostalCode] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
-  const [editingPageNumber, setEditingPageNumber] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentEmail, setCurrentEmail] = useState(email);
@@ -45,7 +155,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [currentAddress, setCurrentAddress] = useState(address);
   const [currentPostalCode, setCurrentPostalCode] = useState(postalCode);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
-  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -53,8 +162,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
-    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -67,7 +176,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
     }
   };
 
@@ -75,7 +184,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentEmail(newEmail);
     setEditingEmail(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
     }
   };
 
@@ -83,7 +192,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPhone(newPhone);
     setEditingPhone(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
     }
   };
 
@@ -91,7 +200,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentAddress(newAddress);
     setEditingAddress(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
     }
   };
 
@@ -99,7 +208,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPostalCode(newPostalCode);
     setEditingPostalCode(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
     }
   };
 
@@ -107,7 +216,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -143,107 +252,44 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
     }
-  };
-
-  const handleLogoNewUploaded = (newLogoPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor, pageNumber }, logoNew: newLogoPath });
-    }
-  };
-
-  const handlePageNumberSave = (newPageNumber: string) => {
-    setCurrentPageNumber(newPageNumber);
-    setEditingPageNumber(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor, pageNumber }, pageNumber: newPageNumber });
-    }
-  };
-
-  const handlePageNumberCancel = () => {
-    setCurrentPageNumber(pageNumber);
-    setEditingPageNumber(false);
   };
 
   return (
-    <div className="thank-you-slide-template inter-theme" style={slideStyles}>
-      {/* Logo in top-left corner */}
-      <div style={{
-        position: 'absolute',
-        top: '30px',
-        left: '30px'
-      }}>
-        {logoNew ? (
-          <ClickableImagePlaceholder
-            imagePath={logoNew}
-            onImageUploaded={handleLogoNewUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '30px',
-              maxWidth: '120px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          <div 
-            onClick={() => isEditable && setShowUploadModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-          >
-            <div style={{
-              width: '30px',
-              height: '30px',
-              border: '2px solid #ffffff',
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
-              <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
-            </div>
-            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff' }}>Your Logo</span>
-          </div>
-        )}
-      </div>
-
+    <div className="thank-you-slide-template" style={slideStyles}>
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '265px',
+        top: '250px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
+          <InlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
             style={{
-              fontSize: '66px',
+              fontSize: '74px',
               color: themeTitle,
               lineHeight: '1.1',
               fontFamily: currentTheme.fonts.titleFont,
+              position: 'absolute',
+              top: '0',
+              left: '0',
               width: '100%',
-              height: 'auto',
-              minHeight: '60px',
-              position: 'relative'
+              height: '100%',
+              margin: '0',
+              padding: '0'
             }}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
-              fontSize: '66px',
+              fontSize: '80px',
+              fontWeight: 'bold',
               color: themeTitle,
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
@@ -260,31 +306,31 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Horizontal separator line */}
       <div style={{
         position: 'absolute',
-        top: '365px',
+        top: '352px',
         left: '80px',
         right: '80px',
-        height: '2px',
-        backgroundColor: `rgb(165 165 165)`
+        height: '1px',
+        backgroundColor: themeAccent
       }} />
 
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '400px',
-        left: '85px',
+        top: '373px',
+        left: '80px',
         right: '80px'
       }}>
         {/* Left side - Contact and Address */}
         <div style={{
           display: 'flex',
-          gap: '250px'
+          gap: '80px'
         }}>
           {/* Contacts */}
           <div>
             <div style={{
               fontSize: '14px',
-              color: 'rgb(219 219 219)',
-              marginBottom: '15px',
+              color: themeSubtitle,
+              marginBottom: '10px',
               fontWeight: '300'
             }}>
               Contacts
@@ -292,25 +338,30 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             
             <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingEmail ? (
-                <ImprovedInlineEditor
+                <InlineEditor
                   initialValue={currentEmail}
                   onSave={handleEmailSave}
                   onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
                   style={{
-                    fontSize: '22px',
-                    color: '#ffffff',
+                    fontSize: '18px',
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
                     width: '100%',
-                    height: 'auto'
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingEmail(true)}
                   style={{
-                    fontSize: '22px',
-                    color: '#ffffff',
+                    fontSize: '18px',
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -324,25 +375,30 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
             <div style={{ position: 'relative' }}>
               {isEditable && editingPhone ? (
-                <ImprovedInlineEditor
+                <InlineEditor
                   initialValue={currentPhone}
                   onSave={handlePhoneSave}
                   onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
                   style={{
-                    fontSize: '22px',
-                    color: '#ffffff',
+                    fontSize: '18px',
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
                     width: '100%',
-                    height: 'auto'
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingPhone(true)}
                   style={{
-                    fontSize: '22px',
-                    color: '#ffffff',
+                    fontSize: '18px',
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -359,8 +415,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div>
             <div style={{
               fontSize: '14px',
-              color: 'rgb(219 219 219)',
-              marginBottom: '15px',
+              color: themeSubtitle,
+              marginBottom: '10px',
               fontWeight: '300'
             }}>
               Our address
@@ -368,17 +424,22 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             
             <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingAddress ? (
-                <ImprovedInlineEditor
+                <InlineEditor
                   initialValue={currentAddress}
                   onSave={handleAddressSave}
                   onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#ffffff',
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
                     width: '100%',
-                    height: 'auto'
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -386,7 +447,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingAddress(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#ffffff',
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -400,17 +461,22 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
             <div style={{ position: 'relative' }}>
               {isEditable && editingPostalCode ? (
-                <ImprovedInlineEditor
+                <InlineEditor
                   initialValue={currentPostalCode}
                   onSave={handlePostalCodeSave}
                   onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#ffffff',
+                    color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
                     width: '100%',
-                    height: 'auto'
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -418,7 +484,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingPostalCode(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#ffffff',
+                    color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -435,19 +501,18 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
       {/* Profile Image - Top right */}
       <div style={{
-        width: '225px',
-        marginTop: '0',
-        height: '225px',
+        width: '220px',
+        marginTop: '-37px',
+        height: '220px',
         borderRadius: '100%',
         display: 'flex',
-        backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
         position: 'absolute',
-        top: '55px',
-        right: '60px',
-        zIndex: 10,
-        overflow: 'hidden'
+        top: '80px',
+        right: '80px',
+        zIndex: 10
       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
@@ -457,9 +522,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           description="Profile photo"
           isEditable={isEditable}
           style={{
-            height: '131%',
-            position: 'absolute',
-            bottom: '-88px',
+            width: '100%',
+            height: '100%',
             borderRadius: '50%',
             overflow: 'hidden'
           }}
@@ -469,71 +533,65 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Bottom horizontal separator line */}
       <div style={{
         position: 'absolute',
-        bottom: '110px',
+        bottom: '100px',
         left: '80px',
         right: '80px',
-        height: '2px',
-        backgroundColor: 'rgb(165 165 165)'
+        height: '1px',
+        backgroundColor: themeAccent
       }} />
 
-      {/* Page number with line */}
+      {/* Company name */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
-        left: '0px',
+        bottom: '55px',
+        left: '7%',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px'
+        gap: '10px'
       }}>
-        {/* Small line */}
         <div style={{
-          width: '20px',
-          height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          width: '16px',
+          height: '16px',
+          backgroundColor: themeAccent,
+          transform: 'rotate(45deg)'
         }} />
-        {/* Page number */}
-        {isEditable && editingPageNumber ? (
-          <ImprovedInlineEditor
-            initialValue={currentPageNumber}
-            onSave={handlePageNumberSave}
-            onCancel={handlePageNumberCancel}
-            className="page-number-editor"
-            style={{
-              color: '#ffffff',
-              fontSize: '17px',
-              fontWeight: '300',
-              width: '30px',
-              height: 'auto'
-            }}
-          />
-        ) : (
-          <div
-            onClick={() => isEditable && setEditingPageNumber(true)}
-            style={{
-              color: '#ffffff',
-              fontSize: '17px',
-              fontWeight: '300',
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
-            }}
-          >
-            {currentPageNumber}
-          </div>
-        )}
+        <div style={{ position: 'relative' }}>
+          {isEditable && editingCompanyName ? (
+            <InlineEditor
+              initialValue={currentCompanyName}
+              onSave={handleCompanyNameSave}
+              onCancel={handleCompanyNameCancel}
+              className="thank-you-company-name-editor"
+              style={{
+                fontSize: '14px',
+                color: themeSubtitle,
+                fontFamily: currentTheme.fonts.contentFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingCompanyName(true)}
+              style={{
+                fontSize: '14px',
+                color: themeSubtitle,
+                cursor: isEditable ? 'pointer' : 'default',
+                fontFamily: currentTheme.fonts.contentFont,
+                userSelect: 'none',
+                position: 'relative'
+              }}
+            >
+              {currentCompanyName}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Logo Upload Modal */}
-      {showUploadModal && (
-        <PresentationImageUpload
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleLogoNewUploaded(newLogoPath);
-            setShowUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
   );
 };

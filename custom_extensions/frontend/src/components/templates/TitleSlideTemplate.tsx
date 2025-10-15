@@ -128,7 +128,7 @@ function InlineEditor({
 }
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
@@ -142,8 +142,9 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   theme,
   isEditable = false
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  // Use theme colors instead of props - ensure we always have a valid theme
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
 
 
@@ -156,6 +157,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   const [editingAuthor, setEditingAuthor] = useState(false);
   const [editingDate, setEditingDate] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -170,34 +172,62 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
     padding: '60px 80px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: currentTheme.fonts.contentFont
+  };
+
+  const logoStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '40px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    cursor: isEditable ? 'pointer' : 'default'
+  };
+
+  const logoIconStyles: React.CSSProperties = {
+    width: '30px',
+    height: '30px',
+    border: `2px solid ${titleColor}`,
+    borderRadius: '50%',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const logoTextStyles: React.CSSProperties = {
+    fontSize: '17px',
+    fontWeight: '300',
+    color: titleColor
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: 'center',
+    marginTop: '130px',
     marginBottom: '24px',
     lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: `${parseInt(currentTheme.fonts.contentSize) + 8}px`,
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: subtitleColor,
     textAlign: 'center',
@@ -205,7 +235,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     lineHeight: 1.4,
     maxWidth: '700px',
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    opacity: 0.9
   };
 
   const metadataStyles: React.CSSProperties = {
@@ -270,6 +301,33 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
 
   return (
     <div className="title-slide-template" style={slideStyles}>
+      {/* Logo at the top */}
+      <div 
+        ref={logoRef}
+        data-moveable-element={`${slideId}-logo`}
+        data-draggable="true" 
+        style={logoStyles}
+      >
+        <div style={logoIconStyles}>
+          <div style={{
+            width: '12px',
+            height: '2px',
+            backgroundColor: titleColor,
+            position: 'absolute'
+          }} />
+          <div style={{
+            width: '2px',
+            height: '12px',
+            backgroundColor: titleColor,
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
+          }} />
+        </div>
+        <span style={logoTextStyles}>Your Logo</span>
+      </div>
+
       {/* Main Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (
@@ -310,58 +368,56 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
           >
-            {title || 'Click to add title'}
+            {title || 'Your title here'}
           </h1>
         )}
       </div>
 
       {/* Subtitle */}
-      {subtitle && (
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
-          {isEditable && editingSubtitle ? (
-            <InlineEditor
-              initialValue={subtitle || ''}
-              onSave={handleSubtitleSave}
-              onCancel={handleSubtitleCancel}
-              multiline={true}
-              placeholder="Enter subtitle..."
-              className="inline-editor-subtitle"
-              style={{
-                ...subtitleStyles,
-                // Ensure subtitle behaves exactly like h2 element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <h2 
-              style={subtitleStyles}
-              onClick={(e) => {
-                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  return;
-                }
-                if (isEditable) {
-                  setEditingSubtitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subtitle}
-            </h2>
-          )}
-        </div>
-      )}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingSubtitle ? (
+          <InlineEditor
+            initialValue={subtitle || 'Add a short description.'}
+            onSave={handleSubtitleSave}
+            onCancel={handleSubtitleCancel}
+            multiline={true}
+            placeholder="Enter subtitle..."
+            className="inline-editor-subtitle"
+            style={{
+              ...subtitleStyles,
+              // Ensure subtitle behaves exactly like h2 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h2 
+            style={subtitleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingSubtitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {subtitle || 'Add a short description.'}
+          </h2>
+        )}
+      </div>
 
       {/* Metadata */}
       {(author || date) && (

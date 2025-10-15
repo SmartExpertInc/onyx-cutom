@@ -196,7 +196,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     alignItems: 'center',

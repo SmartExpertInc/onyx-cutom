@@ -4,8 +4,122 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LearningTopicsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import PresentationImageUpload from '../PresentationImageUpload';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
 
 export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   theme?: SlideTheme | string;
@@ -22,7 +136,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   companyName = 'Company name',
-  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -36,7 +149,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingTopics, setEditingTopics] = useState<number | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentTopics, setCurrentTopics] = useState(topics);
@@ -48,8 +160,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
-    backgroundColor: themeBg,
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -60,7 +172,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -68,7 +180,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -78,7 +190,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTopics(newTopics);
     setEditingTopics(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
     }
   };
 
@@ -86,7 +198,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -112,31 +224,18 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
-  const handleBenefitsListIconUploaded = (newIconPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newIconPath });
-    }
-  };
-
-  const handleLogoNewUploaded = (newLogoPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
   return (
-    <div className="learning-topics-slide-template inter-theme" style={slideStyles}>
+    <div className="learning-topics-slide-template" style={slideStyles}>
       {/* Left section */}
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: '#FFFFFF',
+        background: themeBg,
         padding: '40px 60px',
-        paddingTop: '56px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -146,22 +245,20 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           {/* Subtitle */}
           <div style={{
             fontSize: '14px',
-            color: '#818181',
+            color: themeContent,
             marginBottom: '20px',
             fontWeight: '300'
           }}>
             {isEditable && editingSubtitle ? (
-              <ImprovedInlineEditor
+              <InlineEditor
                 initialValue={currentSubtitle}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 className="learning-subtitle-editor"
                 style={{
                   fontSize: '14px',
-                  color: '#818181',
-                  fontWeight: '300',
-                  width: '100%',
-                  height: 'auto'
+                  color: themeContent,
+                  fontWeight: '300'
                 }}
               />
             ) : (
@@ -179,27 +276,23 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
           {/* Main title */}
           <div style={{
-            maxWidth: '350px',
-            fontSize: '58px',
-            color: '#414141',
+            maxWidth: '321px',
+            fontSize: '51px',
+            color: themeTitle,
             lineHeight: '1.1',
             marginBottom: '60px'
           }}>
             {isEditable && editingTitle ? (
-              <ImprovedInlineEditor
+              <InlineEditor
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
-                multiline={true}
                 className="learning-title-editor"
                 style={{
-                  maxWidth: '350px',
-                  fontSize: '58px',
-                  color: '#414141',
-                  lineHeight: '1.1',
-                  width: '100%',
-                  height: 'auto',
-                  minHeight: '60px'
+                  maxWidth: '275px',
+                  fontSize: '51px',
+                  color: themeTitle,
+                  lineHeight: '1.1'
                 }}
               />
             ) : (
@@ -237,22 +330,19 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   opacity: 0.3
                 }} />
                 <div style={{
-                  fontSize: '30px',
-                  color: '#515151',
+                  fontSize: '24px',
+                  color: themeTitle,
                   minWidth: '120px'
                 }}>
                   {isEditable && editingTopics === index ? (
-                    <ImprovedInlineEditor
+                    <InlineEditor
                       initialValue={topic}
                       onSave={(value) => handleTopicSave(index, value)}
                       onCancel={handleTopicCancel}
                       className="topic-editor"
                       style={{
-                        fontSize: '30px',
-                        color: '#515151',
-                        width: '100%',
-                        height: 'auto',
-                        minWidth: '120px'
+                        fontSize: '24px',
+                        color: themeTitle
                       }}
                     />
                   ) : (
@@ -279,58 +369,27 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           gap: '10px',
           marginTop: '36px'
         }}>
-          {logoNew ? (
-            <ClickableImagePlaceholder
-              imagePath={logoNew}
-              onImageUploaded={handleLogoNewUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '24px',
-                width: '24px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            <div 
-              onClick={() => isEditable && setShowUploadModal(true)}
-              style={{
-                width: '24px',
-                height: '24px',
-                cursor: isEditable ? 'pointer' : 'default',
-                position: 'relative'
-              }}
-            >
-              <img
-                src="/custom-projects-ui/benefitsListIcon.png"
-                alt="Company Logo"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  objectFit: 'contain'
-                }}
-              />
-            </div>
-          )}
+          <div style={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: themeAccent,
+            transform: 'rotate(45deg)'
+          }} />
           <div style={{
             fontSize: '14px',
-            color: '#858585',
+            color: themeContent,
             fontWeight: '300'
           }}>
             {isEditable && editingCompanyName ? (
-              <ImprovedInlineEditor
+              <InlineEditor
                 initialValue={currentCompanyName}
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
                 style={{
-                  fontSize: '14px',
-                  color: '#858585',
-                  fontWeight: '300',
-                  width: '100%',
-                  height: 'auto'
+                  fontSize: '10px',
+                  color: themeContent,
+                  fontWeight: '300'
                 }}
               />
             ) : (
@@ -352,15 +411,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: '#B593EA',
+        backgroundColor: themeAccent,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative'
       }}>
         <div style={{
-          width: '550px',
-          height: '570px',
+          width: '382px',
+          height: '543px',
           position: 'absolute',
           bottom: '-3px',
         }}>
@@ -378,19 +437,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           />
         </div>
       </div>
-
-      {/* Logo Upload Modal */}
-      {showUploadModal && (
-        <PresentationImageUpload
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleLogoNewUploaded(newLogoPath);
-            setShowUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
   );
 };

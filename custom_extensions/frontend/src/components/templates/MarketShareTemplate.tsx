@@ -63,7 +63,6 @@ function InlineEditor({
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -81,7 +80,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -113,7 +111,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -126,431 +123,770 @@ function InlineEditor({
   );
 }
 
-export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
+export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+}> = ({
   slideId,
-  title = 'Market share',
-  subtitle,
+  title = 'The new os solution',
+  subtitle = 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?',
   chartData = [
-    {
-      label: 'Mercury',
-      description: 'Mercury is the closest planet to the Sun',
-      percentage: 85,
-      color: '#2a5490',
-      year: '2023'
-    },
-    {
-      label: 'Mars',
-      description: 'Despite being red, Mars is a cold place',
-      percentage: 40,
-      color: '#9ca3af',
-      year: '2024'
-    }
+    { label: '2019', percentage: 48, color: '#4A70E8', gradientStart: '#87CEEB', gradientEnd: '#4682B4' },
+    { label: '2020', percentage: 61, color: '#FF8C00', gradientStart: '#FFA07A', gradientEnd: '#FF8C00' },
+    { label: '2021', percentage: 83, color: '#32CD32', gradientStart: '#90EE90', gradientEnd: '#3CB371' },
+    { label: '2022', percentage: 74, color: '#8A2BE2', gradientStart: '#DDA0DD', gradientEnd: '#9370DB' }
   ],
-  bottomText = 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here',
+  bottomText = '',
   theme,
   onUpdate,
-  isEditable = false
-}: MarketShareTemplateProps) => {
+  isEditable = false,
+  imagePrompt,
+  imageAlt,
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset,
+  objectFit,
+  getPlaceholderGenerationState
+}) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
 
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingLabel, setEditingLabel] = useState<number | null>(null);
-  const [editingDesc, setEditingDesc] = useState<number | null>(null);
-  const [editingBottomText, setEditingBottomText] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingListItem, setEditingListItem] = useState<number | null>(null);
   const [editingYear, setEditingYear] = useState<number | null>(null);
-  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
+  const [editingHeight, setEditingHeight] = useState<number | null>(null);
+  const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState<number | null>(null);
+  const [dragStartY, setDragStartY] = useState<number>(0);
+  const [dragStartHeight, setDragStartHeight] = useState<number>(0);
 
-  // Auto-save timeout
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const scheduleAutoSave = (newData: any) => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      if (onUpdate) {
-        onUpdate(newData);
-      }
-    }, 300);
-  };
+  // Refs for MoveableManager integration
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
     setEditingTitle(false);
-    const newData = { title: newTitle, chartData, bottomText };
-    scheduleAutoSave(newData);
   };
 
   const handleTitleCancel = () => {
     setEditingTitle(false);
   };
 
-  const handleLabelSave = (index: number, newLabel: string) => {
-    setEditingLabel(null);
-    const newChartData = [...chartData];
-    newChartData[index] = { ...newChartData[index], label: newLabel };
-    const newData = { title, chartData: newChartData, bottomText };
-    scheduleAutoSave(newData);
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
   };
 
-  const handleLabelCancel = (index: number) => {
-    setEditingLabel(null);
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
   };
 
-  const handleDescSave = (index: number, newDesc: string) => {
-    setEditingDesc(null);
-    const newChartData = [...chartData];
-    newChartData[index] = { ...newChartData[index], description: newDesc };
-    const newData = { title, chartData: newChartData, bottomText };
-    scheduleAutoSave(newData);
+  const handleListItemSave = (index: number, newText: string) => {
+    if (onUpdate) {
+      const newChartData = [...chartData];
+      newChartData[index] = { ...newChartData[index], description: newText };
+      onUpdate({ chartData: newChartData });
+    }
+    setEditingListItem(null);
   };
 
-  const handleDescCancel = (index: number) => {
-    setEditingDesc(null);
+  const handleListItemCancel = () => {
+    setEditingListItem(null);
   };
 
   const handleYearSave = (index: number, newYear: string) => {
-    setEditingYear(null);
-    const newChartData = [...chartData];
-    newChartData[index] = { ...newChartData[index], year: newYear };
-    const newData = { title, chartData: newChartData, bottomText };
-    scheduleAutoSave(newData);
-  };
-
-  const handleYearCancel = (index: number) => {
+    if (onUpdate) {
+      const newChartData = [...chartData];
+      newChartData[index] = { ...newChartData[index], label: newYear };
+      onUpdate({ chartData: newChartData });
+    }
     setEditingYear(null);
   };
 
-  const handlePercentageSave = (index: number, newValue: string) => {
-    setEditingPercentage(null);
-    const newPercentage = parseFloat(newValue) || 0;
-    const newChartData = [...chartData];
-    newChartData[index] = { ...newChartData[index], percentage: newPercentage };
-    const newData = { title, chartData: newChartData, bottomText };
-    scheduleAutoSave(newData);
+  const handleYearCancel = () => {
+    setEditingYear(null);
   };
 
-  const handlePercentageCancel = (index: number) => {
-    setEditingPercentage(null);
+  const handleHeightSave = (index: number, newHeight: string) => {
+    const height = Math.min(100, Math.max(0, parseInt(newHeight) || 0));
+    if (onUpdate) {
+      const newChartData = [...chartData];
+      newChartData[index] = { ...newChartData[index], percentage: height };
+      onUpdate({ chartData: newChartData });
+    }
+    setEditingHeight(null);
   };
 
-  const handleBottomTextSave = (newText: string) => {
-    setEditingBottomText(false);
-    const newData = { title, chartData, bottomText: newText };
-    scheduleAutoSave(newData);
+  const handleHeightCancel = () => {
+    setEditingHeight(null);
   };
 
-  const handleBottomTextCancel = () => {
-    setEditingBottomText(false);
-  };
-
-  const handleAddColumn = () => {
-    const newColumn = {
-      label: `New Item ${chartData.length + 1}`,
-      description: 'Add your description here',
-      percentage: 50,
-      color: `hsl(${Math.random() * 360}, 70%, 50%)`,
-      year: `${new Date().getFullYear()}`
-    };
-    const newChartData = [...chartData, newColumn];
-    const newData = { title, chartData: newChartData, bottomText };
-    scheduleAutoSave(newData);
-  };
-
-  const handleRemoveColumn = (index: number) => {
-    if (chartData.length > 1) {
-      const newChartData = chartData.filter((_: any, i: number) => i !== index);
-      const newData = { title, chartData: newChartData, bottomText };
-      scheduleAutoSave(newData);
+  // Function to add new column
+  const addColumn = () => {
+    if (onUpdate) {
+      const colors = ['#4A70E8', '#FF8C00', '#32CD32', '#8A2BE2', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+      const gradients = [
+        { start: '#87CEEB', end: '#4682B4' },
+        { start: '#FFA07A', end: '#FF8C00' },
+        { start: '#90EE90', end: '#3CB371' },
+        { start: '#DDA0DD', end: '#9370DB' },
+        { start: '#FFB6C1', end: '#FF69B4' },
+        { start: '#AFEEEE', end: '#20B2AA' },
+        { start: '#87CEEB', end: '#4682B4' },
+        { start: '#98FB98', end: '#90EE90' },
+        { start: '#F0E68C', end: '#DAA520' },
+        { start: '#DDA0DD', end: '#BA55D3' }
+      ];
+      
+      const newIndex = chartData.length;
+      const colorIndex = newIndex % colors.length;
+      const gradientIndex = newIndex % gradients.length;
+      
+      const newColumn = {
+        label: `${2023 + newIndex}`,
+        percentage: 50,
+        color: colors[colorIndex],
+        gradientStart: gradients[gradientIndex].start,
+        gradientEnd: gradients[gradientIndex].end,
+        description: 'Lorem ipsum dolor sit amet'
+      };
+      
+      onUpdate({ chartData: [...chartData, newColumn] });
     }
   };
 
-  const startEditingTitle = () => {
-    setEditingTitle(true);
+  // Function to remove column
+  const removeColumn = (index: number) => {
+    if (onUpdate && chartData.length > 1) {
+      const newChartData = chartData.filter((_, i) => i !== index);
+      onUpdate({ chartData: newChartData });
+    }
   };
 
-  const startEditingLabel = (index: number) => {
-    setEditingLabel(index);
+  // Drag resize functions
+  const handleMouseDown = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    setIsDragging(index);
+    setDragStartY(e.clientY);
+    setDragStartHeight(chartData[index].percentage);
   };
 
-  const startEditingDesc = (index: number) => {
-    setEditingDesc(index);
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging !== null) {
+      const deltaY = dragStartY - e.clientY; // Inverted because Y increases downward
+      const deltaPercentage = (deltaY / 400) * 100; // 400px is max height
+      const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
+      
+      if (onUpdate) {
+        const newChartData = [...chartData];
+        newChartData[isDragging] = { ...newChartData[isDragging], percentage: newHeight };
+        onUpdate({ chartData: newChartData });
+      }
+    }
   };
 
-  const startEditingYear = (index: number) => {
-    setEditingYear(index);
+  const handleMouseUp = () => {
+    setIsDragging(null);
+    setDragStartY(0);
+    setDragStartHeight(0);
   };
 
-  const startEditingPercentage = (index: number) => {
-    setEditingPercentage(index);
+  // Add event listeners for drag
+  useEffect(() => {
+    if (isDragging !== null) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStartY, dragStartHeight]);
+
+  // Handle image upload
+  const handleImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
+    }
   };
 
-  const startEditingBottomText = () => {
-    setEditingBottomText(true);
+  // Handle size and transform changes for the placeholder
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+      }
+      
+      onUpdate(updateData);
+    }
   };
 
-  // Create chart bars with relative heights based on the reference
-  const maxValue = Math.max(...chartData.map((item: any) => item.percentage), 100);
-  const chartHeights = chartData.map((item: any) => (item.percentage / maxValue) * 100);
+  // AI prompt logic
+  const displayPrompt = imagePrompt || imageAlt || 'bar chart illustration for market share data';
 
-  // Grid values for Y-axis
-  const gridValues = [0, 25, 50, 75, 100];
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '600px',
+    background: currentTheme.colors.backgroundColor,
+    display: 'flex',
+    flexDirection: 'row',
+    position: 'relative',
+    fontFamily: currentTheme.fonts.contentFont,
+    overflow: 'hidden'
+  };
+
+  // Left section with title, subtitle and numbered list (theme gradient background) - 40% width
+  const leftSectionStyles: React.CSSProperties = {
+    width: '40%',
+    height: '100%',
+    position: 'absolute',
+    left: '0',
+    top: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    background: currentTheme.colors.marketShareGradient || currentTheme.colors.backgroundColor, // Use MarketShare gradient or fallback
+    padding: '35px',
+    zIndex: 2
+  };
+
+  // Right section with bar chart (white background) - 60% width
+  const rightSectionStyles: React.CSSProperties = {
+    width: '60%',
+    height: '100%',
+    position: 'absolute',
+    right: '0',
+    top: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#ffffff',
+    padding: '40px',
+    zIndex: 1
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2.4rem', // Large title as in photo
+    fontFamily: 'Georgia, serif', // Serif font as in photo
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: '20px',
+    wordWrap: 'break-word',
+    lineHeight: '1.1'
+  };
+
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: '1rem', // Subtitle size as in photo
+    color: '#ffffff',
+    marginBottom: '50px',
+    fontFamily: 'Arial, sans-serif', // Sans-serif as in photo
+    wordWrap: 'break-word',
+    lineHeight: '1.4',
+    opacity: 0.8
+  };
+
+  const listItemStyles: React.CSSProperties = {
+    fontSize: '1rem', // List item size as in photo
+    color: '#ffffff',
+    marginBottom: '25px',
+    fontFamily: 'Arial, sans-serif',
+    wordWrap: 'break-word',
+    lineHeight: '1.4',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px'
+  };
+
+  const squareStyles = (color: string): React.CSSProperties => ({
+    width: '28px',
+    height: '28px',
+    backgroundColor: color,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    borderRadius: '2px'
+  });
+
+  const squareTextStyles: React.CSSProperties = {
+    color: '#ffffff',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    fontFamily: 'Arial, sans-serif',
+    lineHeight: '1'
+  };
+
+  // Chart styles - exact match to photo with perfect alignment
+  const chartContainerStyles: React.CSSProperties = {
+    width: '100%',
+    maxWidth: '700px',
+    height: '90%',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: '20px',
+    paddingLeft: '80px',
+    paddingRight: '40px',
+    paddingBottom: '30px',
+    paddingTop: '50px'
+  };
+
+  const barStyles = (height: number, gradientStart: string, gradientEnd: string): React.CSSProperties => ({
+    width: '90px',
+    height: `${(height / 100) * 400}px`, // Calculate exact height based on 400px max height (increased for 100%)
+    background: `linear-gradient(to bottom, ${gradientStart}, ${gradientEnd})`,
+    borderRadius: '8px 8px 0 0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+  });
+
+  const barTextStyles: React.CSSProperties = {
+    color: '#ffffff',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    fontFamily: 'Arial, sans-serif'
+  };
+
+  const yearLabelStyles: React.CSSProperties = {
+    fontSize: '16px',
+    color: currentTheme.colors.contentColor || '#09090B',
+    fontFamily: 'Arial, sans-serif',
+    textAlign: 'center',
+    marginTop: '15px'
+  };
+
+  const gridLineStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '0',
+    right: '0',
+    height: '1px',
+    backgroundColor: '#E0E0E0',
+    opacity: 0.8,
+    zIndex: 0
+  };
+
+  const yAxisLabelStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '10px',
+    fontSize: '14px',
+    color: '#999999',
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: '500',
+    transform: 'translateY(-50%)'
+  };
 
   return (
-    <div 
-      className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
-      style={{ 
-        backgroundColor: backgroundColor,
-        minHeight: '600px'
-      }}
-    >
-      {/* Main Content Container */}
-      <div className="w-full max-w-6xl mx-auto">
-        
+    <div ref={slideContainerRef} className="market-share-template" style={slideStyles}>
+      {/* Left section with title, subtitle and numbered list (blue background) */}
+      <div style={leftSectionStyles}>
         {/* Title */}
-        <div className="text-center mb-16">
-          {editingTitle && isEditable ? (
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true"
+        >
+          {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
               style={{
-                color: titleColor,
-                fontSize: '3.5rem',
-                fontWeight: 'bold',
-                lineHeight: '1.2',
-                textAlign: 'center'
+                ...titleStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
               }}
             />
           ) : (
             <h1 
-              className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: titleColor }}
-              onClick={() => isEditable && startEditingTitle()}
+              style={titleStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
             >
               {title}
             </h1>
           )}
         </div>
 
-        {/* Main Layout Container - Recreating exact reference layout */}
-        <div className="flex items-center justify-between">
-          
-          {/* Chart Section - Centered */}
-          <div className="flex-1 flex justify-center">
-            <div className="flex flex-col items-center">
-              
-              {/* Chart Container with Grid */}
-              <div className="relative mb-4" style={{ height: '300px', width: `${chartData.length * 80 + 80}px` }}>
-                
-                {/* Y-axis labels */}
-                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs font-medium" style={{ color: contentColor, width: '30px' }}>
-                  {gridValues.slice().reverse().map((value) => (
-                    <div key={value} className="flex items-center">
-                      {value}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Grid lines */}
-                <div className="absolute left-8 top-0 h-full w-full">
-                  {gridValues.map((value) => (
-                    <div 
-                      key={value}
-                      className="absolute w-full border-t border-gray-200"
-                      style={{ 
-                        top: `${100 - (value / 100) * 100}%`,
-                        borderColor: contentColor,
-                        opacity: 0.3
-                      }}
-                    ></div>
-                  ))}
-                </div>
-                
-                {/* Chart bars container */}
-                <div className="absolute left-8 top-0 h-full flex items-end gap-8">
-                  
-                  {chartData.map((item: any, index: number) => (
-                    <div key={index} className="flex flex-col items-center relative group">
-                      {/* Main data bar */}
-                      <div 
-                        className="w-16 rounded transition-all duration-300 hover:opacity-80"
-                        style={{ 
-                          backgroundColor: item.color,
-                          height: `${Math.max(chartHeights[index] * 2.5, 30)}px`,
-                          marginBottom: '8px'
-                        }}
-                      ></div>
-                      
-                      {/* Year label */}
-                      <div>
-                        {editingYear === index && isEditable ? (
-                          <InlineEditor
-                            initialValue={item.year || `${new Date().getFullYear()}`}
-                            onSave={(value) => handleYearSave(index, value)}
-                            onCancel={() => handleYearCancel(index)}
-                            style={{
-                              color: contentColor,
-                              fontSize: '0.875rem',
-                              fontWeight: '500',
-                              textAlign: 'center'
-                            }}
-                          />
-                        ) : (
-                          <p 
-                            className="text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
-                            style={{ color: contentColor }}
-                            onClick={() => isEditable && startEditingYear(index)}
-                          >
-                            {item.year || `${new Date().getFullYear()}`}
-                          </p>
-                        )}
-                      </div>
-                      
-                      {/* Remove button - only visible on hover */}
-                      {isEditable && chartData.length > 1 && (
-                        <button
-                          onClick={() => handleRemoveColumn(index)}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100"
-                          style={{ fontSize: '10px' }}
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  
-                  {/* Add new column button */}
-                  {isEditable && (
-                    <div className="flex flex-col items-center">
-                      <button
-                        onClick={handleAddColumn}
-                        className="w-16 h-16 border-2 border-dashed border-gray-400 rounded flex items-center justify-center text-gray-400 hover:border-gray-600 hover:text-gray-600 transition-colors"
-                        style={{ marginBottom: '8px' }}
-                      >
-                        <span className="text-2xl">+</span>
-                      </button>
-                      <p className="text-sm text-gray-400">Add</p>
-                    </div>
+        {/* Subtitle */}
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true"
+        >
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div 
+              style={subtitleStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subtitle}
+            </div>
+          )}
+        </div>
+
+        {/* Numbered list */}
+        <div style={{ width: '100%' }}>
+          {chartData.map((item, index) => (
+            <div key={index} style={listItemStyles}>
+              <div style={squareStyles(item.color)}>
+                <span style={squareTextStyles}>
+                  {index + 1}
+                </span>
+              </div>
+              {isEditable && editingListItem === index ? (
+                <InlineEditor
+                  initialValue={item.description || 'Lorem ipsum dolor sit amet'}
+                  onSave={(value) => handleListItemSave(index, value)}
+                  onCancel={handleListItemCancel}
+                  multiline={false}
+                  placeholder="Enter list item..."
+                  className="inline-editor-list-item"
+                  style={{
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    flex: 1,
+                    color: '#ffffff',
+                    fontSize: '1.3rem',
+                    fontFamily: 'Arial, sans-serif'
+                  }}
+                />
+              ) : (
+                <span
+                  style={{ flex: 1 }}
+                  onClick={(e) => {
+                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingListItem(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {item.description || 'Lorem ipsum dolor sit amet'}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right section with bar chart */}
+      <div style={rightSectionStyles}>
+        {/* Add Column Button */}
+        {isEditable && (
+          <button
+            onClick={addColumn}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: currentTheme.colors.accentColor || '#4A70E8',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              zIndex: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = currentTheme.colors.accentColor || '#3A5BC7';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = currentTheme.colors.accentColor || '#4A70E8';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            title="Add new column"
+          >
+            +
+          </button>
+        )}
+
+        {/* Bar Chart */}
+        <div 
+          ref={chartRef}
+          data-moveable-element={`${slideId}-chart`}
+          data-draggable="true"
+          style={{
+            ...chartContainerStyles,
+            position: 'relative'
+          }}
+        >
+          {/* Grid lines container */}
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '80px',
+            right: '0',
+            bottom: '30px',
+            pointerEvents: 'none'
+          }}>
+            {/* Y-axis labels and grid lines */}
+            {[100, 80, 60, 40, 20, 0].map((value) => {
+              const topPosition = value === 0 ? 100 : ((100 - value) / 100) * 100;
+              return (
+                <div key={value} style={{
+                  position: 'absolute',
+                  top: `${topPosition}%`,
+                  left: '0',
+                  right: '0',
+                  height: '1px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  {/* Y-axis label */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '-50px',
+                    fontSize: '14px',
+                    color: currentTheme.colors.contentColor || '#09090B',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: '500',
+                    transform: value === 0 ? 'translateY(50%)' : 'translateY(-50%)'
+                  }}>
+                    {value}
+                  </div>
+                  {/* Grid line - hide for 0 */}
+                  {value !== 0 && (
+                    <div style={{
+                      width: '100%',
+                      height: '1px',
+                      backgroundColor: '#E0E0E0',
+                      opacity: 0.6
+                    }} />
                   )}
                 </div>
-              </div>
-
-              {/* Bottom description */}
-              <div className="text-center max-w-lg mt-8">
-                {editingBottomText && isEditable ? (
-                  <InlineEditor
-                    initialValue={bottomText}
-                    onSave={handleBottomTextSave}
-                    onCancel={handleBottomTextCancel}
-                    multiline={true}
-                    style={{
-                      color: contentColor,
-                      fontSize: '0.875rem',
-                      lineHeight: '1.5',
-                      textAlign: 'center',
-                      opacity: 0.8
-                    }}
-                  />
-                ) : (
-                  <p 
-                    className="text-sm leading-relaxed cursor-pointer hover:opacity-80"
-                    style={{ color: contentColor, opacity: 0.8 }}
-                    onClick={() => isEditable && startEditingBottomText()}
-                  >
-                    {bottomText}
-                  </p>
-                )}
-              </div>
-            </div>
+              );
+            })}
           </div>
 
-          {/* Legend Section - Right side */}
-          <div className="flex flex-col gap-8 ml-16">
-            
-            {chartData.map((item: any, index: number) => (
-              <div key={index} className="flex items-center gap-4">
+          {/* Chart bars */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-evenly',
+            gap: '20px',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            zIndex: 1,
+            paddingBottom: '0px'
+          }}>
+            {chartData.map((item, index) => (
+              <div 
+                key={index} 
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  justifyContent: 'flex-end',
+                  position: 'relative'
+                }}
+                onMouseEnter={() => setHoveredColumn(index)}
+                onMouseLeave={() => setHoveredColumn(null)}
+              >
+
+                {/* Bar with height editing and drag resize */}
                 <div 
-                  className="w-6 h-6 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: item.color }}
-                ></div>
-                <div>
-                  {editingLabel === index && isEditable ? (
+                  style={{
+                    ...barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color),
+                    cursor: isEditable ? (isDragging === index ? 'grabbing' : 'grab') : 'default',
+                    userSelect: 'none'
+                  }}
+                  onMouseDown={(e) => {
+                    if (isEditable) {
+                      handleMouseDown(e, index);
+                    }
+                  }}
+                  onClick={(e) => {
+                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                >
+                  <span style={barTextStyles}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  
+                  {/* Delete button - appears on hover at the top of the bar */}
+                  {isEditable && hoveredColumn === index && chartData.length > 1 && (
+                    <button
+                      onClick={() => removeColumn(index)}
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        backgroundColor: currentTheme.colors.accentColor || '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        zIndex: 10,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                      }}
+                      title="Remove column"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+                
+                {/* Year label */}
+                <div style={{ 
+                  position: 'absolute', 
+                  bottom: '-30px',
+                  width: '90px',
+                  textAlign: 'center'
+                }}>
+                  {isEditable && editingYear === index ? (
                     <InlineEditor
                       initialValue={item.label}
-                      onSave={(value) => handleLabelSave(index, value)}
-                      onCancel={() => handleLabelCancel(index)}
+                      onSave={(value) => handleYearSave(index, value)}
+                      onCancel={handleYearCancel}
+                      multiline={false}
+                      placeholder="Enter year..."
+                      className="inline-editor-year"
                       style={{
-                        color: titleColor,
-                        fontSize: '2rem',
-                        fontWeight: 'bold',
-                        marginBottom: '8px'
+                        ...yearLabelStyles,
+                        padding: '0',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        overflow: 'hidden',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        boxSizing: 'border-box',
+                        display: 'block',
+                        width: '90px',
+                        textAlign: 'center'
                       }}
                     />
                   ) : (
-                    <h3 
-                      className="text-3xl font-bold mb-2 cursor-pointer hover:opacity-80"
-                      style={{ color: titleColor }}
-                      onClick={() => isEditable && startEditingLabel(index)}
+                    <div
+                      style={yearLabelStyles}
+                      onClick={(e) => {
+                        if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          return;
+                        }
+                        if (isEditable) {
+                          setEditingYear(index);
+                        }
+                      }}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                     >
                       {item.label}
-                    </h3>
+                    </div>
                   )}
-                  
-                  {editingDesc === index && isEditable ? (
-                    <InlineEditor
-                      initialValue={item.description}
-                      onSave={(value) => handleDescSave(index, value)}
-                      onCancel={() => handleDescCancel(index)}
-                      multiline={true}
-                      style={{
-                        color: contentColor,
-                        fontSize: '1rem',
-                        lineHeight: '1.5'
-                      }}
-                    />
-                  ) : (
-                    <p 
-                      className="text-lg leading-relaxed max-w-sm cursor-pointer hover:opacity-80"
-                      style={{ color: contentColor }}
-                      onClick={() => isEditable && startEditingDesc(index)}
-                    >
-                      {item.description}
-                    </p>
-                  )}
-                  
-                  {/* Percentage display and editing */}
-                  <div className="mt-2">
-                    {editingPercentage === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.percentage.toString()}
-                        onSave={(value) => handlePercentageSave(index, value)}
-                        onCancel={() => handlePercentageCancel(index)}
-                        style={{
-                          color: item.color,
-                          fontSize: '1.5rem',
-                          fontWeight: 'bold'
-                        }}
-                      />
-                    ) : (
-                      <p 
-                        className="text-2xl font-bold cursor-pointer hover:opacity-80"
-                        style={{ color: item.color }}
-                        onClick={() => isEditable && startEditingPercentage(index)}
-                      >
-                        {item.percentage}%
-                      </p>
-                    )}
-                  </div>
                 </div>
               </div>
             ))}

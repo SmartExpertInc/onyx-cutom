@@ -61,7 +61,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    aspectRatio: '16/9',
+    height: '600px',
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -362,11 +363,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             <div
               key={i}
               style={{
-                width: '55px',
-                height: '55px',
-                borderRadius: '2px',
-                border: `2px solid #ffffff`,
-                backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
+                width: '45px',
+                height: '45px',
+                borderRadius: '50%',
+                border: `2px solid ${themeBg}`,
+                background: i + 1 === currentStep ? themeBg : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -416,7 +417,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        backgroundColor: '#E0E7FF',
+        background: themeBg,
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',

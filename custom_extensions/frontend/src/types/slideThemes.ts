@@ -11,6 +11,21 @@ export interface SlideTheme {
     contentColor: string;
     accentColor: string;
     borderColor?: string;
+    rightSectionBackgroundColor?: string;
+    eventListGradient?: string;
+    tableHeaderColor?: string;
+    tableFirstColumnColor?: string;
+    tableBackgroundColor?: string;
+    tableDataCellColor?: string;
+    tableBorderColor?: string;
+    tableTextColor?: string;
+    tableHeaderTextColor?: string;
+    tableCheckmarkColor?: string;
+    tableCrossColor?: string;
+    tableDeleteButtonColor?: string;
+    tableDeleteButtonTextColor?: string;
+    marketShareGradient?: string;
+    pyramidBackgroundColor?: string;
   };
   fonts: {
     titleFont: string;
@@ -26,15 +41,31 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'dark-purple',
     name: 'Dark Purple',
     colors: {
-      backgroundColor: '#110c35',
-      titleColor: '#ffffff',
-      subtitleColor: '#d9e1ff',
-      contentColor: '#d9e1ff',
-      accentColor: '#f35657'
+      backgroundColor: 'linear-gradient(to bottom, #002D91 0%, #000C5B 100%)',
+      titleColor: '#ffffff',        // Белый для заголовков на темном фоне
+      subtitleColor: '#ffffff',     // Белый для описаний на темном фоне  
+      contentColor: '#09090B',      // Темно-серый для обычного текста на белом фоне
+      accentColor: '#f35657',       // Красный акцент
+      borderColor: '#e5e7eb',       // Светло-серая граница
+      rightSectionBackgroundColor: '#ffffff',  // Белый для правого блока в EventList
+      eventListGradient: 'linear-gradient(#0F58F9 0%, #1023A1 100%)',  // Новый градиент для EventList
+      tableHeaderColor: '#0F58F9',  // Новый синий цвет для заголовков таблицы
+      tableFirstColumnColor: '#F2F8FE',  // Светло-голубой для первой колонки
+      tableBackgroundColor: '#ffffff',  // Белый фон для таблицы
+      tableDataCellColor: '#ffffff',  // Белый фон для ячеек данных
+      tableBorderColor: '#E0E0E0',  // Светло-серая граница для таблицы
+      tableTextColor: '#000000',  // Черный текст в таблице
+      tableHeaderTextColor: '#ffffff',  // Белый текст в заголовках
+      tableCheckmarkColor: '#0F58F9',  // Синий цвет для галочек
+      tableCrossColor: '#94a3b8',  // Серый цвет для крестиков
+      tableDeleteButtonColor: '#FFB6C1',  // Розовый фон для кнопки удаления
+      tableDeleteButtonTextColor: '#FF0000',  // Красный текст для кнопки удаления
+      marketShareGradient: 'linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%)',  // Новый градиент для MarketShare
+      pyramidBackgroundColor: '#ffffff'  // Белый фон для Pyramid
     },
     fonts: {
-      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      titleFont: 'Lora, serif',
+      contentFont: 'Lora, serif',
       titleSize: '45px',
       contentSize: '18px'
     }

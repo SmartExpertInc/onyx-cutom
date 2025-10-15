@@ -95,8 +95,7 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6',
-          overflowWrap: 'anywhere'
+          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -135,28 +134,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
-  title,
   leftTitle,
   leftContent,
-  leftImageAlt,
-  leftImagePrompt,
   leftImagePath,
-  leftWidthPx,
-  leftHeightPx,
-  leftImageScale,
-  leftImageOffset,
+  leftImageAlt,
   rightTitle,
   rightContent,
-  rightImageAlt,
-  rightImagePrompt,
   rightImagePath,
-  rightWidthPx,
-  rightHeightPx,
-  rightImageScale,
-  rightImageOffset,
-  leftObjectFit,
-  rightObjectFit,
-  columnRatio,
+  rightImageAlt,
   theme,
   onUpdate,
   isEditable = false
@@ -165,22 +150,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state
-  const [editingTitle, setEditingTitle] = useState(false);
   const [editingLeftTitle, setEditingLeftTitle] = useState(false);
   const [editingLeftContent, setEditingLeftContent] = useState(false);
   const [editingRightTitle, setEditingRightTitle] = useState(false);
   const [editingRightContent, setEditingRightContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
-  
-  // Refs for draggable elements (following Big Image Left pattern)
-  const leftTitleRef = useRef<HTMLDivElement>(null);
-  const leftContentRef = useRef<HTMLDivElement>(null);
-  const rightTitleRef = useRef<HTMLDivElement>(null);
-  const rightContentRef = useRef<HTMLDivElement>(null);
-  
-  // Generate slideId for element positioning (following Big Image Left pattern)
-  const slideId = `two-column-${Date.now()}`;
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -190,18 +165,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       }
     };
   }, []);
-
-  // Handle title editing
-  const handleTitleSave = (newTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ title: newTitle });
-    }
-    setEditingTitle(false);
-  };
-
-  const handleTitleCancel = () => {
-    setEditingTitle(false);
-  };
 
   // Handle left title editing
   const handleLeftTitleSave = (newLeftTitle: string) => {
@@ -265,203 +228,124 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     }
   };
 
-  // Handle left placeholder size and transform changes
-  const handleLeftSizeTransformChange = (payload: any) => {
-    if (onUpdate) {
-      const updateData: any = {};
-      
-      if (payload.imagePosition) {
-        updateData.leftImageOffset = payload.imagePosition;
-      }
-      
-      if (payload.imageSize) {
-        updateData.leftWidthPx = payload.imageSize.width;
-        updateData.leftHeightPx = payload.imageSize.height;
-      }
-      
-      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
-      if (payload.objectFit) {
-        updateData.leftObjectFit = payload.objectFit;
-        console.log('TwoColumnTemplate: left objectFit update', { 
-          objectFit: payload.objectFit 
-        });
-      }
-      
-      onUpdate(updateData);
-    }
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    minHeight: '600px',
+    background: currentTheme.colors.backgroundColor,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: '60px 40px',
+    position: 'relative',
+    fontFamily: currentTheme.fonts.contentFont
   };
 
-  // Handle right placeholder size and transform changes
-  const handleRightSizeTransformChange = (payload: any) => {
-    if (onUpdate) {
-      const updateData: any = {};
-      
-      if (payload.imagePosition) {
-        updateData.rightImageOffset = payload.imagePosition;
-      }
-      
-      if (payload.imageSize) {
-        updateData.rightWidthPx = payload.imageSize.width;
-        updateData.rightHeightPx = payload.imageSize.height;
-      }
-      
-      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
-      if (payload.objectFit) {
-        updateData.rightObjectFit = payload.objectFit;
-        console.log('TwoColumnTemplate: right objectFit update', { 
-          objectFit: payload.objectFit 
-        });
-      }
-      
-      onUpdate(updateData);
-    }
+  const columnsContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    gap: '0px',
+    width: '100%',
+    maxWidth: '1200px',
+    height: '100%',
+    position: 'relative',
+    alignItems: 'stretch',
   };
 
-  // AI prompt logic
-  const leftDisplayPrompt = leftImagePrompt || leftImageAlt || 'relevant illustration for the left column';
-  const rightDisplayPrompt = rightImagePrompt || rightImageAlt || 'relevant illustration for the right column';
-
-  const leftPlaceholderStyles: React.CSSProperties = {
-    // Only apply default dimensions if no saved size exists
-    ...(leftWidthPx && leftHeightPx ? {} : { width: '100%', maxWidth: '400px', maxHeight: '280px' }),
-    margin: '0',
-    marginBottom: '24px'
-  };
-
-  const rightPlaceholderStyles: React.CSSProperties = {
-    // Only apply default dimensions if no saved size exists
-    ...(rightWidthPx && rightHeightPx ? {} : { width: '100%', maxWidth: '400px', maxHeight: '280px' }),
-    margin: '0',
-    marginBottom: '24px'
+  const columnStyles: React.CSSProperties = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: '40px 30px',
+    borderRadius: '8px',
+    position: 'relative'
   };
 
   const titleStyles: React.CSSProperties = {
-    textAlign: 'left',
-    marginBottom: '40px',
-    fontWeight: '700',
+    fontSize: '3.1rem',
     fontFamily: currentTheme.fonts.titleFont,
-    fontSize: currentTheme.fonts.titleSize,
     color: currentTheme.colors.titleColor,
-    wordWrap: 'break-word'
+    textAlign: 'center',
+    marginBottom: '20px',
+    lineHeight: 1.2,
+    maxWidth: '375px',
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)'
   };
 
-  const columnTitleStyles: React.CSSProperties = {
-    fontFamily: currentTheme.fonts.titleFont,
-    fontSize: '27px',
-    color: currentTheme.colors.titleColor,
-    margin: '16px 0 16px 0',
-    alignSelf: 'flex-start',
-    wordWrap: 'break-word'
-  };
-
-  const columnContentStyles: React.CSSProperties = {
+  const subtitleStyles: React.CSSProperties = {
+    width: '325px',
+    fontSize: '1.4rem',
     fontFamily: currentTheme.fonts.contentFont,
-    fontSize: currentTheme.fonts.contentSize,
-    color: currentTheme.colors.contentColor,
-    margin: 0,
-    alignSelf: 'flex-start',
-    lineHeight: 1.6,
-    overflowWrap: 'anywhere'
+    color: currentTheme.colors.subtitleColor,
+    textAlign: 'center',
+    marginBottom: '60px',
+    marginTop: '10px',
+    lineHeight: 1.4,
+    maxWidth: '500px',
+    wordWrap: 'break-word',
+    opacity: 0.9,
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)'
+  };
+
+  const imageContainerStyles: React.CSSProperties = {
+    width: '497px',
+    height: '290px',
+    display: 'flex',
+    marginTop: 'auto',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '8px',
+  };
+
+  const imageStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    borderRadius: '4px'
+  };
+
+  const dividerLineStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '0',
+    bottom: '0',
+    width: '1px',
+    background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0),      /* верх — прозрачный */ rgba(255, 255, 255, 0.9) 50%,/* центр — ярко-белый */ rgba(255, 255, 255, 0)', // Полупрозрачная белая линия
+    transform: 'translateX(-50%)',
+    zIndex: 1
   };
 
   return (
     <div
       ref={slideContainerRef}
-      style={{
-        padding: '40px',
-        minHeight: '600px',
-        backgroundColor: currentTheme.colors.backgroundColor,
-        fontFamily: currentTheme.fonts.contentFont,
-      }}
+      style={slideStyles}
     >
-      {/* Main Title */}
-      <div data-draggable="true" style={{ display: 'inline-block' }}>
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          gap: '40px',
-        }}
-      >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Left Clickable Image Placeholder */}
-            <ClickableImagePlaceholder
-              imagePath={leftImagePath}
-              onImageUploaded={handleLeftImageUploaded}
-              size="XLARGE"
-              position="CENTER"
-              description="Click to upload image"
-              prompt={leftDisplayPrompt}
-              isEditable={isEditable}
-              style={leftPlaceholderStyles}
-              onSizeTransformChange={handleLeftSizeTransformChange}
-              elementId="left-image"
-              cropMode={leftObjectFit || 'contain'}
-              slideContainerRef={slideContainerRef}
-              savedImagePosition={leftImageOffset}
-              savedImageSize={leftWidthPx && leftHeightPx ? { width: leftWidthPx, height: leftHeightPx } : undefined}
-            />
-          {/* Left Mini title */}
-          <div 
-            ref={leftTitleRef}
-            data-moveable-element={`${slideId}-leftTitle`}
-            data-draggable="true" 
-            style={{ display: 'inline-block' }}
-          >
+      <div style={columnsContainerStyles}>
+        {/* Divider Line */}
+        <div style={dividerLineStyles}></div>
+        
+        {/* Left Column */}
+        <div style={columnStyles}>
+          {/* Left Title */}
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingLeftTitle ? (
               <InlineEditor
-                initialValue={leftTitle || ''}
+                initialValue={leftTitle || 'Assess risks for the organization.'}
                 onSave={handleLeftTitleSave}
                 onCancel={handleLeftTitleCancel}
                 multiline={true}
-                placeholder="Enter left column title..."
+                placeholder="Enter left title..."
                 className="inline-editor-left-title"
                 style={{
-                  ...columnTitleStyles,
-                  // Ensure title behaves exactly like h2 element
+                  ...titleStyles,
                   margin: '0',
                   padding: '0',
                   border: 'none',
@@ -475,8 +359,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 }}
               />
             ) : (
-              <h2 
-                style={columnTitleStyles}
+              <h1 
+                style={titleStyles}
                 onClick={(e) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
@@ -490,97 +374,23 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
-                {leftTitle || 'Click to add left title'}
-              </h2>
+                {leftTitle || 'Assess risks for the organization.'}
+              </h1>
             )}
           </div>
-          {/* Left Main text */}
-          <div 
-            ref={leftContentRef}
-            data-moveable-element={`${slideId}-leftContent`}
-            data-draggable="true" 
-            style={{ display: 'inline-block' }}
-          >
+
+          {/* Left Subtitle */}
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingLeftContent ? (
               <InlineEditor
-                initialValue={leftContent || ''}
+                initialValue={leftContent || 'Present with Canva like a professional using presenter mode.'}
                 onSave={handleLeftContentSave}
                 onCancel={handleLeftContentCancel}
                 multiline={true}
-                placeholder="Enter left column content..."
+                placeholder="Enter left subtitle..."
                 className="inline-editor-left-content"
                 style={{
-                  ...columnContentStyles,
-                  // Ensure content behaves exactly like p element
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  overflowWrap: 'anywhere',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
-              />
-            ) : (
-              <p 
-                style={columnContentStyles}
-                onClick={(e) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    setEditingLeftContent(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {leftContent || 'Click to add left content'}
-              </p>
-            )}
-          </div>
-        </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
-          {/* Right Clickable Image Placeholder */}
-            <ClickableImagePlaceholder
-              imagePath={rightImagePath}
-              onImageUploaded={handleRightImageUploaded}
-              size="XLARGE"
-              position="CENTER"
-              description="Click to upload image"
-              prompt={rightDisplayPrompt}
-              isEditable={isEditable}
-              style={rightPlaceholderStyles}
-              onSizeTransformChange={handleRightSizeTransformChange}
-              elementId="right-image"
-              cropMode={rightObjectFit || 'contain'}
-              slideContainerRef={slideContainerRef}
-              savedImagePosition={rightImageOffset}
-              savedImageSize={rightWidthPx && rightHeightPx ? { width: rightWidthPx, height: rightHeightPx } : undefined}
-            />
-          {/* Right Mini title */}
-          <div 
-            ref={rightTitleRef}
-            data-moveable-element={`${slideId}-rightTitle`}
-            data-draggable="true" 
-            style={{ display: 'inline-block' }}
-          >
-            {isEditable && editingRightTitle ? (
-              <InlineEditor
-                initialValue={rightTitle || ''}
-                onSave={handleRightTitleSave}
-                onCancel={handleRightTitleCancel}
-                multiline={true}
-                placeholder="Enter right column title..."
-                className="inline-editor-right-title"
-                style={{
-                  ...columnTitleStyles,
-                  // Ensure title behaves exactly like h2 element
+                  ...subtitleStyles,
                   margin: '0',
                   padding: '0',
                   border: 'none',
@@ -594,8 +404,77 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 }}
               />
             ) : (
-              <h2 
-                style={columnTitleStyles}
+              <p 
+                style={subtitleStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setEditingLeftContent(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {leftContent || 'Present with Canva like a professional using presenter mode.'}
+              </p>
+            )}
+          </div>
+
+          {/* Left Image */}
+          <div style={imageContainerStyles}>
+            <ClickableImagePlaceholder
+              imagePath={leftImagePath}
+              onImageUploaded={handleLeftImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt="relevant illustration for the left column"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '4px'
+              }}
+              elementId="left-image"
+              cropMode="cover"
+              slideContainerRef={slideContainerRef}
+            />
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div style={columnStyles}>
+          {/* Right Title */}
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+            {isEditable && editingRightTitle ? (
+              <InlineEditor
+                initialValue={rightTitle || 'Assess risks for the organization.'}
+                onSave={handleRightTitleSave}
+                onCancel={handleRightTitleCancel}
+                multiline={true}
+                placeholder="Enter right title..."
+                className="inline-editor-right-title"
+                style={{
+                  ...titleStyles,
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <h1 
+                style={titleStyles}
                 onClick={(e) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
@@ -609,35 +488,30 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
-                {rightTitle || 'Click to add right title'}
-              </h2>
+                {rightTitle || 'Assess risks for the organization.'}
+              </h1>
             )}
           </div>
-          {/* Right Main text */}
-          <div 
-            ref={rightContentRef}
-            data-moveable-element={`${slideId}-rightContent`}
-            data-draggable="true" 
-            style={{ display: 'inline-block' }}
-          >
+
+          {/* Right Subtitle */}
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingRightContent ? (
               <InlineEditor
-                initialValue={rightContent || ''}
+                initialValue={rightContent || 'Present with Canva like a professional using presenter mode.'}
                 onSave={handleRightContentSave}
                 onCancel={handleRightContentCancel}
                 multiline={true}
-                placeholder="Enter right column content..."
+                placeholder="Enter right subtitle..."
                 className="inline-editor-right-content"
                 style={{
-                  ...columnContentStyles,
-                  // Ensure content behaves exactly like p element
+                  ...subtitleStyles,
                   margin: '0',
                   padding: '0',
                   border: 'none',
                   outline: 'none',
                   resize: 'none',
                   overflow: 'hidden',
-                  overflowWrap: 'anywhere',
+                  wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block'
@@ -645,7 +519,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
               />
             ) : (
               <p 
-                style={columnContentStyles}
+                style={subtitleStyles}
                 onClick={(e) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
@@ -657,11 +531,32 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                     setEditingRightContent(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover-border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
               >
-                {rightContent || 'Click to add right content'}
+                {rightContent || 'Present with Canva like a professional using presenter mode.'}
               </p>
             )}
+          </div>
+
+          {/* Right Image */}
+          <div style={imageContainerStyles}>
+            <ClickableImagePlaceholder
+              imagePath={rightImagePath}
+              onImageUploaded={handleRightImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt="relevant illustration for the right column"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '4px'
+              }}
+              elementId="right-image"
+              cropMode="cover"
+              slideContainerRef={slideContainerRef}
+            />
           </div>
         </div>
       </div>

@@ -129,7 +129,7 @@ function InlineEditor({
 }
 
 export const ContentSlideTemplate: React.FC<ContentSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   onAutoSave?: () => void;
 }> = ({
@@ -143,9 +143,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   theme,
   onAutoSave
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
+  // Use theme colors instead of props - ensure we always have a valid theme
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -165,8 +166,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -174,32 +174,34 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start',
-    padding: '80px',
+    padding: '40px',
     position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: alignment,
-    marginBottom: '40px',
-    lineHeight: 1.3,
+    marginBottom: '24px',
+    lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const contentStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: subtitleColor,
     textAlign: alignment,
-    lineHeight: 1.6,
+    lineHeight: 1.4,
     maxWidth: '800px',
     wordWrap: 'break-word',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
+    opacity: 0.9
     };
 
   const editOverlayStyles: React.CSSProperties = {

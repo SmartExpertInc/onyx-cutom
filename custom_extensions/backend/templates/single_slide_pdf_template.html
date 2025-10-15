@@ -199,44 +199,46 @@
             width: 100%;
             height: 100%;
             min-height: 600px;
-            background-color: var(--bg-color);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(135deg, #0F58F9 0%, #1023A1 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
-            padding: 80px;
+            padding: 60px 80px;
             position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
         }
         
         .content-slide .slide-title {
-            font-family: var(--title-font);
-            font-size: 45px;
-            color: var(--title-color);
+            font-family: 'serif', serif;
+            font-size: 60px;
+            color: #ffffff;
             text-align: left;
+            margin-top: 60px;
             margin-bottom: 40px;
-            line-height: 1.3;
+            line-height: 1.1;
             max-width: 900px;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .content-slide .content-text {
             font-family: var(--content-font);
-            font-size: 18px;
-            color: var(--content-color);
+            font-size: 20px;
+            color: #ffffff;
             text-align: left;
             line-height: 1.6;
             max-width: 800px;
             word-wrap: break-word;
             white-space: pre-wrap;
+            opacity: 0.9;
         }
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
         .big-image-top {
+            width: 100%;
+            height: 100%;
             min-height: 600px;
             background-color: var(--bg-color);
             font-family: var(--content-font);
@@ -245,8 +247,7 @@
             align-items: stretch;
             justify-content: space-between;
             padding-bottom: 50px;
-            height: 100%;
-            width: 100%;
+            position: relative;
             overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
@@ -386,26 +387,28 @@
             word-wrap: break-word;
         }
         
-        /* Pyramid Template - EXACT FRONTEND MATCH */
+        /* Pyramid Template - EXACT FRONTEND MATCH - NEW DESIGN */
         .pyramid-template {
-            background-color: var(--bg-color);
-            padding: 64px;
+            background: #ffffff;
+            padding: 40px 40px 0px 40px;
             display: flex;
             flex-direction: column;
-            font-family: var(--content-font);
+            font-family: Georgia, serif;
             min-height: 600px;
             width: 100%;
             height: 100%;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            position: relative;
+            overflow: hidden;
         }
         
         .pyramid-template .slide-title {
-            color: var(--title-color);
-            font-size: 45px;
-            font-family: var(--title-font);
-            margin-bottom: 16px;
+            color: #000000;
+            font-size: 2.5rem;
+            font-family: Georgia, serif;
+            margin-bottom: 40px;
             text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .pyramid-template .slide-subtitle {
@@ -421,10 +424,138 @@
         
         .pyramid-template .main-content {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
+            justify-content: center;
             flex-grow: 1;
-            gap: 48px;
+            position: relative;
+            height: 500px;
         }
+
+        .pyramid-level {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%);
+        }
+
+        .pyramid-level:nth-child(1) { 
+            width: 144px; 
+            height: 75px; 
+            top: 0px; 
+            background: #2A7CFF; 
+            z-index: 5; 
+            justify-content: center;
+            clip-path: polygon(24% 0%, 78% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 5px;
+        }
+        .pyramid-level:nth-child(2) { 
+            width: 228px; 
+            height: 75px; 
+            top: 80px; 
+            background: #09ACD8; 
+            z-index: 4; 
+            justify-content: center;
+            clip-path: polygon(18% 0%, 83% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 5px;
+        }
+        .pyramid-level:nth-child(3) { 
+            width: 311px; 
+            height: 75px; 
+            top: 160px; 
+            background: #1B94E8; 
+            z-index: 3; 
+            justify-content: center;
+            clip-path: polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 5px;
+        }
+        .pyramid-level:nth-child(4) { 
+            width: 401px; 
+            height: 75px; 
+            top: 240px; 
+            background: #3A11C3; 
+            z-index: 2; 
+            justify-content: center;
+            clip-path: polygon(11% 0%, 89% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 5px;
+        }
+        .pyramid-level:nth-child(5) { 
+            width: 493px; 
+            height: 75px; 
+            top: 320px; 
+            background: #01298A; 
+            z-index: 1; 
+            justify-content: center;
+            clip-path: polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 5px;
+        }
+
+        .pyramid-number-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pyramid-text-block {
+            position: absolute;
+            width: 25%;
+            max-width: 300px;
+            z-index: 10;
+        }
+
+        .pyramid-text-block.level-0 { top: -19px; left: 13%; text-align: right; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-1 { top: 55px; right: 10%; text-align: left; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-2 { top: 124px; left: 7%; text-align: right; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-3 { top: 218px; right: 2%; text-align: left; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-4 { top: 285px; left: 0%; text-align: right; width: 35%; max-width: 250px; }
+
+        .pyramid-text-heading {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #000000;
+            font-family: Georgia, serif;
+            margin-bottom: 6px;
+            word-wrap: break-word;
+        }
+
+        .pyramid-text-description {
+            font-size: 0.85rem;
+            color: #000000;
+            font-family: Georgia, serif;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .pyramid-triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #1E88E5;
+            z-index: 10;
+        }
+
+        .pyramid-triangle.level-0 { top: 21px; left: 42%; border-top: 12px solid #2A7CFF; }
+        .pyramid-triangle.level-1 { top: 98px; right: 39%; border-top: 12px solid #09ACD8; }
+        .pyramid-triangle.level-2 { top: 168px; left: 36%; border-top: 12px solid #1B94E8; }
+        .pyramid-triangle.level-3 { top: 265px; right: 31%; border-top: 12px solid #3A11C3; }
+        .pyramid-triangle.level-4 { top: 340px; left: 27%; border-top: 12px solid #01298A; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -581,38 +712,86 @@
         
         /* Title Slide Template - EXACT FRONTEND MATCH */
         .title-slide {
-            background-color: var(--bg-color);
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            background: linear-gradient(135deg, #0F58F9 0%, #1023A1 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
+            padding: 60px 80px;
+            position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
+        }
+        
+        .title-slide .logo {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .title-slide .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .title-slide .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background: #002D91;
+        }
+        
+        .title-slide .logo-icon::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background: #002D91;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
         
         .title-slide .slide-title {
-            font-family: var(--title-font);
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
+            font-family: 'serif', serif;
+            font-size: 60px;
+            color: #ffffff;
             text-align: center;
-            margin-bottom: 24px; /* Exact frontend match */
+            margin-top: 130px;
+            margin-bottom: 24px;
             line-height: 1.2;
-            max-width: 1174px; /* Updated to match new slide width */
+            max-width: 900px;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .title-slide .slide-subtitle {
             font-family: var(--content-font);
-            font-size: 26px; /* Exact frontend match */
-            color: var(--subtitle-color);
+            font-size: 20px;
+            color: #ffffff;
             text-align: center;
-            margin-bottom: 40px; /* Exact frontend match */
+            margin-bottom: 40px;
             line-height: 1.4;
-            max-width: 700px; /* Exact frontend match */
+            max-width: 700px;
             word-wrap: break-word;
+            opacity: 0.9;
         }
         
         .title-slide .metadata {
@@ -767,28 +946,58 @@
             padding-left: 40px; /* Exact frontend match */
         }
         
-        /* Bullet-Points-Right Template - Separate from regular bullet-points */
+        /* Bullet-Points-Right Template - EXACT PHOTO MATCH */
         .bullet-points-right {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            min-height: 600px;
+            background: #ffffff;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 80px;
+            flex-direction: row;
             position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
+        }
+        
+        
+        .bullet-points-right .left-section {
+            width: 65%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+            padding: 80px 60px;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+            z-index: 2;
+        }
+        
+        .bullet-points-right .right-section {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            z-index: 1;
         }
         
         .bullet-points-right .slide-title {
-            font-size: 45px;
-            font-family: var(--title-font);
-            color: var(--title-color);
-            margin-bottom: 32px;
+            font-size: 3.5rem;
+            font-family: 'serif', serif;
+            color: #ffffff;
+            margin-bottom: 40px;
             text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
+            line-height: 1.1;
         }
         
         .bullet-points-right .content-row {
@@ -801,22 +1010,22 @@
         }
         
         .bullet-points-right .bullets-container {
-            flex: 1 1 60% !important;
-            font-size: 18px !important;
+            width: 100%;
+            font-size: 18px;
             font-family: var(--content-font);
-            color: var(--content-color);
-            display: flex !important;
-            flex-direction: column !important;
-            min-width: 0 !important;
-            padding-right: 40px !important;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
         
         .bullet-points-right .placeholder-container {
-            flex: 0 0 40% !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            min-width: 0 !important;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            margin-top: 40px;
         }
         
         .bullet-points-right .placeholder {
@@ -859,30 +1068,54 @@
         }
         
         .bullet-icon {
-            color: var(--accent-color);
+            color: #ffffff;
             font-weight: 600;
-            min-width: 20px; /* Exact frontend match */
-            font-size: 1.2rem; /* Exact frontend match */
+            min-width: 20px;
+            font-size: 1.2rem;
             font-family: var(--title-font);
+        }
+        
+        .bullet-icon::before {
+            content: '▶';
+            color: #ffffff;
+            font-size: 1.2rem;
         }
         
         .bullet-text {
             font-family: var(--content-font);
-            font-size: 18px; /* Exact frontend match */
-            color: var(--content-color);
+            font-size: 18px;
+            color: #ffffff;
             line-height: 1.6;
+        }
+        
+        .bullet-points-right .right-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .bullet-points-right .right-section .placeholder {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 1;
         }
         /* Process Steps Template - EXACT FRONTEND MATCH */
         .process-steps {
-            padding: 40px; /* Exact frontend match */
             width: 100%;
-            height: 100%; /* Fill the entire slide content area */
+            height: 100%;
+            min-height: 600px;
             background-color: var(--bg-color);
-            font-family: var(--content-font);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            justify-content: flex-start;
+            align-items: center;
+            padding: 60px 40px;
+            position: relative;
+            font-family: var(--content-font);
+            overflow: hidden;
         }
         
         .process-steps .slide-title {
@@ -926,41 +1159,59 @@
             word-wrap: break-word;
         }
         
-        /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
+        /* Challenges & Solutions Template - SIMPLIFIED DESIGN */
         .challenges-solutions {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            padding: 60px;
-            position: relative;
-            font-family: var(--content-font);
+            background: #ffffff;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            font-family: Georgia, serif;
+            min-height: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
         }
         
         .challenges-solutions .slide-title {
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
-            font-family: var(--title-font);
-            text-align: center;
-            margin-bottom: 50px; /* Exact frontend match */
-            line-height: 1.3;
-            max-width: 1174px; /* Updated to match new slide width */
-            margin: 0 auto 50px auto;
+            color: #000000;
+            font-size: 2.5rem;
+            font-family: Georgia, serif;
+            margin-bottom: 10px;
+            text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
-        .challenges-solutions .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px; /* Exact frontend match */
-            max-width: 1000px; /* Exact frontend match */
-            margin: 0 auto;
-            flex: 1;
+        .challenges-solutions .slide-subtitle {
+            color: #000000;
+            font-size: 1.1rem;
+            font-family: Arial, sans-serif;
+            margin-bottom: 40px;
+            text-align: left;
+            word-wrap: break-word;
+            font-weight: normal;
+        }
+        
+        .challenges-solutions .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            height: 400px;
+        }
+        
+        .challenges-solutions .main-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .challenges-solutions .placeholder-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            box-sizing: border-box;
+            height: 100%;
         }
         
         .callout-box {
@@ -1033,14 +1284,17 @@
         /* Two Column Template - EXACT FRONTEND MATCH */
         .two-column {
             width: 100%;
-             height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
+            height: 100%;
+            min-height: 600px;
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 60px 40px;
+            position: relative;
             font-family: var(--content-font);
-             display: flex;
-             flex-direction: column;
-             padding: 40px;
-             min-height: 600px;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
         }
         
         .two-column .slide-title {
@@ -1048,20 +1302,70 @@
             margin-bottom: 40px;
             font-family: var(--title-font);
             font-size: 45px;
-            color: var(--title-color);
+            color: #ffffff;
             word-wrap: break-word;
         }
         
         .two-column-layout {
             display: flex;
-            gap: 40px; /* Exact frontend match */
+            gap: 0px;
             width: 100%;
+            position: relative;
+        }
+        
+        .two-column-layout::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0));
+            transform: translateX(-50%);
+            z-index: 2;
         }
         
         .column {
             flex: 1;
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 30px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .column-title {
+            font-size: 2.9rem;
+            font-family: var(--title-font);
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            max-width: 340px;
+            word-wrap: break-word;
+            font-weight: bold;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .column-content {
+            width: 325px;
+            font-size: 1.4rem;
+            font-family: var(--content-font);
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 40px;
+            margin-top: 10px;
+            line-height: 1.4;
+            max-width: 500px;
+            word-wrap: break-word;
+            opacity: 0.9;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
         }
         
         /* Global placeholder styles removed - each template now has its own scoped styles */
@@ -1106,16 +1410,17 @@
         /* Big Numbers Template - EXACT FRONTEND MATCH */
         .big-numbers {
             width: 100%;
-             height: 100%; /* Fill the entire slide content area */
+            height: 100%;
+            min-height: 600px;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-             justify-content: flex-start;
+            justify-content: flex-start;
             align-items: center;
             padding: 40px;
-             position: relative;
+            position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .big-numbers .slide-title {
@@ -1172,6 +1477,7 @@
         /* Four Box Grid Template - EXACT FRONTEND MATCH */
         .four-box-grid {
             width: 100%;
+            height: 100%;
             min-height: 600px;
             background-color: var(--bg-color);
             display: flex;
@@ -1179,8 +1485,8 @@
             align-items: stretch;
             padding: 40px;
             font-family: var(--content-font);
-            height: 100%;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            position: relative;
+            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .four-box-grid .slide-title {
@@ -1568,11 +1874,24 @@
         .contraindications-indications-template {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            background: #ffffff;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            padding: 40px;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: Georgia, serif;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contraindications-indications-template .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            height: 400px;
+            width: 100%;
         }
         
         .contraindications-indications-container {
@@ -1749,95 +2068,83 @@
             text-align: center;
         }
         
-        /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
+        /* Timeline Template - EXACT FRONTEND MATCH - NEW DESIGN */
 .timeline {
      width: 100%;
-     height: 100%; /* Fill the entire slide content area */
-    background-color: var(--bg-color);
+    height: 100%;
+    min-height: 600px;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
-     justify-content: flex-start;
+    padding: 50px;
+    font-family: Georgia, serif;
      align-items: stretch;
-    padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
+    text-align: left;
+    overflow: hidden;
      position: relative;
-    font-family: var(--content-font);
-     overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
 }
 
 .timeline .slide-title {
-    font-size: 45px;
-    font-family: var(--title-font);
-    color: var(--title-color);
-    margin-bottom: 80px;
+    font-size: 2.5rem;
+    font-family: Arial, sans-serif;
+    color: #000000;
+    margin-bottom: 50px;
     text-align: left;
     word-wrap: break-word;
+    font-weight: bold;
+    flex-shrink: 0;
 }
 
 .timeline-container {
-    position: relative;
-    width: 100%;
-    flex: 1;                          /* FIXED: Changed from fixed height: 350px to flex: 1 to fill remaining space */
-    display: flex;
-    min-height: 350px;                /* Keep minimum height for content */
+    position: absolute;
+    top: 150px;
+    left: 50px;
+    right: 50px;
+    bottom: 50px;
+    width: calc(100% - 100px);
+    height: calc(100% - 200px);
 }
 
 .timeline-line {
     position: absolute;
-    top: 50%;
-    left: 5%;
-    width: 90%;
-    height: 2px;
-    background: rgba(255,255,255,0.25);
+    top: 11px;
+    left: calc(50% + 60px);
+    width: 2px;
+    height: 115%;
+    background: #0F58F9;
 }
 
-.step-wrapper {
-    position: relative;
-    width: 25%;
-    height: 100%;
-    display: flex;
-    align-items: center;              /* ADDED: This wasn't in original but helps with alignment */
-}
-
-.milestone-content {
+.timeline-circle {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;                        /* FIXED: Changed from 15px to 10px to match React */
-    /* REMOVED: padding: 10px 0; */
+    left: calc(50% + 60px);
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    border: 4px solid #0F58F9;
+    z-index: 10;
 }
 
-.text-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 8px;                         /* FIXED: Changed from 12px to 8px to match React */
-    /* REMOVED: max-width: 200px; - React doesn't have this constraint */
+.timeline-text-block {
+    position: absolute;
+    transform: translateY(-50%);
 }
 
 .step-heading {
-    font-size: 1.2rem;                /* FIXED: Changed from 1.4rem to 1.2rem to match React */
-    color: var(--title-color);
-    font-family: var(--title-font);
+    font-size: 1.1rem;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
     word-wrap: break-word;
 }
 
 .step-description {
-    font-size: 20px;                  /* This should match React's contentSize */
-    color: var(--content-color);
-    font-family: var(--content-font);
-    line-height: 1.5;
+    font-size: 0.95rem;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
     word-wrap: break-word;
-}
-
-.vertical-line {
-    width: 2px;
-    height: 20px;
-    background: rgba(255,255,255,0.25);
 }
 
 .number-square {
@@ -1993,43 +2300,29 @@
         <div class="slide-content theme-{{ theme or 'dark-purple' }}">
             {% if slide.templateId == 'title-slide' %}
                 <div class="title-slide">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element" 
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
+                    <!-- Logo at the top -->
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span>Your Logo</span>
+                    </div>
+                    
+                    <h1 class="slide-title positioned-element" 
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set titleId = slide.slideId + '-title' %}
+                            {% if slide.metadata.elementPositions[titleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                        <h2 class="slide-subtitle positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[subtitleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                {% endif %}
+                        {% endif %}
+                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Your title here'] else 'Add title' }}</h1>
+                    
+                    <h2 class="slide-subtitle positioned-element"
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set subtitleId = slide.slideId + '-subtitle' %}
+                            {% if slide.metadata.elementPositions[subtitleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
                             {% endif %}
-                        >{{ slide.props.subtitle }}</h2>
-                    {% endif %}
-                    {% if slide.props.author or slide.props.date %}
-                        <div class="metadata positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set metadataId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[metadataId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[metadataId].x }}px, {{ slide.metadata.elementPositions[metadataId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            {% if slide.props.author %}
-                                <div>{{ slide.props.author }}</div>
-                            {% endif %}
-                            {% if slide.props.date %}
-                                <div>{{ slide.props.date }}</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    >{{ slide.props.subtitle if slide.props.subtitle and slide.props.subtitle not in ['Click to add content', 'Add subtitle', 'Add a short description.'] else 'Add subtitle' }}</h2>
                 </div>
                 
                 {% elif slide.templateId == 'big-image-left' %}
@@ -2228,19 +2521,10 @@
                 
             {% elif slide.templateId == 'bullet-points-right' %}
                 <div class="bullet-points-right">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    
-                    <div class="content-row">
-                    
+                    <!-- Left section with title and bullets (dark blue background) -->
+                    <div class="left-section">
+                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                        
                         <div class="bullets-container positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
                                 {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
@@ -2249,46 +2533,38 @@
                                 {% endif %}
                             {% endif %}
                         >
-                            {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                                <div class="content-text positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                        {% if slide.metadata.elementPositions[subtitleId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.subtitle }}</div>
-                            {% endif %}
                             <ul class="bullet-list">
-                                {% for bullet in slide.props.bullets %}
-                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                {% if slide.props.bullets and slide.props.bullets|length > 0 %}
+                                    {% for bullet in slide.props.bullets %}
                                         <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
-                                            </span>
-                                            <span class="bullet-text">{{ bullet }}</span>
+                                            <span class="bullet-icon">▶</span>
+                                            <span class="bullet-text">{{ bullet if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] else 'Add bullet point' }}</span>
                                         </li>
-                                    {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(3) %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">▶</span>
+                                            <span class="bullet-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
                             </ul>
                         </div>
-                        <div class="placeholder-container">
-                            {% if slide.props.imagePath %}
-                                <img src="{{ slide.props.imagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; margin: 0 auto;"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            {% else %}
-                                <div class="placeholder" style="width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
-                                    <!-- Empty placeholder - maintains layout -->
-                                </div>
-                            {% endif %}
-                        </div>
+                    </div>
+
+                    <!-- Right section with image only -->
+                    <div class="right-section">
+                        {% if slide.props.imagePath %}
+                            <img src="{{ slide.props.imagePath }}" 
+                                 alt="Uploaded image" 
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        {% else %}
+                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
+                                🖼️ Add image
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -2326,171 +2602,65 @@
                 
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="grid">
-                        <div class="callout-box positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set challengesId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[challengesId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[challengesId].x }}px, {{ slide.metadata.elementPositions[challengesId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <div class="callout-header">
-                                <svg class="icon-xmark" viewBox="0 0 512 512">
-                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
-                                </svg>
-                                <h2 class="section-title">{{ slide.props.challengesTitle or 'Виклики' }}</h2>
-                            </div>
-                            <ul class="callout-list">
-                                {% for challenge in slide.props.challenges %}
-                                    <li class="callout-item">
-                                        <div class="callout-bullet"></div>
-                                        <span>{{ challenge or 'Click to add challenge' }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                    <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solutions' }}</h1>
+                    <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
+                    
+                    <div class="main-content">
+                        <!-- Central Image Container -->
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="file:///app/static/group_img.png" alt="Group" style="width: 500px; height: 400px; object-fit: contain;" />
                         </div>
-                        <div class="callout-box positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set solutionsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[solutionsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[solutionsId].x }}px, {{ slide.metadata.elementPositions[solutionsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <div class="callout-header">
-                                <svg class="icon-check" viewBox="0 0 512 512">
-                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
-                                </svg>
-                                <h2 class="section-title">{{ slide.props.solutionsTitle or 'Рішення' }}</h2>
-                            </div>
-                            <ul class="callout-list">
-                                {% for solution in slide.props.solutions %}
-                                    <li class="callout-item">
-                                        <div class="callout-bullet"></div>
-                                        <span>{{ solution or 'Click to add solution' }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+
+                        <!-- Bottom Labels -->
+                        <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, 120px); display: flex; gap: 70px; z-index: 10; padding-right: 15px;">
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Challenges</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Solutions</div>
                         </div>
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'two-column' %}
                 <div class="two-column">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
                     <div class="two-column-layout">
+                        <!-- Left Column -->
                         <div class="column">
+                            <h2 class="column-title">{{ slide.props.leftTitle if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.leftContent if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        {% if slide.props.leftWidthPx %}width: {{ slide.props.leftWidthPx }}px;{% else %}width: auto;{% endif %}
-                                        {% if slide.props.leftHeightPx %}height: {{ slide.props.leftHeightPx }}px;{% else %}height: auto;{% endif %}
-                                        margin: 0; margin-bottom: 24px !important;
-                                        max-width: 400px; max-height: 280px;
-                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'contain' }};
-                                        transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
-                                        transform-origin: center center;
-                                        border-radius: 8px; display: block;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                <div class="placeholder" style="display: none;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImagePrompt or slide.props.leftImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                                </div>
+                                        width: 100%;
+                                        height: 250px;
+                                        object-fit: cover;
+                                        border-radius: 4px;
+                                        margin-top: 20px;
+                                     " />
                             {% else %}
-                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
-                                    <!-- Empty placeholder - maintains layout -->
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    🖼️ Add image
                                 </div>
-                            {% endif %}
-                            {% if slide.props.leftTitle and slide.props.leftTitle != 'Click to add left title' %}
-                                <h2 class="column-title positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftTitleId = 'draggable-' + slide.slideId + '-1' %}
-                                        {% if slide.metadata.elementPositions[leftTitleId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.leftTitle }}</h2>
-                            {% endif %}
-                            {% if slide.props.leftContent and slide.props.leftContent != 'Click to add left content' %}
-                                <p class="column-content positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftContentId = 'draggable-' + slide.slideId + '-2' %}
-                                        {% if slide.metadata.elementPositions[leftContentId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.leftContent }}</p>
                             {% endif %}
                         </div>
+                        
+                        <!-- Right Column -->
                         <div class="column">
+                            <h2 class="column-title">{{ slide.props.rightTitle if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.rightContent if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        {% if slide.props.rightWidthPx %}width: {{ slide.props.rightWidthPx }}px;{% else %}width: auto;{% endif %}
-                                        {% if slide.props.rightHeightPx %}height: {{ slide.props.rightHeightPx }}px;{% else %}height: auto;{% endif %}
-                                        margin: 0; margin-bottom: 24px !important;
-                                        max-width: 400px; max-height: 280px;
-                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'contain' }};
-                                        transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
-                                        transform-origin: center center;
-                                        border-radius: 8px; display: block;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                <div class="placeholder" style="display: none;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImagePrompt or slide.props.rightImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                                </div>
+                                        width: 100%;
+                                        height: 250px;
+                                        object-fit: cover;
+                                        border-radius: 4px;
+                                        margin-top: 20px;
+                                     " />
                             {% else %}
-                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
-                                    <!-- Empty placeholder - maintains layout -->
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    🖼️ Add image
                                 </div>
-                            {% endif %}
-                            {% if slide.props.rightTitle and slide.props.rightTitle != 'Click to add right title' %}
-                                <h2 class="column-title positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightTitleId = 'draggable-' + slide.slideId + '-3' %}
-                                        {% if slide.metadata.elementPositions[rightTitleId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.rightTitle }}</h2>
-                            {% endif %}
-                            {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
-                                <p class="column-content positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightContentId = 'draggable-' + slide.slideId + '-4' %}
-                                        {% if slide.metadata.elementPositions[rightContentId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.rightContent }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -2615,75 +2785,34 @@
                     {% endif %}
                     <div class="timeline-container">
                         <div class="timeline-line"></div>
-                        {% for step in slide.props.steps %}
-                            {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
-                                <div class="step-wrapper positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
-                                        {% if slide.metadata.elementPositions[stepId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >
-                                    <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
-                                        <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
-                                            {% if step.heading and step.heading != 'Click to add heading' %}
-                                                <div class="step-heading">{{ step.heading }}</div>
-                                            {% endif %}
-                                            {% if step.description and step.description != 'Click to add description' %}
-                                                <div class="step-description">{{ step.description }}</div>
-                                            {% endif %}
+                        
+                        <!-- Item 1 - Left side -->
+                        <div class="timeline-circle positioned-element" style="top: 5%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
                                         </div>
-                                        <div class="vertical-line" style="order: 2;"></div>
-                                        <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
-                                            {{ loop.index }}
+
+                        <!-- Item 2 - Right side -->
+                        <div class="timeline-circle positioned-element" style="top: 31%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
                                         </div>
+
+                        <!-- Item 3 - Left side -->
+                        <div class="timeline-circle positioned-element" style="top: 56%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
                                     </div>
+
+                        <!-- Item 4 - Right side -->
+                        <div class="timeline-circle positioned-element" style="top: 81%;"></div>
+                        <div class="timeline-text-block positioned-element" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
                                 </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="top: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 3;">
-                                        <div class="step-heading">Phase 1</div>
-                                        <div class="step-description">Initial planning and setup</div>
-                                    </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 1;">1</div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 1;">
-                                        <div class="step-heading">Phase 2</div>
-                                        <div class="step-description">Development and implementation</div>
-                                    </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 3;">2</div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="top: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 3;">
-                                        <div class="step-heading">Phase 3</div>
-                                        <div class="step-description">Testing and refinement</div>
-                                    </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 1;">3</div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 1;">
-                                        <div class="step-heading">Phase 4</div>
-                                        <div class="step-description">Launch and deployment</div>
-                                    </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 3;">4</div>
-                                </div>
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
                 
@@ -2722,34 +2851,24 @@
                 </div>
                 
             {% elif slide.templateId == 'content-slide' %}
-                <div class="content-slide" style="
-                    background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
-                    align-items: {% if slide.props.alignment == 'center' %}center{% elif slide.props.alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
-                ">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);
-                                {% endif %}
+                <div class="content-slide">
+                    <h1 class="slide-title positioned-element" 
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set titleId = slide.slideId + '-title' %}
+                            {% if slide.metadata.elementPositions[titleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
-                        ">{{ slide.props.title }}</h1>
-                    {% endif %}
-                    {% if slide.props.content and slide.props.content != 'Click to add content' %}
-                        <div class="content-text positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set contentId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[contentId] %}
-                                    transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);
-                                {% endif %}
+                        {% endif %}
+                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Spring picnic meetup'] else 'Add title' }}</h1>
+                    
+                    <div class="content-text positioned-element"
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set contentId = slide.slideId + '-content' %}
+                            {% if slide.metadata.elementPositions[contentId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);"
                             {% endif %}
-                        ">{{ slide.props.content }}</div>
-                    {% endif %}
+                        {% endif %}
+                    >{{ slide.props.content if slide.props.content and slide.props.content not in ['Click to add content', 'Add text', 'Join us for an afternoon of fun!'] else 'Add text' }}</div>
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
@@ -2804,86 +2923,68 @@
                             {% endif %}
                         >{{ slide.props.title }}</h1>
                     {% endif %}
-                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
-                        <div class="slide-subtitle positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[subtitleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.subtitle }}</div>
-                    {% endif %}
                     <div class="main-content">
-                        <div class="pyramid-container positioned-element"
+                        <!-- Pyramid Levels -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-level positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set pyramidId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[pyramidId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[pyramidId].x }}px, {{ slide.metadata.elementPositions[pyramidId].y }}px);"
+                                    {% set levelId = 'draggable-' + slide.slideId + '-' + (i + 1)|string %}
+                                    {% if slide.metadata.elementPositions[levelId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px);"
                                 {% endif %}
                             {% endif %}
                         >
-                            <!-- Pyramid SVG 1 (Top Triangle) -->
-                            <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
-                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path pyramid-path-1"/>
-                                <text x="100" y="35" class="pyramid-text">1</text>
-                            </svg>
-                            <!-- Pyramid SVG 2 (Middle Trapezoid) -->
-                            <svg class="pyramid-svg pyramid-svg-2" width="560" height="120" viewBox="33 60 134 60">
-                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path pyramid-path-2"/>
-                                <text x="100" y="95" class="pyramid-text">2</text>
-                            </svg>
-                            <!-- Pyramid SVG 3 (Bottom Trapezoid) -->
-                            <svg class="pyramid-svg pyramid-svg-3" width="560" height="120" viewBox="0 120 200 60">
-                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path pyramid-path-3"/>
-                                <text x="100" y="155" class="pyramid-text">3</text>
-                            </svg>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="file:///app/static/message_img.png" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
+                                    <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
+                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
+                                            {{ slide.props.steps[i].number }}
+                                        {% else %}
+                                            {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
+                                        {% endif %}
                         </div>
-                        <div class="items-container">
-                            {% if slide.props.steps and slide.props.steps is iterable and slide.props.steps is not string and slide.props.steps is not callable %}
-                                {% for item in slide.props.steps %}
-                                    {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
-                                        <div class="item-wrapper level-{{ loop.index0 }}">
-                                            {% if item.heading and item.heading != 'Click to add heading' %}
-                                                <div class="item-heading positioned-element"
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Text Blocks -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-text-block level-{{ i }} positioned-element"
                                                     {% if slide.metadata and slide.metadata.elementPositions %}
-                                                        {% set headingId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 3)|string %}
-                                                        {% if slide.metadata.elementPositions[headingId] %}
-                                                            style="transform: translate({{ slide.metadata.elementPositions[headingId].x }}px, {{ slide.metadata.elementPositions[headingId].y }}px);"
+                                    {% set textId = 'draggable-' + slide.slideId + '-' + (i + 6)|string %}
+                                    {% if slide.metadata.elementPositions[textId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[textId].x }}px, {{ slide.metadata.elementPositions[textId].y }}px);"
                                                         {% endif %}
                                                     {% endif %}
-                                                >{{ item.heading }}</div>
-                                            {% endif %}
-                                            {% if item.description and item.description != 'Click to add description' %}
-                                                <div class="item-description positioned-element"
-                                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                                        {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 4)|string %}
-                                                        {% if slide.metadata.elementPositions[descriptionId] %}
-                                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
-                                                        {% endif %}
-                                                    {% endif %}
-                                                >{{ item.description }}</div>
+                            >
+                                <div class="pyramid-text-heading">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
+                                        {{ slide.props.steps[i].heading }}
+                                    {% else %}
+                                        Headline
                                             {% endif %}
                                         </div>
-                                    {% endif %}
-                                {% endfor %}
+                                <div class="pyramid-text-description">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description and slide.props.steps[i].description != 'Click to add description' %}
+                                        {{ slide.props.steps[i].description }}
                             {% else %}
-                                <div class="item-wrapper level-0">
-                                    <div class="item-heading">User Satisfaction</div>
-                                    <div class="item-description">Achieving user delight</div>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    {% endif %}
                                 </div>
-                                <div class="item-wrapper level-1">
-                                    <div class="item-heading">Operational Efficiency</div>
-                                    <div class="item-description">Optimizing resources</div>
                                 </div>
-                                <div class="item-wrapper level-2">
-                                    <div class="item-heading">System Reliability</div>
-                                    <div class="item-description">Ensuring stability</div>
-                                </div>
+                        {% endfor %}
+
+                        <!-- Triangle Arrows -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-triangle level-{{ i }} positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = 'draggable-' + slide.slideId + '-' + (i + 11)|string %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
                             {% endif %}
-                            <div class="separator-line level-0"></div>
-                            <div class="separator-line level-1"></div>
-                        </div>
+                                {% endif %}
+                            ></div>
+                        {% endfor %}
                     </div>
                 </div>
                 
@@ -2980,55 +3081,88 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
-                <!-- DEBUG: contraindications-indications template -->
-                <!-- DEBUG: slide.props.contraindications = {{ slide.props.contraindications }} -->
-                <!-- DEBUG: slide.props.indications = {{ slide.props.indications }} -->
                 <div class="contraindications-indications-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Contraindications and indications' }}</h1>
-                    <div class="contraindications-indications-container">
-                        <div class="contraindications-section">
-                            <div class="section-header contraindications-header">
-                                <h2>You shouldn't</h2>
-                            </div>
-                            <div class="section-content">
-                                {% if slide.props.contraindications %}
-                                    {% for item in slide.props.contraindications %}
-                                        <div class="list-item">
-                                            <div class="list-bullet contraindications-bullet"></div>
-                                            <div class="list-text">{{ item or 'Click to add contraindication' }}</div>
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    {% for i in range(5) %}
-                                        <div class="list-item">
-                                            <div class="list-bullet contraindications-bullet"></div>
-                                            <div class="list-text">Describe the things patients shouldn't do here</div>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                    <div class="main-content">
+                        <!-- Central Image Container -->
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="file:///app/static/contrad_img.png" alt="Contraindications and Indications" style="width: 100%; height: 100%; object-fit: contain;" />
+                        </div>
+
+                        <!-- Vertical Line - Full Height -->
+                        <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: linear-gradient(to bottom, transparent, #0F58F9, transparent); z-index: 10;"></div>
+
+                        <!-- VS Button - Center -->
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;">
+                            VS
+                        </div>
+
+                        <!-- Left Project Title -->
+                        <div style="position: absolute; left: 4.8%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
+                                The first project
                             </div>
                         </div>
-                        
-                        <div class="indications-section">
-                            <div class="section-header indications-header">
-                                <h2>You should</h2>
+
+                        <!-- Right Project Title -->
+                        <div style="position: absolute; right: -2%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: center; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
+                                The second project
                             </div>
-                            <div class="section-content">
-                                {% if slide.props.indications %}
-                                    {% for item in slide.props.indications %}
-                                        <div class="list-item">
-                                            <div class="list-bullet indications-bullet"></div>
-                                            <div class="list-text">{{ item or 'Click to add indication' }}</div>
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    {% for i in range(5) %}
-                                        <div class="list-item">
-                                            <div class="list-bullet indications-bullet"></div>
-                                            <div class="list-text">Describe the things patients should do here</div>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                        </div>
+
+                        <!-- Left Side Text Blocks -->
+                        <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <!-- Right Side Text Blocks -->
+                        <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
                     </div>
@@ -3082,65 +3216,73 @@
                 </div>
 
             {% elif slide.templateId == 'market-share' %}
-                <div class="slide" style="background-color: var(--bg-color); min-height: 600px; font-family: sans-serif;">
-                    <!-- Main Content Container -->
-                    <div style="width: 100%; max-width: 72rem; margin: 0 auto; padding: 2rem; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                        
+                <div class="slide" style="background: transparent; width: 100%; height: 600px; display: flex; flex-direction: row; position: relative; font-family: Georgia, serif; overflow: hidden; margin: 0; padding: 0;">
+                    <!-- Left section with title, subtitle and numbered list (theme gradient background) - 40% width -->
+                    <div style="width: 40%; height: 100%; position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; background: linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%); padding: 35px; z-index: 2;">
                         <!-- Title -->
-                        <div style="text-align: center; margin-bottom: 4rem;">
-                            <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Market share' }}</h1>
+                        <div style="margin-bottom: 20px;">
+                            <h1 style="color: #ffffff; font-size: 2.4rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'The new os solution' }}</h1>
                         </div>
 
-                        <!-- Main Layout Container - Exactly matching frontend structure -->
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            
-                            <!-- Chart Section - Centered -->
-                            <div style="flex: 1; display: flex; justify-content: center;">
-                                <div style="display: flex; flex-direction: column; align-items: center;">
-                                    
-                                    <!-- Chart Container with Grid -->
-                                    <div style="position: relative; margin-bottom: 2rem; height: 300px; width: {{ (slide.props.chartData | length) * 80 + 80 }}px;">
-                                        
-                                        <!-- Y-axis labels -->
-                                        <div style="position: absolute; left: 0; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; color: var(--content-color); width: 30px; font-size: 0.75rem; font-weight: 500;">
-                                            <div style="display: flex; align-items: center;">100</div>
-                                            <div style="display: flex; align-items: center;">75</div>
-                                            <div style="display: flex; align-items: center;">50</div>
-                                            <div style="display: flex; align-items: center;">25</div>
-                                            <div style="display: flex; align-items: center;">0</div>
+                        <!-- Subtitle -->
+                        <div style="color: #ffffff; font-size: 1rem; margin-bottom: 50px; font-family: Arial, sans-serif; opacity: 0.8;">
+                            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?
+                        </div>
+                        
+                        <!-- Numbered list -->
+                        <div style="width: 100%;">
+                            {% for item in slide.props.chartData %}
+                                <div style="font-size: 1rem; color: #ffffff; margin-bottom: 25px; font-family: Arial, sans-serif; display: flex; align-items: center; gap: 20px;">
+                                    <div style="width: 28px; height: 28px; background-color: {{ item.color }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 2px;">
+                                        <span style="color: #ffffff; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; line-height: 1;">{{ loop.index }}</span>
+                                    </div>
+                                    <span style="flex: 1;">{{ item.description or 'Lorem ipsum dolor sit amet' }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
                                         </div>
                                         
-                                        <!-- Grid lines -->
-                                        <div style="position: absolute; left: 40px; top: 0; height: 100%; width: calc(100% - 40px);">
-                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 0%;"></div>
-                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 25%;"></div>
-                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 50%;"></div>
-                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 75%;"></div>
-                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 100%;"></div>
+                    <!-- Right section with bar chart (white background) - 60% width -->
+                    <div style="width: 60%; height: 100%; position: absolute; right: 0; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; padding: 40px; z-index: 1;">
+                        <!-- Bar Chart -->
+                        <div style="width: 100%; max-width: 700px; height: 450px; position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 20px; padding-left: 80px; padding-right: 40px; padding-bottom: 30px; padding-top: 50px;">
+                            <!-- Grid lines container -->
+                            <div style="position: absolute; top: 0; left: 80px; right: 0; bottom: 30px; pointer-events: none;">
+                                <!-- Y-axis labels and grid lines -->
+                                {% for value in [100, 80, 60, 40, 20, 0] %}
+                                    {% set topPosition = 100 if value == 0 else ((100 - value) / 100) * 100 %}
+                                    <div style="position: absolute; top: {{ topPosition }}%; left: 0; right: 0; height: 1px; display: flex; align-items: center;">
+                                        <!-- Y-axis label -->
+                                        <div style="position: absolute; left: -50px; font-size: 14px; color: #09090B; font-family: Arial, sans-serif; font-weight: 500; transform: {{ 'translateY(50%)' if value == 0 else 'translateY(-50%)' }};">
+                                            {{ value }}
+                                        </div>
+                                        <!-- Grid line - hide for 0 -->
+                                        {% if value != 0 %}
+                                            <div style="width: 100%; height: 1px; background-color: #E0E0E0; opacity: 0.6;"></div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
                                         </div>
                                         
-                                        <!-- Chart bars container -->
-                                        <div style="position: absolute; left: 40px; top: 0; height: 100%; display: flex; align-items: end; gap: 2rem;">
+                            <!-- Chart bars -->
+                            <div style="display: flex; align-items: flex-end; justify-content: space-evenly; gap: 20px; height: 100%; width: 100%; position: relative; z-index: 1; padding-bottom: 0px;">
                                             {% for item in slide.props.chartData %}
-                                                {% set maxValue = slide.props.chartData | map(attribute='percentage') | max %}
-                                                {% set chartHeight = (item.percentage / maxValue) * 100 %}
-                                                <div style="display: flex; flex-direction: column; align-items: center;">
-                                                    <!-- Main data bar -->
-                                                    <div 
-                                                        style="width: 4rem; border-radius: 4px; background-color: {{ item.color }}; height: {{ (chartHeight * 2.5) | int }}px; margin-bottom: 8px;"
-                                                    ></div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; position: relative;">
+                                        <!-- Bar -->
+                                        <div style="width: 90px; height: {{ (item.percentage / 100) * 400 }}px; background: linear-gradient(to bottom, {{ item.gradientStart or item.color }}, {{ item.gradientEnd or item.color }}); border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                            <span style="color: #ffffff; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">
+                                                {{ '%02d'|format(loop.index) }}
+                                            </span>
+                                        </div>
+                                        
                                                     <!-- Year label -->
-                                                    <p style="color: var(--content-color); font-size: 0.875rem; font-weight: 500; text-align: center;">{{ item.year or '20XX' }}</p>
+                                        <div style="position: absolute; bottom: -30px; width: 90px; text-align: center;">
+                                            <div style="font-size: 16px; color: #09090B; font-family: Arial, sans-serif; text-align: center; margin-top: 15px;">
+                                                {{ item.label }}
                                                 </div>
-                                            {% endfor %}
                                         </div>
                                     </div>
-
-                                    <!-- Bottom description -->
-                                    <div style="text-align: center; max-width: 28rem; margin-top: 2rem;">
-                                        <p style="color: var(--content-color); opacity: 0.8; font-size: 0.875rem; line-height: 1.5;">
-                                            {{ slide.props.bottomText or 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here' }}
-                                        </p>
+                                {% endfor %}
                                     </div>
                                 </div>
                             </div>
@@ -3167,28 +3309,23 @@
                 </div>
 
             {% elif slide.templateId == 'table-dark' %}
-                <div class="slide" style="background-color: var(--bg-color);">
-                    <!-- Decorative curved element -->
-                    <div style="position: absolute; top: 0; right: 0; width: 16rem; height: 16rem; border-bottom-left-radius: 100%; background-color: var(--content-color); opacity: 0.2;"></div>
-                    
-                    <!-- Main Content Container -->
-                    <div style="width: 100%; max-width: 64rem; margin: 0 auto; position: relative; z-index: 10;">
+                <div class="slide" style="background-color: #F8F8FF; padding: 50px; font-family: Georgia, serif;">
                         <!-- Title -->
-                        <div style="text-align: left; margin-bottom: 2rem;">
-                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
+                    <div style="margin-bottom: 30px;">
+                        <h1 style="color: #09090B; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'Comparison table template' }}</h1>
                         </div>
                         
                         <!-- Table Container -->
-                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-                            <table style="width: 100%; border-collapse: collapse; background-color: #2a2a2a;">
+                    <div style="width: 100%; border-radius: 15px; overflow: hidden; background-color: #ffffff; border: 1px solid #E0E0E0; padding: 30px;">
+                        <table style="width: 100%; border-collapse: separate; border-spacing: 8px 0px; background-color: #ffffff;">
                                 <!-- Headers -->
                                 <thead>
-                                    <tr style="background-color: #3a3a3a;">
-                                        <th style="padding: 1rem; text-align: left; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
-                                            <!-- Empty corner cell -->
+                                <tr>
+                                    <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                        Product version
                                         </th>
                                         {% for header in slide.props.tableData.headers %}
-                                            <th style="padding: 1rem; text-align: center; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
+                                        <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
                                                 {{ header }}
                                             </th>
                                         {% endfor %}
@@ -3198,24 +3335,23 @@
                                 <!-- Body -->
                                 <tbody>
                                     {% for row in slide.props.tableData.rows %}
-                                        <tr style="border-bottom: 2px solid var(--content-color); background-color: #2a2a2a;">
+                                    <tr>
                                             {% for cell in row %}
                                                 {% set isFirstColumn = loop.index == 1 %}
-                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} color: #ffffff; border-right: 2px solid var(--content-color); font-size: 1rem;">
+                                            <td style="background-color: #F2F8FE; color: #000000; font-size: 0.95rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
                                                     {% if isFirstColumn %}
-                                                        {{ cell }}
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <div style="width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0F58F9; font-weight: bold;">►</div>
+                                                        <span>{{ cell }}</span>
+                                                    </div>
                                                     {% else %}
+                                                    <div style="display: flex; justify-content: center; align-items: center;">
+                                                        <div style="width: 20px; height: 20px; border-radius: 2px; background-color: {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}#0F58F9{% else %}#BED5FC{% endif %}; display: flex; align-items: center; justify-content: center; position: relative;">
                                                         {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
-                                                            <div style="display: flex; justify-content: center;">
-                                                                <div style="width: 2rem; height: 2rem; background-color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✓</div>
+                                                                <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1;">✓</div>
+                                                            {% endif %}
                                                             </div>
-                                                        {% elif cell == '✗' or cell.lower() == 'no' or cell.lower() == 'false' %}
-                                                            <div style="display: flex; justify-content: center;">
-                                                                <div style="width: 2rem; height: 2rem; background-color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✗</div>
                                                             </div>
-                                                        {% else %}
-                                                            {{ cell }}
-                                                        {% endif %}
                                                     {% endif %}
                                                 </td>
                                             {% endfor %}
@@ -3223,33 +3359,27 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
-                        </div>
                     </div>
                 </div>
 
             {% elif slide.templateId == 'table-light' %}
-                <div class="slide" style="background-color: var(--bg-color);">
-                    <!-- Decorative gradient element -->
-                    <div style="position: absolute; top: 0; right: 0; width: 20rem; height: 20rem; border-bottom-left-radius: 100%; opacity: 0.1; background: linear-gradient(135deg, var(--accent-color), transparent);"></div>
-                    
-                    <!-- Main Content Container -->
-                    <div style="width: 100%; max-width: 72rem; margin: 0 auto; position: relative; z-index: 10;">
+                <div class="slide" style="background: transparent; padding: 50px; font-family: Georgia, serif;">
                         <!-- Title -->
-                        <div style="text-align: left; margin-bottom: 2rem;">
-                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
+                    <div style="margin-bottom: 30px;">
+                        <h1 style="color: #000000; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'This is table' }}</h1>
                         </div>
                         
                         <!-- Table Container -->
-                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 12px 24px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
-                            <table style="width: 100%; border-collapse: collapse; background-color: white;">
+                    <div style="width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <table style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
                                 <!-- Headers -->
                                 <thead>
-                                    <tr style="background-color: #0ea5e9;">
-                                        <th style="padding: 1rem; text-align: left; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem; background-color: transparent;">
+                                <tr>
+                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
                                             <!-- Empty corner cell -->
                                         </th>
                                         {% for header in slide.props.tableData.headers %}
-                                            <th style="padding: 1rem; text-align: center; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem;">
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
                                                 {{ header }}
                                             </th>
                                         {% endfor %}
@@ -3259,10 +3389,10 @@
                                 <!-- Body -->
                                 <tbody>
                                     {% for row in slide.props.tableData.rows %}
-                                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                                    <tr>
                                             {% for cell in row %}
                                                 {% set isFirstColumn = loop.index == 1 %}
-                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold; background-color: rgba(0,0,0,0.02); color: #000000;{% else %}text-align: center; color: #000000;{% endif %} border-right: 1px solid #e5e7eb; font-size: 0.95rem;">
+                                            <td style="{% if isFirstColumn %}background-color: #F2F8FE; color: #000000; font-weight: bold; text-align: left;{% else %}background-color: #ffffff; color: #000000; text-align: center;{% endif %} font-size: 0.95rem; padding: 16px 12px; height: 60px;">
                                                     {{ cell }}
                                                 </td>
                                             {% endfor %}
@@ -3270,19 +3400,18 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
-                        </div>
                     </div>
                 </div>
 
                             {% elif slide.templateId == 'pie-chart-infographics' %}
-                    <div class="slide" style="background-color: var(--bg-color);">
+                    <div class="slide" style="background-color: #ffffff;">
                         <!-- Main Content Container -->
-                        <div style="width: 100%; max-width: 80rem; margin: 0 auto;">
+                        <div style="width: 100%; max-width: 80rem; margin: 0 auto; padding: 2rem;">
                             <!-- Title -->
                             <div style="text-align: center; margin-bottom: 3rem;">
-                                <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie Chart Infographics' }}</h1>
-                                <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
-                                    {{ slide.props.descriptionText or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
+                                <h1 style="color: #000000; font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie chart' }}</h1>
+                                <p style="color: #4B5563; font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
+                                    {{ slide.props.descriptionText or 'Editable infographic' }}
                                 </p>
                             </div>
                             
@@ -3291,16 +3420,13 @@
                                 <!-- Left Column - Segments 1-3 -->
                                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                                     {% for item in slide.props.monthlyData[:3] %}
-                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
-                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                <!-- Color indicator -->
-                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#0ea5e9' }};"></div>
-                                                <!-- Segment name -->
-                                                <div style="background-color: {{ item.color or '#0ea5e9' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
-                                                    {{ item.month }}
-                                                </div>
+                                        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
+                                            <!-- Headline with segment color -->
+                                            <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
+                                                {{ item.month }}
                                             </div>
-                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
+                                            <!-- Description -->
+                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
@@ -3313,8 +3439,8 @@
                                         {{ pie_chart_html | safe }}
                                     {% else %}
                                         <!-- Fallback to image if CSS not available -->
-                                        <div style="position: relative; width: 320px; height: 320px; margin: 0 auto;">
-                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 320px; height: 320px;" />
+                                        <div style="position: relative; width: 400px; height: 400px; margin: 0 auto;">
+                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 400px; height: 400px; border-radius: 50%;" />
                                         </div>
                                     {% endif %}
                                 </div>
@@ -3322,16 +3448,13 @@
                                 <!-- Right Column - Segments 4-6 -->
                                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                                     {% for item in slide.props.monthlyData[3:6] %}
-                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
-                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                <!-- Color indicator -->
-                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#f97316' }};"></div>
-                                                <!-- Segment name -->
-                                                <div style="background-color: {{ item.color or '#f97316' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
-                                                    {{ item.month }}
-                                                </div>
+                                        <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
+                                            <!-- Headline with segment color -->
+                                            <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
+                                                {{ item.month }}
                                             </div>
-                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
+                                            <!-- Description -->
+                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
