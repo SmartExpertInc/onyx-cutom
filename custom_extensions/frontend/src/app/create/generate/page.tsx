@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { FeedbackButton } from "@/components/ui/feedback-button";
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Inline SVG icon components
@@ -1913,30 +1914,7 @@ function GenerateProductPicker() {
         )}
         </div> {/* close inner flex container */}
 
-      {/* Feedback button */}
-      <button
-        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
-        style={{
-          width: '38px',
-          height: '98px',
-        }}
-        onClick={() => {
-          // Add your feedback handler here
-          console.log('Feedback clicked');
-        }}
-      >
-        <span
-          className="font-medium opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
-          style={{
-            fontSize: '14px',
-            color: '#0F58F9',
-            transform: 'rotate(-90deg)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Feedback
-        </span>
-      </button>
+      <FeedbackButton />
     </main>
   );
 }
