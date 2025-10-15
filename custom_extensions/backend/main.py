@@ -12714,11 +12714,55 @@ Return ONLY the JSON object.
         # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
             try:
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw AI response for presentation:")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(project_data.aiResponse)} characters")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {project_data.aiResponse[:500]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {project_data.aiResponse[-500:]}")
+                
                 logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
                 cached_json = json.loads(project_data.aiResponse.strip())
                 logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
                 if isinstance(cached_json, dict) and "slides" in cached_json:
-                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(cached_json.get('slides', []))} slides")
+                    slides = cached_json.get('slides', [])
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(slides)} slides")
+                    
+                    # 🔍 CRITICAL DEBUG: Log each slide before parser processing
+                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slides before parser processing:")
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            slide_number = slide.get('slideNumber', 'NO_NUMBER')
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}', slideNumber={slide_number}")
+                            
+                            # Log props structure
+                            props = slide.get('props', {})
+                            if props:
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} props keys: {list(props.keys())}")
+                                # Log specific props for new templates
+                                if template_id == 'course-overview':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} course-overview props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}'")
+                                elif template_id == 'impact-statements':
+                                    statements = props.get('statements', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} impact-statements: {len(statements)} statements")
+                                elif template_id == 'phishing-definition':
+                                    definitions = props.get('definitions', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} phishing-definition: {len(definitions)} definitions")
+                                elif template_id == 'soft-skills-assessment':
+                                    tips = props.get('tips', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} soft-skills-assessment: {len(tips)} tips")
+                                elif template_id == 'work-life-balance':
+                                    content = props.get('content', '')
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} work-life-balance content: {content[:100]}{'...' if len(content) > 100 else ''}")
+                            
+                            # Log voiceover if present
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                        else:
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: Not a dict, type={type(slide)}")
+                    
                     logger.info(f"[FAST_PATH] Presentation JSON detected, bypassing LLM parsing for {project_data.projectName}")
                     
                     # Strip preview-only fields before model construction
@@ -12809,7 +12853,45 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
+            
+            # 🔍 CRITICAL DEBUG: Log slides before normalization
+            logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slides before normalize_slide_props:")
+            for i, slide in enumerate(slides_dict):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+            
             normalized_slides = await normalize_slide_props(slides_dict, selected_design_template.component_name)
+            
+            # 🔍 CRITICAL DEBUG: Log slides after normalization
+            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slides after normalize_slide_props:")
+            for i, slide in enumerate(normalized_slides):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+                        # Log specific props for new templates after normalization
+                        if template_id == 'course-overview':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} course-overview props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}', imagePath='{props.get('imagePath', 'NO_IMAGE')}'")
+                        elif template_id == 'impact-statements':
+                            statements = props.get('statements', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} impact-statements: {len(statements)} statements")
+                        elif template_id == 'phishing-definition':
+                            definitions = props.get('definitions', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} phishing-definition: {len(definitions)} definitions")
+                        elif template_id == 'soft-skills-assessment':
+                            tips = props.get('tips', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} soft-skills-assessment: {len(tips)} tips")
+                        elif template_id == 'work-life-balance':
+                            content = props.get('content', '')
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} work-life-balance content: {content[:100]}{'...' if len(content) > 100 else ''}")
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
@@ -22077,7 +22159,38 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
 
-        print("FULL RESPOSE:", assistant_reply)
+        # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for video lesson presentation:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
+        
+        # Try to extract and log JSON structure if present
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+            if json_match:
+                json_text = json_match.group()
+                parsed_json = json.loads(json_text)
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                    slides = parsed_json['slides']
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {len(slides)}")
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                else:
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+            else:
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+        except Exception as e:
+            logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
 
         yield (json.dumps(done_packet) + "\n").encode()
 
