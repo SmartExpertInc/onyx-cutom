@@ -28110,50 +28110,51 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
   "textTitle": "Example Text Presentation with Nested Lists",
   "contentBlocks": [
     { "type": "headline", "level": 2, "text": "Main Title of the Presentation" },
-    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    { "type": "paragraph", "text": "This is an introductory paragraph that provides comprehensive context and background information about the topic. It should contain multiple sentences that thoroughly explain the main concepts, set the stage for what follows, and give readers a clear understanding of what they will learn. Educational content should be detailed, informative, and provide real value to the reader rather than just placeholder text." },
     {
       "type": "bullet_list",
       "items": [
-        "Top level item 1, demonstrating a simple string item.",
+        "First major concept: This bullet point demonstrates how to write comprehensive, educational content that provides real value. Each bullet should contain detailed information, practical examples, and actionable insights that help the reader understand and apply the concept in real-world scenarios. Consider including specific metrics, case studies, or step-by-step guidance to make the content more practical and engaging.",
         {
           "type": "bullet_list",
           "iconName": "chevronRight",
           "items": [
-            "Nested item A: This is a sub-item.",
-            "Nested item B: Another sub-item to show structure.",
+            "Nested sub-point A: When adding nested content, maintain the same level of detail and educational value. Explain not just what the concept is, but why it matters, how it works, and when to apply it. Include practical examples, common pitfalls to avoid, and best practices that have been proven effective in real-world applications.",
+            "Nested sub-point B: Another detailed explanation that builds on the previous point. This should provide complementary information, additional context, or alternative perspectives that help readers gain a more complete understanding of the topic. Consider including concrete examples, data points, or scenarios that illustrate the concept clearly.",
             {
               "type": "numbered_list",
               "items": [
-                "Further nested numbered item 1.",
-                "Further nested numbered item 2."
+                "Step 1: Begin with a comprehensive explanation of the first step in the process. Describe exactly what needs to be done, why it's important, what tools or resources are needed, and what the expected outcome should be. Provide enough detail that someone following these instructions can successfully complete this step without confusion.",
+                "Step 2: Continue with an equally detailed explanation of the second step. Make sure to explain how this step builds on the previous one, what specific actions need to be taken, and what indicators suggest you're on the right track. Include any warnings about common mistakes or challenges that might arise."
               ]
             }
           ]
         },
-        "Top level item 2, followed by a nested numbered list.",
+        "Second major concept: Provide another comprehensive explanation that covers a different but related aspect of the topic. This should include detailed information about implementation strategies, potential challenges and how to overcome them, best practices from industry experts, and real-world examples that demonstrate successful application of these principles. The goal is to give readers actionable knowledge they can immediately apply.",
         {
           "type": "numbered_list",
           "items": [
-            "Nested numbered 1: First point in nested ordered list.",
-            "Nested numbered 2: Second point."
+            "Detailed procedure step 1: Explain this procedural step thoroughly, including the rationale behind it, specific actions to take, expected time investment, required resources or tools, and measurable outcomes that indicate success. Make sure readers understand not just the 'how' but also the 'why' behind each action.",
+            "Detailed procedure step 2: Continue with the same level of detail for subsequent steps. Provide clear instructions, explain dependencies on previous steps, highlight critical decision points, and offer guidance on how to adapt the process to different situations or constraints."
           ]
         },
-        "Top level item 3."
+        "Third major concept: Conclude this section with a final comprehensive point that ties together the previous concepts or introduces an important related topic. Include specific examples, practical applications, and recommendations for further learning or exploration. Make sure this provides clear value and actionable insights that readers can use immediately."
       ]
     },
-    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts should also contain detailed, valuable information rather than brief placeholders. Use this space to highlight critical information, important warnings, essential prerequisites, or key insights that readers must understand before proceeding. Provide specific examples or scenarios that illustrate why this information is important and what consequences might result from overlooking it." },
+    { "type": "paragraph", "text": "This comprehensive paragraph demonstrates the appropriate level of detail for educational content. It should contain multiple well-developed sentences that explore the topic from different angles, provide concrete examples and practical applications, address common questions or concerns, and give readers a thorough understanding of the subject matter. Quality educational content takes the time to explain concepts fully, uses clear language, provides relevant examples, and ensures readers can apply what they've learned in practical situations.", "isRecommendation": true },
     {
       "type": "numbered_list",
       "items": [
-        "Main numbered point 1.",
+        "Primary recommendation 1: Provide a comprehensive, actionable recommendation that includes specific steps, expected outcomes, timeline considerations, and potential challenges. Explain why this recommendation is important, what research or experience supports it, and how readers can successfully implement it in their own context. Include metrics or indicators they can use to measure success.",
         {
           "type": "bullet_list",
           "items": [
-            "Sub-bullet C under numbered list.",
-            "Sub-bullet D, also useful for breaking down complex points."
+            "Supporting detail A: Elaborate on specific aspects of the recommendation with detailed explanations, practical examples, and implementation guidance. This might include tool recommendations, resource links, step-by-step procedures, or case studies that demonstrate successful application of the principle.",
+            "Supporting detail B: Provide additional context, alternative approaches, or advanced techniques that experienced practitioners might use. Include information about when and why to choose different strategies, what trade-offs to consider, and how to adapt the approach to different situations or constraints."
           ]
         },
-        "Main numbered point 2."
+        "Primary recommendation 2: Continue with another detailed, actionable recommendation that provides similar depth and practical value. Each recommendation should be substantial enough to give readers clear guidance on implementation while being specific enough to be immediately actionable. Include examples of successful implementation and common pitfalls to avoid."
       ]
     },
     { "type": "section_break", "style": "dashed" }
