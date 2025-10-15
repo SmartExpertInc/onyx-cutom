@@ -1481,6 +1481,7 @@ export default function TextPresentationClient() {
 
       if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
         console.log("DEBUG: handleFinalize - using clean content from UI");
+        console.log("DEBUG: handleFinalize - edited section indices:", Array.from(editedTitleIds));
         // If titles were changed, send only titles without context
         contentToSend = createCleanTitlesContentFromUI();
         isCleanContent = true;
@@ -1509,6 +1510,8 @@ export default function TextPresentationClient() {
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,
+          // NEW: Send indices of edited sections for selective regeneration
+          editedSectionIndices: isCleanContent ? Array.from(editedTitleIds).join(',') : undefined,
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),

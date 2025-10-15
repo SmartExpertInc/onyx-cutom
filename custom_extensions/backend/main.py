@@ -28300,6 +28300,8 @@ class TextPresentationWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     isCleanContent: Optional[bool] = False
+    # NEW: indices of edited sections for selective regeneration (comma-separated: "0,2,5")
+    editedSectionIndices: Optional[str] = None
     # Connector context fields
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None
@@ -28992,6 +28994,111 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
 
         logger.info(parsed_text_presentation.contentBlocks)
+        
+        # NEW: SELECTIVE SECTION REGENERATION - Merge original sections with newly generated ones
+        # If user edited only specific sections, we preserve unchanged sections
+        if payload.isCleanContent and payload.editedSectionIndices and payload.originalContent:
+            try:
+                # Parse edited section indices
+                edited_indices = set(int(idx.strip()) for idx in payload.editedSectionIndices.split(',') if idx.strip())
+                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Edited section indices: {edited_indices}")
+                
+                # Only proceed if we have specific edited sections and they're not all sections
+                if edited_indices and len(edited_indices) < len(parsed_text_presentation.contentBlocks):
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Starting selective merge for {len(edited_indices)} edited sections")
+                    
+                    # Parse original content to extract original sections
+                    original_presentation = None
+                    try:
+                        # First try to parse as JSON
+                        original_parsed = json.loads(payload.originalContent)
+                        if isinstance(original_parsed, dict) and 'textTitle' in original_parsed and 'contentBlocks' in original_parsed:
+                            original_presentation = TextPresentationDetails(**original_parsed)
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Successfully parsed original content as JSON")
+                    except:
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Original content is not JSON, parsing with AI")
+                        # Parse with AI
+                        original_presentation = await parse_ai_response_with_llm(
+                            ai_response=payload.originalContent,
+                            project_name=project_name,
+                            target_model=TextPresentationDetails,
+                            default_error_model_instance=TextPresentationDetails(
+                                textTitle=project_name,
+                                contentBlocks=[],
+                                detectedLanguage=payload.language
+                            ),
+                            dynamic_instructions=f"Parse this text presentation content into structured JSON. Preserve all sections and content exactly as they are.",
+                            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+                        )
+                    
+                    # Merge logic: Group content blocks by headline sections
+                    if original_presentation and len(original_presentation.contentBlocks) > 0:
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Original has {len(original_presentation.contentBlocks)} blocks")
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] New has {len(parsed_text_presentation.contentBlocks)} blocks")
+                        
+                        # Build section map from original content
+                        # A "section" is a headline block followed by its content blocks until the next headline
+                        original_sections = []
+                        current_section_blocks = []
+                        current_section_index = -1
+                        
+                        for block in original_presentation.contentBlocks:
+                            if block.type == 'headline' and block.level == 2:  # Section start
+                                if current_section_blocks:
+                                    original_sections.append(current_section_blocks)
+                                current_section_blocks = [block]
+                                current_section_index += 1
+                            else:
+                                current_section_blocks.append(block)
+                        
+                        # Add last section
+                        if current_section_blocks:
+                            original_sections.append(current_section_blocks)
+                        
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(original_sections)} sections in original")
+                        
+                        # Build section map from newly generated content
+                        new_sections = []
+                        current_section_blocks = []
+                        
+                        for block in parsed_text_presentation.contentBlocks:
+                            if block.type == 'headline' and block.level == 2:  # Section start
+                                if current_section_blocks:
+                                    new_sections.append(current_section_blocks)
+                                current_section_blocks = [block]
+                            else:
+                                current_section_blocks.append(block)
+                        
+                        # Add last section
+                        if current_section_blocks:
+                            new_sections.append(current_section_blocks)
+                        
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(new_sections)} sections in new content")
+                        
+                        # Merge: For unchanged sections, use original blocks; for edited, use new blocks
+                        if len(original_sections) == len(new_sections):
+                            merged_blocks = []
+                            for i in range(len(new_sections)):
+                                if i not in edited_indices:
+                                    # Use original section
+                                    merged_blocks.extend(original_sections[i])
+                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Preserved original ({len(original_sections[i])} blocks)")
+                                else:
+                                    # Use newly generated section
+                                    merged_blocks.extend(new_sections[i])
+                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Using newly generated ({len(new_sections[i])} blocks)")
+                            
+                            # Update parsed presentation with merged content
+                            parsed_text_presentation.contentBlocks = merged_blocks
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(new_sections) - len(edited_indices)} preserved")
+                        else:
+                            logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Cannot merge: original has {len(original_sections)} sections vs new has {len(new_sections)}")
+                            logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Using all newly generated content")
+                else:
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] All sections edited or none specified, using all new content")
+            except Exception as e:
+                logger.error(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Error during selective merge: {e}", exc_info=True)
+                logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Falling back to using all newly generated content")
         
         # Detect language if not provided
         if not parsed_text_presentation.detectedLanguage:
@@ -32894,22 +33001,40 @@ async def _generate_content_for_clean_titles(clean_content: str, original_conten
         logger.info(f"Found {len(sections)} sections, {sum(1 for s in sections if s['needs_content'])} need content generation")
         
         # Generate content for sections that need it
+        # Build context of all section titles for consistency
+        all_section_titles = [s['title'] for s in sections]
+        context_info = "\n".join([f"- {title}" for title in all_section_titles])
+        
         for section in sections:
             if section['needs_content']:
                 logger.info(f"Generating content for section: {section['title']}")
                 
-                # Create prompt for content generation
-                prompt = f"""Generate comprehensive content for the following section title in {language} language:
+                # Create prompt for content generation with full context
+                prompt = f"""You are generating content for a One-Pager document. This document has multiple sections, and you must generate content for one specific section while being aware of the other sections to ensure consistency and avoid repetition.
 
-Title: {section['title']}
+**ALL SECTIONS IN THIS DOCUMENT:**
+{context_info}
 
-Please provide detailed, informative content that explains the topic thoroughly. The content should be:
-- Educational and informative
-- Well-structured with paragraphs
-- Include relevant examples or explanations
-- Match the tone and style of a professional presentation
+**YOUR TASK: Generate content ONLY for this section:**
+**Section Title:** {section['title']}
 
-Generate the content:"""
+**CRITICAL REQUIREMENTS:**
+1. Generate COMPLETELY NEW content from scratch for this section
+2. The content MUST be:
+   - Comprehensive and detailed (aim for at least 200-300 words)
+   - Educational and informative
+   - Well-structured with multiple paragraphs
+   - Include relevant examples, explanations, or specific details
+   - Written in {language} language
+3. Keep in mind the other sections to:
+   - Avoid repeating content that belongs in other sections
+   - Ensure this section complements the overall document flow
+   - Match the overall tone and depth of the document
+4. The content should match the tone and style of a professional, educational one-pager document
+
+**Format:** Provide ONLY the text content (paragraphs), without including the section title or any markdown headers.
+
+Generate the comprehensive content for "{section['title']}" section:"""
                 
                 try:
                     # Use OpenAI to generate content
