@@ -288,9 +288,9 @@
       "props": {
         "title": "Mobile Marketing Excellence Framework",
         "leftTitle": "Mobile Web Optimization",
-        "leftContent": "Responsive design with fast loading times optimized for mobile networks, ensuring seamless user experiences across all device types and screen sizes\nMobile-specific landing pages with simplified forms, thumb-friendly navigation, and click-to-call functionality for immediate conversion opportunities\nAccelerated Mobile Pages (AMP) implementation for improved search visibility and faster content loading on mobile search results\nMobile-first email templates with optimized subject lines, preheader text, and single-column layouts for better readability and engagement",
+        "leftContent": "Responsive design ensures seamless experiences across devices. Mobile-specific landing pages maximize conversions with simplified forms.",
         "rightTitle": "App Marketing Strategy",
-        "rightContent": "App Store Optimization (ASO) with keyword research, compelling app descriptions, high-quality screenshots, and positive review management strategies\nIn-app engagement campaigns using push notifications, in-app messages, and personalized content recommendations to increase retention and lifetime value\nDeep linking strategies that connect external marketing campaigns directly to specific app content, reducing friction and improving conversion rates\nMobile attribution tracking with tools like AppsFlyer or Adjust to measure campaign performance, user acquisition costs, and lifetime value across channels"
+        "rightContent": "App Store Optimization drives organic downloads through keyword research. In-app engagement campaigns boost retention and lifetime value."
       }
     },
     {
@@ -333,17 +333,17 @@
           {
             "value": "312%",
             "label": "Marketing Qualified Lead Growth",
-            "description": "Year-over-year increase in qualified leads through improved targeting, content strategy, and conversion optimization across all digital channels."
+            "description": "Exceptional year-over-year increase in qualified leads achieved through comprehensive improvements in audience targeting precision, strategic content marketing initiatives, and systematic conversion rate optimization across all digital channels. This growth reflects successful implementation of account-based marketing strategies, enhanced lead scoring models, and improved alignment between marketing and sales teams. The increase is sustainable and backed by improved lead quality metrics, with higher conversion rates from MQL to SQL and shorter sales cycles."
           },
           {
             "value": "$4.67",
             "label": "Customer Acquisition Cost",
-            "description": "Blended CAC across all channels with 23% improvement through better attribution modeling, audience optimization, and conversion rate improvements."
+            "description": "Blended customer acquisition cost across all marketing channels showing 23% improvement over previous period through implementation of sophisticated multi-touch attribution modeling, continuous audience segmentation optimization, and systematic conversion rate improvements at every funnel stage. This reduction was achieved while maintaining or improving lead quality, demonstrating true efficiency gains rather than simply lowering standards. The improvement includes better channel mix optimization, reduced waste in ad spending, and more effective nurturing sequences."
           },
           {
             "value": "18.3%",
             "label": "Marketing Contribution to Pipeline",
-            "description": "Percentage of sales pipeline directly attributable to marketing activities, measured through multi-touch attribution and lead scoring systems."
+            "description": "Significant percentage of total sales pipeline directly attributable to marketing activities, measured through comprehensive multi-touch attribution models and sophisticated lead scoring systems that track customer journey across all touchpoints. This metric demonstrates marketing's strategic value beyond just lead generation, showing direct impact on revenue and business growth. The measurement includes both marketing-sourced and marketing-influenced opportunities, with clear visibility into which campaigns and channels drive the highest-value pipeline contributions."
           }
         ]
       }

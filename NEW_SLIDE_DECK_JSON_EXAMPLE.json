@@ -5,7 +5,7 @@
       "slideId": "slide_1_intro",
       "slideNumber": 1,
       "slideTitle": "Section: Advanced Data Science Mastery",
-      "templateId": "hero-title-slide",
+      "templateId": "title-slide",
       "previewKeyPoints": [
         "Comprehensive data science training program covering theory and practical applications",
         "Advanced techniques for real-world data challenges and production deployment",
@@ -15,11 +15,7 @@
       "props": {
         "title": "Advanced Data Science Mastery",
         "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
-        "author": "Data Science Excellence Institute",
-        "date": "2024",
-        "backgroundColor": "#1e40af",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
+        "author": "Data Science Excellence Institute"
       }
     },
     {
@@ -36,9 +32,9 @@
       "props": {
         "title": "Core Mathematical and Statistical Foundations",
         "leftTitle": "Statistical Concepts",
-        "leftContent": "Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\nHypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\nBayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
+        "leftContent": "Probability distributions model uncertainty in data. Hypothesis testing validates assumptions in experiments.",
         "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\nCalculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\nDiscrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
+        "rightContent": "Linear algebra powers PCA and neural networks. Calculus enables gradient descent optimization."
       }
     },
     {
@@ -122,17 +118,17 @@
           {
             "value": "95%+",
             "label": "Model Accuracy Threshold",
-            "description": "Accuracy targets with attention to precision–recall balance, class imbalance, and business costs; ensure consistent performance across segments and time."
+            "description": "Accuracy targets must balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across different customer segments, geographic regions, and time periods. Monitor for degradation over time and establish automated alerts when accuracy drops below thresholds. Consider the impact of false positives versus false negatives on business outcomes and user experience."
           },
           {
             "value": "0.85+",
             "label": "AUC-ROC Score Target",
-            "description": "Excellent class separation for binary tasks like fraud or churn. >0.85 is strong; >0.9 is exceptional for high-stakes applications."
+            "description": "Excellent class separation for binary classification tasks like fraud detection or customer churn prediction. Scores above 0.85 indicate strong discriminative power, while scores exceeding 0.9 are exceptional and suitable for high-stakes applications where errors have significant consequences. The AUC-ROC metric is particularly valuable because it's threshold-independent and provides a comprehensive view of model performance across all possible classification thresholds."
           },
           {
             "value": "<5%",
             "label": "Acceptable Error Rate",
-            "description": "Error budgets vary by domain. Critical systems demand <1%; recommendations can tolerate more. Consider FP/FN costs in tradeoffs."
+            "description": "Error budgets vary significantly by domain and application context. Critical systems like medical diagnosis or financial fraud detection demand error rates below 1%, while recommendation systems or content personalization can tolerate higher error rates. Always consider the asymmetric costs of false positives versus false negatives in your specific business context, and establish clear escalation procedures when error rates exceed acceptable thresholds."
           }
         ]
       }

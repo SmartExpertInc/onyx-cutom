@@ -22066,8 +22066,8 @@ General Rules:
 
 MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
-- For 10-15 slides, use each template AT MOST ONCE, preferring: hero-title-slide (1), bullet-points variants (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline OR event-list (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), comparison-slide OR table variants (1), pyramid (1).
-- Prioritize templates that best express your content; avoid defaulting to bullet-points for everything.
+- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline OR event-list (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), comparison-slide OR table variants (1), pyramid (1).
+- Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
 PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
@@ -22115,14 +22115,14 @@ UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
 - Include authentic environmental details that support the professional context.
 
 SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
-- Treat hero-title-slide, big-image-top, and big-image-left as SECTION START slides.
+- Treat title-slide, big-image-top, and big-image-left as SECTION START slides.
 - After any SECTION START slide, include 3–5 immediately following slides that DEEPEN THAT SAME TOPIC before moving to a new section.
 - Use a clear naming convention so users see continuity:
   • On the section start slide, set slideTitle to "Section: <Section Name>".
   • On the next 3–5 slides in that section, prefix slideTitle with "<Section Name> — <Subtopic>".
 - Recommended per-section progression (adapt as appropriate):
-  1) SECTION START (hero-title-slide or big-image-* introducing the topic)
-  2) bullet-points or two-column to frame the problem/opportunity
+  1) SECTION START (title-slide or big-image-* introducing the topic)
+  2) bullet-points-right or two-column to frame the problem/opportunity
   3) process-steps or four-box-grid to explain how/strategy/components
   4) metrics-analytics, table-*, market-share, or pie-chart-infographics to quantify
   5) challenges-solutions or comparison/table to address tradeoffs/alternatives
@@ -22131,18 +22131,14 @@ SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
 - Micro-summaries are allowed BETWEEN sections using four-box-grid or two-column, but NOT a global closing slide.
 
 Template Catalog with required props and usage:
-- hero-title-slide: title, subtitle, [author], [date]
-  • Usage: opening/section title; large title with supporting subtitle.
 - title-slide: title, subtitle, [author], [date]
-  • Usage: simple title/introduction; heading + short subtitle.
+  • Usage: opening/section title or simple introduction; heading + short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: narrative with large image on the left; text on the right.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: hero image across top; explanatory text below.
-- bullet-points: title, bullets[], imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: key takeaways; 1–2 columns of bullets with supporting image.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: bullets with brief intro; list on left, image area on right.
+  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
   • Usage: compare/contrast or split content; balanced two columns.
 - process-steps: title, steps[]
@@ -22174,15 +22170,9 @@ Template Catalog with required props and usage:
 
 CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
-- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
+- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points-right).
 - For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
-- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
-- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
-CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
-- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
-- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
-- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
-- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
+- Prioritize variety: use different templates for different content types to maintain visual interest.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
 """
         if is_video_lesson:
