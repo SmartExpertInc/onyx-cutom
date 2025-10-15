@@ -308,24 +308,58 @@ export default function TextPresentationClient() {
   const parseContentAlternatively = (content: string) => {
     const lessons = [];
     
+    // Remove any H1 header at the start (document title)
+    let workingContent = content.replace(/^#\s+.+?\n+/m, '').trim();
+    
     // Method 1: Try splitting by double line breaks (paragraph-based sections)
-    const paragraphSections = content.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    // But group them into reasonable-sized chunks
+    const paragraphSections = workingContent.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    
+    const MAX_CHUNK_SIZE = 1500;
+    const MIN_CHUNK_SIZE = 300;
     
     if (paragraphSections.length > 1) {
-      for (let i = 0; i < paragraphSections.length && i < 10; i++) { // Limit to 10 sections
+      console.log('[ALTERNATIVE_PARSE] Method 1: Splitting by paragraphs into chunks');
+      let currentChunk = '';
+      let currentTitle = '';
+      let chunkCount = 0;
+      
+      for (let i = 0; i < paragraphSections.length; i++) {
         const section = paragraphSections[i].trim();
-        if (section.length < 20) continue; // Skip very short sections
+        if (section.length < 10) continue; // Skip very short sections
         
-        // Extract title from first line or first sentence
-        const lines = section.split('\n');
-        const firstLine = lines[0].trim();
-        const title = firstLine.length < 100 ? firstLine : firstLine.substring(0, 50) + '...';
-        const content = lines.length > 1 ? lines.slice(1).join('\n').trim() : section;
+        // If this is the first paragraph in a new chunk, use it for the title
+        if (!currentTitle) {
+          const lines = section.split('\n');
+          const firstLine = lines[0].trim().replace(/^[•\-*]\s+/, ''); // Remove bullet points
+          currentTitle = firstLine.length < 80 ? firstLine : firstLine.substring(0, 60) + '...';
+        }
         
+        // Add this paragraph to current chunk
+        const potentialChunk = currentChunk + (currentChunk ? '\n\n' : '') + section;
+        
+        // If adding this would exceed max size and we have enough content, save current chunk
+        if (potentialChunk.length > MAX_CHUNK_SIZE && currentChunk.length >= MIN_CHUNK_SIZE) {
+          lessons.push({
+            title: currentTitle || `Section ${chunkCount + 1}`,
+            content: currentChunk.trim()
+          });
+          console.log(`[ALTERNATIVE_PARSE] Added chunk ${chunkCount + 1}: "${currentTitle}" (${currentChunk.length} chars)`);
+          chunkCount++;
+          currentChunk = section;
+          currentTitle = '';
+        } else {
+          currentChunk = potentialChunk;
+        }
+      }
+      
+      // Add remaining chunk
+      if (currentChunk.trim()) {
         lessons.push({
-          title: title,
-          content: content || section
+          title: currentTitle || `Section ${chunkCount + 1}`,
+          content: currentChunk.trim()
         });
+        console.log(`[ALTERNATIVE_PARSE] Added final chunk: "${currentTitle}" (${currentChunk.length} chars)`);
       }
     }
     
@@ -387,19 +421,38 @@ export default function TextPresentationClient() {
     while ((match = headerRegex.exec(content)) !== null) {
       headerMatches.push({
         index: match.index,
-        level: match[1],
+        level: match[1].length, // Convert ### to 3
+        levelString: match[1],
         title: match[2].trim(),
         fullMatch: match[0]
       });
     }
     console.log('[PARSE_LESSONS] 📋 Found', headerMatches.length, 'headers');
     headerMatches.forEach((h, idx) => {
-      console.log(`[PARSE_LESSONS] Header ${idx + 1}: ${h.level} "${h.title}"`);
+      console.log(`[PARSE_LESSONS] Header ${idx + 1}: ${'#'.repeat(h.level)} "${h.title}"`);
     });
 
+    // SMART FILTERING: Skip H1 if it's the only H1 and there are H2+ headers
+    let filteredHeaders = headerMatches;
+    const h1Count = headerMatches.filter(h => h.level === 1).length;
+    const h2PlusCount = headerMatches.filter(h => h.level >= 2).length;
+    
+    if (h1Count === 1 && h2PlusCount > 0) {
+      console.log('[PARSE_LESSONS] 🎯 Skipping single H1 (document title), using H2+ headers for sections');
+      filteredHeaders = headerMatches.filter(h => h.level >= 2);
+    } else if (h1Count > 1) {
+      // Multiple H1s - use all headers
+      console.log('[PARSE_LESSONS] 📚 Multiple H1s found, using all headers');
+      filteredHeaders = headerMatches;
+    } else if (h1Count === 1 && h2PlusCount === 0) {
+      // Only one H1 and no other headers - need to split content differently
+      console.log('[PARSE_LESSONS] ⚠️ Only one H1, no subsections - will split content intelligently');
+      filteredHeaders = [];
+    }
+
     // Process each header to extract its content
-    for (let i = 0; i < headerMatches.length; i++) {
-      const currentHeader = headerMatches[i];
+    for (let i = 0; i < filteredHeaders.length; i++) {
+      const currentHeader = filteredHeaders[i];
       let title = currentHeader.title;
 
       // FIXED: More gentle title cleaning - preserve meaningful content
@@ -415,12 +468,12 @@ export default function TextPresentationClient() {
       }
 
       // Find the end of this section (start of next header or end of content)
-      const nextHeaderIndex = i < headerMatches.length - 1 ? headerMatches[i + 1].index : content.length;
+      const nextHeaderIndex = i < filteredHeaders.length - 1 ? filteredHeaders[i + 1].index : content.length;
       const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
-      const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
+      let sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
 
       // FIXED: More comprehensive content cleaning while preserving structure
-      const cleanedContent = sectionContent
+      let cleanedContent = sectionContent
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
         .replace(/\n+\s*$/g, '') // Remove trailing newlines
@@ -428,15 +481,50 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
 
-      // FIXED: Accept content even if it's shorter, and accept titles without requiring content
-      if (title && (cleanedContent || sectionContent.trim())) {
-        lessons.push({
-          title: title,
-          content: cleanedContent || sectionContent.trim() || title // Use title as content if no content found
-        });
-        console.log(`[PARSE_LESSONS] ✅ Added lesson ${lessons.length}: "${title}" (${(cleanedContent || sectionContent.trim()).length} chars)`);
+      // NEW: If content is very large (>2000 chars), split it into smaller chunks
+      const MAX_SECTION_SIZE = 2000;
+      if (cleanedContent.length > MAX_SECTION_SIZE) {
+        console.log(`[PARSE_LESSONS] ⚠️ Section "${title}" is large (${cleanedContent.length} chars), splitting into chunks`);
+        
+        // Split by paragraphs (double newlines)
+        const paragraphs = cleanedContent.split(/\n\s*\n/);
+        let currentChunk = '';
+        let chunkIndex = 1;
+        
+        for (const para of paragraphs) {
+          if (currentChunk.length + para.length > MAX_SECTION_SIZE && currentChunk.length > 0) {
+            // Save current chunk
+            lessons.push({
+              title: chunkIndex === 1 ? title : `${title} (Part ${chunkIndex})`,
+              content: currentChunk.trim()
+            });
+            console.log(`[PARSE_LESSONS] ✅ Added chunk ${chunkIndex}: "${title}" (${currentChunk.length} chars)`);
+            currentChunk = para;
+            chunkIndex++;
+          } else {
+            currentChunk += (currentChunk ? '\n\n' : '') + para;
+          }
+        }
+        
+        // Add remaining chunk
+        if (currentChunk.trim()) {
+          lessons.push({
+            title: chunkIndex === 1 ? title : `${title} (Part ${chunkIndex})`,
+            content: currentChunk.trim()
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added final chunk: "${title}" (${currentChunk.length} chars)`);
+        }
       } else {
-        console.log(`[PARSE_LESSONS] ⏭️ Skipped header: "${title}" (no valid content)`);
+        // Normal sized section
+        if (title && (cleanedContent || sectionContent.trim())) {
+          lessons.push({
+            title: title,
+            content: cleanedContent || sectionContent.trim() || title
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added lesson ${lessons.length}: "${title}" (${(cleanedContent || sectionContent.trim()).length} chars)`);
+        } else {
+          console.log(`[PARSE_LESSONS] ⏭️ Skipped header: "${title}" (no valid content)`);
+        }
       }
     }
 
@@ -448,10 +536,11 @@ export default function TextPresentationClient() {
       // Try parsing by paragraph breaks or bullet points
       const alternativeParsing = parseContentAlternatively(content);
       if (alternativeParsing.length > 0) {
+        console.log('[PARSE_LESSONS] ✅ Alternative parsing found', alternativeParsing.length, 'sections');
         return alternativeParsing;
       }
       
-      // Last resort: return single section with all content
+      // Last resort: return content, but split if it's very large
       const cleanedContent = content
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/#{1,6}\s*/gm, '') // Remove markdown headers that failed to parse
@@ -459,7 +548,55 @@ export default function TextPresentationClient() {
         .trim();
       
       if (cleanedContent) {
-        return [{
+        const MAX_SINGLE_SECTION = 1500;
+        
+        // If content is reasonable sized, show as one block
+        if (cleanedContent.length <= MAX_SINGLE_SECTION) {
+          console.log('[PARSE_LESSONS] ℹ️ Returning single section (small document)');
+          return [{
+            title: "Document Content",
+            content: cleanedContent
+          }];
+        }
+        
+        // Content is large - split by paragraphs into multiple sections
+        console.log('[PARSE_LESSONS] ⚠️ Large document with no structure, splitting into chunks');
+        const paragraphs = cleanedContent.split(/\n\s*\n/);
+        const sections = [];
+        let currentChunk = '';
+        let chunkIndex = 1;
+        
+        for (const para of paragraphs) {
+          if (para.trim().length < 10) continue;
+          
+          const potentialChunk = currentChunk + (currentChunk ? '\n\n' : '') + para;
+          
+          if (potentialChunk.length > MAX_SINGLE_SECTION && currentChunk.length > 300) {
+            // Extract title from first line of chunk
+            const firstLine = currentChunk.split('\n')[0].trim().substring(0, 60);
+            sections.push({
+              title: firstLine || `Part ${chunkIndex}`,
+              content: currentChunk.trim()
+            });
+            console.log(`[PARSE_LESSONS] ✅ Added fallback chunk ${chunkIndex} (${currentChunk.length} chars)`);
+            currentChunk = para;
+            chunkIndex++;
+          } else {
+            currentChunk = potentialChunk;
+          }
+        }
+        
+        // Add remaining chunk
+        if (currentChunk.trim()) {
+          const firstLine = currentChunk.split('\n')[0].trim().substring(0, 60);
+          sections.push({
+            title: firstLine || `Part ${chunkIndex}`,
+            content: currentChunk.trim()
+          });
+          console.log(`[PARSE_LESSONS] ✅ Added final fallback chunk (${currentChunk.length} chars)`);
+        }
+        
+        return sections.length > 0 ? sections : [{
           title: "Document Content",
           content: cleanedContent
         }];
