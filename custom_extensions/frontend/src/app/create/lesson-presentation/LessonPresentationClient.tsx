@@ -1894,15 +1894,12 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
-                        {/* Left blue square with number */}
-                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[7px]">
-                          {slideIdx + 1}
-                        </div>
-
-                        {/* Main content section */}
-                        <div className="flex-1">
-                          {/* Slide title */}
+                      <div key={slideIdx} className="bg-white rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
+                        {/* Header with number and title */}
+                        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#E0E0E0]">
+                          <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0">
+                            {slideIdx + 1}
+                          </div>
                           <input
                             type="text"
                             value={editedTitles[slideIdx + 1] ?? title}
@@ -1911,59 +1908,59 @@ export default function LessonPresentationClient() {
                               setTitleForSlide(slideIdx, newTitle);
                             }}
                             disabled={!streamDone}
-                            className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                            className="flex-1 font-medium text-lg border-none focus:ring-0 text-gray-900 px-0 py-0"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
-
-                          {/* Preview bullets under title (from original JSON if available) */}
-                          {(() => {
-                            try {
-                              // Prefer full original JSON (post-stream). Otherwise, use partial slides during stream
-                              let bullets: string[] = [];
-                              if (originalJsonResponse) {
-                                const obj = JSON.parse(originalJsonResponse);
-                                const slideObj = Array.isArray(obj?.slides)
-                                  ? obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
-                                  : null;
-                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
-                              }
-                              if (!bullets.length) {
-                                const partialSlides = extractSlidesFromPartialJson(content);
-                                const slideObj = Array.isArray(partialSlides)
-                                  ? partialSlides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
-                                  : null;
-                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
-                              }
-                              // Use edited bullets if present
-                              const edited = editedBullets[slideIdx + 1];
-                              if (Array.isArray(edited) && edited.length) bullets = edited;
-                              if (!bullets.length) return null;
-                              return (
-                                <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                                  {bullets.slice(0, 5).map((b, i) => (
-                                    <div key={i} className="flex items-center gap-2">
-                                      <span className="inline-block w-2 h-2 bg-gray-500 rounded-full" />
-                                      <input
-                                        type="text"
-                                        value={String(b)}
-                                        onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
-                                        disabled={!streamDone}
-                                        className="text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0 flex-1"
-                                        placeholder={t('interface.generate.topic', 'Topic') as string}
-                                      />
-                                    </div>
-                                  ))}
-                                  {/* Add bullet button removed from preview */}
-                                  {false && (
-                                  <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
-                                    + {t('interface.generate.addBullet', 'Add bullet')}
-                                  </button>
-                                  )}
-                                </div>
-                              );
-                            } catch (_) { return null; }
-                          })()}
                         </div>
+
+                        {/* Bullet points section */}
+                        {(() => {
+                          try {
+                            // Prefer full original JSON (post-stream). Otherwise, use partial slides during stream
+                            let bullets: string[] = [];
+                            if (originalJsonResponse) {
+                              const obj = JSON.parse(originalJsonResponse);
+                              const slideObj = Array.isArray(obj?.slides)
+                                ? obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                : null;
+                              bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                            }
+                            if (!bullets.length) {
+                              const partialSlides = extractSlidesFromPartialJson(content);
+                              const slideObj = Array.isArray(partialSlides)
+                                ? partialSlides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                : null;
+                              bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                            }
+                            // Use edited bullets if present
+                            const edited = editedBullets[slideIdx + 1];
+                            if (Array.isArray(edited) && edited.length) bullets = edited;
+                            if (!bullets.length) return null;
+                            return (
+                              <div className="px-5 py-4 flex flex-col gap-2" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                                {bullets.slice(0, 5).map((b, i) => (
+                                  <div key={i} className="flex items-start gap-2">
+                                    <span className="inline-block w-1.5 h-1.5 bg-[#6091F9] rounded-full mt-1.5 flex-shrink-0" />
+                                    <input
+                                      type="text"
+                                      value={String(b)}
+                                      onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
+                                      disabled={!streamDone}
+                                      className="text-sm text-gray-800 border-0 px-0 py-0 focus:outline-none focus:ring-0 flex-1"
+                                      placeholder={t('interface.generate.topic', 'Topic') as string}
+                                    />
+                                  </div>
+                                ))}
+                                {/* Add bullet button removed from preview */}
+                                {false && (
+                                <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
+                                  + {t('interface.generate.addBullet', 'Add bullet')}
+                                </button>
+                                )}
+                              </div>
+                            );
+                          } catch (_) { return null; }
+                        })()}
                       </div>
                     );
                   });
@@ -1975,12 +1972,12 @@ export default function LessonPresentationClient() {
 
           {streamDone && content && (
             <section className="flex flex-col gap-3">
-              <div style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <div className="flex items-center justify-between pb-4 border-b border-[#E0E0E0]">
+              <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+              <div className="bg-white rounded-xl pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                    <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                    <p className="mt-1 text-[#434343CC] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                   </div>
                   <button
                     type="button"
@@ -1991,7 +1988,7 @@ export default function LessonPresentationClient() {
                   </button>
                 </div>
 
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-5 px-6">
                   {/* Themes grid */}
                   <div className="grid grid-cols-3 gap-5 justify-items-center">
                     {themeOptions.map((theme) => {
@@ -2023,7 +2020,7 @@ export default function LessonPresentationClient() {
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
                             <ThemeSvgComponent />
                           </div>
-                          <div className="flex items-center justify-center px-2">
+                          <div className="flex items-center justify-left px-3">
                             <span className="text-sm text-[#20355D] font-medium select-none">
                               {theme.label}
                             </span>
