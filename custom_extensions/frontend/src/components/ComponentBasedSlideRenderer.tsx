@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
-import { getTemplate } from './templates/registry';
+import { getTemplateResolved } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import HybridTemplateBase from './templates/base/HybridTemplateBase';
 
@@ -12,6 +12,7 @@ interface ComponentBasedSlideRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
@@ -21,9 +22,10 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   onSlideUpdate,
   onTemplateChange,
   theme,
+  deckTemplateVersion,
   getPlaceholderGenerationState
 }) => {
-  const template = getTemplate(slide.templateId);
+  const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
 
   // Handle template prop updates

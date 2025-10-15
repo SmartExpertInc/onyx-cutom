@@ -525,7 +525,27 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         injected_styles = ''
         stacked_bodies: List[str] = []
 
-        for idx, slide in enumerate(slides):
+        # Version-aware mapping: if templateVersion < 'v2', map templateId -> templateId_old
+        effective_version = None
+        try:
+            if isinstance(content, dict):
+                effective_version = content.get('templateVersion') or (content.get('metadata') or {}).get('templateVersion')
+        except Exception:
+            effective_version = None
+
+        def _map_template_id(s: Dict[str, Any]) -> Dict[str, Any]:
+            if not isinstance(s, dict):
+                return s
+            tpl_id = s.get('templateId')
+            if tpl_id and (not effective_version or effective_version < 'v2'):
+                mapped = f"{tpl_id}_old"
+                # We don't know registry here; pass through and let template handle unknowns gracefully
+                s = dict(s)
+                s['templateId'] = mapped
+            return s
+
+        for idx, raw_slide in enumerate(slides):
+            slide = _map_template_id(raw_slide)
             rendered = template.render(
                 slide=slide,
                 theme=theme,

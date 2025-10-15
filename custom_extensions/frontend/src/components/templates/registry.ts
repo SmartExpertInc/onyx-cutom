@@ -2936,6 +2936,24 @@ export function getTemplate(templateId: string): TemplateComponentInfo | undefin
   return SLIDE_TEMPLATE_REGISTRY[templateId];
 }
 
+// Version-aware resolution
+// Returns the correct template id based on deck templateVersion.
+// v1 (missing or < 'v2') -> use `${id}_old`; v2+ -> use id as-is.
+export function resolveTemplateIdForVersion(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): string {
+  const effectiveVersion = deckTemplateVersion || defaultVersion || (typeof process !== 'undefined' ? (process.env?.SLIDES_DEFAULT_VERSION || 'v1') : 'v1');
+  // Simple lexical compare for our v1/v2 scheme
+  if (!effectiveVersion || effectiveVersion < 'v2') {
+    const candidate = `${templateId}_old`;
+    return SLIDE_TEMPLATE_REGISTRY[candidate] ? candidate : templateId;
+  }
+  return templateId;
+}
+
+export function getTemplateResolved(templateId: string, deckTemplateVersion?: string, defaultVersion?: string): TemplateComponentInfo | undefined {
+  const resolvedId = resolveTemplateIdForVersion(templateId, deckTemplateVersion, defaultVersion);
+  return getTemplate(resolvedId);
+}
+
 export function getAllTemplates(): TemplateComponentInfo[] {
   return Object.values(SLIDE_TEMPLATE_REGISTRY);
 }
@@ -3003,3 +3021,24 @@ export function validateTemplateProps(templateId: string, props: any): { valid: 
 }
 
 export default SLIDE_TEMPLATE_REGISTRY; 
+
+// Bootstrap `_old` variants for non-avatar templates if not explicitly registered.
+(() => {
+  try {
+    const ids = Object.keys(SLIDE_TEMPLATE_REGISTRY);
+    for (const id of ids) {
+      if (id.endsWith('_old')) continue;
+      const t = SLIDE_TEMPLATE_REGISTRY[id];
+      const isAvatar = (t.category || '').toLowerCase() === 'avatar' || id.startsWith('avatar-');
+      if (isAvatar) continue;
+      const oldId = `${id}_old`;
+      if (!(oldId in SLIDE_TEMPLATE_REGISTRY)) {
+        SLIDE_TEMPLATE_REGISTRY[oldId] = {
+          ...t,
+          id: oldId,
+          name: `${t.name} (Old)`
+        } as any;
+      }
+    }
+  } catch {}
+})();

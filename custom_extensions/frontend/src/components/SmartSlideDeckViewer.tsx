@@ -842,13 +842,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 }}
               >
                 {/* Component-based slide content */}
-                <div className="slide-content">
+        <div className="slide-content">
                   <ComponentBasedSlideDeckRenderer
                     slides={[slide]}
                     isEditable={isEditable}
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={currentTheme}
+            // Pass deck templateVersion to resolve old/new templates
+            // @ts-ignore: prop exists in renderer
+            deckTemplateVersion={(componentDeck as any)?.templateVersion}
                     getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
 

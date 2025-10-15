@@ -2284,7 +2284,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
-async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
+async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: str | None = None) -> list:
     """
     Process a batch of slides in parallel for better performance.
     
@@ -2298,6 +2298,17 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     """
     tasks = []
     for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
+        # Version-aware mapping for legacy decks: map templateId -> templateId_old
+        try:
+            effective_version = deck_template_version
+            if not effective_version:
+                effective_version = (slide_data or {}).get('metadata', {}).get('version')
+            if not effective_version or effective_version < 'v2':
+                if isinstance(slide_data, dict) and 'templateId' in slide_data:
+                    slide_data = dict(slide_data)
+                    slide_data['templateId'] = f"{slide_data['templateId']}_old"
+        except Exception:
+            pass
         task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
         tasks.append(task)
     
@@ -2467,7 +2478,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
     output_filename: str,
-    use_cache: bool = True
+    use_cache: bool = True,
+    deck_template_version: str | None = None
 ) -> str:
     """
     Generate a PDF slide deck with dynamic height per slide.
@@ -2546,7 +2558,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
             try:
-                batch_results = await process_slide_batch(batch, theme, batch_browser)
+                batch_results = await process_slide_batch(batch, theme, batch_browser, deck_template_version)
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
             except Exception as e:
@@ -2928,7 +2940,8 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         slides_list,
         theme_value,
         output_filename,
-        use_cache=False
+        use_cache=False,
+        deck_template_version=deck_template_version
     )
 
     with open(pdf_path, 'rb') as pdf_file:
