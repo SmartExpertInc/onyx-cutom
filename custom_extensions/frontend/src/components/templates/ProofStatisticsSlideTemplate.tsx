@@ -62,7 +62,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
