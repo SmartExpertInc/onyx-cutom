@@ -58,6 +58,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     paddingBottom: '5.42%',
     paddingLeft: '4.17%',
     paddingRight: '3.33%',
+    boxSizing: 'border-box',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -139,15 +140,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           font-weight: 500 !important;
         }
       `}</style>
-      {/* Left section with title and profile image - MATCHES HTML: gap: 30px */}
+      {/* Left section with title and profile image - MATCHES HTML: gap: 17px */}
       <div style={{
         width: '45%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.56%'
+        gap: '1.57%'
       }}>
-        {/* Title - MATCHES HTML: maxWidth: 784px, fontSize: 74px, minHeight: 80px */}
+        {/* Title - MATCHES HTML: maxWidth: 784px, fontSize: 74px, minHeight: 45px */}
         <div style={{
           maxWidth: '40.83%',
           fontSize: '3.85vw',
@@ -156,7 +157,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           flex: 1,
           minHeight: '4.17%',
           display: 'flex',
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          fontWeight: 500
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -197,7 +199,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           )}
         </div>
 
-        {/* Profile image in gradient container - MATCHES HTML: width: 784px, height: 496px, borderRadius: 13px */}
+        {/* Profile image in gradient container - MATCHES HTML: width: 784px, height: 279px, borderRadius: 13px */}
         <div style={{
           width: '40.83%',
           height: '25.83%',
@@ -341,13 +343,13 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         width: '55%',
         height: '100%'
       }}>
-        {/* Левая колонка (два блока) - MATCHES HTML: gap: 24px */}
+        {/* Левая колонка (два блока) - MATCHES HTML: gap: 12px */}
         <div style={{
           width: '50%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.25%'
+          gap: '1.11%'
         }}>
           {[currentStatements[0], currentStatements[2]].filter(Boolean).map((statement, idx) => {
             const index = idx === 0 ? 0 : 2;
@@ -365,7 +367,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 ...(idx === 1 ? { height: '25.83%' } : { flex: 1 })
               }}
             >
-              {/* Number - MATCHES HTML: fontSize: 93px, minHeight/maxHeight: 96px */}
+              {/* Number - MATCHES HTML: fontSize: 93px, minHeight/maxHeight: 54px */}
               <div className="title-element" style={{
                 fontSize: '4.84vw',
                 color: '#263644',
@@ -373,7 +375,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 maxHeight: '5%',
                 display: 'flex',
                 alignItems: 'center',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                fontWeight: 500
               }}>
                 {isEditable && editingNumbers === index ? (
                   <ImprovedInlineEditor
@@ -413,14 +416,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 )}
               </div>
 
-              {/* Description - MATCHES HTML: fontSize: 29px, minHeight: 40px */}
+              {/* Description - MATCHES HTML: fontSize: 29px, minHeight: 22px */}
               <div style={{
                 fontSize: '1.51vw',
                 color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
-                minHeight: '2.08%',
+                minHeight: '2.04%',
                 display: 'flex',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingStatements === index ? (
                   <ImprovedInlineEditor
@@ -435,7 +439,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
-                      whiteSpace: 'pre-line'
+                      whiteSpace: 'pre-line',
+                      fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 ) : (
@@ -448,7 +453,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
-                      whiteSpace: 'pre-line'
+                      whiteSpace: 'pre-line',
+                      fontFamily: 'Inter, sans-serif'
                     }}
                   >
                     {statement.description}
@@ -487,7 +493,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 maxHeight: '5%',
                 display: 'flex',
                 alignItems: 'center',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                fontWeight: 500
               }}>
                 {isEditable && editingNumbers === 1 ? (
                   <ImprovedInlineEditor
@@ -513,7 +520,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       userSelect: 'none',
                       fontSize: '4.84vw',
                       color: themeBg,
-                      fontWeight: 'bold',
+                      fontWeight: 500,
                       width: '100%'
                     }}
                   >
@@ -525,7 +532,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 fontSize: '1.51vw',
                 color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
-                minHeight: '2.08%'
+                minHeight: '2.04%',
+                fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingStatements === 1 ? (
                   <ImprovedInlineEditor
@@ -539,7 +547,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
-                      height: 'auto'
+                      height: 'auto',
+                      fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 ) : (
@@ -551,7 +560,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       fontSize: '1.51vw',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
-                      width: '100%'
+                      width: '100%',
+                      fontFamily: 'Inter, sans-serif'
                     }}
                   >
                     {currentStatements[1].description}
