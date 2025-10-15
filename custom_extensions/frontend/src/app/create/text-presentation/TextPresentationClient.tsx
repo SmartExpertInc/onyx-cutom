@@ -1031,20 +1031,33 @@ export default function TextPresentationClient() {
                 const titleMatch = accumulatedText.match(/"textTitle"\s*:\s*"([^"]+)"/);
                 const title = titleMatch ? titleMatch[1] : "Generating Content...";
                 
-                // Count sections being generated
-                const sectionMatches = accumulatedText.match(/"sectionTitle"\s*:\s*"([^"]+)"/g);
-                const sectionCount = sectionMatches ? sectionMatches.length : 0;
+                // Extract all section titles
+                const sectionTitleMatches = accumulatedText.match(/"sectionTitle"\s*:\s*"([^"]+)"/g);
+                const sectionCount = sectionTitleMatches ? sectionTitleMatches.length : 0;
+                
+                // Extract all section text content
+                const sectionTextMatches = accumulatedText.match(/"text"\s*:\s*"([^"]+)"/g);
                 
                 // Create simple markdown preview
                 displayText = `# ${title}\n\n`;
                 if (sectionCount > 0) {
                   displayText += `**Generating ${sectionCount} section${sectionCount > 1 ? 's' : ''}...**\n\n`;
                   
-                  // Show partial sections if we can extract them
-                  sectionMatches?.forEach((match, index) => {
+                  // Show partial sections with text if we can extract them
+                  sectionTitleMatches?.forEach((match, index) => {
                     const sectionTitle = match.match(/"sectionTitle"\s*:\s*"([^"]+)"/)?.[1];
                     if (sectionTitle) {
                       displayText += `## ${sectionTitle}\n\n`;
+                      
+                      // Add section text if available for this section
+                      if (sectionTextMatches && sectionTextMatches[index]) {
+                        const sectionText = sectionTextMatches[index].match(/"text"\s*:\s*"([^"]+)"/)?.[1];
+                        if (sectionText) {
+                          displayText += `${sectionText}\n\n`;
+                        }
+                      }
+                      
+                      displayText += '---\n\n';
                     }
                   });
                 } else {
@@ -2038,9 +2051,9 @@ export default function TextPresentationClient() {
 
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
                 {lessonList.length > 0 && (
-                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
+                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     {lessonList.map((lesson, idx: number) => (
-                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5" style={{ animation: 'fadeInDown 0.25s ease-out both', animationDelay: `${idx * 40}ms` }}>
                         {/* Left blue square with number */}
                         <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {idx + 1}
