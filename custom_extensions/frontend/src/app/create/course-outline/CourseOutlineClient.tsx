@@ -1303,7 +1303,7 @@ export default function CourseOutlineClient() {
           left: '-350px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
-          transform: 'rotate(300deg)',
+          transform: 'rotate(-300deg)',
           filter: 'blur(100px)',
         }}
       />
@@ -1337,7 +1337,7 @@ export default function CourseOutlineClient() {
       <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative z-10">
 
         {/* Page title */}
-        <h1 className="text-center text-[64px] sora-font-semibold leading-none text-[#4B4B51] mb-9">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-4">
@@ -1391,8 +1391,8 @@ export default function CourseOutlineClient() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
               rows={1}
-              className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-              style={{ background: "rgba(255,255,255,0.95)" }}
+              className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer"
+              style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #E0E0E0" }}
             />
             <Edit 
               size={16} 
@@ -1416,59 +1416,58 @@ export default function CourseOutlineClient() {
         </div>
 
         <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.courseOutline.modulesAndLessons', 'Modules & Lessons')}</h2>
-            {hasUserEdits && (
-              <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                <span>✓</span>
-                <span>{t('interface.courseOutline.editsProtected', 'Edits protected')}</span>
-              </div>
-            )}
-          </div>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
-              className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
-              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+              className="rounded-[8px] flex flex-col relative"
+              style={{ 
+                animation: 'fadeInDown 0.25s ease-out both',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)'
+              }}
             >
-              {loadingPreview && (
-                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-                  <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
-                </div>
-              )}
-              {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
-                  {/* Left blue square with number */}
-                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
-                    {modIdx + 1}
+              {/* Header with course title */}
+              <div 
+                className="px-5 py-4 rounded-t-[8px] text-white text-lg font-medium"
+                style={{ backgroundColor: '#0F58F999' }}
+              >
+                {prompt || t('interface.courseOutline.courseTitle', 'Course Outline')}
+              </div>
+              
+              {/* Module cards container */}
+              <div className="p-5 flex flex-col gap-[15px]">
+                {loadingPreview && (
+                  <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                    <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
+                  </div>
+                )}
+                {preview.map((mod: ModulePreview, modIdx: number) => (
+                <div key={mod.id} className="bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
+                  {/* Module header with number and title */}
+                  <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+                    <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
+                    <div className="relative group flex-1">
+                      <Input
+                        type="text"
+                        value={mod.title}
+                        onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                        data-modtitle={modIdx}
+                        className="text-[#0D001B] font-medium text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] px-0"
+                        placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                        disabled={loading || loadingPreview || isGenerating}
+                      />
+                      {mod.title && (
+                        <Edit 
+                          size={16} 
+                          className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                        />
+                      )}
+                    </div>
                   </div>
 
-                  {/* Main content section */}
-                  <div className="flex-1">
-                    {/* Module title */}
-                    <div className="mb-2">
-                      <div className="relative group">
-                        <Input
-                          type="text"
-                          value={mod.title}
-                          onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                          data-modtitle={modIdx}
-                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
-                          placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
-                          disabled={loading || loadingPreview || isGenerating}
-                        />
-                        {mod.title && (
-                          <Edit 
-                            size={16} 
-                            className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Lessons list */}
-                    <ul className="flex flex-col gap-1 text-gray-900">
+                  {/* Lessons list */}
+                  <div className="px-5 py-4">
+                    <ul className="flex flex-col gap-3">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
                          const lines = les.split(/\r?\n/);
                          // Preserve user-typed spacing by avoiding automatic trim.
@@ -1481,8 +1480,10 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-center gap-2 py-0.5">
-                             <div className="w-2 h-2 bg-[#0F58F9] rounded-full flex-shrink-0"></div>
+                           <li key={lessonIdx} className="flex items-center gap-2">
+                             <span className="text-[#949CA8] text-sm flex-shrink-0">
+                               {t('interface.courseOutline.lessonTitle', 'Lesson')} {lessonIdx + 1}:
+                             </span>
                              <div className="relative group flex-grow">
                                <Input
                                  type="text"
@@ -1491,7 +1492,7 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#434343] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6 px-0"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                  disabled={loading || loadingPreview || isGenerating}
                                />
@@ -1522,15 +1523,11 @@ export default function CourseOutlineClient() {
               {/* Status row – identical style mock */}
               <div className="mt-[30px] flex items-center justify-between text-sm text-[#858587]">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
-                <div className="flex-1 flex justify-center">
-                  <span className="flex items-center gap-1 select-none">
-                    {t('interface.courseOutline.pressEnterToSplit', 'Press')} <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> {t('interface.courseOutline.toSplitLessons', 'to split lessons')}
-                  </span>
-                </div>
                 <span className="flex items-center gap-1">
                   <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
                   {charCount}/50000
                 </span>
+              </div>
               </div>
             </div>
           )}
