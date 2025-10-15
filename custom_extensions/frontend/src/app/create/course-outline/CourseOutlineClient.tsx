@@ -1446,14 +1446,14 @@ export default function CourseOutlineClient() {
                 <div key={mod.id} className="bg-[#FFFFFF] rounded-[4px] overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
                   {/* Module header with number and title */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
-                    <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
+                    <span className="text-[#0D001B] font-semibold text-xl">{modIdx + 1}.</span>
                     <div className="relative group flex-1">
                       <Input
                         type="text"
                         value={mod.title}
                         onChange={(e) => handleModuleChange(modIdx, e.target.value)}
                         data-modtitle={modIdx}
-                        className="text-[#0D001B] font-medium text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                        className="text-[#0D001B] font-semibold text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                         placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                         disabled={loading || loadingPreview || isGenerating}
                       />
@@ -1467,7 +1467,7 @@ export default function CourseOutlineClient() {
                   </div>
 
                   {/* Lessons list */}
-                  <div className="px-5 py-4">
+                  <div>
                     <ul className="flex flex-col">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
                          const lines = les.split(/\r?\n/);
@@ -1484,7 +1484,7 @@ export default function CourseOutlineClient() {
                          return (
                            <li 
                              key={lessonIdx} 
-                             className="flex items-center gap-2 py-3"
+                             className="flex items-center gap-2 py-3 px-5"
                              style={{ borderBottom: isLastLesson ? 'none' : '1px solid #E0E0E0' }}
                            >
                              <span className="text-[#949CA8] text-sm flex-shrink-0">
@@ -1706,22 +1706,29 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-center">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
           {/* Credits required */}
           <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-            {/* custom stacked-coins svg */}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            {/* custom credits svg */}
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_476_6531)">
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#434343" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_476_6531">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
             </svg>
             <span>{creditsRequired} {t('interface.courseOutline.credits', 'credits')}</span>
           </div>
 
           {/* AI Agent + generate */}
-          <div className="flex items-center gap-[7.5rem]">
+          <div className="flex items-center gap-[10px]">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="px-6 py-3 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1732,7 +1739,7 @@ export default function CourseOutlineClient() {
               <button
                 type="button"
                 onClick={handleGenerateFinal}
-                className="px-6 py-3 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading || isGenerating}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
