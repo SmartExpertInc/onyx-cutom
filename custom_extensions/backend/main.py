@@ -21999,7 +21999,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: MUST be used as the first slide to welcome learners and set course expectations
   • Content guidelines: Title should be welcoming and engaging; subtitle should outline what learners will achieve
 
-- impact-statements-slide: title, statements[] (array of {number, description}), profileImagePath, [pageNumber], [logoNew]
+- impact-statements-slide: title, statements[] (array of {{number, description}}), profileImagePath, [pageNumber], [logoNew]
   • Purpose: Showcase key statistics, metrics, or impact data with visual emphasis
   • Structure: Three prominent cards displaying numerical achievements with descriptive context
   • Required props: title (section heading), statements (EXACTLY 3 items with 'number' field like "95%" or "3x" and 'description' field explaining significance)
@@ -22015,7 +22015,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Usage: Define critical terminology, explain key concepts, list important principles or guidelines
   • Content guidelines: Each definition should be comprehensive (2-3 sentences); use clear, educational language; maintain consistent depth across all definitions
 
-- soft-skills-assessment-slide: title, tips[] (array of {text, isHighlighted}), profileImagePath, [logoPath], [logoText], [pageNumber]
+- soft-skills-assessment-slide: title, tips[] (array of {{text, isHighlighted}}), profileImagePath, [logoPath], [logoText], [pageNumber]
   • Purpose: Highlight exactly two critical tips, recommendations, or assessment criteria with different visual emphasis
   • Structure: Large prominent title, avatar display, and two tip cards with contrasting styles (one highlighted, one standard)
   • Required props: title (assessment or tip category), tips (EXACTLY 2 items with 'text' field containing the tip and 'isHighlighted' boolean)
