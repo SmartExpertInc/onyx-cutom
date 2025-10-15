@@ -1,13 +1,9 @@
-// custom_extensions/frontend/src/app/projects/page.tsx 
 "use client";
 
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ProjectsTable from '../../components/ProjectsTable';
-import OffersTable from '../../components/OffersTable';
-import AuditsTable from '../../components/AuditsTable';
-import CreateOfferModal from '../../components/CreateOfferModal';
+// import MyProductsTable from '../../components/MyProductsTable';
 import {
   Search,
   ChevronsUpDown,
@@ -33,27 +29,18 @@ import {
   ClipboardCheck,
   FolderOpen
 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import FolderModal from './FolderModal';
+import FolderModal from '../projects/FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import AddOnsModal from '../../components/AddOnsModal';
-import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
-import WorkspaceMembers from '../../components/WorkspaceMembers';
-import useFeaturePermission, { preloadFeaturePermissions } from '../../hooks/useFeaturePermission';
-import workspaceService from '../../services/workspaceService';
-import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
-import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
-import LMSProductSelector from '../../components/LMSProductSelector';
-import { LMSAccountStatus } from '../../types/lmsTypes';
+import useFeaturePermission from '../../hooks/useFeaturePermission';
 import { ToastProvider } from '../../components/ui/toast';
 import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
-import Userback, { UserbackWidget } from '@userback/widget';
+// import Userback, { UserbackWidget } from '@userback/widget';
 import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
 import { Button } from '@/components/ui/button';
-
 
 interface User {
   id: string;
@@ -245,7 +232,6 @@ const getTotalItemsInFolder = (folder: Folder, folderProjects?: Record<number, a
 };
 
 interface SidebarProps {
-  currentTab: string;
   onFolderSelect: (folderId: number | null) => void;
   selectedFolderId: number | null;
   folders: any[];
@@ -260,8 +246,6 @@ interface Folder {
   quality_tier?: string;
   children?: Folder[];
 }
-
-
 
 // Recursive folder component for nested display
 const FolderItem: React.FC<{
@@ -389,7 +373,7 @@ const FolderItem: React.FC<{
   );
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
   const { t } = useLanguage();
   const [folderSearch, setFolderSearch] = useState('');
@@ -484,7 +468,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <div className="w-full rounded-lg shadow-sm border border-gray-200 px-4 py-2 gap-2 flex items-center justify-center">
             <svg height="20" viewBox="17.086 17.192 885.828 165.617" width="163" xmlns="http://www.w3.org/2000/svg">
               <path d="m855.963 159.337c0-12.962 10.524-23.478 23.479-23.478 12.962 0 23.472 10.516 23.472 23.478s-10.51 23.472-23.472 23.472c-12.955 0-23.479-10.51-23.479-23.472" fill="#86bc24" />
-              <path d="m107.195 97.16c0-14.871-2.873-25.904-8.62-33.092-5.755-7.18-14.47-10.767-26.19-10.767h-12.465v90.938h9.538c13.016 0 22.554-3.86 28.628-11.604 6.066-7.73 9.11-19.558 9.11-35.475m44.456-1.55c0 27.093-7.282 47.97-21.848 62.623-14.565 14.66-35.04 21.99-61.434 21.99h-51.284v-162.343h54.865c25.448 0 45.095 6.665 58.94 19.987 13.839 13.329 20.761 32.568 20.761 57.745m142.058 84.61h40.808v-163.024h-40.808zm98.137-60.809c0 10.394 1.358 18.322 4.07 23.77 2.717 5.456 7.268 8.18 13.667 8.18 6.332 0 10.809-2.724 13.418-8.18 2.608-5.448 3.906-13.376 3.906-23.77 0-10.34-1.318-18.139-3.96-23.403-2.65-5.28-7.168-7.922-13.574-7.922-6.264 0-10.74 2.63-13.458 7.86-2.71 5.238-4.07 13.057-4.07 23.465m76.597 0c0 19.803-5.19 35.252-15.598 46.325-10.4 11.08-24.959 16.624-43.675 16.624-17.948 0-32.235-5.666-42.84-16.998-10.618-11.331-15.924-26.644-15.924-45.95 0-19.743 5.198-35.083 15.605-46.02 10.407-10.938 25-16.406 43.79-16.406 11.611 0 21.883 2.534 30.782 7.595 8.906 5.06 15.782 12.31 20.612 21.753 4.837 9.429 7.248 20.462 7.248 33.077m16.207 60.809h40.815v-121.094h-40.815zm-.002-135.742h40.816v-27.288h-40.816zm123.507 104.856c5.51 0 12.072-1.4 19.728-4.178v30.469c-5.503 2.418-10.734 4.15-15.707 5.176-4.972 1.04-10.808 1.556-17.486 1.556-13.703 0-23.58-3.444-29.647-10.32-6.04-6.874-9.069-17.431-9.069-31.677v-49.92h-14.294v-31.303h14.294v-30.925l41.128-7.153v38.077h26.04v31.305h-26.04v47.133c0 7.84 3.689 11.76 11.053 11.76m94.461 0c5.51 0 12.073-1.4 19.729-4.178v30.469c-5.496 2.418-10.734 4.15-15.707 5.176-4.98 1.04-10.794 1.556-17.486 1.556-13.702 0-23.58-3.444-29.634-10.32-6.052-6.874-9.082-17.431-9.082-31.677v-49.92h-14.3v-31.303h14.3v-31.393l41.12-6.685v38.077h26.054v31.305h-26.053v47.133c0 7.84 3.689 11.76 11.06 11.76m71.227-44.675c.557-6.63 2.453-11.488 5.686-14.592 3.248-3.098 7.256-4.647 12.052-4.647 5.231 0 9.389 1.739 12.473 5.244 3.104 3.485 4.721 8.153 4.85 13.995zm57.555-33.397c-9.702-9.51-23.465-14.273-41.27-14.273-18.717 0-33.12 5.469-43.215 16.406-10.088 10.938-15.135 26.63-15.135 47.08 0 19.802 5.455 35.074 16.338 45.794 10.89 10.72 26.182 16.087 45.876 16.087 9.457 0 17.596-.645 24.416-1.929 6.78-1.27 13.343-3.567 19.709-6.882l-6.271-27.29c-4.626 1.89-9.028 3.343-13.186 4.3-6.005 1.394-12.595 2.093-19.77 2.093-7.866 0-14.075-1.922-18.627-5.767-4.552-3.852-6.977-9.165-7.255-15.931h72.948v-18.594c0-17.887-4.85-31.59-14.558-41.094m-625.583 33.397c.557-6.63 2.453-11.488 5.686-14.592 3.24-3.098 7.255-4.647 12.059-4.647 5.217 0 9.375 1.739 12.466 5.244 3.104 3.485 4.714 8.153 4.857 13.995zm57.561-33.397c-9.708-9.51-23.465-14.273-41.277-14.273-18.723 0-33.118 5.469-43.207 16.406-10.088 10.938-15.142 26.63-15.142 47.08 0 19.802 5.448 35.074 16.345 45.794 10.883 10.72 26.175 16.087 45.87 16.087 9.456 0 17.595-.645 24.415-1.929 6.78-1.27 13.343-3.567 19.715-6.882l-6.277-27.29c-4.627 1.89-9.029 3.343-13.18 4.3-6.018 1.394-12.601 2.093-19.776 2.093-7.86 0-14.075-1.922-18.627-5.767-4.559-3.852-6.977-9.165-7.255-15.931h72.948v-18.594c0-17.887-4.85-31.59-14.552-41.094" fill="#0f0b0b" />
+              <path d="m107.195 97.16c0-14.871-2.873-25.904-8.62-33.092-5.755-7.18-14.47-10.767-26.19-10.767h-12.465v90.938h9.538c13.016 0 22.554-3.86 28.628-11.604 6.066-7.73 9.11-19.558 9.11-35.475m44.456-1.55c0 27.093-7.282 47.97-21.848 62.623-14.565 14.66-35.04 21.99-61.434 21.99h-51.284v-162.343h54.865c25.448 0 45.095 6.665 58.94 19.987 13.839 13.329 20.761 32.568 20.761 57.745m142.058 84.61h40.808v-163.024h-40.808zm98.137-60.809c0 10.394 1.358 18.322 4.07 23.77 2.717 5.456 7.268 8.18 13.667 8.18 6.332 0 10.809-2.724 13.418-8.18 2.608-5.448 3.906-13.376 3.906-23.77 0-10.34-1.318-18.139-3.96-23.403-2.65-5.28-7.168-7.922-13.574-7.922-6.264 0-10.74 2.63-13.458 7.86-2.71 5.238-4.07 13.057-4.07 23.465m76.597 0c0 19.803-5.19 35.252-15.598 46.325-10.4 11.08-24.959 16.624-43.675 16.624-17.948 0-32.235-5.666-42.84-16.998-10.618-11.331-15.924-26.644-15.924-45.95 0-19.743 5.198-35.083 15.605-46.02 10.407-10.938 25-16.406 43.79-16.406 11.611 0 21.883 2.534 30.782 7.595 8.906 5.06 15.782 12.31 20.612 21.753 4.837 9.429 7.248 20.462 7.248 33.077m16.207 60.809h40.815v-121.094h-40.815zm-.002-135.742h40.816v-27.288h-40.816zm123.507 104.856c5.51 0 12.072-1.4 19.728-4.178v30.469c-5.503 2.418-10.734 4.15-15.707 5.176-4.972 1.04-10.808 1.556-17.486 1.556-13.703 0-23.58-3.444-29.647-10.32-6.04-6.874-9.069-17.431-9.069-31.677v-49.92h-14.294v-31.303h14.294v-30.925l41.128-7.153v38.077h26.04v31.305h-26.04v47.133c0 7.84 3.689 11.76 11.053 11.76m94.461 0c5.51 0 12.073-1.4 19.729-4.178v30.469c-5.496 2.418-10.734 4.15-15.707 5.176-4.98 1.04-10.794 1.556-17.486 1.556-13.702 0-23.58-3.444-29.634-10.32-6.052-6.874-9.082-17.431-9.082-31.677v-49.92h-14.294v-31.303h14.294v-31.393l41.12-6.685v38.077h26.054v31.305h-26.053v47.133c0 7.84 3.689 11.76 11.06 11.76m71.227-44.675c.557-6.63 2.453-11.488 5.686-14.592 3.248-3.098 7.256-4.647 12.052-4.647 5.231 0 9.389 1.739 12.473 5.244 3.104 3.485 4.721 8.153 4.85 13.995zm57.555-33.397c-9.702-9.51-23.465-14.273-41.27-14.273-18.717 0-33.12 5.469-43.215 16.406-10.088 10.938-15.135 26.63-15.135 47.08 0 19.802 5.455 35.074 16.338 45.794 10.89 10.72 26.182 16.087 45.876 16.087 9.457 0 17.596-.645 24.416-1.929 6.78-1.27 13.343-3.567 19.709-6.882l-6.271-27.29c-4.626 1.89-9.028 3.343-13.186 4.3-6.005 1.394-12.595 2.093-19.77 2.093-7.866 0-14.075-1.922-18.627-5.767-4.552-3.852-6.977-9.165-7.255-15.931h72.948v-18.594c0-17.887-4.85-31.59-14.558-41.094m-625.583 33.397c.557-6.63 2.453-11.488 5.686-14.592 3.24-3.098 7.255-4.647 12.059-4.647 5.217 0 9.375 1.739 12.466 5.244 3.104 3.485 4.714 8.153 4.857 13.995zm57.561-33.397c-9.708-9.51-23.465-14.273-41.277-14.273-18.723 0-33.118 5.469-43.207 16.406-10.088 10.938-15.142 26.63-15.142 47.08 0 19.802 5.448 35.074 16.345 45.794 10.883 10.72 26.175 16.087 45.87 16.087 9.456 0 17.595-.645 24.415-1.929 6.78-1.27 13.343-3.567 19.715-6.882l-6.277-27.29c-4.627 1.89-9.029 3.343-13.18 4.3-6.018 1.394-12.601 2.093-19.776 2.093-7.86 0-14.075-1.922-18.627-5.767-4.559-3.852-6.977-9.165-7.255-15.931h72.948v-18.594c0-17.887-4.85-31.59-14.552-41.094" fill="#0f0b0b" />
             </svg>
           </div>
         ) : (
@@ -499,27 +483,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       <nav className="flex flex-col gap-1">
         <Link
           href="/projects"
-          className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'products' && selectedFolderId === null ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-          onClick={() => onFolderSelect(null)}
+          className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
         >
           <Home size={18} strokeWidth={1.5} className='font-normal' />
-          {/* <span>{t('interface.products', 'Products')}</span> */}
           <span>Home</span>
         </Link>
         <Link
           href="/my-products"
-          className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
+          className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg bg-[#CCDBFC] text-[#0F58F9]"
         >
           <FolderOpen size={18} strokeWidth={1.5} className='font-normal' />
           <span>My products</span>
         </Link>
         <Link
           href="/projects?tab=smart-drive"
-          className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-          onClick={() => {
-            trackPageView("Smart Drive");
-            onFolderSelect(null);
-          }}
+          className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
         >
           <HardDrive size={18} strokeWidth={1.5} className='font-normal' />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
@@ -527,11 +505,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {offersTabEnabled && (
           <Link
             href="/projects?tab=offers"
-            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-            onClick={() => {
-            trackPageView("Offers");
-            onFolderSelect(null);
-          }}
+            className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
           >
             <FileText size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.offers', 'Offers')}</span>
@@ -540,8 +514,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {aiAuditEnabled && (
           <Link
             href="/projects?tab=audits"
-            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-            onClick={() => onFolderSelect(null)}
+            className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
           >
             <ClipboardCheck size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.audits', 'Audits')}</span>
@@ -550,8 +523,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {workspaceTabEnabled && (
           <Link
             href="/projects?tab=workspace"
-            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-            onClick={() => onFolderSelect(null)}
+            className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
           >
             <Users size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.workspace', 'Workspace')}</span>
@@ -560,18 +532,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         {exportToLMSEnabled && (
           <Link
             href="/projects?tab=export-lms"
-            className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
-            onClick={() => {
-            trackPageView("Export to LMS");
-            onFolderSelect(null);
-          }}
+            className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900"
           >
             <Upload size={18} strokeWidth={1.5} className='font-normal' />
             <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
           </Link>
         )}
       </nav>
-      {/* <div className="mt-4">
+      <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
           <span>{isSearching ? t('interface.searchResults', 'Search Results') : t('interface.recentFolders', 'Recent Folders')}</span>
           <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
@@ -622,7 +590,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
           </div>
         )}
-      </div> */}
+      </div>
       <nav className="flex flex-col gap-1 mt-auto">
         {eventPostersEnabled && (
           <Link href="/create/event-poster/questionnaire" className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900">
@@ -630,7 +598,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <span>{t('interface.eventPoster', 'Event Poster')}</span>
           </Link>
         )}
-        <Link href="/projects?tab=trash" className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}>
+        <Link href="/projects?tab=trash" className="flex text-sm font-semibold items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-900">
           <Trash2 size={18} strokeWidth={1.5} className='font-normal' />
           <span>{t('interface.trash', 'Trash')}</span>
         </Link>
@@ -639,7 +607,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
+const Header = ({ onTariffModalOpen, onAddOnsModalOpen }: { onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -665,21 +633,9 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     fetchUserCredits();
   }, []);
 
-  const getHeaderTitle = () => {
-    if (isTrash) return t('interface.trash', 'Trash');
-    if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
-    if (isOffers) return t('interface.offers', 'Offers');
-    if (isAudits) return t('interface.audits', 'Audits');
-    if (isWorkspace) {
-      return workspaceData?.name || t('interface.workspace', 'Workspace');
-    }
-    if (isExportLMS) return t('interface.exportToLMS', 'Export to LMS');
-    return t('interface.products', 'Products');
-  };
-
   return (
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-semibold text-gray-900">{getHeaderTitle()}</h1>
+      <h1 className="text-3xl font-semibold text-gray-900">My products</h1>
       <div className="flex items-center gap-4">
         <Button variant="download" className="bg-[#D8FDF9] hover:bg-[#CEF2EF]/90 text-[#06A294] flex items-center gap-2 rounded-md font-bold public-sans text-xs" onClick={onTariffModalOpen}>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -700,10 +656,6 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
           <Coins strokeWidth={1.5} size={16} className="font-normal text-[#8808A2]" />
           {userCredits !== null ? `${userCredits} ${t('interface.courseOutline.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
         </button>
-        {/* <Button variant="outline" onClick={onSurveyModalOpen}>
-          <MessageSquare size={16} className="mr-2" />
-          Survey
-        </Button> */}
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
@@ -713,54 +665,24 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
 };
 
 // --- Inner client component that can read search params ---
-const ProjectsPageInner: React.FC = () => {
+const MyProductsPageInner: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { language, t } = useLanguage();
-  const currentTab = searchParams?.get('tab') || 'products';
-  const isTrash = currentTab === 'trash';
-  const isSmartDrive = currentTab === 'smart-drive';
-  const isOffers = currentTab === 'offers';
-  const isAudits = currentTab === 'audits';
-  const isWorkspace = currentTab === 'workspace';
-  const isExportLMS = currentTab === 'export-lms';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
   const [folderProjects, setFolderProjects] = useState<Record<number, any[]>>({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
-  const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
-  const [workspaceData, setWorkspaceData] = useState<any>(null);
   const [tariffModalOpen, setTariffModalOpen] = useState(false);
   const [addOnsModalOpen, setAddOnsModalOpen] = useState(false);
   const [surveyModalOpen, setSurveyModalOpen] = useState(false);
 
-  // LMS Export states
-  const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
-  const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
-  const [showAccountModal, setShowAccountModal] = useState(false);
-
   // Userback
   const [currentUser, setUser] = useState<User | null>(null);
-  const [userback, setUserback] = useState<UserbackWidget | null>(null);
-
-  // Feature flags for conditional tabs/content (optimized to avoid multiple requests)
-  const { isEnabled: offersTabEnabled, loading: offersLoading } = useFeaturePermission('offers_tab');
-  const { isEnabled: workspaceTabEnabled, loading: workspaceLoading } = useFeaturePermission('workspace_tab');
-  const { isEnabled: exportToLMSEnabled, loading: exportLoading } = useFeaturePermission('export_to_lms');
-  
-  const isOffersAllowed = isOffers && offersTabEnabled;
-  const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
-  const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
+  // const [userback, setUserback] = useState<UserbackWidget | null>(null);
 
   const [isQuestionnaireCompleted, setQuestionnaireCompleted] = useState<boolean | null>(sessionStorage.getItem('questionnaireCompleted') === 'true');
-
-  // Debug logging for state changes
-  useEffect(() => {
-    console.log('[LMS] State change - isExportLMS:', isExportLMS, 'lmsAccountStatus:', lmsAccountStatus, 'showAccountModal:', showAccountModal);
-  }, [isExportLMS, lmsAccountStatus, showAccountModal]);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -804,15 +726,15 @@ const ProjectsPageInner: React.FC = () => {
         updateUserProfile(user.email);
 
         // Batch load common feature permissions to reduce initial request load
-        preloadFeaturePermissions([
-          'course_table',
-          'col_quality_tier',
-          'offers_tab',
-          'workspace_tab',
-          'export_to_lms'
-        ]).catch(error => {
-          console.warn('Failed to preload feature permissions:', error);
-        });
+        // preloadFeaturePermissions([
+        //   'course_table',
+        //   'col_quality_tier',
+        //   'offers_tab',
+        //   'workspace_tab',
+        //   'export_to_lms'
+        // ]).catch((error: any) => {
+        //   console.warn('Failed to preload feature permissions:', error);
+        // });
       } catch (error) {
         setUser(null);
         resetUserIdentity();
@@ -829,61 +751,42 @@ const ProjectsPageInner: React.FC = () => {
   }, []);
 
   // Initialize userback instance with current user
-  useEffect(() => {
-    if (isAuthenticated && currentUser) {
-      const token: string | undefined = process.env.NEXT_PUBLIC_USERBACK_TOKEN;
+  // useEffect(() => {
+  //   if (isAuthenticated && currentUser) {
+  //     const token: string | undefined = process.env.NEXT_PUBLIC_USERBACK_TOKEN;
 
-      if (token == undefined) {
-        console.warn('Userback token is missing! Check your .env file.');
-        return;
-      }
+  //     if (token == undefined) {
+  //       console.warn('Userback token is missing! Check your .env file.');
+  //       return;
+  //     }
 
-      const init = async () => {
-        try {
-          const instance = await Userback(token, {
-            widget_settings: {
-              language: language == 'uk' ? 'en' : language
-            },
-            user_data: {
-              id: currentUser.id,
-              info: {
-                email: currentUser.email,
-              },
-            },
-            autohide: false, // Controls auto-hiding behavior after submit
-          });
+  //     const init = async () => {
+  //       try {
+  //         const instance = await Userback(token, {
+  //           widget_settings: {
+  //             language: language == 'uk' ? 'en' : language
+  //           },
+  //           user_data: {
+  //             id: currentUser.id,
+  //             info: {
+  //               email: currentUser.email,
+  //             },
+  //           },
+  //           autohide: false, // Controls auto-hiding behavior after submit
+  //         });
 
-          setUserback(instance);
-          console.log('Userback is successfully initialized');
-        } catch (error) {
-          console.error('Userback initialization failed:', error);
-        }
-      };
+  //         setUserback(instance);
+  //         console.log('Userback is successfully initialized');
+  //       } catch (error) {
+  //         console.error('Userback initialization failed:', error);
+  //       }
+  //     };
 
-      init();
-    }
-  }, [isAuthenticated]);
+  //     init();
+  //   }
+  // }, [isAuthenticated]);
 
   // Load folders and projects after authentication is confirmed
-  // Fetch workspace data when on workspace tab
-  useEffect(() => {
-    const fetchWorkspaceData = async () => {
-      if (isAuthenticated === true && isWorkspace) {
-        try {
-          const workspaces = await workspaceService.getWorkspaces();
-          // Get the first workspace (assuming user has access to one workspace)
-          if (workspaces.length > 0) {
-            setWorkspaceData(workspaces[0]);
-          }
-        } catch (error) {
-          console.error('Failed to fetch workspace data:', error);
-        }
-      }
-    };
-
-    fetchWorkspaceData();
-  }, [isAuthenticated, isWorkspace]);
-
   useEffect(() => {
     if (isAuthenticated === true) {
       const loadFoldersAndProjects = async () => {
@@ -1035,62 +938,17 @@ const ProjectsPageInner: React.FC = () => {
       }
     };
 
-    const handleOpenCreateOfferModal = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const { folder } = customEvent.detail;
-      setSelectedClientForOffer(folder);
-      setShowCreateOfferModal(true);
-    };
-
     window.addEventListener('moveProjectToFolder', handleMoveProject);
     window.addEventListener('moveFolderToFolder', handleMoveFolder);
-    window.addEventListener('openCreateOfferModal', handleOpenCreateOfferModal);
     return () => {
       window.removeEventListener('moveProjectToFolder', handleMoveProject);
       window.removeEventListener('moveFolderToFolder', handleMoveFolder);
-      window.removeEventListener('openCreateOfferModal', handleOpenCreateOfferModal);
     };
   }, []);
 
   const handleFolderCreated = (newFolder: any) => {
     setFolders((prev) => [...prev, { ...newFolder, project_count: 0 }]);
     setShowFolderModal(false);
-  };
-
-  const handleOfferCreated = () => {
-    setShowCreateOfferModal(false);
-    setSelectedClientForOffer(null);
-    // Optionally refresh the offers if on offers tab
-    if (isOffers) {
-      // The OffersTable component will refresh itself
-      window.location.reload();
-    }
-  };
-
-  // LMS Export handlers
-  const handleLMSAccountStatus = (status: LMSAccountStatus) => {
-    setLmsAccountStatus(status);
-  };
-
-  const handleProductToggle = (productId: number) => {
-    setSelectedProducts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleSelectAllProducts = () => {
-    // This would need to be implemented with the actual products list
-    // For now, it's a placeholder
-  };
-
-  const handleDeselectAllProducts = () => {
-    setSelectedProducts(new Set());
   };
 
   // Handle survey completion
@@ -1118,63 +976,6 @@ const ProjectsPageInner: React.FC = () => {
     }
   };
 
-  // Show account modal when first visiting LMS tab
-  useEffect(() => {
-    const loadChoice = async () => {
-      if (isExportLMS && lmsAccountStatus === 'unknown') {
-        console.log('[LMS] Entering LMS tab with unknown status');
-        
-        // Show modal immediately, then check for saved choices
-        setShowAccountModal(true);
-        
-        let remembered: string | null = null;
-        
-        // Try to get choice from backend first
-        try {
-          console.log('[LMS] Fetching user settings from backend...');
-          const resp = await fetch('/api/custom-projects-backend/lms/user-settings', { credentials: 'same-origin' });
-          if (resp.ok) {
-            const data = await resp.json();
-            remembered = data?.choice || null;
-            console.log('[LMS] Backend choice:', remembered);
-          } else {
-            console.log('[LMS] Backend request failed:', resp.status, resp.statusText);
-          }
-        } catch (error) {
-          console.log('[LMS] Backend request error:', error);
-        }
-        
-        // Only auto-hide modal and set status if we have a definitive choice from backend
-        if (remembered === 'yes') {
-          console.log('[LMS] Auto-setting has-account and hiding modal');
-          setLmsAccountStatus('has-account');
-          setShowAccountModal(false);
-          return;
-        }
-        if (remembered === 'no-success') {
-          console.log('[LMS] Auto-setting setup-complete and hiding modal');
-          setLmsAccountStatus('setup-complete');
-          setShowAccountModal(false);
-          return;
-        }
-        
-        console.log('[LMS] Modal will stay visible (backend choice was:', remembered, ')');
-      }
-    };
-    loadChoice();
-  }, [isExportLMS, lmsAccountStatus]);
-
-  // Fallback: Force modal to show after 1 second if on LMS tab and no status set
-  useEffect(() => {
-    if (isExportLMS && lmsAccountStatus === 'unknown') {
-      const timeout = setTimeout(() => {
-        console.log('[LMS] Fallback: Forcing modal to show');
-        setShowAccountModal(true);
-      }, 1000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isExportLMS, lmsAccountStatus]);
-
   // Show loading state while checking authentication
   if (isLoading) {
     return (
@@ -1194,56 +995,28 @@ const ProjectsPageInner: React.FC = () => {
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
-      <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
+      <Sidebar onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+      <Header onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
       <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
-            isSmartDrive ? (
-              <SmartDriveConnectors />
-            ) : isOffersAllowed ? (
-              <OffersTable companyId={selectedFolderId} />
-            ) : isAudits ? (
-              <AuditsTable companyId={selectedFolderId} />
-            ) : isWorkspaceAllowed ? (
-              <WorkspaceMembers />
-            ) : isExportLMSAllowed ? (
-              <>
-                {lmsAccountStatus === 'no-account' && (
-                  <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
-                )}
-                {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
-                  <ToastProvider>
-                    <LMSProductSelector
-                      selectedProducts={selectedProducts}
-                      onProductToggle={handleProductToggle}
-                      onSelectAll={handleSelectAllProducts}
-                      onDeselectAll={handleDeselectAllProducts}
-                    />
-                  </ToastProvider>
-                )}
-              </>
-            ) : (
-              <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
-            )
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">My Products</h3>
+              <p className="text-gray-600">This page will show your created products with folder organization.</p>
+              <Button 
+                onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
+                className="mt-4"
+              >
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Add folder
+              </Button>
+            </div>
           )}
         </main>
       </div>
       <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
-      {showCreateOfferModal && (
-        <CreateOfferModal
-          onClose={() => setShowCreateOfferModal(false)}
-          onOfferCreated={handleOfferCreated}
-          selectedClient={selectedClientForOffer}
-        />
-      )}
-      <LMSAccountCheckModal
-        isOpen={showAccountModal}
-        onClose={() => setShowAccountModal(false)}
-        onAccountStatus={handleLMSAccountStatus}
-      />
       <TariffPlanModal
         open={tariffModalOpen}
         onOpenChange={setTariffModalOpen}
@@ -1264,10 +1037,10 @@ const ProjectsPageInner: React.FC = () => {
   );
 };
 
-export default function ProjectsPage() {
+export default function MyProductsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-      <ProjectsPageInner />
+    <Suspense fallback={<div className="p-8 text-center">Loading My Products...</div>}>
+      <MyProductsPageInner />
     </Suspense>
   );
 }
