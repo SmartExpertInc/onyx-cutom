@@ -1447,14 +1447,14 @@ export default function CourseOutlineClient() {
               </div>
               
               {/* Module cards container */}
-              <div className="px-10 py-5 flex flex-col gap-[15px]">
+              <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
                 {loadingPreview && (
                   <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
                     <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
                   </div>
                 )}
                 {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden shadow-lg transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
                   {/* Module header with number and title */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
                     <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
@@ -1596,11 +1596,7 @@ export default function CourseOutlineClient() {
                       handleApplyEdit();
                       setAdvancedModeState("Used");
                     }}
-                    className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                    style={{
-                      background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                      fontWeight: 500
-                    }}
+                    className="flex items-center gap-2 px-[25px] py-[14px] rounded-full bg-[#0F58F9] hover:bg-[#0D4AD1] text-[#FFFFFF] font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                   >
                     {loadingPreview ? <LoadingAnimation message="Applying..." /> : 'Edit'}
                   </Button>
