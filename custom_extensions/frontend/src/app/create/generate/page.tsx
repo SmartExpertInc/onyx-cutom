@@ -1174,7 +1174,7 @@ function GenerateProductPicker() {
         }}
       >
         <span>&lt;</span>
-        <span>Back</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">

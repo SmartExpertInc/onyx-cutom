@@ -1290,30 +1290,50 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
-      style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-      }}
+      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
     >
+      {/* Decorative gradient backgrounds */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '980px',
+          height: '1100px',
+          top: '-530px',
+          left: '-473px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          transform: 'rotate(-84.18deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1260px',
+          height: '1600px',
+          top: '158px',
+          left: '233px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          transform: 'rotate(109deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+
       {/* Back button */}
       <Link
         href="/create/generate"
-          className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-        style={{
-          color: '#0F58F9',
-          fontSize: '14px',
-          fontWeight: '600',
-          lineHeight: '140%',
-          letterSpacing: '0.05em'
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+        style={{ 
+          color: '#000000',
+          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
         }}
       >
-        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        {t('interface.generate.back', 'Back')}
+        <span>&lt;</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
-      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative z-10">
 
         {/* Page title */}
         <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>

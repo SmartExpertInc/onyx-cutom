@@ -377,7 +377,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         }}
       >
         <span>&lt;</span>
-        <span>Back</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       {/* Main content */}
