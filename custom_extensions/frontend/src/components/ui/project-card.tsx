@@ -9,6 +9,7 @@ import { Label } from "./label";
 import { cn } from "@/lib/utils";
 import ProjectSettingsModal from "../../app/projects/ProjectSettingsModal";
 import useFeaturePermission from "../../hooks/useFeaturePermission";
+import FolderSelectionModal from "./folder-selection-modal";
 import { 
   MoreHorizontal, 
   Lock, 
@@ -32,7 +33,8 @@ import {
   Users,
   LayoutTemplate,
   BookOpen,
-  MonitorPlay
+  MonitorPlay,
+  FolderPlus
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -54,12 +56,20 @@ interface Project {
   isGamma?: boolean;
 }
 
+interface Folder {
+  id: number;
+  name: string;
+  project_count: number;
+  parent_id?: number | null;
+}
+
 interface ProjectCardProps {
   project: Project;
   onDelete: (id: number, scope: "self" | "all") => void;
   onRestore: (id: number) => void;
   onDeletePermanently: (id: number) => void;
   onMoveToFolder?: (projectId: number, targetFolderId: number | null) => void;
+  folders?: Folder[];
   isTrashMode: boolean;
   folderId?: number | null;
   t?: (key: string, fallback?: string) => string;
@@ -171,6 +181,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onRestore,
   onDeletePermanently,
   onMoveToFolder,
+  folders = [],
   isTrashMode,
   folderId,
   t = (key: string, fallback?: string) => fallback || key,
@@ -188,6 +199,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   );
   const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showFolderSelectionModal, setShowFolderSelectionModal] = useState(false);
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
   const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const menuRef = useRef<HTMLDivElement>(null);
@@ -619,12 +631,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                           e.stopPropagation();
                           e.preventDefault();
                           setMenuOpen(false);
-                          // For now, we'll move to "No folder" (null)
-                          // In a real implementation, you'd show a folder selection modal
-                          onMoveToFolder(project.id, null);
+                          setShowFolderSelectionModal(true);
                         }}
                       >
-                        <FolderMinus size={16} className="text-gray-500" />
+                        <FolderPlus size={16} className="text-gray-500" />
                         <span>{t("actions.moveToFolder", "Move to folder...")}</span>
                       </DropdownMenuItem>
                     )}
@@ -980,6 +990,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         />
       )}
+
+      {/* Folder Selection Modal */}
+      <FolderSelectionModal
+        isOpen={showFolderSelectionModal}
+        onClose={() => setShowFolderSelectionModal(false)}
+        onSelectFolder={(targetFolderId) => {
+          if (onMoveToFolder) {
+            onMoveToFolder(project.id, targetFolderId);
+          }
+        }}
+        folders={folders}
+        currentFolderId={folderId}
+        title={`Move '${project.title}'`}
+      />
     </Card>
   );
 };

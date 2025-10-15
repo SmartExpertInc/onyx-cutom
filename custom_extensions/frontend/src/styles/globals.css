@@ -143,6 +143,7 @@ html {
   --custom-card-gradient-from: oklch(0.8 0.15 240);
   --custom-card-gradient-to: oklch(0.9 0.1 280);
   --custom-card-gradient-opacity: 0.6;
+  --border-light: oklch(0.9067 0 0);
   
   /* Generate Page Variables */
   --generate-bg-gradient-from: 248 250 252; /* slate-50 */
@@ -198,6 +199,7 @@ html {
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+  --border-light: oklch(0.9067 0 0);
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);

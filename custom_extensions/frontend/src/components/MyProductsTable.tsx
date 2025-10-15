@@ -2259,6 +2259,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
 
   // Folder modal state
   const [showFolderModal, setShowFolderModal] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
 
   // Handle folder creation
   const handleFolderCreated = (newFolder: any) => {
@@ -3696,11 +3697,11 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   // Add these just before the render block
   const visibleProjects = ENABLE_OUTLINE_FILTERING
     ? viewMode === "list"
-      ? getProjectsForFolder(folderId).filter(
+      ? getProjectsForFolder(selectedFolderId).filter(
           (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
         )
-      : getProjectsForFolder(folderId)
-    : getProjectsForFolder(folderId);
+      : getProjectsForFolder(selectedFolderId)
+    : getProjectsForFolder(selectedFolderId);
 
   // Pagination logic
   const totalPages = Math.ceil(visibleProjects.length / rowsPerPage);
@@ -3711,7 +3712,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, contentTypeFilter, folderId]);
+  }, [searchTerm, contentTypeFilter, selectedFolderId]);
 
   const visibleUnassignedProjects =
     viewMode === "list"
@@ -3748,10 +3749,10 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between gap-4 mb-4">
           <div className="flex">
             <Button 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border border-[var(--border-light)] text-gray-900 px-3 py-2 shadow-sm rounded-md"
               onClick={() => setShowFolderModal(true)}
             >
-              <FolderPlus size={16} strokeWidth={1.5} className="text-white" /> Add folder
+              <FolderPlus size={16} strokeWidth={1.5} className="text-gray-900" /> Add folder
             </Button>
           </div>
           <div className="flex gap-2">
@@ -3908,26 +3909,43 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
       {/* Folders Section */}
       {!trashMode && folders.length > 0 && (
         <div className="mb-8">
+          {/* Show All button */}
+          <div className="mb-4">
+            <button
+              onClick={() => setSelectedFolderId(null)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                selectedFolderId === null
+                  ? 'bg-blue-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Show All Products
+            </button>
+          </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {folders.map((folder) => (
               <div
                 key={folder.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className={`bg-white border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer ${
+                  selectedFolderId === folder.id 
+                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                    : 'border-gray-200'
+                }`}
                 onClick={() => {
-                  // Handle folder click - could navigate to folder contents
-                  console.log('Folder clicked:', folder.name);
+                  setSelectedFolderId(folder.id);
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-gray-600">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="text-[#71717A]">
                         <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">{folder.name}</h3>
-                      <p className="text-sm text-gray-500">
+                      <h3 className="font-regular text-sm text-gray-900 truncate">{folder.name}</h3>
+                      <p className="text-xs text-gray-500">
                         {folder.project_count || 0} {folder.project_count === 1 ? 'item' : 'items'}
                       </p>
                     </div>
@@ -3958,10 +3976,31 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
         </div>
       )}
 
+      {/* Selected Folder Products Section */}
+      {selectedFolderId && (
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className="text-blue-600">
+                <path d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 12.828 7H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {folders.find(f => f.id === selectedFolderId)?.name || 'Selected Folder'}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {getProjectsForFolder(selectedFolderId).length} {getProjectsForFolder(selectedFolderId).length === 1 ? 'product' : 'products'} in this folder
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {projects.length > 0 ? (
         viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-            {getProjectsForFolder(folderId).map((p: Project) => (
+            {getProjectsForFolder(selectedFolderId).map((p: Project) => (
               <CustomProjectCard
                 key={p.id}
                 project={p}
@@ -3973,6 +4012,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                     detail: { projectId, folderId: targetFolderId }
                   }));
                 }}
+                folders={folders}
                 isTrashMode={trashMode}
                 folderId={folderId}
                 t={t}
