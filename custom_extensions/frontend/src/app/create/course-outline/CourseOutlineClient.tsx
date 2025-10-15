@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import { AdvancedEditSection } from "@/components/ui/advanced-edit-section";
+import { AiAgent } from "@/components/ui/ai-agent";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 
@@ -1545,7 +1545,7 @@ export default function CourseOutlineClient() {
         {/* Inline Advanced section & button */}
         {!loading && preview.length > 0 && showAdvanced && (
           <div className="w-full mb-4">
-            <AdvancedEditSection
+            <AiAgent
               editPrompt={editPrompt}
               setEditPrompt={setEditPrompt}
               examples={outlineExamples}

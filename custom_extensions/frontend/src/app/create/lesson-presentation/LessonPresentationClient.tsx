@@ -21,7 +21,7 @@ import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/prom
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import { AdvancedEditSection } from "@/components/ui/advanced-edit-section";
+import { AiAgent } from "@/components/ui/ai-agent";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -2031,7 +2031,7 @@ export default function LessonPresentationClient() {
 
                 {/* Inline Advanced section */}
                 {showAdvanced && (
-                  <AdvancedEditSection
+                  <AiAgent
                     editPrompt={editPrompt}
                     setEditPrompt={setEditPrompt}
                     examples={lessonExamples}
