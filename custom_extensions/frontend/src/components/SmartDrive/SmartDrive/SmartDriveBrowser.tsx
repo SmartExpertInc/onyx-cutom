@@ -762,7 +762,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{/* Folders Section - Always show at top */}
 							{filtered.filter(item => item.type === 'directory').length > 0 && (
 								<div>
-									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-5 gap-x-9">
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-5 gap-x-8">
 										{filtered.filter(item => item.type === 'directory').map((it, idx) => {
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
@@ -867,7 +867,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												})()} ({filesToShow.length} items)</span>
 											</div>
 										)}
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-5 gap-x-9">
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-5">
 											{filesToShow.map((folderItem, folderIdx) => {
 											const handleFolderMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([folderItem.path]));
