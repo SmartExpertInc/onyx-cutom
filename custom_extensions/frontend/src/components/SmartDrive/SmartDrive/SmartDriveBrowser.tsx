@@ -13,7 +13,9 @@ import {
 	ArrowUpDown,
 	Pencil,
 	MoveRight,
-	MoreHorizontal
+	MoreHorizontal,
+	MoreVertical,
+	ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input as UiInput } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -81,6 +84,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [indexing, setIndexing] = useState<IndexingState>({});
 	const [mkdirOpen, setMkdirOpen] = useState(false);
 	const [mkdirName, setMkdirName] = useState('');
+	const [renameModalOpen, setRenameModalOpen] = useState(false);
+	const [itemToRename, setItemToRename] = useState<string | null>(null);
+	const [newItemName, setNewItemName] = useState('');
+	const [isRenaming, setIsRenaming] = useState(false);
+	const [showFolderSelectionModal, setShowFolderSelectionModal] = useState(false);
+	const [moveOperation, setMoveOperation] = useState<'move' | 'copy' | null>(null);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -249,13 +258,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const rename = async () => {
 		if (selected.size !== 1) return;
 		const p = Array.from(selected)[0];
+		const old = p.split('/').pop() || '';
+		setItemToRename(p);
+		setNewItemName(old);
+		setRenameModalOpen(true);
+	};
+
+	const handleRenameSubmit = async () => {
+		if (!itemToRename || !newItemName.trim()) return;
+		const p = itemToRename;
 		const base = p.split('/').slice(0, -1).join('/') || '/';
 		const old = p.split('/').pop() || '';
-		const name = prompt('Rename to', old);
-		if (!name || name === old) return;
-		setBusy(true);
+		if (newItemName === old) {
+			setRenameModalOpen(false);
+			return;
+		}
+		setIsRenaming(true);
 		try {
-			const to = `${base}${base.endsWith('/') ? '' : '/'}${name}`;
+			const to = `${base}${base.endsWith('/') ? '' : '/'}${newItemName}`;
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -265,10 +285,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			if (!res.ok) throw new Error(await res.text());
 			clearSel();
 			await fetchList(currentPath);
+			setRenameModalOpen(false);
+			setItemToRename(null);
+			setNewItemName('');
 		} catch (e) {
 			alert('Rename failed');
 		} finally {
-			setBusy(false);
+			setIsRenaming(false);
 		}
 	};
 
@@ -525,7 +548,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	return (
 		<div className={`space-y-3 text-gray-900 ${className}`}>
 			{/* Toolbar */}
-			<div className="flex items-center justify-between rounded-lg border border-slate-200 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 p-3 shadow-sm">
+			{/* <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 p-3 shadow-sm">
 				<div className="flex items-center gap-2 text-sm">
 					{breadcrumbs.map((b, idx) => (
 						<Button key={b.path} variant="link" className="px-0 h-auto text-slate-600 hover:text-blue-600" onClick={() => setCurrentPath(b.path)}>
@@ -533,7 +556,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						</Button>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			{/* Upload progress */}
 			{uploading.length > 0 && (
@@ -565,7 +588,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 			{/* Grid View */}
 			{viewMode === "grid" ? (
-				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="min-h-[600px] shadow-sm">
+				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="min-h-[600px]">
+					
 					{loading ? (
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
@@ -574,36 +598,44 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">This folder is empty</div>
 					) : (
 						<div className="space-y-6">
+							{/* Back Button - Show when not at root */}
+							{currentPath !== '/' && (
+								<div className="mb-4">
+									<Button
+										variant="outline"
+										onClick={() => {
+											const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
+											setCurrentPath(parentPath);
+										}}
+										className="flex items-center gap-2"
+									>
+										<ArrowLeft className="w-4 h-4" />
+										Back
+									</Button>
+								</div>
+							)}
+
 							{/* Folders Section */}
 							{filtered.filter(item => item.type === 'directory').length > 0 && (
 								<div>
-									<h3 className="text-sm font-medium text-gray-700 mb-3">Folders</h3>
 									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
 										{filtered.filter(item => item.type === 'directory').map((it, idx) => {
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
-												switch(action) {
-													case 'rename': rename(); break;
-													case 'move': doMoveCopy('move'); break;
-													case 'copy': doMoveCopy('copy'); break;
-													case 'delete': del(); break;
-													case 'download': download(); break;
-												}
+								switch(action) {
+									case 'rename': rename(); break;
+									case 'move': 
+										setMoveOperation('move');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'copy': 
+										setMoveOperation('copy');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'delete': del(); break;
+									case 'download': download(); break;
+								}
 											};
-											
-											// Get folder contents count (direct children only)
-											const folderPath = it.path.endsWith('/') ? it.path : it.path + '/';
-											const folderContents = items.filter(item => {
-												// Must start with folder path
-												if (!item.path.startsWith(folderPath)) return false;
-												// Get the relative path within the folder
-												const relativePath = item.path.substring(folderPath.length);
-												// Only include direct children (no slashes in relative path)
-												return relativePath && !relativePath.includes('/');
-											});
-											const fileCount = folderContents.filter(item => item.type === 'file').length;
-											const folderCount = folderContents.filter(item => item.type === 'directory').length;
-											const totalItems = fileCount + folderCount;
 											
 											return (
 												<div
@@ -613,9 +645,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												>
 													<div className="flex items-start justify-between">
 														<div className="flex items-center gap-3 flex-1 min-w-0">
-															<div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-																<svg width="20" height="20" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"/>
+															<div className="w-10 h-19 flex items-center justify-center flex-shrink-0">
+																<svg width="25" height="25" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
 																</svg>
 															</div>
 															<div className="flex-1 min-w-0">
@@ -623,10 +655,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
 																<p className="text-xs text-gray-500 mt-1">
-																	{totalItems} {totalItems === 1 ? 'item' : 'items'}
-																	{fileCount > 0 && folderCount > 0 && ` • ${fileCount} files, ${folderCount} folders`}
-																	{fileCount > 0 && folderCount === 0 && ` • ${fileCount} files`}
-																	{fileCount === 0 && folderCount > 0 && ` • ${folderCount} folders`}
+																	Folder
+																	{it.modified && ` • ${new Date(it.modified).toLocaleDateString()}`}
 																</p>
 															</div>
 														</div>
@@ -635,10 +665,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																<Button 
 																	variant="ghost" 
 																	size="sm" 
-																	className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+																	className="h-6 w-6 p-0"
 																	onClick={(e) => e.stopPropagation()}
 																>
-																	<MoreHorizontal size={14} className="text-gray-500" />
+																	<MoreVertical size={14} className="text-gray-500" />
 																</Button>
 															</DropdownMenuTrigger>
 															<DropdownMenuContent align="end">
@@ -646,14 +676,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																	<Pencil size={16} className="text-gray-500" />
 																	<span>Rename</span>
 																</DropdownMenuItem>
-																<DropdownMenuItem onSelect={() => handleMenuAction('move')}>
+																{/* <DropdownMenuItem onSelect={() => handleMenuAction('move')}>
 																	<MoveRight size={16} className="text-gray-500" />
 																	<span>Move</span>
 																</DropdownMenuItem>
 																<DropdownMenuItem onSelect={() => handleMenuAction('copy')}>
 																	<Copy size={16} className="text-gray-500" />
 																	<span>Copy</span>
-																</DropdownMenuItem>
+																</DropdownMenuItem> */}
 																<DropdownMenuItem onSelect={() => handleMenuAction('delete')}>
 																	<Trash2 size={16} className="text-red-600" />
 																	<span className="text-red-600">Delete</span>
@@ -675,13 +705,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										{filtered.filter(item => item.type === 'file').map((it, idx) => {
 								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 									setSelected(new Set([it.path]));
-									switch(action) {
-										case 'rename': rename(); break;
-										case 'move': doMoveCopy('move'); break;
-										case 'copy': doMoveCopy('copy'); break;
-										case 'delete': del(); break;
-										case 'download': download(); break;
-									}
+								switch(action) {
+									case 'rename': rename(); break;
+									case 'move': 
+										setMoveOperation('move');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'copy': 
+										setMoveOperation('copy');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'delete': del(); break;
+									case 'download': download(); break;
+								}
 								};
 								
 								return (
@@ -727,41 +763,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<h3 className="font-semibold text-sm h-10 text-gray-900 truncate mb-1">
 												{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 											</h3>
-											<p className="text-xs text-gray-500 mb-2">
-												{it.modified ? new Date(it.modified).toLocaleDateString('en-US', { 
-													month: 'long', 
-													day: 'numeric', 
-													year: 'numeric' 
-												}) : 'No date'}
-											</p>
-											
-											{/* Progress bar for indexing */}
-											{it.type === 'file' && (() => { 
-												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-												const shouldShow = s && s.status !== 'done';
-												return shouldShow;
-											})() && (
-												<div className="mb-2" title="We are indexing this file so it can be searched and used by AI.">
-													{(() => { 
-														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-														const pct = s?.etaPct ?? 10; 
-														return (
-															<div className="h-1 w-full bg-gray-200 rounded overflow-hidden">
-																<div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
-															</div>
-														);
-													})()}
-												</div>
-											)}
-											
-											{/* More options button */}
-											<div className="flex justify-right">
+											<div className="flex items-center justify-between mb-2">
+												<p className="text-xs text-gray-500">
+													{it.modified ? new Date(it.modified).toLocaleDateString('en-US', { 
+														month: 'long', 
+														day: 'numeric', 
+														year: 'numeric' 
+													}) : 'No date'}
+												</p>
+												
+												{/* More options button */}
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
 														<Button 
 															variant="ghost" 
 															size="sm" 
-															className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+															className="h-6 w-6 p-0"
 															onClick={(e) => e.stopPropagation()}
 														>
 															<MoreHorizontal size={14} className="text-gray-500" />
@@ -832,6 +849,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">This folder is empty</div>
 					) : (
 						<div className="flex flex-col min-h-0 flex-1">
+							{/* Back Button - Show when not at root */}
+							{currentPath !== '/' && (
+								<div className="p-3 bg-white border-b">
+									<Button
+										variant="outline"
+										onClick={() => {
+											const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
+											setCurrentPath(parentPath);
+										}}
+										className="flex items-center gap-2"
+									>
+										<ArrowLeft className="w-4 h-4" />
+										Back
+									</Button>
+								</div>
+							)}
 							<div className="flex items-center px-3 py-2 text-xs uppercase text-slate-500 font-medium bg-slate-50/50 flex-shrink-0">
 								<div className="w-8"/>
 								<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
@@ -849,13 +882,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								{filtered.map((it, idx) => {
 									const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 										setSelected(new Set([it.path]));
-										switch(action) {
-											case 'rename': rename(); break;
-											case 'move': doMoveCopy('move'); break;
-											case 'copy': doMoveCopy('copy'); break;
-											case 'delete': del(); break;
-											case 'download': download(); break;
-										}
+								switch(action) {
+									case 'rename': rename(); break;
+									case 'move': 
+										setMoveOperation('move');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'copy': 
+										setMoveOperation('copy');
+										setShowFolderSelectionModal(true);
+										break;
+									case 'delete': del(); break;
+									case 'download': download(); break;
+								}
 									};
 									
 									return (
@@ -920,6 +959,194 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			)}
 
 			{/* Footer buttons removed in select mode; selection is communicated live via onFilesSelected */}
+
+			{/* Rename Modal */}
+			{renameModalOpen && itemToRename && (
+				<Dialog open={renameModalOpen} onOpenChange={setRenameModalOpen}>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>Rename Item</DialogTitle>
+							<DialogDescription>
+								Enter a new name for "{itemToRename.split('/').pop() || ''}"
+							</DialogDescription>
+						</DialogHeader>
+						<div className="grid gap-4 py-4">
+							<div className="grid gap-2">
+								<Label htmlFor="item-name">Name</Label>
+								<Input
+									id="item-name"
+									value={newItemName}
+									onChange={(e) => setNewItemName(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' && newItemName.trim()) {
+											handleRenameSubmit();
+										}
+									}}
+									placeholder="Enter new name"
+									disabled={isRenaming}
+									autoFocus
+								/>
+							</div>
+						</div>
+						<DialogFooter>
+							<Button
+								variant="outline"
+								onClick={() => {
+									setRenameModalOpen(false);
+									setItemToRename(null);
+									setNewItemName('');
+								}}
+								disabled={isRenaming}
+							>
+								Cancel
+							</Button>
+							<Button
+								onClick={handleRenameSubmit}
+								disabled={isRenaming || !newItemName.trim()}
+							>
+								{isRenaming ? 'Renaming...' : 'Rename'}
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			)}
+
+			{/* Folder Selection Modal for Move/Copy */}
+			{showFolderSelectionModal && moveOperation && (
+				<Dialog open={showFolderSelectionModal} onOpenChange={setShowFolderSelectionModal}>
+					<DialogContent className="sm:max-w-[500px]">
+						<DialogHeader>
+							<DialogTitle>
+								{moveOperation === 'move' ? 'Move to Folder' : 'Copy to Folder'}
+							</DialogTitle>
+							<DialogDescription>
+								Select a destination folder for the selected item{selected.size > 1 ? 's' : ''}
+							</DialogDescription>
+						</DialogHeader>
+						<div className="max-h-[400px] overflow-y-auto py-4">
+							{/* Root folder option */}
+							<button
+								onClick={() => {
+									if (moveOperation === 'move') {
+										moveToFolder('/');
+									} else {
+										// For copy operation, use doMoveCopy logic with selected folder
+										const copyToFolder = async () => {
+											if (selected.size === 0) return;
+											setBusy(true);
+											try {
+												for (const p of Array.from(selected)) {
+													const fileName = p.split('/').pop() || '';
+													const destinationPath = `/${fileName}`;
+													const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
+														method: 'POST',
+														headers: { 'Content-Type': 'application/json' },
+														credentials: 'same-origin',
+														body: JSON.stringify({ from: p, to: destinationPath })
+													});
+													if (!res.ok) throw new Error(await res.text());
+												}
+												clearSel();
+												await fetchList(currentPath);
+											} catch (e) {
+												alert('Copy failed');
+											} finally {
+												setBusy(false);
+											}
+										};
+										copyToFolder();
+									}
+									setShowFolderSelectionModal(false);
+									setMoveOperation(null);
+								}}
+								className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors"
+								disabled={currentPath === '/'}
+							>
+								<Folder className="w-5 h-5 text-blue-500" />
+								<div>
+									<div className="font-medium">Root Folder</div>
+									<div className="text-xs text-gray-500">/</div>
+								</div>
+							</button>
+
+							{/* List all folders */}
+							{items.filter(item => item.type === 'directory').map((folder) => {
+								const isCurrentLocation = Array.from(selected).some(path => path.startsWith(folder.path + '/'));
+								return (
+									<button
+										key={folder.path}
+										onClick={() => {
+											if (moveOperation === 'move') {
+												moveToFolder(folder.path);
+											} else {
+												// For copy operation
+												const copyToFolder = async () => {
+													if (selected.size === 0) return;
+													setBusy(true);
+													try {
+														for (const p of Array.from(selected)) {
+															const fileName = p.split('/').pop() || '';
+															const destinationPath = folder.path.endsWith('/') ? `${folder.path}${fileName}` : `${folder.path}/${fileName}`;
+															const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
+																method: 'POST',
+																headers: { 'Content-Type': 'application/json' },
+																credentials: 'same-origin',
+																body: JSON.stringify({ from: p, to: destinationPath })
+															});
+															if (!res.ok) throw new Error(await res.text());
+														}
+														clearSel();
+														await fetchList(currentPath);
+													} catch (e) {
+														alert('Copy failed');
+													} finally {
+														setBusy(false);
+													}
+												};
+												copyToFolder();
+											}
+											setShowFolderSelectionModal(false);
+											setMoveOperation(null);
+										}}
+										className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+										disabled={isCurrentLocation}
+									>
+										<Folder className="w-5 h-5 text-blue-500" />
+										<div className="flex-1 min-w-0">
+											<div className="font-medium truncate">
+												{(() => { try { return decodeURIComponent(folder.name); } catch { return folder.name; } })()}
+											</div>
+											<div className="text-xs text-gray-500 truncate">{folder.path}</div>
+										</div>
+										{isCurrentLocation && (
+											<span className="text-xs text-gray-400">(Current location)</span>
+										)}
+									</button>
+								);
+							})}
+
+							{items.filter(item => item.type === 'directory').length === 0 && (
+								<div className="text-center py-8 text-gray-500">
+									<Folder className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+									<p>No folders available in current directory</p>
+									<p className="text-sm mt-1">Create a new folder first</p>
+								</div>
+							)}
+						</div>
+						<DialogFooter>
+							<Button
+								variant="outline"
+								onClick={() => {
+									setShowFolderSelectionModal(false);
+									setMoveOperation(null);
+								}}
+							>
+								Cancel
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			)}
 		</div>
 	);
 };

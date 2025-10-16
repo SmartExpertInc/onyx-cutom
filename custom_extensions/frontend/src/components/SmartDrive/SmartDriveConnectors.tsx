@@ -637,7 +637,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   const handleConnectClick = (connectorId: string, connectorName: string) => {
     setIsConnectorFailed(false);
-    timeEvent("Connect Connector");
+    try {
+      timeEvent("Connect Connector");
+    } catch (error) {
+      console.warn("Failed to track event:", error);
+    }
     // Enforce connectors entitlement before opening modal
     const connectorsUsed = entitlements?.connectors_used ?? 0;
     const connectorsLimit = entitlements?.connectors_limit ?? 0;
@@ -688,7 +692,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const result = await response.json();
       console.log("Connector created successfully:", result);
       if (connector) {
-        await trackConnector("Completed", connector.id, connector.name);
+        try {
+          await trackConnector("Completed", connector.id, connector.name);
+        } catch (trackError) {
+          console.warn("Failed to track connector completion:", trackError);
+        }
       }
 
       // Close the modal and refresh the connector list
@@ -698,7 +706,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     } catch (error) {
       if (connector) {
         setIsConnectorFailed(true);
-        await trackConnector("Failed", connector.id, connector.name);
+        try {
+          await trackConnector("Failed", connector.id, connector.name);
+        } catch (trackError) {
+          console.warn("Failed to track connector failure:", trackError);
+        }
       }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
@@ -814,7 +826,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className={`relative ${activeTab === 'connectors' ? 'w-46' : 'w-75'} h-9`}>
+                <div className={`relative ${activeTab === 'connectors' ? 'w-46' : 'w-70'} h-9`}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
@@ -1269,7 +1281,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
-                    !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    if (!isConnectorFailed) {
+                      try {
+                        trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                      } catch (error) {
+                        console.warn("Failed to track connector click:", error);
+                      }
+                    }
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -1285,7 +1303,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
-                  !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                  if (!isConnectorFailed) {
+                    try {
+                      trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    } catch (error) {
+                      console.warn("Failed to track connector click:", error);
+                    }
+                  }
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}

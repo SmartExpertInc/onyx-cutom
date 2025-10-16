@@ -2929,7 +2929,8 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
       });
 
       if (targetFolderId === null) {
-        return sortedFilteredProjects;
+        // Only show products that are NOT in any folder (unassigned products)
+        return sortedFilteredProjects.filter((p) => p.folderId === null);
       }
 
       // Get all projects that belong to this folder or any of its subfolders
