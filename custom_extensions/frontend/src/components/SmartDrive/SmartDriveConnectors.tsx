@@ -93,7 +93,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window === 'undefined') return 'grid';
+    const saved = localStorage.getItem('smartDriveViewMode');
+    if (saved === 'grid' || saved === 'list') {
+      return saved;
+    }
+    return 'grid';
+  });
   
   // Additional state for search and file operations
   const [search, setSearch] = useState('');
@@ -616,6 +623,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     }
   }, [activeTab, currentPath, fetchList]);
 
+  // Save view mode to localStorage
+  useEffect(() => {
+    localStorage.setItem('smartDriveViewMode', viewMode);
+  }, [viewMode]);
+
   const handleBrowseClick = () => {
     setShowFrame(true);
   };
@@ -750,7 +762,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
           <SmartDriveFrame />
         ) : (
-          <SmartDriveBrowser mode="manage" />
+          <SmartDriveBrowser mode="manage" viewMode={viewMode} />
         )}
       </div>
     );
@@ -772,8 +784,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <HardDrive size={16} strokeWidth={1.5} />
               Smart drive
               {activeTab === 'smart-drive' ? (
-                <div className="absolute bottom-0 left-0 right-0 h-0.6 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.3 bg-[#B8B8BC]"></div>)}
+                <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
@@ -786,8 +798,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <Workflow size={16} strokeWidth={1.5} />
               Connectors
               {activeTab === 'connectors' ? (
-                <div className="absolute bottom-0 left-0 right-0 h-0.6 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.3 bg-[#B8B8BC]"></div>)}
+                <div className="absolute bottom-0 left-0 right-0 border-2 border-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 border border-[#B8B8BC] rounded-full"></div>)}
             </button>
           </div>
           <div className="flex gap-2">
@@ -803,7 +815,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className={`relative ${activeTab === 'connectors' ? 'w-45' : 'w-75'} h-9`}>
+                <div className={`relative ${activeTab === 'connectors' ? 'w-46' : 'w-75'} h-9`}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
@@ -871,7 +883,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   })}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
+              <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`rounded-full p-2 w-9 h-9 flex items-center justify-center ${viewMode === "grid" ? "bg-[#ffffff] text-[#719AF5] border border-[#719AF5] shadow-lg" : "bg-gray-100 text-gray-500"}`}
@@ -884,7 +896,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 >
                   <List strokeWidth={1.5} className="w-6 h-6" />
                 </button>
-              </div> */}
+              </div>
             </div>)}
           </div>
         </div>
@@ -911,12 +923,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
-                  <div className="flex justify-between text-[10px] mb-2">
+                  <div className="flex justify-between text-[12px] mb-2">
                     <span className="text-gray-700 font-medium">Storage used</span>
                     <span className="text-gray-600">
                       {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                     </span>
                   </div>
+                  <div className="flex items-center justify-between gap-2">
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
                       className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
@@ -931,6 +944,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <div className="mt-2 text-right">
                       <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy more storege</Button>
                     </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -954,7 +968,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
-              <SmartDriveBrowser mode="manage" />
+              <SmartDriveBrowser mode="manage" viewMode={viewMode} />
             )}
           </div>
         </div>
@@ -1026,7 +1040,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                    }}
                  >
                    <CardContent className="p-3">
-                   <div className="flex items-left flex-col gap-1 mb-3">
+                   <div className="flex items-left flex-col mb-3">
                      <Image
                        src={connector.logoPath}
                        alt={`${connector.name} logo`}
@@ -1050,6 +1064,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        )}
                      </div>
                    </div>
+                   <div className="flex items-center justify-between h-5"></div>
                     <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
                    <div className="flex items-center justify-between">
                      <button
@@ -1077,13 +1092,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        View Integration
                      </button>
 
-                     <Switch
-                       checked={isActive}
-                       onCheckedChange={(checked) => {
+                     <div onClick={() => {
+                       if (!hasConnectors) {
                          handleConnectClick(connector.id, connector.name);
-                       }}
-                       className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                     />
+                       }
+                     }}>
+                       <Switch
+                         checked={isActive}
+                         onCheckedChange={(checked) => {
+                           // Handled by parent div onClick
+                         }}
+                         className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
+                       />
+                     </div>
                    </div>
 
                    {/* Dropdown for multiple connectors */}
@@ -1205,13 +1226,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               View Integration
                             </button>
 
-                            <Switch
-                              checked={isActive}
-                              onCheckedChange={(checked) => {
+                            <div onClick={() => {
+                              if (!hasConnectors) {
                                 handleConnectClick(connector.id, connector.name);
-                              }}
-                              className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                            />
+                              }
+                            }}>
+                              <Switch
+                                checked={isActive}
+                                onCheckedChange={(checked) => {
+                                  // Handled by parent div onClick
+                                }}
+                                className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
+                              />
+                            </div>
                           </div>
 
                           {/* Dropdown for multiple connectors */}
