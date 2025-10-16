@@ -311,7 +311,10 @@ const EntitlementsTab: React.FC = () => {
               <tr><td colSpan={9} className="px-4 py-6 text-center text-sm text-gray-600">No data</td></tr>
             ) : (
               filteredRows.map(r => (
-                <EntRow key={r.onyx_user_id} row={r} />
+                <EntRow 
+                  key={`${r.onyx_user_id}-${r.overrides.connectors_limit}-${r.overrides.storage_gb}-${r.overrides.slides_max}`} 
+                  row={r} 
+                />
               ))
             )}
           </tbody>
