@@ -243,7 +243,7 @@ export default function LessonPresentationClient() {
   const productType = params?.get("productType") || "lesson_presentation";
   
   // Avatar carousel state for video lessons
-  const [avatarScrollPosition, setAvatarScrollPosition] = useState(0);
+  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const avatarCarouselRef = useRef<HTMLDivElement>(null);
 
   // State for dropdowns
@@ -2044,52 +2044,68 @@ export default function LessonPresentationClient() {
                     </div>
                     <div className="px-2 py-3 flex-1">
                       <div className="w-full h-full border border-[#E0E0E0] rounded-md relative p-6">
-                        {/* Left Navigation Button */}
-                        <button
-                          onClick={() => {
-                            if (avatarCarouselRef.current) {
-                              const scrollAmount = 300;
-                              avatarCarouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                            }
-                          }}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
-                          className="flex gap-4 overflow-x-hidden overflow-y-hidden px-12"
+                          className="flex gap-6 overflow-x-hidden overflow-y-hidden"
                           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                           {/* Placeholder avatar cards - will be replaced with actual content */}
-                          {[1, 2, 3, 4, 5, 6].map((avatar) => (
-                            <div
-                              key={avatar}
-                              className="flex-shrink-0 w-48 h-64 rounded-md border border-transparent hover:border-2 hover:border-[#0F58F9] transition-all cursor-pointer bg-gray-100 flex items-center justify-center"
-                            >
-                              <span className="text-gray-500">Avatar {avatar}</span>
-                            </div>
-                          ))}
-                        </div>
+                          {[1, 2, 3, 4, 5, 6].map((avatar) => {
+                            const isSelected = selectedAvatar === avatar;
+                            return (
+                              <div
+                                key={avatar}
+                                onClick={() => setSelectedAvatar(avatar)}
+                                className={`flex-shrink-0 rounded-md transition-all cursor-pointer bg-gray-100 flex items-center justify-center relative ${
+                                  isSelected 
+                                    ? 'border-2 border-[#0F58F9]' 
+                                    : 'border border-transparent hover:border-2 hover:border-[#0F58F9]'
+                                }`}
+                                style={{ width: 'calc((100% - 24px) / 2.5)', aspectRatio: '16/9' }}
+                              >
+                                <span className="text-gray-500">Avatar {avatar}</span>
+                                
+                                {/* Navigation buttons - only show on selected avatar */}
+                                {isSelected && (
+                                  <>
+                                    {/* Left Navigation Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (avatarCarouselRef.current) {
+                                          const scrollAmount = 300;
+                                          avatarCarouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                                        }
+                                      }}
+                                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
 
-                        {/* Right Navigation Button */}
-                        <button
-                          onClick={() => {
-                            if (avatarCarouselRef.current) {
-                              const scrollAmount = 300;
-                              avatarCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                            }
-                          }}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
+                                    {/* Right Navigation Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (avatarCarouselRef.current) {
+                                          const scrollAmount = 300;
+                                          avatarCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                        }
+                                      }}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
