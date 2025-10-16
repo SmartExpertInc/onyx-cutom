@@ -12533,12 +12533,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "challengesTitle": "Challenges",
               "solutionsTitle": "Solutions",
               "challenges": [
-                "Challenge 1 with detailed explanation of the problem",
-                "Challenge 2 with comprehensive analysis of the issue"
+                "Brief five to six word challenge",
+                "Another concise problem statement here"
               ],
               "solutions": [
-                "Solution 1 with detailed approach and implementation strategy",
-                "Solution 2 with comprehensive methodology and practical steps"
+                "Brief five to six word solution",
+                "Another concise implementation approach here"
               ]
             }
             ```
@@ -22152,7 +22152,7 @@ Template Catalog with required props and usage:
 - pyramid: title, [subtitle], steps[] (heading,description)
   • Usage: hierarchical structure; 3-level pyramid visual.
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
-  • Usage: problem/solution mapping; two facing columns. Ensure arrays contain plain strings.
+  • Usage: problem/solution mapping; two facing columns. Each challenge/solution should be 5-6 words maximum for clean display.
 - metrics-analytics: title, metrics[] (number,text)
   • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]

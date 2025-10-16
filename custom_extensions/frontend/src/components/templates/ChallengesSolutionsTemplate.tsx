@@ -421,12 +421,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           <Image src={groupImg} alt="Group" width={500} height={400} />
         </div>
 
-        {/* Bottom labels */}
+        {/* Bottom labels - positioned below central icons */}
         <div style={{
           position: 'absolute',
-          top: '35%',
+          top: '50%',
           left: '50%',
-          transform: 'translate(-50%, 40px)',
+          transform: 'translate(-50%, 180px)',
           display: 'flex',
           gap: '70px',
           zIndex: 10,

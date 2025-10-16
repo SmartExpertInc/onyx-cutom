@@ -175,14 +175,14 @@
         "challengesTitle": "Security Challenges",
         "solutionsTitle": "Implementation Solutions",
         "challenges": [
-          "Shared responsibility model confusion leads to security gaps where organizations assume cloud providers handle more security than they actually do",
-          "Identity and access management complexity increases with multiple cloud services, requiring sophisticated permission management and regular access reviews",
-          "Data protection across distributed systems becomes challenging with encryption key management, data residency requirements, and cross-service data flows"
+          "Shared responsibility model creates gaps",
+          "Access management complexity across services",
+          "Data protection in distributed systems"
         ],
         "solutions": [
-          "Implement clear security responsibility matrices, automated security scanning, and regular security assessments with cloud security posture management tools",
-          "Deploy centralized identity providers with single sign-on, multi-factor authentication, and principle of least privilege with regular access audits and automated deprovisioning",
-          "Use cloud-native encryption services, implement data classification policies, and deploy data loss prevention tools with automated compliance monitoring"
+          "Deploy security matrices and scanning",
+          "Use centralized identity with SSO",
+          "Implement encryption and classification policies"
         ]
       }
     },

@@ -182,14 +182,14 @@
         "challengesTitle": "Industry Challenges",
         "solutionsTitle": "Proven Solutions",
         "challenges": [
-          "Inconsistent, drifting, or missing data across sources can degrade model reliability and decisions",
-          "Scaling prototypes to high-throughput, low-latency production systems is difficult",
-          "Regulatory and stakeholder needs require interpretable, explainable models"
+          "Data quality degrades model reliability",
+          "Scaling prototypes to production systems",
+          "Stakeholders require interpretable explainable models"
         ],
         "solutions": [
-          "Adopt data validation, profiling, lineage, and automated quality checks throughout pipelines",
-          "Design with cloud-native patterns, efficient algorithms, and performance testing from the start",
-          "Use XAI tools (LIME, SHAP), document decisions, and provide clear visual explanations"
+          "Implement validation and quality checks",
+          "Design with cloud-native efficient patterns",
+          "Use XAI tools with documentation"
         ]
       }
     },

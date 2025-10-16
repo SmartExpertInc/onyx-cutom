@@ -213,14 +213,14 @@
         "challengesTitle": "Common Optimization Challenges",
         "solutionsTitle": "Proven Solution Frameworks",
         "challenges": [
-          "Insufficient traffic volume makes it difficult to reach statistical significance for A/B tests, leading to inconclusive results and delayed optimization decisions",
-          "Multiple simultaneous tests create interaction effects and contaminate results, making it impossible to isolate the impact of individual changes",
-          "Short-term metrics focus can miss long-term customer value impacts, leading to optimizations that hurt lifetime value while improving immediate conversions"
+          "Low traffic delays statistical significance",
+          "Multiple tests contaminate experiment results",
+          "Short-term focus misses lifetime value"
         ],
         "solutions": [
-          "Implement sequential testing protocols with proper sample size calculations, use multi-armed bandit algorithms for low-traffic scenarios, and focus tests on high-impact elements",
-          "Create testing roadmaps with non-overlapping segments, use holdout groups for interaction detection, and establish clear testing hierarchies and schedules",
-          "Balance short-term conversion metrics with long-term value indicators, implement cohort analysis for lifetime value tracking, and use predictive models for optimization decisions"
+          "Use sequential testing with bandits",
+          "Create roadmaps with holdout groups",
+          "Balance metrics with cohort analysis"
         ]
       }
     },
