@@ -763,7 +763,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex">
             <button
               onClick={() => setActiveTab('smart-drive')}
-              className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'smart-drive' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -772,12 +772,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <HardDrive size={16} strokeWidth={1.5} />
               Smart drive
               {activeTab === 'smart-drive' ? (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B8B8BC]"></div>)}
+                <div className="absolute bottom-0 left-0 right-0 h-0.6 bg-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.3 bg-[#B8B8BC]"></div>)}
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
-              className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'connectors' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -786,8 +786,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <Workflow size={16} strokeWidth={1.5} />
               Connectors
               {activeTab === 'connectors' ? (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#719AF5] rounded-full"></div>
-              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B8B8BC]"></div>)}
+                <div className="absolute bottom-0 left-0 right-0 h-0.6 bg-[#719AF5] rounded-full"></div>
+              ) : (<div className="absolute bottom-0 left-0 right-0 h-0.3 bg-[#B8B8BC]"></div>)}
             </button>
           </div>
           <div className="flex gap-2">
@@ -803,7 +803,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className="relative w-75 h-9">
+                <div className={`relative ${activeTab === 'connectors' ? 'w-45' : 'w-75'} h-9`}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
@@ -919,13 +919,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        entitlements.storage_used_gb >= entitlements.storage_gb
-                          ? 'bg-red-400'
-                          : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
-                          ? 'bg-yellow-400'
-                          : 'bg-[#719AF5]'
-                      }`}
+                      className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                       style={{
                         width: `${Math.min(
                           (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
@@ -976,17 +970,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             <div className="bg-white p-1 mb-6">
               {/* Header with title and search */}
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
                 <div className="flex items-center gap-2">
-                  <div className="w-[120px] bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-[125px] bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        entitlements.connectors_used >= entitlements.connectors_limit
-                          ? 'bg-red-400'
-                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                          ? 'bg-yellow-400'
-                          : 'bg-[#719AF5]'
-                      }`}
+                      className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                       style={{
                         width: `${Math.min(
                           (entitlements.connectors_used / entitlements.connectors_limit) * 100,
@@ -995,7 +983,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       }}
                     />
                   </div>
-                  <span className="text-gray-600 text-sm">
+                  <span className="text-[#797979] pr-4 text-xs">
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
                   <div className="flex justify-between items-center">
@@ -1004,7 +992,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     size="sm" 
                     onClick={() => setShowAddonsModal(true)}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4" />
                     Buy more connectors
                   </Button>
                 </div>
@@ -1037,7 +1025,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                      borderWidth: '1px'
                    }}
                  >
-                   <CardContent className="p-4">
+                   <CardContent className="p-3">
                    <div className="flex items-left flex-col gap-1 mb-3">
                      <Image
                        src={connector.logoPath}
@@ -1134,18 +1122,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
        <div className="mb-8">
          <div className="flex items-center justify-between mb-6">
            <h3 className="text-lg font-semibold text-gray-900">{t('interface.allConnectors', 'All Connectors')}</h3>
-           <button
+           {/* <button
              onClick={() => setShowAllConnectors(!showAllConnectors)}
              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
            >
              {showAllConnectors ? t('interface.hideAll', 'Hide All') : t('interface.showAll', 'Show All')}
              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showAllConnectors ? 'rotate-180' : ''}`} />
-           </button>
+           </button> */}
          </div>
        </div>
 
       {/* All Connectors Grid - Expandable */}
-      {showAllConnectors && (
+      {/* {showAllConnectors && ( */}
         <>
           {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
             <div key={categoryName} className="space-y-4">
@@ -1262,7 +1250,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </div>
           ))}
         </>
-      )}
+      {/* )} */}
 
       {/* Debug info - remove this in production */}
       {process.env.NODE_ENV === 'development' && (
