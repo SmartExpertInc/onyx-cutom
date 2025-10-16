@@ -2049,7 +2049,7 @@ export default function LessonPresentationClient() {
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
-                          className="flex gap-6 overflow-x-hidden transition-all duration-300 ease-in-out px-2"
+                          className="flex gap-5 overflow-x-hidden transition-all duration-300 ease-in-out px-2"
                           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                           {/* Static card slots with changing content */}
@@ -2068,7 +2068,7 @@ export default function LessonPresentationClient() {
                                     ? 'border-2 border-[#0F58F9] bg-gray-600 opacity-100 cursor-pointer' 
                                     : 'border border-transparent bg-gray-600 opacity-40 cursor-default'
                                 }`}
-                                style={{ width: '300px', aspectRatio: '16/9' }}
+                                style={{ width: '245px', aspectRatio: '16/9' }}
                               >
                                 <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
