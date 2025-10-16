@@ -2043,12 +2043,12 @@ export default function LessonPresentationClient() {
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
-                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative p-6">
+                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative py-6">
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
                           className="flex gap-6 overflow-x-hidden overflow-y-hidden"
-                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', marginLeft: 'calc(-1 * ((100% - 30px) / 6))' }}
+                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', marginLeft: 'calc(-1 * ((100% - 48px) / 6))' }}
                         >
                           {/* Placeholder avatar cards - will be replaced with actual content */}
                           {[1, 2, 3, 4, 5, 6].map((avatar) => {
@@ -2062,7 +2062,7 @@ export default function LessonPresentationClient() {
                                     ? 'border-2 border-[#0F58F9]' 
                                     : 'border border-transparent hover:border-2 hover:border-[#0F58F9]'
                                 }`}
-                                style={{ width: 'calc((100% - 30px) / 3)', aspectRatio: '16/9' }}
+                                style={{ width: 'calc((100% - 48px) / 3)', aspectRatio: '16/9' }}
                               >
                                 <span className="text-gray-500">Avatar {avatar}</span>
                                 
