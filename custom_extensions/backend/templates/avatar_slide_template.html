@@ -1521,6 +1521,144 @@
             gap: 10px;
         }
         
+        /* Company Tools and Resources Slide Template - EXACT React Copy */
+        .company-tools-resources-slide {
+            width: 1920px;
+            height: 1080px;
+            background-color: #F0F2F7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .company-tools-resources-slide .blue-header {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 40%;
+            background: #0F58F9;
+            border: none;
+        }
+        
+        .company-tools-resources-slide .logo-container {
+            position: absolute;
+            top: 32px;
+            left: 40px;
+            z-index: 10;
+            color: #FFFFFF;
+            font-size: 22px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .company-tools-resources-slide .logo-img {
+            max-height: 40px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        
+        .company-tools-resources-slide .main-title {
+            position: absolute;
+            left: 96px;
+            top: 18%;
+            transform: translateY(-50%);
+            font-size: 91px;
+            font-weight: 600;
+            color: #FFFFFF;
+            font-family: 'Lora', serif;
+            z-index: 5;
+            max-width: 70%;
+            line-height: 1.1;
+        }
+        
+        .company-tools-resources-slide .profile-image {
+            position: absolute;
+            top: 64px;
+            right: 96px;
+            width: 272px;
+            height: 272px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #FFFFFF;
+            z-index: 10;
+        }
+        
+        .company-tools-resources-slide .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .company-tools-resources-slide .content-grid {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 40%;
+            bottom: 0;
+            background: #F0F2F7;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .company-tools-resources-slide .section-box {
+            padding: 48px 192px 48px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+        }
+        
+        .company-tools-resources-slide .section-box:nth-child(1),
+        .company-tools-resources-slide .section-box:nth-child(4) {
+            background-color: #E0E7FF;
+        }
+        
+        .company-tools-resources-slide .section-box:nth-child(2),
+        .company-tools-resources-slide .section-box:nth-child(3) {
+            background-color: #FFFFFF;
+        }
+        
+        .company-tools-resources-slide .section-title {
+            font-size: 30px;
+            font-weight: 600;
+            color: #000000;
+            line-height: 1.2;
+            font-family: 'Lora', serif;
+        }
+        
+        .company-tools-resources-slide .section-content {
+            font-size: 24px;
+            color: #34353C;
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .company-tools-resources-slide .page-number-container {
+            position: absolute;
+            bottom: 38px;
+            left: 0;
+            font-size: 26px;
+            color: #555555;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            z-index: 10;
+        }
+        
+        .company-tools-resources-slide .page-line {
+            width: 24px;
+            height: 1.5px;
+            background-color: #5F616D;
+        }
+        
         /* KPI Update Slide Template */
         .kpi-update-slide {
             width: 1920px;
@@ -3046,6 +3184,68 @@ Create opportunities for growth & advancement.{% endif %}</div>
                             </div>
                             <span style="font-size: 14px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
                         {% endif %}
+                    </div>
+                </div>
+                
+            {% elif templateId == 'company-tools-resources-slide' or templateId == 'company-tools-resources' %}
+                <!-- Company Tools and Resources Slide - EXACT React Implementation -->
+                <div class="company-tools-resources-slide">
+                    <!-- Blue Header Section -->
+                    <div class="blue-header"></div>
+
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" class="logo-img">
+                        {% else %}
+                            Your Logo
+                        {% endif %}
+                    </div>
+
+                    <!-- Title -->
+                    <div class="main-title">{{ title or 'Company tools and resources' }}</div>
+
+                    <!-- Profile Image -->
+                    <div class="profile-image">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
+                        {% endif %}
+                    </div>
+
+                    <!-- Content Sections Grid -->
+                    <div class="content-grid">
+                        {% if sections and sections|length >= 4 %}
+                            {% for section in sections[:4] %}
+                                <div class="section-box">
+                                    <div class="section-title">{{ section.title }}</div>
+                                    <div class="section-content">{{ section.content }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default content if no sections provided -->
+                            <div class="section-box">
+                                <div class="section-title">Communication Tools:</div>
+                                <div class="section-content">Effective communication is key to success in any workplace. At [Company Name], we use a variety of communication tools to keep our team connected and informed. Here are some of the key tools we use.</div>
+                            </div>
+                            <div class="section-box">
+                                <div class="section-title">Project Management:</div>
+                                <div class="section-content">Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.</div>
+                            </div>
+                            <div class="section-box">
+                                <div class="section-title">Learning and Development Resources</div>
+                                <div class="section-content">We believe in investing in our employees' growth and development. Here are some of the resources we offer: Online training courses (LinkedIn Learning, Udemy, etc.); In-house training and workshops; Professional development funds.</div>
+                            </div>
+                            <div class="section-box">
+                                <div class="section-title">Project Management</div>
+                                <div class="section-content">Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer with page number -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div>{{ pageNumber or '18' }}</div>
                     </div>
                 </div>
                 
