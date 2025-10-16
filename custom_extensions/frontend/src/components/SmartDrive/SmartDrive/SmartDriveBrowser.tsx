@@ -92,7 +92,43 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error(`List failed: ${res.status}`);
 			const data = await res.json();
-			setItems(Array.isArray(data.files) ? data.files : []);
+			const currentLevelItems = Array.isArray(data.files) ? data.files : [];
+			
+			// If we're at root level, also fetch files from all subdirectories
+			if (path === '/' || path === '') {
+				const directories = currentLevelItems.filter((item: SmartDriveItem) => item.type === 'directory');
+				const allSubFiles: SmartDriveItem[] = [];
+				
+				// Recursively fetch files from all subdirectories
+				const fetchSubdirectoryFiles = async (dirPath: string): Promise<void> => {
+					try {
+						const subRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(dirPath)}`, { credentials: 'same-origin' });
+						if (subRes.ok) {
+							const subData = await subRes.json();
+							const subItems = Array.isArray(subData.files) ? subData.files : [];
+							
+							// Add files from this directory
+							const files = subItems.filter((item: SmartDriveItem) => item.type === 'file');
+							allSubFiles.push(...files);
+							
+							// Recursively fetch from subdirectories
+							const subDirs = subItems.filter((item: SmartDriveItem) => item.type === 'directory');
+							await Promise.all(subDirs.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
+						}
+					} catch (e) {
+						console.error(`Failed to fetch subdirectory ${dirPath}:`, e);
+					}
+				};
+				
+				// Fetch all subdirectory files
+				await Promise.all(directories.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
+				
+				// Combine root-level items with all subdirectory files
+				setItems([...currentLevelItems, ...allSubFiles]);
+			} else {
+				// Not at root, show only current directory items
+				setItems(currentLevelItems);
+			}
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
@@ -591,12 +627,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												}
 											};
 											
-											// Get folder contents count
-											const folderContents = items.filter(item => 
-												item.path.startsWith(it.path + '/') && 
-												item.path !== it.path &&
-												!item.path.substring(it.path.length + 1).includes('/')
-											);
+											// Get folder contents count (direct children only)
+											const folderPath = it.path.endsWith('/') ? it.path : it.path + '/';
+											const folderContents = items.filter(item => {
+												// Must start with folder path
+												if (!item.path.startsWith(folderPath)) return false;
+												// Get the relative path within the folder
+												const relativePath = item.path.substring(folderPath.length);
+												// Only include direct children (no slashes in relative path)
+												return relativePath && !relativePath.includes('/');
+											});
 											const fileCount = folderContents.filter(item => item.type === 'file').length;
 											const folderCount = folderContents.filter(item => item.type === 'directory').length;
 											const totalItems = fileCount + folderCount;

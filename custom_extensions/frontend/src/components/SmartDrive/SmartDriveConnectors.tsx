@@ -14,7 +14,6 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
 import { Input } from '../ui/input';
-import { Switch } from '../ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 import { Progress } from '../ui/progress';
@@ -145,7 +144,43 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
       if (!res.ok) throw new Error(`List failed: ${res.status}`);
       const data = await res.json();
-      setItems(Array.isArray(data.files) ? data.files : []);
+      const currentLevelItems = Array.isArray(data.files) ? data.files : [];
+      
+      // If we're at root level, also fetch files from all subdirectories
+      if (path === '/' || path === '') {
+        const directories = currentLevelItems.filter((item: SmartDriveItem) => item.type === 'directory');
+        const allSubFiles: SmartDriveItem[] = [];
+        
+        // Recursively fetch files from all subdirectories
+        const fetchSubdirectoryFiles = async (dirPath: string): Promise<void> => {
+          try {
+            const subRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(dirPath)}`, { credentials: 'same-origin' });
+            if (subRes.ok) {
+              const subData = await subRes.json();
+              const subItems = Array.isArray(subData.files) ? subData.files : [];
+              
+              // Add files from this directory
+              const files = subItems.filter((item: SmartDriveItem) => item.type === 'file');
+              allSubFiles.push(...files);
+              
+              // Recursively fetch from subdirectories
+              const subDirs = subItems.filter((item: SmartDriveItem) => item.type === 'directory');
+              await Promise.all(subDirs.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
+            }
+          } catch (e) {
+            console.error(`Failed to fetch subdirectory ${dirPath}:`, e);
+          }
+        };
+        
+        // Fetch all subdirectory files
+        await Promise.all(directories.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
+        
+        // Combine root-level items with all subdirectory files
+        setItems([...currentLevelItems, ...allSubFiles]);
+      } else {
+        // Not at root, show only current directory items
+        setItems(currentLevelItems);
+      }
     } catch (e: any) {
       setError(e?.message || 'Failed to load');
       setItems([]);
@@ -933,7 +968,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {/* Storage used label and capacity */}
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700 font-medium text-sm">Storage used</span>
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-600 pr-20 text-sm">
                         {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                       </span>
                     </div>
@@ -1117,16 +1152,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        View Integration
                      </button>
 
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={(checked: boolean) => {
-                        if (!hasConnectors) {
-                          handleConnectClick(connector.id, connector.name);
-                        }
-                      }}
-                      disabled={hasConnectors}
-                      className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                    />
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={isActive}
+                        onChange={(e) => {
+                          if (!hasConnectors) {
+                            handleConnectClick(connector.id, connector.name);
+                          }
+                        }}
+                        disabled={hasConnectors}
+                      />
+                      <span className={`slider round ${isActive ? 'checked' : ''}`}></span>
+                    </label>
                    </div>
 
                    {/* Dropdown for multiple connectors */}
@@ -1248,16 +1286,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               View Integration
                             </button>
 
-                    <Switch
-                      checked={isActive}
-                      onCheckedChange={(checked: boolean) => {
-                        if (!hasConnectors) {
-                          handleConnectClick(connector.id, connector.name);
-                        }
-                      }}
-                      disabled={hasConnectors}
-                      className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                    />
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={isActive}
+                        onChange={(e) => {
+                          if (!hasConnectors) {
+                            handleConnectClick(connector.id, connector.name);
+                          }
+                        }}
+                        disabled={hasConnectors}
+                      />
+                      <span className={`slider round ${isActive ? 'checked' : ''}`}></span>
+                    </label>
                           </div>
 
                           {/* Dropdown for multiple connectors */}
