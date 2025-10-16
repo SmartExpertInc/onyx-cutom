@@ -309,7 +309,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           display: 'flex',
           flexDirection: 'column',
           gap: '81px',
-          zIndex: 10
+          zIndex: 10,
+          width: '420px',
+          alignItems: 'flex-start'
         }}>
           {challengeItems.map((item: string, index: number) => (
             <div key={index}>
@@ -339,7 +341,10 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    cursor: isEditable ? 'pointer' : 'default'
+                    cursor: isEditable ? 'pointer' : 'default',
+                    textAlign: 'left',
+                    width: '100%',
+                    wordWrap: 'break-word'
                   }}
                   onClick={() => handleChallengeItemEdit(index)}
                   data-draggable={isEditable}
@@ -360,7 +365,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           display: 'flex',
           flexDirection: 'column',
           gap: '81px',
-          zIndex: 10
+          zIndex: 10,
+          width: '420px',
+          alignItems: 'flex-start'
         }}>
           {solutionItems.map((item: string, index: number) => (
             <div key={index}>
@@ -379,7 +386,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    textAlign: 'right',
+                    textAlign: 'left',
                     width: '100%',
                     minWidth: '200px'
                   }}
@@ -391,8 +398,10 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    textAlign: 'right',
-                    cursor: isEditable ? 'pointer' : 'default'
+                    textAlign: 'left',
+                    cursor: isEditable ? 'pointer' : 'default',
+                    width: '100%',
+                    wordWrap: 'break-word'
                   }}
                   onClick={() => handleSolutionItemEdit(index)}
                   data-draggable={isEditable}
