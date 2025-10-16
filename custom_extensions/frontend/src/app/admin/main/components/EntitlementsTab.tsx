@@ -213,7 +213,13 @@ const EntitlementsTab: React.FC = () => {
 
       {/* Filters and Batch Operations */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center mb-4">
+          <span className="text-sm text-gray-600">
+            {selectedUsers.size} of {filteredRows.length} users selected
+          </span>
+        </div>
+
+        <div className="flex items-center mb-4">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -223,9 +229,6 @@ const EntitlementsTab: React.FC = () => {
             />
             <span className="text-sm text-gray-700">Show only users with 0 connectors</span>
           </label>
-          <span className="text-sm text-gray-600">
-            {selectedUsers.size} of {filteredRows.length} users selected
-          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
