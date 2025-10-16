@@ -92,43 +92,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error(`List failed: ${res.status}`);
 			const data = await res.json();
-			const currentLevelItems = Array.isArray(data.files) ? data.files : [];
-			
-			// If we're at root level, also fetch files from all subdirectories
-			if (path === '/' || path === '') {
-				const directories = currentLevelItems.filter((item: SmartDriveItem) => item.type === 'directory');
-				const allSubFiles: SmartDriveItem[] = [];
-				
-				// Recursively fetch files from all subdirectories
-				const fetchSubdirectoryFiles = async (dirPath: string): Promise<void> => {
-					try {
-						const subRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(dirPath)}`, { credentials: 'same-origin' });
-						if (subRes.ok) {
-							const subData = await subRes.json();
-							const subItems = Array.isArray(subData.files) ? subData.files : [];
-							
-							// Add files from this directory
-							const files = subItems.filter((item: SmartDriveItem) => item.type === 'file');
-							allSubFiles.push(...files);
-							
-							// Recursively fetch from subdirectories
-							const subDirs = subItems.filter((item: SmartDriveItem) => item.type === 'directory');
-							await Promise.all(subDirs.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
-						}
-					} catch (e) {
-						console.error(`Failed to fetch subdirectory ${dirPath}:`, e);
-					}
-				};
-				
-				// Fetch all subdirectory files
-				await Promise.all(directories.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
-				
-				// Combine root-level items with all subdirectory files
-				setItems([...currentLevelItems, ...allSubFiles]);
-			} else {
-				// Not at root, show only current directory items
-				setItems(currentLevelItems);
-			}
+			setItems(Array.isArray(data.files) ? data.files : []);
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);

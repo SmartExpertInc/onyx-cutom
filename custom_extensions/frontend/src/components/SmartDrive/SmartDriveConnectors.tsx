@@ -144,43 +144,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
       if (!res.ok) throw new Error(`List failed: ${res.status}`);
       const data = await res.json();
-      const currentLevelItems = Array.isArray(data.files) ? data.files : [];
-      
-      // If we're at root level, also fetch files from all subdirectories
-      if (path === '/' || path === '') {
-        const directories = currentLevelItems.filter((item: SmartDriveItem) => item.type === 'directory');
-        const allSubFiles: SmartDriveItem[] = [];
-        
-        // Recursively fetch files from all subdirectories
-        const fetchSubdirectoryFiles = async (dirPath: string): Promise<void> => {
-          try {
-            const subRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(dirPath)}`, { credentials: 'same-origin' });
-            if (subRes.ok) {
-              const subData = await subRes.json();
-              const subItems = Array.isArray(subData.files) ? subData.files : [];
-              
-              // Add files from this directory
-              const files = subItems.filter((item: SmartDriveItem) => item.type === 'file');
-              allSubFiles.push(...files);
-              
-              // Recursively fetch from subdirectories
-              const subDirs = subItems.filter((item: SmartDriveItem) => item.type === 'directory');
-              await Promise.all(subDirs.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
-            }
-          } catch (e) {
-            console.error(`Failed to fetch subdirectory ${dirPath}:`, e);
-          }
-        };
-        
-        // Fetch all subdirectory files
-        await Promise.all(directories.map((dir: SmartDriveItem) => fetchSubdirectoryFiles(dir.path)));
-        
-        // Combine root-level items with all subdirectory files
-        setItems([...currentLevelItems, ...allSubFiles]);
-      } else {
-        // Not at root, show only current directory items
-        setItems(currentLevelItems);
-      }
+      setItems(Array.isArray(data.files) ? data.files : []);
     } catch (e: any) {
       setError(e?.message || 'Failed to load');
       setItems([]);
@@ -841,12 +805,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             
               <div className="flex items-center gap-2">
                 {activeTab === 'smart-drive' && (
-                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md bg-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50">
+                  <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#0D001B] bg-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50">
                     <Upload className="w-4 h-4 mr-2"/>Upload
                   </Button>)}
                   <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
                 {activeTab === 'smart-drive' && ( 
-                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50">
+                  <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border text-[#0D001B] border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50">
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
@@ -1038,13 +1002,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {/* Connectors Tab Content */}
       {activeTab === 'connectors' && (
         <>
-             {/* Popular Connectors Section */}
-       <div className="mb-8">
-       {entitlements && (
+          {/* Usage Stats Header */}
+          {entitlements && (
             <div className="bg-white p-1 mb-6">
-              {/* Header with title and search */}
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Connectors</h3>
                 <div className="flex items-center gap-2">
                   <div className="w-[125px] bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
@@ -1060,7 +1022,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   <span className="text-[#797979] pr-4 text-xs">
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
-                  <div className="flex justify-between items-center">
                   <Button 
                     className="bg-[#719AF5] cursor-pointer text-white rounded-md" 
                     size="sm" 
@@ -1070,268 +1031,211 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     Buy more connectors
                   </Button>
                 </div>
-                </div>
               </div>
-              
             </div>
           )}
-         <div className="flex items-center justify-between mb-6">
-           <h3 className="text-lg font-semibold text-gray-900">{t('interface.popularConnectors', 'Popular Connectors')}</h3>
-         </div>
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-           {['google_drive', 'slack', 'notion', 'github'].map((connectorId) => {
-             const connector = Object.values(connectorCategories).flat().find(c => c.id === connectorId);
-             if (!connector) return null;
-             
-             const userConnectorsForSource = getConnectorsBySource(connector.id);
-             const hasConnectors = userConnectorsForSource.length > 0;
 
-             const isActive = hasConnectors;
-             const accountCount = userConnectorsForSource.length;
+          {/* My Connectors Section - Only show connectors that are connected */}
+          {(() => {
+            const allConnectors = Object.values(connectorCategories).flat();
+            const connectedConnectors = allConnectors.filter(connector => {
+              const userConnectorsForSource = getConnectorsBySource(connector.id);
+              return userConnectorsForSource.length > 0;
+            });
 
-             return (
-               <div key={connector.id} className="relative">
-                 <Card
-                   className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
-                   style={{
-                     backgroundColor: 'white',
-                     borderColor: '#e2e8f0',
-                     borderWidth: '1px'
-                   }}
-                 >
-                   <CardContent className="p-3">
-                   <div className="flex items-left flex-col mb-3">
-                     <Image
-                       src={connector.logoPath}
-                       alt={`${connector.name} logo`}
-                       width={40}
-                       height={40}
-                       className="object-contain w-10 h-10"
-                       priority={false}
-                       unoptimized={true}
-                     />
-                     <div className="flex-1 min-w-0">
-                       <h3 className="text-lg font-semibold text-gray-900 truncate">
-                         {connector.name}
-                       </h3>
-                       {hasConnectors && (
-                         <div className="flex items-center gap-2 mt-1">
-                           <span className="text-xs text-gray-600">
-                             {accountCount} Account{accountCount !== 1 ? 's' : ''}
-                           </span>
-                           <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                         </div>
-                       )}
-                     </div>
-                   </div>
-                   <div className="flex items-center justify-between h-5"></div>
-                    <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
-                   <div className="flex items-center justify-between">
-                     <button
-                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                         e.stopPropagation();
-                         if (hasConnectors) {
-                           // Handle view integration for existing connectors
-                           if (userConnectorsForSource.length === 1) {
-                             console.log('Opening management page from view integration for connector ID:', userConnectorsForSource[0].id);
-                             setSelectedConnectorId(userConnectorsForSource[0].id);
-                             setShowManagementPage(true);
-                           } else {
-                             setOpenDropdownId(connector.id);
-                           }
-                         } else {
-                           handleConnectClick(connector.id, connector.name);
-                         }
-                       }}
-                       className={`text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border ${
-                         hasConnectors 
-                           ? 'border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50' 
-                           : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                       }`}
-                     >
-                       View Integration
-                     </button>
+            if (connectedConnectors.length > 0) {
+              return (
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">{t('interface.myConnectors', 'My Connectors')}</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {connectedConnectors.map((connector) => {
+                      const userConnectorsForSource = getConnectorsBySource(connector.id);
+                      const hasConnectors = true; // We know it has connectors
+                      const isActive = true;
+                      const accountCount = userConnectorsForSource.length;
 
-                    <label className="switch">
-                      <input 
-                        type="checkbox" 
-                        checked={isActive}
-                        onChange={(e) => {
-                          if (!hasConnectors) {
-                            handleConnectClick(connector.id, connector.name);
-                          }
-                        }}
-                        disabled={hasConnectors}
-                      />
-                      <span className={`slider round ${isActive ? 'checked' : ''}`}></span>
-                    </label>
-                   </div>
+                      return (
+                        <div key={connector.id} className="relative">
+                          <Card
+                            className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+                            style={{
+                              backgroundColor: 'white',
+                              borderColor: '#e2e8f0',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            <CardContent className="p-3">
+                              <div className="flex items-left flex-col mb-3">
+                                <Image
+                                  src={connector.logoPath}
+                                  alt={`${connector.name} logo`}
+                                  width={40}
+                                  height={40}
+                                  className="object-contain w-10 h-10"
+                                  priority={false}
+                                  unoptimized={true}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg font-semibold text-gray-900 truncate">
+                                    {connector.name}
+                                  </h3>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs text-gray-600">
+                                      {accountCount} Account{accountCount !== 1 ? 's' : ''}
+                                    </span>
+                                    <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between h-5"></div>
+                              <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
+                              <div className="flex items-center justify-between">
+                                <button
+                                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                    e.stopPropagation();
+                                    if (userConnectorsForSource.length === 1) {
+                                      console.log('Opening management page from view integration for connector ID:', userConnectorsForSource[0].id);
+                                      setSelectedConnectorId(userConnectorsForSource[0].id);
+                                      setShowManagementPage(true);
+                                    } else {
+                                      setOpenDropdownId(connector.id);
+                                    }
+                                  }}
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50"
+                                >
+                                  View Integration
+                                </button>
 
-                   {/* Dropdown for multiple connectors */}
-                   {hasConnectors && userConnectorsForSource.length > 1 && (
-                     <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
-                       openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
-                     }`}>
-                       {userConnectorsForSource.map((userConnector) => (
-                         <button
-                           key={userConnector.id}
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             setOpenDropdownId(null);
-                             setSelectedConnectorId(userConnector.id);
-                             setShowManagementPage(true);
-                           }}
-                           className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                         >
-                           {userConnector.name}
-                         </button>
-                       ))}
-                     </div>
-                   )}
-                   </CardContent>
-                 </Card>
-               </div>
-             );
-           })}
-         </div>
-       </div>
+                                <label className="switch">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={isActive}
+                                    onChange={(e) => {
+                                      handleConnectClick(connector.id, connector.name);
+                                    }}
+                                  />
+                                  <span className={`slider round checked`}></span>
+                                </label>
+                              </div>
 
-       {/* All Connectors Section */}
-       <div className="mb-8">
-         <div className="flex items-center justify-between mb-6">
-           <h3 className="text-lg font-semibold text-gray-900">{t('interface.allConnectors', 'All Connectors')}</h3>
-           {/* <button
-             onClick={() => setShowAllConnectors(!showAllConnectors)}
-             className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-           >
-             {showAllConnectors ? t('interface.hideAll', 'Hide All') : t('interface.showAll', 'Show All')}
-             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showAllConnectors ? 'rotate-180' : ''}`} />
-           </button> */}
-         </div>
-       </div>
-
-      {/* All Connectors Grid - Expandable */}
-      {/* {showAllConnectors && ( */}
-        <>
-          {Object.entries(connectorCategories).map(([categoryName, connectors]) => (
-            <div key={categoryName} className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-3">
-                {categoryName}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {connectors.map((connector) => {
-                  const userConnectorsForSource = getConnectorsBySource(connector.id);
-                  const hasConnectors = userConnectorsForSource.length > 0;
-                  const isActive = hasConnectors;
-                  const accountCount = userConnectorsForSource.length;
-
-                  return (
-                    <div key={connector.id} className="relative">
-                      <Card
-                        className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
-                        style={{
-                          backgroundColor: 'white',
-                          borderColor: '#e2e8f0',
-                          borderWidth: '1px'
-                        }}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-left flex-col gap-1 mb-3">
-                            <Image
-                              src={connector.logoPath}
-                              alt={`${connector.name} logo`}
-                              width={40}
-                              height={40}
-                              className="object-contain w-10 h-10"
-                              priority={false}
-                              unoptimized={true}
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">
-                                {connector.name}
-                              </h3>
-                              {hasConnectors && (
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className="text-xs text-gray-600">
-                                    {accountCount} Account{accountCount !== 1 ? 's' : ''}
-                                  </span>
-                                  <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                              {/* Dropdown for multiple connectors */}
+                              {userConnectorsForSource.length > 1 && (
+                                <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
+                                  openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
+                                }`}>
+                                  {userConnectorsForSource.map((userConnector) => (
+                                    <button
+                                      key={userConnector.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                        setSelectedConnectorId(userConnector.id);
+                                        setShowManagementPage(true);
+                                      }}
+                                      className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                    >
+                                      {userConnector.name}
+                                    </button>
+                                  ))}
                                 </div>
                               )}
-                            </div>
-                          </div>
-                          <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
-                          <div className="flex items-center justify-between">
-                            <button
-                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                e.stopPropagation();
-                                if (hasConnectors) {
-                                  // Handle view integration for existing connectors
-                                  if (userConnectorsForSource.length === 1) {
-                                    setSelectedConnectorId(userConnectorsForSource[0].id);
-                                    setShowManagementPage(true);
-                                  } else {
-                                    setOpenDropdownId(connector.id);
-                                  }
-                                } else {
-                                  handleConnectClick(connector.id, connector.name);
-                                }
-                              }}
-                              className={`text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border ${
-                                hasConnectors 
-                                   ? 'border-[#0F58F9] text-[#0F58F9] hover:bg-blue-50' 
-                                   : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                              }`}
-                            >
-                              View Integration
-                            </button>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
-                    <label className="switch">
-                      <input 
-                        type="checkbox" 
-                        checked={isActive}
-                        onChange={(e) => {
-                          if (!hasConnectors) {
-                            handleConnectClick(connector.id, connector.name);
-                          }
-                        }}
-                        disabled={hasConnectors}
-                      />
-                      <span className={`slider round ${isActive ? 'checked' : ''}`}></span>
-                    </label>
-                          </div>
-
-                          {/* Dropdown for multiple connectors */}
-                          {hasConnectors && userConnectorsForSource.length > 1 && (
-                            <div className={`absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 transition-all duration-200 ${
-                              openDropdownId === connector.id ? 'opacity-100 visible' : 'opacity-0 invisible'
-                            }`}>
-                              {userConnectorsForSource.map((userConnector) => (
-                                <button
-                                  key={userConnector.id}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdownId(null);
-                                    setSelectedConnectorId(userConnector.id);
-                                    setShowManagementPage(true);
-                                  }}
-                                  className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {userConnector.name}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  );
-                })}
-              </div>
+          {/* Available Connectors Section - Organized by Category */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">{t('interface.availableConnectors', 'Available Connectors')}</h3>
             </div>
-          ))}
-        </>
-      {/* )} */}
+
+            {Object.entries(connectorCategories).map(([categoryName, connectors]) => {
+              // Filter out connectors that are already connected
+              const availableConnectors = connectors.filter(connector => {
+                const userConnectorsForSource = getConnectorsBySource(connector.id);
+                return userConnectorsForSource.length === 0;
+              });
+
+              // Only show category if there are available connectors
+              if (availableConnectors.length === 0) return null;
+
+              return (
+                <div key={categoryName} className="space-y-4 mb-8">
+                  <h3 className="text-md font-semibold text-gray-700 border-b border-gray-200 pb-3">
+                    {categoryName}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {availableConnectors.map((connector) => {
+                      return (
+                        <div key={connector.id} className="relative">
+                          <Card
+                            className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
+                            style={{
+                              backgroundColor: 'white',
+                              borderColor: '#e2e8f0',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-left flex-col gap-1 mb-3">
+                                <Image
+                                  src={connector.logoPath}
+                                  alt={`${connector.name} logo`}
+                                  width={40}
+                                  height={40}
+                                  className="object-contain w-10 h-10"
+                                  priority={false}
+                                  unoptimized={true}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg font-semibold text-gray-900 truncate">
+                                    {connector.name}
+                                  </h3>
+                                </div>
+                              </div>
+                              <div className="w-full pb-2 border-t border-[#E0E0E0]"></div>
+                              <div className="flex items-center justify-between">
+                                <button
+                                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                    e.stopPropagation();
+                                    handleConnectClick(connector.id, connector.name);
+                                  }}
+                                  className="text-xs px-2 py-1 bg-white font-medium rounded-sm shadow-sm border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                >
+                                  View Integration
+                                </button>
+
+                                <label className="switch">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={false}
+                                    onChange={(e) => {
+                                      handleConnectClick(connector.id, connector.name);
+                                    }}
+                                  />
+                                  <span className={`slider round`}></span>
+                                </label>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
       {/* Debug info - remove this in production */}
       {process.env.NODE_ENV === 'development' && (
