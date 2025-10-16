@@ -16,14 +16,14 @@ export interface Credential {
   groups: string[] | null;
 }
 
-interface GoogleDriveCredentialFormProps {
+interface GmailCredentialFormProps {
   onCredentialCreated: (credential: Credential) => void;
   onCancel: () => void;
 }
 
-const GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME = "google_drive_auth_is_admin";
+const GMAIL_AUTH_IS_ADMIN_COOKIE_NAME = "gmail_auth_is_admin";
 
-const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
+const GmailCredentialForm: FC<GmailCredentialFormProps> = ({
   onCredentialCreated,
   onCancel,
 }) => {
@@ -45,7 +45,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       setIsCheckingCredentials(true);
       
       // Check for existing Google Drive credentials
-      const credentialsResponse = await fetch("/api/custom-projects-backend/credentials/google_drive");
+      const credentialsResponse = await fetch("/api/custom-projects-backend/credentials/gmail");
       if (credentialsResponse.ok) {
         const credentials = await credentialsResponse.json();
         if (Array.isArray(credentials) && credentials.length > 0) {
@@ -57,7 +57,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       }
 
       // Check for app credentials
-      const appResponse = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential");
+      const appResponse = await fetch("/api/custom-projects-backend/connector/gmail/app-credential");
       if (appResponse.ok) {
         const appData = await appResponse.json();
         if (appData.client_id) {
@@ -84,7 +84,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
 
     try {      
       // Delete app credentials
-      let response = await fetch("/api/custom-projects-backend/connector/google-drive/app-credential", {
+      let response = await fetch("/api/custom-projects-backend/connector/gmail/app-credential", {
         method: "DELETE",
       });
 
@@ -144,7 +144,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       try {
         if (credentialFileType === "authorized_user") {
           const response = await fetch(
-            "/api/custom-projects-backend/connector/google-drive/app-credential",
+            "/api/custom-projects-backend/connector/gmail/app-credential",
             {
               method: "PUT",
               headers: {
@@ -225,7 +225,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
         },
         body: JSON.stringify({
           name: 'OAuth (uploaded)',
-          source: 'google_drive',
+          source: 'gmail',
           credential_json: {},
           admin_public: true,
           curator_public: false,
@@ -241,7 +241,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
 
       // Get authorization URL
       const authorizationUrlResponse = await fetch(
-        `/api/custom-projects-backend/connector/google-drive/authorize/${credential.id}`
+        `/api/custom-projects-backend/connector/gmail/authorize/${credential.id}`
       );
       if (!authorizationUrlResponse.ok) {
         throw new Error(`Failed to get authorization URL - ${authorizationUrlResponse.status}`);
@@ -250,14 +250,14 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       const authorizationUrlJson = await authorizationUrlResponse.json();
 
       // Set cookie for callback
-      document.cookie = `${GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME}=true; path=/`;
+      document.cookie = `${GMAIL_AUTH_IS_ADMIN_COOKIE_NAME}=true; path=/`;
 
       onCredentialCreated(credential);
 
       // Redirect to OAuth
       router.push(authorizationUrlJson.auth_url);
     } catch (err) {
-      setError(`Failed to authenticate with Google Drive - ${err}`);
+      setError(`Failed to authenticate with Gmail - ${err}`);
       setIsAuthenticating(false);
     }
   };
@@ -284,7 +284,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
             <div className="flex-1">
               <h4 className="font-medium text-green-800 mb-1">Authentication Complete</h4>
               <p className="text-sm text-green-700 mb-3">
-                Your Google Drive credentials have been successfully uploaded and authenticated.
+                Your Gmail credentials have been successfully uploaded and authenticated.
               </p>
             </div>
           </div>
@@ -297,10 +297,10 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Google Drive Credential Setup
+          Gmail Credential Setup
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          To connect your Google Drive, create credentials (OAuth App only), 
+          To connect your Gmail, create credentials (OAuth App only), 
           download the JSON file, and upload it below.
         </p>
       </div>
@@ -409,8 +409,8 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
         <div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <p className="text-sm text-blue-800">
-              Next, you need to authenticate with Google Drive via OAuth. This gives us read access 
-              to the documents you have access to in your Google Drive account.
+              Next, you need to authenticate with Gmail via OAuth. This gives us read access 
+              to the emails you have access to in your Gmail account.
             </p>
           </div>
           <Button
@@ -418,7 +418,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
             disabled={isAuthenticating}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isAuthenticating ? "Authenticating..." : "Authenticate with Google Drive"}
+            {isAuthenticating ? "Authenticating..." : "Authenticate with Gmail"}
           </Button>
         </div>
       )}
@@ -438,4 +438,4 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   );
 };
 
-export default GoogleDriveCredentialForm;
+export default GmailCredentialForm;
