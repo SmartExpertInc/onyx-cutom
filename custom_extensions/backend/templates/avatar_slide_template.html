@@ -2210,13 +2210,17 @@
                   - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }}
                 
                 🎯 PROFILE-GRADIENT-CONTAINER CSS ANALYSIS:
+                  ⚠️ CRITICAL: CSS dimensions are ALREADY in video space (1920×1080)!
+                     SCALE_X/SCALE_Y are ONLY for draggable elements from React editor.
+                     DO NOT scale CSS values - use them directly!
+                  
                   Container Dimensions (from CSS):
-                    - Width:  784px
-                    - Height: 496px
+                    - Width:  784px   ← Use directly (no scaling)
+                    - Height: 496px   ← Use directly (no scaling)
                   
                   Slide Padding (from CSS):
-                    - Top:    64px
-                    - Left:   80px
+                    - Top:    64px    ← Use directly (no scaling)
+                    - Left:   80px    ← Use directly (no scaling)
                     - Right:  64px
                     - Bottom: 104px
                   
@@ -2228,61 +2232,40 @@
                   CALCULATED CONTAINER POSITION (CSS Layout):
                     X Position (Left):
                       - Padding left: 80px
-                      - Container starts at: 80px
+                      - Container starts at: 80px ← Use directly (no scaling)
                     
                     Y Position (Top):
                       - Padding top: 64px
-                      - Title height: ~80px (flex: 1, min-height)
+                      - Title height: ~156px (varies based on text, estimate for 2 lines)
                       - Gap after title: 30px
-                      - Container starts at: 64px + 80px + 30px = 174px (approx)
+                      - Container starts at: 64px + 156px + 30px = 250px (approx)
                   
-                  📍 ESTIMATED CSS POSITION:
+                  📍 CORRECT CSS POSITION (NO SCALING NEEDED):
                     - Left:   80px
-                    - Top:    ~174px (64px padding + ~80px title + 30px gap)
+                    - Top:    ~250px (64px padding + ~156px title + 30px gap)
                     - Width:  784px
                     - Height: 496px
+                    - Bottom: 250px + 496px = 746px ✅ (well within 1080px)
                   
-                  📍 SCALED POSITION FOR AVATAR OVERLAY (Backend Compositor):
-                    If we want avatar to appear ABOVE the gradient container:
+                  ❌ WRONG: SCALED POSITION (for reference - don't use this!):
+                    This shows what happens if you incorrectly apply scaling:
                     
-                    Scaled X (Left):
-                      - CSS X: 80px
-                      - Scaled: 80px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(80 * SCALE_X) }}px
-                    
-                    Scaled Y (Top):
-                      - CSS Y: ~174px
-                      - Scaled: 174px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(174 * SCALE_Y) }}px
-                    
-                    Scaled Width:
-                      - CSS Width: 784px
-                      - Scaled: 784px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(784 * SCALE_X) }}px
-                    
-                    Scaled Height:
-                      - CSS Height: 496px
-                      - Scaled: 496px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(496 * SCALE_Y) }}px
+                    Scaled X: 80px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(80 * SCALE_X) }}px
+                    Scaled Y: 250px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(250 * SCALE_Y) }}px
+                    Scaled Width: 784px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(784 * SCALE_X) }}px
+                    Scaled Height: 496px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(496 * SCALE_Y) }}px
+                    Bottom edge: {{ "%.0f"|format(250 * SCALE_Y + 496 * SCALE_Y) }}px ❌ EXCEEDS 1080px!
                   
-                  🎬 RECOMMENDED AVATAR POSITION FOR VIDEO COMPOSITOR:
+                  🎬 CORRECT AVATAR POSITION FOR VIDEO COMPOSITOR:
                     {
-                      "x": {{ "%.0f"|format(80 * SCALE_X) }},      // Left edge of gradient container
-                      "y": {{ "%.0f"|format(174 * SCALE_Y) }},     // Top edge of gradient container
-                      "width": {{ "%.0f"|format(784 * SCALE_X) }}, // Match container width
-                      "height": {{ "%.0f"|format(496 * SCALE_Y) }} // Match container height
+                      "x": 80,        // ✅ Direct CSS value (no scaling)
+                      "y": 250,       // ✅ Direct CSS value (estimated for title space)
+                      "width": 784,   // ✅ Direct CSS value (no scaling)
+                      "height": 496   // ✅ Direct CSS value (no scaling)
                     }
-                  
-                  ⚙️ CURRENT AVATAR POSITION (from registry.ts):
-                    {
-                      "x": 60,
-                      "y": 118,
-                      "width": 935,
-                      "height": 843,
-                      "backgroundColor": "#ffffff"
-                    }
-                  
-                  ⚠️ POSITION COMPARISON:
-                    X Difference: {{ "%.0f"|format(80 * SCALE_X - 60) }}px ({{ 'RIGHT' if (80 * SCALE_X - 60) > 0 else 'LEFT' }} by {{ "%.0f"|format((80 * SCALE_X - 60)|abs) }}px)
-                    Y Difference: {{ "%.0f"|format(174 * SCALE_Y - 118) }}px ({{ 'DOWN' if (174 * SCALE_Y - 118) > 0 else 'UP' }} by {{ "%.0f"|format((174 * SCALE_Y - 118)|abs) }}px)
-                    Width Difference: {{ "%.0f"|format(784 * SCALE_X - 935) }}px ({{ 'WIDER' if (784 * SCALE_X - 935) > 0 else 'NARROWER' }} by {{ "%.0f"|format((784 * SCALE_X - 935)|abs) }}px)
-                    Height Difference: {{ "%.0f"|format(496 * SCALE_Y - 843) }}px ({{ 'TALLER' if (496 * SCALE_Y - 843) > 0 else 'SHORTER' }} by {{ "%.0f"|format((496 * SCALE_Y - 843)|abs) }}px)
+                    
+                    ✅ Verification: Bottom edge = 250 + 496 = 746px < 1080px
+                    ✅ Right edge = 80 + 784 = 864px < 1920px
                 
                 ═══════════════════════════════════════════════════════════════════════════
                 -->
@@ -2300,9 +2283,9 @@
                         ───────────────────────────────────────────────────────────────
                         This container is where the avatar should be overlaid.
                         
-                        CSS Properties:
-                          - width: 784px
-                          - height: 496px
+                        CSS Properties (ALREADY in video space 1920×1080):
+                          - width: 784px    ← Use directly
+                          - height: 496px   ← Use directly
                           - background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)
                           - border-radius: 13px
                         
@@ -2311,11 +2294,13 @@
                           - This is the second child (after title)
                           - Position depends on title's actual height
                         
-                        Video Backend Position (for avatar overlay):
-                          X: {{ "%.0f"|format(80 * SCALE_X) }}px (slide padding-left scaled)
-                          Y: {{ "%.0f"|format(174 * SCALE_Y) }}px (padding-top + title + gap, scaled)
-                          Width: {{ "%.0f"|format(784 * SCALE_X) }}px (container width scaled)
-                          Height: {{ "%.0f"|format(496 * SCALE_Y) }}px (container height scaled)
+                        ✅ CORRECT Video Backend Position (NO SCALING):
+                          X: 80px (slide padding-left, use directly)
+                          Y: 250px (padding-top 64px + title ~156px + gap 30px)
+                          Width: 784px (container width, use directly)
+                          Height: 496px (container height, use directly)
+                          
+                          Verification: 250 + 496 = 746px ✅ < 1080px
                         ───────────────────────────────────────────────────────────────
                         -->
                         <div class="profile-gradient-container">

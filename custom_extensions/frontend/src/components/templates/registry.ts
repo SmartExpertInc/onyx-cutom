@@ -1959,10 +1959,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       logoNew: { type: 'image', label: 'Company Logo' }
     },
     avatarPosition: {
-      x: 131,       // Calculated: Left edge of profile-gradient-container (80px × 1.635434)
-      y: 313,       // Calculated: Top edge of profile-gradient-container (174px × 1.800000)
-      width: 1282,  // Calculated: Match container width (784px × 1.635434)
-      height: 893,  // Calculated: Match container height (496px × 1.800000)
+      x: 80,        // ✅ FIXED: Direct CSS padding-left (no scaling - CSS is already in video space 1920×1080)
+      y: 250,       // ✅ FIXED: Estimated position accounting for title (padding-top 64px + title ~156px + gap 30px)
+      width: 784,   // ✅ FIXED: Direct CSS container width (no scaling)
+      height: 496,  // ✅ FIXED: Direct CSS container height (no scaling) - Result: 250+496=746px < 1080px ✅
       backgroundColor: '#ffffff'
     }
   },
