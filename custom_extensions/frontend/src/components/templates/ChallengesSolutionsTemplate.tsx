@@ -314,7 +314,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
             <div key={index} style={{
               position: 'absolute',
               ...pos,
-              width: '420px',
+              width: '280px',
               zIndex: 10
             }}>
               {editingChallengeItems[index] ? (
@@ -372,7 +372,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
             <div key={index} style={{
               position: 'absolute',
               ...pos,
-              width: '420px',
+              width: '280px',
               zIndex: 10
             }}>
               {editingSolutionItems[index] ? (
