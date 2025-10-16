@@ -300,21 +300,23 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
 
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
-        {/* Left side text items */}
-        <div style={{
-          position: 'absolute',
-          left: '90px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '81px',
-          zIndex: 10,
-          width: '420px',
-          alignItems: 'flex-start'
-        }}>
-          {challengeItems.map((item: string, index: number) => (
-            <div key={index}>
+        {/* Left side text items - positioned next to icons */}
+        {challengeItems.map((item: string, index: number) => {
+          // Position each challenge next to its icon
+          const positions = [
+            { top: '15%', left: '50px' },   // Top icon
+            { top: '48%', left: '50px' },   // Middle icon
+            { top: '75%', left: '50px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '420px',
+              zIndex: 10
+            }}>
               {editingChallengeItems[index] ? (
                 <InlineEditor
                   initialValue={challengeItems[index]}
@@ -353,24 +355,26 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
 
-        {/* Right side text items */}
-        <div style={{
-          position: 'absolute',
-          right: '90px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '81px',
-          zIndex: 10,
-          width: '420px',
-          alignItems: 'flex-start'
-        }}>
-          {solutionItems.map((item: string, index: number) => (
-            <div key={index}>
+        {/* Right side text items - positioned next to icons */}
+        {solutionItems.map((item: string, index: number) => {
+          // Position each solution next to its icon
+          const positions = [
+            { top: '15%', right: '50px' },   // Top icon
+            { top: '48%', right: '50px' },   // Middle icon
+            { top: '75%', right: '50px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '420px',
+              zIndex: 10
+            }}>
               {editingSolutionItems[index] ? (
                 <InlineEditor
                   initialValue={solutionItems[index]}
@@ -410,8 +414,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
 
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
