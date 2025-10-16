@@ -3874,15 +3874,15 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         <!-- Content with highlighted phrases -->
                         <div class="content-text">
                             {% if content and highlightedPhrases %}
-                                {% set content_text = content %}
+                                {% set ns = namespace(remaining_text=content, result='') %}
                                 {% for phrase in highlightedPhrases %}
-                                    {% if phrase in content_text %}
-                                        {% set parts = content_text.split(phrase, 1) %}
-                                        {{ parts[0] }}<span class="highlighted">{{ phrase }}</span>
-                                        {% set content_text = parts[1] %}
+                                    {% if phrase in ns.remaining_text %}
+                                        {% set parts = ns.remaining_text.split(phrase, 1) %}
+                                        {% set ns.result = ns.result + parts[0] + '<span class="highlighted">' + phrase + '</span>' %}
+                                        {% set ns.remaining_text = parts[1] %}
                                     {% endif %}
                                 {% endfor %}
-                                {{ content_text }}
+                                {{ (ns.result + ns.remaining_text)|safe }}
                             {% else %}
                                 {{ content or 'Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.' }}
                             {% endif %}
