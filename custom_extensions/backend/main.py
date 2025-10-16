@@ -22144,7 +22144,7 @@ Template Catalog with required props and usage:
   • IMPORTANT: Only use on slides 2-5; PROHIBITED for first slide or beyond slide 10.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
   • Usage: compare/contrast or split content; balanced two columns with concise text.
-  • CRITICAL: leftContent and rightContent must be EXACTLY 1-2 short sentences each. NO bullet points, NO lists, just plain paragraph text. Keep it brief and scannable.
+  • CRITICAL: leftContent and rightContent must each be a single string containing EXACTLY 1-2 short sentences. Write as continuous prose without bullet points or line breaks. Keep it brief and scannable.
 - process-steps: title, subtitle, steps[]
   • Usage: sequential workflow; 3–5 labeled steps in a row with meaningful subtitle describing the process.
 - four-box-grid: title, boxes[] (heading,text or title,content)
