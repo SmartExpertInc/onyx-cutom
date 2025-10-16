@@ -2046,6 +2046,9 @@ export default function LessonPresentationClient() {
                     </div>
                     <div className="px-3 py-3 flex-1">
                       <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-12">
+                        {/* Portal container for names */}
+                        <div id="avatar-names-portal" className="absolute inset-0 pointer-events-none"></div>
+                        
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
@@ -2072,10 +2075,21 @@ export default function LessonPresentationClient() {
                               >
                                 <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
-                                {/* Avatar name placeholder */}
-                                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm font-medium whitespace-nowrap" style={{ color: '#000000' }}>
-                                  Name
-                                </div>
+                                {/* Avatar name using portal */}
+                                {typeof window !== 'undefined' && document.getElementById('avatar-names-portal') && createPortal(
+                                  <div 
+                                    className="absolute text-sm font-medium whitespace-nowrap" 
+                                    style={{ 
+                                      color: '#000000',
+                                      left: `${50 + (slotIndex - 1) * 33.33}%`,
+                                      transform: 'translateX(-50%)',
+                                      bottom: '24px'
+                                    }}
+                                  >
+                                    Name {avatarNumber}
+                                  </div>,
+                                  document.getElementById('avatar-names-portal')!
+                                )}
                                 
                                 {/* Navigation buttons - only show on center slot */}
                                 {isCenterSlot && (
