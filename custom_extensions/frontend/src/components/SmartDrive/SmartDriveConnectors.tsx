@@ -763,7 +763,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex">
             <button
               onClick={() => setActiveTab('smart-drive')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 py-1 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'smart-drive' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -777,7 +777,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 py-1 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'connectors' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -911,7 +911,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
-                  <div className="flex justify-between text-sm mb-2">
+                  <div className="flex justify-between text-[10px] mb-2">
                     <span className="text-gray-700 font-medium">Storage used</span>
                     <span className="text-gray-600">
                       {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
@@ -1012,7 +1012,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
              const userConnectorsForSource = getConnectorsBySource(connector.id);
              const hasConnectors = userConnectorsForSource.length > 0;
 
-             const isActive = hasConnectors && userConnectorsForSource.some(c => c.status === 'active');
+             const isActive = hasConnectors;
              const accountCount = userConnectorsForSource.length;
 
              return (
@@ -1080,10 +1080,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                      <Switch
                        checked={isActive}
                        onCheckedChange={(checked) => {
-                         if (checked && !hasConnectors) {
-                           handleConnectClick(connector.id, connector.name);
-                         }
-                         // Handle toggle logic for existing connectors
+                         handleConnectClick(connector.id, connector.name);
                        }}
                        className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
                      />
@@ -1144,7 +1141,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 {connectors.map((connector) => {
                   const userConnectorsForSource = getConnectorsBySource(connector.id);
                   const hasConnectors = userConnectorsForSource.length > 0;
-                  const isActive = hasConnectors && userConnectorsForSource.some(c => c.status === 'active');
+                  const isActive = hasConnectors;
                   const accountCount = userConnectorsForSource.length;
 
                   return (
@@ -1211,10 +1208,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             <Switch
                               checked={isActive}
                               onCheckedChange={(checked) => {
-                                if (checked && !hasConnectors) {
-                                  handleConnectClick(connector.id, connector.name);
-                                }
-                                // Handle toggle logic for existing connectors
+                                handleConnectClick(connector.id, connector.name);
                               }}
                               className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
                             />

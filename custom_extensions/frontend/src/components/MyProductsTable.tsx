@@ -4330,7 +4330,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </TableCell>
                         <TableCell className="px-3 py-3">
-                          <span className="text-sm text-gray-500">Today</span>
+                          <span className="text-sm text-gray-500">{formatDate(folder.created_at)}</span>
                         </TableCell>
                         <TableCell className="px-2 pr-6 py-2 text-right">
                           <DropdownMenu>
@@ -4472,7 +4472,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                           </TableCell>
                           <TableCell className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
-                            {formatDate(p.lastViewed || p.createdAt)}
+                            {formatDate(p.createdAt)}
                           </TableCell>
                           <TableCell
                             className="px-2 pr-5 py-2 whitespace-nowrap text-right text-sm font-medium relative"
