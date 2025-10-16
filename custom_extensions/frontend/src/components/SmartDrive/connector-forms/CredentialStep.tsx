@@ -426,7 +426,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=docs.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Google Docs API</strong></>,
                             <><strong>Set up OAuth consent screen:</strong><br />
                               • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
-                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
+                              • Select <strong>External</strong> for <strong>User Type</strong><br />
                               • Enter a descriptive name (e.g., "ContentBuilder")<br />
                               • For the required emails, use any email of your choice<br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
@@ -436,8 +436,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add the scope <code>.../auth/admin.directory.user.readonly</code> for <strong>Admin SDK API</strong><br />
                               • Add the scope <code>.../auth/admin.directory.group.readonly</code> for <strong>Admin SDK API</strong></>,
                             <><strong>Set up test users:</strong><br />
-                              • This is only applicable for users without a Google Organization<br />
-                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
                               • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new documents.<br/>
                               • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
                             <><strong>Create credentials:</strong><br />
@@ -1146,7 +1144,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Gmail API</strong></>,
                             <><strong>Set up OAuth consent screen:</strong><br />
                               • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
-                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
+                              • Select <strong>External</strong> for <strong>User Type</strong><br />
                               • Enter a descriptive name (e.g., "ContentBuilder")<br />
                               • For the required emails, use any email of your choice<br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
@@ -1154,8 +1152,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add the scope <code>.../auth/gmail.readonly</code> for <strong>Gmail API</strong><br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
                             <><strong>Set up test users:</strong><br />
-                              • This is only applicable for users without a Google Organization<br />
-                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
                               • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new emails.<br/>
                               • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
                             <><strong>Create credentials:</strong><br />
@@ -1417,7 +1413,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                         <div>
                           <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
-                            Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.
+                            Slab is a wiki tool where the pages are called Posts. Contentbuilder indexes the post titles and contents.
                           </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
@@ -1428,7 +1424,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           ]} />
                           <Text className="mt-2 text-gray-600">{t('connectors.instructions.slab.note', 'Your base URL should look like: https://yourteam.slab.com/')}</Text>
                           <ImportantNotes>
-                            <p>Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.</p>
+                            <p>Slab is a wiki tool where the pages are called Posts. Contentbuilder indexes the post titles and contents.</p>
                           </ImportantNotes>
                         </div>
                       );
