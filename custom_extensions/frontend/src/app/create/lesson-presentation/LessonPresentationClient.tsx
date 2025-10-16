@@ -2054,7 +2054,16 @@ export default function LessonPresentationClient() {
                           {/* Placeholder avatar cards - will be replaced with actual content */}
                           {[1, 2, 3, 4, 5, 6].map((avatar, index) => {
                             const isSelected = selectedAvatar === avatar;
-                            const isVisible = index >= scrollPosition && index < scrollPosition + 3;
+                            
+                            // Calculate which cards to show with circular logic
+                            let displayIndex = index;
+                            if (scrollPosition < 0) {
+                              displayIndex = (index - scrollPosition + 6) % 6;
+                            } else {
+                              displayIndex = (index - scrollPosition + 6) % 6;
+                            }
+                            
+                            const isVisible = displayIndex < 4;
                             
                             if (!isVisible) return null;
                             
@@ -2080,34 +2089,30 @@ export default function LessonPresentationClient() {
                                 {isSelected && (
                                   <>
                                     {/* Left Navigation Button - Scroll left */}
-                                    {scrollPosition > 0 && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setScrollPosition(scrollPosition - 1);
-                                        }}
-                                        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                                      >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                      </button>
-                                    )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setScrollPosition(scrollPosition - 1);
+                                      }}
+                                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                    >
+                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
 
                                     {/* Right Navigation Button - Scroll right */}
-                                    {scrollPosition < 3 && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setScrollPosition(scrollPosition + 1);
-                                        }}
-                                        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                                      >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                      </button>
-                                    )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setScrollPosition(scrollPosition + 1);
+                                      }}
+                                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                    >
+                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
                                   </>
                                 )}
                               </div>
