@@ -2048,7 +2048,7 @@ export default function LessonPresentationClient() {
                         <div 
                           ref={avatarCarouselRef}
                           className="flex gap-6 overflow-x-hidden overflow-y-hidden"
-                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', marginLeft: 'calc(-1 * ((100% - 30px) / 6))' }}
                         >
                           {/* Placeholder avatar cards - will be replaced with actual content */}
                           {[1, 2, 3, 4, 5, 6].map((avatar) => {
