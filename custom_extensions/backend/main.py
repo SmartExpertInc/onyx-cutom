@@ -29560,6 +29560,13 @@ class EntitlementOverrideUpdate(BaseModel):
     slides_max: Optional[int] = None
 
 
+class BatchEntitlementUpdate(BaseModel):
+    user_ids: List[str]
+    connectors_limit: Optional[int] = None
+    storage_gb: Optional[int] = None
+    slides_max: Optional[int] = None
+
+
 @app.get("/api/custom/admin/entitlements")
 async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     await verify_admin_user(request)
@@ -29714,6 +29721,79 @@ async def admin_update_entitlements(
     except Exception as e:
         logger.error(f"Error updating entitlements: {e}")
         raise HTTPException(status_code=500, detail="Failed to update entitlements")
+
+
+@app.post("/api/custom/admin/entitlements-batch")
+async def admin_batch_update_entitlements(
+    payload: BatchEntitlementUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    """Update entitlements for multiple users in batch."""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Get all existing overrides for the batch of users in one query
+            existing_overrides = await conn.fetch(
+                """
+                SELECT onyx_user_id, connectors_limit, storage_gb, slides_max 
+                FROM user_entitlement_overrides 
+                WHERE onyx_user_id = ANY($1)
+                """,
+                payload.user_ids
+            )
+            
+            # Create a lookup map for existing overrides
+            existing_map = {
+                row['onyx_user_id']: {
+                    'connectors_limit': row['connectors_limit'],
+                    'storage_gb': row['storage_gb'],
+                    'slides_max': row['slides_max']
+                }
+                for row in existing_overrides
+            }
+            
+            # Prepare batch data for upsert
+            batch_data = []
+            for user_id in payload.user_ids:
+                existing = existing_map.get(user_id, {})
+                
+                # Prepare new values, keeping unspecified fields unchanged
+                new_vals = {
+                    "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else existing.get("connectors_limit"),
+                    "storage_gb": payload.storage_gb if payload.storage_gb is not None else existing.get("storage_gb"),
+                    "slides_max": payload.slides_max if payload.slides_max is not None else existing.get("slides_max"),
+                }
+                
+                batch_data.append((
+                    user_id,
+                    new_vals["connectors_limit"],
+                    new_vals["storage_gb"],
+                    new_vals["slides_max"]
+                ))
+            
+            # Execute batch upsert using executemany
+            await conn.executemany(
+                """
+                INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                VALUES ($1, $2, $3, $4, now())
+                ON CONFLICT (onyx_user_id)
+                DO UPDATE SET connectors_limit = EXCLUDED.connectors_limit,
+                              storage_gb = EXCLUDED.storage_gb,
+                              slides_max = EXCLUDED.slides_max,
+                              updated_at = now()
+                """,
+                batch_data
+            )
+            
+            return {
+                "updated": True,
+                "updated_count": len(payload.user_ids),
+                "total_requested": len(payload.user_ids)
+            }
+    except Exception as e:
+        logger.error(f"Error in batch updating entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to batch update entitlements")
 
 
 @app.post("/api/custom/admin/entitlements/refresh-all")
