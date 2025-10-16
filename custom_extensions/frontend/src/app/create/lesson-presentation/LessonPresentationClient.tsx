@@ -2042,7 +2042,7 @@ export default function LessonPresentationClient() {
                         <p className="text-[#434343CC] text-sm">Choose the virtual trainer</p>
                       </div>
                     </div>
-                    <div className="px-2 py-3 flex-1">
+                    <div className="px-3 py-3 flex-1">
                       <div className="w-full h-full border border-[#E0E0E0] rounded-md relative p-6">
                         {/* Avatar Cards Carousel */}
                         <div 
@@ -2069,37 +2069,35 @@ export default function LessonPresentationClient() {
                                 {/* Navigation buttons - only show on selected avatar */}
                                 {isSelected && (
                                   <>
-                                    {/* Left Navigation Button */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (avatarCarouselRef.current) {
-                                          const scrollAmount = 300;
-                                          avatarCarouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                                        }
-                                      }}
-                                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                                    >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                      </svg>
-                                    </button>
+                                    {/* Left Navigation Button - Select previous avatar */}
+                                    {avatar > 1 && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedAvatar(avatar - 1);
+                                        }}
+                                        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                      >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                      </button>
+                                    )}
 
-                                    {/* Right Navigation Button */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (avatarCarouselRef.current) {
-                                          const scrollAmount = 300;
-                                          avatarCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                                        }
-                                      }}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
-                                    >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                      </svg>
-                                    </button>
+                                    {/* Right Navigation Button - Select next avatar */}
+                                    {avatar < 6 && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedAvatar(avatar + 1);
+                                        }}
+                                        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                      >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                      </button>
+                                    )}
                                   </>
                                 )}
                               </div>
