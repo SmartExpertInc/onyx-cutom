@@ -372,6 +372,7 @@ export const uk = {
     getUnlimitedAI: "Отримати Необмежений ШІ",
     credits: "кредитів",
     loading: "Завантаження...",
+    knowledgeBase: "База знань",
 
     // Sidebar
     jumpTo: "Перейти до",

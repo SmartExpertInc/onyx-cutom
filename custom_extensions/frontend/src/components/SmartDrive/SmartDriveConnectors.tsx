@@ -930,7 +930,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <>
           {/* Usage Progress Bars */}
           {entitlements && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
@@ -1030,7 +1030,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
                   <Button 
-                    className="bg-[#719AF5] cursor-pointer text-white rounded-md" 
+                    className="bg-[#719AF5] px-4 py-2 cursor-pointer text-white rounded-md" 
                     size="sm" 
                     onClick={() => setShowAddonsModal(true)}
                   >

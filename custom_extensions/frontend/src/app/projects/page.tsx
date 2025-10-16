@@ -529,7 +529,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         >
           <BookCopy size={18} strokeWidth={1.5} className='font-normal' />
           {/* <span>{t('interface.smartDrive', 'Smart Drive')}</span> */}
-          <span>Knowledge base</span>
+          <span>{t('interface.knowledgeBase', 'Knowledge base')}</span>
         </Link>
         {offersTabEnabled && (
           <Link
@@ -674,7 +674,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWor
 
   const getHeaderTitle = () => {
     if (isTrash) return t('interface.trash', 'Trash');
-    if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
+    if (isSmartDrive) return t('interface.knowledgeBase', 'Knowledge base');
     if (isOffers) return t('interface.offers', 'Offers');
     if (isAudits) return t('interface.audits', 'Audits');
     if (isMyProducts) return t('interface.myProducts', 'My products');

@@ -406,6 +406,7 @@ export const en = {
     getUnlimitedAI: "Get Unlimited AI",
     credits: "credits",
     loading: "Loading...",
+    knowledgeBase: "Knowledge base",
 
     // Sidebar
     jumpTo: "Jump to",

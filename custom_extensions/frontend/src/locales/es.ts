@@ -357,6 +357,7 @@ export const es = {
     getUnlimitedAI: "Obtener IA Ilimitada",
     credits: "créditos",
     loading: "Cargando...",
+    knowledgeBase: "Base de conocimientos",
 
     // Sidebar
     jumpTo: "Ir a",

@@ -386,6 +386,7 @@ export const ru = {
     getUnlimitedAI: "Получить Неограниченный ИИ",
     credits: "кредитов",
     loading: "Загрузка...",
+    knowledgeBase: "База знаний",
 
     // Sidebar
     jumpTo: "Перейти к",

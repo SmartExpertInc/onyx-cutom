@@ -17,7 +17,11 @@ import {
 	MoreVertical,
 	ArrowLeft,
 	Image,
-	FileText
+	FileText,
+	FileStack,
+	ClipboardPenLine,
+	Users,
+	CalendarDays
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,6 +65,7 @@ export type SmartDriveItem = {
 	modified?: string | null;
 	mime_type?: string | null;
 	etag?: string | null;
+	creator?: string | null;
 };
 
 interface SmartDriveBrowserProps {
@@ -73,7 +78,7 @@ interface SmartDriveBrowserProps {
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-type SortKey = 'name' | 'modified' | 'size' | 'type';
+type SortKey = 'name' | 'modified' | 'size' | 'type' | 'creator';
 
 type UploadProgress = {
 	filename: string;
@@ -111,6 +116,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [moveOperation, setMoveOperation] = useState<'move' | 'copy' | null>(null);
 	const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
 	const [folderContents, setFolderContents] = useState<SmartDriveItem[]>([]);
+	const [folderItemCounts, setFolderItemCounts] = useState<Record<string, number>>({});
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -122,7 +128,27 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error(`List failed: ${res.status}`);
 			const data = await res.json();
-			setItems(Array.isArray(data.files) ? data.files : []);
+			const files = Array.isArray(data.files) ? data.files : [];
+			setItems(files);
+			
+			// Fetch item counts for each folder
+			const folderCounts: Record<string, number> = {};
+			for (const item of files) {
+				if (item.type === 'directory') {
+					try {
+						const folderRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(item.path)}`, { credentials: 'same-origin' });
+						if (folderRes.ok) {
+							const folderData = await folderRes.json();
+							folderCounts[item.path] = Array.isArray(folderData.files) ? folderData.files.length : 0;
+						} else {
+							folderCounts[item.path] = 0;
+						}
+					} catch {
+						folderCounts[item.path] = 0;
+					}
+				}
+			}
+			setFolderItemCounts(folderCounts);
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
@@ -187,7 +213,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			if (sortKey === 'name') base = a.name.localeCompare(b.name);
 			else if (sortKey === 'size') base = (a.size ?? 0) - (b.size ?? 0);
 			else if (sortKey === 'modified') base = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime();
-			else if (sortKey === 'type') base = a.type.localeCompare(b.type);
+			else if (sortKey === 'type') {
+				const aType = a.type === 'directory' ? 'folder' : (a.mime_type?.split('/')[1] || 'file');
+				const bType = b.type === 'directory' ? 'folder' : (b.mime_type?.split('/')[1] || 'file');
+				base = aType.localeCompare(bType);
+			}
+			else if (sortKey === 'creator') {
+				const aCreator = a.creator || 'Unknown';
+				const bCreator = b.creator || 'Unknown';
+				base = aCreator.localeCompare(bCreator);
+			}
 			return sortAsc ? base : -base;
 		};
 		return [...list].sort((a, b) => dirFirst(a, b) || cmp(a, b));
@@ -201,6 +236,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const onRowClick = (idx: number, it: SmartDriveItem, e: React.MouseEvent) => {
 		if (it.type === 'directory') {
+			// For grid view, expand/collapse folders inline
+			if (mode === 'manage' && viewMode === 'grid') {
+				handleFolderClick(it.path);
+				return;
+			}
+			// For select mode, navigate to folder
 			setCurrentPath(it.path.endsWith('/') ? it.path : `${it.path}/`);
 			return;
 		}
@@ -782,13 +823,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													<svg width="40" height="40" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 														<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
 													</svg>
-													<span className="text-xs mt-1">Folder</span>
+													<span className="text-xs mt-1">
+														{folderItemCounts[it.path] !== undefined 
+															? `${folderItemCounts[it.path]} items`
+															: 'Folder'
+														}
+													</span>
+													{expandedFolder === it.path && (
+														<div className="absolute top-2 right-2">
+															<ArrowLeft className="w-4 h-4 text-blue-500" />
+														</div>
+													)}
 												</div>
 											) : (() => {
 												const FileIcon = getFileIcon(it.mime_type);
 												return (
 													<div className="flex flex-col items-center text-gray-500">
-														<FileIcon className="w-10 h-10" />
+														<FileIcon strokeWidth={1.5} className="w-10 h-10" />
 														<span className="text-xs mt-1">{it.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
 													</div>
 												);
@@ -852,24 +903,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<Copy size={16} className="text-gray-500" />
 															<span>Copy</span>
 														</DropdownMenuItem>
-														{it.type === 'file' && (
-															<>
-																<DropdownMenuSeparator />
-																{filtered.filter(item => item.type === 'directory').map(folder => (
-																	<DropdownMenuItem 
-																		key={folder.path}
-																		onSelect={() => {
-																			setSelected(new Set([it.path]));
-																			moveToFolder(folder.path);
-																		}}
-																	>
-																		<Folder size={16} className="text-gray-500" />
-																		<span>Move to {folder.name}</span>
-																	</DropdownMenuItem>
-																))}
-																<DropdownMenuSeparator />
-															</>
-														)}
+														
 														<DropdownMenuItem onSelect={() => handleMenuAction('delete')}>
 															<Trash2 size={16} className="text-red-600" />
 															<span className="text-red-600">Delete</span>
@@ -886,6 +920,144 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										</div>
 									</div>
 								);
+										})}
+									</div>
+								</div>
+							)}
+							
+							{/* Expanded folder contents */}
+							{expandedFolder && folderContents.length > 0 && (
+								<div className="mt-4">
+									<div className="mb-2 flex items-center gap-2 text-sm text-gray-600">
+										<ArrowLeft className="w-4 h-4" />
+										<span>Contents of {(() => { 
+											const folderName = expandedFolder.split('/').pop() || 'Folder';
+											try { return decodeURIComponent(folderName); } catch { return folderName; }
+										})()}</span>
+									</div>
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+										{folderContents.map((folderItem, folderIdx) => {
+											const handleFolderMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+												setSelected(new Set([folderItem.path]));
+												switch(action) {
+													case 'rename': rename(); break;
+													case 'move': 
+														setMoveOperation('move');
+														setShowFolderSelectionModal(true);
+														break;
+													case 'copy': 
+														setMoveOperation('copy');
+														setShowFolderSelectionModal(true);
+														break;
+													case 'delete': del(); break;
+													case 'download': download(); break;
+												}
+											};
+											
+											return (
+												<div
+													key={folderItem.path}
+													className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
+												>
+													{/* Content Preview Area */}
+													<div className="h-32 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative overflow-hidden">
+														{folderItem.type === 'directory' ? (
+															<div className="flex flex-col items-center text-blue-500">
+																<svg width="40" height="40" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+																</svg>
+																<span className="text-xs mt-1">
+																	{folderItemCounts[folderItem.path] !== undefined 
+																		? `${folderItemCounts[folderItem.path]} items`
+																		: 'Folder'
+																	}
+																</span>
+															</div>
+														) : (() => {
+															const FileIcon = getFileIcon(folderItem.mime_type);
+															return (
+																<div className="flex flex-col items-center text-gray-500">
+																	<FileIcon className="w-10 h-10" />
+																	<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																</div>
+															);
+														})()}
+														
+														{/* File type icon in top-left */}
+														<div className="absolute top-2 left-2">
+															{folderItem.type === 'directory' ? (
+																<div className="w-6 h-6 bg-white rounded-sm border border-[#E0E0E0] flex items-center justify-center">
+																	<svg width="16" height="16" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+																		<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+																	</svg>
+																</div>
+															) : (() => {
+																const FileIcon = getFileIcon(folderItem.mime_type);
+																return (
+																	<div className="w-6 h-6 bg-white rounded-sm border-[#E0E0E0] flex items-center justify-center">
+																		<FileIcon className="w-4 h-4 text-[#0F58F9]" />
+																	</div>
+																);
+															})()}
+														</div>
+													</div>
+													
+													{/* Bottom Section - Title, Date, Actions */}
+													<div className="p-3">
+														<h3 className="font-semibold text-sm h-10 text-gray-900 truncate mb-1">
+															{(() => { try { return decodeURIComponent(folderItem.name); } catch { return folderItem.name; } })()}
+														</h3>
+														<div className="flex items-center justify-between">
+															<p className="text-xs text-gray-500">
+																{folderItem.modified ? new Date(folderItem.modified).toLocaleDateString('en-US', { 
+																	month: 'long', 
+																	day: 'numeric', 
+																	year: 'numeric' 
+																}) : 'No date'}
+															</p>
+															
+															{/* More options button */}
+															<DropdownMenu>
+																<DropdownMenuTrigger asChild>
+																	<Button 
+																		variant="ghost" 
+																		size="sm" 
+																		className="h-6 w-6 p-0"
+																		onClick={(e) => e.stopPropagation()}
+																	>
+																		<MoreHorizontal size={14} className="text-gray-500" />
+																	</Button>
+																</DropdownMenuTrigger>
+																<DropdownMenuContent align="end">
+																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('rename')}>
+																		<Pencil size={16} className="text-gray-500" />
+																		<span>Rename</span>
+																	</DropdownMenuItem>
+																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('move')}>
+																		<MoveRight size={16} className="text-gray-500" />
+																		<span>Move</span>
+																	</DropdownMenuItem>
+																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('copy')}>
+																		<Copy size={16} className="text-gray-500" />
+																		<span>Copy</span>
+																	</DropdownMenuItem>
+																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('delete')}>
+																		<Trash2 size={16} className="text-red-600" />
+																		<span className="text-red-600">Delete</span>
+																	</DropdownMenuItem>
+																	{folderItem.type === 'file' && (
+																		<DropdownMenuItem onSelect={() => handleFolderMenuAction('download')}>
+																			<Download size={16} className="text-gray-500" />
+																			<span>Download</span>
+																		</DropdownMenuItem>
+																	)}
+																</DropdownMenuContent>
+															</DropdownMenu>
+														</div>
+													</div>
+												</div>
+											);
 										})}
 									</div>
 								</div>
@@ -920,20 +1092,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									</Button>
 								</div>
 							)}
-							<div className="flex items-center px-3 py-2 text-xs uppercase text-slate-500 font-medium bg-slate-50/50 flex-shrink-0">
+							<div className="flex items-center px-3 py-2 text-xs uppercase text-[#71717A] font-medium bg-white flex-shrink-0">
 								<div className="w-8"/>
+								<button className="w-16 inline-flex items-center" onClick={()=>{setSortKey('type'); setSortAsc(k=>sortKey==='type'?!k:true);}}>
+									<FileStack strokeWidth={1} className="w-3 h-3 mr-1"/> Type <ArrowUpDown className="w-3 h-3 ml-1"/>
+								</button>
 								<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
-									Name <ArrowUpDown className="w-3 h-3 ml-1"/>
+								   <ClipboardPenLine strokeWidth={1} className="w-3 h-3 mr-1"/>	Title <ArrowUpDown className="w-3 h-3 ml-1"/>
 								</button>
-								<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
-									Size <ArrowUpDown className="w-3 h-3 ml-1"/>
+								<button className="w-32 inline-flex items-center" onClick={()=>{setSortKey('creator'); setSortAsc(k=>sortKey==='creator'?!k:true);}}>
+									<Users strokeWidth={1} className="w-3 h-3 mr-1"/> Creator <ArrowUpDown className="w-3 h-3 ml-1"/>
 								</button>
-								<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
-									Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
+								<button className="w-40 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
+									<CalendarDays strokeWidth={1} className="w-3 h-3 mr-1"/> Edited <ArrowUpDown className="w-3 h-3 ml-1"/>
 								</button>
 								<div className="w-8"/>
 							</div>
-							<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+							<div className="flex-1 overflow-y-auto divide-y divide-[#E0E0E0]">
 								{filtered.map((it, idx) => {
 									const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 										setSelected(new Set([it.path]));
@@ -952,37 +1127,42 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								}
 									};
 									
-									const isExpanded = expandedFolder === it.path;
 									
 									return (
 										<div key={it.path}>
-											<div className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e) => {
-												if (it.type === 'directory') {
-													e.stopPropagation();
-													handleFolderClick(it.path);
-												} else {
-													onRowClick(idx, it, e);
-												}
-											}}>
+											<div className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
 											{/* <div className="w-8">
 												<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
 											</div> */}
-											<div className="w-5 h-5">
-												{it.type === 'directory' ? (
-													<Folder className="w-5 h-5 text-[#0F58F9]"/>
-												) : (() => {
-													const FileIcon = getFileIcon(it.mime_type);
-													return <FileIcon className="w-5 h-5 text-[#0F58F9]"/>;
-												})()}
-											</div>
-											<div className="flex-1">
-												<div className="font-medium text-slate-800 flex items-center gap-2">
-													{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
-													{it.type === 'directory' && isExpanded && (
-														<ArrowLeft className="w-4 h-4 text-gray-500" />
-													)}
+											{/* Type Column */}
+											<div className="w-16 flex items-center">
+												<div className="w-5 h-5">
+													{it.type === 'directory' ? (
+														<Folder strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>
+													) : (() => {
+														const FileIcon = getFileIcon(it.mime_type);
+														return <FileIcon strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>;
+													})()}
 												</div>
-												{/* <div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div> */}
+												<span className="ml-2 text-xs text-[#71717A]">
+													{it.type === 'directory' ? 'Folder' : (it.mime_type?.split('/')[1]?.toUpperCase() || 'FILE')}
+												</span>
+											</div>
+											
+											{/* Title Column - Main content with more width */}
+											<div className="flex-1">
+												<div className="font-sm text-slate-800 flex items-center gap-2">
+													{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
+												</div>
+												<div className="text-xs text-slate-500">
+													{it.type === 'file' 
+														? formatSize(it.size) 
+														: (folderItemCounts[it.path] !== undefined 
+															? `${folderItemCounts[it.path]} items`
+															: 'Folder'
+														)
+													}
+												</div>
 												{it.type === 'file' && (() => { 
 													const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
 													const shouldShow = s && s.status !== 'done';
@@ -1006,8 +1186,29 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</div>
 												)}
 											</div>
-											<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-											<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+											
+											{/* Creator Column */}
+											<div className="w-32 text-sm text-slate-700">
+											<span className="inline-flex items-center text-[var(--main-text)] gap-2">
+												<div
+												className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
+												>
+												<svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100%" viewBox="0 0 288 288" enableBackground="new 0 0 288 288" xmlSpace="preserve">
+												<path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M126.764687,243.325195   C129.743134,252.333206 134.648621,260.277374 136.916687,270.400635   C128.787888,268.256714 124.842384,262.069458 118.092896,258.664429   C119.308434,262.129517 120.328094,264.713470 121.101715,267.369141   C121.528847,268.835388 122.829292,270.669861 120.802452,271.840027   C119.127396,272.807129 118.008667,271.188202 116.981483,270.234497   C108.673660,262.520996 100.574516,254.570007 93.602295,245.621414   C88.185638,238.669373 83.379593,231.244629 78.121811,224.163879   C76.570457,222.074600 74.951332,219.858124 71.795006,218.364532   C68.604797,223.381012 67.569160,229.950348 62.030056,233.435074   C57.042271,236.572968 52.403023,240.231232 48.189892,244.138397   C45.385746,241.875366 46.767834,240.212723 47.577496,238.707336   C49.391239,235.335022 51.005894,231.772644 53.326328,228.770523   C62.297386,217.164062 61.618809,203.921829 60.225838,190.532364   C59.637970,184.881699 58.121010,179.383667 56.273403,174.050064   C50.275124,156.734436 50.554508,139.405197 55.733799,122.029739   C62.114437,100.624023 71.474792,81.173080 89.520638,66.695068   C119.857658,42.355949 155.847946,46.867363 183.390152,65.028984   C195.984482,73.333817 202.778366,86.450531 207.319687,100.443886   C220.159134,140.006592 218.619019,179.070526 202.323807,217.448044   C200.306015,222.200226 198.362686,226.984711 196.286087,231.710846   C195.603226,233.264999 195.330215,235.434372 192.021210,235.111679   C191.544830,225.995117 195.513290,217.500610 196.057571,208.130676   C186.909927,218.816956 176.217575,226.728729 162.932022,230.703110   C149.899185,234.601883 136.731003,234.265442 123.138283,230.953323   C123.345345,235.782639 125.523560,239.224625 126.764687,243.325195  M185.937988,124.180367   C182.732666,120.860306 179.360062,117.776848 175.175842,116.061447   C174.700089,116.430336 174.488876,116.507607 174.448608,116.637764   C172.698914,122.294319 164.988434,125.525246 167.817322,133.128540   C168.200027,134.157150 166.720673,135.102341 165.533051,135.391510   C163.605209,135.860962 161.647766,136.208862 159.377701,136.674805   C161.062805,138.449005 158.214310,139.753845 159.124908,141.856583   C161.031693,146.259705 159.627502,149.741455 155.057053,151.480652   C150.993805,153.026840 148.155334,151.062866 145.905991,145.527100   C145.726746,145.085938 145.432755,144.691406 144.954224,143.863846   C137.083755,146.571548 128.703262,146.706116 120.616859,148.478226   C113.820236,149.967682 110.196198,154.742355 110.369339,161.682526   C110.497734,166.829453 110.875473,171.978714 111.357933,177.106628   C112.634392,190.673721 114.232536,204.188416 118.169258,217.317474   C119.010086,220.121689 120.495758,221.867783 123.294586,222.868378   C133.616211,226.558395 144.297134,227.233017 154.796295,224.977173   C188.680298,217.696838 208.119064,187.382095 201.187790,153.323090   C200.214066,148.538284 199.843994,143.435669 195.424133,139.194107   C196.030853,141.250153 196.680496,142.586060 196.783371,143.962845   C197.089066,148.054352 194.487030,151.278244 190.663040,151.840393   C187.177460,152.352798 183.730301,149.776413 182.993546,146.178833   C182.302444,142.804062 185.592300,139.810059 183.053772,136.266769   C182.079926,136.181213 180.250900,136.130341 178.463898,135.829727   C176.965042,135.577560 175.410370,134.980118 175.073807,133.291550   C174.670563,131.268509 176.178680,130.222519 177.756851,129.593262   C179.907227,128.735870 182.201141,128.237198 184.347412,127.371315   C185.434494,126.932739 187.927521,127.160950 185.937988,124.180367  z"/>
+												<path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M184.497925,205.505127   C177.387009,214.158386 168.161636,212.015427 159.502716,210.813339   C153.161850,209.933029 147.837357,205.318619 141.258728,204.622986   C140.498917,204.542648 139.769547,203.878281 139.995148,202.334045   C142.825668,200.859970 146.206512,201.612762 149.324982,201.480194   C158.448822,201.092361 166.947464,196.727951 176.287842,197.627457   C179.712128,197.957230 182.802567,198.591614 185.588547,200.581680   C188.543945,202.692780 187.912109,204.213242 184.497925,205.505127  M159.784851,207.163208   C165.244186,209.836899 170.631027,207.250763 176.056244,206.667542   C170.672363,206.667542 165.288498,206.667542 159.784851,207.163208  M165.001892,203.486176   C170.099594,203.086731 175.197296,202.687271 180.294998,202.287827   C175.071182,203.026901 169.459641,199.147293 165.001892,203.486176  z"/>
+												<path fill="#6C6C6C" opacity="1.000000" stroke="none" d=" M173.344406,161.090042   C180.438629,158.990570 189.808182,167.157059 188.872223,176.054337   C188.152618,182.894730 178.548767,187.131531 172.244995,183.602051   C172.711761,181.630249 174.450790,182.014267 175.808838,181.629318   C179.330368,180.631119 183.150757,179.894424 183.894775,175.375717   C184.567642,171.289154 181.416046,165.869278 177.394379,163.900024   C175.949905,163.192734 174.040115,163.263535 173.344406,161.090042  z"/>
+												</svg>
+												</div>
+												You
+											</span>
+											</div>
+											
+											{/* Edited Column */}
+											<div className="w-40 text-right text-sm text-slate-700">
+												{it.modified ? new Date(it.modified).toLocaleDateString() : 'No date'}
+											</div>
+											
+											{/* Action Column */}
 											<div className="w-8 flex justify-end">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
@@ -1025,65 +1226,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</DropdownMenu>
 											</div>
 											</div>
-											
-											{/* Expanded folder contents */}
-											{isExpanded && folderContents.length > 0 && (
-												<div className="bg-gray-50 border-l-4 border-blue-200">
-													{folderContents.map((folderItem, folderIdx) => {
-														const handleFolderMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-															setSelected(new Set([folderItem.path]));
-															switch(action) {
-																case 'rename': rename(); break;
-																case 'move': 
-																	setMoveOperation('move');
-																	setShowFolderSelectionModal(true);
-																	break;
-																case 'copy': 
-																	setMoveOperation('copy');
-																	setShowFolderSelectionModal(true);
-																	break;
-																case 'delete': del(); break;
-																case 'download': download(); break;
-															}
-														};
-														
-														return (
-															<div key={folderItem.path} className="flex items-center gap-3 px-6 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e) => onRowClick(folderIdx, folderItem, e)}>
-																<div className="w-5 h-5">
-																	{folderItem.type === 'directory' ? (
-																		<Folder className="w-5 h-5 text-[#0F58F9]"/>
-																	) : (() => {
-																		const FileIcon = getFileIcon(folderItem.mime_type);
-																		return <FileIcon className="w-5 h-5 text-[#0F58F9]"/>;
-																	})()}
-																</div>
-																<div className="flex-1">
-																	<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(folderItem.name); } catch { return folderItem.name; } })()}</div>
-																	<div className="text-xs text-slate-500">{folderItem.type === 'file' ? formatSize(folderItem.size) : 'Folder' }{folderItem.modified ? ` • ${new Date(folderItem.modified).toLocaleString()}` : ''}</div>
-																</div>
-																<div className="w-24 text-right text-sm text-slate-700">{folderItem.type === 'file' ? formatSize(folderItem.size) : ''}</div>
-																<div className="w-44 text-right text-sm text-slate-700">{folderItem.modified ? new Date(folderItem.modified).toLocaleDateString() : ''}</div>
-																<div className="w-8 flex justify-end">
-																	<DropdownMenu>
-																		<DropdownMenuTrigger asChild>
-																			<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																				<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
-																			</Button>
-																		</DropdownMenuTrigger>
-																		<DropdownMenuContent align="end">
-																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-																			<DropdownMenuItem disabled={folderItem.type !== 'file'} onSelect={() => handleFolderMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
-																		</DropdownMenuContent>
-																	</DropdownMenu>
-																</div>
-															</div>
-														);
-													})}
-												</div>
-											)}
 										</div>
 									);
 								})}
