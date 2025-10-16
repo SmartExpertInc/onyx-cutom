@@ -2044,7 +2044,7 @@ export default function LessonPresentationClient() {
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
-                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-12 overflow-hidden">
+                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-12">
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
@@ -2072,7 +2072,7 @@ export default function LessonPresentationClient() {
                                 <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
                                 {/* Avatar name placeholder */}
-                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
+                                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm font-medium whitespace-nowrap" style={{ color: '#000000' }}>
                                   Name
                                 </div>
                                 
