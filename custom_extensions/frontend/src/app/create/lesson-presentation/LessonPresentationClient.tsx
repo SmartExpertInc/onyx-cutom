@@ -22,7 +22,7 @@ import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/prom
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import { AiAgent } from "@/components/ui/ai-agent";
+import { AiAgent, ChatMessage } from "@/components/ui/ai-agent";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -362,6 +362,12 @@ export default function LessonPresentationClient() {
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiChatHistory, setAiChatHistory] = useState<ChatMessage[]>([]);
+  
+  // Clear chat history when starting a new lesson (currentPrompt changes)
+  useEffect(() => {
+    setAiChatHistory([]);
+  }, [currentPrompt]);
   
   // Auto-scroll to advanced section when it's shown
   useEffect(() => {
@@ -2284,6 +2290,8 @@ export default function LessonPresentationClient() {
                     advancedSectionRef={advancedSectionRef}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
                     buttonText="Edit"
+                    chatHistory={aiChatHistory}
+                    setChatHistory={setAiChatHistory}
                   />
                 )}
               </div>

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import { AiAgent } from "@/components/ui/ai-agent";
+import { AiAgent, ChatMessage } from "@/components/ui/ai-agent";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 
@@ -1234,6 +1234,12 @@ export default function CourseOutlineClient() {
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiChatHistory, setAiChatHistory] = useState<ChatMessage[]>([]);
+  
+  // Clear chat history when starting a new course (prompt changes)
+  useEffect(() => {
+    setAiChatHistory([]);
+  }, [prompt]);
   
   // Auto-scroll to advanced section when it's shown
   useEffect(() => {
@@ -1560,6 +1566,8 @@ export default function CourseOutlineClient() {
               advancedSectionRef={advancedSectionRef}
               placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
               buttonText={t('interface.courseOutline.edit', 'Edit')}
+              chatHistory={aiChatHistory}
+              setChatHistory={setAiChatHistory}
             />
           </div>
         )}

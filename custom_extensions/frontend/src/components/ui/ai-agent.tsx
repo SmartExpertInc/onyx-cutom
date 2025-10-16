@@ -49,6 +49,14 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
   );
 };
 
+export type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  status?: 'updating' | 'updated';
+};
+
 interface AiAgentProps {
   editPrompt: string;
   setEditPrompt: (value: string) => void;
@@ -61,6 +69,9 @@ interface AiAgentProps {
   placeholder?: string;
   buttonText?: string;
   disabled?: boolean;
+  // Chat history management
+  chatHistory: ChatMessage[];
+  setChatHistory: (messages: ChatMessage[]) => void;
 }
 
 export const AiAgent: React.FC<AiAgentProps> = ({
@@ -75,34 +86,79 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   placeholder = "Ask me to edit, create, or style anything",
   buttonText = "Edit",
   disabled = false,
+  chatHistory,
+  setChatHistory,
 }) => {
   const { t } = useLanguage();
-  const [hasStartedChat, setHasStartedChat] = useState(false);
-  const [userMessage, setUserMessage] = useState("");
-  const [showUpdated, setShowUpdated] = useState(false);
+  const chatContainerRef = React.useRef<HTMLDivElement>(null);
 
   // Handle send button click
   const handleSend = () => {
     if (!editPrompt.trim()) return;
     
-    setUserMessage(editPrompt);
-    setHasStartedChat(true);
-    setShowUpdated(false);
+    // Add initial AI message if this is the first message
+    if (chatHistory.length === 0) {
+      const aiMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: t('interface.aiAgent.question', 'Hey, what do you want to change?'),
+        timestamp: new Date(),
+      };
+      setChatHistory([aiMessage]);
+    }
+    
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: editPrompt,
+      timestamp: new Date(),
+    };
+    setChatHistory([...chatHistory, userMessage]);
     
     // Call the original onApplyEdit
     onApplyEdit();
+    
+    // Clear the textarea for next message
+    setEditPrompt("");
   };
 
-  // Update showUpdated when loading completes
+  // Update the last assistant message status when loading changes
   React.useEffect(() => {
-    if (hasStartedChat && !loadingEdit) {
-      // Small delay to show "Updating" state first
-      const timer = setTimeout(() => {
-        setShowUpdated(true);
-      }, 500);
-      return () => clearTimeout(timer);
+    if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
+      // Add or update assistant status message
+      const lastMessage = chatHistory[chatHistory.length - 1];
+      const statusMessage: ChatMessage = {
+        id: `status-${lastMessage.id}`,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        status: loadingEdit ? 'updating' : 'updated',
+      };
+      
+      // Check if we already have a status message
+      const hasStatusMessage = chatHistory.length > 1 && 
+        chatHistory[chatHistory.length - 1].role === 'assistant' &&
+        chatHistory[chatHistory.length - 1].content === '';
+      
+      if (hasStatusMessage) {
+        // Update existing status
+        const updatedHistory = [...chatHistory];
+        updatedHistory[updatedHistory.length - 1] = statusMessage;
+        setChatHistory(updatedHistory);
+      } else if (loadingEdit) {
+        // Add new status message
+        setChatHistory([...chatHistory, statusMessage]);
+      }
     }
-  }, [hasStartedChat, loadingEdit]);
+  }, [loadingEdit]);
+
+  // Scroll to bottom when new messages arrive
+  React.useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
   
   return (
     <div 
@@ -137,9 +193,9 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </div>
       </div>
 
-      {!hasStartedChat ? (
+      {chatHistory.length === 0 ? (
         <>
-          {/* Title */}
+          {/* Initial view - Title and examples */}
           <h3 
             className="text-center font-semibold"
             style={{ color: '#0D001B', fontSize: '18px' }}
@@ -216,44 +272,99 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </>
       ) : (
         <>
-          {/* Chat view - messenger style */}
-          <div className="flex flex-col gap-4 mt-4">
-            {/* First message - AI's question */}
-            <div className="flex justify-start">
-              <div 
-                className="px-4 py-3 rounded-2xl max-w-[70%]"
-                style={{ backgroundColor: '#F5F5F5', color: '#0D001B' }}
-              >
-                <p className="text-sm font-medium">
-                  {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
-                </p>
-              </div>
-            </div>
+          {/* Chat view - messenger style with full history */}
+          <div 
+            ref={chatContainerRef}
+            className="flex flex-col gap-4 mt-4 max-h-[400px] overflow-y-auto pr-2"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {chatHistory.map((message) => {
+              if (message.role === 'assistant' && message.content === '') {
+                // Status message
+                return (
+                  <div key={message.id} className="flex flex-col gap-2 mt-2">
+                    {message.status === 'updating' && (
+                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                        <SparklesEmoji />
+                        <span>{t('interface.aiAgent.updating', 'Updating')}</span>
+                      </div>
+                    )}
+                    {message.status === 'updated' && (
+                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                        <SparklesEmoji />
+                        <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
 
-            {/* Second message - User's input */}
-            <div className="flex justify-end">
-              <div 
-                className="px-4 py-3 rounded-2xl max-w-[70%]"
-                style={{ backgroundColor: '#8808A2', color: '#FFFFFF' }}
-              >
-                <p className="text-sm">{userMessage}</p>
-              </div>
-            </div>
+              if (message.role === 'assistant') {
+                // AI message
+                return (
+                  <div key={message.id} className="flex justify-start">
+                    <div 
+                      className="px-4 py-3 rounded-2xl max-w-[70%]"
+                      style={{ backgroundColor: '#F5F5F5', color: '#0D001B' }}
+                    >
+                      <p className="text-sm font-medium">{message.content}</p>
+                    </div>
+                  </div>
+                );
+              } else {
+                // User message
+                return (
+                  <div key={message.id} className="flex justify-end">
+                    <div 
+                      className="px-4 py-3 rounded-2xl max-w-[70%]"
+                      style={{ backgroundColor: '#8808A2', color: '#FFFFFF' }}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
 
-            {/* AI status updates */}
-            <div className="flex flex-col gap-2 mt-2">
-              <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                <SparklesEmoji />
-                <span>{loadingEdit ? t('interface.aiAgent.updating', 'Updating') : ''}</span>
-              </div>
-              
-              {showUpdated && !loadingEdit && (
-                <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                  <SparklesEmoji />
-                  <span>{t('interface.aiAgent.updated', 'Updated')}</span>
-                </div>
+          {/* Textarea for next message */}
+          <div className="relative w-[80%] mx-auto mb-[20px] mt-4">
+            <Textarea
+              value={editPrompt}
+              onChange={(e) => setEditPrompt(e.target.value)}
+              placeholder={placeholder}
+              className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
+              style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#8808A2';
+                e.target.style.boxShadow = 'none';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E0E0E0';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+            
+            {/* Send button positioned inside textarea */}
+            <button
+              type="button"
+              disabled={disabled || loadingEdit || !editPrompt.trim()}
+              onClick={handleSend}
+              className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
+              style={{ 
+                borderColor: '#8808A2',
+                color: '#8808A2'
+              }}
+            >
+              {loadingEdit ? (
+                <span className="text-xs">{t('interface.aiAgent.sending', 'Sending...')}</span>
+              ) : (
+                <>
+                  <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
+                  <SendIcon />
+                </>
               )}
-            </div>
+            </button>
           </div>
         </>
       )}
