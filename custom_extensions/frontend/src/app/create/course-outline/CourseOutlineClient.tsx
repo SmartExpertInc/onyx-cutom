@@ -1237,6 +1237,7 @@ export default function CourseOutlineClient() {
   const advancedSectionRef = useRef<HTMLDivElement>(null);
   const [lastEditFromAiAgent, setLastEditFromAiAgent] = useState(false);
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
   
   // Reset AI Agent flag when user manually edits the prompt
   const prevPromptRef = useRef(prompt);
@@ -1577,6 +1578,8 @@ export default function CourseOutlineClient() {
               buttonText={t('interface.courseOutline.edit', 'Edit')}
               hasStartedChat={aiAgentChatStarted}
               setHasStartedChat={setAiAgentChatStarted}
+              lastUserMessage={aiAgentLastMessage}
+              setLastUserMessage={setAiAgentLastMessage}
             />
           </div>
         )}

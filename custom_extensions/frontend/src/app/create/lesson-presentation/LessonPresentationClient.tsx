@@ -363,6 +363,7 @@ export default function LessonPresentationClient() {
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
   
   // Auto-scroll to advanced section when it's shown
   useEffect(() => {
@@ -1007,6 +1008,8 @@ export default function LessonPresentationClient() {
       if (formatRetryCounter > 0) {
         setFormatRetryCounter(0);
       }
+      // Ensure loading is false when slides are successfully generated
+      setLoading(false);
     }
   }, [streamDone, content, formatRetryCounter, loading, isGenerating, error]);
 
@@ -2287,6 +2290,8 @@ export default function LessonPresentationClient() {
                     buttonText="Edit"
                     hasStartedChat={aiAgentChatStarted}
                     setHasStartedChat={setAiAgentChatStarted}
+                    lastUserMessage={aiAgentLastMessage}
+                    setLastUserMessage={setAiAgentLastMessage}
                   />
                 )}
               </div>
