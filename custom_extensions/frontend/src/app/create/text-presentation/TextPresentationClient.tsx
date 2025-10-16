@@ -906,6 +906,37 @@ export default function TextPresentationClient() {
     if (!editPrompt.trim()) return;
     setLoadingEdit(true);
     setError(null);
+    
+    // Heartbeat variables for edit function
+    let lastDataTime = Date.now();
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+    let heartbeatStarted = false;
+    
+    // Timeout settings
+    const STREAM_TIMEOUT = 30000; // 30 seconds without data
+    const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+    // Cleanup function
+    const cleanup = () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+      }
+    };
+
+    // Setup heartbeat to check for stream timeout
+    const setupHeartbeat = () => {
+      heartbeatInterval = setInterval(() => {
+        const timeSinceLastData = Date.now() - lastDataTime;
+        if (timeSinceLastData > STREAM_TIMEOUT) {
+          console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+          cleanup();
+          setError("Failed to generate presentation – please try again later.");
+          setLoadingEdit(false);
+        }
+      }, HEARTBEAT_INTERVAL);
+    };
+    
     try {
       // NEW: Determine what content to send based on user edits
       let contentToSend = content;
@@ -954,6 +985,11 @@ export default function TextPresentationClient() {
             try {
               const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
               }
@@ -967,6 +1003,9 @@ export default function TextPresentationClient() {
         }
 
         buffer += decoder.decode(value, { stream: true });
+        
+        // Update last data time on any data received
+        lastDataTime = Date.now();
 
         // Split by newlines and process complete chunks
         const lines = buffer.split('\n');
@@ -978,6 +1017,11 @@ export default function TextPresentationClient() {
           try {
             const pkt = JSON.parse(line);
             if (pkt.type === "delta") {
+              // Start heartbeat only after receiving first delta package
+              if (!heartbeatStarted) {
+                heartbeatStarted = true;
+                setupHeartbeat();
+              }
               accumulatedText += pkt.text;
               setContent(accumulatedText);
             } else if (pkt.type === "done") {
@@ -1001,6 +1045,8 @@ export default function TextPresentationClient() {
     } catch (error: any) {
       setError(error.message || "Failed to apply edit");
     } finally {
+      // Always cleanup timeouts
+      cleanup();
       setLoadingEdit(false);
     }
   };
@@ -1030,6 +1076,7 @@ export default function TextPresentationClient() {
         let gotFirstChunk = false;
         let lastDataTime = Date.now();
         let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
         
         // Timeout settings
         const STREAM_TIMEOUT = 30000; // 30 seconds without data
@@ -1124,9 +1171,6 @@ export default function TextPresentationClient() {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
 
-          // Setup timeout monitoring
-          setupHeartbeat();
-
           let buffer = "";
           let accumulatedText = "";
           let accumulatedJsonText = "";
@@ -1143,6 +1187,11 @@ export default function TextPresentationClient() {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
                     accumulatedJsonText += pkt.text;
                   }
@@ -1187,6 +1236,11 @@ export default function TextPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
                   accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {

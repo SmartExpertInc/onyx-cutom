@@ -554,6 +554,7 @@ export default function LessonPresentationClient() {
         let gotFirstChunk = false;
         let lastDataTime = Date.now();
         let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
         
         // Timeout settings
         const STREAM_TIMEOUT = 30000; // 30 seconds without data
@@ -653,9 +654,6 @@ export default function LessonPresentationClient() {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
 
-          // Setup timeout monitoring
-          setupHeartbeat();
-
           let buffer = "";
           let accumulatedText = "";
 
@@ -674,6 +672,11 @@ export default function LessonPresentationClient() {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
                   }
@@ -701,6 +704,11 @@ export default function LessonPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
                 } else if (pkt.type === "done") {

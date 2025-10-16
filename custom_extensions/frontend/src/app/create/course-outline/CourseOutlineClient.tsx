@@ -572,6 +572,7 @@ export default function CourseOutlineClient() {
         let gotFirstChunk = false;
         let lastDataTime = Date.now();
         let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
         
         // Timeout settings
         const STREAM_TIMEOUT = 30000; // 30 seconds without data
@@ -672,9 +673,6 @@ export default function CourseOutlineClient() {
           const reader = res.body?.getReader();
           if (!reader) throw new Error("No stream body");
 
-          // Setup timeout monitoring
-          setupHeartbeat();
-
           let buffer = "";
           let accumulatedRaw = "";
 
@@ -693,6 +691,11 @@ export default function CourseOutlineClient() {
               const pkt = JSON.parse(ln);
               gotFirstChunk = true;
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedRaw += pkt.text;
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
@@ -724,6 +727,11 @@ export default function CourseOutlineClient() {
               const pkt = JSON.parse(buffer.trim());
               gotFirstChunk = true;
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedRaw += pkt.text;
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
