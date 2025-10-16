@@ -50,6 +50,52 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message, showFallback = true
   );
 };
 
+// Compact radial progress ring (16×16) used for char-count indicator
+const RadialProgress: React.FC<{ progress: number; theme: string }> = ({ progress, theme }) => {
+  const size = 16;
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - Math.min(Math.max(progress, 0), 1));
+  
+  // Theme-specific colors for the progress ring
+  const progressColors = {
+    cherry: { bg: "#E5EEFF", fill: "#0540AB" },
+    lunaria: { bg: "#C4B5D6", fill: "#85749E" },
+    wine: { bg: "#E5EEFF", fill: "#0540AB" },
+    vanilla: { bg: "#C4B5D6", fill: "#8776A0" },
+    terracotta: { bg: "#C4D6B5", fill: "#2D7C21" },
+    zephyr: { bg: "#E5EEFF", fill: "#0540AB" },
+  };
+  
+  const colors = progressColors[theme as keyof typeof progressColors] || progressColors.cherry;
+  
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="inline-block">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={colors.bg}
+        strokeWidth={strokeWidth}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={colors.fill}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+    </svg>
+  );
+};
+
 // Helper to retry fetch up to 2 times on 504 Gateway Timeout
 async function fetchWithRetry(input: RequestInfo, init: RequestInit, retries = 2): Promise<Response> {
   let lastError: Error;
@@ -1973,6 +2019,39 @@ export default function LessonPresentationClient() {
                       </div>
                     );
                   });
+                })()}
+                {/* Status row - estimated time and character count */}
+                {(() => {
+                  // Count slides
+                  const cleanedContent = content;
+                  let slides = [];
+                  if (cleanedContent.includes('---')) {
+                    slides = cleanedContent.split(/^---\s*$/m).filter(slide => slide.trim());
+                  } else {
+                    slides = cleanedContent.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
+                  }
+                  slides = slides.filter(slideContent => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+                  const slideCount = slides.length;
+                  
+                  // Calculate character count from content
+                  const charCount = content.length;
+                  
+                  // Estimate presentation time (2.5 minutes per slide on average)
+                  const totalMinutes = Math.round(slideCount * 2.5);
+                  const minutes = Math.floor(totalMinutes);
+                  const seconds = Math.round((totalMinutes - minutes) * 60);
+                  
+                  return (
+                    <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
+                      <span className="select-none">
+                        ~{minutes} {t('interface.generate.min', 'min')} {seconds > 0 ? `${seconds} ${t('interface.generate.sec', 'sec')}` : ''} {t('interface.generate.estimated', 'estimated')}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
+                        {charCount}/50000
+                      </span>
+                    </div>
+                  );
                 })()}
                 </div>
               </div>
