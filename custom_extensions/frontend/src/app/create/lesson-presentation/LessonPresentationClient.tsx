@@ -243,9 +243,8 @@ export default function LessonPresentationClient() {
   const productType = params?.get("productType") || "lesson_presentation";
   
   // Avatar carousel state for video lessons
-  const [selectedAvatar, setSelectedAvatar] = useState<number>(1);
-  const [avatarStartIndex, setAvatarStartIndex] = useState<number>(0);
-  const totalAvatars = 6;
+  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+  const avatarCarouselRef = useRef<HTMLDivElement>(null);
 
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -2045,47 +2044,37 @@ export default function LessonPresentationClient() {
                     </div>
                     <div className="px-3 py-3 flex-1">
                       <div className="w-full h-full border border-[#E0E0E0] rounded-md relative p-6">
-                        {/* Fixed Avatar Cards Layout */}
-                        <div className="flex gap-4 overflow-hidden justify-center items-center h-full">
-                          {/* Display 3 avatars with half cards on edges */}
-                          {[0, 1, 2].map((position) => {
-                            const avatarIndex = avatarStartIndex + position;
-                            const avatarNumber = avatarIndex + 1;
-                            const isSelected = selectedAvatar === avatarNumber;
-                            const isEdge = position === 0 || position === 2;
-                            
-                            // Don't render if avatar doesn't exist
-                            if (avatarIndex >= totalAvatars) return null;
-                            
+                        {/* Avatar Cards Carousel */}
+                        <div 
+                          ref={avatarCarouselRef}
+                          className="flex gap-6 overflow-x-hidden overflow-y-hidden"
+                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                          {/* Placeholder avatar cards - will be replaced with actual content */}
+                          {[1, 2, 3, 4, 5, 6].map((avatar) => {
+                            const isSelected = selectedAvatar === avatar;
                             return (
                               <div
-                                key={position}
-                                onClick={() => setSelectedAvatar(avatarNumber)}
+                                key={avatar}
+                                onClick={() => setSelectedAvatar(avatar)}
                                 className={`flex-shrink-0 rounded-md transition-all cursor-pointer bg-gray-100 flex items-center justify-center relative ${
                                   isSelected 
                                     ? 'border-2 border-[#0F58F9]' 
                                     : 'border border-transparent hover:border-2 hover:border-[#0F58F9]'
-                                } ${isEdge ? 'opacity-50' : ''}`}
-                                style={{ 
-                                  width: isEdge ? '200px' : '380px',
-                                  aspectRatio: '16/9',
-                                  clipPath: isEdge 
-                                    ? (position === 0 ? 'inset(0 50% 0 0)' : 'inset(0 0 0 50%)')
-                                    : 'none'
-                                }}
+                                }`}
+                                style={{ width: 'calc((100% - 30px) / 3)', aspectRatio: '16/9' }}
                               >
-                                <span className="text-gray-500">Avatar {avatarNumber}</span>
+                                <span className="text-gray-500">Avatar {avatar}</span>
                                 
-                                {/* Navigation buttons - only show on selected center avatar */}
-                                {isSelected && !isEdge && (
+                                {/* Navigation buttons - only show on selected avatar */}
+                                {isSelected && (
                                   <>
-                                    {/* Left Navigation Button - Show previous avatar */}
-                                    {avatarStartIndex > 0 && (
+                                    {/* Left Navigation Button - Select previous avatar */}
+                                    {avatar > 1 && (
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setAvatarStartIndex(avatarStartIndex - 1);
-                                          setSelectedAvatar(avatarNumber - 1);
+                                          setSelectedAvatar(avatar - 1);
                                         }}
                                         className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                       >
@@ -2095,13 +2084,12 @@ export default function LessonPresentationClient() {
                                       </button>
                                     )}
 
-                                    {/* Right Navigation Button - Show next avatar */}
-                                    {avatarStartIndex + 2 < totalAvatars && (
+                                    {/* Right Navigation Button - Select next avatar */}
+                                    {avatar < 6 && (
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setAvatarStartIndex(avatarStartIndex + 1);
-                                          setSelectedAvatar(avatarNumber + 1);
+                                          setSelectedAvatar(avatar + 1);
                                         }}
                                         className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                       >
