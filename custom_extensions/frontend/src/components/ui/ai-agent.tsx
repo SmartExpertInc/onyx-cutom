@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "../../contexts/LanguageContext";
 
@@ -24,6 +24,9 @@ const SendIcon: React.FC = () => (
     </defs>
   </svg>
 );
+
+// Sparkles emoji component
+const SparklesEmoji: React.FC = () => <span>✨</span>;
 
 // Simple bouncing dots loading animation
 type LoadingProps = { message?: string };
@@ -74,6 +77,32 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   disabled = false,
 }) => {
   const { t } = useLanguage();
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [userMessage, setUserMessage] = useState("");
+  const [showUpdated, setShowUpdated] = useState(false);
+
+  // Handle send button click
+  const handleSend = () => {
+    if (!editPrompt.trim()) return;
+    
+    setUserMessage(editPrompt);
+    setHasStartedChat(true);
+    setShowUpdated(false);
+    
+    // Call the original onApplyEdit
+    onApplyEdit();
+  };
+
+  // Update showUpdated when loading completes
+  React.useEffect(() => {
+    if (hasStartedChat && !loadingEdit) {
+      // Small delay to show "Updating" state first
+      const timer = setTimeout(() => {
+        setShowUpdated(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasStartedChat, loadingEdit]);
   
   return (
     <div 
@@ -108,80 +137,126 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </div>
       </div>
 
-      {/* Title */}
-      <h3 
-        className="text-center font-semibold"
-        style={{ color: '#0D001B', fontSize: '18px' }}
-      >
-        {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
-      </h3>
+      {!hasStartedChat ? (
+        <>
+          {/* Title */}
+          <h3 
+            className="text-center font-semibold"
+            style={{ color: '#0D001B', fontSize: '18px' }}
+          >
+            {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
+          </h3>
 
-      {/* Example prompts */}
-      <div className="flex flex-wrap justify-center gap-3 mb-[20px]">
-        {examples.map((ex) => {
-          const isSelected = selectedExamples.includes(ex.short);
-          return (
+          {/* Example prompts */}
+          <div className="flex flex-wrap justify-center gap-3 mb-[20px]">
+            {examples.map((ex) => {
+              const isSelected = selectedExamples.includes(ex.short);
+              return (
+                <button
+                  key={ex.short}
+                  type="button"
+                  onClick={() => toggleExample(ex)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all duration-200 border ${
+                    isSelected
+                      ? 'hover:shadow-md'
+                      : 'bg-white hover:shadow-md'
+                  }`}
+                  style={
+                    isSelected
+                      ? { backgroundColor: '#F7E0FC', color: '#8808A2', borderColor: '#8808A2' }
+                      : { color: '#5D5D79', borderColor: '#5D5D79' }
+                  }
+                >
+                  <SparkleIcon color={isSelected ? '#8808A2' : '#5D5D79'} />
+                  <span>{ex.short}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Textarea with embedded Send button */}
+          <div className="relative w-[80%] mx-auto mb-[20px]">
+            <Textarea
+              value={editPrompt}
+              onChange={(e) => setEditPrompt(e.target.value)}
+              placeholder={placeholder}
+              className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
+              style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#8808A2';
+                e.target.style.boxShadow = 'none';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E0E0E0';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+            
+            {/* Send button positioned inside textarea */}
             <button
-              key={ex.short}
               type="button"
-              onClick={() => toggleExample(ex)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all duration-200 border ${
-                isSelected
-                  ? 'hover:shadow-md'
-                  : 'bg-white hover:shadow-md'
-              }`}
-              style={
-                isSelected
-                  ? { backgroundColor: '#F7E0FC', color: '#8808A2', borderColor: '#8808A2' }
-                  : { color: '#5D5D79', borderColor: '#5D5D79' }
-              }
+              disabled={disabled || loadingEdit || !editPrompt.trim()}
+              onClick={handleSend}
+              className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
+              style={{ 
+                borderColor: '#8808A2',
+                color: '#8808A2'
+              }}
             >
-              <SparkleIcon color={isSelected ? '#8808A2' : '#5D5D79'} />
-              <span>{ex.short}</span>
+              {loadingEdit ? (
+                <span className="text-xs">{t('interface.aiAgent.sending', 'Sending...')}</span>
+              ) : (
+                <>
+                  <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
+                  <SendIcon />
+                </>
+              )}
             </button>
-          );
-        })}
-      </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Chat view - messenger style */}
+          <div className="flex flex-col gap-4 mt-4">
+            {/* First message - AI's question */}
+            <div className="flex justify-start">
+              <div 
+                className="px-4 py-3 rounded-2xl max-w-[70%]"
+                style={{ backgroundColor: '#F5F5F5', color: '#0D001B' }}
+              >
+                <p className="text-sm font-medium">
+                  {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
+                </p>
+              </div>
+            </div>
 
-      {/* Textarea with embedded Send button */}
-      <div className="relative w-[80%] mx-auto mb-[20px]">
-        <Textarea
-          value={editPrompt}
-          onChange={(e) => setEditPrompt(e.target.value)}
-          placeholder={placeholder}
-          className="w-full px-5 py-4 pb-14 rounded-xl bg-white text-sm text-black resize-none overflow-hidden min-h-[120px] border-[#E0E0E0] focus:border-[#8808A2] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200 placeholder:text-sm hover:shadow-lg cursor-pointer"
-          style={{ background: "rgba(255,255,255,0.95)", color: '#000000', boxShadow: 'none', fontSize: '0.875rem' }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#8808A2';
-            e.target.style.boxShadow = 'none';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#E0E0E0';
-            e.target.style.boxShadow = 'none';
-          }}
-        />
-        
-        {/* Send button positioned inside textarea */}
-        <button
-          type="button"
-          disabled={disabled || loadingEdit || !editPrompt.trim()}
-          onClick={onApplyEdit}
-          className="absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1 rounded-md bg-white border transition-all hover:shadow-md disabled:opacity-50"
-          style={{ 
-            borderColor: '#8808A2',
-            color: '#8808A2'
-          }}
-        >
-          {loadingEdit ? (
-            <span className="text-xs">{t('interface.aiAgent.sending', 'Sending...')}</span>
-          ) : (
-            <>
-              <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
-              <SendIcon />
-            </>
-          )}
-        </button>
-      </div>
+            {/* Second message - User's input */}
+            <div className="flex justify-end">
+              <div 
+                className="px-4 py-3 rounded-2xl max-w-[70%]"
+                style={{ backgroundColor: '#8808A2', color: '#FFFFFF' }}
+              >
+                <p className="text-sm">{userMessage}</p>
+              </div>
+            </div>
+
+            {/* AI status updates */}
+            <div className="flex flex-col gap-2 mt-2">
+              <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                <SparklesEmoji />
+                <span>{loadingEdit ? t('interface.aiAgent.updating', 'Updating') : ''}</span>
+              </div>
+              
+              {showUpdated && !loadingEdit && (
+                <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                  <SparklesEmoji />
+                  <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
