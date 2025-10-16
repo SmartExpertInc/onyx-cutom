@@ -944,14 +944,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <div className="flex-1">
                         {/* Top labels */}
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-700 font-medium text-xs">Storage used</span>
-                          <span className="text-gray-600 text-xs">
+                          <span className="text-gray-700 font-medium text-[11px]">Storage used</span>
+                          <span className="text-gray-600 text-[11px]">
                             {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                           </span>
                         </div>
                         
                         {/* Progress bar */}
-                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div className="w-50 bg-gray-200 rounded-full h-2 overflow-hidden">
                           <div
                             className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                             style={{

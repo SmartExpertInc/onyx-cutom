@@ -759,7 +759,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								</div>
 							)}
 
-							{/* Folders Section - Always show at top */}
+							{/* Folders Section - Horizontal list at top */}
 							{filtered.filter(item => item.type === 'directory').length > 0 && (
 								<div>
 									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-5 gap-x-8">
@@ -852,7 +852,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{/* Files Section - Show unassigned files when no folder selected, or selected folder's contents */}
 							{(() => {
 								const filesToShow = selectedFolderForView && folderContentsMap[selectedFolderForView]
-									? folderContentsMap[selectedFolderForView]
+									? folderContentsMap[selectedFolderForView].filter(item => item.type === 'file')
 									: filtered.filter(item => item.type === 'file');
 								
 								if (filesToShow.length === 0) return null;
@@ -861,7 +861,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									<div className="mt-4">
 										{selectedFolderForView && (
 											<div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-												<span><Folder className='w-4 h-4' /> {(() => { 
+												<Folder className='w-7 h-7' /> <span>{(() => { 
 													const folderName = selectedFolderForView.split('/').pop() || 'Folder';
 													try { return decodeURIComponent(folderName); } catch { return folderName; }
 												})()} ({filesToShow.length} items)</span>
@@ -894,19 +894,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												>
 													{/* Content Preview Area */}
 													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative overflow-hidden">
-														{folderItem.type === 'directory' ? (
-															<div className="flex flex-col items-center text-blue-500">
-																<svg width="40" height="40" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-																</svg>
-																<span className="text-xs mt-1">
-																	{folderItemCounts[folderItem.path] !== undefined 
-																		? `${folderItemCounts[folderItem.path]} items`
-																		: 'Folder'
-																	}
-																</span>
-															</div>
-														) : (() => {
+														{(() => {
 															const FileIcon = getFileIcon(folderItem.mime_type);
 															return (
 																<div className="flex flex-col items-center text-gray-500">
@@ -1018,7 +1006,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
 											setCurrentPath(parentPath);
 										}}
-										className="flex items-center gap-2"
+										className="flex rounded-md items-center gap-2"
 									>
 										<ArrowLeft className="w-4 h-4" />
 										Back
@@ -1126,7 +1114,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<div className="w-4 h-4 border-l-2 border-blue-200 mr-1"></div>
 															{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 														</div>
-														<div className="text-xs text-slate-500 ml-5">
+														<div className="text-xs text-[#09090B] ml-5">
 															{it.type === 'file' 
 																? formatSize(it.size) 
 																: (folderItemCounts[it.path] !== undefined 
