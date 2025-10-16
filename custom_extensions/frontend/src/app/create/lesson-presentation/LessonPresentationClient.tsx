@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -236,6 +236,10 @@ export default function LessonPresentationClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
+  
+  // Retry state for error handling
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
   
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
@@ -765,7 +769,7 @@ export default function LessonPresentationClient() {
       jsonConvertedRef.current = false;
       setOriginalJsonResponse(null);
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount, retryTrigger]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -1934,7 +1938,27 @@ export default function LessonPresentationClient() {
                 )}
               </div>
             )}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (

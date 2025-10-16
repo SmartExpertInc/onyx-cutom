@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit, XCircle } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -296,6 +296,10 @@ export default function CourseOutlineClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Retry state for error handling
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
   
   // Modal states for insufficient credits
   const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
@@ -773,7 +777,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress, retryTrigger]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -1524,7 +1528,27 @@ export default function CourseOutlineClient() {
             )}
           </div>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-          {error && <p className="text-red-600">{error}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+              <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                <XCircle className="h-5 w-5" />
+                {t('interface.error', 'Error')}
+              </div>
+              <div className="text-sm text-red-700 mb-4">
+                <p>{error}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setRetryCount(0);
+                  setRetryTrigger(prev => prev + 1);
+                }}
+                className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+              >
+                {t('interface.generate.retryGeneration', 'Retry Generation')}
+              </button>
+            </div>
+          )}
           {preview.length > 0 && (
             <div
               className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"

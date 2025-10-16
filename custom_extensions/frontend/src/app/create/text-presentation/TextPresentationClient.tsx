@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -1356,7 +1356,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText, retryTrigger]);
 
   // // Auto-scroll textarea as new content streams in
   // useEffect(() => {
@@ -2296,7 +2296,27 @@ export default function TextPresentationClient() {
               )}
             </div>
             {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
