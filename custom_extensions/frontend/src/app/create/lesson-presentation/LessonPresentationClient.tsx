@@ -2056,14 +2056,8 @@ export default function LessonPresentationClient() {
                             const isSelected = selectedAvatar === avatar;
                             
                             // Calculate which cards to show with circular logic
-                            let displayIndex = index;
-                            if (scrollPosition < 0) {
-                              displayIndex = (index - scrollPosition + 6) % 6;
-                            } else {
-                              displayIndex = (index - scrollPosition + 6) % 6;
-                            }
-                            
-                            const isVisible = displayIndex < 4;
+                            const adjustedIndex = (index - scrollPosition + 6) % 6;
+                            const isVisible = adjustedIndex < 4;
                             
                             if (!isVisible) return null;
                             
@@ -2092,7 +2086,11 @@ export default function LessonPresentationClient() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setScrollPosition(scrollPosition - 1);
+                                        const newScrollPosition = scrollPosition - 1;
+                                        setScrollPosition(newScrollPosition);
+                                        // Move selection to previous card (circular)
+                                        const newSelectedAvatar = selectedAvatar === 1 ? 6 : selectedAvatar - 1;
+                                        setSelectedAvatar(newSelectedAvatar);
                                       }}
                                       className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                     >
@@ -2105,7 +2103,11 @@ export default function LessonPresentationClient() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setScrollPosition(scrollPosition + 1);
+                                        const newScrollPosition = scrollPosition + 1;
+                                        setScrollPosition(newScrollPosition);
+                                        // Move selection to next card (circular)
+                                        const newSelectedAvatar = selectedAvatar === 6 ? 1 : selectedAvatar + 1;
+                                        setSelectedAvatar(newSelectedAvatar);
                                       }}
                                       className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                     >
