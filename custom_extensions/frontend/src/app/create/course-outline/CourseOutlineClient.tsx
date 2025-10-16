@@ -597,7 +597,7 @@ export default function CourseOutlineClient() {
                 return;
               }
               
-              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setError("Failed to generate outline – please try again later.");
               setLoading(false);
             }
           }, HEARTBEAT_INTERVAL);

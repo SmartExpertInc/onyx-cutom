@@ -579,7 +579,7 @@ export default function LessonPresentationClient() {
                 return;
               }
               
-              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setError("Failed to generate lesson – please try again later.");
               setLoading(false);
             }
           }, HEARTBEAT_INTERVAL);

@@ -1059,7 +1059,7 @@ export default function TextPresentationClient() {
                 return;
               }
               
-              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setError("Failed to generate presentation – please try again later.");
               setLoading(false);
             }
           }, HEARTBEAT_INTERVAL);
@@ -1172,7 +1172,7 @@ export default function TextPresentationClient() {
               setStreamDone(true);
               break;
             }
-            
+
             buffer += decoder.decode(value, { stream: true });
 
             // Split by newlines and process complete chunks
