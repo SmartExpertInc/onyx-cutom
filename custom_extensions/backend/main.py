@@ -29723,7 +29723,7 @@ async def admin_update_entitlements(
         raise HTTPException(status_code=500, detail="Failed to update entitlements")
 
 
-@app.post("/api/custom/admin/entitlements/batch")
+@app.post("/api/custom/admin/entitlements-batch")
 async def admin_batch_update_entitlements(
     payload: BatchEntitlementUpdate,
     request: Request,
