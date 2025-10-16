@@ -548,6 +548,42 @@ export default function LessonPresentationClient() {
         setContent("");
         setTextareaVisible(true);
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = {
@@ -613,13 +649,22 @@ export default function LessonPresentationClient() {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
 
+          // Setup timeout monitoring
+          setupHeartbeat();
+
           let buffer = "";
           let accumulatedText = "";
 
           while (true) {
             const { done, value } = await reader.read();
 
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+
             if (done) {
+              // Update last data time for final buffer processing
+              lastDataTime = Date.now();
+              
               // Process any remaining buffer
               if (buffer.trim()) {
                 try {
@@ -698,6 +743,9 @@ export default function LessonPresentationClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
