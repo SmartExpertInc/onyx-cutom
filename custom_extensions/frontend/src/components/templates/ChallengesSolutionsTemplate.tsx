@@ -382,9 +382,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {solutionItems.map((item: string, index: number) => {
           // Position each solution next to its icon
           const positions = [
-            { top: '15%', right: '20px' },   // Top icon
-            { top: '48%', right: '20px' },   // Middle icon
-            { top: '75%', right: '20px' }    // Bottom icon
+            { top: '15%', right: '10px' },   // Top icon
+            { top: '48%', right: '10px' },   // Middle icon
+            { top: '75%', right: '10px' }    // Bottom icon
           ];
           const pos = positions[index] || positions[0];
           
@@ -448,7 +448,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           left: '50%',
           transform: 'translate(-50%, 160px)',
           display: 'flex',
-          gap: '70px',
+          gap: '90px',
           zIndex: 10,
           paddingLeft: '40px'
         }}>
