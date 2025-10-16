@@ -1659,6 +1659,185 @@
             background-color: #5F616D;
         }
         
+        /* AI Pharma Market Growth Slide Template - EXACT React Copy */
+        .ai-pharma-market-growth-slide {
+            width: 1920px;
+            height: 1080px;
+            background-color: #E0E7FF;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            padding: 26px;
+        }
+        
+        .ai-pharma-market-growth-slide .rounded-panel {
+            position: absolute;
+            top: 26px;
+            left: 26px;
+            right: 26px;
+            bottom: 26px;
+            background-color: #E0E7FF;
+            border-radius: 32px;
+        }
+        
+        .ai-pharma-market-growth-slide .logo-container {
+            position: absolute;
+            top: 48px;
+            left: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10;
+        }
+        
+        .ai-pharma-market-growth-slide .logo-img {
+            height: 48px;
+            max-width: 192px;
+            object-fit: contain;
+        }
+        
+        .ai-pharma-market-growth-slide .logo-placeholder {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #000000;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ai-pharma-market-growth-slide .logo-plus-h {
+            width: 19px;
+            height: 3px;
+            background-color: #000000;
+            position: absolute;
+        }
+        
+        .ai-pharma-market-growth-slide .logo-plus-v {
+            width: 3px;
+            height: 19px;
+            background-color: #000000;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .ai-pharma-market-growth-slide .logo-text {
+            font-size: 22px;
+            font-weight: 400;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .ai-pharma-market-growth-slide .main-title {
+            position: absolute;
+            left: 96px;
+            top: 170px;
+            font-size: 70px;
+            width: 555px;
+            line-height: 1.05;
+            font-weight: 700;
+            color: #09090B;
+            font-family: 'Inter', sans-serif;
+            white-space: pre-line;
+        }
+        
+        .ai-pharma-market-growth-slide .bars-area {
+            position: absolute;
+            left: 102px;
+            top: 440px;
+            width: 56%;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .ai-pharma-market-growth-slide .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 29px;
+            position: relative;
+            padding: 13px;
+            border-radius: 13px;
+        }
+        
+        .ai-pharma-market-growth-slide .bar-year {
+            width: 80px;
+            min-height: 35px;
+            color: #09090B;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .ai-pharma-market-growth-slide .bar-container {
+            flex-grow: 1;
+            background-color: transparent;
+            height: 125px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .ai-pharma-market-growth-slide .bar-fill {
+            height: 100%;
+            background: linear-gradient(to left, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 122%);
+            border-radius: 3px;
+            min-width: 19px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 29px;
+        }
+        
+        .ai-pharma-market-growth-slide .bar-label {
+            color: #ffffff;
+            font-size: 35px;
+            font-weight: 500;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .ai-pharma-market-growth-slide .doctor-image {
+            position: absolute;
+            right: 144px;
+            top: 48px;
+            bottom: 155px;
+            height: 96%;
+        }
+        
+        .ai-pharma-market-growth-slide .doctor-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .ai-pharma-market-growth-slide .page-number-container {
+            position: absolute;
+            bottom: 32px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            z-index: 10;
+        }
+        
+        .ai-pharma-market-growth-slide .page-line {
+            width: 32px;
+            height: 1.5px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .ai-pharma-market-growth-slide .page-number {
+            color: #000000;
+            font-size: 27px;
+            font-weight: 300;
+            font-family: 'Inter', sans-serif;
+        }
+        
         /* KPI Update Slide Template */
         .kpi-update-slide {
             width: 1920px;
@@ -3246,6 +3425,96 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <div class="page-number-container">
                         <div class="page-line"></div>
                         <div>{{ pageNumber or '18' }}</div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'ai-pharma-market-growth-slide' or templateId == 'ai-pharma-market-growth' %}
+                <!-- AI Pharma Market Growth Slide - EXACT React Implementation -->
+                <div class="ai-pharma-market-growth-slide">
+                    <!-- Rounded panel background -->
+                    <div class="rounded-panel"></div>
+
+                    <!-- Logo in top-left corner -->
+                    <div class="logo-container">
+                        {% if companyLogoPath %}
+                            <img src="{{ companyLogoPath }}" alt="Company Logo" class="logo-img">
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="logo-plus-h"></div>
+                                <div class="logo-plus-v"></div>
+                            </div>
+                            <span class="logo-text">{{ yourLogoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title -->
+                    <div class="main-title">{{ title or 'AI Pharma\nMarket Growth' }}</div>
+
+                    <!-- Bars area -->
+                    <div class="bars-area">
+                        {% if bars and bars|length > 0 %}
+                            {% for bar in bars %}
+                                <div class="bar-row">
+                                    <!-- Year -->
+                                    <div class="bar-year">{{ bar.year }}</div>
+                                    
+                                    <!-- Bar container -->
+                                    <div class="bar-container">
+                                        <!-- Bar fill with label -->
+                                        <div class="bar-fill" style="width: {{ bar.widthPercent }}%;">
+                                            <div class="bar-label">{{ bar.label }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Default bars if no data provided -->
+                            <div class="bar-row">
+                                <div class="bar-year">2012</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: 24%;">
+                                        <div class="bar-label">$10 million</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bar-row">
+                                <div class="bar-year">2016</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: 72%;">
+                                        <div class="bar-label">$100 million</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bar-row">
+                                <div class="bar-year">2020</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: 92%;">
+                                        <div class="bar-label">$700 million</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bar-row">
+                                <div class="bar-year">2030</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" style="width: 100%;">
+                                        <div class="bar-label">$9000 billion</div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right doctor image -->
+                    <div class="doctor-image">
+                        {% if doctorImagePath %}
+                            <img src="{{ doctorImagePath }}" alt="{{ doctorImageAlt or 'Doctor' }}" class="doctor-img">
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number in bottom-left -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '08' }}</div>
                     </div>
                 </div>
                 
