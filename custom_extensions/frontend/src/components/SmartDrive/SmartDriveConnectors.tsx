@@ -936,49 +936,51 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 <div>
                   <div className="space-y-3">
                     {/* Available files, progress bar, and button layout */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between">
                       {/* Available files text on the left */}
                       <div className="text-black font-semibold text-xl">Available files</div>
                       
-                      {/* Progress bar section in the center */}
-                      <div className="flex-1">
-                        {/* Top labels */}
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-700 font-medium text-[11px]">Storage used</span>
-                          <span className="text-gray-600 text-[11px]">
-                            {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
-                          </span>
+                      {/* Progress bar section on the right */}
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col">
+                          {/* Top labels */}
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-700 font-medium text-[11px]">Storage used</span>
+                            <span className="text-gray-600 text-[11px]">
+                              {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
+                            </span>
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div className="w-48 bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div
+                              className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
+                              style={{
+                                width: `${Math.min(
+                                  (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                                  100
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                          
+                          {/* Bottom labels */}
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-gray-500 text-[11px]">
+                              {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
+                            </span>
+                            <span className="text-gray-500 text-[11px]">
+                              {entitlements.storage_gb - entitlements.storage_used_gb} GB free
+                            </span>
+                          </div>
                         </div>
                         
-                        {/* Progress bar */}
-                        <div className="w-50 bg-gray-200 rounded-full h-2 overflow-hidden">
-                          <div
-                            className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
-                            style={{
-                              width: `${Math.min(
-                                (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
-                                100
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                        
-                        {/* Bottom labels */}
-                        <div className="flex justify-between items-center mt-2">
-                          <span className="text-gray-500 text-[11px]">
-                            {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
-                          </span>
-                          <span className="text-gray-500 text-[11px]">
-                            {entitlements.storage_gb - entitlements.storage_used_gb} GB free
-                          </span>
-                        </div>
+                        {/* Buy more storage button */}
+                        <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Buy more storage
+                        </Button>
                       </div>
-                      
-                      {/* Buy more storage button on the right */}
-                      <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Buy more storage
-                      </Button>
                     </div>
                   </div>
                 </div>
