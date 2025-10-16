@@ -1959,10 +1959,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       logoNew: { type: 'image', label: 'Company Logo' }
     },
     avatarPosition: {
-      x: 60,        // Left side of slide (profile image position)
-      y: 118,       // Vertically centered
-      width: 935,
-      height: 843,
+      x: 131,       // Calculated: Left edge of profile-gradient-container (80px × 1.635434)
+      y: 313,       // Calculated: Top edge of profile-gradient-container (174px × 1.800000)
+      width: 1282,  // Calculated: Match container width (784px × 1.635434)
+      height: 893,  // Calculated: Match container height (496px × 1.800000)
       backgroundColor: '#ffffff'
     }
   },
