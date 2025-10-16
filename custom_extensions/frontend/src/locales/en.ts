@@ -407,6 +407,7 @@ export const en = {
     credits: "credits",
     loading: "Loading...",
     knowledgeBase: "Knowledge base",
+    myProducts: "My products",
 
     // Sidebar
     jumpTo: "Jump to",

@@ -358,7 +358,7 @@ export const es = {
     credits: "créditos",
     loading: "Cargando...",
     knowledgeBase: "Base de conocimientos",
-
+    myProducts: "Mis productos",
     // Sidebar
     jumpTo: "Ir a",
     keyboardShortcut: "⌘+K",

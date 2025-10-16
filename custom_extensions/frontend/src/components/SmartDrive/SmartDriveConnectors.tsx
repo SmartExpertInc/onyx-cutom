@@ -930,12 +930,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <>
           {/* Usage Progress Bars */}
           {entitlements && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+            <div className="bg-white p-5 mb-6">
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
                   <div className="space-y-3">
                     {/* Storage used label and capacity */}
+                    <div className="flex items-center gap-2">Available files</div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700 font-medium text-sm">Storage used</span>
                       <span className="text-gray-600 text-sm">
@@ -946,7 +947,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {/* Progress bar and button on same line */}
                     <div className="flex items-center gap-4">
                       <div className="flex-1 relative">
-                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div className="w-[60px] bg-gray-200 rounded-full h-3 overflow-hidden">
                           <div
                             className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                             style={{

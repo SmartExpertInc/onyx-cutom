@@ -373,6 +373,7 @@ export const uk = {
     credits: "кредитів",
     loading: "Завантаження...",
     knowledgeBase: "База знань",
+    myProducts: "Мої продукти",
 
     // Sidebar
     jumpTo: "Перейти до",

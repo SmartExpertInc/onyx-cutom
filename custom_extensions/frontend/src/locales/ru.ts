@@ -387,7 +387,7 @@ export const ru = {
     credits: "кредитов",
     loading: "Загрузка...",
     knowledgeBase: "База знаний",
-
+    myProducts: "Мои продукты",
     // Sidebar
     jumpTo: "Перейти к",
     keyboardShortcut: "⌘+K",
