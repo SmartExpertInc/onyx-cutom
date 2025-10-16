@@ -328,7 +328,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   }}
                   placeholder="Enter challenge"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
@@ -339,7 +339,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
               ) : (
                 <div 
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
@@ -386,7 +386,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   }}
                   placeholder="Enter solution"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
@@ -398,7 +398,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
               ) : (
                 <div 
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
@@ -426,17 +426,17 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           position: 'absolute',
           top: '50%',
           left: '50%',
-          transform: 'translate(-50%, 180px)',
+          transform: 'translate(-50%, 160px)',
           display: 'flex',
           gap: '70px',
           zIndex: 10,
-          paddingRight: '15px'
+          paddingLeft: '40px'
         }}>
           <div style={{
             fontSize: '19px',
             color: '#000000',
             fontFamily: 'Arial, sans-serif',
-            fontWeight: 'normal',
+            fontWeight: 'bold',
             textAlign: 'center',
           }}>
             {challengesTitle}
@@ -445,7 +445,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
             fontSize: '19px',
             color: '#000000',
             fontFamily: 'Arial, sans-serif',
-            fontWeight: 'normal',
+            fontWeight: 'bold',
             textAlign: 'center',
           }}>
             {solutionsTitle}
