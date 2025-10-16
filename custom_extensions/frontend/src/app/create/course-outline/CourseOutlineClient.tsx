@@ -1236,6 +1236,7 @@ export default function CourseOutlineClient() {
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
   const [lastEditFromAiAgent, setLastEditFromAiAgent] = useState(false);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
   
   // Reset AI Agent flag when user manually edits the prompt
   const prevPromptRef = useRef(prompt);
@@ -1574,6 +1575,8 @@ export default function CourseOutlineClient() {
               advancedSectionRef={advancedSectionRef}
               placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
               buttonText={t('interface.courseOutline.edit', 'Edit')}
+              hasStartedChat={aiAgentChatStarted}
+              setHasStartedChat={setAiAgentChatStarted}
             />
           </div>
         )}

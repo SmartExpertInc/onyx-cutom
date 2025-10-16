@@ -65,6 +65,8 @@ interface AiAgentProps {
   placeholder?: string;
   buttonText?: string;
   disabled?: boolean;
+  hasStartedChat?: boolean;
+  setHasStartedChat?: (value: boolean) => void;
 }
 
 export const AiAgent: React.FC<AiAgentProps> = ({
@@ -79,11 +81,17 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   placeholder = "Ask me to edit, create, or style anything",
   buttonText = "Edit",
   disabled = false,
+  hasStartedChat: externalHasStartedChat,
+  setHasStartedChat: externalSetHasStartedChat,
 }) => {
   const { t } = useLanguage();
-  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [showUpdated, setShowUpdated] = useState(false);
+
+  // Use external state if provided, otherwise use internal state
+  const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
+  const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
 
   // Handle send button click
   const handleSend = () => {

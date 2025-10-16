@@ -362,6 +362,7 @@ export default function LessonPresentationClient() {
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
   
   // Auto-scroll to advanced section when it's shown
   useEffect(() => {
@@ -2284,6 +2285,8 @@ export default function LessonPresentationClient() {
                     advancedSectionRef={advancedSectionRef}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
                     buttonText="Edit"
+                    hasStartedChat={aiAgentChatStarted}
+                    setHasStartedChat={setAiAgentChatStarted}
                   />
                 )}
               </div>
