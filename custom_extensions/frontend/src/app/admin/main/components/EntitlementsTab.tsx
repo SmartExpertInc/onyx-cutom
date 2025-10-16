@@ -165,13 +165,20 @@ const EntitlementsTab: React.FC = () => {
     return (
       <tr className="border-b">
         <td className="px-4 py-2">
-          <input
-            type="checkbox"
-            checked={selectedUsers.has(row.onyx_user_id)}
-            onChange={() => toggleUserSelection(row.onyx_user_id)}
-            className="mr-2"
-          />
-          <span className="text-sm text-gray-800">{row.user_email || row.email || row.onyx_user_id}</span>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              checked={selectedUsers.has(row.onyx_user_id)}
+              onChange={() => toggleUserSelection(row.onyx_user_id)}
+              className="mr-2 flex-shrink-0"
+            />
+            <span 
+              className="text-sm text-gray-800 truncate max-w-xs" 
+              title={row.user_email || row.email || row.onyx_user_id}
+            >
+              {row.user_email || row.email || row.onyx_user_id}
+            </span>
+          </div>
         </td>
         <td className="px-4 py-2 text-sm capitalize text-gray-800">{row.plan}</td>
         <td className="px-4 py-2">
