@@ -821,6 +821,43 @@ export default function QuizClient() {
         // setLoading(false);
         let gotFirstChunk = false;
 
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < maxRetries) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
+
         try {
           const requestBody: any = {
             outlineId: selectedOutlineId,
@@ -867,12 +904,19 @@ export default function QuizClient() {
           }
 
           const decoder = new TextDecoder();
+
+          // Setup timeout monitoring
+          setupHeartbeat();
+
           let buffer = "";
           let accumulatedText = "";
           let accumulatedJsonText = "";
 
           while (true) {
             const { done, value } = await reader.read();
+
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
 
             if (done) {
               // Process any remaining buffer
@@ -1027,9 +1071,11 @@ export default function QuizClient() {
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             return startPreview(attempt + 1);
           }
+          // Always cleanup timeouts
+          cleanup();
 
           throw error;
-        } finally {
+        } finally {      
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
