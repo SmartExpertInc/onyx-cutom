@@ -543,11 +543,19 @@ class ProfessionalPresentationService:
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
             
+            # Extract avatar position from slide data if available
+            avatar_position = slide_data.get('avatarPosition')
+            if avatar_position:
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Using custom avatar position from template: {avatar_position}")
+            else:
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] No custom avatar position, using default")
+            
             composition_config = CompositionConfig(
                 output_path=str(output_path),
                 resolution=request.resolution,
                 quality=request.quality,
-                layout=request.layout
+                layout=request.layout,
+                avatar_position=avatar_position  # Pass custom avatar position if available
             )
             
             final_video_path = await video_composer_service.compose_presentation(
@@ -662,11 +670,19 @@ class ProfessionalPresentationService:
                 self._update_job_status(job_id, progress=composition_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
+                # Extract avatar position from slide data if available
+                avatar_position = slide_data.get('avatarPosition')
+                if avatar_position:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1}: Using custom avatar position from template: {avatar_position}")
+                else:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1}: No custom avatar position, using default")
+                
                 composition_config = CompositionConfig(
                     output_path=individual_output_path,
                     resolution=request.resolution,
                     quality=request.quality,
-                    layout=request.layout
+                    layout=request.layout,
+                    avatar_position=avatar_position  # Pass custom avatar position if available
                 )
                 
                 individual_video_path = await video_composer_service.compose_presentation(

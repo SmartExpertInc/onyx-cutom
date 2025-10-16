@@ -9,6 +9,7 @@ import UpgradeModal from './UpgradeModal';
 import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 import { useVoice } from '@/contexts/VoiceContext';
+import { SLIDE_TEMPLATE_REGISTRY } from '@/components/templates/registry';
 
 interface EmailInput {
   id: string;
@@ -193,6 +194,24 @@ export default function VideoEditorHeader({
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
     console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
+    // Helper function to attach avatar position from template registry to slides
+    const attachAvatarPositionsToSlides = (slides: any[]) => {
+      return slides.map(slide => {
+        const templateId = slide.templateId;
+        if (templateId) {
+          const template = SLIDE_TEMPLATE_REGISTRY[templateId];
+          if (template?.avatarPosition) {
+            console.log(`🎬 [AVATAR_POSITION] Attaching avatar position for template ${templateId}:`, template.avatarPosition);
+            return {
+              ...slide,
+              avatarPosition: template.avatarPosition
+            };
+          }
+        }
+        return slide;
+      });
+    };
+    
     try {
       // First try to get data from componentBasedSlideDeck (newer structure)
       if (componentBasedSlideDeck?.slides && componentBasedSlideDeck.slides.length > 0) {
@@ -205,8 +224,11 @@ export default function VideoEditorHeader({
         
         console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck:', voiceoverTexts);
         
+        // Attach avatar positions from template registry
+        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(componentBasedSlideDeck.slides);
+        
         return {
-          slides: componentBasedSlideDeck.slides,
+          slides: slidesWithAvatarPositions,
           theme: componentBasedSlideDeck.theme || 'dark-purple',
           voiceoverTexts: voiceoverTexts
         };
@@ -223,8 +245,11 @@ export default function VideoEditorHeader({
         
         console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from videoLessonData:', voiceoverTexts);
         
+        // Attach avatar positions from template registry
+        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(videoLessonData.slides);
+        
         return {
-          slides: videoLessonData.slides,
+          slides: slidesWithAvatarPositions,
           theme: videoLessonData.theme || 'dark-purple',
           voiceoverTexts: voiceoverTexts
         };

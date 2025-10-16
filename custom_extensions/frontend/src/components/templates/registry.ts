@@ -1534,6 +1534,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      x: 925,       // Right side of slide
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#110c35'
+    }
   },
 
   'work-life-balance-slide': {
@@ -1565,6 +1572,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      x: 925,       // Right side of slide
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#110c35'
+    }
   },
 
   'thank-you-slide': {
@@ -1825,6 +1839,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    },
+    avatarPosition: {
+      x: 925,       // Right side of slide
+      y: 118,       // Vertically centered (top-right profile position)
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'
     }
   },
 
@@ -1900,6 +1921,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
       rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
+    },
+    avatarPosition: {
+      x: 925,       // Right side of slide (for large right image)
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'
     }
   },
 
@@ -1929,6 +1957,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 },
       logoNew: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      x: 60,        // Left side of slide (profile image position)
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'
     }
   },
 

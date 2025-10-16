@@ -60,7 +60,8 @@ class SimpleVideoComposer:
                            slide_video_path: str, 
                            avatar_video_path: str, 
                            output_path: str,
-                           progress_callback=None) -> bool:
+                           progress_callback=None,
+                           avatar_position: dict = None) -> bool:
         """
         Compose slide and avatar videos using OpenCV.
         
@@ -69,10 +70,16 @@ class SimpleVideoComposer:
             avatar_video_path: Path to avatar video (from Elai API)
             output_path: Path for output video
             progress_callback: Optional callback for progress updates
+            avatar_position: Optional dict with custom avatar position (x, y, width, height)
+                           If not provided, uses default template position
             
         Returns:
             True if successful, False otherwise
         """
+        # Use custom avatar position if provided, otherwise use default
+        active_avatar_config = avatar_position if avatar_position else self.avatar_template
+        
+        logger.info(f"🎬 [SIMPLE_COMPOSER] Using avatar position: {active_avatar_config}")
         try:
             logger.info("🎬 [SIMPLE_COMPOSER] Starting video composition")
             logger.info(f"🎬 [SIMPLE_COMPOSER] Input files:")
@@ -106,7 +113,8 @@ class SimpleVideoComposer:
                 temp_video_path,
                 slide_props,
                 avatar_props,
-                progress_callback
+                progress_callback,
+                active_avatar_config  # Pass custom avatar position
             )
             
             if not success:
@@ -197,16 +205,25 @@ class SimpleVideoComposer:
                             output_path: str,
                             slide_props: dict,
                             avatar_props: dict,
-                            progress_callback=None) -> bool:
+                            progress_callback=None,
+                            avatar_config: dict = None) -> bool:
         """
         Compose videos frame by frame using OpenCV.
         
         This method:
         1. Uses slide video as full background canvas (1920x1080)
-        2. Scales avatar to template dimensions (935x843)
-        3. Positions avatar at template coordinates (925, 118)
+        2. Scales avatar to template dimensions (from avatar_config)
+        3. Positions avatar at template coordinates (from avatar_config)
         4. Overlays avatar onto slide frame by frame
+        
+        Args:
+            avatar_config: Dict with 'x', 'y', 'width', 'height' keys for avatar positioning
         """
+        # Use provided config or fall back to default
+        if avatar_config is None:
+            avatar_config = self.avatar_template
+            
+        logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition using avatar config: {avatar_config}")
         try:
             logger.info("🎬 [SIMPLE_COMPOSER] Starting frame-by-frame composition")
             
@@ -266,17 +283,19 @@ class SimpleVideoComposer:
                 # Process avatar frame if available
                 if avatar_ret:
                     # CRITICAL FIX: Crop avatar instead of resizing to maintain aspect ratio
-                    avatar_cropped = self._crop_avatar_to_template(avatar_frame)
+                    avatar_cropped = self._crop_avatar_to_template(avatar_frame, avatar_config)
                     
-                    # Get position coordinates
-                    x = self.avatar_template['x']
-                    y = self.avatar_template['y']
+                    # Get position coordinates from config
+                    x = avatar_config['x']
+                    y = avatar_config['y']
+                    avatar_width = avatar_config['width']
+                    avatar_height = avatar_config['height']
                     
                     # Ensure avatar fits within bounds
-                    if x + self.avatar_template['width'] <= output_width and y + self.avatar_template['height'] <= output_height:
+                    if x + avatar_width <= output_width and y + avatar_height <= output_height:
                         # Simple overlay (replace method - could be enhanced with alpha blending)
-                        background[y:y + self.avatar_template['height'], 
-                                 x:x + self.avatar_template['width']] = avatar_cropped
+                        background[y:y + avatar_height, 
+                                 x:x + avatar_width] = avatar_cropped
                     else:
                         logger.warning(f"🎬 [SIMPLE_COMPOSER] Avatar position out of bounds: ({x}, {y})")
                 
@@ -380,7 +399,7 @@ class SimpleVideoComposer:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge error: {str(e)}")
             return False
     
-    def _crop_avatar_to_template(self, avatar_frame: np.ndarray) -> np.ndarray:
+    def _crop_avatar_to_template(self, avatar_frame: np.ndarray, avatar_config: dict = None) -> np.ndarray:
         """
         Crop avatar frame to template dimensions while maintaining aspect ratio.
         
@@ -389,17 +408,22 @@ class SimpleVideoComposer:
         
         Args:
             avatar_frame: Input avatar frame (numpy array)
+            avatar_config: Dict with 'width' and 'height' keys for target dimensions
             
         Returns:
-            Cropped avatar frame matching template dimensions (935x843)
+            Cropped avatar frame matching template dimensions
         """
+        # Use provided config or fall back to default
+        if avatar_config is None:
+            avatar_config = self.avatar_template
+            
         try:
             # Get input frame dimensions
             input_height, input_width = avatar_frame.shape[:2]
             
-            # Target template dimensions
-            target_width = self.avatar_template['width']   # 935
-            target_height = self.avatar_template['height'] # 843
+            # Target template dimensions from config
+            target_width = avatar_config['width']
+            target_height = avatar_config['height']
             
             logger.debug(f"🎬 [SIMPLE_COMPOSER] Cropping avatar frame:")
             logger.debug(f"  - Input dimensions: {input_width}x{input_height}")
@@ -454,7 +478,9 @@ class SimpleVideoComposer:
         except Exception as e:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Avatar cropping error: {str(e)}")
             # Fallback to resize if cropping fails
-            return cv2.resize(avatar_frame, (self.avatar_template['width'], self.avatar_template['height']))
+            if avatar_config is None:
+                avatar_config = self.avatar_template
+            return cv2.resize(avatar_frame, (avatar_config['width'], avatar_config['height']))
     
     def cleanup(self):
         """Cleanup temporary files and resources."""
