@@ -2072,7 +2072,7 @@ export default function LessonPresentationClient() {
                                 <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
                                 {/* Avatar name placeholder */}
-                                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
+                                <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
                                   Name
                                 </div>
                                 
