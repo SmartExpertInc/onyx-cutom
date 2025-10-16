@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input as UiInput } from '@/components/ui/input';
@@ -216,6 +216,31 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			await fetchList(currentPath);
 		} catch (e) {
 			alert(`${op} failed`);
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const moveToFolder = async (targetFolderPath: string) => {
+		if (selected.size === 0) return;
+		setBusy(true);
+		try {
+			for (const p of Array.from(selected)) {
+				const fileName = p.split('/').pop() || '';
+				const destinationPath = targetFolderPath.endsWith('/') ? `${targetFolderPath}${fileName}` : `${targetFolderPath}/${fileName}`;
+				
+				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					credentials: 'same-origin',
+					body: JSON.stringify({ from: p, to: destinationPath })
+				});
+				if (!res.ok) throw new Error(await res.text());
+			}
+			clearSel();
+			await fetchList(currentPath);
+		} catch (e) {
+			alert('Move to folder failed');
 		} finally {
 			setBusy(false);
 		}
@@ -566,6 +591,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												}
 											};
 											
+											// Get folder contents count
+											const folderContents = items.filter(item => 
+												item.path.startsWith(it.path + '/') && 
+												item.path !== it.path &&
+												!item.path.substring(it.path.length + 1).includes('/')
+											);
+											const fileCount = folderContents.filter(item => item.type === 'file').length;
+											const folderCount = folderContents.filter(item => item.type === 'directory').length;
+											const totalItems = fileCount + folderCount;
+											
 											return (
 												<div
 													key={it.path}
@@ -584,7 +619,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
 																<p className="text-xs text-gray-500 mt-1">
-																	{Math.floor(Math.random() * 100) + 1} items
+																	{totalItems} {totalItems === 1 ? 'item' : 'items'}
+																	{fileCount > 0 && folderCount > 0 && ` • ${fileCount} files, ${folderCount} folders`}
+																	{fileCount > 0 && folderCount === 0 && ` • ${fileCount} files`}
+																	{fileCount === 0 && folderCount > 0 && ` • ${folderCount} folders`}
 																</p>
 															</div>
 														</div>
@@ -629,7 +667,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{/* Files Section */}
 							{filtered.filter(item => item.type === 'file').length > 0 && (
 								<div>
-									<h3 className="text-sm font-medium text-gray-700 mb-3">Files</h3>
 									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 										{filtered.filter(item => item.type === 'file').map((it, idx) => {
 								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
@@ -714,7 +751,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											)}
 											
 											{/* More options button */}
-											<div className="flex justify-end">
+											<div className="flex justify-right">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
 														<Button 
@@ -739,6 +776,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<Copy size={16} className="text-gray-500" />
 															<span>Copy</span>
 														</DropdownMenuItem>
+														{it.type === 'file' && (
+															<>
+																<DropdownMenuSeparator />
+																{filtered.filter(item => item.type === 'directory').map(folder => (
+																	<DropdownMenuItem 
+																		key={folder.path}
+																		onSelect={() => {
+																			setSelected(new Set([it.path]));
+																			moveToFolder(folder.path);
+																		}}
+																	>
+																		<Folder size={16} className="text-gray-500" />
+																		<span>Move to {folder.name}</span>
+																	</DropdownMenuItem>
+																))}
+																<DropdownMenuSeparator />
+															</>
+														)}
 														<DropdownMenuItem onSelect={() => handleMenuAction('delete')}>
 															<Trash2 size={16} className="text-red-600" />
 															<span className="text-red-600">Delete</span>
