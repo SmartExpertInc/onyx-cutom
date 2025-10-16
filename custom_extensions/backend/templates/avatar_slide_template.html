@@ -2182,6 +2182,111 @@
                 </div>
                 
             {% elif templateId == 'impact-statements-slide' or templateId == 'impact-statements' %}
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                🔍 IMPACT-STATEMENTS AVATAR POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                Template ID: {{ templateId }}
+                Slide ID: {{ slideId }}
+                
+                📐 Canvas Dimensions Analysis:
+                  ACTUAL Editor Canvas (from metadata):
+                    - Width:  {{ "%.2f"|format(EDITOR_WIDTH) }}px
+                    - Height: {{ "%.2f"|format(EDITOR_HEIGHT) }}px
+                    - Aspect Ratio: {{ "%.6f"|format(EDITOR_WIDTH / EDITOR_HEIGHT) }}
+                    - Source: {{ 'metadata.canvasDimensions' if metadata and metadata.canvasDimensions else 'fallback defaults' }}
+                  
+                  Video Canvas (Backend):
+                    - Width:  {{ VIDEO_WIDTH }}px
+                    - Height: {{ VIDEO_HEIGHT }}px
+                    - Aspect Ratio: {{ "%.6f"|format(VIDEO_WIDTH / VIDEO_HEIGHT) }} (1.778:1 - 16:9)
+                  
+                  Dimension Comparison:
+                    - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
+                    - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
+                
+                📏 Scale Factors:
+                  - SCALE_X: {{ "%.6f"|format(SCALE_X) }}
+                  - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }}
+                
+                🎯 PROFILE-GRADIENT-CONTAINER CSS ANALYSIS:
+                  Container Dimensions (from CSS):
+                    - Width:  784px
+                    - Height: 496px
+                  
+                  Slide Padding (from CSS):
+                    - Top:    64px
+                    - Left:   80px
+                    - Right:  64px
+                    - Bottom: 104px
+                  
+                  Left Section (from CSS):
+                    - Width: 45% of slide width
+                    - Gap between title and container: 30px
+                    - Display: flex-column
+                  
+                  CALCULATED CONTAINER POSITION (CSS Layout):
+                    X Position (Left):
+                      - Padding left: 80px
+                      - Container starts at: 80px
+                    
+                    Y Position (Top):
+                      - Padding top: 64px
+                      - Title height: ~80px (flex: 1, min-height)
+                      - Gap after title: 30px
+                      - Container starts at: 64px + 80px + 30px = 174px (approx)
+                  
+                  📍 ESTIMATED CSS POSITION:
+                    - Left:   80px
+                    - Top:    ~174px (64px padding + ~80px title + 30px gap)
+                    - Width:  784px
+                    - Height: 496px
+                  
+                  📍 SCALED POSITION FOR AVATAR OVERLAY (Backend Compositor):
+                    If we want avatar to appear ABOVE the gradient container:
+                    
+                    Scaled X (Left):
+                      - CSS X: 80px
+                      - Scaled: 80px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(80 * SCALE_X) }}px
+                    
+                    Scaled Y (Top):
+                      - CSS Y: ~174px
+                      - Scaled: 174px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(174 * SCALE_Y) }}px
+                    
+                    Scaled Width:
+                      - CSS Width: 784px
+                      - Scaled: 784px × {{ "%.6f"|format(SCALE_X) }} = {{ "%.2f"|format(784 * SCALE_X) }}px
+                    
+                    Scaled Height:
+                      - CSS Height: 496px
+                      - Scaled: 496px × {{ "%.6f"|format(SCALE_Y) }} = {{ "%.2f"|format(496 * SCALE_Y) }}px
+                  
+                  🎬 RECOMMENDED AVATAR POSITION FOR VIDEO COMPOSITOR:
+                    {
+                      "x": {{ "%.0f"|format(80 * SCALE_X) }},      // Left edge of gradient container
+                      "y": {{ "%.0f"|format(174 * SCALE_Y) }},     // Top edge of gradient container
+                      "width": {{ "%.0f"|format(784 * SCALE_X) }}, // Match container width
+                      "height": {{ "%.0f"|format(496 * SCALE_Y) }} // Match container height
+                    }
+                  
+                  ⚙️ CURRENT AVATAR POSITION (from registry.ts):
+                    {
+                      "x": 60,
+                      "y": 118,
+                      "width": 935,
+                      "height": 843,
+                      "backgroundColor": "#ffffff"
+                    }
+                  
+                  ⚠️ POSITION COMPARISON:
+                    X Difference: {{ "%.0f"|format(80 * SCALE_X - 60) }}px ({{ 'RIGHT' if (80 * SCALE_X - 60) > 0 else 'LEFT' }} by {{ "%.0f"|format((80 * SCALE_X - 60)|abs) }}px)
+                    Y Difference: {{ "%.0f"|format(174 * SCALE_Y - 118) }}px ({{ 'DOWN' if (174 * SCALE_Y - 118) > 0 else 'UP' }} by {{ "%.0f"|format((174 * SCALE_Y - 118)|abs) }}px)
+                    Width Difference: {{ "%.0f"|format(784 * SCALE_X - 935) }}px ({{ 'WIDER' if (784 * SCALE_X - 935) > 0 else 'NARROWER' }} by {{ "%.0f"|format((784 * SCALE_X - 935)|abs) }}px)
+                    Height Difference: {{ "%.0f"|format(496 * SCALE_Y - 843) }}px ({{ 'TALLER' if (496 * SCALE_Y - 843) > 0 else 'SHORTER' }} by {{ "%.0f"|format((496 * SCALE_Y - 843)|abs) }}px)
+                
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
+                
                 <div class="impact-statements-slide">
                     <!-- Left section with title and profile image -->
                     <div class="left-section">
@@ -2189,6 +2294,30 @@
                         <div class="title">{{ title or 'Here are some impact value statements backed by numbers:' }}</div>
 
                         <!-- Profile image in gradient container -->
+                        <!-- 
+                        ───────────────────────────────────────────────────────────────
+                        📦 PROFILE-GRADIENT-CONTAINER ACTUAL RENDERED POSITION
+                        ───────────────────────────────────────────────────────────────
+                        This container is where the avatar should be overlaid.
+                        
+                        CSS Properties:
+                          - width: 784px
+                          - height: 496px
+                          - background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)
+                          - border-radius: 13px
+                        
+                        Layout Position (from parent flex):
+                          - Parent (.left-section) has gap: 30px
+                          - This is the second child (after title)
+                          - Position depends on title's actual height
+                        
+                        Video Backend Position (for avatar overlay):
+                          X: {{ "%.0f"|format(80 * SCALE_X) }}px (slide padding-left scaled)
+                          Y: {{ "%.0f"|format(174 * SCALE_Y) }}px (padding-top + title + gap, scaled)
+                          Width: {{ "%.0f"|format(784 * SCALE_X) }}px (container width scaled)
+                          Height: {{ "%.0f"|format(496 * SCALE_Y) }}px (container height scaled)
+                        ───────────────────────────────────────────────────────────────
+                        -->
                         <div class="profile-gradient-container">
                             {% if profileImagePath %}
                                 <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-img">
@@ -2247,6 +2376,12 @@
                         <div class="page-number">{{ pageNumber or '18' }}</div>
                     </div>
                 </div>
+                
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                ✅ END IMPACT-STATEMENTS AVATAR POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
                 
             {% elif templateId == 'hybrid-work-best-practices-slide' or templateId == 'hybrid-work' %}
                 <div class="hybrid-work-slide">
