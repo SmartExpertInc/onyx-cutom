@@ -2048,28 +2048,30 @@ export default function LessonPresentationClient() {
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
-                          className="flex gap-6 overflow-x-hidden overflow-y-hidden"
-                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', marginLeft: '-140px' }}
+                          className="flex gap-6 overflow-x-hidden overflow-y-hidden transition-all duration-300 ease-in-out"
+                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                           {/* Placeholder avatar cards - will be replaced with actual content */}
                           {[1, 2, 3, 4, 5, 6].map((avatar, index) => {
-                            const isSelected = selectedAvatar === avatar;
-                            
                             // Calculate which cards to show with circular logic
                             const adjustedIndex = (index - scrollPosition + 6) % 6;
-                            const isVisible = adjustedIndex < 4;
+                            const isVisible = adjustedIndex < 3;
                             
                             if (!isVisible) return null;
+                            
+                            // Only the center card (adjustedIndex === 1) can be selected
+                            const isCenterCard = adjustedIndex === 1;
+                            const isSelected = isCenterCard && selectedAvatar === avatar;
                             
                             return (
                               <div
                                 key={avatar}
-                                onClick={() => setSelectedAvatar(avatar)}
-                                className={`flex-shrink-0 rounded-md transition-all cursor-pointer bg-gray-100 flex items-center justify-center relative ${
+                                onClick={() => isCenterCard && setSelectedAvatar(avatar)}
+                                className={`flex-shrink-0 rounded-md transition-all duration-300 ease-in-out flex items-center justify-center relative ${
                                   isSelected 
-                                    ? 'border-2 border-[#0F58F9]' 
-                                    : 'border border-transparent'
-                                }`}
+                                    ? 'border-2 border-[#0F58F9] bg-gray-600 opacity-100' 
+                                    : 'border border-transparent bg-gray-600 opacity-40'
+                                } ${isCenterCard ? 'cursor-pointer' : 'cursor-default'}`}
                                 style={{ width: '250px', aspectRatio: '16/9' }}
                               >
                                 <span className="text-gray-500">Avatar {avatar}</span>
@@ -2092,7 +2094,7 @@ export default function LessonPresentationClient() {
                                         // Update scroll position to center the selected card
                                         setScrollPosition(newSelectedAvatar - 2); // -2 to center it (shows 2 cards before selected)
                                       }}
-                                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-all duration-200 ease-in-out"
                                     >
                                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -2109,7 +2111,7 @@ export default function LessonPresentationClient() {
                                         // Update scroll position to center the selected card
                                         setScrollPosition(newSelectedAvatar - 2); // -2 to center it (shows 2 cards before selected)
                                       }}
-                                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
+                                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-all duration-200 ease-in-out"
                                     >
                                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
