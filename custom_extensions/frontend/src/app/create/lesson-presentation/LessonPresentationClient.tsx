@@ -2294,15 +2294,20 @@ export default function LessonPresentationClient() {
                         <button 
                           ref={imageSourceButtonRef}
                           onClick={() => {
-                            if (!imageSourceDropdownOpen && imageSourceButtonRef.current) {
-                              const rect = imageSourceButtonRef.current.getBoundingClientRect();
-                              setImageSourceDropdownPosition({
-                                top: rect.bottom + window.scrollY + 8,
-                                left: rect.left + window.scrollX,
-                                width: rect.width
-                              });
+                            if (!imageSourceDropdownOpen) {
+                              if (imageSourceButtonRef.current) {
+                                const rect = imageSourceButtonRef.current.getBoundingClientRect();
+                                setImageSourceDropdownPosition({
+                                  top: rect.bottom + window.scrollY + 8,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width
+                                });
+                              }
+                              setImageSourceDropdownOpen(true);
+                            } else {
+                              setImageSourceDropdownOpen(false);
+                              setImageSourceDropdownPosition(null);
                             }
-                            setImageSourceDropdownOpen(!imageSourceDropdownOpen);
                           }}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between mt-3"
                         >
@@ -2354,15 +2359,20 @@ export default function LessonPresentationClient() {
                         <button 
                           ref={aiModelButtonRef}
                           onClick={() => {
-                            if (!aiModelDropdownOpen && aiModelButtonRef.current) {
-                              const rect = aiModelButtonRef.current.getBoundingClientRect();
-                              setAiModelDropdownPosition({
-                                top: rect.bottom + window.scrollY + 8,
-                                left: rect.left + window.scrollX,
-                                width: rect.width
-                              });
+                            if (!aiModelDropdownOpen) {
+                              if (aiModelButtonRef.current) {
+                                const rect = aiModelButtonRef.current.getBoundingClientRect();
+                                setAiModelDropdownPosition({
+                                  top: rect.bottom + window.scrollY + 8,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width
+                                });
+                              }
+                              setAiModelDropdownOpen(true);
+                            } else {
+                              setAiModelDropdownOpen(false);
+                              setAiModelDropdownPosition(null);
                             }
-                            setAiModelDropdownOpen(!aiModelDropdownOpen);
                           }}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between mt-3"
                         >
