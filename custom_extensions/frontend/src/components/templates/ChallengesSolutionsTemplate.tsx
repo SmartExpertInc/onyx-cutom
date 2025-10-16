@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import Image from 'next/image';
-import { MessageCircle } from 'lucide-react';
+import groupImg from './group_img.png';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
@@ -400,7 +400,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         </div>
 
         <div style={imageContainerStyles}>
-          <MessageCircle color="#0F58F9" size={160} />
+          <Image src={groupImg} alt="Group" width={500} height={400} />
         </div>
 
         {/* Bottom labels */}

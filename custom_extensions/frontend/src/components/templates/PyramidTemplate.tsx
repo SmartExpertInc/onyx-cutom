@@ -239,9 +239,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const MessageIcon = () => (
-    <span style={{ display: 'inline-flex', marginRight: '8px' }}>
-      <MessageCircle color="#ffffff" size={22} />
-    </span>
+    <MessageCircle size={22} color="#ffffff" style={{ marginRight: '8px' }} />
   );
 
   // Number styles
