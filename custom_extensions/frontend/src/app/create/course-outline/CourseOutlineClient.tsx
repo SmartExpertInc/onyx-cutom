@@ -1544,7 +1544,7 @@ export default function CourseOutlineClient() {
 
         {/* Inline Advanced section & button */}
         {!loading && preview.length > 0 && showAdvanced && (
-          <div className="w-full mb-4">
+          <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
             <AiAgent
               editPrompt={editPrompt}
               setEditPrompt={setEditPrompt}
