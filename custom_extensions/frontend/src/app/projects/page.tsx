@@ -31,7 +31,8 @@ import {
   Upload,
   Coins,
   ClipboardCheck,
-  FolderOpen
+  FolderOpen,
+  BookCopy
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -526,8 +527,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             onFolderSelect(null);
           }}
         >
-          <HardDrive size={18} strokeWidth={1.5} className='font-normal' />
-          <span>{t('interface.smartDrive', 'Smart Drive')}</span>
+          <BookCopy size={18} strokeWidth={1.5} className='font-normal' />
+          {/* <span>{t('interface.smartDrive', 'Smart Drive')}</span> */}
+          <span>Knowledge base</span>
         </Link>
         {offersTabEnabled && (
           <Link

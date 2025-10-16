@@ -15,7 +15,9 @@ import {
 	MoveRight,
 	MoreHorizontal,
 	MoreVertical,
-	ArrowLeft
+	ArrowLeft,
+	Image,
+	FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +34,23 @@ const formatSize = (bytes: number | null | undefined): string => {
 	const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(1024));
 	return `${Math.round(bytes / Math.pow(1024, i) * 100) / 100} ${sizes[i]}`;
+};
+
+// Utility function to get file icon based on mime type
+const getFileIcon = (mimeType: string | null | undefined) => {
+	if (!mimeType) return File;
+	
+	const type = mimeType.toLowerCase();
+	
+	if (type.startsWith('image/')) {
+		return Image;
+	} else if (type === 'application/pdf') {
+		return FileText;
+	} else if (type.includes('document') || type.includes('text') || type.includes('word')) {
+		return FileText;
+	}
+	
+	return File;
 };
 
 export type SmartDriveItem = {
@@ -90,6 +109,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [isRenaming, setIsRenaming] = useState(false);
 	const [showFolderSelectionModal, setShowFolderSelectionModal] = useState(false);
 	const [moveOperation, setMoveOperation] = useState<'move' | 'copy' | null>(null);
+	const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+	const [folderContents, setFolderContents] = useState<SmartDriveItem[]>([]);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -109,6 +130,34 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			setLoading(false);
 		}
 	}, []);
+
+	const fetchFolderContents = useCallback(async (folderPath: string) => {
+		setLoading(true);
+		setError(null);
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(folderPath)}`, { credentials: 'same-origin' });
+			if (!res.ok) throw new Error(`List failed: ${res.status}`);
+			const data = await res.json();
+			setFolderContents(Array.isArray(data.files) ? data.files : []);
+		} catch (e: any) {
+			setError(e?.message || 'Failed to load folder contents');
+			setFolderContents([]);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	const handleFolderClick = async (folderPath: string) => {
+		if (expandedFolder === folderPath) {
+			// Collapse the folder
+			setExpandedFolder(null);
+			setFolderContents([]);
+		} else {
+			// Expand the folder
+			setExpandedFolder(folderPath);
+			await fetchFolderContents(folderPath);
+		}
+	};
 
 	useEffect(() => { fetchList(currentPath); }, [currentPath, fetchList]);
 
@@ -640,24 +689,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											return (
 												<div
 													key={it.path}
-													className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
 													onClick={(e) => onRowClick(idx, it, e)}
 												>
 													<div className="flex items-start justify-between">
-														<div className="flex items-center gap-3 flex-1 min-w-0">
-															<div className="w-10 h-19 flex items-center justify-center flex-shrink-0">
+														<div className="flex items-center gap-1 flex-1 min-w-0">
+															<div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
 																<svg width="25" height="25" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#71717A" strokeLinecap="round" strokeLinejoin="round"/>
 																</svg>
 															</div>
 															<div className="flex-1 min-w-0">
-																<h3 className="font-medium text-sm text-gray-900 truncate">
+																<h3 className="font-medium text-xs text-gray-900 truncate">
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
-																<p className="text-xs text-gray-500 mt-1">
+																{/* <p className="text-[11px] text-gray-500 mt-1">
 																	Folder
 																	{it.modified && ` • ${new Date(it.modified).toLocaleDateString()}`}
-																</p>
+																</p> */}
 															</div>
 														</div>
 														<DropdownMenu>
@@ -735,26 +784,32 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</svg>
 													<span className="text-xs mt-1">Folder</span>
 												</div>
-											) : (
-												<div className="flex flex-col items-center text-gray-500">
-													<File className="w-10 h-10" />
-													<span className="text-xs mt-1">{it.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-												</div>
-											)}
+											) : (() => {
+												const FileIcon = getFileIcon(it.mime_type);
+												return (
+													<div className="flex flex-col items-center text-gray-500">
+														<FileIcon className="w-10 h-10" />
+														<span className="text-xs mt-1">{it.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+													</div>
+												);
+											})()}
 											
 											{/* File type icon in top-left */}
 											<div className="absolute top-2 left-2">
 												{it.type === 'directory' ? (
-													<div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+													<div className="w-6 h-6 bg-white rounded-sm border border-[#E0E0E0] flex items-center justify-center">
 														<svg width="16" height="16" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-															<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"/>
+															<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
 														</svg>
 													</div>
-												) : (
-													<div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-														<File className="w-4 h-4 text-gray-600" />
-													</div>
-												)}
+												) : (() => {
+													const FileIcon = getFileIcon(it.mime_type);
+													return (
+														<div className="w-6 h-6 bg-white rounded-sm border-[#E0E0E0] flex items-center justify-center">
+															<FileIcon className="w-4 h-4 text-[#0F58F9]" />
+														</div>
+													);
+												})()}
 											</div>
 										</div>
 										
@@ -763,7 +818,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<h3 className="font-semibold text-sm h-10 text-gray-900 truncate mb-1">
 												{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 											</h3>
-											<div className="flex items-center justify-between mb-2">
+											<div className="flex items-center justify-between">
 												<p className="text-xs text-gray-500">
 													{it.modified ? new Date(it.modified).toLocaleDateString('en-US', { 
 														month: 'long', 
@@ -897,17 +952,37 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								}
 									};
 									
+									const isExpanded = expandedFolder === it.path;
+									
 									return (
-										<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
-											<div className="w-8">
+										<div key={it.path}>
+											<div className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e) => {
+												if (it.type === 'directory') {
+													e.stopPropagation();
+													handleFolderClick(it.path);
+												} else {
+													onRowClick(idx, it, e);
+												}
+											}}>
+											{/* <div className="w-8">
 												<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-											</div>
+											</div> */}
 											<div className="w-5 h-5">
-												{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
+												{it.type === 'directory' ? (
+													<Folder className="w-5 h-5 text-[#0F58F9]"/>
+												) : (() => {
+													const FileIcon = getFileIcon(it.mime_type);
+													return <FileIcon className="w-5 h-5 text-[#0F58F9]"/>;
+												})()}
 											</div>
 											<div className="flex-1">
-												<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
-												<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+												<div className="font-medium text-slate-800 flex items-center gap-2">
+													{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
+													{it.type === 'directory' && isExpanded && (
+														<ArrowLeft className="w-4 h-4 text-gray-500" />
+													)}
+												</div>
+												{/* <div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div> */}
 												{it.type === 'file' && (() => { 
 													const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
 													const shouldShow = s && s.status !== 'done';
@@ -949,6 +1024,66 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</div>
+											</div>
+											
+											{/* Expanded folder contents */}
+											{isExpanded && folderContents.length > 0 && (
+												<div className="bg-gray-50 border-l-4 border-blue-200">
+													{folderContents.map((folderItem, folderIdx) => {
+														const handleFolderMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+															setSelected(new Set([folderItem.path]));
+															switch(action) {
+																case 'rename': rename(); break;
+																case 'move': 
+																	setMoveOperation('move');
+																	setShowFolderSelectionModal(true);
+																	break;
+																case 'copy': 
+																	setMoveOperation('copy');
+																	setShowFolderSelectionModal(true);
+																	break;
+																case 'delete': del(); break;
+																case 'download': download(); break;
+															}
+														};
+														
+														return (
+															<div key={folderItem.path} className="flex items-center gap-3 px-6 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e) => onRowClick(folderIdx, folderItem, e)}>
+																<div className="w-5 h-5">
+																	{folderItem.type === 'directory' ? (
+																		<Folder className="w-5 h-5 text-[#0F58F9]"/>
+																	) : (() => {
+																		const FileIcon = getFileIcon(folderItem.mime_type);
+																		return <FileIcon className="w-5 h-5 text-[#0F58F9]"/>;
+																	})()}
+																</div>
+																<div className="flex-1">
+																	<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(folderItem.name); } catch { return folderItem.name; } })()}</div>
+																	<div className="text-xs text-slate-500">{folderItem.type === 'file' ? formatSize(folderItem.size) : 'Folder' }{folderItem.modified ? ` • ${new Date(folderItem.modified).toLocaleString()}` : ''}</div>
+																</div>
+																<div className="w-24 text-right text-sm text-slate-700">{folderItem.type === 'file' ? formatSize(folderItem.size) : ''}</div>
+																<div className="w-44 text-right text-sm text-slate-700">{folderItem.modified ? new Date(folderItem.modified).toLocaleDateString() : ''}</div>
+																<div className="w-8 flex justify-end">
+																	<DropdownMenu>
+																		<DropdownMenuTrigger asChild>
+																			<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+																				<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+																			</Button>
+																		</DropdownMenuTrigger>
+																		<DropdownMenuContent align="end">
+																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+																			<DropdownMenuItem onSelect={() => handleFolderMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+																			<DropdownMenuItem disabled={folderItem.type !== 'file'} onSelect={() => handleFolderMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+																		</DropdownMenuContent>
+																	</DropdownMenu>
+																</div>
+															</div>
+														);
+													})}
+												</div>
+											)}
 										</div>
 									);
 								})}
