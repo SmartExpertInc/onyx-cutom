@@ -244,6 +244,7 @@ export default function LessonPresentationClient() {
   
   // Avatar carousel state for video lessons
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
   const avatarCarouselRef = useRef<HTMLDivElement>(null);
 
   // State for dropdowns
@@ -2043,7 +2044,7 @@ export default function LessonPresentationClient() {
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
-                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-7 overflow-hidden">
+                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-8 overflow-hidden">
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
@@ -2051,8 +2052,12 @@ export default function LessonPresentationClient() {
                           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', marginLeft: '-140px' }}
                         >
                           {/* Placeholder avatar cards - will be replaced with actual content */}
-                          {[1, 2, 3, 4].map((avatar) => {
+                          {[1, 2, 3, 4, 5, 6].map((avatar, index) => {
                             const isSelected = selectedAvatar === avatar;
+                            const isVisible = index >= scrollPosition && index < scrollPosition + 3;
+                            
+                            if (!isVisible) return null;
+                            
                             return (
                               <div
                                 key={avatar}
@@ -2074,12 +2079,12 @@ export default function LessonPresentationClient() {
                                 {/* Navigation buttons - only show on selected avatar */}
                                 {isSelected && (
                                   <>
-                                    {/* Left Navigation Button - Select previous avatar */}
-                                    {avatar > 1 && (
+                                    {/* Left Navigation Button - Scroll left */}
+                                    {scrollPosition > 0 && (
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setSelectedAvatar(avatar - 1);
+                                          setScrollPosition(scrollPosition - 1);
                                         }}
                                         className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                       >
@@ -2089,12 +2094,12 @@ export default function LessonPresentationClient() {
                                       </button>
                                     )}
 
-                                    {/* Right Navigation Button - Select next avatar */}
-                                    {avatar < 4 && (
+                                    {/* Right Navigation Button - Scroll right */}
+                                    {scrollPosition < 3 && (
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setSelectedAvatar(avatar + 1);
+                                          setScrollPosition(scrollPosition + 1);
                                         }}
                                         className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-opacity"
                                       >
