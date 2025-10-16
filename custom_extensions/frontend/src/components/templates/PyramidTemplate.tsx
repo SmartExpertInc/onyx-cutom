@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import Image from 'next/image';
-import messageImg from './message_img.png';
+import { MessageCircle } from 'lucide-react';
 
 export interface PyramidItem {
   heading: string;
@@ -239,22 +238,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     };
   };
 
-  // Message image
-  const messageImageStyles: React.CSSProperties = {
-    width: '22px',
-    height: '22px',
-    marginRight: '8px',
-    objectFit: 'contain'
-  };
-
-  // Message image
   const MessageIcon = () => (
-    <Image 
-      src={messageImg} 
-      alt="Message" 
-      width={30}
-      style={{ marginRight: '8px' }}
-    />
+    <span style={{ display: 'inline-flex', marginRight: '8px' }}>
+      <MessageCircle color="#ffffff" size={22} />
+    </span>
   );
 
   // Number styles

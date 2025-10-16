@@ -279,7 +279,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const subtitleStyles: React.CSSProperties = {
-    width: '325px',
+    width: '406px',
     fontSize: '1.4rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.subtitleColor,
