@@ -1920,25 +1920,27 @@
             font-family: 'Inter', sans-serif;
         }
         
-        /* FourBox Grid Slide Template */
+        /* FourBox Grid Slide Template - EXACT React Copy with Theme Support */
         .four-box-grid-slide {
             width: 1920px;
             height: 1080px;
-            background-color: #2B2D42;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            padding: 64px;
-            font-family: 'Inter', sans-serif;
+            padding: 80px;
+            font-family: var(--content-font);
         }
         
         .four-box-grid-slide .title {
-            font-size: 64px;
-            font-family: 'Lora', serif;
-            color: #FFFFFF;
+            font-size: var(--title-size);
+            font-family: var(--title-font);
+            color: var(--title-color);
             text-align: left;
             margin-bottom: 40px;
             word-wrap: break-word;
+            font-weight: 600;
+            line-height: 1.2;
         }
         
         .four-box-grid-slide .grid {
@@ -1954,27 +1956,29 @@
             background-color: rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             padding: 20px;
-            color: #FFFFFF;
+            color: var(--content-color);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            box-shadow: 0 1px 0 0 #393963;
-            border: 1px solid #393963;
+            box-shadow: 0 1px 0 0 rgba(57, 57, 99, 0.5);
+            border: 1px solid rgba(57, 57, 99, 0.5);
             min-height: 160px;
         }
         
         .four-box-grid-slide .box-heading {
             font-size: 28px;
-            color: #FFFFFF;
+            color: var(--content-color);
             margin-bottom: 12px;
-            font-family: 'Lora', serif;
+            font-family: var(--title-font);
             word-wrap: break-word;
+            font-weight: 500;
+            line-height: 1.3;
         }
         
         .four-box-grid-slide .box-text {
-            font-size: 18px;
-            color: #FFFFFF;
-            font-family: 'Inter', sans-serif;
+            font-size: var(--content-size);
+            color: var(--content-color);
+            font-family: var(--content-font);
             word-wrap: break-word;
             line-height: 1.6;
         }
@@ -3006,104 +3010,78 @@
                 </div>
                 
             {% elif templateId == 'dei-methods-slide' or templateId == 'dei-methods' %}
-                <div style="width: 1920px; height: 1080px; background: #F0F2F7; color: #0F172A; font-family: 'Lora', serif; position: relative;">
-                    {# Card wrapper #}
-                    <div style="position: absolute; left: 44px; right: 44px; top: 44px; bottom: 44px; background: #FFFFFF; border-radius: 24px; border: 1px solid #102412;">
-                        {# Header gradient #}
-                        <div style="position: absolute; left: 0; right: 0; top: 0; height: 40%; background: linear-gradient(to bottom, #0F58F9, #1023A1); border: none;"></div>
-                        
-                        {# Avatar #}
-                        <div style="position: absolute; right: 60px; top: 40px; width: 172px; height: 172px; border-radius: 50%; overflow: hidden; background: #FFFFFF; z-index: 10;">
-                            {% if avatarPath %}
-                                <img src="{{ avatarPath }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            {% endif %}
-                        </div>
-                        
-                        {# Header text #}
-                        <div style="position: absolute; left: 60px; top: 18%; transform: translateY(-50%); font-size: 46px; font-weight: 600; color: #FFFFFF; font-family: 'Lora', serif; z-index: 5; max-width: 75%;">
-                            {{ headerTitle or 'Methods to Meet DEI Standards' }}
-                        </div>
-                        
-                        {# Content block #}
-                        <div style="position: absolute; left: 0; right: 0; top: 38%; bottom: 0; background: #E0E7FF; border: none;">
-                            <div style="position: absolute; left: 60px; top: 40px; font-size: 35px; font-weight: 600; color: black; font-family: 'Lora', serif;">
-                                {{ section1Title or 'Diverse Recruitment:' }}
-                            </div>
-                            <div style="position: absolute; left: 60px; top: 100px; font-size: 20px; color: #34353C; line-height: 1.6; white-space: pre-line; font-family: 'Inter', sans-serif;">
-                                {% if section1Lines %}{{ section1Lines | join('
+                <div class="dei-methods-slide">
+                    <div class="header"></div>
+                    <div class="avatar-wrap">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" class="avatar-img">
+                        {% endif %}
+                    </div>
+                    <div class="header-text">{{ headerTitle or 'Methods to Meet DEI Standards' }}</div>
+                    
+                    <div class="content-block">
+                        <div class="section1-title">{{ section1Title or 'Diverse Recruitment:' }}</div>
+                        <div class="section1-lines">{% if section1Lines %}{{ section1Lines | join('
 ') }}{% else %}Source candidates from underrepresented groups.
-Use blind screening processes to focus on skills and qualifications.{% endif %}
-                            </div>
-                            
-                            <div style="position: absolute; left: 60px; top: 190px; font-size: 35px; font-weight: 600; color: black; font-family: 'Lora', serif;">
-                                {{ section2Title or 'Mentorship and Sponsorship Programs:' }}
-                            </div>
-                            <div style="position: absolute; left: 60px; top: 250px; font-size: 20px; color: #34353C; line-height: 1.6; white-space: pre-line; font-family: 'Inter', sans-serif;">
-                                {% if section2Lines %}{{ section2Lines | join('
+Use blind screening processes to focus on skills and qualifications.{% endif %}</div>
+                        
+                        <div class="section2-title">{{ section2Title or 'Mentorship and Sponsorship Programs:' }}</div>
+                        <div class="section2-lines">{% if section2Lines %}{{ section2Lines | join('
 ') }}{% else %}Mentor and sponsor diverse talent.
-Create opportunities for growth & advancement.{% endif %}
+Create opportunities for growth & advancement.{% endif %}</div>
+                    </div>
+                    
+                    <div class="footer-page-number">
+                        <div class="page-line"></div>
+                        <div>{{ pageNumber or '16' }}</div>
+                    </div>
+                    
+                    <div class="footer-logo">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
+                        {% else %}
+                            <div style="width: 30px; height: 30px; border: 2px solid #000000; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 12px; height: 2px; background-color: #000000; position: absolute;"></div>
+                                <div style="width: 2px; height: 12px; background-color: #000000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
                             </div>
-                        </div>
-                        
-                        {# Footer page number #}
-                        <div style="position: absolute; bottom: 24px; left: 0px; font-size: 16px; color: #333333; font-family: 'Inter', sans-serif; font-weight: 400; display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 15px; height: 1px; background-color: #5F616D;"></div>
-                            <div>{{ pageNumber or '16' }}</div>
-                        </div>
-                        
-                        {# Footer logo #}
-                        <div style="position: absolute; bottom: 20px; right: 60px; z-index: 10; display: flex; align-items: center; gap: 10px;">
-                            {% if logoPath %}
-                                <img src="{{ logoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
-                            {% else %}
-                                <div style="width: 30px; height: 30px; border: 2px solid #000000; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
-                                    <div style="width: 12px; height: 2px; background-color: #000000; position: absolute;"></div>
-                                    <div style="width: 2px; height: 12px; background-color: #000000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
-                                </div>
-                                <span style="font-size: 14px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
-                            {% endif %}
-                        </div>
+                            <span style="font-size: 14px; font-weight: 500; color: #000000; font-family: 'Inter', sans-serif;">{{ logoText or 'Your Logo' }}</span>
+                        {% endif %}
                     </div>
                 </div>
                 
             {% elif templateId == 'kpi-update-slide' or templateId == 'kpi-update' %}
-                <div style="width: 1920px; height: 1080px; background-color: #E0E7FF; position: relative; overflow: hidden; font-family: 'Inter', sans-serif;">
-                    {# Title pill #}
-                    <div style="position: absolute; left: 40px; top: 40px; display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 20px; border: 1px solid #09090B;">
-                        <div style="width: 8px; height: 8px; background-color: blue; border-radius: 50%;"></div>
-                        <div style="color: #585955; font-size: 16px; font-weight: 500;">{{ title or 'KPI Update' }}</div>
+                <div class="kpi-update-slide">
+                    <div class="title-pill">
+                        <div class="title-dot"></div>
+                        <div class="title-text">{{ title or 'KPI Update' }}</div>
                     </div>
                     
-                    {# Items grid #}
-                    <div style="position: absolute; left: 125px; right: 56px; top: 80px; bottom: 148px; display: grid; grid-template-columns: 380px 1fr; grid-auto-rows: minmax(120px, auto); row-gap: 10px; column-gap: 15px 72px; align-items: center;">
+                    <div class="items-area">
                         {% if items %}
                             {% for item in items %}
                                 <div style="min-height: 116px; display: flex; align-items: center; justify-content: flex-end;">
-                                    <div style="font-size: 66px; color: #09090B; font-weight: 700; text-align: right; letter-spacing: -3px; line-height: 1; white-space: nowrap; overflow: hidden; margin-bottom: 50px;">{{ item.value }}</div>
+                                    <div class="value">{{ item.value }}</div>
                                 </div>
                                 <div style="min-height: 64px; position: relative;">
-                                    <div style="color: #09090B; line-height: 1.65; font-size: 15px; max-width: 500px; margin-left: 50px; margin-top: -28px;">{{ item.description }}</div>
-                                    <div style="position: absolute; bottom: -5px; left: -50px; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1);"></div>
+                                    <div class="description">{{ item.description }}</div>
+                                    <div class="separator"></div>
                                 </div>
                             {% endfor %}
                         {% endif %}
                     </div>
                     
-                    {# Profile image #}
-                    <div style="position: absolute; left: 56px; bottom: 120px; width: 140px; background-color: #0F58F9; height: 140px; border-radius: 50%; overflow: hidden;">
+                    <div class="profile-image">
                         {% if profileImagePath %}
-                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" style="height: 125%; object-fit: cover; border-radius: 50%;">
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile' }}" class="profile-img">
                         {% endif %}
                     </div>
                     
-                    {# Page number #}
-                    <div style="position: absolute; bottom: 20px; left: 0px; display: flex; align-items: center; gap: 8px; z-index: 10;">
-                        <div style="width: 20px; height: 1px; background-color: rgba(0, 0, 0, 0.3);"></div>
-                        <div style="color: #000000; font-size: 17px; font-weight: 300;">{{ pageNumber or '19' }}</div>
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '19' }}</div>
                     </div>
                     
-                    {# Logo #}
-                    <div style="position: absolute; bottom: 20px; right: 30px; display: flex; align-items: center; gap: 10px; z-index: 10;">
+                    <div class="logo-container">
                         {% if companyLogoPath %}
                             <img src="{{ companyLogoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
                         {% else %}
@@ -3117,9 +3095,8 @@ Create opportunities for growth & advancement.{% endif %}
                 </div>
                 
             {% elif templateId == 'phishing-rise-slide' or templateId == 'phishing-rise' %}
-                <div style="width: 1920px; height: 1080px; background-color: #ffffff; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr;">
-                    {# Logo in top-left #}
-                    <div style="position: absolute; top: 30px; left: 30px; display: flex; align-items: center; gap: 10px; z-index: 10;">
+                <div class="phishing-rise-slide">
+                    <div class="logo-container">
                         {% if companyLogoPath %}
                             <img src="{{ companyLogoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
                         {% else %}
@@ -3131,39 +3108,32 @@ Create opportunities for growth & advancement.{% endif %}
                         {% endif %}
                     </div>
                     
-                    {# Left area #}
-                    <div style="padding: 90px 56px 56px 64px; position: relative; background-color: #E0E7FF; z-index: 1;">
-                        <div style="font-size: 47px; font-weight: 700; letter-spacing: -0.5px; color: #09090B; font-family: 'Inter', sans-serif;">{{ title or 'Phishing rise' }}</div>
-                        <div style="margin-top: 10px; max-width: 410px; line-height: 1.7; color: #09090B; font-size: 18px; min-height: 104px; font-family: 'Inter', sans-serif;">{{ description or 'This has become a growing threat in the world of today...' }}</div>
+                    <div class="left-area">
+                        <div class="title">{{ title or 'Phishing rise' }}</div>
+                        <div class="description">{{ description or 'This has become a growing threat in the world of today...' }}</div>
                         
-                        {# Avatar #}
-                        <div style="position: absolute; left: 72px; bottom: 70px; width: 140px; height: 140px; background-color: #0F58F9; border-radius: 50%; overflow: hidden;">
+                        <div class="avatar-holder">
                             {% if actorImagePath %}
-                                <img src="{{ actorImagePath }}" alt="{{ actorImageAlt or 'Actor image' }}" style="height: 126%; border-radius: 50%; object-fit: cover;">
+                                <img src="{{ actorImagePath }}" alt="{{ actorImageAlt or 'Actor image' }}" class="avatar-img">
                             {% endif %}
                         </div>
                     </div>
                     
-                    {# Right area with chart #}
-                    <div style="position: relative; background-color: #ffffff;">
-                        {# Y labels #}
-                        <div style="position: absolute; left: 30px; top: 24px; color: #8d96a3; font-size: 14px; font-family: 'Inter', sans-serif;">
+                    <div class="right-area">
+                        <div class="y-labels">
                             {% if yLabels %}
                                 {% for label in yLabels %}
-                                    <div {% if not loop.last %}style="margin-bottom: 103px;"{% endif %}>
-                                        <span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">{{ label }}</span>
-                                    </div>
+                                    <div {% if not loop.last %}style="margin-bottom: 103px;"{% endif %}><span class="y-label">{{ label }}</span></div>
                                 {% endfor %}
                             {% else %}
-                                <div style="margin-bottom: 103px;"><span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">70</span></div>
-                                <div style="margin-bottom: 103px;"><span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">60</span></div>
-                                <div style="margin-bottom: 103px;"><span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">40</span></div>
-                                <div style="margin-bottom: 103px;"><span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">20</span></div>
-                                <div><span style="display: inline-block; padding: 6px 12px; line-height: 1; color: #000000; min-width: 40px; text-align: center;">0</span></div>
+                                <div style="margin-bottom: 103px;"><span class="y-label">70</span></div>
+                                <div style="margin-bottom: 103px;"><span class="y-label">60</span></div>
+                                <div style="margin-bottom: 103px;"><span class="y-label">40</span></div>
+                                <div style="margin-bottom: 103px;"><span class="y-label">20</span></div>
+                                <div><span class="y-label">0</span></div>
                             {% endif %}
                         </div>
                         
-                        {# Grid lines #}
                         <div style="position: absolute; right: 48px; left: 96px; bottom: 72px; top: 72px; pointer-events: none;">
                             <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: -33.5px;"></div>
                             <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 93.5px;"></div>
@@ -3171,24 +3141,22 @@ Create opportunities for growth & advancement.{% endif %}
                             <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 352.5px;"></div>
                         </div>
                         
-                        {# Bars chart #}
-                        <div style="position: absolute; right: 48px; left: 96px; bottom: 72px; top: 72px; display: flex; align-items: flex-end; gap: 44px;">
+                        <div class="chart">
                             {% if bars %}
                                 {% for bar in bars %}
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <div style="color: #4F4F4F; font-size: 14px; min-height: 22px;">{{ bar.valueLabel }}</div>
-                                        <div style="width: 96px; height: {{ bar.height }}px; background: linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117%); border-radius: 2px;"></div>
-                                        <div style="text-align: center; color: #8d96a3; margin-top: 8px; font-size: 14px; min-height: 20px;">{{ bar.year }}</div>
+                                        <div class="bar-label">{{ bar.valueLabel }}</div>
+                                        <div class="bar" style="height: {{ bar.height }}px;"></div>
+                                        <div class="bar-year">{{ bar.year }}</div>
                                     </div>
                                 {% endfor %}
                             {% endif %}
                         </div>
                     </div>
                     
-                    {# Page number #}
-                    <div style="position: absolute; bottom: 20px; left: 0px; display: flex; align-items: center; gap: 8px; z-index: 10;">
-                        <div style="width: 20px; height: 1px; background-color: rgba(0, 0, 0, 0.3);"></div>
-                        <div style="color: #000000; font-size: 17px; font-weight: 300;">{{ pageNumber or '07' }}</div>
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '07' }}</div>
                     </div>
                 </div>
                 
@@ -3236,35 +3204,37 @@ Create opportunities for growth & advancement.{% endif %}
                 </div>
                 
             {% elif templateId == 'four-box-grid' or templateId == 'four-box-grid-slide' %}
-                <div style="width: 1920px; height: 1080px; background-color: #2B2D42; display: flex; flex-direction: column; align-items: stretch; padding: 64px;">
-                    {# Title #}
-                    <h1 style="font-size: 64px; font-family: 'Lora', serif; color: #FFFFFF; text-align: left; margin-bottom: 40px; word-wrap: break-word;">{{ title or 'Company Tools and Resources' }}</h1>
+                <!-- FourBox Grid Slide - EXACT React Implementation -->
+                <div class="four-box-grid-slide">
+                    <!-- Title -->
+                    <h1 class="title">{{ title or 'Company Tools and Resources' }}</h1>
                     
-                    {# Grid #}
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 24px; width: 100%; flex: 1;">
+                    <!-- Grid of 4 boxes -->
+                    <div class="grid">
                         {% if boxes and boxes|length >= 4 %}
                             {% for box in boxes[:4] %}
-                                <div style="background-color: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 20px; color: #FFFFFF; display: flex; flex-direction: column; justify-content: flex-start; box-shadow: 0 1px 0 0 #393963; border: 1px solid #393963; min-height: 160px;">
-                                    <div style="font-size: 28px; color: #FFFFFF; margin-bottom: 12px; font-family: 'Lora', serif; word-wrap: break-word;">{{ box.heading or 'Heading' }}</div>
-                                    <div style="font-size: 18px; color: #FFFFFF; font-family: 'Inter', sans-serif; word-wrap: break-word; line-height: 1.6;">{{ box.text or 'Text content goes here' }}</div>
+                                <div class="box">
+                                    <div class="box-heading">{{ box.heading or 'Heading ' ~ (loop.index) }}</div>
+                                    <div class="box-text">{{ box.text or 'Enter text content for box ' ~ (loop.index) }}</div>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div style="background-color: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 20px; color: #FFFFFF; display: flex; flex-direction: column; justify-content: flex-start; box-shadow: 0 1px 0 0 #393963; border: 1px solid #393963; min-height: 160px;">
-                                <div style="font-size: 28px; color: #FFFFFF; margin-bottom: 12px; font-family: 'Lora', serif; word-wrap: break-word;">Project Management</div>
-                                <div style="font-size: 18px; color: #FFFFFF; font-family: 'Inter', sans-serif; word-wrap: break-word; line-height: 1.6;">Tools for managing tasks, deadlines, and team collaboration.</div>
+                            <!-- Default content if no boxes provided -->
+                            <div class="box">
+                                <div class="box-heading">Project Management</div>
+                                <div class="box-text">Tools for managing tasks, deadlines, and team collaboration efficiently.</div>
                             </div>
-                            <div style="background-color: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 20px; color: #FFFFFF; display: flex; flex-direction: column; justify-content: flex-start; box-shadow: 0 1px 0 0 #393963; border: 1px solid #393963; min-height: 160px;">
-                                <div style="font-size: 28px; color: #FFFFFF; margin-bottom: 12px; font-family: 'Lora', serif; word-wrap: break-word;">Communication</div>
-                                <div style="font-size: 18px; color: #FFFFFF; font-family: 'Inter', sans-serif; word-wrap: break-word; line-height: 1.6;">Email, chat, and video conferencing platforms.</div>
+                            <div class="box">
+                                <div class="box-heading">Communication</div>
+                                <div class="box-text">Email, chat, and video conferencing platforms for seamless interaction.</div>
                             </div>
-                            <div style="background-color: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 20px; color: #FFFFFF; display: flex; flex-direction: column; justify-content: flex-start; box-shadow: 0 1px 0 0 #393963; border: 1px solid #393963; min-height: 160px;">
-                                <div style="font-size: 28px; color: #FFFFFF; margin-bottom: 12px; font-family: 'Lora', serif; word-wrap: break-word;">File Storage</div>
-                                <div style="font-size: 18px; color: #FFFFFF; font-family: 'Inter', sans-serif; word-wrap: break-word; line-height: 1.6;">Cloud storage and document management systems.</div>
+                            <div class="box">
+                                <div class="box-heading">File Storage</div>
+                                <div class="box-text">Cloud storage and document management systems for secure data access.</div>
                             </div>
-                            <div style="background-color: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 20px; color: #FFFFFF; display: flex; flex-direction: column; justify-content: flex-start; box-shadow: 0 1px 0 0 #393963; border: 1px solid #393963; min-height: 160px;">
-                                <div style="font-size: 28px; color: #FFFFFF; margin-bottom: 12px; font-family: 'Lora', serif; word-wrap: break-word;">Analytics</div>
-                                <div style="font-size: 18px; color: #FFFFFF; font-family: 'Inter', sans-serif; word-wrap: break-word; line-height: 1.6;">Data analysis and reporting tools.</div>
+                            <div class="box">
+                                <div class="box-heading">Analytics</div>
+                                <div class="box-text">Data analysis and reporting tools for informed decision-making.</div>
                             </div>
                         {% endif %}
                     </div>
