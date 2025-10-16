@@ -431,7 +431,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       </div>
 
                       <button
-                        onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
+                        onClick={() => {
+                          if (plan.id === 'starter' || plan.id === currentPlanId) return;
+                          if (plan.id === 'enterprise' || plan.name.includes('Enterprise')) {
+                            window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank');
+                            return;
+                          }
+                          handlePurchasePlan(plan);
+                        }}
                         className={`w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'

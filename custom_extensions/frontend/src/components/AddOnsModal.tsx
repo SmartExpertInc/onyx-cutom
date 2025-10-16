@@ -97,7 +97,10 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
           variant="download"
           disabled={busy}
           onClick={async () => {
-            if (addOn.isEnterprise) return;
+            if (addOn.isEnterprise) {
+              window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank');
+              return;
+            }
             setBusy(true); setErr(null);
             try {
               // Decide SKU by id
