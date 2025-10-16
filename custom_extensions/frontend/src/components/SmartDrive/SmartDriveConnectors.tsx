@@ -977,33 +977,28 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               {/* Header with title and search */}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Available connectors</h3>
-                <div className="w-[80px] bg-gray-200 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      entitlements.connectors_used >= entitlements.connectors_limit
-                        ? 'bg-red-400'
-                        : entitlements.connectors_used / entitlements.connectors_limit > 0.8
-                        ? 'bg-yellow-400'
-                        : 'bg-[#719AF5]'
-                    }`}
-                    style={{
-                      width: `${Math.min(
-                        (entitlements.connectors_used / entitlements.connectors_limit) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-
-              </div>
-              
-              {/* Progress bar section */}
-              <div className="space-y-3">
-                
-                <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-[120px] bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        entitlements.connectors_used >= entitlements.connectors_limit
+                          ? 'bg-red-400'
+                          : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                          ? 'bg-yellow-400'
+                          : 'bg-[#719AF5]'
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
                   <span className="text-gray-600 text-sm">
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
+                  <div className="flex justify-between items-center">
                   <Button 
                     className="bg-[#719AF5] text-white rounded-md" 
                     size="sm" 
@@ -1013,7 +1008,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     Buy more connectors
                   </Button>
                 </div>
+                </div>
               </div>
+              
             </div>
           )}
          <div className="flex items-center justify-between mb-6">
