@@ -2136,6 +2136,43 @@ export default function LessonPresentationClient() {
                   </div>
                 )}
 
+                {/* Content section for Video Lesson */}
+                {productType === "video_lesson_presentation" && (
+                  <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                    <div className="flex items-center py-2 border-b border-[#E0E0E0] px-6">
+                      <div className="flex flex-col">
+                        <h2 className="text-md font-medium text-[#0D001BCC]">Content</h2>
+                        <p className="text-[#434343CC] text-sm">Adjust image styles</p>
+                      </div>
+                    </div>
+                    
+                    <div className="px-6 py-4 space-y-6">
+                      {/* Top Section - Image Source */}
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Image source
+                        </label>
+                        <button className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-100 transition-colors">
+                          Ai images
+                        </button>
+                      </div>
+                      
+                      {/* Horizontal Divider */}
+                      <div className="border-t border-gray-200"></div>
+                      
+                      {/* Bottom Section - AI Image Model */}
+                      <div className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Ai image model
+                        </label>
+                        <button className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-100 transition-colors">
+                          Nano banana
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Inline Advanced section */}
                 {showAdvanced && (
                   <AiAgent
