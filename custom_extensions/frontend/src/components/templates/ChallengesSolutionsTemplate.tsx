@@ -129,8 +129,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
+  const [isEditingChallengesTitle, setIsEditingChallengesTitle] = useState(false);
+  const [isEditingSolutionsTitle, setIsEditingSolutionsTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [currentChallengesTitle, setCurrentChallengesTitle] = useState(challengesTitle);
+  const [currentSolutionsTitle, setCurrentSolutionsTitle] = useState(solutionsTitle);
   
   // Состояние для элементов списков
   const [challengeItems, setChallengeItems] = useState(
@@ -163,6 +167,22 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
     setIsEditingSubtitle(false);
     if (onUpdate) {
       onUpdate({ subtitle: value });
+    }
+  };
+
+  const handleChallengesTitleSave = (value: string) => {
+    setCurrentChallengesTitle(value);
+    setIsEditingChallengesTitle(false);
+    if (onUpdate) {
+      onUpdate({ challengesTitle: value });
+    }
+  };
+
+  const handleSolutionsTitleSave = (value: string) => {
+    setCurrentSolutionsTitle(value);
+    setIsEditingSolutionsTitle(false);
+    if (onUpdate) {
+      onUpdate({ solutionsTitle: value });
     }
   };
 
@@ -304,9 +324,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {challengeItems.map((item: string, index: number) => {
           // Position each challenge next to its icon
           const positions = [
-            { top: '15%', left: '50px' },   // Top icon
-            { top: '48%', left: '50px' },   // Middle icon
-            { top: '75%', left: '50px' }    // Bottom icon
+            { top: '15%', left: '20px' },   // Top icon
+            { top: '48%', left: '20px' },   // Middle icon
+            { top: '75%', left: '20px' }    // Bottom icon
           ];
           const pos = positions[index] || positions[0];
           
@@ -362,9 +382,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {solutionItems.map((item: string, index: number) => {
           // Position each solution next to its icon
           const positions = [
-            { top: '15%', right: '50px' },   // Top icon
-            { top: '48%', right: '50px' },   // Middle icon
-            { top: '75%', right: '50px' }    // Bottom icon
+            { top: '15%', right: '20px' },   // Top icon
+            { top: '48%', right: '20px' },   // Middle icon
+            { top: '75%', right: '20px' }    // Bottom icon
           ];
           const pos = positions[index] || positions[0];
           
@@ -432,23 +452,72 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           zIndex: 10,
           paddingLeft: '40px'
         }}>
-          <div style={{
-            fontSize: '19px',
-            color: '#000000',
-            fontFamily: 'Arial, sans-serif',
-            fontWeight: 'bold',
-            textAlign: 'center',
-          }}>
-            {challengesTitle}
+          {/* Challenges Title */}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && isEditingChallengesTitle ? (
+              <InlineEditor
+                initialValue={currentChallengesTitle}
+                onSave={handleChallengesTitleSave}
+                onCancel={() => setIsEditingChallengesTitle(false)}
+                placeholder="Challenges"
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  cursor: isEditable ? 'pointer' : 'default',
+                }}
+                onClick={() => isEditable && setIsEditingChallengesTitle(true)}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {currentChallengesTitle}
+              </div>
+            )}
           </div>
-          <div style={{
-            fontSize: '19px',
-            color: '#000000',
-            fontFamily: 'Arial, sans-serif',
-            fontWeight: 'bold',
-            textAlign: 'center',
-          }}>
-            {solutionsTitle}
+          
+          {/* Solutions Title */}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && isEditingSolutionsTitle ? (
+              <InlineEditor
+                initialValue={currentSolutionsTitle}
+                onSave={handleSolutionsTitleSave}
+                onCancel={() => setIsEditingSolutionsTitle(false)}
+                placeholder="Solutions"
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  cursor: isEditable ? 'pointer' : 'default',
+                }}
+                onClick={() => isEditable && setIsEditingSolutionsTitle(true)}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {currentSolutionsTitle}
+              </div>
+            )}
           </div>
         </div>
       </div>
