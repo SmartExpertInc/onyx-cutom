@@ -49,14 +49,6 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
   );
 };
 
-export type ChatMessage = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  status?: 'updating' | 'updated';
-};
-
 interface AiAgentProps {
   editPrompt: string;
   setEditPrompt: (value: string) => void;
@@ -69,9 +61,6 @@ interface AiAgentProps {
   placeholder?: string;
   buttonText?: string;
   disabled?: boolean;
-  // Chat history management
-  chatHistory: ChatMessage[];
-  setChatHistory: (messages: ChatMessage[]) => void;
 }
 
 export const AiAgent: React.FC<AiAgentProps> = ({
@@ -86,35 +75,19 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   placeholder = "Ask me to edit, create, or style anything",
   buttonText = "Edit",
   disabled = false,
-  chatHistory,
-  setChatHistory,
 }) => {
   const { t } = useLanguage();
-  const chatContainerRef = React.useRef<HTMLDivElement>(null);
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [userMessage, setUserMessage] = useState("");
+  const [showUpdated, setShowUpdated] = useState(false);
 
   // Handle send button click
   const handleSend = () => {
     if (!editPrompt.trim()) return;
     
-    // Add initial AI message if this is the first message
-    if (chatHistory.length === 0) {
-      const aiMessage: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        role: 'assistant',
-        content: t('interface.aiAgent.question', 'Hey, what do you want to change?'),
-        timestamp: new Date(),
-      };
-      setChatHistory([aiMessage]);
-    }
-    
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: editPrompt,
-      timestamp: new Date(),
-    };
-    setChatHistory([...chatHistory, userMessage]);
+    setUserMessage(editPrompt);
+    setHasStartedChat(true);
+    setShowUpdated(false);
     
     // Call the original onApplyEdit
     onApplyEdit();
@@ -123,42 +96,16 @@ export const AiAgent: React.FC<AiAgentProps> = ({
     setEditPrompt("");
   };
 
-  // Update the last assistant message status when loading changes
+  // Update showUpdated when loading completes
   React.useEffect(() => {
-    if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === 'user') {
-      // Add or update assistant status message
-      const lastMessage = chatHistory[chatHistory.length - 1];
-      const statusMessage: ChatMessage = {
-        id: `status-${lastMessage.id}`,
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        status: loadingEdit ? 'updating' : 'updated',
-      };
-      
-      // Check if we already have a status message
-      const hasStatusMessage = chatHistory.length > 1 && 
-        chatHistory[chatHistory.length - 1].role === 'assistant' &&
-        chatHistory[chatHistory.length - 1].content === '';
-      
-      if (hasStatusMessage) {
-        // Update existing status
-        const updatedHistory = [...chatHistory];
-        updatedHistory[updatedHistory.length - 1] = statusMessage;
-        setChatHistory(updatedHistory);
-      } else if (loadingEdit) {
-        // Add new status message
-        setChatHistory([...chatHistory, statusMessage]);
-      }
+    if (hasStartedChat && !loadingEdit) {
+      // Small delay to show "Updating" state first
+      const timer = setTimeout(() => {
+        setShowUpdated(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [loadingEdit]);
-
-  // Scroll to bottom when new messages arrive
-  React.useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [chatHistory]);
+  }, [hasStartedChat, loadingEdit]);
   
   return (
     <div 
@@ -193,9 +140,9 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </div>
       </div>
 
-      {chatHistory.length === 0 ? (
+      {!hasStartedChat ? (
         <>
-          {/* Initial view - Title and examples */}
+          {/* Title */}
           <h3 
             className="text-center font-semibold"
             style={{ color: '#0D001B', fontSize: '18px' }}
@@ -272,63 +219,48 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </>
       ) : (
         <>
-          {/* Chat view - messenger style with full history */}
-          <div 
-            ref={chatContainerRef}
-            className="flex flex-col gap-4 mt-4 max-h-[400px] overflow-y-auto pr-2"
-            style={{ scrollBehavior: 'smooth' }}
-          >
-            {chatHistory.map((message) => {
-              if (message.role === 'assistant' && message.content === '') {
-                // Status message
-                return (
-                  <div key={message.id} className="flex flex-col gap-2 mt-2">
-                    {message.status === 'updating' && (
-                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                        <SparklesEmoji />
-                        <span>{t('interface.aiAgent.updating', 'Updating')}</span>
-                      </div>
-                    )}
-                    {message.status === 'updated' && (
-                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                        <SparklesEmoji />
-                        <span>{t('interface.aiAgent.updated', 'Updated')}</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
+          {/* Chat view - messenger style */}
+          <div className="flex flex-col gap-4 mt-4">
+            {/* First message - AI's question */}
+            <div className="flex justify-start">
+              <div 
+                className="px-4 py-3 rounded-2xl max-w-[70%]"
+                style={{ backgroundColor: '#F5F5F5', color: '#0D001B' }}
+              >
+                <p className="text-sm font-medium">
+                  {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
+                </p>
+              </div>
+            </div>
 
-              if (message.role === 'assistant') {
-                // AI message
-                return (
-                  <div key={message.id} className="flex justify-start">
-                    <div 
-                      className="px-4 py-3 rounded-2xl max-w-[70%]"
-                      style={{ backgroundColor: '#F5F5F5', color: '#0D001B' }}
-                    >
-                      <p className="text-sm font-medium">{message.content}</p>
-                    </div>
-                  </div>
-                );
-              } else {
-                // User message
-                return (
-                  <div key={message.id} className="flex justify-end">
-                    <div 
-                      className="px-4 py-3 rounded-2xl max-w-[70%]"
-                      style={{ backgroundColor: '#8808A2', color: '#FFFFFF' }}
-                    >
-                      <p className="text-sm">{message.content}</p>
-                    </div>
-                  </div>
-                );
-              }
-            })}
+            {/* Second message - User's input */}
+            <div className="flex justify-end">
+              <div 
+                className="px-4 py-3 rounded-2xl max-w-[70%]"
+                style={{ backgroundColor: '#8808A2', color: '#FFFFFF' }}
+              >
+                <p className="text-sm">{userMessage}</p>
+              </div>
+            </div>
+
+            {/* AI status updates */}
+            <div className="flex flex-col gap-2 mt-2 mb-4">
+              <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                <SparklesEmoji />
+                <span>{loadingEdit ? t('interface.aiAgent.updating', 'Updating') : ''}</span>
+              </div>
+              
+              {showUpdated && !loadingEdit && (
+                <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                  <SparklesEmoji />
+                  <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Textarea for next message */}
-          <div className="relative w-[80%] mx-auto mb-[20px] mt-4">
+          {/* Textarea for next message - same as initial view */}
+          <div className="relative w-[80%] mx-auto mb-[20px]">
             <Textarea
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
