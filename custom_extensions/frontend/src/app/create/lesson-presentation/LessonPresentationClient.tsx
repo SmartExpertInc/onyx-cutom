@@ -2044,7 +2044,7 @@ export default function LessonPresentationClient() {
                   return (
                     <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
                       <span className="select-none">
-                        {minutes} m {seconds} s {t('interface.generate.estimated', 'estimated')}
+                        {minutes} m {seconds} s
                       </span>
                       <span className="flex items-center gap-1">
                         <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
@@ -2125,8 +2125,8 @@ export default function LessonPresentationClient() {
                   <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     <div className="flex items-center py-2 border-b border-[#E0E0E0] px-6">
                       <div className="flex flex-col">
-                        <h2 className="text-md font-medium text-[#0D001BCC]">Avatars</h2>
-                        <p className="text-[#434343CC] text-sm">Choose the virtual trainer</p>
+                        <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.avatars', 'Avatars')}</h2>
+                        <p className="text-[#434343CC] text-sm">{t('interface.generate.chooseVirtualTrainer', 'Choose the virtual trainer')}</p>
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
@@ -2226,8 +2226,8 @@ export default function LessonPresentationClient() {
                   <div className="bg-white rounded-lg pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                     <div className="flex items-center py-2 border-b border-[#E0E0E0] px-6">
                       <div className="flex flex-col">
-                        <h2 className="text-md font-medium text-[#0D001BCC]">Content</h2>
-                        <p className="text-[#434343CC] text-sm">Adjust image styles</p>
+                        <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.content', 'Content')}</h2>
+                        <p className="text-[#434343CC] text-sm">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
                       </div>
                     </div>
                     
@@ -2235,7 +2235,7 @@ export default function LessonPresentationClient() {
                       {/* Top Section - Image Source */}
                       <div className="px-6 space-y-3 relative">
                         <label className="block text-sm font-medium text-gray-700">
-                          Image source
+                          {t('interface.generate.imageSource', 'Image source')}
                         </label>
                         <button 
                           onClick={() => setImageSourceDropdownOpen(!imageSourceDropdownOpen)}
@@ -2269,7 +2269,7 @@ export default function LessonPresentationClient() {
                       {/* Bottom Section - AI Image Model */}
                       <div className="px-6 space-y-3 relative">
                         <label className="block text-sm font-medium text-gray-700">
-                          Ai image model
+                          {t('interface.generate.aiImageModel', 'Ai image model')}
                         </label>
                         <button 
                           onClick={() => setAiModelDropdownOpen(!aiModelDropdownOpen)}

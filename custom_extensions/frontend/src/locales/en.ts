@@ -1166,6 +1166,12 @@ export const en = {
       generatePresentation: "Generate Presentation",
       generateQuiz: "Generate Quiz",
       generateOnePager: "Generate One-Pager",
+      avatars: "Avatars",
+      chooseVirtualTrainer: "Choose the virtual trainer",
+      content: "Content",
+      adjustImageStyles: "Adjust image styles",
+      imageSource: "Image source",
+      aiImageModel: "Ai image model",
     },
 
     // Paste Text page
