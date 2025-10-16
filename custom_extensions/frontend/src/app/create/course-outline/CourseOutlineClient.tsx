@@ -566,6 +566,42 @@ export default function CourseOutlineClient() {
         setHasUserEdits(false); // Reset user edits flag when generating new preview
 
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError('Stream timeout: No data received for 30 seconds. Please try again.');
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = { 
@@ -632,12 +668,19 @@ export default function CourseOutlineClient() {
           const reader = res.body?.getReader();
           if (!reader) throw new Error("No stream body");
 
+          // Setup timeout monitoring
+          setupHeartbeat();
+
           let buffer = "";
           let accumulatedRaw = "";
 
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
+            
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+            
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() || "";
@@ -671,6 +714,9 @@ export default function CourseOutlineClient() {
 
           if (buffer.trim()) {
             try {
+              // Update last data time for final buffer processing
+              lastDataTime = Date.now();
+              
               const pkt = JSON.parse(buffer.trim());
               gotFirstChunk = true;
               if (pkt.type === "delta") {
@@ -707,6 +753,9 @@ export default function CourseOutlineClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           if (!abortController.signal.aborted) {
             setLoading(false);
             if (!gotFirstChunk && attempt >= 3) {
