@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
@@ -70,6 +70,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
+  const [connectorVisibility, setConnectorVisibility] = useState<Record<string, boolean>>({});
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -357,6 +358,42 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       }
     ]
   };
+
+  // Feature-gated connector ids (must match ids above)
+  const GATED_CONNECTOR_IDS = useMemo(() => (
+    [
+      's3', 'r2', 'google_cloud_storage', 'oci_storage', 'sharepoint',
+      'teams', 'discourse', 'gong', 'axero', 'mediawiki',
+      'bookstack', 'guru', 'slab', 'linear', 'highspot', 'loopio'
+    ]
+  ), []);
+
+  // Load feature flags for gated connectors
+  useEffect(() => {
+    const abort = new AbortController();
+    const loadFlags = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const entries = await Promise.all(
+          GATED_CONNECTOR_IDS.map(async (id: string) => {
+            try {
+              const res = await fetch(`${base}/features/check/connector_${id}`, { credentials: 'same-origin', signal: abort.signal });
+              if (!res.ok) return [id, false] as const;
+              const json = await res.json();
+              return [id, Boolean(json?.is_enabled)] as const;
+            } catch {
+              return [id, false] as const;
+            }
+          })
+        );
+        setConnectorVisibility(Object.fromEntries(entries));
+      } catch {
+        // ignore
+      }
+    };
+    loadFlags();
+    return () => abort.abort();
+  }, [GATED_CONNECTOR_IDS]);
 
   // Load user's existing connectors
   const loadUserConnectors = useCallback(async () => {
@@ -867,7 +904,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 {categoryName}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {connectors.map((connector) => {
+                {connectors
+                  .filter((connector) => !GATED_CONNECTOR_IDS.includes(connector.id) || connectorVisibility[connector.id])
+                  .map((connector) => {
                   const userConnectorsForSource = getConnectorsBySource(connector.id);
                   const hasConnectors = userConnectorsForSource.length > 0;
                   const hasMultipleConnectors = userConnectorsForSource.length > 1;

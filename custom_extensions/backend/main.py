@@ -6963,6 +6963,23 @@ async def startup_event():
                     ('is_us_lms', 'LMS: Use US (.io)', 'If enabled (and DEV disabled), use https://app.smartexpert.io for LMS requests', 'LMS'),
                     ('is_dev_lms', 'LMS: Use DEV (.net dev)', 'If enabled, always use https://dev.smartexpert.net for LMS requests (overrides US/EU)', 'LMS'),
                     ('is_chudomaket', 'LMS: Use Chudomaket', 'Override and use https://lms.toliman.com.ua for all LMS requests', 'LMS'),
+                    # SmartDrive Connector visibility flags (hidden by default unless enabled per user)
+                    ('connector_s3', 'Amazon S3 (SmartDrive)', 'Show Amazon S3 connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_r2', 'Cloudflare R2 (SmartDrive)', 'Show Cloudflare R2 connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_google_cloud_storage', 'Google Cloud Storage (SmartDrive)', 'Show Google Cloud Storage connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_oci_storage', 'Oracle Cloud Storage (SmartDrive)', 'Show Oracle Cloud Storage connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_sharepoint', 'SharePoint (SmartDrive)', 'Show SharePoint connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_teams', 'Microsoft Teams (SmartDrive)', 'Show Microsoft Teams connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_discourse', 'Discourse (SmartDrive)', 'Show Discourse connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_gong', 'Gong (SmartDrive)', 'Show Gong connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_axero', 'Axero (SmartDrive)', 'Show Axero connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_mediawiki', 'MediaWiki (SmartDrive)', 'Show MediaWiki connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_bookstack', 'BookStack (SmartDrive)', 'Show BookStack connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_guru', 'Guru (SmartDrive)', 'Show Guru connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_slab', 'Slab (SmartDrive)', 'Show Slab connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_linear', 'Linear (SmartDrive)', 'Show Linear connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_highspot', 'Highspot (SmartDrive)', 'Show Highspot connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_loopio', 'Loopio (SmartDrive)', 'Show Loopio connector card on SmartDrive', 'SmartDrive Connectors'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
