@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -906,6 +906,37 @@ export default function TextPresentationClient() {
     if (!editPrompt.trim()) return;
     setLoadingEdit(true);
     setError(null);
+    
+    // Heartbeat variables for edit function
+    let lastDataTime = Date.now();
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+    let heartbeatStarted = false;
+    
+    // Timeout settings
+    const STREAM_TIMEOUT = 30000; // 30 seconds without data
+    const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+    // Cleanup function
+    const cleanup = () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+      }
+    };
+
+    // Setup heartbeat to check for stream timeout
+    const setupHeartbeat = () => {
+      heartbeatInterval = setInterval(() => {
+        const timeSinceLastData = Date.now() - lastDataTime;
+        if (timeSinceLastData > STREAM_TIMEOUT) {
+          console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+          cleanup();
+          setError("Failed to generate presentation – please try again later.");
+          setLoadingEdit(false);
+        }
+      }, HEARTBEAT_INTERVAL);
+    };
+    
     try {
       // NEW: Determine what content to send based on user edits
       let contentToSend = content;
@@ -954,6 +985,11 @@ export default function TextPresentationClient() {
             try {
               const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
               }
@@ -967,6 +1003,9 @@ export default function TextPresentationClient() {
         }
 
         buffer += decoder.decode(value, { stream: true });
+        
+        // Update last data time on any data received
+        lastDataTime = Date.now();
 
         // Split by newlines and process complete chunks
         const lines = buffer.split('\n');
@@ -978,6 +1017,11 @@ export default function TextPresentationClient() {
           try {
             const pkt = JSON.parse(line);
             if (pkt.type === "delta") {
+              // Start heartbeat only after receiving first delta package
+              if (!heartbeatStarted) {
+                heartbeatStarted = true;
+                setupHeartbeat();
+              }
               accumulatedText += pkt.text;
               setContent(accumulatedText);
             } else if (pkt.type === "done") {
@@ -1001,6 +1045,8 @@ export default function TextPresentationClient() {
     } catch (error: any) {
       setError(error.message || "Failed to apply edit");
     } finally {
+      // Always cleanup timeouts
+      cleanup();
       setLoadingEdit(false);
     }
   };
@@ -1028,6 +1074,43 @@ export default function TextPresentationClient() {
         setContent(""); // Clear previous content
         setTextareaVisible(true);
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate presentation – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = {
@@ -1095,12 +1178,20 @@ export default function TextPresentationClient() {
           while (true) {
             const { done, value } = await reader.read();
 
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+
             if (done) {
               // Process any remaining buffer
               if (buffer.trim()) {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
                     accumulatedJsonText += pkt.text;
                   }
@@ -1145,6 +1236,11 @@ export default function TextPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
                   accumulatedJsonText += pkt.text;
                 } else if (pkt.type === "done") {
@@ -1295,6 +1391,9 @@ export default function TextPresentationClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
@@ -1311,7 +1410,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText, retryTrigger]);
 
   // // Auto-scroll textarea as new content streams in
   // useEffect(() => {
@@ -2251,7 +2350,27 @@ export default function TextPresentationClient() {
               )}
             </div>
             {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
