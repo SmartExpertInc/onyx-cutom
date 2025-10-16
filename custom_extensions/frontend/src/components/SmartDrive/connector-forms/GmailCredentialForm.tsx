@@ -13,26 +13,26 @@ export interface Credential {
   groups: string[] | null;
 }
 
-interface GoogleDriveCredentialFormProps {
+interface GmailCredentialFormProps {
   onCredentialCreated: (credential: Credential) => void;
   onCancel: () => void;
 }
 
-const GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME = "google_drive_auth_is_admin";
+const GMAIL_AUTH_IS_ADMIN_COOKIE_NAME = "gmail_auth_is_admin";
 
-const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
+const GmailCredentialForm: FC<GmailCredentialFormProps> = ({
   onCredentialCreated,
   onCancel,
 }) => {
   return (
     <BaseGoogleCredentialForm
-      connectorId="google_drive"
-      connectorName="Google Drive"
-      authCookieName={GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME}
+      connectorId="gmail"
+      connectorName="Gmail"
+      authCookieName={GMAIL_AUTH_IS_ADMIN_COOKIE_NAME}
       onCredentialCreated={onCredentialCreated}
       onCancel={onCancel}
     />
   );
 };
 
-export default GoogleDriveCredentialForm;
+export default GmailCredentialForm;

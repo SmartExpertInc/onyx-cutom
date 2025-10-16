@@ -7,6 +7,7 @@ import { Card, CardContent } from "../../ui/card";
 import { Input } from "@/components/ui/input";
 import { credentialTemplates, credentialDisplayNames } from "./OnyxCredentialTemplates";
 import GoogleDriveCredentialForm from "./GoogleDriveCredentialForm";
+import GmailCredentialForm from "./GmailCredentialForm";
 
 export interface Credential {
   id: number;
@@ -425,7 +426,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=docs.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Google Docs API</strong></>,
                             <><strong>Set up OAuth consent screen:</strong><br />
                               • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
-                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
+                              • Select <strong>External</strong> for <strong>User Type</strong><br />
                               • Enter a descriptive name (e.g., "ContentBuilder")<br />
                               • For the required emails, use any email of your choice<br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
@@ -435,8 +436,6 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add the scope <code>.../auth/admin.directory.user.readonly</code> for <strong>Admin SDK API</strong><br />
                               • Add the scope <code>.../auth/admin.directory.group.readonly</code> for <strong>Admin SDK API</strong></>,
                             <><strong>Set up test users:</strong><br />
-                              • This is only applicable for users without a Google Organization<br />
-                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
                               • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new documents.<br/>
                               • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
                             <><strong>Create credentials:</strong><br />
@@ -445,7 +444,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add a <strong>Authorized JavaScript origins</strong><br/>
                               • Add <code>https://ml.contentbuilder.ai</code><br/>
                               • Add a <strong>Authorized redirect URIs</strong><br/>
-                              • Add <code>https://ml.contentbuilder.ai/admin/connector/oauth/callback/google-drive</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/admin/connectors/google-drive/auth/callback</code><br/>
                               • Add <code>https://ml.contentbuilder.ai/connector/oauth/callback/google-drive</code><br/>
                               • Add <code>https://ml.contentbuilder.ai/manage/connector/google-drive/callback</code><br/>
                               • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
@@ -1142,13 +1141,10 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Create a new project or select an existing one<br />
                               • Note your project ID for later use</>,
                             <><strong>Enable Gmail API:</strong><br />
-                              • Navigate to <strong>APIs & Services → Library</strong><br />
-                              • Search for "Gmail API"<br />
-                              • Click on <strong>"Gmail API"</strong> from the results<br />
-                              • Click <strong>"Enable"</strong> to activate the API for your project</>,
+                              • Visit this <a href="https://console.cloud.google.com/flows/enableapi?apiid=gmail.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">link</a>, select your project and enable the <strong>Gmail API</strong></>,
                             <><strong>Set up OAuth consent screen:</strong><br />
                               • Under <strong>APIs & services</strong>, select the <strong>OAuth consent screen</strong> tab<br />
-                              • If you do not have a <strong>Google Organization</strong> select <strong>External</strong> for <strong>User Type</strong><br />
+                              • Select <strong>External</strong> for <strong>User Type</strong><br />
                               • Enter a descriptive name (e.g., "ContentBuilder")<br />
                               • For the required emails, use any email of your choice<br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
@@ -1156,9 +1152,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add the scope <code>.../auth/gmail.readonly</code> for <strong>Gmail API</strong><br />
                               • Click <strong>SAVE AND CONTINUE</strong></>,
                             <><strong>Set up test users:</strong><br />
-                              • This is only applicable for users without a Google Organization<br />
-                              • Typically for a company, Onyx would be set up as an internal app so this step would not apply.<br />
-                              • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new documents.<br/>
+                              • Add at least one test user email. Only the email accounts added here will be allowed to run the OAuth flow to index new emails.<br/>
                               • Click <strong>SAVE AND CONTINUE</strong>, review the changes and click <strong>BACK TO DASHBOARD</strong></>,
                             <><strong>Create credentials:</strong><br />
                               • Go to the Credentials tab and select <strong>+ CREATE CREDENTIALS → OAuth client ID</strong><br />
@@ -1166,9 +1160,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                               • Add a <strong>Authorized JavaScript origins</strong><br/>
                               • Add <code>https://ml.contentbuilder.ai</code><br/>
                               • Add a <strong>Authorized redirect URIs</strong><br/>
-                              • Add <code>https://ml.contentbuilder.ai/admin/connector/oauth/callback/google-drive</code><br/>
-                              • Add <code>https://ml.contentbuilder.ai/connector/oauth/callback/google-drive</code><br/>
-                              • Add <code>https://ml.contentbuilder.ai/manage/connector/google-drive/callback</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/admin/connectors/gmail/auth/callback</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/connector/oauth/callback/gmail</code><br/>
+                              • Add <code>https://ml.contentbuilder.ai/manage/connector/gmail/callback</code><br/>
                               • Click create and on the right hand side next to <strong>Client secret</strong>, there is an option to download the credentials as a JSON. Download the JSON for use in the next step.</>,
                             <><strong>Configure Contentbuilder:</strong><br />
                               • Upload the downloaded JSON key file in the credential form<br />
@@ -1419,7 +1413,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                         <div>
                           <Text className="font-semibold text-lg"> How it works? </Text>
                           <Text>
-                            Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.
+                            Slab is a wiki tool where the pages are called Posts. Contentbuilder indexes the post titles and contents.
                           </Text>
                           <Steps items={[
                             <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
@@ -1430,7 +1424,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                           ]} />
                           <Text className="mt-2 text-gray-600">{t('connectors.instructions.slab.note', 'Your base URL should look like: https://yourteam.slab.com/')}</Text>
                           <ImportantNotes>
-                            <p>Slab is a wiki tool where the pages are called Posts. Onyx indexes the post titles and contents.</p>
+                            <p>Slab is a wiki tool where the pages are called Posts. Contentbuilder indexes the post titles and contents.</p>
                           </ImportantNotes>
                         </div>
                       );
@@ -1910,6 +1904,13 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   if (connectorId === 'google_drive') {
     return (
       <GoogleDriveCredentialForm
+        onCredentialCreated={onCredentialCreated}
+        onCancel={onCancel}
+      />
+    );
+  } else if (connectorId === 'gmail') {
+    return (
+      <GmailCredentialForm
         onCredentialCreated={onCredentialCreated}
         onCancel={onCancel}
       />
