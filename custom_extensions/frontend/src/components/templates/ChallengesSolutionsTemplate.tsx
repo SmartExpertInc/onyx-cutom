@@ -303,7 +303,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {/* Left side text items */}
         <div style={{
           position: 'absolute',
-          left: '140px',
+          left: '90px',
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
@@ -359,7 +359,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {/* Right side text items */}
         <div style={{
           position: 'absolute',
-          right: '140px',
+          right: '90px',
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
@@ -420,9 +420,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {/* Bottom labels */}
         <div style={{
           position: 'absolute',
-          top: '45%',
+          top: '35%',
           left: '50%',
-          transform: 'translate(-50%, 120px)',
+          transform: 'translate(-50%, 40px)',
           display: 'flex',
           gap: '70px',
           zIndex: 10,
