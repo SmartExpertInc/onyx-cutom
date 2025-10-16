@@ -22087,65 +22087,44 @@ MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
-PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
-Based on presentation design best practices, follow these rules for selecting appropriate images:
+PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
+Create professional photographs showing people actively working in authentic environments relevant to the slide topic.
 
-1. RELEVANCE OVER AESTHETICS: Images must directly support and enhance your slide's message, not just be decorative.
-   - For business concepts: Use workplace scenarios, professional environments, real business activities
-   - For technical topics: Show actual tools, interfaces, workflows, or realistic work environments
-   - For data/analytics: Use realistic data visualization scenarios, not abstract concepts
-   - For processes: Show people actually performing the process or realistic workflow environments
+IMAGE PROMPT STRUCTURE - Use this exact format:
+"A professional photograph of [PROFESSIONAL ROLE] actively working [WORKPLACE CONTEXT]. 
 
-2. AVOID OVERUSED STOCK PHOTO CLICHÉS:
-   - NO: Handshakes, chess pieces, lightbulbs, arrows hitting targets, people pointing at charts
-   - NO: Overly staged business meetings, fake-looking "diverse teams" in conference rooms
-   - NO: Generic "success" imagery (mountains, climbing, finish lines)
-   - YES: Authentic workplace moments, realistic technology use, genuine professional interactions
+SCENE: The person is engaged in their typical work activities in an authentic workplace environment appropriate for [ROLE]. Show them using professional tools, equipment, or technology relevant to their role. The composition should capture both the person (from waist up or full body) and their work environment.
 
-3. CONTEXT-SPECIFIC IMAGE SELECTION:
-   - Marketing slides: Real marketing campaigns, authentic customer interactions, actual marketing tools in use
-   - Technology slides: Real developers coding, authentic tech environments, actual software interfaces
-   - Finance slides: Real financial professionals at work, authentic trading floors, actual financial data analysis
-   - Education slides: Real learning environments, authentic teaching moments, actual educational technology
+ACTIVITY: Include specific work processes that match the slide content - for example:
+- If data science: analyzing data on multiple monitors, coding machine learning models, presenting findings to team
+- If marketing: reviewing campaign analytics dashboards, creating content, strategizing with team over brand materials
+- If software development: coding at workstation with multiple monitors, debugging, collaborating in code review
+- If business analysis: examining financial data, creating presentations, meeting with stakeholders over reports
+- If project management: coordinating with team, reviewing project timelines, facilitating planning sessions
+- If design: working in creative software, sketching concepts, reviewing designs with colleagues
 
-4. REALISTIC WORKPLACE SCENES:
-   - Show people actually using the tools/concepts being discussed
-   - Include authentic details: real computer screens, actual work materials, genuine work environments
-   - Avoid posed or overly perfect scenarios; prefer candid, realistic moments
-   - Include diverse but authentic representation without forced staging
+ENVIRONMENT: Authentic workplace setting that matches the role - not just a generic office. Include relevant background elements, tools, equipment, and work materials that tell the story of what this person does professionally.
 
-5. VISUAL METAPHORS THAT WORK:
-   - Use concrete, relatable metaphors that enhance understanding
-   - Construction/building for development processes, gardens for growth concepts
-   - Transportation for journey/progress concepts, but make them specific and realistic
-   - Avoid abstract or overused metaphors; prefer specific, actionable imagery
+STYLE: High-quality professional photography with good natural lighting that shows both the person and their work context. The person should be wearing appropriate professional attire for their specific role.
 
-UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
-- Style must be realistic scenes (cinematic photography or high-quality documentary style), not minimalist flat illustrations.
-- Describe SPECIFIC SUBJECT performing RELEVANT ACTION in APPROPRIATE ENVIRONMENT with PROFESSIONAL LIGHTING, CAMERA ANGLE (lens mm, perspective), DEPTH OF FIELD, MATERIALS/TEXTURES, and subtle MOTION.
-- Examples for different contexts:
-  * Business: "Professional business analysts collaborating around multiple monitors displaying real financial dashboards and KPI metrics in a modern open office. Natural lighting from large windows, diverse team members pointing at specific data points on screens, coffee cups and notebooks visible. Shot with 35mm lens, three-quarter view, shallow depth of field focusing on the data displays."
-  * Technology: "Software engineers debugging code on ultra-wide monitors in a tech company office at evening, ambient keyboard lighting, multiple code editors and terminal windows visible, one developer explaining a solution to another. Natural office lighting mixed with screen glow, 50mm lens, over-shoulder perspective, realistic depth of field."
-  * Marketing: "Marketing team analyzing campaign performance data on large wall-mounted displays in a creative agency space, colorful brand materials and mood boards on walls, team members discussing conversion metrics while reviewing mobile app interfaces. Natural studio lighting, 28mm wide-angle lens, environmental portrait style."
-- Keep prompts specific to slide content; avoid generic business imagery.
-- Never include readable text on screens; use realistic but abstract UI patterns.
-- Include authentic environmental details that support the professional context.
+COMPOSITION: Environmental portrait style that captures the essence of the work, showing the professional genuinely engaged in their tasks within their authentic work environment."
 
-SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
-- Treat title-slide, big-image-top, and big-image-left as SECTION START slides.
-- After any SECTION START slide, include 3–5 immediately following slides that DEEPEN THAT SAME TOPIC before moving to a new section.
-- Use a clear naming convention so users see continuity:
-  • On the section start slide, set slideTitle to "Section: <Section Name>".
-  • On the next 3–5 slides in that section, prefix slideTitle with "<Section Name> — <Subtopic>".
-- Recommended per-section progression (adapt as appropriate):
-  1) SECTION START (title-slide or big-image-* introducing the topic)
-  2) bullet-points-right or two-column to frame the problem/opportunity (keep two-column content to 1–2 sentences per column in examples)
-  3) process-steps or four-box-grid to explain how/strategy/components
-  4) metrics-analytics, table-*, market-share, or pie-chart-infographics to quantify
-  5) challenges-solutions or comparison/table to address tradeoffs/alternatives
-- Do not insert unrelated slides immediately after a section start.
-- Never end a presentation with a section start. A section must include its 3–5 child slides.
-- Micro-summaries are allowed BETWEEN sections using four-box-grid or two-column, but NOT a global closing slide.
+CORE PRINCIPLES:
+1. SHOW REAL WORK ACTIVITIES: People must be actively doing their jobs, not posing or looking at camera
+2. AUTHENTIC ENVIRONMENTS: Real workplaces with actual tools, equipment, and materials visible
+3. SPECIFIC TO SLIDE CONTENT: Match the professional role and activity to the slide's actual topic
+4. NO STOCK PHOTO CLICHÉS: Avoid handshakes, pointing at charts, lightbulbs, chess pieces, staged meetings
+5. ENVIRONMENTAL PORTRAITS: Capture both the person and their workspace to tell the full professional story
+6. NATURAL MOMENTS: Show genuine work activities, not overly staged or posed scenarios
+
+EXAMPLES FOR COMMON SLIDE TYPES:
+- Business Strategy: "Business strategists collaborating around conference table with laptops, market analysis documents, and whiteboards showing strategic frameworks visible in background"
+- Data Analysis: "Data analysts working at multi-monitor workstations with data visualizations, dashboards, and statistical reports displayed, taking notes and discussing insights"
+- Technology: "Software engineers coding at workstations with multiple monitors showing code editors and terminal windows, reviewing pull requests and debugging together"
+- Marketing: "Marketing professionals analyzing campaign data on screens, reviewing creative assets, planning content calendar with brand materials visible"
+- Finance: "Financial analysts examining market data on trading terminals, reviewing financial models on spreadsheets, discussing investment strategies"
+
+Always specify: realistic workplace, professional attire, authentic tools/equipment, natural lighting, environmental portrait composition.
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]

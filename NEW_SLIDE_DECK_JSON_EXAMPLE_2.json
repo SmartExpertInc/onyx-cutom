@@ -307,30 +307,6 @@
       }
     },
     {
-      "slideId": "slide_13_events_calendar",
-      "slideNumber": 13,
-      "slideTitle": "Marketing Calendar and Campaign Timeline",
-      "templateId": "event-list",
-      "previewKeyPoints": [
-        "Strategic marketing calendar aligned with business objectives and seasonal trends",
-        "Campaign launch dates coordinated across all marketing channels",
-        "Key industry events and partnership opportunities for brand visibility",
-        "Performance review checkpoints and optimization milestones"
-      ],
-      "props": {
-        "events": [
-          { "date": "2024-11-15", "description": "Holiday season campaign launch with email sequences, social media content, and paid advertising across all channels targeting gift purchasers and end-of-year buyers." },
-          { "date": "2024-12-01", "description": "Cyber Monday flash sale promotion with limited-time offers, countdown timers, and urgency messaging to maximize conversion during peak shopping period." },
-          { "date": "2024-12-15", "description": "Year-end customer appreciation campaign featuring loyalty rewards, exclusive content, and personalized thank-you messages to strengthen relationships." },
-          { "date": "2025-01-08", "description": "New Year new goals campaign targeting resolution-focused audiences with motivational content, goal-setting tools, and fresh start messaging themes." },
-          { "date": "2025-01-22", "description": "Industry conference presence with thought leadership presentations, networking events, and lead generation activities for Q1 pipeline building." }
-        ],
-        "titleColor": "#1e293b",
-        "descriptionColor": "#475569",
-        "backgroundColor": "#f8fafc"
-      }
-    },
-    {
       "slideId": "slide_14_kpi_dashboard",
       "slideNumber": 14,
       "slideTitle": "Marketing KPI Dashboard and Performance Tracking",
