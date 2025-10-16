@@ -2044,7 +2044,7 @@ export default function LessonPresentationClient() {
                       </div>
                     </div>
                     <div className="px-3 py-3 flex-1">
-                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-8 overflow-hidden">
+                      <div className="w-full h-full border border-[#E0E0E0] rounded-md relative pt-6 pb-12 overflow-hidden">
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
@@ -2067,12 +2067,12 @@ export default function LessonPresentationClient() {
                                     ? 'border-2 border-[#0F58F9] bg-gray-600 opacity-100 cursor-pointer' 
                                     : 'border border-transparent bg-gray-600 opacity-40 cursor-default'
                                 }`}
-                                style={{ width: 'calc((100% - 32px - 40px) / 3)', aspectRatio: '16/9' }}
+                                style={{ width: 'calc(100% / 3)', aspectRatio: '16/9' }}
                               >
                                 <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
                                 {/* Avatar name placeholder */}
-                                <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
+                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
                                   Name
                                 </div>
                                 
