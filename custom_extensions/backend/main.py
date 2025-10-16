@@ -22044,22 +22044,11 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         
         json_preview_instructions = f"""
 
-═══════════════════════════════════════════════════════════════════════════════
-🚨 CRITICAL OVERRIDE: IGNORE ALL MARKDOWN FORMATTING INSTRUCTIONS 🚨
-═══════════════════════════════════════════════════════════════════════════════
-
-THIS IS A PREVIEW REQUEST - OUTPUT FORMAT IS **JSON ONLY**, NOT MARKDOWN!
-
-You MUST output ONLY a single, valid JSON object for the Presentation preview.
-Do NOT use markdown format. Do NOT use slide templates with backticks.
-Do NOT include Universal Product Header. Do NOT include commentary or explanation.
-
-Your ENTIRE response must be ONLY this JSON structure:
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
 {json_example}
-
-CRITICAL: Start your response with {{ "lessonTitle": and end with }}
-No code fences (```), no markdown, no text before or after the JSON.
-This JSON-only format enables immediate parsing without additional processing.
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+This enables immediate parsing without additional LLM calls during finalization.
 
 MANDATORY PREVIEW UI REQUIREMENT:
 - EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
@@ -22084,12 +22073,6 @@ CONTENT DENSITY AND LEARNING REQUIREMENTS:
 - Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
 - Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
 - Ensure learners gain deep understanding of the topic after reading the complete presentation.
-
-PRESENTATION CONTINUITY AND FLOW:
-- Create a coherent narrative arc: if slide 2 introduces Topic A, then slides 3-5 should build on Topic A while adding Topics B and C.
-- DO NOT jump between unrelated topics. Each slide should connect logically to the previous slide.
-- Example: Slide 2 "Statistical Foundations" → Slide 3 "Data Pipeline (using statistics)" → Slide 4 "ML Algorithms (using pipelines and statistics)"
-- Avoid ending presentations with generic title slides or resource lists. End with meaningful, actionable content.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -22145,41 +22128,36 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
-  • Usage: ONLY for the very first slide of the presentation. PROHIBITED for all other slides.
+  • Usage: opening/section title or simple introduction; heading + short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: PROHIBITED - do not use this template at all. Use four-box-grid, process-steps, or other content-rich templates instead.
+  • Usage: narrative with large image on the left; text on the right.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: PROHIBITED - do not use this template at all. Use four-box-grid, process-steps, or other content-rich templates instead.
+  • Usage: hero image across top; explanatory text below.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
   • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
-  • IMPORTANT: Only use on slides 2-5; PROHIBITED for first slide or beyond slide 10.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
-  • Usage: compare/contrast or split content; balanced two columns with concise text.
-  • CRITICAL: leftContent and rightContent must each be a single string containing EXACTLY 1-2 short sentences. Write as continuous prose without bullet points or line breaks. Keep it brief and scannable.
-- process-steps: title, subtitle, steps[]
-  • Usage: sequential workflow; 3–5 labeled steps in a row with meaningful subtitle describing the process.
+  • Usage: compare/contrast or split content; balanced two columns.
+- process-steps: title, steps[]
+  • Usage: sequential workflow; 3–5 labeled steps in a row.
 - four-box-grid: title, boxes[] (heading,text or title,content)
   • Usage: 2×2 grid of highlights; four concise boxes.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
   • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. Descriptions should be 2–3 concise sentences each in examples.
-- pyramid: title, [subtitle], steps[] (MUST have: heading, description; number is optional)
-  • Usage: hierarchical structure showing 3-5 levels. CRITICAL: steps[] array MUST contain objects with "heading" and "description" fields. Do NOT use "levels" field.
-  • Example: steps: [{"heading": "Strategic Optimization", "description": "Long-term planning..."}, {"heading": "Operations", "description": "Day-to-day execution..."}]
+- pyramid: title, [subtitle], steps[] (heading,description)
+  • Usage: hierarchical structure; 3-level pyramid visual.
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
   • Usage: problem/solution mapping; two facing columns. Each challenge/solution should be 5-6 words maximum for clean display.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: ONLY use when you have meaningful, specific numerical KPIs with context (e.g., "99.9% uptime", "$2.4M revenue", "3.2x ROI").
-  • PROHIBITED: Generic numbers like "5+ tools", "3 techniques", "4 best practices" - these provide no value. Use four-box-grid instead for non-numeric content.
-  • Each metric MUST have a significant number and 2-3 sentences explaining what it means and why it matters.
+  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
 - table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
-  • Usage: dense tabular data (dark theme); optional checkmarks. Each row array must have EXACTLY the same length as headers array.
+  • Usage: dense tabular data (dark theme); optional checkmarks.
 - table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme). CRITICAL: Each row array must have EXACTLY the same length as headers array (e.g., 3 headers = 3 items per row, 4 headers = 4 items per row).
+  • Usage: dense tabular data (light theme). The first cell of each row is the row label. Therefore each row must have length headers.length + 1.
 - pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown; pie with segment list and monthly notes.
 
@@ -22198,20 +22176,6 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
 - The root object MUST include hasVoiceover: true.
 """
-        
-        # Add final reminder at the END of the prompt (LLMs pay more attention to the end)
-        json_preview_instructions += """
-
-═══════════════════════════════════════════════════════════════════════════════
-🚨 FINAL REMINDER: YOUR OUTPUT MUST BE JSON ONLY 🚨
-═══════════════════════════════════════════════════════════════════════════════
-
-DO NOT OUTPUT MARKDOWN. DO NOT OUTPUT TEXT DESCRIPTIONS.
-Your response must START with: {{"lessonTitle":
-Your response must END with: }}
-NO other text before or after the JSON object.
-"""
-        
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
