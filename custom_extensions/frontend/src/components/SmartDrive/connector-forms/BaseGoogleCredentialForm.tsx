@@ -31,6 +31,12 @@ const BaseGoogleCredentialForm: FC<BaseGoogleCredentialFormProps> = ({
   onCredentialCreated,
   onCancel,
 }) => {
+
+  // Helper to convert 'google_drive' to 'google-drive'
+  const connectorSource = connectorId.includes('_')
+    ? connectorId.replace(/_/g, '-')
+    : connectorId;
+    
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | undefined>();
@@ -61,7 +67,7 @@ const BaseGoogleCredentialForm: FC<BaseGoogleCredentialFormProps> = ({
       }
 
       // Check for app credentials
-      const appResponse = await fetch(`/api/custom-projects-backend/connector/${connectorId}/app-credential`);
+      const appResponse = await fetch(`/api/custom-projects-backend/connector/${connectorSource}/app-credential`);
       if (appResponse.ok) {
         const appData = await appResponse.json();
         if (appData.client_id) {
@@ -96,7 +102,7 @@ const BaseGoogleCredentialForm: FC<BaseGoogleCredentialFormProps> = ({
         });
       } else {
         // Delete app credentials
-        response = await fetch(`/api/custom-projects-backend/connector/${connectorId}/app-credential`, {
+        response = await fetch(`/api/custom-projects-backend/connector/${connectorSource}/app-credential`, {
           method: "DELETE",
         });
       }
@@ -157,7 +163,7 @@ const BaseGoogleCredentialForm: FC<BaseGoogleCredentialFormProps> = ({
       try {
         if (credentialFileType === "authorized_user") {
           const response = await fetch(
-            `/api/custom-projects-backend/connector/${connectorId}/app-credential`,
+            `/api/custom-projects-backend/connector/${connectorSource}/app-credential`,
             {
               method: "PUT",
               headers: {
@@ -254,7 +260,7 @@ const BaseGoogleCredentialForm: FC<BaseGoogleCredentialFormProps> = ({
 
       // Get authorization URL
       const authorizationUrlResponse = await fetch(
-        `/api/custom-projects-backend/connector/${connectorId}/authorize/${credential.id}`
+        `/api/custom-projects-backend/connector/${connectorSource}/authorize/${credential.id}`
       );
       if (!authorizationUrlResponse.ok) {
         throw new Error(`Failed to get authorization URL - ${authorizationUrlResponse.status}`);
