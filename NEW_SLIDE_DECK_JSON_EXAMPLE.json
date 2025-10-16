@@ -87,7 +87,7 @@
       "slideId": "slide_5_feature_engineering",
       "slideNumber": 5,
       "slideTitle": "Advanced Data Science Mastery — Advanced Feature Engineering and Selection Techniques",
-      "templateId": "big-image-top",
+      "templateId": "four-box-grid",
       "previewKeyPoints": [
         "Systematic approaches to creating meaningful features from raw data across different domains",
         "Automated feature engineering tools and techniques for scaling feature creation processes",
@@ -95,11 +95,25 @@
         "Domain-specific feature engineering for text, images, time series, and categorical data"
       ],
       "props": {
-        "title": "Mastering Feature Engineering for Maximum Model Performance",
-        "subtitle": "Feature engineering often separates good from great models. Use systematic methods, automated generation, selection, and domain-specific transforms to improve accuracy and interpretability while managing complexity and overfitting risks.",
-        "imagePrompt": "Realistic cinematic scene of a feature engineering workflow in a modern data science workspace. Multiple screens display data transformations, correlation matrices, and feature importance plots while data scientists analyze patterns and create new variables. The workspace includes whiteboards with feature engineering diagrams and notebooks with code. Data visualizations and screens are [COLOR1], professionals and workstations are [COLOR2], workspace and equipment are [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide angle, shallow depth of field.",
-        "imageAlt": "Feature engineering workflow in data science workspace",
-        "imageSize": "large"
+        "title": "Essential Feature Engineering Techniques",
+        "boxes": [
+          {
+            "heading": "Domain Knowledge Integration",
+            "text": "Leverage subject matter expertise to create meaningful features that capture underlying patterns and relationships specific to your problem domain."
+          },
+          {
+            "heading": "Automated Feature Generation",
+            "text": "Use tools like Featuretools and tsfresh to systematically generate hundreds of candidate features from temporal and relational data."
+          },
+          {
+            "heading": "Feature Selection Methods",
+            "text": "Apply statistical tests, recursive feature elimination, and model-based importance to identify the most predictive variables and reduce dimensionality."
+          },
+          {
+            "heading": "Domain-Specific Transforms",
+            "text": "Apply specialized encodings for text (TF-IDF, embeddings), images (CNN features), time series (lag features), and categorical data (target encoding)."
+          }
+        ]
       }
     },
     {
@@ -234,7 +248,7 @@
       "slideId": "slide_10_emerging_technologies",
       "slideNumber": 10,
       "slideTitle": "Section: Emerging Technologies and Future Trends",
-      "templateId": "big-image-left",
+      "templateId": "process-steps",
       "previewKeyPoints": [
         "Latest developments in artificial intelligence including large language models and generative AI",
         "Quantum computing applications in machine learning and optimization problems",
@@ -242,11 +256,13 @@
         "Ethical AI considerations and responsible machine learning practices"
       ],
       "props": {
-        "title": "Cutting-Edge Innovations Shaping Data Science Future",
-        "subtitle": "The field evolves quickly with breakthroughs in models, compute, and deployment. Large language models, quantum-inspired methods, federated learning, and responsible AI will shape the next generation of solutions.",
-        "imagePrompt": "Realistic cinematic scene of a futuristic AI research laboratory with scientists working on cutting-edge technologies. Multiple large screens display neural network architectures, quantum computing visualizations, and advanced AI models. Researchers collaborate around holographic displays and high-tech workstations with quantum computers and advanced GPUs visible. Laboratory equipment and displays are [COLOR1], researchers and workstations are [COLOR2], futuristic lab environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, low angle, shallow depth of field.",
-        "imageAlt": "Futuristic AI research laboratory with advanced technologies",
-        "imageSize": "large"
+        "title": "Evolution of AI Technologies",
+        "steps": [
+          "Large language models like GPT-4 and Claude enable natural language understanding, generation, and reasoning at unprecedented scale with applications across content creation, coding assistance, and knowledge synthesis.",
+          "Quantum computing promises exponential speedups for optimization problems, with quantum-inspired algorithms already improving classical machine learning performance in portfolio optimization and drug discovery.",
+          "Edge computing and federated learning enable privacy-preserving AI by training models across distributed devices without centralizing sensitive data, crucial for healthcare and IoT applications.",
+          "Responsible AI frameworks incorporate fairness metrics, explainability tools, and bias detection to ensure ethical deployment while maintaining transparency and accountability in automated decision-making systems."
+        ]
       }
     },
     {
@@ -462,21 +478,31 @@
       }
     },
     {
-      "slideId": "slide_20_title",
+      "slideId": "slide_20_case_studies",
       "slideNumber": 20,
-      "slideTitle": "Section Transition: Case Studies",
-      "templateId": "title-slide",
+      "slideTitle": "Section: Real-World Data Science Applications",
+      "templateId": "challenges-solutions",
       "previewKeyPoints": [
-        "Transition into applied examples",
-        "What the audience will gain from case studies"
+        "Common challenges faced in real-world data science projects",
+        "Proven solutions and best practices from industry leaders",
+        "Lessons learned from successful implementations"
       ],
       "props": {
-        "title": "Case Studies",
-        "subtitle": "Applying the principles to real-world scenarios",
-        "author": "Data Science Excellence Institute",
-        "backgroundColor": "#1e293b",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
+        "title": "Overcoming Real-World Data Science Challenges",
+        "challengesTitle": "Key Challenges",
+        "solutionsTitle": "Proven Solutions",
+        "challenges": [
+          "Incomplete or messy datasets",
+          "Model deployment at scale",
+          "Stakeholder alignment and communication",
+          "Balancing speed and accuracy"
+        ],
+        "solutions": [
+          "Automated data quality pipelines",
+          "MLOps and containerization strategies",
+          "Executive dashboards and visualization",
+          "Iterative development and A/B testing"
+        ]
       }
     }
   ],

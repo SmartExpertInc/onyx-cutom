@@ -243,7 +243,7 @@
       "slideId": "slide_10_automation_tools",
       "slideNumber": 10,
       "slideTitle": "DevOps Automation Tools and Integration",
-      "templateId": "big-image-top",
+      "templateId": "four-box-grid",
       "previewKeyPoints": [
         "Comprehensive automation toolchain for infrastructure, deployment, and operations",
         "Integration strategies between different DevOps tools and platforms",
@@ -251,11 +251,25 @@
         "Tool selection criteria and evaluation frameworks for DevOps technology decisions"
       ],
       "props": {
-        "title": "DevOps Automation Ecosystem and Tool Integration",
-        "subtitle": "Modern DevOps requires seamless integration between multiple specialized tools for version control, CI/CD, infrastructure management, monitoring, and security. Success depends on choosing tools that work well together and implementing proper automation workflows that reduce manual intervention while maintaining reliability and security standards.",
-        "imagePrompt": "DevOps engineers working in a modern tech company office with multiple monitors displaying automation dashboards, CI/CD pipelines, and infrastructure monitoring tools. Team members collaborating on deployment automation while reviewing system metrics and pipeline statuses. Screens show Kubernetes dashboards, Terraform configurations, and monitoring graphs. Monitors and dashboards are [COLOR1], engineers and workstations are [COLOR2], modern tech office environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide environmental view, realistic depth of field.",
-        "imageAlt": "DevOps team managing automation tools and infrastructure",
-        "imageSize": "large"
+        "title": "Essential DevOps Tool Categories",
+        "boxes": [
+          {
+            "heading": "CI/CD Platforms",
+            "text": "Jenkins, GitLab CI, GitHub Actions, and CircleCI automate build, test, and deployment workflows with pipeline-as-code for reproducible releases."
+          },
+          {
+            "heading": "Infrastructure as Code",
+            "text": "Terraform, Ansible, and CloudFormation enable version-controlled infrastructure provisioning with consistent environments across development, staging, and production."
+          },
+          {
+            "heading": "Container Orchestration",
+            "text": "Kubernetes, Docker Swarm, and ECS manage containerized applications at scale with automated scheduling, load balancing, and self-healing capabilities."
+          },
+          {
+            "heading": "Monitoring and Observability",
+            "text": "Prometheus, Grafana, ELK Stack, and Datadog provide real-time visibility into system health, performance metrics, logs, and distributed tracing for rapid issue resolution."
+          }
+        ]
       }
     },
     {

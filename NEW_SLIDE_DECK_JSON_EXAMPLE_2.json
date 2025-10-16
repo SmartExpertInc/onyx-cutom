@@ -228,7 +228,7 @@
       "slideId": "slide_10_personalization",
       "slideNumber": 10,
       "slideTitle": "Advanced Personalization and Dynamic Content Strategies",
-      "templateId": "big-image-left",
+      "templateId": "big-numbers",
       "previewKeyPoints": [
         "Real-time personalization engines that adapt content based on user behavior",
         "Dynamic website experiences that change based on visitor characteristics",
@@ -236,11 +236,24 @@
         "AI-powered content optimization for maximum engagement and conversion"
       ],
       "props": {
-        "title": "AI-Powered Personalization at Scale",
-        "subtitle": "Modern personalization goes beyond basic demographic targeting to create individualized experiences using machine learning algorithms that analyze behavioral patterns, predict preferences, and deliver the most relevant content, products, and offers to each visitor in real-time across all digital touchpoints.",
-        "imagePrompt": "Marketing professionals working with personalization technology in a modern digital agency office. Multiple screens display dynamic website interfaces, customer journey maps, and real-time personalization dashboards showing user segments and content variations. Team members analyzing behavioral data and A/B test results for personalization campaigns. Screens and data visualizations are [COLOR1], marketing professionals and workstations are [COLOR2], modern office environment is [COLOR3]. Cinematic photography with natural lighting, 28mm wide-angle lens, environmental view, realistic depth of field.",
-        "imageAlt": "Marketing team implementing personalization technology",
-        "imageSize": "large"
+        "title": "Personalization Impact Metrics",
+        "steps": [
+          {
+            "value": "73%",
+            "label": "Conversion Lift",
+            "description": "Personalized product recommendations increase conversion rates compared to generic content by analyzing browsing history, past purchases, and similar customer behavior patterns to suggest highly relevant items."
+          },
+          {
+            "value": "5.7x",
+            "label": "Email Engagement",
+            "description": "Dynamic email content based on recipient behavior and preferences generates dramatically higher click-through rates compared to one-size-fits-all campaigns, with machine learning optimizing send times and subject lines."
+          },
+          {
+            "value": "49%",
+            "label": "Revenue Growth",
+            "description": "AI-powered personalization across website, email, and advertising channels drives significant revenue increases by delivering the right message to the right customer at the optimal moment in their journey."
+          }
+        ]
       }
     },
     {
