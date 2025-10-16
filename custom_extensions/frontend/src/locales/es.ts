@@ -853,6 +853,16 @@ export const es = {
       generateDescription: "Crear una imagen usando DALL-E"
     },
 
+    // AI Agent
+    aiAgent: {
+      title: "Agente IA",
+      description: "El agente usa créditos para ofrecer edición avanzada con IA.",
+      learnMore: "Más información",
+      question: "Hola, ¿qué quieres cambiar?",
+      sending: "Enviando...",
+      send: "Enviar"
+    },
+
     // Quality tiers
     basic: "Básico",
     interactive: "Interactivo",
@@ -1187,6 +1197,40 @@ export const es = {
     courseOutline: {
       loading: "Cargando...",
       applyingEdit: "Aplicando edición...",
+      edit: "Editar",
+      untitled: "Sin título",
+      courseTitle: "Esquema del curso",
+      generateCourse: "Generar curso",
+      aiAgent: "Agente IA",
+      thoughts: {
+        analyzingRequest: "Analizando solicitud para",
+        detectedLanguage: "Idioma detectado",
+        planning: "Planificando",
+        module: "módulo",
+        with: "con",
+        lessonsEach: "lecciones cada uno",
+        consultingKnowledgeBase: "Consultando base de conocimientos...",
+        refiningObjectives: "Refinando objetivos de aprendizaje...",
+        mappingTaxonomy: "Mapeando niveles de taxonomía de Bloom...",
+        selectingExamples: "Seleccionando ejemplos atractivos...",
+        integratingInsights: "Integrando conocimientos de la industria...",
+        balancingDifficulty: "Balanceando curva de dificultad...",
+        checkingPrerequisites: "Verificando requisitos previos del dominio...",
+        curatingCheckpoints: "Curando puntos de control de conocimiento...",
+        weavingNarrative: "Tejiendo flujo narrativo...",
+        injectingExercises: "Inyectando ejercicios prácticos...",
+        sequencingContent: "Secuenciando contenido lógicamente...",
+        optimizingLoad: "Optimizando carga cognitiva...",
+        aligningVerbs: "Alineando verbos con resultados...",
+        ensuringInclusive: "Asegurando lenguaje inclusivo...",
+        connectingTheory: "Conectando teoría y práctica...",
+        draftingAssessments: "Elaborando indicaciones de evaluación...",
+        incorporatingRepetition: "Incorporando repetición espaciada...",
+        addingCaseStudies: "Agregando estudios de casos del mundo real...",
+        scanningPapers: "Escaneando últimos trabajos de investigación...",
+        validatingTerminology: "Validando consistencia terminológica...",
+        polishingTransitions: "Puliendo transiciones de sección...",
+      },
       finalizingProduct: "Finalizando producto...",
       additionalInfo: "Información adicional",
       assessmentType: "Tipo de evaluación",

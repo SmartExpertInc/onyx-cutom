@@ -2044,7 +2044,7 @@ export default function LessonPresentationClient() {
                   return (
                     <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
                       <span className="select-none">
-                        ~{minutes} {t('interface.generate.min', 'min')} {seconds > 0 ? `${seconds} ${t('interface.generate.sec', 'sec')}` : ''} {t('interface.generate.estimated', 'estimated')}
+                        {minutes} m {seconds} s {t('interface.generate.estimated', 'estimated')}
                       </span>
                       <span className="flex items-center gap-1">
                         <RadialProgress progress={charCount / 50000} theme={selectedTheme} />

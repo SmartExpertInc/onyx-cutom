@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 // Sparkle icon for example buttons
 const SparkleIcon: React.FC<{ color?: string }> = ({ color = '#5D5D79' }) => (
@@ -72,6 +73,8 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   buttonText = "Edit",
   disabled = false,
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <div 
       ref={advancedSectionRef} 
@@ -86,21 +89,21 @@ export const AiAgent: React.FC<AiAgentProps> = ({
             className="px-3 py-1 rounded-md text-[16px] font-medium"
             style={{ color: '#8808A2', backgroundColor: '#F7E0FC' }}
           >
-            Ai Agent
+            {t('interface.aiAgent.title', 'Ai Agent')}
           </span>
         </div>
         
         {/* Info text */}
         <div className="flex flex-col" style={{ fontSize: '10px' }}>
           <span style={{ color: '#949CA8' }}>
-            Agent uses credits to deliver advanced AI editing.
+            {t('interface.aiAgent.description', 'Agent uses credits to deliver advanced AI editing.')}
           </span>
           <a 
             href="#" 
             className="no-underline"
             style={{ color: '#498FFF' }}
           >
-            Learn more
+            {t('interface.aiAgent.learnMore', 'Learn more')}
           </a>
         </div>
       </div>
@@ -110,7 +113,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         className="text-center font-semibold"
         style={{ color: '#0D001B', fontSize: '18px' }}
       >
-        Hey, what do you want to change?
+        {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
       </h3>
 
       {/* Example prompts */}
@@ -170,10 +173,10 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           }}
         >
           {loadingEdit ? (
-            <span className="text-xs">Sending...</span>
+            <span className="text-xs">{t('interface.aiAgent.sending', 'Sending...')}</span>
           ) : (
             <>
-              <span className="text-sm font-medium">Send</span>
+              <span className="text-sm font-medium">{t('interface.aiAgent.send', 'Send')}</span>
               <SendIcon />
             </>
           )}

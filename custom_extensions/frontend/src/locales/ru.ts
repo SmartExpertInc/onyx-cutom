@@ -879,6 +879,16 @@ export const ru = {
       generateDescription: "Создать изображение с помощью DALL-E"
     },
 
+    // AI Agent
+    aiAgent: {
+      title: "ИИ-агент",
+      description: "Агент использует кредиты для расширенного редактирования с помощью ИИ.",
+      learnMore: "Узнать больше",
+      question: "Привет, что вы хотите изменить?",
+      sending: "Отправка...",
+      send: "Отправить"
+    },
+
     // Quality tiers
     basic: "Базовый",
     interactive: "Интерактивный",
@@ -1205,6 +1215,40 @@ export const ru = {
     courseOutline: {
       loading: "Загрузка...",
       applyingEdit: "Применение изменений...",
+      edit: "Редактировать",
+      untitled: "Без названия",
+      courseTitle: "План курса",
+      generateCourse: "Создать курс",
+      aiAgent: "ИИ-агент",
+      thoughts: {
+        analyzingRequest: "Анализ запроса для",
+        detectedLanguage: "Обнаружен язык",
+        planning: "Планирование",
+        module: "модуль",
+        with: "с",
+        lessonsEach: "уроков в каждом",
+        consultingKnowledgeBase: "Обращение к базе знаний...",
+        refiningObjectives: "Уточнение учебных целей...",
+        mappingTaxonomy: "Составление таксономии Блума...",
+        selectingExamples: "Подбор увлекательных примеров...",
+        integratingInsights: "Интеграция отраслевых инсайтов...",
+        balancingDifficulty: "Балансировка уровня сложности...",
+        checkingPrerequisites: "Проверка предварительных требований...",
+        curatingCheckpoints: "Создание контрольных точек...",
+        weavingNarrative: "Формирование нарратива...",
+        injectingExercises: "Добавление практических упражнений...",
+        sequencingContent: "Упорядочивание контента логически...",
+        optimizingLoad: "Оптимизация когнитивной нагрузки...",
+        aligningVerbs: "Согласование глаголов с результатами...",
+        ensuringInclusive: "Обеспечение инклюзивного языка...",
+        connectingTheory: "Связь теории и практики...",
+        draftingAssessments: "Разработка заданий для оценки...",
+        incorporatingRepetition: "Включение интервального повторения...",
+        addingCaseStudies: "Добавление реальных кейсов...",
+        scanningPapers: "Сканирование последних исследований...",
+        validatingTerminology: "Проверка терминологии...",
+        polishingTransitions: "Улучшение переходов между разделами...",
+      },
       finalizingProduct: "Финальная обработка продукта...",
       additionalInfo: "Дополнительная информация",
       assessmentType: "Тип оценки",

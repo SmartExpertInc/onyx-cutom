@@ -376,34 +376,35 @@ export default function CourseOutlineClient() {
   // Build dynamic fake-thought list based on current params
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing request for "${prompt.slice(0, 40) || "Untitled"}"...`);
-    list.push(`Detected language: ${language.toUpperCase()}`);
-    list.push(`Planning ${modules} module${modules > 1 ? "s" : ""} with ${lessonsPerModule} lessons each...`);
-    // shuffle little filler line
-    list.push("Consulting training knowledge base...");
+    const promptPreview = prompt.slice(0, 40) || t('interface.courseOutline.untitled', 'Untitled');
+    list.push(`${t('interface.courseOutline.thoughts.analyzingRequest', 'Analyzing request for')} "${promptPreview}"...`);
+    list.push(`${t('interface.courseOutline.thoughts.detectedLanguage', 'Detected language')}: ${language.toUpperCase()}`);
+    const modulePlural = modules > 1 ? "s" : "";
+    list.push(`${t('interface.courseOutline.thoughts.planning', 'Planning')} ${modules} ${t('interface.courseOutline.thoughts.module', 'module')}${modulePlural} ${t('interface.courseOutline.thoughts.with', 'with')} ${lessonsPerModule} ${t('interface.courseOutline.thoughts.lessonsEach', 'lessons each')}...`);
+    list.push(t('interface.courseOutline.thoughts.consultingKnowledgeBase', 'Consulting training knowledge base...'));
 
     // Add a diverse set of informative yet playful status lines (20 new ones)
     const extra = [
-      "Refining learning objectives...",
-      "Mapping Bloom's taxonomy levels...",
-      "Selecting engaging examples...",
-      "Integrating industry insights...",
-      "Balancing difficulty curve...",
-      "Cross-checking domain prerequisites...",
-      "Curating knowledge checkpoints...",
-      "Weaving narrative flow...",
-      "Injecting practical exercises...",
-      "Sequencing content logically...",
-      "Optimizing cognitive load...",
-      "Aligning verbs with outcomes...",
-      "Ensuring inclusive language...",
-      "Connecting theory and practice...",
-      "Drafting assessment prompts...",
-      "Incorporating spaced repetition...",
-      "Adding real-world case studies...",
-      "Scanning latest research papers...",
-      "Validating terminology consistency...",
-      "Polishing section transitions...",
+      t('interface.courseOutline.thoughts.refiningObjectives', 'Refining learning objectives...'),
+      t('interface.courseOutline.thoughts.mappingTaxonomy', "Mapping Bloom's taxonomy levels..."),
+      t('interface.courseOutline.thoughts.selectingExamples', 'Selecting engaging examples...'),
+      t('interface.courseOutline.thoughts.integratingInsights', 'Integrating industry insights...'),
+      t('interface.courseOutline.thoughts.balancingDifficulty', 'Balancing difficulty curve...'),
+      t('interface.courseOutline.thoughts.checkingPrerequisites', 'Cross-checking domain prerequisites...'),
+      t('interface.courseOutline.thoughts.curatingCheckpoints', 'Curating knowledge checkpoints...'),
+      t('interface.courseOutline.thoughts.weavingNarrative', 'Weaving narrative flow...'),
+      t('interface.courseOutline.thoughts.injectingExercises', 'Injecting practical exercises...'),
+      t('interface.courseOutline.thoughts.sequencingContent', 'Sequencing content logically...'),
+      t('interface.courseOutline.thoughts.optimizingLoad', 'Optimizing cognitive load...'),
+      t('interface.courseOutline.thoughts.aligningVerbs', 'Aligning verbs with outcomes...'),
+      t('interface.courseOutline.thoughts.ensuringInclusive', 'Ensuring inclusive language...'),
+      t('interface.courseOutline.thoughts.connectingTheory', 'Connecting theory and practice...'),
+      t('interface.courseOutline.thoughts.draftingAssessments', 'Drafting assessment prompts...'),
+      t('interface.courseOutline.thoughts.incorporatingRepetition', 'Incorporating spaced repetition...'),
+      t('interface.courseOutline.thoughts.addingCaseStudies', 'Adding real-world case studies...'),
+      t('interface.courseOutline.thoughts.scanningPapers', 'Scanning latest research papers...'),
+      t('interface.courseOutline.thoughts.validatingTerminology', 'Validating terminology consistency...'),
+      t('interface.courseOutline.thoughts.polishingTransitions', 'Polishing section transitions...'),
     ];
     list.push(...extra);
     return list;
@@ -1558,7 +1559,7 @@ export default function CourseOutlineClient() {
               }}
               advancedSectionRef={advancedSectionRef}
               placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-              buttonText="Edit"
+              buttonText={t('interface.courseOutline.edit', 'Edit')}
             />
           </div>
         )}

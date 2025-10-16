@@ -865,6 +865,16 @@ export const uk = {
       generateDescription: "Створити зображення за допомогою DALL-E"
     },
 
+    // AI Agent
+    aiAgent: {
+      title: "ШІ-агент",
+      description: "Агент використовує кредити для розширеного редагування за допомогою ШІ.",
+      learnMore: "Дізнатися більше",
+      question: "Привіт, що ви хочете змінити?",
+      sending: "Відправлення...",
+      send: "Відправити"
+    },
+
     // Quality tiers
     basic: "Базовий",
     interactive: "Інтерактивний",
@@ -1196,6 +1206,40 @@ export const uk = {
     courseOutline: {
       loading: "Завантаження...",
       applyingEdit: "Застосування змін...",
+      edit: "Редагувати",
+      untitled: "Без назви",
+      courseTitle: "План курсу",
+      generateCourse: "Створити курс",
+      aiAgent: "ШІ-агент",
+      thoughts: {
+        analyzingRequest: "Аналіз запиту для",
+        detectedLanguage: "Виявлено мову",
+        planning: "Планування",
+        module: "модуль",
+        with: "з",
+        lessonsEach: "уроків у кожному",
+        consultingKnowledgeBase: "Звернення до бази знань...",
+        refiningObjectives: "Уточнення навчальних цілей...",
+        mappingTaxonomy: "Складання таксономії Блума...",
+        selectingExamples: "Підбір цікавих прикладів...",
+        integratingInsights: "Інтеграція галузевих інсайтів...",
+        balancingDifficulty: "Балансування рівня складності...",
+        checkingPrerequisites: "Перевірка попередніх вимог...",
+        curatingCheckpoints: "Створення контрольних точок...",
+        weavingNarrative: "Формування наративу...",
+        injectingExercises: "Додавання практичних вправ...",
+        sequencingContent: "Упорядкування контенту логічно...",
+        optimizingLoad: "Оптимізація когнітивного навантаження...",
+        aligningVerbs: "Узгодження дієслів з результатами...",
+        ensuringInclusive: "Забезпечення інклюзивної мови...",
+        connectingTheory: "Зв'язок теорії та практики...",
+        draftingAssessments: "Розробка завдань для оцінки...",
+        incorporatingRepetition: "Включення інтервального повторення...",
+        addingCaseStudies: "Додавання реальних кейсів...",
+        scanningPapers: "Сканування останніх досліджень...",
+        validatingTerminology: "Перевірка термінології...",
+        polishingTransitions: "Покращення переходів між розділами...",
+      },
       finalizingProduct: "Фінальна обробка продукту...",
       additionalInfo: "Додаткова інформація",
       assessmentType: "Тип оцінки",

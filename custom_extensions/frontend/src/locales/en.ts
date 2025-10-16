@@ -932,6 +932,16 @@ export const en = {
         generateWithAI: "Generate with AI",
         generateDescription: "Create an image using DALL-E"
       },
+
+    // AI Agent
+    aiAgent: {
+      title: "Ai Agent",
+      description: "Agent uses credits to deliver advanced AI editing.",
+      learnMore: "Learn more",
+      question: "Hey, what do you want to change?",
+      sending: "Sending...",
+      send: "Send"
+    },
     
     // Quality tiers
     basic: "Basic",
@@ -1321,6 +1331,40 @@ export const en = {
           short: "Add case studies and applications",
           detailed: "Revise the lesson's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
         },
+      },
+      edit: "Edit",
+      untitled: "Untitled",
+      courseTitle: "Course Outline",
+      generateCourse: "Generate Course",
+      aiAgent: "AI Agent",
+      thoughts: {
+        analyzingRequest: "Analyzing request for",
+        detectedLanguage: "Detected language",
+        planning: "Planning",
+        module: "module",
+        with: "with",
+        lessonsEach: "lessons each",
+        consultingKnowledgeBase: "Consulting training knowledge base...",
+        refiningObjectives: "Refining learning objectives...",
+        mappingTaxonomy: "Mapping Bloom's taxonomy levels...",
+        selectingExamples: "Selecting engaging examples...",
+        integratingInsights: "Integrating industry insights...",
+        balancingDifficulty: "Balancing difficulty curve...",
+        checkingPrerequisites: "Cross-checking domain prerequisites...",
+        curatingCheckpoints: "Curating knowledge checkpoints...",
+        weavingNarrative: "Weaving narrative flow...",
+        injectingExercises: "Injecting practical exercises...",
+        sequencingContent: "Sequencing content logically...",
+        optimizingLoad: "Optimizing cognitive load...",
+        aligningVerbs: "Aligning verbs with outcomes...",
+        ensuringInclusive: "Ensuring inclusive language...",
+        connectingTheory: "Connecting theory and practice...",
+        draftingAssessments: "Drafting assessment prompts...",
+        incorporatingRepetition: "Incorporating spaced repetition...",
+        addingCaseStudies: "Adding real-world case studies...",
+        scanningPapers: "Scanning latest research papers...",
+        validatingTerminology: "Validating terminology consistency...",
+        polishingTransitions: "Polishing section transitions...",
       },
       finalizingProduct: "Finalizing product...",
       // Offers translations
