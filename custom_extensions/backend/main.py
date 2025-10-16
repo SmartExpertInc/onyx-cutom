@@ -22066,7 +22066,7 @@ General Rules:
 
 MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
-- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline OR event-list (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), comparison-slide OR table variants (1), pyramid (1).
+- For 10-15 slides, use each template AT MOST ONCE, preferring: title-slide (1), bullet-points-right (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), table variants (1), pyramid (1).
 - Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
@@ -22122,7 +22122,7 @@ SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
   • On the next 3–5 slides in that section, prefix slideTitle with "<Section Name> — <Subtopic>".
 - Recommended per-section progression (adapt as appropriate):
   1) SECTION START (title-slide or big-image-* introducing the topic)
-  2) bullet-points-right or two-column to frame the problem/opportunity
+  2) bullet-points-right or two-column to frame the problem/opportunity (keep two-column content to 1–2 sentences per column in examples)
   3) process-steps or four-box-grid to explain how/strategy/components
   4) metrics-analytics, table-*, market-share, or pie-chart-infographics to quantify
   5) challenges-solutions or comparison/table to address tradeoffs/alternatives
@@ -22138,33 +22138,30 @@ Template Catalog with required props and usage:
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: hero image across top; explanatory text below.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text.
+  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
   • Usage: compare/contrast or split content; balanced two columns.
 - process-steps: title, steps[]
   • Usage: sequential workflow; 3–5 labeled steps in a row.
 - four-box-grid: title, boxes[] (heading,text or title,content)
   • Usage: 2×2 grid of highlights; four concise boxes.
-- timeline: title, steps[] (heading,description) or events[] (date,title,description)
-  • Usage: chronological milestones; left-to-right progression.
-- event-list: events[] (date,description), [titleColor], [descriptionColor], [backgroundColor]
-  • Usage: dated event list; stacked date + description.
+- timeline: title, events[] (date,title,description)
+  • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
-  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance.
+  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. Descriptions should be 2–3 concise sentences each in examples.
 - pyramid: title, [subtitle], steps[] (heading,description)
   • Usage: hierarchical structure; 3-level pyramid visual.
-- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
-  • Usage: problem/solution mapping; two facing columns.
+- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
+  • Usage: problem/solution mapping; two facing columns. Ensure arrays contain plain strings.
 - metrics-analytics: title, metrics[] (number,text)
   • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
-- comparison-slide: title, [subtitle], tableData: headers[],rows[]
-  • Usage: side-by-side comparison; multi-column table.
+- [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
 - table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
   • Usage: dense tabular data (dark theme); optional checkmarks.
 - table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme).
+  • Usage: dense tabular data (light theme). The first cell of each row is the row label. Therefore each row must have length headers.length + 1.
 - pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown; pie with segment list and monthly notes.
 

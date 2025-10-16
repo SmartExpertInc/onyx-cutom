@@ -324,7 +324,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     opacity: 0.95,
     lineHeight: '1.4',
     fontFamily: 'sans-serif',
-    width: '210px',
+    width: '262px',
   };
 
   // Handle title editing

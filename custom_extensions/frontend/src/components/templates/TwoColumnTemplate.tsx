@@ -246,19 +246,19 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     display: 'flex',
     gap: '0px',
     width: '100%',
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     height: '100%',
     position: 'relative',
     alignItems: 'stretch',
   };
 
   const columnStyles: React.CSSProperties = {
-    flex: 1,
+    flex: 1.2,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: '40px 30px',
+    padding: '40px 30px 20px 30px',
     borderRadius: '8px',
     position: 'relative'
   };
@@ -300,6 +300,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     height: '290px',
     display: 'flex',
     marginTop: 'auto',
+    marginBottom: '8px',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '8px',

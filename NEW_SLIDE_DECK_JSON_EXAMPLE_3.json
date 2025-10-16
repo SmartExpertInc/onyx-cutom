@@ -77,7 +77,7 @@
       "slideId": "slide_4_infrastructure_code",
       "slideNumber": 4,
       "slideTitle": "Infrastructure as Code Implementation",
-      "templateId": "comparison-slide",
+      "templateId": "table-light",
       "previewKeyPoints": [
         "Terraform vs CloudFormation vs Pulumi for infrastructure provisioning",
         "Best practices for IaC including state management and modular design",
@@ -86,9 +86,8 @@
       ],
       "props": {
         "title": "Infrastructure as Code Tools Comparison",
-        "subtitle": "Choosing the right IaC tool for your organization",
         "tableData": {
-          "headers": ["Feature", "Terraform", "CloudFormation", "Pulumi"],
+          "headers": ["Terraform", "CloudFormation", "Pulumi"],
           "rows": [
             ["Multi-Cloud Support", "Excellent", "AWS Only", "Excellent"],
             ["Learning Curve", "Moderate", "Steep", "Low (familiar languages)"],
@@ -275,17 +274,17 @@
           {
             "value": "73%",
             "label": "Page Load Time Reduction",
-            "description": "Achieved through comprehensive CDN implementation across multiple geographic regions, advanced image optimization with next-gen formats like WebP and AVIF, aggressive code minification and bundling strategies, and multi-layer caching at edge, application, and database levels. This improvement directly translates to better user engagement, reduced bounce rates, and improved conversion metrics across all application endpoints and user segments."
+            "description": "CDN coverage, modern image formats, and multi-layer caching cut load times. Users see faster pages and higher engagement."
           },
           {
             "value": "5.2x",
             "label": "Database Query Performance",
-            "description": "Dramatic improvement realized through strategic index optimization on frequently queried columns, comprehensive query restructuring to eliminate N+1 problems and unnecessary joins, intelligent connection pooling to reduce overhead, and horizontal database sharding for high-traffic operations. These optimizations enable the system to handle 5x more concurrent users while maintaining sub-100ms response times for critical queries and reducing infrastructure costs."
+            "description": "Indexing and query redesign removed bottlenecks while sharding scaled throughput. Critical queries now return in <100ms."
           },
           {
             "value": "99.95%",
             "label": "Application Availability",
-            "description": "Exceptional uptime maintained through intelligent load balancing across multiple availability zones, dynamic auto-scaling policies that respond to traffic patterns, comprehensive health checks at application and infrastructure levels, circuit breaker patterns that prevent cascade failures, and real-time monitoring with automated alerting and remediation. This reliability level ensures minimal business disruption and maintains customer trust even during peak traffic events."
+            "description": "Zonal load balancing, autoscaling, and circuit breakers maintain uptime. Proactive monitoring reduces incident impact."
           }
         ]
       }

@@ -118,17 +118,17 @@
           {
             "value": "95%+",
             "label": "Model Accuracy Threshold",
-            "description": "Accuracy targets must balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across different customer segments, geographic regions, and time periods. Monitor for degradation over time and establish automated alerts when accuracy drops below thresholds. Consider the impact of false positives versus false negatives on business outcomes and user experience."
+            "description": "Balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across segments and set alerts for degradation."
           },
           {
             "value": "0.85+",
             "label": "AUC-ROC Score Target",
-            "description": "Excellent class separation for binary classification tasks like fraud detection or customer churn prediction. Scores above 0.85 indicate strong discriminative power, while scores exceeding 0.9 are exceptional and suitable for high-stakes applications where errors have significant consequences. The AUC-ROC metric is particularly valuable because it's threshold-independent and provides a comprehensive view of model performance across all possible classification thresholds."
+            "description": "Indicates strong discriminative power for binary tasks like fraud or churn. Prefer scores >0.9 for high-stakes use cases."
           },
           {
             "value": "<5%",
             "label": "Acceptable Error Rate",
-            "description": "Error budgets vary significantly by domain and application context. Critical systems like medical diagnosis or financial fraud detection demand error rates below 1%, while recommendation systems or content personalization can tolerate higher error rates. Always consider the asymmetric costs of false positives versus false negatives in your specific business context, and establish clear escalation procedures when error rates exceed acceptable thresholds."
+            "description": "Error budgets depend on domain. Critical systems need <1%, while recommendations can tolerate higher."
           }
         ]
       }
@@ -232,8 +232,6 @@
     },
     {
       "slideId": "slide_10_emerging_technologies",
-      "slideNumber": 10,
-      "slideTitle": "Section: Emerging Technologies and Future Trends",
       "slideNumber": 10,
       "slideTitle": "Section: Emerging Technologies and Future Trends",
       "templateId": "big-image-left",
@@ -379,22 +377,20 @@
       "slideId": "slide_16_event_list",
       "slideNumber": 16,
       "slideTitle": "Upcoming Events and Key Dates",
-      "templateId": "event-list",
+      "templateId": "timeline",
       "previewKeyPoints": [
         "Major internal and external events in the next quarter",
         "Deadlines that impact delivery timelines",
         "Engagement opportunities with stakeholders"
       ],
       "props": {
+        "title": "Upcoming Events and Key Dates",
         "events": [
-          { "date": "2024-11-05", "description": "Architecture review with platform council to validate scalability and security design decisions." },
-          { "date": "2024-11-20", "description": "Customer advisory board session to gather feedback on beta features and onboarding experience." },
-          { "date": "2024-12-03", "description": "Internal enablement workshop for support and success teams on new workflows and tooling." },
-          { "date": "2024-12-17", "description": "Public webinar on best practices and lessons learned from early adopters across industries." }
-        ],
-        "titleColor": "#ffffff",
-        "descriptionColor": "#d1d5db",
-        "backgroundColor": "#111827"
+          { "date": "2024-11-05", "title": "Architecture Review", "description": "Validate scalability and security design decisions." },
+          { "date": "2024-11-20", "title": "Customer Advisory Board", "description": "Gather feedback on beta features and onboarding." },
+          { "date": "2024-12-03", "title": "Enablement Workshop", "description": "Train support and success teams on new tooling." },
+          { "date": "2024-12-17", "title": "Public Webinar", "description": "Share best practices from early adopters." }
+        ]
       }
     },
     {
@@ -409,12 +405,12 @@
       ],
       "props": {
         "title": "Maturity Stages",
-        "levels": [
-          { "text": "Strategic Optimization", "description": "Automated retraining, causal inference, and decision optimization integrated with business processes and KPIs." },
-          { "text": "Production Excellence", "description": "Robust MLOps practices, monitoring, alerting, and governance across multiple teams and models." },
-          { "text": "Operationalization", "description": "Reliable pipelines, CI/CD, and standardized feature stores enabling consistent deployments." },
-          { "text": "Prototyping", "description": "Experimentation, evaluation, and iteration with reproducible research workflows and documentation." },
-          { "text": "Foundations", "description": "Data quality, access controls, and core statistical/ML competencies across the team." }
+        "steps": [
+          { "heading": "Strategic Optimization", "number": "01" },
+          { "heading": "Production Excellence", "number": "02" },
+          { "heading": "Operationalization", "number": "03" },
+          { "heading": "Prototyping", "number": "04" },
+          { "heading": "Foundations", "number": "05" }
         ]
       }
     },
