@@ -2962,6 +2962,24 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         pass
     
     _log.info(f"🔍 PDF DECK VERSION - product_id={product_data['id']}, templateVersion={deck_template_version}, raw_content_type={type(raw_content).__name__}")
+    
+    # Apply version-aware theme mapping (matching frontend logic)
+    # Legacy decks (no version or < v2) should use v1 theme variants with old colors
+    THEME_V1_MAP = {
+        'dark-purple': 'dark-purple-v1',
+        # Add other theme mappings as needed
+    }
+    
+    original_theme = theme_value
+    if not deck_template_version or deck_template_version < 'v2':
+        v1_theme = THEME_V1_MAP.get(theme_value)
+        if v1_theme:
+            theme_value = v1_theme
+            _log.info(f"🎨 PDF THEME MAPPING - Legacy deck: {original_theme} -> {theme_value}")
+        else:
+            _log.info(f"🎨 PDF THEME - Legacy deck using: {theme_value} (no v1 variant)")
+    else:
+        _log.info(f"🎨 PDF THEME - New deck (v2+) using: {theme_value}")
 
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(

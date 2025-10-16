@@ -538,6 +538,24 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         
         logger.info(f"🔍 SCORM VERSION CHECK - product_id={product_row.get('id')}, templateVersion={effective_version}, slides_count={len(slides)}")
         logger.info(f"✅ SCORM RENDERING - Using base template IDs (version-agnostic HTML rendering)")
+        
+        # Apply version-aware theme mapping (matching frontend logic)
+        # Legacy decks (no version or < v2) should use v1 theme variants with old colors
+        THEME_V1_MAP = {
+            'dark-purple': 'dark-purple-v1',
+            # Add other theme mappings as needed
+        }
+        
+        original_theme = theme
+        if not effective_version or effective_version < 'v2':
+            v1_theme = THEME_V1_MAP.get(theme)
+            if v1_theme:
+                theme = v1_theme
+                logger.info(f"🎨 SCORM THEME MAPPING - Legacy deck: {original_theme} -> {theme}")
+            else:
+                logger.info(f"🎨 SCORM THEME - Legacy deck using: {theme} (no v1 variant)")
+        else:
+            logger.info(f"🎨 SCORM THEME - New deck (v2+) using: {theme}")
 
         for idx, raw_slide in enumerate(slides):
             slide = raw_slide
