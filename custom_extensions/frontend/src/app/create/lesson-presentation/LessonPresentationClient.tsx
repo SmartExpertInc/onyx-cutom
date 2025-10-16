@@ -2060,7 +2060,7 @@ export default function LessonPresentationClient() {
                                 className={`flex-shrink-0 rounded-md transition-all cursor-pointer bg-gray-100 flex items-center justify-center relative ${
                                   isSelected 
                                     ? 'border-2 border-[#0F58F9]' 
-                                    : 'border border-transparent hover:border-2 hover:border-[#0F58F9]'
+                                    : 'border border-transparent'
                                 }`}
                                 style={{ width: '250px', aspectRatio: '16/9' }}
                               >
