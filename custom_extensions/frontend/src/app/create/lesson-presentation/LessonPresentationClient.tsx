@@ -2083,7 +2083,7 @@ export default function LessonPresentationClient() {
                                       color: '#000000',
                                       left: `${50 + (slotIndex - 1) * 33.33}%`,
                                       transform: 'translateX(-50%)',
-                                      bottom: '24px'
+                                      bottom: '19px'
                                     }}
                                   >
                                     Name {avatarNumber}
