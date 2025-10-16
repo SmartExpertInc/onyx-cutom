@@ -299,6 +299,10 @@ export default function LessonPresentationClient() {
   const [aiModelDropdownOpen, setAiModelDropdownOpen] = useState(false);
   const [selectedImageSource, setSelectedImageSource] = useState("Ai images");
   const [selectedAiModel, setSelectedAiModel] = useState("Nano banana");
+  const imageSourceButtonRef = useRef<HTMLButtonElement>(null);
+  const aiModelButtonRef = useRef<HTMLButtonElement>(null);
+  const [imageSourceDropdownPosition, setImageSourceDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [aiModelDropdownPosition, setAiModelDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
 
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -1447,6 +1451,56 @@ export default function LessonPresentationClient() {
     return () => window.removeEventListener('beforeunload', handleRouteChange);
   }, [isGenerating]);
 
+  // Handle clicking outside dropdowns and scrolling
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      
+      // Close image source dropdown if clicking outside
+      if (imageSourceDropdownOpen && 
+          imageSourceButtonRef.current && 
+          !imageSourceButtonRef.current.contains(target)) {
+        const dropdown = document.querySelector('[data-dropdown="image-source"]');
+        if (!dropdown || !dropdown.contains(target)) {
+          setImageSourceDropdownOpen(false);
+          setImageSourceDropdownPosition(null);
+        }
+      }
+      
+      // Close AI model dropdown if clicking outside
+      if (aiModelDropdownOpen && 
+          aiModelButtonRef.current && 
+          !aiModelButtonRef.current.contains(target)) {
+        const dropdown = document.querySelector('[data-dropdown="ai-model"]');
+        if (!dropdown || !dropdown.contains(target)) {
+          setAiModelDropdownOpen(false);
+          setAiModelDropdownPosition(null);
+        }
+      }
+    };
+
+    const handleScroll = () => {
+      if (imageSourceDropdownOpen) {
+        setImageSourceDropdownOpen(false);
+        setImageSourceDropdownPosition(null);
+      }
+      if (aiModelDropdownOpen) {
+        setAiModelDropdownOpen(false);
+        setAiModelDropdownPosition(null);
+      }
+    };
+
+    if (imageSourceDropdownOpen || aiModelDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('scroll', handleScroll, true);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [imageSourceDropdownOpen, aiModelDropdownOpen]);
+
   // Theme configuration for outline colors (matching CourseOutlineClient)
   const themeConfig = {
     cherry: {
@@ -2233,69 +2287,121 @@ export default function LessonPresentationClient() {
                     
                     <div className="flex flex-col gap-6">
                       {/* Top Section - Image Source */}
-                      <div className="px-6 space-y-3 relative">
+                      <div className="px-6">
                         <label className="block text-sm font-medium text-gray-700">
                           {t('interface.generate.imageSource', 'Image source')}
                         </label>
                         <button 
-                          onClick={() => setImageSourceDropdownOpen(!imageSourceDropdownOpen)}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                          ref={imageSourceButtonRef}
+                          onClick={() => {
+                            if (!imageSourceDropdownOpen && imageSourceButtonRef.current) {
+                              const rect = imageSourceButtonRef.current.getBoundingClientRect();
+                              setImageSourceDropdownPosition({
+                                top: rect.bottom + window.scrollY + 8,
+                                left: rect.left + window.scrollX,
+                                width: rect.width
+                              });
+                            }
+                            setImageSourceDropdownOpen(!imageSourceDropdownOpen);
+                          }}
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between mt-3"
                         >
                           <span>{selectedImageSource}</span>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 9L12 15L18 9" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </button>
-                        
-                        {/* Dropdown Menu */}
-                        {imageSourceDropdownOpen && (
-                          <div className="absolute top-full left-6 right-6 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <button
-                              onClick={() => {
-                                setSelectedImageSource("Ai images");
-                                setImageSourceDropdownOpen(false);
-                              }}
-                              className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg"
-                            >
-                              Ai images
-                            </button>
-                          </div>
-                        )}
                       </div>
+                      
+                      {/* Dropdown Menu Portal */}
+                      {imageSourceDropdownOpen && imageSourceDropdownPosition && typeof window !== 'undefined' && createPortal(
+                        <div 
+                          data-dropdown="image-source"
+                          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]"
+                          style={{
+                            top: `${imageSourceDropdownPosition.top}px`,
+                            left: `${imageSourceDropdownPosition.left}px`,
+                            width: `${imageSourceDropdownPosition.width}px`
+                          }}
+                        >
+                          <button
+                            onClick={() => {
+                              setSelectedImageSource("Ai images");
+                              setImageSourceDropdownOpen(false);
+                              setImageSourceDropdownPosition(null);
+                            }}
+                            className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg flex items-center justify-between"
+                          >
+                            <span>Ai images</span>
+                            {selectedImageSource === "Ai images" && (
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13.3332 4L5.99984 11.3333L2.6665 8" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>,
+                        document.body
+                      )}
                       
                       {/* Horizontal Divider */}
                       <div className="border-t border-gray-200"></div>
                       
                       {/* Bottom Section - AI Image Model */}
-                      <div className="px-6 space-y-3 relative">
+                      <div className="px-6">
                         <label className="block text-sm font-medium text-gray-700">
                           {t('interface.generate.aiImageModel', 'Ai image model')}
                         </label>
                         <button 
-                          onClick={() => setAiModelDropdownOpen(!aiModelDropdownOpen)}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                          ref={aiModelButtonRef}
+                          onClick={() => {
+                            if (!aiModelDropdownOpen && aiModelButtonRef.current) {
+                              const rect = aiModelButtonRef.current.getBoundingClientRect();
+                              setAiModelDropdownPosition({
+                                top: rect.bottom + window.scrollY + 8,
+                                left: rect.left + window.scrollX,
+                                width: rect.width
+                              });
+                            }
+                            setAiModelDropdownOpen(!aiModelDropdownOpen);
+                          }}
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-full text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between mt-3"
                         >
                           <span>{selectedAiModel}</span>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 9L12 15L18 9" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </button>
-                        
-                        {/* Dropdown Menu */}
-                        {aiModelDropdownOpen && (
-                          <div className="absolute top-full left-6 right-6 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <button
-                              onClick={() => {
-                                setSelectedAiModel("Nano banana");
-                                setAiModelDropdownOpen(false);
-                              }}
-                              className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg"
-                            >
-                              Nano banana
-                            </button>
-                          </div>
-                        )}
                       </div>
+                      
+                      {/* Dropdown Menu Portal */}
+                      {aiModelDropdownOpen && aiModelDropdownPosition && typeof window !== 'undefined' && createPortal(
+                        <div 
+                          data-dropdown="ai-model"
+                          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999]"
+                          style={{
+                            top: `${aiModelDropdownPosition.top}px`,
+                            left: `${aiModelDropdownPosition.left}px`,
+                            width: `${aiModelDropdownPosition.width}px`
+                          }}
+                        >
+                          <button
+                            onClick={() => {
+                              setSelectedAiModel("Nano banana");
+                              setAiModelDropdownOpen(false);
+                              setAiModelDropdownPosition(null);
+                            }}
+                            className="w-full px-4 py-3 text-left text-sm text-gray-900 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg flex items-center justify-between"
+                          >
+                            <span>Nano banana</span>
+                            {selectedAiModel === "Nano banana" && (
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13.3332 4L5.99984 11.3333L2.6665 8" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>,
+                        document.body
+                      )}
                     </div>
                   </div>
                 )}
