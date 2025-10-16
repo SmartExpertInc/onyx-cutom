@@ -5,6 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 // Table Light Template Props
 export interface TableLightTemplateProps extends BaseTemplateProps {
@@ -22,68 +23,6 @@ export interface TableLightTemplateProps extends BaseTemplateProps {
   borderColor?: string;
   accentColor?: string;
   theme?: any;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  return (
-    <input
-      ref={inputRef}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
 }
 
 export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
@@ -332,11 +271,23 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
       <div style={{ marginBottom: '30px' }}>
         <div data-draggable="true" style={{ display: 'inline-block' }}>
           {editingTitle && isEditable ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={title}
               onSave={handleTitleUpdate}
               onCancel={() => setEditingTitle(false)}
-              style={titleStyles}
+              placeholder="Enter table title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.1'
+              }}
             />
           ) : (
             <h1 
@@ -351,9 +302,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 if (isEditable) setEditingTitle(true);
               }}
               className={isEditable ? 'cursor-pointer' : ''}
-            >
-              {title}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
           )}
         </div>
       </div>
@@ -380,18 +330,25 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 >
                   <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                     {editingHeader === index && isEditable ? (
-                      <InlineEditor
+                      <WysiwygEditor
                         initialValue={header}
                         onSave={(value) => handleHeaderUpdate(index, value)}
                         onCancel={() => setEditingHeader(null)}
+                        placeholder="Enter header..."
+                        className="inline-editor-header"
                         style={{
                           color: '#ffffff',
                           textAlign: 'center',
                           fontWeight: 'bold',
                           fontSize: '1rem',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          outline: 'none'
+                          padding: '8px',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '4px',
+                          wordWrap: 'break-word',
+                          whiteSpace: 'pre-wrap',
+                          boxSizing: 'border-box',
+                          display: 'block',
+                          lineHeight: '1.2'
                         }}
                       />
                     ) : (
@@ -415,9 +372,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             if (isEditable) setEditingHeader(index);
                           }}
                           className={isEditable ? 'cursor-pointer' : ''}
-                        >
-                          {header}
-                        </span>
+                          dangerouslySetInnerHTML={{ __html: header }}
+                        />
                         {isEditable && (
                           <button
                             onClick={() => removeColumn(index)}
@@ -488,18 +444,25 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
-                          <InlineEditor
+                          <WysiwygEditor
                             initialValue={cell}
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
+                            placeholder="Enter cell content..."
+                            className="inline-editor-cell"
                             style={{
                               color: '#000000',
                               textAlign: isFirstColumn ? 'left' : 'center',
                               fontSize: '0.95rem',
                               fontWeight: isFirstColumn ? 'bold' : 'normal',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              outline: 'none',
+                              padding: '8px',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '4px',
+                              wordWrap: 'break-word',
+                              whiteSpace: 'pre-wrap',
+                              boxSizing: 'border-box',
+                              display: 'block',
+                              lineHeight: '1.2',
                               width: '100%'
                             }}
                           />
@@ -515,9 +478,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                               if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
                             }}
                             className={isEditable ? 'cursor-pointer' : ''}
-                          >
-                            {cell}
-                          </span>
+                            dangerouslySetInnerHTML={{ __html: cell }}
+                          />
                         )}
                       </div>
                     </td>

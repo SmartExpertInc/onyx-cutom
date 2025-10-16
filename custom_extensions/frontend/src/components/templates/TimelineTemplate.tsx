@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export interface TimelineStep {
   heading: string;
@@ -13,85 +14,6 @@ export interface TimelineTemplateProps {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(inputRef.current);
-      range.collapse(false);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  return (
-    <div
-      ref={inputRef}
-      className={`inline-editor ${className}`}
-      contentEditable
-      suppressContentEditableWarning
-      onInput={(e: React.FormEvent<HTMLDivElement>) => setValue(e.currentTarget.textContent || '')}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-        minHeight: multiline ? '1.6em' : 'auto',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    >
-      {value}
-    </div>
-  );
 }
 
 export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
@@ -278,17 +200,22 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
       {/* Title */}
       <div style={{ display: 'inline-block', position: 'relative', zIndex: 20 }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              margin: '0',
-              padding: '0'
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -300,9 +227,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
               }
             }}
             className={isEditable ? 'cursor-pointer' : ''}
-          >
-            {title || 'Timeline'}
-          </h1>
+            dangerouslySetInnerHTML={{ __html: title || 'Timeline' }}
+          />
         )}
       </div>
 
@@ -321,17 +247,22 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
             <div style={textBlockStyles(item.top, item.side)}>
               {/* Heading */}
               {isEditable && editingStepHeadings.includes(index) ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={displaySteps[index]?.heading || ''}
                   onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
                   onCancel={() => handleStepHeadingCancel(index)}
-                  multiline={false}
                   placeholder="Enter heading..."
                   className="inline-editor-heading"
                   style={{
                     ...headingStyles,
-                    margin: '0',
-                    padding: '0'
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.2'
                   }}
                 />
               ) : (
@@ -343,24 +274,28 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                     }
                   }}
                   className={isEditable ? 'cursor-pointer' : ''}
-                >
-                  {displaySteps[index]?.heading || `Milestone ${index + 1}`}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.heading || `Milestone ${index + 1}` }}
+                />
               )}
 
               {/* Description */}
               {isEditable && editingStepDescriptions.includes(index) ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={displaySteps[index]?.description || ''}
                   onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
                   onCancel={() => handleStepDescriptionCancel(index)}
-                  multiline={true}
                   placeholder="Enter description..."
                   className="inline-editor-description"
                   style={{
                     ...descriptionStyles,
-                    margin: '0',
-                    padding: '0'
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.4'
                   }}
                 />
               ) : (
@@ -372,9 +307,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                     }
                   }}
                   className={isEditable ? 'cursor-pointer' : ''}
-                >
-                  {displaySteps[index]?.description || `Description of milestone ${index + 1}`}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.description || `Description of milestone ${index + 1}` }}
+                />
               )}
             </div>
           </React.Fragment>

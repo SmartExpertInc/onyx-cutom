@@ -3,129 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
   theme?: string | SlideTheme;
@@ -331,25 +209,22 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
       {/* Main Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -367,35 +242,30 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Your title here'}
-          </h1>
+            dangerouslySetInnerHTML={{ __html: title || 'Your title here' }}
+          />
         )}
       </div>
 
       {/* Subtitle */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingSubtitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={subtitle || 'Add a short description.'}
             onSave={handleSubtitleSave}
             onCancel={handleSubtitleCancel}
-            multiline={true}
             placeholder="Enter subtitle..."
             className="inline-editor-subtitle"
             style={{
               ...subtitleStyles,
-              // Ensure subtitle behaves exactly like h2 element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.4'
             }}
           />
         ) : (
@@ -413,9 +283,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {subtitle || 'Add a short description.'}
-          </h2>
+            dangerouslySetInnerHTML={{ __html: subtitle || 'Add a short description.' }}
+          />
         )}
       </div>
 
@@ -424,24 +293,22 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
         <div style={metadataStyles} data-draggable="true">
           {author && (
             isEditable && editingAuthor ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={author || ''}
                 onSave={handleAuthorSave}
                 onCancel={handleAuthorCancel}
-                multiline={false}
                 placeholder="Enter author name..."
                 className="inline-editor-author"
                 style={{
                   ...metadataItemStyles,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -453,31 +320,28 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {author}
-              </div>
+                dangerouslySetInnerHTML={{ __html: author }}
+              />
             )
           )}
           {date && (
             isEditable && editingDate ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={date || ''}
                 onSave={handleDateSave}
                 onCancel={handleDateCancel}
-                multiline={false}
                 placeholder="Enter date..."
                 className="inline-editor-date"
                 style={{
                   ...metadataItemStyles,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -489,9 +353,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {date}
-              </div>
+                dangerouslySetInnerHTML={{ __html: date }}
+              />
             )
           )}
         </div>
