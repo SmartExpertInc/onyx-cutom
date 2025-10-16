@@ -279,7 +279,10 @@ function UnifiedBulletEditor({
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '100%'
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end'
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();

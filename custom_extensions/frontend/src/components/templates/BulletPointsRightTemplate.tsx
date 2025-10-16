@@ -289,7 +289,7 @@ function UnifiedBulletEditor({
           border: '1px solid #3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.05)',
           position: 'relative',
-          width: '100%',
+          width: '88%',
           minWidth: 0,
           boxSizing: 'border-box'
         }}
