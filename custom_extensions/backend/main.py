@@ -22074,6 +22074,12 @@ CONTENT DENSITY AND LEARNING REQUIREMENTS:
 - Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
 - Ensure learners gain deep understanding of the topic after reading the complete presentation.
 
+PRESENTATION CONTINUITY AND FLOW:
+- Create a coherent narrative arc: if slide 2 introduces Topic A, then slides 3-5 should build on Topic A while adding Topics B and C.
+- DO NOT jump between unrelated topics. Each slide should connect logically to the previous slide.
+- Example: Slide 2 "Statistical Foundations" → Slide 3 "Data Pipeline (using statistics)" → Slide 4 "ML Algorithms (using pipelines and statistics)"
+- Avoid ending presentations with generic title slides or resource lists. End with meaningful, actionable content.
+
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
@@ -22128,36 +22134,41 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
-  • Usage: opening/section title or simple introduction; heading + short subtitle.
+  • Usage: ONLY for the very first slide of the presentation. PROHIBITED for all other slides.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: narrative with large image on the left; text on the right.
+  • Usage: PROHIBITED - do not use this template at all. Use four-box-grid, process-steps, or other content-rich templates instead.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: hero image across top; explanatory text below.
+  • Usage: PROHIBITED - do not use this template at all. Use four-box-grid, process-steps, or other content-rich templates instead.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
   • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
+  • IMPORTANT: Only use on slides 2-5; PROHIBITED for first slide or beyond slide 10.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
-  • Usage: compare/contrast or split content; balanced two columns.
-- process-steps: title, steps[]
-  • Usage: sequential workflow; 3–5 labeled steps in a row.
+  • Usage: compare/contrast or split content; balanced two columns with concise text.
+  • CRITICAL: leftContent and rightContent must be EXACTLY 1-2 short sentences each. NO bullet points, NO lists, just plain paragraph text. Keep it brief and scannable.
+- process-steps: title, subtitle, steps[]
+  • Usage: sequential workflow; 3–5 labeled steps in a row with meaningful subtitle describing the process.
 - four-box-grid: title, boxes[] (heading,text or title,content)
   • Usage: 2×2 grid of highlights; four concise boxes.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
   • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. Descriptions should be 2–3 concise sentences each in examples.
-- pyramid: title, [subtitle], steps[] (heading,description)
-  • Usage: hierarchical structure; 3-level pyramid visual.
+- pyramid: title, [subtitle], steps[] (MUST have: heading, description; number is optional)
+  • Usage: hierarchical structure showing 3-5 levels. CRITICAL: steps[] array MUST contain objects with "heading" and "description" fields. Do NOT use "levels" field.
+  • Example: steps: [{"heading": "Strategic Optimization", "description": "Long-term planning..."}, {"heading": "Operations", "description": "Day-to-day execution..."}]
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
   • Usage: problem/solution mapping; two facing columns. Each challenge/solution should be 5-6 words maximum for clean display.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
+  • Usage: ONLY use when you have meaningful, specific numerical KPIs with context (e.g., "99.9% uptime", "$2.4M revenue", "3.2x ROI").
+  • PROHIBITED: Generic numbers like "5+ tools", "3 techniques", "4 best practices" - these provide no value. Use four-box-grid instead for non-numeric content.
+  • Each metric MUST have a significant number and 2-3 sentences explaining what it means and why it matters.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
 - table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
-  • Usage: dense tabular data (dark theme); optional checkmarks.
+  • Usage: dense tabular data (dark theme); optional checkmarks. Each row array must have EXACTLY the same length as headers array.
 - table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme). The first cell of each row is the row label. Therefore each row must have length headers.length + 1.
+  • Usage: dense tabular data (light theme). CRITICAL: Each row array must have EXACTLY the same length as headers array (e.g., 3 headers = 3 items per row, 4 headers = 4 items per row).
 - pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown; pie with segment list and monthly notes.
 

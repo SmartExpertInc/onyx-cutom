@@ -625,7 +625,17 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   const placeholderStyles: React.CSSProperties = {
-    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
+    // Only apply default dimensions if no saved size exists
+    // Use maxWidth/maxHeight to allow centering while preventing overflow
+    ...(widthPx && heightPx ? {} : { 
+      width: '90%', 
+      height: '90%', 
+      maxWidth: '100%',
+      maxHeight: '100%',
+      aspectRatio: '1/1',
+      objectFit: 'cover',
+      objectPosition: 'center'
+    }),
     margin: '0 auto',
     position: 'relative',
     zIndex: 29

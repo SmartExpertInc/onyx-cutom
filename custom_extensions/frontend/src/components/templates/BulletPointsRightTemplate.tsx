@@ -673,7 +673,16 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   const placeholderStyles: React.CSSProperties = {
     // Only apply default dimensions if no saved size exists
-    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
+    // Use maxWidth/maxHeight to allow centering while preventing overflow
+    ...(widthPx && heightPx ? {} : { 
+      width: '90%', 
+      height: '90%', 
+      maxWidth: '100%',
+      maxHeight: '100%',
+      aspectRatio: '1/1',
+      objectFit: 'cover',
+      objectPosition: 'center'
+    }),
     margin: '0 auto',
     position: 'relative',
     zIndex: 29
