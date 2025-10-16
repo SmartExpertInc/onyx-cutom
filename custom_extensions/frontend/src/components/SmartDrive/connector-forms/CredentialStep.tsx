@@ -7,6 +7,7 @@ import { Card, CardContent } from "../../ui/card";
 import { Input } from "@/components/ui/input";
 import { credentialTemplates, credentialDisplayNames } from "./OnyxCredentialTemplates";
 import GoogleDriveCredentialForm from "./GoogleDriveCredentialForm";
+import GmailCredentialForm from "./GmailCredentialForm";
 
 export interface Credential {
   id: number;
@@ -1907,6 +1908,13 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   if (connectorId === 'google_drive') {
     return (
       <GoogleDriveCredentialForm
+        onCredentialCreated={onCredentialCreated}
+        onCancel={onCancel}
+      />
+    );
+  } else if (connectorId === 'gmail') {
+    return (
+      <GmailCredentialForm
         onCredentialCreated={onCredentialCreated}
         onCancel={onCancel}
       />
