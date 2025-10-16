@@ -89,7 +89,7 @@ const EntitlementsTab: React.FC = () => {
         payload.slides_max = Number(batchSlides);
       }
 
-      const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements/batch`, {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements-batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
