@@ -2048,51 +2048,45 @@ export default function LessonPresentationClient() {
                         {/* Avatar Cards Carousel */}
                         <div 
                           ref={avatarCarouselRef}
-                          className="flex gap-6 overflow-x-hidden overflow-y-hidden transition-all duration-300 ease-in-out"
+                          className="flex gap-6 overflow-x-hidden overflow-y-hidden transition-all duration-300 ease-in-out px-2"
                           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
-                          {/* Placeholder avatar cards - will be replaced with actual content */}
-                          {[1, 2, 3, 4, 5, 6].map((avatar, index) => {
-                            // Calculate which cards to show with circular logic
-                            const adjustedIndex = (index - scrollPosition + 6) % 6;
-                            const isVisible = adjustedIndex < 3;
-                            
-                            if (!isVisible) return null;
-                            
-                            // Only the center card (adjustedIndex === 1) can be selected
-                            const isCenterCard = adjustedIndex === 1;
-                            const isSelected = isCenterCard && selectedAvatar === avatar;
+                          {/* Static card slots with changing content */}
+                          {[0, 1, 2].map((slotIndex) => {
+                            // Calculate which avatar to show in this slot
+                            const avatarIndex = (scrollPosition + slotIndex + 6) % 6;
+                            const avatarNumber = avatarIndex + 1;
+                            const isCenterSlot = slotIndex === 1;
                             
                             return (
                               <div
-                                key={avatar}
-                                onClick={() => isCenterCard && setSelectedAvatar(avatar)}
+                                key={slotIndex}
+                                onClick={() => isCenterSlot && setSelectedAvatar(avatarNumber)}
                                 className={`flex-shrink-0 rounded-md transition-all duration-300 ease-in-out flex items-center justify-center relative ${
-                                  isSelected 
-                                    ? 'border-2 border-[#0F58F9] bg-gray-600 opacity-100' 
-                                    : 'border border-transparent bg-gray-600 opacity-40'
-                                } ${isCenterCard ? 'cursor-pointer' : 'cursor-default'}`}
-                                style={{ width: '250px', aspectRatio: '16/9' }}
+                                  isCenterSlot 
+                                    ? 'border-2 border-[#0F58F9] bg-gray-600 opacity-100 cursor-pointer' 
+                                    : 'border border-transparent bg-gray-600 opacity-40 cursor-default'
+                                }`}
+                                style={{ width: 'calc((100% - 40px - 48px) / 3)', aspectRatio: '16/9' }}
                               >
-                                <span className="text-gray-500">Avatar {avatar}</span>
+                                <span className="text-gray-500">Avatar {avatarNumber}</span>
                                 
                                 {/* Avatar name placeholder */}
                                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 font-medium whitespace-nowrap">
                                   Name
                                 </div>
                                 
-                                {/* Navigation buttons - only show on selected avatar */}
-                                {isSelected && (
+                                {/* Navigation buttons - only show on center slot */}
+                                {isCenterSlot && (
                                   <>
                                     {/* Left Navigation Button - Scroll left */}
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        // Move selection to previous card (circular)
-                                        const newSelectedAvatar = selectedAvatar === 1 ? 6 : selectedAvatar - 1;
-                                        setSelectedAvatar(newSelectedAvatar);
-                                        // Update scroll position to center the selected card
-                                        setScrollPosition(newSelectedAvatar - 2); // -2 to center it (shows 2 cards before selected)
+                                        setScrollPosition(scrollPosition - 1);
+                                        // Update selected avatar to match center slot
+                                        const newAvatar = scrollPosition === 0 ? 6 : scrollPosition;
+                                        setSelectedAvatar(newAvatar);
                                       }}
                                       className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-all duration-200 ease-in-out"
                                     >
@@ -2105,11 +2099,10 @@ export default function LessonPresentationClient() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        // Move selection to next card (circular)
-                                        const newSelectedAvatar = selectedAvatar === 6 ? 1 : selectedAvatar + 1;
-                                        setSelectedAvatar(newSelectedAvatar);
-                                        // Update scroll position to center the selected card
-                                        setScrollPosition(newSelectedAvatar - 2); // -2 to center it (shows 2 cards before selected)
+                                        setScrollPosition(scrollPosition + 1);
+                                        // Update selected avatar to match center slot
+                                        const newAvatar = (scrollPosition + 2) % 6 + 1;
+                                        setSelectedAvatar(newAvatar);
                                       }}
                                       className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#0F58F9] flex items-center justify-center hover:opacity-80 transition-all duration-200 ease-in-out"
                                     >
