@@ -923,26 +923,51 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
-                  <div className="flex justify-between text-[12px] mb-2">
+                  {/* <div className="flex justify-between text-[12px] mb-2">
                     <span className="text-gray-700 font-medium">Storage used</span>
                     <span className="text-gray-600">
                       {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                     </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div
-                      className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
-                      style={{
-                        width: `${Math.min(
-                          (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                    <div className="mt-2 text-right">
-                      <Button className="bg-[#719AF5] text-white" size="sm" onClick={() => setShowAddonsModal(true)}>Buy more storege</Button>
+                  </div> */}
+                  <div className="space-y-3">
+                    {/* Storage used label and capacity */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700 font-medium text-sm">Storage used</span>
+                      <span className="text-gray-600 text-sm">
+                        {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
+                      </span>
+                    </div>
+                    
+                    {/* Progress bar */}
+                    <div className="relative">
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
+                          style={{
+                            width: `${Math.min(
+                              (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                              100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Bottom labels */}
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-gray-500 text-xs">
+                          {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
+                        </span>
+                        <span className="text-gray-500 text-xs">
+                          {entitlements.storage_gb - entitlements.storage_used_gb} GB free
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Buy more storage button */}
+                    <div className="flex justify-end">
+                      <Button className="bg-[#719AF5] cursor-pointer text-white" size="sm" onClick={() => setShowAddonsModal(true)}>
+                        + Buy more storage
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -1002,7 +1027,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </span>
                   <div className="flex justify-between items-center">
                   <Button 
-                    className="bg-[#719AF5] text-white rounded-md" 
+                    className="bg-[#719AF5] cursor-pointer text-white rounded-md" 
                     size="sm" 
                     onClick={() => setShowAddonsModal(true)}
                   >
@@ -1092,19 +1117,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        View Integration
                      </button>
 
-                     <div onClick={() => {
-                       if (!hasConnectors) {
-                         handleConnectClick(connector.id, connector.name);
-                       }
-                     }}>
-                       <Switch
-                         checked={isActive}
-                         onCheckedChange={(checked) => {
-                           // Handled by parent div onClick
-                         }}
-                         className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                       />
-                     </div>
+                     <Switch
+                       checked={isActive}
+                       onCheckedChange={(checked) => {
+                         if (checked && !hasConnectors) {
+                           handleConnectClick(connector.id, connector.name);
+                         }
+                       }}
+                       className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
+                     />
                    </div>
 
                    {/* Dropdown for multiple connectors */}
@@ -1226,19 +1247,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               View Integration
                             </button>
 
-                            <div onClick={() => {
-                              if (!hasConnectors) {
-                                handleConnectClick(connector.id, connector.name);
-                              }
-                            }}>
-                              <Switch
-                                checked={isActive}
-                                onCheckedChange={(checked) => {
-                                  // Handled by parent div onClick
-                                }}
-                                className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
-                              />
-                            </div>
+                            <Switch
+                              checked={isActive}
+                              onCheckedChange={(checked) => {
+                                if (checked && !hasConnectors) {
+                                  handleConnectClick(connector.id, connector.name);
+                                }
+                              }}
+                              className={isActive ? 'data-[state=checked]:bg-[#0F58F9] [&>*]:bg-white' : 'data-[state=unchecked]:bg-[#E0E0E0] [&>*]:bg-white'}
+                            />
                           </div>
 
                           {/* Dropdown for multiple connectors */}

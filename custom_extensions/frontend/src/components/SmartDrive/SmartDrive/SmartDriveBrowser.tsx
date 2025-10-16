@@ -23,6 +23,14 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input as UiInput } from '@/components/ui/input';
 
+// Utility function to format file sizes
+const formatSize = (bytes: number | null | undefined): string => {
+	if (!bytes) return '0 B';
+	const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+	const i = Math.floor(Math.log(bytes) / Math.log(1024));
+	return `${Math.round(bytes / Math.pow(1024, i) * 100) / 100} ${sizes[i]}`;
+};
+
 export type SmartDriveItem = {
 	name: string;
 	path: string;
@@ -500,16 +508,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						</Button>
 					))}
 				</div>
-				<div className="relative w-64">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
-					<Input
-						type="text"
-						placeholder="Search files..."
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-						className="pl-10 placeholder:text-[#71717A] placeholder:text-sm h-9"
-					/>
-				</div>
 			</div>
 
 			{/* Upload progress */}
@@ -542,7 +540,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 			{/* Grid View */}
 			{viewMode === "grid" ? (
-				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border border-slate-200 rounded-lg bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 p-4 min-h-[600px] shadow-sm">
+				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="min-h-[600px] shadow-sm">
 					{loading ? (
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
@@ -550,8 +548,90 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					) : filtered.length === 0 ? (
 						<div className="p-10 text-center text-slate-600">This folder is empty</div>
 					) : (
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-							{filtered.map((it, idx) => {
+						<div className="space-y-6">
+							{/* Folders Section */}
+							{filtered.filter(item => item.type === 'directory').length > 0 && (
+								<div>
+									<h3 className="text-sm font-medium text-gray-700 mb-3">Folders</h3>
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+										{filtered.filter(item => item.type === 'directory').map((it, idx) => {
+											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+												setSelected(new Set([it.path]));
+												switch(action) {
+													case 'rename': rename(); break;
+													case 'move': doMoveCopy('move'); break;
+													case 'copy': doMoveCopy('copy'); break;
+													case 'delete': del(); break;
+													case 'download': download(); break;
+												}
+											};
+											
+											return (
+												<div
+													key={it.path}
+													className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													onClick={(e) => onRowClick(idx, it, e)}
+												>
+													<div className="flex items-start justify-between">
+														<div className="flex items-center gap-3 flex-1 min-w-0">
+															<div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
+																<svg width="20" height="20" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+																	<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"/>
+																</svg>
+															</div>
+															<div className="flex-1 min-w-0">
+																<h3 className="font-medium text-sm text-gray-900 truncate">
+																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
+																</h3>
+																<p className="text-xs text-gray-500 mt-1">
+																	{Math.floor(Math.random() * 100) + 1} items
+																</p>
+															</div>
+														</div>
+														<DropdownMenu>
+															<DropdownMenuTrigger asChild>
+																<Button 
+																	variant="ghost" 
+																	size="sm" 
+																	className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+																	onClick={(e) => e.stopPropagation()}
+																>
+																	<MoreHorizontal size={14} className="text-gray-500" />
+																</Button>
+															</DropdownMenuTrigger>
+															<DropdownMenuContent align="end">
+																<DropdownMenuItem onSelect={() => handleMenuAction('rename')}>
+																	<Pencil size={16} className="text-gray-500" />
+																	<span>Rename</span>
+																</DropdownMenuItem>
+																<DropdownMenuItem onSelect={() => handleMenuAction('move')}>
+																	<MoveRight size={16} className="text-gray-500" />
+																	<span>Move</span>
+																</DropdownMenuItem>
+																<DropdownMenuItem onSelect={() => handleMenuAction('copy')}>
+																	<Copy size={16} className="text-gray-500" />
+																	<span>Copy</span>
+																</DropdownMenuItem>
+																<DropdownMenuItem onSelect={() => handleMenuAction('delete')}>
+																	<Trash2 size={16} className="text-red-600" />
+																	<span className="text-red-600">Delete</span>
+																</DropdownMenuItem>
+															</DropdownMenuContent>
+														</DropdownMenu>
+													</div>
+												</div>
+											);
+										})}
+									</div>
+								</div>
+							)}
+							
+							{/* Files Section */}
+							{filtered.filter(item => item.type === 'file').length > 0 && (
+								<div>
+									<h3 className="text-sm font-medium text-gray-700 mb-3">Files</h3>
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+										{filtered.filter(item => item.type === 'file').map((it, idx) => {
 								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 									setSelected(new Set([it.path]));
 									switch(action) {
@@ -588,13 +668,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											{/* File type icon in top-left */}
 											<div className="absolute top-2 left-2">
 												{it.type === 'directory' ? (
-													<div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+													<div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
 														<svg width="16" height="16" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 															<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"/>
 														</svg>
 													</div>
 												) : (
-													<div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
+													<div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
 														<File className="w-4 h-4 text-gray-600" />
 													</div>
 												)}
@@ -603,7 +683,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										
 										{/* Bottom Section - Title, Date, Actions */}
 										<div className="p-3">
-											<h3 className="font-semibold text-sm text-gray-900 truncate mb-1">
+											<h3 className="font-semibold text-sm h-10 text-gray-900 truncate mb-1">
 												{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 											</h3>
 											<p className="text-xs text-gray-500 mb-2">
@@ -675,13 +755,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										</div>
 									</div>
 								);
-							})}
+										})}
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>
 			) : (
 				/* List View */
-				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border border-slate-200 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 max-h-[600px] flex flex-col shadow-sm">
+				<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="overflow-hidden max-h-[600px] flex flex-col shadow-sm">
 					{loading ? (
 						<div className="p-10 text-center text-slate-600">Loading…</div>
 					) : error ? (
@@ -782,11 +865,5 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	);
 };
 
-function formatSize(bytes?: number | null): string {
-	if (!bytes && bytes !== 0) return '';
-	const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-	const i = Math.min(sizes.length - 1, Math.floor(Math.log(Math.max(bytes, 1)) / Math.log(1024)));
-	return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
-}
 
 export default SmartDriveBrowser; 
