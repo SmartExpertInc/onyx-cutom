@@ -2300,25 +2300,23 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck
     """
     tasks = []
     for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
-        # Version-aware mapping for legacy decks: map templateId -> templateId_old
+        # NOTE: We do NOT add _old suffix for PDF rendering because:
+        # 1. The Jinja PDF template doesn't have _old versions of templates
+        # 2. Old and new slides render the same way in PDF (colors are handled by theme)
+        # 3. The _old suffix is only for frontend React component selection
         try:
             effective_version = deck_template_version
             if not effective_version:
                 effective_version = (slide_data or {}).get('metadata', {}).get('version')
             
             original_template_id = slide_data.get('templateId') if isinstance(slide_data, dict) else None
-            logger.info(f"🔍 PDF VERSION CHECK - Slide {slide_index}: deck_template_version={deck_template_version}, effective_version={effective_version}, original_templateId={original_template_id}")
+            logger.info(f"🔍 PDF VERSION CHECK - Slide {slide_index}: deck_template_version={deck_template_version}, effective_version={effective_version}, templateId={original_template_id}")
             
-            if not effective_version or effective_version < 'v2':
-                if isinstance(slide_data, dict) and 'templateId' in slide_data:
-                    slide_data = dict(slide_data)
-                    old_template_id = slide_data['templateId']
-                    slide_data['templateId'] = f"{slide_data['templateId']}_old"
-                    logger.info(f"🔄 PDF TEMPLATE MAPPING - Slide {slide_index}: {old_template_id} -> {slide_data['templateId']} (legacy deck)")
-            else:
-                logger.info(f"✅ PDF TEMPLATE UNCHANGED - Slide {slide_index}: Using {original_template_id} (v2+ deck)")
+            # PDF templates are version-agnostic - they use the base template ID
+            # Theme colors will be applied based on deck version elsewhere
+            logger.info(f"✅ PDF RENDERING - Slide {slide_index}: Using base template {original_template_id}")
         except Exception as e:
-            logger.error(f"❌ PDF VERSION MAPPING ERROR - Slide {slide_index}: {e}", exc_info=True)
+            logger.error(f"❌ PDF VERSION CHECK ERROR - Slide {slide_index}: {e}", exc_info=True)
         task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
         tasks.append(task)
     

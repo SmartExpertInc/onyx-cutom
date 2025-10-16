@@ -525,7 +525,10 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         injected_styles = ''
         stacked_bodies: List[str] = []
 
-        # Version-aware mapping: if templateVersion < 'v2', map templateId -> templateId_old
+        # NOTE: We do NOT add _old suffix for SCORM rendering because:
+        # 1. The Jinja HTML template doesn't have _old versions of templates
+        # 2. Old and new slides render the same way in HTML (colors are handled by theme)
+        # 3. The _old suffix is only for frontend React component selection
         effective_version = None
         try:
             if isinstance(content, dict):
@@ -534,23 +537,10 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
             effective_version = None
         
         logger.info(f"🔍 SCORM VERSION CHECK - product_id={product_row.get('id')}, templateVersion={effective_version}, slides_count={len(slides)}")
-
-        def _map_template_id(s: Dict[str, Any]) -> Dict[str, Any]:
-            if not isinstance(s, dict):
-                return s
-            tpl_id = s.get('templateId')
-            if tpl_id and (not effective_version or effective_version < 'v2'):
-                mapped = f"{tpl_id}_old"
-                logger.info(f"🔄 SCORM TEMPLATE MAPPING: {tpl_id} -> {mapped} (legacy deck)")
-                # We don't know registry here; pass through and let template handle unknowns gracefully
-                s = dict(s)
-                s['templateId'] = mapped
-            elif tpl_id:
-                logger.info(f"✅ SCORM TEMPLATE UNCHANGED: Using {tpl_id} (v2+ deck)")
-            return s
+        logger.info(f"✅ SCORM RENDERING - Using base template IDs (version-agnostic HTML rendering)")
 
         for idx, raw_slide in enumerate(slides):
-            slide = _map_template_id(raw_slide)
+            slide = raw_slide
             rendered = template.render(
                 slide=slide,
                 theme=theme,
