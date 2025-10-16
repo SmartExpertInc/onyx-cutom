@@ -1215,6 +1215,7 @@ export default function CourseOutlineClient() {
             setEditPrompt("");
             setLoadingPreview(false);
             setIsAdvancedEditInProgress(false);
+            setLastEditFromAiAgent(true); // Mark that last edit was from AI Agent
           }
         }
       }
@@ -1234,6 +1235,16 @@ export default function CourseOutlineClient() {
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [lastEditFromAiAgent, setLastEditFromAiAgent] = useState(false);
+  
+  // Reset AI Agent flag when user manually edits the prompt
+  const prevPromptRef = useRef(prompt);
+  useEffect(() => {
+    if (prevPromptRef.current !== prompt) {
+      setLastEditFromAiAgent(false);
+      prevPromptRef.current = prompt;
+    }
+  }, [prompt]);
   
   // Auto-scroll to advanced section when it's shown
   useEffect(() => {
@@ -1408,17 +1419,20 @@ export default function CourseOutlineClient() {
               style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #E0E0E0" }}
             />
           </div>
-          {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
+          {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && !lastEditFromAiAgent && (
             <Button
               type="button"
               onClick={() => {
                 // Force regeneration by clearing lastPreviewParamsRef
                 lastPreviewParamsRef.current = null;
+                setLastEditFromAiAgent(false);
               }}
               variant="secondary"
-              className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
+              className="px-6 py-5 rounded-lg bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap shadow-lg"
             >
-              <Sparkles size={16} />
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+              </svg>
               <span>{t('interface.courseOutline.regenerate', 'Regenerate')}</span>
             </Button>
           )}
