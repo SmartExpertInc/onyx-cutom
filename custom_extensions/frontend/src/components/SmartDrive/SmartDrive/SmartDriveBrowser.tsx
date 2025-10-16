@@ -22,7 +22,8 @@ import {
 	ClipboardPenLine,
 	Users,
 	CalendarDays,
-	ChevronRight
+	ChevronRight,
+	FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input as UiInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -120,6 +122,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [folderItemCounts, setFolderItemCounts] = useState<Record<string, number>>({});
 	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 	const [folderContentsMap, setFolderContentsMap] = useState<Record<string, SmartDriveItem[]>>({});
+	const [selectedFolderForView, setSelectedFolderForView] = useState<string | null>(null);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -274,9 +277,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const onRowClick = (idx: number, it: SmartDriveItem, e: React.MouseEvent) => {
 		if (it.type === 'directory') {
-			// For grid view, expand/collapse folders inline
+			// For grid view, select folder to view its contents
 			if (mode === 'manage' && viewMode === 'grid') {
-				handleFolderClick(it.path);
+				setSelectedFolderForView(it.path);
+				// Fetch folder contents if not already loaded
+				if (!folderContentsMap[it.path]) {
+					fetchFolderContentsForExpansion(it.path);
+				}
 				return;
 			}
 			// For list view, toggle folder expansion like MyProductsTable
@@ -714,7 +721,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={()=>setMkdirOpen(false)}>Cancel</Button>
-						<Button onClick={createFolder} disabled={!mkdirName.trim() || busy}>Create</Button>
+						<Button onClick={createFolder} disabled={!mkdirName.trim() || busy} className='rounded-full'>Create</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
@@ -731,14 +738,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="p-10 text-center text-slate-600">This folder is empty</div>
 					) : (
 						<div className="space-y-6">
-							{/* Back Button - Show when not at root */}
-							{currentPath !== '/' && (
+							{/* Back Button - Show when a folder is selected or not at root */}
+							{(selectedFolderForView || currentPath !== '/') && (
 								<div className="mb-4">
 									<Button
 										variant="outline"
 										onClick={() => {
-											const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
-											setCurrentPath(parentPath);
+											if (selectedFolderForView) {
+												setSelectedFolderForView(null);
+											} else {
+												const parentPath = currentPath.split('/').slice(0, -1).join('/') || '/';
+												setCurrentPath(parentPath);
+											}
 										}}
 										className="flex items-center gap-2"
 									>
@@ -748,7 +759,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								</div>
 							)}
 
-							{/* Folders Section */}
+							{/* Folders Section - Always show at top */}
 							{filtered.filter(item => item.type === 'directory').length > 0 && (
 								<div>
 									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -773,7 +784,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											return (
 												<div
 													key={it.path}
-													className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													className={`bg-white border rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group ${
+														selectedFolderForView === it.path 
+															? 'border-blue-500 bg-blue-50 shadow-md' 
+															: 'border-gray-200'
+													}`}
 													onClick={(e) => onRowClick(idx, it, e)}
 												>
 													<div className="flex items-start justify-between">
@@ -787,10 +802,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																<h3 className="font-medium text-xs text-gray-900 truncate">
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
-																{/* <p className="text-[11px] text-gray-500 mt-1">
-																	Folder
-																	{it.modified && ` • ${new Date(it.modified).toLocaleDateString()}`}
-																</p> */}
+																<p className="text-[11px] text-gray-500 mt-1">
+																	{folderItemCounts[it.path] !== undefined 
+																		? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'item' : 'items'}`
+																		: 'Folder'
+																	}
+																</p>
 															</div>
 														</div>
 														<DropdownMenu>
@@ -872,11 +889,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															: 'Folder'
 														}
 													</span>
-													{expandedFolder === it.path && (
-														<div className="absolute top-2 right-2">
-															<ArrowLeft className="w-4 h-4 text-blue-500" />
-														</div>
-													)}
 												</div>
 											) : (() => {
 												const FileIcon = getFileIcon(it.mime_type);
@@ -939,8 +951,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<span>Rename</span>
 														</DropdownMenuItem>
 														<DropdownMenuItem onSelect={() => handleMenuAction('move')}>
-															<MoveRight size={16} className="text-gray-500" />
-															<span>Move</span>
+															<FolderPlus size={16} className="text-gray-500" />
+															<span>Move to folder...</span>
 														</DropdownMenuItem>
 														<DropdownMenuItem onSelect={() => handleMenuAction('copy')}>
 															<Copy size={16} className="text-gray-500" />
@@ -968,18 +980,26 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								</div>
 							)}
 							
-							{/* Expanded folder contents */}
-							{expandedFolder && folderContents.length > 0 && (
-								<div className="mt-4">
-									<div className="mb-2 flex items-center gap-2 text-sm text-gray-600">
-										<ArrowLeft className="w-4 h-4" />
-										<span>Contents of {(() => { 
-											const folderName = expandedFolder.split('/').pop() || 'Folder';
-											try { return decodeURIComponent(folderName); } catch { return folderName; }
-										})()}</span>
-									</div>
-									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-										{folderContents.map((folderItem, folderIdx) => {
+							{/* Files Section - Show unassigned files when no folder selected, or selected folder's contents */}
+							{(() => {
+								const filesToShow = selectedFolderForView && folderContentsMap[selectedFolderForView]
+									? folderContentsMap[selectedFolderForView]
+									: filtered.filter(item => item.type === 'file');
+								
+								if (filesToShow.length === 0) return null;
+								
+								return (
+									<div className="mt-4">
+										{selectedFolderForView && (
+											<div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+												<span>📁 {(() => { 
+													const folderName = selectedFolderForView.split('/').pop() || 'Folder';
+													try { return decodeURIComponent(folderName); } catch { return folderName; }
+												})()} ({filesToShow.length} items)</span>
+											</div>
+										)}
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+											{filesToShow.map((folderItem, folderIdx) => {
 											const handleFolderMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([folderItem.path]));
 												switch(action) {
@@ -1102,9 +1122,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											);
 										})}
+										</div>
 									</div>
-								</div>
-							)}
+								);
+							})()}
 						</div>
 					)}
 				</div>
@@ -1135,22 +1156,61 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									</Button>
 								</div>
 							)}
-							<div className="flex items-center px-3 py-2 text-xs uppercase text-[#71717A] font-medium bg-white flex-shrink-0">
-								<button className="w-20 inline-flex items-start" onClick={()=>{setSortKey('type'); setSortAsc(k=>sortKey==='type'?!k:true);}}>
-									<FileStack strokeWidth={1} className="w-3 h-3 mr-1"/> Type
-								</button>
-								<button className="flex-1 inline-flex items-start" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
-								   <ClipboardPenLine strokeWidth={1} className="w-3 h-3 mr-1"/>	Title <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
-								<button className="w-32 inline-flex items-start" onClick={()=>{setSortKey('creator'); setSortAsc(k=>sortKey==='creator'?!k:true);}}>
-									<Users strokeWidth={1} className="w-3 h-3 mr-1"/> Creator <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
-								<button className="w-40 inline-flex items-start justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
-									<CalendarDays strokeWidth={1} className="w-3 h-3 mr-1"/> Edited <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
-								<div className="w-8"/>
-							</div>
-							<div className="flex-1 overflow-y-auto divide-y divide-[#E0E0E0]">
+							
+							<div className="bg-white rounded-xl border border-[#E0E0E0] overflow-x-auto flex-1">
+								<Table className="min-w-full divide-y divide-[#E0E0E0]">
+									<TableHeader className="bg-white">
+										<TableRow>
+											<TableHead 
+												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												style={{ width: '100px' }}
+												onClick={()=>{setSortKey('type'); setSortAsc(k=>sortKey==='type'?!k:true);}}
+											>
+												<div className="flex items-center gap-2">
+													<FileStack strokeWidth={1} className="text-[#71717A]" size={15} />
+													Type
+												</div>
+											</TableHead>
+											<TableHead 
+												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}
+											>
+												<div className="flex items-center gap-2">
+													<ClipboardPenLine strokeWidth={1} className="text-[#71717A]" size={15} />
+													Title
+													<ArrowUpDown className="w-3 h-3 ml-1"/>
+												</div>
+											</TableHead>
+											<TableHead 
+												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												style={{ width: '150px' }}
+												onClick={()=>{setSortKey('creator'); setSortAsc(k=>sortKey==='creator'?!k:true);}}
+											>
+												<div className="flex items-center gap-2">
+													<Users strokeWidth={1} className="text-[#71717A]" size={15} />
+													Creator
+													<ArrowUpDown className="w-3 h-3 ml-1"/>
+												</div>
+											</TableHead>
+											<TableHead 
+												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												style={{ width: '160px' }}
+												onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}
+											>
+												<div className="flex items-center gap-2">
+													<CalendarDays strokeWidth={1} className="text-[#71717A]" size={15} />
+													Edited
+													<ArrowUpDown className="w-3 h-3 ml-1"/>
+												</div>
+											</TableHead>
+											<TableHead 
+												className="px-3 py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
+												style={{ width: '50px' }}
+											>
+											</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody className="bg-white divide-y divide-[#E0E0E0]">
 								{filtered.map((it, idx) => {
 									const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 										setSelected(new Set([it.path]));
@@ -1171,13 +1231,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									
 									
 									return (
-										<div key={it.path}>
-											<div className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
-											{/* <div className="w-8">
-												<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-											</div> */}
+										<React.Fragment key={it.path}>
+											<TableRow className={`hover:bg-gray-50 transition cursor-pointer ${
+												it.type === 'directory' ? 'group' : ''
+											}`} onClick={(e)=>onRowClick(idx, it, e)}>
 											{/* Type Column */}
-											<div className="w-20 flex items-center">
+											<TableCell className="px-3 py-2 whitespace-nowrap">
+												<div className="flex items-center gap-2">
 												<div className="w-5 h-5">
 													{it.type === 'directory' ? (
 														<Folder strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>
@@ -1189,11 +1249,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<span className="ml-2 text-xs text-[#71717A]">
 													{it.type === 'directory' ? 'Folder' : (it.mime_type?.split('/')[1]?.toUpperCase() || 'FILE')}
 												</span>
-											</div>
+												</div>
+											</TableCell>
 											
 											{/* Title Column - Main content with more width */}
-											<div className="flex-1">
-												<div className="font-sm text-slate-800 flex items-center gap-2">
+											<TableCell className="px-3 py-2">
+												<div className={`flex items-center gap-2 ${it.type === 'directory' ? 'font-semibold text-blue-700' : 'font-medium text-slate-800'}`}>
 													{it.type === 'directory' && (
 														<ChevronRight
 															size={16}
@@ -1235,10 +1296,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														})()}
 													</div>
 												)}
-											</div>
+											</TableCell>
 											
 											{/* Creator Column */}
-											<div className="w-32 text-sm text-slate-700">
+											<TableCell className="px-3 py-2 whitespace-nowrap text-sm text-slate-700">
 											<span className="inline-flex items-start text-[var(--main-text)] gap-2">
 												<div
 												className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]"
@@ -1251,15 +1312,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 												You
 											</span>
-											</div>
+											</TableCell>
 											
 											{/* Edited Column */}
-											<div className="w-40 text-left text-sm text-slate-700">
+											<TableCell className="px-3 py-2 whitespace-nowrap text-left text-sm text-slate-700">
 												{it.modified ? new Date(it.modified).toLocaleDateString() : 'No date'}
-											</div>
+											</TableCell>
 											
 											{/* Action Column */}
-											<div className="w-8 flex justify-end">
+											<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+											<div className="flex justify-end">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
 														<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
@@ -1275,7 +1337,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</div>
-											</div>
+											</TableCell>
+											</TableRow>
 											
 											{/* Expanded folder contents */}
 											{it.type === 'directory' && expandedFolders.has(it.path) && folderContentsMap[it.path] && 
@@ -1298,25 +1361,30 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													};
 													
 													return (
-														<div key={folderItem.path} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 bg-gray-50 cursor-pointer" onClick={(e) => onRowClick(folderIdx, folderItem, e)}>
+														<TableRow key={folderItem.path} className="hover:bg-gray-50 transition bg-gray-50 cursor-pointer" onClick={(e) => onRowClick(folderIdx, folderItem, e)}>
 															{/* Type Column */}
-															<div className="w-20 flex items-center">
-																<div className="w-5 h-5">
-																	{folderItem.type === 'directory' ? (
-																		<Folder strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>
-																	) : (() => {
-																		const FileIcon = getFileIcon(folderItem.mime_type);
-																		return <FileIcon strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>;
-																	})()}
-																</div>
-																<span className="ml-2 text-xs text-[#71717A]">
+															<TableCell className="px-3 py-2 whitespace-nowrap">
+															<div className="flex items-center gap-2">
+																{folderItem.type === 'file' && (
+																	<div className="w-5 h-5">
+																		{(() => {
+																			const FileIcon = getFileIcon(folderItem.mime_type);
+																			return <FileIcon strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>;
+																		})()}
+																	</div>
+																)}
+																{folderItem.type === 'directory' && (
+																	<Folder strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>
+																)}
+																<span className="ml-2 text-xs text-gray-500">
 																	{folderItem.type === 'directory' ? 'Folder' : (folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE')}
 																</span>
 															</div>
+															</TableCell>
 															
-															{/* Title Column - Main content with more width */}
-															<div className="flex-1">
-																<div className="font-sm text-slate-800 flex items-center gap-2">
+															{/* Title Column - Main content with more width and indentation */}
+															<TableCell className="px-3 py-2">
+																<div className="font-medium text-slate-800 flex items-center gap-2">
 																	<div className="w-4 h-4 border-l-2 border-blue-200 mr-1"></div>
 																	{(() => { try { return decodeURIComponent(folderItem.name); } catch { return folderItem.name; } })()}
 																</div>
@@ -1329,10 +1397,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																		)
 																	}
 																</div>
-															</div>
+															</TableCell>
 																
 																{/* Creator Column */}
-																<div className="w-32 text-sm text-slate-700">
+																<TableCell className="px-3 py-2 whitespace-nowrap text-sm text-slate-700">
 																	<span className="inline-flex items-center text-[var(--main-text)] gap-2">
 																		<div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm bg-[#E1E1E1]">
 																			<svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100%" viewBox="0 0 288 288" enableBackground="new 0 0 288 288" xmlSpace="preserve">
@@ -1343,15 +1411,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																		</div>
 																		You
 																	</span>
-																</div>
+																</TableCell>
 																
 																{/* Edited Column */}
-																<div className="w-40 text-right text-sm text-slate-700">
+																<TableCell className="px-3 py-2 whitespace-nowrap text-left text-sm text-slate-700">
 																	{folderItem.modified ? new Date(folderItem.modified).toLocaleDateString() : 'No date'}
-																</div>
+																</TableCell>
 																
 																{/* Action Column */}
-																<div className="w-8 flex justify-end">
+																<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+																<div className="flex justify-end">
 																	<DropdownMenu>
 																		<DropdownMenuTrigger asChild>
 																			<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
@@ -1367,12 +1436,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																		</DropdownMenuContent>
 																	</DropdownMenu>
 																</div>
-															</div>
-														);
-													})}
-										</div>
+																</TableCell>
+														</TableRow>
+													);
+												})}
+										</React.Fragment>
 									);
 								})}
+									</TableBody>
+								</Table>
 							</div>
 						</div>
 					)}

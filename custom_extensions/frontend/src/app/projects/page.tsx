@@ -506,7 +506,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         >
           <Home size={18} strokeWidth={1.5} className='font-normal' />
           {/* <span>{t('interface.products', 'Products')}</span> */}
-          <span>t('interface.home', 'Home')</span>
+          <span>{t('interface.home', 'Home')}</span>
         </Link>
         <Link
           href="/projects?tab=my-products"
@@ -517,7 +517,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           className={`flex text-sm font-semibold items-center gap-3 p-2 rounded-lg ${currentTab === 'my-products' ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'hover:bg-gray-100 text-gray-900'}`}
         >
           <FolderOpen size={18} strokeWidth={1.5} className='font-normal' />
-          <span>t('interface.myProducts', 'My products')</span>
+          <span>{t('interface.myProducts', 'My products')}</span>
         </Link>
         <Link
           href="/projects?tab=smart-drive"

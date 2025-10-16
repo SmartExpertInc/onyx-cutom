@@ -936,18 +936,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 <div>
                   <div className="space-y-3">
                     {/* Storage used label and capacity */}
-                    <div className="flex items-center gap-2">Available files</div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium text-sm">Storage used</span>
-                      <span className="text-gray-600 text-sm">
-                        {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
-                      </span>
-                    </div>
-                    
+                    <div className="flex items-center text-black gap-2">
                     {/* Progress bar and button on same line */}
                     <div className="flex items-center gap-4">
                       <div className="flex-1 relative">
-                        <div className="w-[60px] bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div className="flex items-center text-black gap-2">Available files</div>
+                      {/* Buy more storage button */}
+                      <div className="flex justify-between items-center mt-2">
+                      <span className="text-gray-700 font-medium text-sm">Storage used</span>
+                        <span className="text-gray-600 text-sm">
+                          {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
+                        </span>
+                        <div className="w-[100px] bg-gray-200 rounded-full h-2 overflow-hidden">
                           <div
                             className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                             style={{
@@ -960,7 +960,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         </div>
                         
                         {/* Bottom labels */}
-                        <div className="flex justify-between items-center mt-2">
+                        
                           <span className="text-gray-500 text-xs">
                             {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
                           </span>
@@ -969,12 +969,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           </span>
                         </div>
                       </div>
-                      
-                      {/* Buy more storage button */}
                       <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Buy more storage
                       </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
