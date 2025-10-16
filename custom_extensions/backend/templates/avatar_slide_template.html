@@ -1574,10 +1574,11 @@
         }
     </style>
 </head>
-<body>
+<body class="theme-{{ theme or 'dark-purple' }}">
     {# ====================================================================== #}
     {# COORDINATE SCALING FOR VIDEO GENERATION                               #}
     {# CRITICAL FIX: Use ACTUAL canvas dimensions from metadata              #}
+    {# CRITICAL FIX: Apply theme class to body for CSS variables             #}
     {# ====================================================================== #}
     
     {# Get actual canvas dimensions from metadata if available #}
@@ -1599,7 +1600,7 @@
     {% set SCALE_Y = VIDEO_HEIGHT / EDITOR_HEIGHT %}
     
     <div class="slide-page">
-        <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
+        <div class="slide-content" style="background-color: var(--bg-color);">
             {% if templateId == 'avatar-checklist' %}
                 <div class="avatar-checklist">
                     <!-- Pink shape in top-left corner -->
