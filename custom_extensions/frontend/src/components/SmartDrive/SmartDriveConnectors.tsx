@@ -786,7 +786,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex">
             <button
               onClick={() => setActiveTab('smart-drive')}
-              className={`flex-1 px-4 py-1 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'smart-drive' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -800,7 +800,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </button>
             <button
               onClick={() => setActiveTab('connectors')}
-              className={`flex-1 px-4 py-1 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
+              className={`flex-1 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 relative whitespace-nowrap ${
                 activeTab === 'connectors' 
                   ? 'text-[#719AF5]' 
                   : 'text-[#8D8D95] hover:text-gray-700'
@@ -826,7 +826,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className={`relative ${activeTab === 'connectors' ? 'w-46' : 'w-70'} h-9`}>
+                <div className={`relative ${activeTab === 'connectors' ? 'w-46 mt-5' : 'w-70'} h-9`}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
@@ -935,19 +935,23 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 {/* Storage Progress */}
                 <div>
                   <div className="space-y-3">
-                    {/* Storage used label and capacity */}
-                    <div className="flex items-center text-black gap-2">
-                    {/* Progress bar and button on same line */}
+                    {/* Available files, progress bar, and button layout */}
                     <div className="flex items-center gap-4">
-                      <div className="flex-1 relative">
-                      <div className="flex items-center text-black gap-2">Available files</div>
-                      {/* Buy more storage button */}
-                      <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-700 font-medium text-sm">Storage used</span>
-                        <span className="text-gray-600 text-sm">
-                          {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
-                        </span>
-                        <div className="w-[100px] bg-gray-200 rounded-full h-2 overflow-hidden">
+                      {/* Available files text on the left */}
+                      <div className="text-black font-semibold text-xl">Available files</div>
+                      
+                      {/* Progress bar section in the center */}
+                      <div className="flex-1">
+                        {/* Top labels */}
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-700 font-medium text-xs">Storage used</span>
+                          <span className="text-gray-600 text-xs">
+                            {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
+                          </span>
+                        </div>
+                        
+                        {/* Progress bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                           <div
                             className='h-full rounded-full transition-all duration-300 bg-[#719AF5]'
                             style={{
@@ -960,20 +964,21 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         </div>
                         
                         {/* Bottom labels */}
-                        
-                          <span className="text-gray-500 text-xs">
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-gray-500 text-[11px]">
                             {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
                           </span>
-                          <span className="text-gray-500 text-xs">
+                          <span className="text-gray-500 text-[11px]">
                             {entitlements.storage_gb - entitlements.storage_used_gb} GB free
                           </span>
                         </div>
                       </div>
+                      
+                      {/* Buy more storage button on the right */}
                       <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Buy more storage
                       </Button>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -1012,7 +1017,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           {/* Usage Stats Header */}
           {entitlements && (
             <div className="bg-white p-1 mb-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
                 <div className="flex items-center gap-2">
                   <div className="w-[125px] bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -1053,8 +1058,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             if (connectedConnectors.length > 0) {
               return (
                 <div className="mb-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">{t('interface.myConnectors', 'My Connectors')}</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-regular font-semibold text-[#565656]">My connectors <span className='text-[#797979] text-xs font-regular'>({connectedConnectors.length})</span></h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {connectedConnectors.map((connector) => {
@@ -1162,7 +1167,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           {/* Available Connectors Section - Organized by Category */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('interface.availableConnectors', 'Available Connectors')}</h3>
+              <h3 className="text-regular font-semibold text-[#565656]">More connectors <span className='text-[#797979] text-xs font-regular'>({(() => {
+                const allConnectors = Object.values(connectorCategories).flat();
+                const availableConnectors = allConnectors.filter(connector => {
+                  const userConnectorsForSource = getConnectorsBySource(connector.id);
+                  return userConnectorsForSource.length === 0;
+                });
+                return availableConnectors.length;
+              })()})</span></h3>
             </div>
 
             {Object.entries(connectorCategories).map(([categoryName, connectors]) => {
