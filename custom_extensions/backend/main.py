@@ -22044,11 +22044,22 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         
         json_preview_instructions = f"""
 
-CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
-You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
+═══════════════════════════════════════════════════════════════════════════════
+🚨 CRITICAL OVERRIDE: IGNORE ALL MARKDOWN FORMATTING INSTRUCTIONS 🚨
+═══════════════════════════════════════════════════════════════════════════════
+
+THIS IS A PREVIEW REQUEST - OUTPUT FORMAT IS **JSON ONLY**, NOT MARKDOWN!
+
+You MUST output ONLY a single, valid JSON object for the Presentation preview.
+Do NOT use markdown format. Do NOT use slide templates with backticks.
+Do NOT include Universal Product Header. Do NOT include commentary or explanation.
+
+Your ENTIRE response must be ONLY this JSON structure:
 {json_example}
-Do NOT include code fences, markdown or extra commentary. Return JSON object only.
-This enables immediate parsing without additional LLM calls during finalization.
+
+CRITICAL: Start your response with {{ "lessonTitle": and end with }}
+No code fences (```), no markdown, no text before or after the JSON.
+This JSON-only format enables immediate parsing without additional processing.
 
 MANDATORY PREVIEW UI REQUIREMENT:
 - EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
@@ -22187,6 +22198,20 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
 - The root object MUST include hasVoiceover: true.
 """
+        
+        # Add final reminder at the END of the prompt (LLMs pay more attention to the end)
+        json_preview_instructions += """
+
+═══════════════════════════════════════════════════════════════════════════════
+🚨 FINAL REMINDER: YOUR OUTPUT MUST BE JSON ONLY 🚨
+═══════════════════════════════════════════════════════════════════════════════
+
+DO NOT OUTPUT MARKDOWN. DO NOT OUTPUT TEXT DESCRIPTIONS.
+Your response must START with: {{"lessonTitle":
+Your response must END with: }}
+NO other text before or after the JSON object.
+"""
+        
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
     except Exception as e:
