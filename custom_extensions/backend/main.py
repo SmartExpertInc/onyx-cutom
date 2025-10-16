@@ -22061,7 +22061,7 @@ General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
 - STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
-- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
+- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content. Do not end with title slides or resources slides; end on substantive content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
 MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
@@ -22138,7 +22138,7 @@ Template Catalog with required props and usage:
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: hero image across top; explanatory text below.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template.
+  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
   • Usage: compare/contrast or split content; balanced two columns.
 - process-steps: title, steps[]

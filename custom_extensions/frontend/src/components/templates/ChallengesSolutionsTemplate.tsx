@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import Image from 'next/image';
 import groupImg from './group_img.png';
 
@@ -113,14 +114,18 @@ function InlineEditor({
   );
 }
 
-const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
+const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>> = ({
   title = 'Challenges & Solutions',
   subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
   isEditable = true,
   slideId = 'challenges-solutions',
-  onUpdate
-}: ChallengesSolutionsTemplateProps) => {
+  onUpdate,
+  challengesTitle = 'Challenges',
+  solutionsTitle = 'Solutions',
+  challenges = [],
+  solutions = []
+}: ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>) => {
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
@@ -128,16 +133,16 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   
   // Состояние для элементов списков
-  const [challengeItems, setChallengeItems] = useState([
-    'Title goes here',
-    'Title goes here', 
-    'Title goes here'
-  ]);
-  const [solutionItems, setSolutionItems] = useState([
-    'Title goes here',
-    'Title goes here',
-    'Title goes here'
-  ]);
+  const [challengeItems, setChallengeItems] = useState(
+    (Array.isArray(challenges) && challenges.length > 0) ? challenges : [
+      'Title goes here', 'Title goes here', 'Title goes here'
+    ]
+  );
+  const [solutionItems, setSolutionItems] = useState(
+    (Array.isArray(solutions) && solutions.length > 0) ? solutions : [
+      'Title goes here', 'Title goes here', 'Title goes here'
+    ]
+  );
   
   // Состояния редактирования для каждого элемента
   const [editingChallengeItems, setEditingChallengeItems] = useState([false, false, false]);
@@ -421,7 +426,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
             fontWeight: 'normal',
             textAlign: 'center',
           }}>
-            Challenges
+            {challengesTitle}
           </div>
           <div style={{
             fontSize: '19px',
@@ -430,7 +435,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
             fontWeight: 'normal',
             textAlign: 'center',
           }}>
-            Solutions
+            {solutionsTitle}
           </div>
         </div>
       </div>
