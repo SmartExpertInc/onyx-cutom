@@ -22268,16 +22268,8 @@ MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
-IMAGE PLACEHOLDER GUIDELINES (OPTIMIZED FOR PREVIEW SPEED):
-For preview generation, use simple placeholder text for image prompts to speed up processing. Images will be generated later during the finalize phase.
-
-IMAGE PROMPT PLACEHOLDERS - Use these simple placeholders:
-- For business/strategy slides: "PLACEHOLDER_BUSINESS_IMAGE"
-- For technology/development slides: "PLACEHOLDER_TECH_IMAGE" 
-- For data/analytics slides: "PLACEHOLDER_DATA_IMAGE"
-- For marketing slides: "PLACEHOLDER_MARKETING_IMAGE"
-- For education/training slides: "PLACEHOLDER_EDUCATION_IMAGE"
-- For general professional slides: "PLACEHOLDER_PROFESSIONAL_IMAGE"
+PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
+For generation, use simple placeholder text "PLACEHOLDER_TECH_IMAGE".
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
