@@ -40,6 +40,7 @@ import { Input as UiInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FolderSelectionModal } from '@/components/ui/folder-selection-modal';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -107,6 +108,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	contentTypeFilter = 'all',
 	searchQuery = '',
 }) => {
+	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
 	const [items, setItems] = useState<SmartDriveItem[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -453,11 +455,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const rename = async () => {
-		if (selected.size !== 1) return;
-		const p = Array.from(selected)[0];
-		const old = p.split('/').pop() || '';
-		setItemToRename(p);
+	const rename = async (path?: string) => {
+		const targetPath = path || (selected.size === 1 ? Array.from(selected)[0] : null);
+		if (!targetPath) return;
+		const old = targetPath.split('/').pop() || '';
+		setItemToRename(targetPath);
 		setNewItemName(old);
 		setRenameModalOpen(true);
 	};
@@ -825,7 +827,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
 								switch(action) {
-									case 'rename': rename(); break;
+									case 'rename': rename(it.path); break;
 									case 'move': 
 										setMoveOperation('move');
 										setShowFolderSelectionModal(true);
@@ -918,11 +920,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								return (
 									<div className="mt-4">
 										{selectedFolderForView && (
-											<div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-												<Folder className='w-7 h-7' /> <span>{(() => { 
+											<div className="mb-2 flex items-center gap-2 text-md font-semibold text-gray-700">
+												<Folder className='w-8 h-8' strokeWidth={1.5} /> <span>{(() => { 
 													const folderName = selectedFolderForView.split('/').pop() || 'Folder';
 													try { return decodeURIComponent(folderName); } catch { return folderName; }
-												})()} ({filesToShow.length} {filesToShow.length === 1 ? 'file' : 'files'})</span>
+												})()} ({filesToShow.length} {filesToShow.length === 1 ? 'item' : 'items'}) in this folder</span>
 											</div>
 										)}
 										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-5">
@@ -951,7 +953,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
 												>
 													{/* Content Preview Area */}
-													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative overflow-hidden">
+													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative">
 														{(() => {
 															const FileIcon = getFileIcon(folderItem.mime_type);
 															return (
@@ -1075,7 +1077,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] overflow-hidden flex-1">
 								<Table className="min-w-full divide-y divide-[#E0E0E0]">
 									<TableHeader className="bg-white divide-y divide-[#E0E0E0]">
-										<TableRow>
+										<TableRow className='divide-y divide-[#E0E0E0]'>
 											<TableHead 
 												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider"
 												style={{ width: '100px' }}
@@ -1164,13 +1166,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																<div className={`flex items-center gap-2 font-regular ${
 																	expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) ? 'text-blue-900' : 'text-[#09090B]'
 																}`}>
+																	{
+																		expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) ? 
+																		(<span><ChevronLeft className="w-4 h-4 text-blue-900" /></span>) : ''
+																	}
 																	{(() => { try { return decodeURIComponent(expandedFolderItem.name); } catch { return expandedFolderItem.name; } })()}
 																</div>
 															<div className="text-xs text-slate-500">
 																{expandedFolderItem.type === 'file' 
 																	? formatSize(expandedFolderItem.size) 
 																	: (expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) && folderItemCounts[expandedFolderItem.path] !== undefined 
-																		? `${folderItemCounts[expandedFolderItem.path]} ${folderItemCounts[expandedFolderItem.path] === 1 ? 'file' : 'files'}`
+																		? `${folderItemCounts[expandedFolderItem.path]} ${folderItemCounts[expandedFolderItem.path] === 1 ? 'item' : 'items'}`
 																		: (expandedFolderItem.type === 'directory' ? 'Folder' : '')
 																	)
 																}
@@ -1192,14 +1198,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<div className="flex justify-end">
 																<DropdownMenu>
 																	<DropdownMenuTrigger asChild>
-																		<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																			<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+																		<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+																			<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
 																		</Button>
 																	</DropdownMenuTrigger>
 																	<DropdownMenuContent align="end">
 																		<DropdownMenuItem onSelect={() => {
-																			setSelected(new Set([expandedFolderItem.path]));
-																			rename();
+																			rename(expandedFolderItem.path);
 																		}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
 																		<DropdownMenuItem onSelect={() => {
 																			setSelected(new Set([expandedFolderItem.path]));
@@ -1229,7 +1234,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
 												switch(action) {
-													case 'rename': rename(); break;
+													case 'rename': rename(it.path); break;
 													case 'move': 
 														setMoveOperation('move');
 														setShowFolderSelectionModal(true);
@@ -1302,8 +1307,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													<div className="flex justify-end">
 														<DropdownMenu>
 															<DropdownMenuTrigger asChild>
-																<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																	<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+																<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+																	<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
 																</Button>
 															</DropdownMenuTrigger>
 															<DropdownMenuContent align="end">
@@ -1323,12 +1328,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										);
 									}
 									
-									// Otherwise show all items normally
-									return <>{paginatedItems.map((it, idx) => {
+									// Otherwise show all items normally (excluding expanded folders)
+									return <>{paginatedItems.filter(item => !expandedFolders.has(item.path)).map((it, idx) => {
 									const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 										setSelected(new Set([it.path]));
 								switch(action) {
-									case 'rename': rename(); break;
+									case 'rename': rename(it.path); break;
 									case 'move': 
 										setMoveOperation('move');
 										setShowFolderSelectionModal(true);
@@ -1433,8 +1438,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<div className="flex justify-end">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-															<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+														<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+															<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
@@ -1459,11 +1464,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							
 							{/* Pagination Controls */}
 							{filtered.length > 0 && (
-								<div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
+								<div className="flex items-center justify-end px-4 py-3 bg-white border-t border-gray-200">
 									<div className="flex items-center gap-4">
+									<span className="text-sm text-[var(--main-text)]">{t("interface.rowsPerPage", "Rows per page:")}</span>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
-												<Button variant="outline" className="flex items-center gap-2">
+												<Button variant="outline" className="flex rounded-md bg-white items-center gap-2">
 													<span className="text-sm">{rowsPerPage} rows</span>
 													<ChevronDown size={16} />
 												</Button>
@@ -1599,6 +1605,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					idToPathMap[idx] = folder.path;
 				});
 				
+				// Determine current folder location of selected items
+				let currentFolderId: number | null = null;
+				if (selected.size > 0) {
+					const selectedPaths = Array.from(selected);
+					// Get the parent folder of the first selected item
+					const firstSelectedPath = selectedPaths[0];
+					const parentPath = firstSelectedPath.split('/').slice(0, -1).join('/') || '/';
+					
+					// Find the folder ID that matches this parent path
+					const matchingFolder = foldersList.find(folder => folder.path === parentPath);
+					if (matchingFolder) {
+						const folderIndex = foldersList.indexOf(matchingFolder);
+						currentFolderId = folderIndex;
+					}
+				}
+				
 				return (
 					<FolderSelectionModal
 						isOpen={showFolderSelectionModal}
@@ -1640,7 +1662,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							setMoveOperation(null);
 						}}
 						folders={foldersForModal}
-						currentFolderId={null}
+						currentFolderId={currentFolderId}
 						title={moveOperation === 'move' ? 'Move to folder' : 'Copy to folder'}
 					/>
 				);

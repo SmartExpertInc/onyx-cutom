@@ -826,8 +826,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className={`relative ${activeTab === 'connectors' ? 'w-46 pt-3' : 'w-70'} h-9`}>
-                  <Search className="absolute left-3 top-1/2 transform ${activeTab === 'connectors' ? 'mt-3' : 'mt-0'} -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                <div className={`relative ${activeTab === 'connectors' ? 'w-45 pt-3' : 'w-70'} h-9`}>
+                  <Search className="absolute left-3 top-1/2 transform ${activeTab === 'connectors' ? 'mt-5' : 'mt-0'} -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
               </div>
@@ -1018,7 +1018,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <>
           {/* Usage Stats Header */}
           {entitlements && (
-            <div className="bg-white p-1 mb-6">
+            <div className="bg-white py-4 mb-3">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
                 <div className="flex items-center gap-2">
