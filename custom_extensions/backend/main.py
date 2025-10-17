@@ -33671,7 +33671,11 @@ async def generate_image_prompt_from_slide_context(slide_data: Dict[str, Any], t
         if template_id == 'big-numbers':
             steps = slide_props.get('steps', [])
             if steps:
-                context_parts.append(f"Key Metrics: {', '.join([f\"{step.get('value', '')} {step.get('label', '')}\" for step in steps[:3]])}")
+                context_parts.append(
+                    "Key Metrics: " + ', '.join(
+                        [f"{step.get('value', '')} {step.get('label', '')}" for step in steps[:3]]
+                    )
+                )
         
         # Build the prompt for image generation
         context_text = '\n'.join(context_parts)
