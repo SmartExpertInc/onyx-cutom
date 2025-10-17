@@ -577,6 +577,8 @@ export default function LessonPresentationClient() {
 
   // Effect to trigger streaming preview generation
   useEffect(() => {
+    // Skip while AI Agent edit is in progress to prevent content from disappearing
+    if (loadingEdit) return;
 
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
@@ -1956,6 +1958,37 @@ export default function LessonPresentationClient() {
 
                   // Filter out slides that don't have proper numbered slide pattern (language-agnostic)
                   slides = slides.filter(slideContent => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+
+                  // Fallback: if no slides detected, try alternative extraction strategies
+                  if (slides.length === 0) {
+                    const lines = cleanedContent.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                    // Prefer markdown headings first
+                    let altTitles = lines
+                      .filter(l => /^#{1,3}\s+/.test(l))
+                      .map(l => l.replace(/^#{1,3}\s+/, ''));
+
+                    // If still empty, use numbered/bulleted items as slide titles
+                    if (altTitles.length === 0) {
+                      altTitles = lines
+                        .filter(l => /^(?:\d+\.\s+|[-*]\s+)/.test(l))
+                        .map(l => l.replace(/^(?:\d+\.\s+|[-*]\s+)/, ''));
+                    }
+
+                    // If still empty, derive from paragraphs (first sentence of each block)
+                    if (altTitles.length === 0) {
+                      const paragraphs = cleanedContent.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+                      altTitles = paragraphs.map(p => {
+                        const m = p.match(/^([^\.!?`\n]{4,120}?)[\.!?](\s|$)/);
+                        return (m && m[1]) ? m[1] : p.slice(0, 80);
+                      });
+                    }
+
+                    // Limit to a reasonable number of slides for preview
+                    altTitles = altTitles.slice(0, 20);
+                    if (altTitles.length > 0) {
+                      slides = altTitles.map((title, i) => `**Slide ${i + 1}: ${title}**`);
+                    }
+                  }
 
                   return slides.map((slideContent, slideIdx) => {
                     // Extract slide title using language-agnostic pattern: **[word(s)] [number]: [title]
