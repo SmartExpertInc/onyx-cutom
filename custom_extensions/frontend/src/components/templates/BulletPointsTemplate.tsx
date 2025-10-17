@@ -297,7 +297,7 @@ function UnifiedBulletEditor({
                 gap: '12px', 
                 marginBottom: '30px',
                 minHeight: '1.6em',
-                width: '70%'
+                width: '100%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>

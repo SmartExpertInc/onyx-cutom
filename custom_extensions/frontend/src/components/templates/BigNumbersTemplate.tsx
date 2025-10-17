@@ -117,13 +117,13 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'start',
+    textAlign: 'center',
     padding: '32px 24px',
   };
 
   const valueStyles: React.CSSProperties = {
     fontSize: '3rem',
-    color: currentTheme.colors.accentColor, // Use theme accent color
+    color: currentTheme.colors.contentColor, // Use content color (same as label)
     marginBottom: '16px',
     fontFamily: currentTheme.fonts.titleFont,
     wordWrap: 'break-word',
