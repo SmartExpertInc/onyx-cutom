@@ -674,36 +674,26 @@ export default function CreateFromFilesNewPage() {
                 </svg>
 
                 {/* Small floating SVG icons */}
-                <div className="absolute" style={{ top: '144px', left: '525px' }}>
+                <div className="absolute" style={{ top: '100px', left: '260px' }}>
                   <XLSFileIcon />
                 </div>
 
                 
-                <div className="absolute" style={{ top: '229px', left: '568px' }}>
+                <div className="absolute" style={{ top: '185px', left: '303px' }}>
                   <PDFFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '186px', left: '647px' }}>
+                <div className="absolute" style={{ top: '142px', left: '382px' }}>
                   <DOCFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '144px', left: '770px' }}>
+                <div className="absolute" style={{ top: '100px', left: '505px' }}>
                   <ZIPFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '229px', left: '726px' }}>
+                <div className="absolute" style={{ top: '185px', left: '461px' }}>
                   <PNGFileIcon />
                 </div>
-                
-                {/* Keep original inline SVG for now, will be removed */}
-                <svg 
-                  width="41" 
-                  height="41" 
-                  viewBox="0 0 41 41" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="absolute" style={{ display: 'none' }}
-                >
                   <g filter="url(#filter0_ddd_867_16126)">
                     <rect x="2.82812" y="2.13281" width="36.1169" height="36.1169" rx="7.73933" fill="url(#paint0_linear_867_16126)"/>
                     <g clipPath="url(#clip0_867_16126)">
