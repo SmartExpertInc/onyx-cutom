@@ -173,7 +173,7 @@ export default function UploadFilesPage() {
           </button>
 
           <button
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity duration-200"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity duration-200 border border-[#0F58F9]"
             style={{ backgroundColor: '#0F58F9' }}
           >
             <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">

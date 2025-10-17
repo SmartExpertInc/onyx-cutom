@@ -165,7 +165,7 @@ export default function CreateFromFilesNewPage() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-20 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
           <ImportCard
             icon={<UploadFileIcon />}
             title={t('interface.fromFiles.uploadFile', 'Upload a file')}
