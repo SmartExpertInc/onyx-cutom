@@ -10081,6 +10081,10 @@ class AIImageGenerationRequest(BaseModel):
     quality: str = Field(default="standard", description="Image quality: standard or hd")
     style: str = Field(default="vivid", description="Image style: vivid or natural")
     model: str = Field(default="gemini-2.5-flash-image-preview", description="Image generation model to use")
+    # NEW: Optional slide context for automatic prompt generation
+    slideContext: Optional[Dict[str, Any]] = Field(default=None, description="Slide context data for automatic prompt generation")
+    templateId: Optional[str] = Field(default=None, description="Template ID for context-aware prompt generation")
+    generatePromptFromContext: Optional[bool] = Field(default=False, description="Whether to generate prompt from slide context instead of using provided prompt")
 
 @app.post("/api/custom/presentation/generate_image", responses={
     200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
@@ -10090,7 +10094,29 @@ class AIImageGenerationRequest(BaseModel):
 async def generate_ai_image(request: AIImageGenerationRequest):
     """Generate an image using Google Gemini AI"""
     try:
-        logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{request.prompt[:50]}...'")
+        # Determine the actual prompt to use
+        actual_prompt = request.prompt
+        
+        # If context-based prompt generation is requested, generate the prompt from slide context
+        if request.generatePromptFromContext and request.slideContext and request.templateId:
+            logger.info(f"[AI_IMAGE_GENERATION] Generating prompt from slide context")
+            logger.info(f"[AI_IMAGE_GENERATION] Template ID: {request.templateId}")
+            logger.info(f"[AI_IMAGE_GENERATION] Slide context keys: {list(request.slideContext.keys())}")
+            
+            try:
+                actual_prompt = await generate_image_prompt_from_slide_context(
+                    request.slideContext, 
+                    request.templateId
+                )
+                logger.info(f"[AI_IMAGE_GENERATION] Generated context-based prompt: '{actual_prompt[:100]}...'")
+            except Exception as e:
+                logger.error(f"[AI_IMAGE_GENERATION] Failed to generate context-based prompt: {e}")
+                logger.info(f"[AI_IMAGE_GENERATION] Falling back to provided prompt: '{request.prompt[:50]}...'")
+                # Keep the original prompt as fallback
+        else:
+            logger.info(f"[AI_IMAGE_GENERATION] Using provided prompt: '{request.prompt[:50]}...'")
+        
+        logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{actual_prompt[:50]}...'")
         logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
         
         # Validate dimensions (Gemini supports flexible dimensions, but we'll keep the same validation for consistency)
@@ -10123,10 +10149,10 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         # 🔍 ENHANCED LOGGING: Log the request being sent to Gemini
         logger.info(f"🔍 [GEMINI API REQUEST] Sending request to Gemini API")
         logger.info(f"🔍 [GEMINI API REQUEST] Model: gemini-2.5-flash-image-preview")
-        logger.info(f"🔍 [GEMINI API REQUEST] Prompt length: {len(request.prompt)} characters")
-        logger.info(f"🔍 [GEMINI API REQUEST] Full prompt: '{request.prompt}'")
+        logger.info(f"🔍 [GEMINI API REQUEST] Prompt length: {len(actual_prompt)} characters")
+        logger.info(f"🔍 [GEMINI API REQUEST] Full prompt: '{actual_prompt}'")
         
-        response = model.generate_content(request.prompt)
+        response = model.generate_content(actual_prompt)
         
         # 🔍 ENHANCED LOGGING: Log raw response from Gemini
         logger.info(f"🔍 [GEMINI API RESPONSE] Raw response received from Gemini")
@@ -10309,7 +10335,9 @@ async def generate_ai_image(request: AIImageGenerationRequest):
             
             return {
                 "file_path": web_accessible_path,
-                "prompt": request.prompt,
+                "prompt": actual_prompt,  # Return the actual prompt used (may be generated from context)
+                "original_prompt": request.prompt,  # Return the original prompt if different
+                "generated_from_context": request.generatePromptFromContext and request.slideContext is not None,
                 "dimensions": {"width": request.width, "height": request.height},
                 "quality": request.quality,
                 "style": request.style
@@ -22240,56 +22268,28 @@ MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 - Prioritize templates that best express your content; avoid defaulting to bullet-points-right for everything.
 - Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
 
-PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
-Create professional photographs showing people actively working in authentic environments relevant to the slide topic.
+IMAGE PLACEHOLDER GUIDELINES (OPTIMIZED FOR PREVIEW SPEED):
+For preview generation, use simple placeholder text for image prompts to speed up processing. Images will be generated later during the finalize phase.
 
-IMAGE PROMPT STRUCTURE - Use this exact format:
-"A professional photograph of [PROFESSIONAL ROLE] actively working [WORKPLACE CONTEXT]. 
-
-SCENE: The person is engaged in their typical work activities in an authentic workplace environment appropriate for [ROLE]. Show them using professional tools, equipment, or technology relevant to their role. The composition should capture both the person (from waist up or full body) and their work environment.
-
-ACTIVITY: Include specific work processes that match the slide content - for example:
-- If data science: analyzing data on multiple monitors, coding machine learning models, presenting findings to team
-- If marketing: reviewing campaign analytics dashboards, creating content, strategizing with team over brand materials
-- If software development: coding at workstation with multiple monitors, debugging, collaborating in code review
-- If business analysis: examining financial data, creating presentations, meeting with stakeholders over reports
-- If project management: coordinating with team, reviewing project timelines, facilitating planning sessions
-- If design: working in creative software, sketching concepts, reviewing designs with colleagues
-
-ENVIRONMENT: Authentic workplace setting that matches the role - not just a generic office. Include relevant background elements, tools, equipment, and work materials that tell the story of what this person does professionally.
-
-STYLE: High-quality professional photography with good natural lighting that shows both the person and their work context. The person should be wearing appropriate professional attire for their specific role.
-
-COMPOSITION: Environmental portrait style that captures the essence of the work, showing the professional genuinely engaged in their tasks within their authentic work environment."
-
-CORE PRINCIPLES:
-1. SHOW REAL WORK ACTIVITIES: People must be actively doing their jobs, not posing or looking at camera
-2. AUTHENTIC ENVIRONMENTS: Real workplaces with actual tools, equipment, and materials visible
-3. SPECIFIC TO SLIDE CONTENT: Match the professional role and activity to the slide's actual topic
-4. NO STOCK PHOTO CLICHÉS: Avoid handshakes, pointing at charts, lightbulbs, chess pieces, staged meetings
-5. ENVIRONMENTAL PORTRAITS: Capture both the person and their workspace to tell the full professional story
-6. NATURAL MOMENTS: Show genuine work activities, not overly staged or posed scenarios
-
-EXAMPLES FOR COMMON SLIDE TYPES:
-- Business Strategy: "Business strategists collaborating around conference table with laptops, market analysis documents, and whiteboards showing strategic frameworks visible in background"
-- Data Analysis: "Data analysts working at multi-monitor workstations with data visualizations, dashboards, and statistical reports displayed, taking notes and discussing insights"
-- Technology: "Software engineers coding at workstations with multiple monitors showing code editors and terminal windows, reviewing pull requests and debugging together"
-- Marketing: "Marketing professionals analyzing campaign data on screens, reviewing creative assets, planning content calendar with brand materials visible"
-- Finance: "Financial analysts examining market data on trading terminals, reviewing financial models on spreadsheets, discussing investment strategies"
-
-Always specify: realistic workplace, professional attire, authentic tools/equipment, natural lighting, environmental portrait composition.
+IMAGE PROMPT PLACEHOLDERS - Use these simple placeholders:
+- For business/strategy slides: "PLACEHOLDER_BUSINESS_IMAGE"
+- For technology/development slides: "PLACEHOLDER_TECH_IMAGE" 
+- For data/analytics slides: "PLACEHOLDER_DATA_IMAGE"
+- For marketing slides: "PLACEHOLDER_MARKETING_IMAGE"
+- For education/training slides: "PLACEHOLDER_EDUCATION_IMAGE"
+- For general professional slides: "PLACEHOLDER_PROFESSIONAL_IMAGE"
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
   • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: DO NOT USE except for first slide. Use other templates instead.
+  • Usage: DO NOT USE except for first slide. Use other templates instead. Use PLACEHOLDER_*_IMAGE for imagePrompt.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: hero image across top; explanatory text below.
+  • Usage: hero image across top; explanatory text below. Use PLACEHOLDER_*_IMAGE for imagePrompt.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
+  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details. Use PLACEHOLDER_*_IMAGE for imagePrompt.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
-  • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
+  • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each. Use PLACEHOLDER_*_IMAGE for image prompts.
 - process-steps: title, steps[]
   • Usage: sequential workflow; 3–5 labeled steps in a row. The subtitle prop is NOT used; only include title and steps[].
 - four-box-grid: title, boxes[] (heading,text or title,content)
@@ -22367,38 +22367,18 @@ General Rules:
 
 
 
-PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
-Based on presentation design best practices, follow these rules for selecting appropriate images:
+IMAGE PLACEHOLDER GUIDELINES (OPTIMIZED FOR PREVIEW SPEED):
+For preview generation, use simple placeholder text for image prompts to speed up processing. Images will be generated later during the finalize phase.
 
-1. RELEVANCE OVER AESTHETICS: Images must directly support and enhance your slide's message, not just be decorative.
-   - For business concepts: Use workplace scenarios, professional environments, real business activities
-   - For technical topics: Show actual tools, interfaces, workflows, or realistic work environments
-   - For data/analytics: Use realistic data visualization scenarios, not abstract concepts
-   - For processes: Show people actually performing the process or realistic workflow environments
+IMAGE PROMPT PLACEHOLDERS - Use these simple placeholders:
+- For business/strategy slides: "PLACEHOLDER_BUSINESS_IMAGE"
+- For technology/development slides: "PLACEHOLDER_TECH_IMAGE" 
+- For data/analytics slides: "PLACEHOLDER_DATA_IMAGE"
+- For marketing slides: "PLACEHOLDER_MARKETING_IMAGE"
+- For education/training slides: "PLACEHOLDER_EDUCATION_IMAGE"
+- For general professional slides: "PLACEHOLDER_PROFESSIONAL_IMAGE"
 
-2. AVOID OVERUSED STOCK PHOTO CLICHÉS:
-   - NO: Handshakes, chess pieces, lightbulbs, arrows hitting targets, people pointing at charts
-   - NO: Overly staged business meetings, fake-looking "diverse teams" in conference rooms
-   - NO: Generic "success" imagery (mountains, climbing, finish lines)
-   - YES: Authentic workplace moments, realistic technology use, genuine professional interactions
-
-3. CONTEXT-SPECIFIC IMAGE SELECTION:
-   - Marketing slides: Real marketing campaigns, authentic customer interactions, actual marketing tools in use
-   - Technology slides: Real developers coding, authentic tech environments, actual software interfaces
-   - Finance slides: Real financial professionals at work, authentic trading floors, actual financial data analysis
-   - Education slides: Real learning environments, authentic teaching moments, actual educational technology
-
-4. REALISTIC WORKPLACE SCENES:
-   - Show people actually using the tools/concepts being discussed
-   - Include authentic details: real computer screens, actual work materials, genuine work environments
-   - Avoid posed or overly perfect scenarios; prefer candid, realistic moments
-   - Include diverse but authentic representation without forced staging
-
-5. VISUAL METAPHORS THAT WORK:
-   - Use concrete, relatable metaphors that enhance understanding
-   - Construction/building for development processes, gardens for growth concepts
-   - Transportation for journey/progress concepts, but make them specific and realistic
-   - Avoid abstract or overused metaphors; prefer specific, actionable imagery
+This placeholder approach allows the preview to generate quickly while maintaining the slide structure. The actual detailed image prompts will be generated during the finalize phase when the user is ready to create the final presentation.
 
 
 
@@ -22412,6 +22392,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Visual elements: imagePath (professional avatar/instructor image), logoPath (course branding)
   • Usage: MUST be used as the first slide to welcome learners and set course expectations
   • Content guidelines: Title should be welcoming and engaging; subtitle should outline what learners will achieve
+  • Image placeholder: Use "PLACEHOLDER_EDUCATION_IMAGE" for imagePath
 
 - impact-statements-slide: title, statements[] (array of {{number, description}}), profileImagePath, [pageNumber], [logoNew]
   • Purpose: Showcase key statistics, metrics, or impact data with visual emphasis
@@ -22420,6 +22401,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (avatar reinforcing credibility), logoNew (branding element)
   • Usage: Present compelling data, success rates, performance metrics, or quantifiable outcomes
   • Content guidelines: Numbers should be impactful (percentages, multipliers, large numbers); descriptions should explain real-world meaning
+  • Image placeholder: Use "PLACEHOLDER_PROFESSIONAL_IMAGE" for profileImagePath
 
 - phishing-definition-slide: title, definitions[] (array of strings), profileImagePath, [rightImagePath], [pageNumber], [logoPath]
   • Purpose: Present multiple key definitions, concepts, or educational points in organized list format
@@ -22428,6 +22410,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (instructor/expert avatar), rightImagePath (supporting visual illustration)
   • Usage: Define critical terminology, explain key concepts, list important principles or guidelines
   • Content guidelines: Each definition should be comprehensive (2-3 sentences); use clear, educational language; maintain consistent depth across all definitions
+  • Image placeholders: Use "PLACEHOLDER_EDUCATION_IMAGE" for profileImagePath and rightImagePath
 
 - soft-skills-assessment-slide: title, tips[] (array of {{text, isHighlighted}}), profileImagePath, [logoPath], [logoText], [pageNumber]
   • Purpose: Highlight exactly two critical tips, recommendations, or assessment criteria with different visual emphasis
@@ -22436,6 +22419,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Visual elements: profileImagePath (expert/instructor image), logoPath (branding), logoText (contextual label like "Assessment Guide")
   • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
   • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
+  • Image placeholder: Use "PLACEHOLDER_PROFESSIONAL_IMAGE" for profileImagePath
 
 - work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
   • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
@@ -22444,6 +22428,7 @@ EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
   • Visual elements: imagePath (relevant thematic or conclusion image), logoPath (branding)
   • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
   • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
+  • Image placeholder: Use "PLACEHOLDER_EDUCATION_IMAGE" for imagePath
 
 MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
 - Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
@@ -22896,12 +22881,33 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         # Build source context from payload
         source_context_type, source_context_data = build_source_context(payload)
         
+        # Process image prompts for slides (only for lesson presentations, not video lessons)
+        final_ai_response = payload.aiResponse.strip()
+        if not is_video_lesson:
+            try:
+                # Parse the AI response to process image prompts
+                slides_data = json.loads(final_ai_response)
+                logger.info(f"[LESSON_FINALIZE] Processing image prompts for {len(slides_data.get('slides', []))} slides")
+                
+                # Process slides to replace placeholder image prompts with generated ones
+                processed_slides_data = await process_slide_image_prompts(slides_data)
+                
+                # Convert back to JSON string
+                final_ai_response = json.dumps(processed_slides_data, ensure_ascii=False)
+                logger.info(f"[LESSON_FINALIZE] Successfully processed image prompts")
+                
+            except Exception as e:
+                logger.warning(f"[LESSON_FINALIZE] Failed to process image prompts: {e}")
+                # Continue with original response if processing fails
+        else:
+            logger.info(f"[LESSON_FINALIZE] Skipping image prompt processing for video lesson (not needed)")
+
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=template_id,
             microProductName=project_name,
-            aiResponse=(json.dumps(regenerated_json) if regenerated_json else payload.aiResponse.strip()),
+            aiResponse=(json.dumps(regenerated_json) if regenerated_json else final_ai_response),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
@@ -33628,6 +33634,212 @@ Generate the comprehensive content for "{section['title']}" section:"""
         logger.error(f"Error in content generation for clean titles: {e}")
         # Fallback to original content
         return clean_content
+
+async def generate_image_prompt_from_slide_context(slide_data: Dict[str, Any], template_id: str) -> str:
+    """
+    Generate a detailed image prompt from slide context using OpenAI.
+    This function analyzes the slide content and creates a professional image prompt.
+    """
+    try:
+        client = get_openai_client()
+        
+        # Extract slide information
+        slide_title = slide_data.get('slideTitle', '')
+        slide_props = slide_data.get('props', {})
+        
+        # Build context for prompt generation
+        context_parts = []
+        context_parts.append(f"Slide Title: {slide_title}")
+        
+        # Add template-specific context
+        if template_id in ['bullet-points-right', 'big-image-left', 'big-image-top']:
+            bullets = slide_props.get('bullets', [])
+            if bullets:
+                context_parts.append(f"Key Points: {', '.join(bullets[:3])}")  # First 3 bullets
+        
+        if template_id == 'two-column':
+            left_title = slide_props.get('leftTitle', '')
+            right_title = slide_props.get('rightTitle', '')
+            if left_title and right_title:
+                context_parts.append(f"Comparison: {left_title} vs {right_title}")
+        
+        if template_id == 'process-steps':
+            steps = slide_props.get('steps', [])
+            if steps:
+                context_parts.append(f"Process Steps: {', '.join([step.get('title', '') for step in steps[:3]])}")
+        
+        if template_id == 'big-numbers':
+            steps = slide_props.get('steps', [])
+            if steps:
+                context_parts.append(f"Key Metrics: {', '.join([f\"{step.get('value', '')} {step.get('label', '')}\" for step in steps[:3]])}")
+        
+        # Build the prompt for image generation
+        context_text = '\n'.join(context_parts)
+        
+        prompt = f"""
+You are a professional image prompt generator for business presentations. Based on the slide context below, generate a detailed, professional image prompt that would create an authentic workplace photograph relevant to the slide content.
+
+SLIDE CONTEXT:
+{context_text}
+
+TEMPLATE TYPE: {template_id}
+
+REQUIREMENTS:
+1. Create a professional photograph prompt showing people actively working in authentic environments
+2. Match the professional role and activity to the slide's actual topic
+3. Include specific work processes that relate to the slide content
+4. Use realistic workplace settings with relevant tools, equipment, and materials
+5. Avoid stock photo clichés (handshakes, pointing at charts, lightbulbs, etc.)
+6. Focus on environmental portraits that show both the person and their workspace
+7. Use high-quality professional photography style with natural lighting
+
+EXAMPLES BY CONTENT TYPE:
+- Data Science: "Data scientists analyzing data on multiple monitors, coding machine learning models, presenting findings to team"
+- Marketing: "Marketing professionals analyzing campaign data on screens, reviewing creative assets, planning content calendar"
+- Technology: "Software engineers coding at workstations with multiple monitors showing code editors and terminal windows"
+- Business Strategy: "Business strategists collaborating around conference table with laptops, market analysis documents, and whiteboards"
+- Finance: "Financial analysts examining market data on trading terminals, reviewing financial models on spreadsheets"
+
+Generate a single, detailed image prompt that captures the essence of this slide's content in a professional workplace setting. The prompt should be 2-3 sentences long and very specific about the scene, activities, and environment.
+
+IMAGE PROMPT:
+"""
+        
+        logger.info(f"[IMAGE_PROMPT_GEN] Generating prompt for slide: {slide_title}")
+        logger.info(f"[IMAGE_PROMPT_GEN] Template: {template_id}")
+        logger.info(f"[IMAGE_PROMPT_GEN] Context length: {len(context_text)} chars")
+        
+        response = await client.chat.completions.create(
+            model=LLM_DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a professional image prompt generator for business presentations. Generate detailed, specific prompts for authentic workplace photography."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=300,
+            temperature=0.7
+        )
+        
+        image_prompt = response.choices[0].message.content.strip()
+        logger.info(f"[IMAGE_PROMPT_GEN] Generated prompt: {image_prompt[:100]}...")
+        
+        return image_prompt
+        
+    except Exception as e:
+        logger.error(f"[IMAGE_PROMPT_GEN] Error generating image prompt: {e}", exc_info=True)
+        # Return a fallback prompt based on template type
+        fallback_prompts = {
+            'bullet-points-right': "Professional business meeting with diverse team members collaborating around modern conference table, reviewing documents and discussing strategies on laptops and tablets",
+            'big-image-left': "Professional workplace environment with business professionals engaged in productive work activities using modern technology and equipment",
+            'big-image-top': "Professional business setting with team members working together on important projects using computers and presentation materials",
+            'two-column': "Professional business environment with diverse team members comparing and analyzing different approaches using modern technology and visual aids",
+            'process-steps': "Professional workplace showing team members following systematic processes and workflows using computers, whiteboards, and organizational tools",
+            'big-numbers': "Professional business environment with analysts and executives reviewing performance metrics and key statistics on multiple monitors and dashboards",
+            'four-box-grid': "Professional team meeting with diverse business professionals presenting and discussing key concepts using visual aids and modern presentation technology",
+            'timeline': "Professional business environment with team members planning and organizing projects using timeline tools, calendars, and project management software",
+            'challenges-solutions': "Professional business meeting with diverse team members brainstorming solutions and addressing challenges using whiteboards, computers, and collaborative tools",
+            'metrics-analytics': "Professional data analysis environment with business analysts reviewing performance metrics and analytics dashboards on multiple monitors",
+            'market-share': "Professional business presentation with executives and analysts reviewing market data and competitive analysis using charts, graphs, and business intelligence tools",
+            'table-dark': "Professional business meeting with diverse team members reviewing detailed data and reports using computers, tablets, and presentation materials",
+            'table-light': "Professional business environment with analysts and executives examining structured data and performance reports using modern technology and visual aids",
+            'pie-chart-infographics': "Professional business presentation with diverse team members analyzing data visualizations and infographics using modern display technology and collaborative tools",
+            'pyramid': "Professional business environment with team members presenting hierarchical concepts and organizational structures using visual aids and modern presentation technology"
+        }
+        
+        return fallback_prompts.get(template_id, "Professional business environment with diverse team members collaborating and working on important projects using modern technology and equipment")
+
+async def process_slide_image_prompts(slides_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Process slides data to replace placeholder image prompts with actual generated prompts.
+    This function is called during the finalize phase to generate real image prompts.
+    """
+    try:
+        if not isinstance(slides_data, dict) or 'slides' not in slides_data:
+            logger.warning(f"[SLIDE_IMAGE_PROCESSING] Invalid slides data format")
+            return slides_data
+        
+        slides = slides_data['slides']
+        if not isinstance(slides, list):
+            logger.warning(f"[SLIDE_IMAGE_PROCESSING] Slides is not a list")
+            return slides_data
+        
+        logger.info(f"[SLIDE_IMAGE_PROCESSING] Processing {len(slides)} slides for image prompt generation")
+        
+        processed_slides = []
+        for i, slide in enumerate(slides):
+            if not isinstance(slide, dict):
+                processed_slides.append(slide)
+                continue
+            
+            template_id = slide.get('templateId', '')
+            props = slide.get('props', {})
+            
+            # Check if this slide needs image prompt processing
+            needs_processing = False
+            image_fields = []
+            
+            # Check for image prompt fields based on template
+            if template_id in ['bullet-points-right', 'big-image-left', 'big-image-top']:
+                if 'imagePrompt' in props and props['imagePrompt'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('imagePrompt')
+            
+            elif template_id == 'two-column':
+                if 'leftImagePrompt' in props and props['leftImagePrompt'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('leftImagePrompt')
+                if 'rightImagePrompt' in props and props['rightImagePrompt'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('rightImagePrompt')
+            
+            elif template_id in ['course-overview-slide', 'work-life-balance-slide']:
+                if 'imagePath' in props and props['imagePath'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('imagePath')
+            
+            elif template_id in ['impact-statements-slide', 'soft-skills-assessment-slide']:
+                if 'profileImagePath' in props and props['profileImagePath'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('profileImagePath')
+            
+            elif template_id == 'phishing-definition-slide':
+                if 'profileImagePath' in props and props['profileImagePath'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('profileImagePath')
+                if 'rightImagePath' in props and props['rightImagePath'].startswith('PLACEHOLDER_'):
+                    needs_processing = True
+                    image_fields.append('rightImagePath')
+            
+            if needs_processing:
+                logger.info(f"[SLIDE_IMAGE_PROCESSING] Processing slide {i+1} (template: {template_id})")
+                
+                try:
+                    # Generate image prompt from slide context
+                    generated_prompt = await generate_image_prompt_from_slide_context(slide, template_id)
+                    
+                    # Replace placeholder prompts with generated ones
+                    for field in image_fields:
+                        if field in props:
+                            props[field] = generated_prompt
+                            logger.info(f"[SLIDE_IMAGE_PROCESSING] Replaced {field} with generated prompt")
+                    
+                    # Update the slide with new props
+                    slide['props'] = props
+                    
+                except Exception as e:
+                    logger.error(f"[SLIDE_IMAGE_PROCESSING] Failed to process slide {i+1}: {e}")
+                    # Keep the original slide if processing fails
+            
+            processed_slides.append(slide)
+        
+        # Update the slides data with processed slides
+        slides_data['slides'] = processed_slides
+        logger.info(f"[SLIDE_IMAGE_PROCESSING] Completed processing {len(processed_slides)} slides")
+        
+        return slides_data
+        
+    except Exception as e:
+        logger.error(f"[SLIDE_IMAGE_PROCESSING] Error processing slide image prompts: {e}", exc_info=True)
+        return slides_data
 
 async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
     """
