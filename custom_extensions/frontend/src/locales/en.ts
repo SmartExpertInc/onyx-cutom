@@ -1732,6 +1732,7 @@ export const en = {
     credits: "Credits",
     connectors: "Connectors",
     storage: "Storage",
+    driveStorage: "Drive storage",
     contactSales: "Contact Sales",
     buyNow: "Buy Now",
     packages: {

@@ -1827,6 +1827,7 @@ export const uk = {
     credits: "Кредити",
     connectors: "Конектори",
     storage: "Сховище",
+    driveStorage: "Сховище диска",
     contactSales: "Зв'язатися з відділом продажів",
     buyNow: "Купити зараз",
     packages: {

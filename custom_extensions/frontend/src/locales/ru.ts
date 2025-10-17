@@ -1821,6 +1821,7 @@ export const ru = {
     credits: "Кредиты",
     connectors: "Коннекторы",
     storage: "Хранилище",
+    driveStorage: "Хранилище диска",
     contactSales: "Связаться с отделом продаж",
     buyNow: "Купить сейчас",
     packages: {

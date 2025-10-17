@@ -1846,6 +1846,7 @@ export const es = {
     credits: "Créditos",
     connectors: "Conectores",
     storage: "Almacenamiento",
+    driveStorage: "Almacenamiento de disco",
     contactSales: "Contactar con ventas",
     buyNow: "Comprar ahora",
     packages: {
