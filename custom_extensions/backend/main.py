@@ -13028,17 +13028,25 @@ Return ONLY the JSON object.
 
         # Skip LLM parsing for video products since they already have structured content
         if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
-            # parsed_content_model_instance is already set in the video product case above
-            logger.info(f"Video product created, skipping LLM parsing")
+            # parsed_content_model_instance is already set in the video product case above (line 12625)
+            logger.info(f"Video product created, skipping LLM parsing - using direct JSON metadata")
+            # Skip all LLM parsing - parsed_content_model_instance is already set
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # Skip LLM parsing for lesson plans
+            logger.info("Lesson plan detected - skipping LLM parsing entirely")
+            parsed_content_model_instance = None  # Will not be used
         else:
             # Set detected language if the error instance supports it
             if hasattr(default_error_instance, 'detectedLanguage'):
                 default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
 
-        # Skip LLM parsing for lesson plans
-        if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
-            logger.info("Lesson plan detected - skipping LLM parsing entirely")
-            parsed_content_model_instance = None  # Will not be used
+        # LLM parsing flow (skipped for video products and lesson plans)
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # Already handled above - skip LLM parsing entirely
+            pass
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # Already handled above - skip LLM parsing entirely
+            pass
         elif selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
             # Fast path: Check if aiResponse is already valid JSON with sections (from preview)
             try:
@@ -13184,6 +13192,10 @@ Return ONLY the JSON object.
 
         if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             logger.info("Lesson plan detected - using raw data without parsing")
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            logger.info("Video product detected - using direct JSON metadata without LLM parsing")
+            logger.info(f"Video Product Content Type: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"Video Product Metadata: {json.dumps(parsed_content_model_instance)[:200]}")
         else:    
             logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
             logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()

@@ -2046,9 +2046,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
     avatarPosition: {
       x: 80,        // ✅ Direct CSS padding-left (no scaling - CSS is already in video space 1920×1080)
-      y: 480,       // ✅ MEASURED: Actual rendered position from JavaScript logging (padding 64px + title 386px + gap 30px)
-      width: 784,   // ✅ Direct CSS container width (no scaling)
-      height: 496,  // ✅ Direct CSS container height (no scaling) - Result: 480+496=976px < 1080px ✅
+      y: 551,       // ✅ MEASURED: Actual rendered position (padding 36px + title + gap 17px)
+      width: 749,   // ✅ MEASURED: Container width (100% of 45% parent = 749px)
+      height: 471,  // ✅ MEASURED: Direct CSS container height - Result: 551+471=1022px < 1080px ✅
       backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
     }
   },
