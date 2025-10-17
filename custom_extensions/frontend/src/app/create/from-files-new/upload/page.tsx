@@ -125,7 +125,7 @@ export default function UploadFilesPage() {
 
         {/* Upload area */}
         <div 
-          className={`w-full bg-white rounded-lg border-2 border-dashed p-6 flex flex-col gap-3 min-h-[60px] cursor-pointer transition-colors ${
+          className={`w-full bg-white rounded-lg border-[#E0E0E0] flex flex-col min-h-[60px] cursor-pointer transition-colors ${
             isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
           } ${uploadedFiles.length === 0 ? 'items-center justify-center' : ''}`}
           onDragOver={handleDragOver}
@@ -142,13 +142,16 @@ export default function UploadFilesPage() {
               <div
                 key={file.id}
                 className={`flex items-center justify-between px-4 py-3 ${
-                  index < uploadedFiles.length - 1 ? 'border-b border-gray-300' : ''
+                  index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
                 }`}
               >
                 <span className="text-gray-700 font-medium">
-                  {file.name}<span className="text-gray-500">{file.extension}</span>
+                  {file.name}
                 </span>
-                <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500 font-medium">{file.extension}</span>
+                  <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+                </div>
               </div>
             ))
           )}
