@@ -249,23 +249,26 @@ export default function CreateFromFilesNewPage() {
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ 
             backdropFilter: 'blur(14.699999809265137px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
           }}
           onClick={handleCancel}
         >
           <div 
-            className="bg-white rounded-lg p-6 w-full max-w-md"
+            className="rounded-lg p-6 w-full max-w-md"
             style={{
+              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
               boxShadow: '4px 4px 8px 0px #0000000D',
+              border: '1px solid #E0E0E0',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Title */}
-            <h2 className="text-sm font-semibold text-gray-900 mb-2">
+            <h2 className="text-sm font-semibold text-gray-900 mb-1">
               Import from URL
             </h2>
 
             {/* Description */}
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-[#71717A] mb-6">
               This will extract the text from the webpage you enter.
             </p>
 
@@ -273,7 +276,7 @@ export default function CreateFromFilesNewPage() {
             <div className="space-y-4 mb-4">
               {urls.map((url, index) => (
                 <div key={index}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-semibolld text-[#09090B] mb-2">
                     URL
                   </label>
                   <input
@@ -281,7 +284,10 @@ export default function CreateFromFilesNewPage() {
                     value={url}
                     onChange={(e) => handleUrlChange(index, e.target.value)}
                     placeholder="https://example.com/"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-[#5D5D7980]"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                    }}
                   />
                 </div>
               ))}
@@ -290,9 +296,12 @@ export default function CreateFromFilesNewPage() {
             {/* Add another URL button */}
             <button
               onClick={handleAddUrl}
-              className="text-sm text-gray-700 mb-6"
+              className="text-xs text-[#498FFF] mb-6 flex items-center gap-1"
             >
-              + Add another URL
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M6.99961 2.09961C7.38621 2.09961 7.69961 2.41301 7.69961 2.79961V6.29961H11.1996C11.5862 6.29961 11.8996 6.61301 11.8996 6.99961C11.8996 7.38621 11.5862 7.69961 11.1996 7.69961H7.69961V11.1996C7.69961 11.5862 7.38621 11.8996 6.99961 11.8996C6.61301 11.8996 6.29961 11.5862 6.29961 11.1996V7.69961H2.79961C2.41301 7.69961 2.09961 7.38621 2.09961 6.99961C2.09961 6.61301 2.41301 6.29961 2.79961 6.29961L6.29961 6.29961V2.79961C6.29961 2.41301 6.61301 2.09961 6.99961 2.09961Z" fill="#498FFF"/>
+              </svg>
+              Add another URL
             </button>
 
             {/* Action buttons */}
