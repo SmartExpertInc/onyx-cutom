@@ -116,11 +116,11 @@
       ],
       "props": {
         "title": "Content Marketing Pyramid",
-        "levels": [
-          { "text": "Thought Leadership", "description": "Industry insights, original research, executive interviews, and strategic whitepapers that establish brand authority and attract high-value prospects." },
-          { "text": "Solution-Focused Content", "description": "Product demos, case studies, comparison guides, and implementation tutorials that address specific customer pain points and drive conversions." },
-          { "text": "Educational Resources", "description": "How-to guides, best practice articles, webinars, and tool recommendations that provide value while building brand trust and awareness." },
-          { "text": "Foundational Content", "description": "Blog posts, social media updates, newsletters, and basic educational content that supports SEO goals and maintains consistent brand presence." }
+        "steps": [
+          { "heading": "Thought Leadership", "number": "01" },
+          { "heading": "Solution-Focused Content", "number": "02" },
+          { "heading": "Educational Resources", "number": "03" },
+          { "heading": "Foundational Content", "number": "04" }
         ]
       }
     },
@@ -301,9 +301,9 @@
       "props": {
         "title": "Mobile Marketing Excellence Framework",
         "leftTitle": "Mobile Web Optimization",
-        "leftContent": "Responsive design ensures seamless experiences across devices. Mobile-specific landing pages maximize conversions with simplified forms.",
+        "leftContent": "Responsive design with mobile-specific landing pages and simplified forms maximizes conversions on smartphones.",
         "rightTitle": "App Marketing Strategy",
-        "rightContent": "App Store Optimization drives organic downloads through keyword research. In-app engagement campaigns boost retention and lifetime value."
+        "rightContent": "App Store Optimization combined with in-app engagement campaigns drives downloads and boosts retention."
       }
     },
     {

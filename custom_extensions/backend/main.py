@@ -2033,6 +2033,13 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 logger.info(f"Final Props: {normalized_props}")
                 logger.info(f"=== END FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
                     
+            # Fix process-steps template props
+            elif template_id == 'process-steps':
+                # Remove subtitle as process-steps template doesn't use it
+                if 'subtitle' in normalized_props:
+                    normalized_props.pop('subtitle')
+                    logger.info(f"Removed subtitle from process-steps slide {slide_index + 1}")
+                    
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
                 boxes = normalized_props.get('boxes', [])
@@ -22128,36 +22135,36 @@ Always specify: realistic workplace, professional attire, authentic tools/equipm
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
-  • Usage: opening/section title or simple introduction; heading + short subtitle.
+  • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
 - big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: narrative with large image on the left; text on the right.
+  • Usage: DO NOT USE except for first slide. Use other templates instead.
 - big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
   • Usage: hero image across top; explanatory text below.
 - bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
   • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
-  • Usage: compare/contrast or split content; balanced two columns.
+  • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
 - process-steps: title, steps[]
-  • Usage: sequential workflow; 3–5 labeled steps in a row.
+  • Usage: sequential workflow; 3–5 labeled steps in a row. The subtitle prop is NOT used; only include title and steps[].
 - four-box-grid: title, boxes[] (heading,text or title,content)
   • Usage: 2×2 grid of highlights; four concise boxes.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
 - big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
   • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. Descriptions should be 2–3 concise sentences each in examples.
-- pyramid: title, [subtitle], steps[] (heading,description)
-  • Usage: hierarchical structure; 3-level pyramid visual.
+- pyramid: title, steps[] (EXACTLY: heading,number - NOT levels, NOT description)
+  • Usage: hierarchical structure; 3-5 level pyramid visual. Each step must have "heading" (the text) and "number" (like "01", "02", etc). Do NOT include "levels" or "description" fields.
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
   • Usage: problem/solution mapping; two facing columns. Each challenge/solution should be 5-6 words maximum for clean display.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
+  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use ONLY when you have specific, meaningful KPIs, measurements, or operational metrics with concrete numbers (percentages, counts, times, etc). Each metric MUST have context explaining what the number means. DO NOT use for generic lists. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
 - table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
   • Usage: dense tabular data (dark theme); optional checkmarks.
 - table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme). The first cell of each row is the row label. Therefore each row must have length headers.length + 1.
+  • Usage: dense tabular data (light theme). Each row must have EXACTLY the same number of elements as headers[] (not headers.length + 1). Example: if headers has 3 items, each row must also have exactly 3 items.
 - pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown; pie with segment list and monthly notes.
 

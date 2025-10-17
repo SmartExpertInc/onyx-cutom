@@ -317,9 +317,9 @@
       "props": {
         "title": "Building High-Performance DevOps Culture",
         "leftTitle": "Cultural Transformation",
-        "leftContent": "Break down silos through shared goals and cross-training. Foster automation-first mindset for strategic focus.",
+        "leftContent": "Break down organizational silos through shared goals, cross-training, and automation-first mindset.",
         "rightTitle": "Team Structure & Practices",
-        "rightContent": "Create cross-functional teams with embedded operations expertise. Establish clear on-call rotations with proper compensation."
+        "rightContent": "Build cross-functional teams with embedded ops expertise and establish clear on-call rotations."
       }
     },
     {
@@ -335,12 +335,12 @@
       ],
       "props": {
         "title": "Application Scaling Hierarchy",
-        "levels": [
-          { "text": "Global Distribution", "description": "Multi-region deployments with global load balancing, edge computing, and content delivery networks for worldwide performance optimization." },
-          { "text": "Horizontal Scaling", "description": "Auto-scaling groups, container orchestration, and microservices architecture for handling increased load through additional instances." },
-          { "text": "Vertical Scaling", "description": "Resource optimization through CPU and memory upgrades, database performance tuning, and application-level optimizations for existing infrastructure." },
-          { "text": "Caching & CDN", "description": "Multi-layer caching strategies, content delivery networks, and database read replicas to reduce load on primary systems." },
-          { "text": "Code Optimization", "description": "Algorithm improvements, database query optimization, and efficient resource utilization as the foundation for all scaling efforts." }
+        "steps": [
+          { "heading": "Global Distribution", "number": "01" },
+          { "heading": "Horizontal Scaling", "number": "02" },
+          { "heading": "Vertical Scaling", "number": "03" },
+          { "heading": "Caching & CDN", "number": "04" },
+          { "heading": "Code Optimization", "number": "05" }
         ]
       }
     },

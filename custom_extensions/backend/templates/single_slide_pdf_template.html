@@ -1207,7 +1207,7 @@
             padding: 40px;
             display: flex;
             flex-direction: column;
-            font-family: 'Georgia, serif';
+            font-family: Georgia, serif;
             min-height: 600px;
             position: relative;
             overflow: hidden;
@@ -1216,7 +1216,7 @@
         .challenges-solutions .slide-title {
             color: #000000;
             font-size: 2.5rem;
-            font-family: 'Georgia, serif';
+            font-family: Georgia, serif;
             margin-bottom: 10px;
             text-align: center;
             word-wrap: break-word;
@@ -1227,7 +1227,7 @@
         .challenges-solutions .slide-subtitle {
             color: #000000;
             font-size: 1.1rem;
-            font-family: 'Arial, sans-serif';
+            font-family: Arial, sans-serif;
             margin-bottom: 40px;
             text-align: center;
             word-wrap: break-word;
@@ -1252,25 +1252,6 @@
             align-items: center;
             justify-content: center;
             position: relative;
-        }
-        
-        .challenges-solutions .challenge-text {
-            position: absolute;
-            left: 140px;
-            font-size: 20px;
-            color: #000000;
-            font-family: 'Arial, sans-serif';
-            font-weight: normal;
-        }
-        
-        .challenges-solutions .solution-text {
-            position: absolute;
-            right: 140px;
-            font-size: 20px;
-            color: #000000;
-            font-family: 'Arial, sans-serif';
-            font-weight: normal;
-            text-align: right;
         }
         
         .callout-box {
@@ -2498,11 +2479,10 @@
                                     width: 100%;
                                     height: 100%;
                                     object-fit: cover;
-                                    border-radius: 8px;
                                  "
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                         {% else %}
-                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
+                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; background-color: #f8f9fa;">
                                 🖼️ Add image
                             </div>
                         {% endif %}
@@ -2512,14 +2492,7 @@
                     <div class="right-section">
                         <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
                         
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
+                        <div class="bullets-container">
                             <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
@@ -2534,7 +2507,7 @@
                                     {% for i in range(3) %}
                                         <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
                                             <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
+                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
                                         </li>
                                     {% endfor %}
                                 {% endif %}
@@ -2550,14 +2523,7 @@
                     <div class="left-section">
                         <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
                         
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
+                        <div class="bullets-container">
                             <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
@@ -2572,7 +2538,7 @@
                                     {% for i in range(3) %}
                                         <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
                                             <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
+                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
                                         </li>
                                     {% endfor %}
                                 {% endif %}
@@ -2797,46 +2763,39 @@
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="timeline">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
+                    <h1 class="slide-title">{{ slide.props.title or 'Timeline' }}</h1>
+                    
                     <div class="timeline-container">
+                        <!-- Vertical Line -->
                         <div class="timeline-line"></div>
                         
                         <!-- Item 1 - Left side -->
-                        <div class="timeline-circle positioned-element" style="top: 5%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                        <div class="timeline-circle" style="top: 5%;"></div>
+                        <div class="timeline-text-block" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
                             <div class="step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
-                                        </div>
+                        </div>
 
                         <!-- Item 2 - Right side -->
-                        <div class="timeline-circle positioned-element" style="top: 31%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                        <div class="timeline-circle" style="top: 31%;"></div>
+                        <div class="timeline-text-block" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
                             <div class="step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
-                                        </div>
+                        </div>
 
                         <!-- Item 3 - Left side -->
-                        <div class="timeline-circle positioned-element" style="top: 56%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
+                        <div class="timeline-circle" style="top: 56%;"></div>
+                        <div class="timeline-text-block" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
                             <div class="step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
-                                    </div>
+                        </div>
 
                         <!-- Item 4 - Right side -->
-                        <div class="timeline-circle positioned-element" style="top: 81%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
+                        <div class="timeline-circle" style="top: 81%;"></div>
+                        <div class="timeline-text-block" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
                             <div class="step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
-                                </div>
+                        </div>
                     </div>
                 </div>
                 
