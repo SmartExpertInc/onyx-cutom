@@ -221,11 +221,11 @@ async def stream_openai_response(prompt: str, model: str = None):
         # Read the full ContentBuilder.ai assistant instructions
         assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
         if SYSTEM_PROMPT_CACHE is None:
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                SYSTEM_PROMPT_CACHE = f.read()
-        except FileNotFoundError:
-            SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+            try:
+                with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                    SYSTEM_PROMPT_CACHE = f.read()
+            except FileNotFoundError:
+                SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
