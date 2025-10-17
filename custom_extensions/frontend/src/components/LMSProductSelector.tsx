@@ -45,6 +45,24 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  // Log the LMS base URL on page mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const devFlagResp = await fetch('/api/custom-projects-backend/features/check/is_dev_lms', { credentials: 'same-origin' });
+        const usFlagResp = await fetch('/api/custom-projects-backend/features/check/is_us_lms', { credentials: 'same-origin' });
+        const devFlag = devFlagResp.ok ? await devFlagResp.json() : { is_enabled: true };
+        const usFlag = usFlagResp.ok ? await usFlagResp.json() : { is_enabled: true };
+        const isDev = !!devFlag.is_enabled;
+        const isUs = !!usFlag.is_enabled;
+        const baseUrl = isDev ? 'https://dev.smartexpert.net' : (isUs ? 'https://app.smartexpert.io' : 'https://app.smartexpert.net');
+        console.log('🔗 LMS export base URL:', baseUrl);
+      } catch (e) {
+        console.log('🔗 LMS export base URL (default due to error): https://dev.smartexpert.net');
+      }
+    })();
+  }, []);
+
   // Fetch products
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -213,16 +231,15 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         {/* Search Controls with Export Button */}
-        <div className="flex items-center gap-4 p-4">
+        <div className="flex items-center gap-4 w-full">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 z-10" />
             <Input
-              variant="shadow"
               type="text"
               placeholder="Search course outlines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10"
+              className="w-full pl-10 shadow-sm"
             />
           </div>
 
@@ -241,7 +258,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
           </Button>
 
-          <LMSExportButton selectedProducts={selectedProducts} />
+          <LMSExportButton selectedProducts={selectedProducts} products={products} />
         </div>
 
         {/* Subtitle on the left */}

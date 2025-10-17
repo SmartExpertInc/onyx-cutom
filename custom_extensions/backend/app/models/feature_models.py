@@ -39,4 +39,8 @@ class BulkFeatureToggleRequest(BaseModel):
 class FeatureToggleRequest(BaseModel):
     user_id: str
     feature_name: str
-    is_enabled: bool 
+    is_enabled: bool
+
+class UserTypeAssignmentRequest(BaseModel):
+    user_ids: List[str]
+    user_type: str 

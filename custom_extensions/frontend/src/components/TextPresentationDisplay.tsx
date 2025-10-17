@@ -9,7 +9,7 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -738,6 +738,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   const [showBasicActions, setShowBasicActions] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
+  const [isBulletPickerOpen, setIsBulletPickerOpen] = useState(false);
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -793,7 +794,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let calculatedMt = ''; let calculatedMb = ''; let calculatedPt = '';
       if (level === 1) { calculatedMb = 'mb-2'; } 
-      else if (level === 2) { calculatedMb = 'mb-3'; calculatedPt = 'pt-4'; } 
+      else if (level === 2) { calculatedMb = 'mb-3'; calculatedPt = ''; } 
       else if (level === 3) { calculatedMb = 'mb-1.5'; calculatedMt = 'mt-2.5'; } 
       else if (level === 4) { calculatedMb = 'mb-1'; calculatedMt = 'mt-2'; } 
       else { calculatedMb = 'mb-1.5'; } 
@@ -833,11 +834,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               onDragEnd();
             }
           }}
-          className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'} ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+          className={`w-full group relative mt-0 ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -871,7 +872,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               fontSize: fontSize || undefined
             }}
           >
-            {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
+            {IconComponent && <IconComponent className={`mr-1.5 shrink-0 text-[#FF1414]`} />}
             {isEditing && onTextChange ? (
               <input 
                 type="text" 
@@ -935,7 +936,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1001,6 +1002,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
 
+      // Helpers for list item manipulation
+      const addItemAt = (insertIndex: number) => {
+        if (onTextChange === undefined || contentBlockIndex === undefined) return;
+        const next = [...items];
+        next.splice(insertIndex, 0, '');
+        onTextChange(['contentBlocks', contentBlockIndex, 'items'], next);
+      };
+      const removeItemAt = (removeIndex: number) => {
+        if (onTextChange === undefined || contentBlockIndex === undefined) return;
+        const next = [...items];
+        next.splice(removeIndex, 1);
+        onTextChange(['contentBlocks', contentBlockIndex, 'items'], next);
+      };
+
       return (
         <div 
           draggable={isEditing}
@@ -1033,17 +1048,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
-            <button
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
+              <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Move up"
-            >
+              >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                 </svg>
-            </button>
+              </button>
               <button
                 onClick={() => onMoveBlockDown(contentBlockIndex)}
                 disabled={isLastBlock}
@@ -1054,6 +1069,34 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+            </div>
+          )}
+
+          {/* List icon picker for bullet lists */}
+          {isEditing && !!onTextChange && !isNumbered && (
+            <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
+            style={{ left: isNumbered ? '-10px' : '5px' }}>
+              <div className="relative">
+                <button 
+                  className="p-1 rounded hover:bg-gray-200" 
+                  onClick={() => setIsBulletPickerOpen(v => !v)} 
+                  title="Choose bullet icon"
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+                {isBulletPickerOpen && (
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                      <span className="text-xs font-medium">No Icon</span>
+                    </button>
+                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
           
@@ -1070,17 +1113,33 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-center gap-3">
+                  <li key={index} className="flex items-start gap-3 group/listitem relative">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                            className={`${editingInputClass} w-full text-xs`}
-                          />
+                          <div className="relative z-10">
+                            <input
+                              type="text"
+                              value={item}
+                              onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                              className={`${editingInputClass} w-full text-xs`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addItemAt(index + 1);
+                                }
+                              }}
+                            />
+                            <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                                <Plus className="w-3.5 h-3.5 text-gray-900" />
+                              </button>
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                              </button>
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-black text-xs leading-snug">{styledItemText}</span>
                         )
@@ -1102,6 +1161,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               ))}
                           </div>
                       ) : (
+                        <div className="flex flex-col">
                           <RenderBlock 
                               block={item as AnyContentBlock}
                               depth={(depth || 0) + 1}
@@ -1113,46 +1173,49 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               suppressRecommendationStripe={hasRecommendation}
                               documentContent={documentContent}
                           />
+                        </div>
                       )}
                     </div>
                   </li>
                 );
               }
-              
-              if (isEditing && onTextChange && itemIsString) {
-                return (
-                  <li key={index} className="flex items-center">
-                    {BulletIconToRender && !isNumbered && (
-                      <div className="flex-shrink-0 mr-1.5 flex items-center">
-                        <BulletIconToRender />
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={item}
-                      onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                      className={`${editingInputClass} w-full`}
-                    />
-                  </li>
-                );
-              }
 
-              // Remove all emoji bullet logic and always use BulletIconToRender
-              const nestedIndentation = depth > 0 ? 'ml-6' : '';
-
+              // Bullet list items - consistent with numbered list structure
               return (
-                <li
-                  key={index}
-                  className={`flex items-center text-black text-xs leading-tight ${nestedIndentation}`}
-                >
-                  {!isNumbered && BulletIconToRender && (
-                    <div className="flex-shrink-0 mr-1.5 flex items-center">
+                <li key={index} className="flex items-start group/listitem relative">
+                  {BulletIconToRender && !isNumbered && (
+                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
                       <BulletIconToRender />
                     </div>
                   )}
                   <div className="flex-grow">
                     {itemIsString ? (
-                        <span className={isNumbered ? 'ml-1' : ''}>{styledItemText}</span>
+                      isEditing && onTextChange ? (
+                        <div className="relative z-10">
+                          <input
+                            type="text"
+                            value={item}
+                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                            className={`${editingInputClass} w-full text-xs`}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addItemAt(index + 1);
+                              }
+                            }}
+                          />
+                          <div className="absolute -left-8 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                              <Plus className="w-3.5 h-3.5 text-gray-900" />
+                            </button>
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                      )
                     ) : Array.isArray(item) ? (
                         <div className="flex flex-col">
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
@@ -1187,6 +1250,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </li>
               );
             })}
+            
+
           </ListTag>
         </div>
       );
@@ -1233,7 +1298,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1470,7 +1535,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1632,7 +1697,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1786,8 +1851,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
           {/* Arrow buttons for reordering */}
-          {/* {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1809,7 +1874,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </svg>
               </button>
             </div>
-          )} */}
+          )}
           
           <div 
             draggable={isEditing}
@@ -2333,10 +2398,94 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
+  // Section helpers
+  const addMajorSection = useCallback(() => {
+    if (!dataToDisplay || !onTextChange) return;
+    const contentBlocks = [...(dataToDisplay.contentBlocks || [])];
+    const newHeadline: HeadlineBlock = { type: 'headline', level: 2, text: 'New Section', iconName: 'star', isImportant: false };
+    const newParagraph: ParagraphBlock = { type: 'paragraph', text: '' };
+    const updated = [...contentBlocks, newHeadline, newParagraph];
+    onTextChange(['contentBlocks'], updated);
+  }, [dataToDisplay, onTextChange]);
+
+  const findMajorSectionBounds = (headlineIndex: number) => {
+    const blocks = dataToDisplay?.contentBlocks || [];
+    let end = blocks.length;
+    for (let j = headlineIndex + 1; j < blocks.length; j++) {
+      const b = blocks[j];
+      if (b.type === 'headline' && (b as HeadlineBlock).level === 2) { end = j; break; }
+    }
+    return { start: headlineIndex, end };
+  };
+
+  const removeMajorSection = useCallback((headlineIndex: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const { start, end } = findMajorSectionBounds(headlineIndex);
+    const updated = [...blocks.slice(0, start), ...blocks.slice(end)];
+    onTextChange(['contentBlocks'], updated);
+  }, [dataToDisplay, onTextChange]);
+
+  const addMiniSectionAtEndOfMajor = useCallback((majorHeadlineIndex: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const { end } = findMajorSectionBounds(majorHeadlineIndex);
+    const newMiniHeadline: HeadlineBlock = { type: 'headline', level: 3, text: 'New Subsection', isImportant: true } as HeadlineBlock;
+    const newMiniContent: ParagraphBlock = { type: 'paragraph', text: '' };
+    blocks.splice(end, 0, newMiniHeadline, newMiniContent);
+    onTextChange(['contentBlocks'], blocks);
+  }, [dataToDisplay, onTextChange]);
+
+  const removeMiniSection = useCallback((miniHeadlineIndex: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const toRemoveStart = miniHeadlineIndex;
+    let toRemoveEnd = Math.min(blocks.length, miniHeadlineIndex + 1);
+    if (miniHeadlineIndex + 1 < blocks.length) {
+      const next = blocks[miniHeadlineIndex + 1];
+      if (next.type === 'bullet_list' || next.type === 'numbered_list' || next.type === 'paragraph' || next.type === 'alert') {
+        toRemoveEnd = miniHeadlineIndex + 2;
+      }
+    }
+    const updated = [...blocks.slice(0, toRemoveStart), ...blocks.slice(toRemoveEnd)];
+    onTextChange(['contentBlocks'], updated);
+  }, [dataToDisplay, onTextChange]);
+
+  const insertBulletListAfter = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const newList: BulletListBlock = { type: 'bullet_list', items: [''] };
+    blocks.splice(index + 1, 0, newList);
+    onTextChange(['contentBlocks'], blocks);
+  }, [dataToDisplay, onTextChange]);
+
+  const insertNumberedListAfter = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const newList: NumberedListBlock = { type: 'numbered_list', items: [''] };
+    blocks.splice(index + 1, 0, newList);
+    onTextChange(['contentBlocks'], blocks);
+  }, [dataToDisplay, onTextChange]);
+
+  const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
+  const [fabOpen, setFabOpen] = useState(false);
+  const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
+    if (!onTextChange) return;
+    onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
+    setIconPickerHeadlineIndex(null);
+  }, [onTextChange]);
+
+  const removeBlockAtIndex = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    if (index < 0 || index >= blocks.length) return;
+    const updated = [...blocks.slice(0, index), ...blocks.slice(index + 1)];
+    onTextChange(['contentBlocks'], updated);
+  }, [dataToDisplay, onTextChange]);
+
   return (
-    <div className="min-h-screen bg-white p-4">
-        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-          <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
+    <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+      <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
@@ -2371,27 +2520,82 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <section className="mb-4 p-3 rounded-md text-left">
+                    <section className={`mb-4 p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {!item._skipRenderHeadline && (
-                        <RenderBlock
-                          block={item.headline}
-                          basePath={['contentBlocks', originalHeadlineIndex]}
-                          isEditing={isEditing}
-                          onTextChange={onTextChange}
-                          contentBlockIndex={originalHeadlineIndex}
-                          onMoveBlockUp={handleMoveBlockUp}
-                          onMoveBlockDown={handleMoveBlockDown}
-                          isFirstBlock={originalHeadlineIndex === 0}
-                          isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                          onDragStart={handleDragStart}
-                          onDragOver={handleDragOver}
-                          onDragLeave={handleDragLeave}
-                          onDrop={handleDrop}
-                          onDragEnd={handleDragEnd}
-                          isDraggedOver={dragOverIndex === originalHeadlineIndex}
-                          documentContent={documentContent}
-                        />
-                      )}
+                        <div className="relative group/section">
+                           <RenderBlock
+                             block={item.headline}
+                             basePath={['contentBlocks', originalHeadlineIndex]}
+                             isEditing={isEditing}
+                             onTextChange={onTextChange}
+                             contentBlockIndex={originalHeadlineIndex}
+                             onMoveBlockUp={handleMoveBlockUp}
+                             onMoveBlockDown={handleMoveBlockDown}
+                             isFirstBlock={originalHeadlineIndex === 0}
+                             isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                             onDragStart={handleDragStart}
+                             onDragOver={handleDragOver}
+                             onDragLeave={handleDragLeave}
+                             onDrop={handleDrop}
+                             onDragEnd={handleDragEnd}
+                             isDraggedOver={dragOverIndex === originalHeadlineIndex}
+                             documentContent={documentContent}
+                           />
+                           {isEditing && (
+                             <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
+                               <button
+                                 className="p-1 rounded hover:bg-gray-200"
+                                 onClick={() => addMiniSectionAtEndOfMajor(originalHeadlineIndex)}
+                                 title="Add Subsection"
+                               >
+                                 <Plus className="w-4 h-4" />
+                               </button>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-200"
+                                 onClick={() => insertBulletListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
+                                 title="Insert Bulleted List"
+                               >
+                                 <List className="w-4 h-4" />
+                               </button>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-200"
+                                 onClick={() => insertNumberedListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
+                                 title="Insert Numbered List"
+                               >
+                                 <ListOrdered className="w-4 h-4" />
+                               </button>
+                               <div className="relative">
+                                 <button
+                                   className="p-1 rounded hover:bg-gray-200"
+                                   onClick={() => setIconPickerHeadlineIndex(iconPickerHeadlineIndex === originalHeadlineIndex ? null : originalHeadlineIndex)}
+                                   title="Choose Icon"
+                                 >
+                                   <StarIcon className="w-4 h-4" />
+                                 </button>
+                                 {iconPickerHeadlineIndex === originalHeadlineIndex && (
+                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                                     <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => setHeadlineIcon(originalHeadlineIndex, null)} title="No icon">
+                                       <span className="text-xs font-medium">No Icon</span>
+                                     </button>
+                                     {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                                       <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
+                                         {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                                       </button>
+                                     ))}
+                                   </div>
+                                 )}
+                               </div>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-200 text-red-600"
+                                 onClick={() => removeMajorSection(originalHeadlineIndex)}
+                                 title="Delete Section"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                             </div>
+                           )}
+                         </div>
+                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
                         {item.items.map((subItem, subIndex) => {
                           const isLastSubItem = subIndex === item.items.length - 1;
@@ -2399,7 +2603,23 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
                             return (
-                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#FF1414]'} text-left shadow-sm rounded-sm relative group/minisection`}>
+                                {isEditing && (
+                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
+                                      <List className="w-4 h-4" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
+                                      <ListOrdered className="w-4 h-4" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => removeBlockAtIndex(originalMiniHeadlineIndex)} title="Delete This Heading Only">
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-200 text-red-600" onClick={() => removeMiniSection(originalMiniHeadlineIndex)} title="Delete Subsection">
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                )}
                                 <RenderBlock
                                   block={subItem.headline}
                                   isMiniSectionHeadline={true}
@@ -2443,26 +2663,36 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             );
                           } else { // It's an AnyContentBlock
                             const originalSubIndex = findOriginalIndex(subItem);
-                            return <RenderBlock
-                              key={subIndex}
-                              block={subItem}
-                              isLastInBox={isLastSubItem}
-                              basePath={['contentBlocks', originalSubIndex]}
-                              isEditing={isEditing}
-                              onTextChange={onTextChange}
-                              contentBlockIndex={originalSubIndex}
-                              onMoveBlockUp={handleMoveBlockUp}
-                              onMoveBlockDown={handleMoveBlockDown}
-                              isFirstBlock={originalSubIndex === 0}
-                              isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                              onDragStart={handleDragStart}
-                              onDragOver={handleDragOver}
-                              onDragLeave={handleDragLeave}
-                              onDrop={handleDrop}
-                              onDragEnd={handleDragEnd}
-                              isDraggedOver={dragOverIndex === originalSubIndex}
-                              documentContent={documentContent}
-                            />;
+                            return (
+                              <div key={subIndex} className="relative group/block">
+                                <RenderBlock
+                                  block={subItem}
+                                  isLastInBox={isLastSubItem}
+                                  basePath={['contentBlocks', originalSubIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                  contentBlockIndex={originalSubIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalSubIndex === 0}
+                                  isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalSubIndex}
+                                  documentContent={documentContent}
+                                />
+                                {isEditing && (
+                                  <div className="absolute -bottom-3 -right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
+                                    <button className="p-1 rounded bg-white/90 border border-gray-200 hover:bg-gray-100 shadow-sm" onClick={() => removeBlockAtIndex(originalSubIndex)} title="Delete This Block">
+                                      <Trash2 className="w-4 h-4 text-red-600" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
                           }
                         })}
                       </div>
@@ -2548,19 +2778,33 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             })}
           </main>
         </div>
-      </div>
       
-      {/* Floating Add Image Button - Only show in editing mode */}
-      {isEditing && onTextChange && (
-        <button
-          onClick={() => setShowImageUpload(true)}
-          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
-          title="Add Image"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+      {/* Floating add menu: one big plus -> expands into image and section buttons */}
+      {isEditing && !!onTextChange && (
+        <>
+          <button
+            onClick={() => setFabOpen(v => !v)}
+            className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            title="Add"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+          {/* Keep mini-FABs mounted to allow smooth appear/disappear animations */}
+          <button
+            onClick={() => { setFabOpen(false); setShowImageUpload(true); }}
+            className={`fixed bottom-24 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Image"
+          >
+            <ImageIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            className={`fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-75' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Section"
+          >
+            <TextIcon className="w-5 h-5" />
+          </button>
+        </>
       )}
       
       {/* Image Upload Modal */}

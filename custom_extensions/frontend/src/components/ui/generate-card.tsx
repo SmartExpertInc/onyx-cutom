@@ -16,18 +16,18 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-20 h-16 xs:w-22 xs:h-18 sm:w-28 sm:h-20 md:w-30 md:h-20 lg:w-35 lg:h-22 xl:w-38 xl:h-30",
+          "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
+          "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
           "hover:scale-105",
           className
         )}
         style={{
-          backgroundColor: 'white',
-          borderColor: active ? '#C5CAD1' : '#e2e8f0',
-          background: `linear-gradient(to top right, white, white, ${gradientTo})`,
-          borderWidth: '1px',
+          backgroundColor: active ? 'white' : '#F2F9FC',
+          background: active 
+            ? `white`
+            : `#F2F9FC`,
           boxShadow: active 
-            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
+            ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}
         onMouseEnter={(e) => {
@@ -43,24 +43,37 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         onClick={onClick}
         {...props}
       >
-        <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
+        <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
-              <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-13 xl:h-13 flex items-center justify-center">
+              <div 
+                className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
+                style={{
+                  backgroundColor: active ? '#0646D3' : '#ADE9FF',
+                  borderRadius: '50%',
+                  aspectRatio: '1/1',
+                  '--icon-color': active ? 'white' : 'black',
+                  color: active ? 'white' : 'black'
+                } as React.CSSProperties}
+              >
                 <Icon 
-                  size={42}
-                  className="xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16"
+                  size={20}
+                  className={cn(
+                    "w-5 h-5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7",
+                    active ? "text-white" : "text-black"
+                  )}
                   style={{
-                    color: active ? '#3b82f6' : '#4b5563',
-                    fontWeight: 'bold',
-                    strokeWidth: active ? 2.5 : 2
+                    color: active ? 'white' : 'black',
+                    fill: active ? 'white' : 'black',
+                    stroke: active ? 'white' : 'black',
+                    '--tw-text-opacity': '1',
                   }}
                 />
               </div>
             )}
             <span 
-              className="text-[10px] xs:text-xs sm:text-sm leading-tight text-center px-1"
+              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
               style={{
-                color: '#4A5565'
+                color: active ? '#6B6B6D' : '#7C8082'
               }}
             >
               {label}

@@ -53,7 +53,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [quality, setQuality] = useState<'standard' | 'hd'>('standard');
-  const [style, setStyle] = useState<'vivid' | 'natural'>('vivid');
+  const [style, setStyle] = useState<'vivid' | 'natural'>('natural');
 
   // Helper function to enhance prompt with theme colors
   const enhancePromptWithTheme = (basePrompt: string): string => {
@@ -207,7 +207,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
         height,
         quality,
         style,
-        model: 'dall-e-3'
+        model: 'gemini-2.5-flash-image-preview'
       };
 
       log('AIImageGenerationModal', 'generateImage_apiCall', { 

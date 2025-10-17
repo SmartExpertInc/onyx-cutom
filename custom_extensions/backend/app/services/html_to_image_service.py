@@ -25,7 +25,16 @@ class HTMLToImageService:
     def _init_conversion_method(self):
         """Initialize the best available conversion method."""
         
-        # Method 1: Try html2image (Python library, uses browser but more stable)
+        # Method 1: Try Playwright (most reliable for HTML to PNG)
+        try:
+            from playwright.async_api import async_playwright
+            self.method = "playwright"
+            logger.info("Using Playwright for HTML to PNG conversion (most reliable)")
+            return
+        except ImportError:
+            pass
+        
+        # Method 2: Try html2image (Python library, uses browser but more stable)
         try:
             from html2image import Html2Image
             self.method = "html2image"
@@ -34,7 +43,7 @@ class HTMLToImageService:
         except ImportError:
             pass
         
-        # Method 2: Try imgkit (wkhtmltoimage Python wrapper - may not work without wkhtmltoimage)
+        # Method 3: Try imgkit (wkhtmltoimage Python wrapper - may not work without wkhtmltoimage)
         try:
             import imgkit
             # Test if imgkit can actually work
@@ -48,7 +57,7 @@ class HTMLToImageService:
         except:
             pass
         
-        # Method 3: Fallback to weasyprint (CSS/HTML to image, no browser)
+        # Method 4: Fallback to weasyprint (CSS/HTML to image, no browser)
         try:
             from weasyprint import HTML, CSS
             self.method = "weasyprint"
@@ -57,38 +66,30 @@ class HTMLToImageService:
         except ImportError:
             pass
         
-        # If nothing works, we'll try a simple method
+        # If nothing works, we'll use enhanced fallback method
         self.method = "simple"
-        logger.warning("No advanced HTML to image libraries found, using simple fallback")
-    
+        logger.warning("No specialized HTML-to-image libraries found, using enhanced fallback method")
 
-    
     async def convert_html_to_png_html2image(self, html_content: str, output_path: str) -> bool:
         """Convert HTML to PNG using html2image library."""
         try:
             from html2image import Html2Image
             
-            # Configure html2image with proper Chrome flags for Docker environment
-            hti = Html2Image(
-                size=(self.video_width, self.video_height),
-                output_path=os.path.dirname(output_path),
-                custom_flags=[
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--disable-web-security',
-                    '--disable-features=VizDisplayCompositor',
-                    '--force-device-scale-factor=1',  # Ensure 1:1 pixel mapping
-                    '--high-dpi-support=1'  # Better high DPI support
-                ]
-            )
+            # Create Html2Image instance
+            hti = Html2Image()
             
-            filename = os.path.basename(output_path)
+            # Get the directory and filename
+            output_dir = os.path.dirname(output_path)
+            output_filename = os.path.basename(output_path)
             
-            # Convert HTML to image
+            # Set output path
+            hti.output_path = output_dir
+            
+            # Take screenshot
             hti.screenshot(
                 html_str=html_content,
-                save_as=filename,
+                save_as=output_filename,
+                css_str="",  # CSS is embedded in HTML
                 size=(self.video_width, self.video_height)
             )
             
@@ -141,95 +142,343 @@ class HTMLToImageService:
     async def convert_html_to_png_weasyprint(self, html_content: str, output_path: str) -> bool:
         """Convert HTML to PNG using weasyprint library."""
         try:
-            from weasyprint import HTML
-            from PIL import Image
-            import io
+            from weasyprint import HTML, CSS
             
-            # WeasyPrint creates PDF, then we convert to PNG
-            pdf_bytes = HTML(string=html_content).write_pdf()
+            html_doc = HTML(string=html_content)
+            html_doc.write_png(output_path, resolution=300)
             
-            # Convert PDF to PNG using Pillow
-            # This is a simplified approach - you might need pdf2image library for better results
-            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as pdf_file:
-                pdf_file.write(pdf_bytes)
-                pdf_path = pdf_file.name
-            
-            try:
-                # Try to convert PDF to PNG
-                from pdf2image import convert_from_path
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"weasyprint conversion successful: {file_size} bytes")
+                return True
+            else:
+                logger.error("weasyprint failed to create output file")
+                return False
                 
-                images = convert_from_path(pdf_path, dpi=150, first_page=1, last_page=1)
-                if images:
-                    image = images[0]
-                    # Resize to exact video dimensions
-                    image = image.resize((self.video_width, self.video_height))
-                    image.save(output_path, 'PNG')
-                    
-                    file_size = os.path.getsize(output_path)
-                    logger.info(f"weasyprint conversion successful: {file_size} bytes")
-                    return True
-                else:
-                    logger.error("weasyprint failed to convert PDF to image")
-                    return False
-                    
-            finally:
-                try:
-                    os.unlink(pdf_path)
-                except:
-                    pass
-                    
         except Exception as e:
             logger.error(f"weasyprint conversion error: {str(e)}")
             return False
     
-    async def convert_html_to_png_simple(self, html_content: str, output_path: str) -> bool:
-        """Simple fallback method - creates a placeholder image with actual slide content."""
+    async def convert_html_to_png_playwright(self, html_content: str, output_path: str) -> bool:
+        """Convert HTML to PNG using Playwright (most reliable method)."""
         try:
-            from PIL import Image, ImageDraw, ImageFont
+            # Try to use playwright for HTML to image conversion
+            from playwright.async_api import async_playwright
+            import os
             
-            # Create a simple image with text
-            image = Image.new('RGB', (self.video_width, self.video_height), color='#110c35')
-            draw = ImageDraw.Draw(image)
+            logger.info("Using Playwright for HTML to PNG conversion")
             
-            # Try to load a font
+            async with async_playwright() as p:
+                # Launch browser
+                browser = await p.chromium.launch(headless=True)
+
+                # Determine a base URL so root-relative assets like "/static_design_images/..." resolve
+                base_url = (
+                    os.getenv("HTML_RENDER_BASE_URL")
+                    or os.getenv("PUBLIC_BASE_URL")
+                    or "http://localhost:8000"
+                )
+                logger.info(f"Using base URL for HTML rendering: {base_url}")
+
+                context = await browser.new_context(
+                    viewport={'width': 1000, 'height': 1000},
+                    base_url=base_url
+                )
+                page = await context.new_page()
+                
+                # Set content and wait for load
+                # Inject <base> tag if not present so relative URLs resolve to base_url
+                html_with_base = html_content
+                try:
+                    if '<base' not in html_content:
+                        if '<head>' in html_content:
+                            html_with_base = html_content.replace('<head>', f'<head><base href="{base_url}">')
+                        else:
+                            html_with_base = f'<base href="{base_url}">{html_content}'
+                except Exception:
+                    html_with_base = html_content
+
+                await page.set_content(html_with_base, wait_until='load')
+                # Ensure network settles and images decode
+                await page.wait_for_load_state('networkidle')
+                # Wait for all <img> to finish loading (or error) before screenshot
+                await page.evaluate(
+                    """
+                    async () => {
+                      const imgs = Array.from(document.images || []);
+                      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise((res) => {
+                        img.addEventListener('load', res, { once: true });
+                        img.addEventListener('error', res, { once: true });
+                      })));
+                    }
+                    """
+                )
+                # Additionally ensure CSS background-images are loaded (not tracked by document.images)
+                await page.evaluate(
+                    """
+                    async () => {
+                      const elements = Array.from(document.querySelectorAll('*'));
+                      const bgUrls = [];
+                      for (const el of elements) {
+                        const style = getComputedStyle(el);
+                        const bg = style.backgroundImage;
+                        if (!bg || bg === 'none') continue;
+                        const matches = Array.from(bg.matchAll(/url\(("|')?([^"')]+)("|')?\)/g));
+                        for (const m of matches) {
+                          if (m[2]) bgUrls.push(m[2]);
+                        }
+                      }
+                      await Promise.all(bgUrls.map(src => new Promise((resolve) => {
+                        try {
+                          const img = new Image();
+                          img.onload = () => resolve(true);
+                          img.onerror = () => resolve(false);
+                          img.src = src;
+                        } catch {
+                          resolve(false);
+                        }
+                      })));
+                    }
+                    """
+                )
+                
+                # Take screenshot (fixed API - no width/height parameters)
+                await page.screenshot(
+                    path=output_path,
+                    type='png',
+                    full_page=True
+                )
+                
+                await context.close()
+                await browser.close()
+                
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"Playwright conversion successful: {file_size} bytes")
+                return file_size > 100  # Ensure reasonable file size
+            else:
+                logger.error("Playwright failed to create output file")
+                return False
+                
+        except ImportError:
+            logger.warning("Playwright not available, trying alternative method")
+            return False
+        except Exception as e:
+            logger.error(f"Playwright conversion error: {str(e)}")
+            return False
+
+    async def convert_html_to_png_simple(self, html_content: str, output_path: str) -> bool:
+        """Enhanced fallback conversion method using built-in libraries."""
+        import time
+        simple_start = time.time()
+        simple_id = f"simple-{int(time.time())}"
+        
+        try:
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] === SIMPLE FALLBACK METHOD STARTED ===")
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Using enhanced fallback method for HTML to PNG conversion")
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] HTML content length: {len(html_content)} characters")
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Output path: {output_path}")
+            
+            # Try using Pillow with HTML rendering (basic approach)
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Attempting Pillow-based rendering...")
+            pillow_start = time.time()
+            
             try:
-                font = ImageFont.truetype("arial.ttf", 48)
-            except:
-                font = ImageFont.load_default()
+                from PIL import Image, ImageDraw, ImageFont
+                import textwrap
+                
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] PIL modules imported successfully")
+                
+                # Create a white background image
+                img = Image.new('RGB', (1000, 1000), color='white')
+                draw = ImageDraw.Draw(img)
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Created 1000x1000 white background image")
+                
+                # Try to use a system font
+                try:
+                    font_large = ImageFont.truetype("arial.ttf", 40)
+                    font_medium = ImageFont.truetype("arial.ttf", 24)
+                    font_small = ImageFont.truetype("arial.ttf", 16)
+                except:
+                    font_large = ImageFont.load_default()
+                    font_medium = ImageFont.load_default()
+                    font_small = ImageFont.load_default()
+                
+                # Extract basic text content from HTML (very simple parsing)
+                import re
+                
+                # Remove HTML tags and extract text content
+                clean_text = re.sub(r'<[^>]+>', '', html_content)
+                clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+                
+                # Draw a basic poster layout
+                y_pos = 50
+                
+                # Title
+                title_lines = textwrap.wrap("Event Poster", width=30)
+                for line in title_lines:
+                    draw.text((50, y_pos), line, fill='black', font=font_large)
+                    y_pos += 50
+                
+                # Add some content
+                y_pos += 50
+                content_lines = textwrap.wrap(clean_text[:200] + "...", width=50)
+                for line in content_lines[:15]:  # Limit to 15 lines
+                    draw.text((50, y_pos), line, fill='black', font=font_small)
+                    y_pos += 25
+                
+                # Add watermark
+                draw.text((50, 950), "Generated Poster", fill='gray', font=font_medium)
+                
+                # Save the image
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Saving image to: {output_path}")
+                img.save(output_path, 'PNG')
+                
+                pillow_end = time.time()
+                pillow_duration = (pillow_end - pillow_start) * 1000
+                
+                if os.path.exists(output_path):
+                    file_size = os.path.getsize(output_path)
+                    logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ✅ Pillow fallback conversion successful in {pillow_duration:.2f}ms: {file_size} bytes")
+                    return file_size > 100
+                else:
+                    logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ❌ Pillow conversion failed - file not created")
+                    return False
+                
+            except ImportError as pil_error:
+                pillow_end = time.time()
+                pillow_duration = (pillow_end - pillow_start) * 1000
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Pillow not available after {pillow_duration:.2f}ms: {pil_error}")
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Falling back to minimal PNG generation")
+                
+            # Last resort: Create a proper minimal PNG with actual content
+            # This creates a valid 1000x1000 white PNG file
+            import struct
             
-            # Extract content from HTML if possible
-            import re
-            title_match = re.search(r'<h1[^>]*>(.*?)</h1>', html_content, re.DOTALL)
-            content_match = re.search(r'<p[^>]*>(.*?)</p>', html_content, re.DOTALL)
+            def create_minimal_png(width, height):
+                """Create a minimal valid PNG file."""
+                # PNG signature
+                png_signature = b'\x89PNG\r\n\x1a\n'
+                
+                # IHDR chunk
+                ihdr_data = struct.pack('>2I5B', width, height, 8, 2, 0, 0, 0)
+                ihdr_crc = self._calculate_crc(b'IHDR' + ihdr_data)
+                ihdr_chunk = struct.pack('>I', 13) + b'IHDR' + ihdr_data + struct.pack('>I', ihdr_crc)
+                
+                # Simple white image data (minimal)
+                pixels_per_row = width * 3  # RGB
+                image_data = b''
+                for row in range(height):
+                    # Filter byte (0 = None filter) + white pixels
+                    row_data = b'\x00' + b'\xff' * pixels_per_row
+                    image_data += row_data
+                
+                # Compress image data
+                import zlib
+                compressed_data = zlib.compress(image_data)
+                
+                # IDAT chunk
+                idat_crc = self._calculate_crc(b'IDAT' + compressed_data)
+                idat_chunk = struct.pack('>I', len(compressed_data)) + b'IDAT' + compressed_data + struct.pack('>I', idat_crc)
+                
+                # IEND chunk
+                iend_crc = self._calculate_crc(b'IEND')
+                iend_chunk = struct.pack('>I', 0) + b'IEND' + struct.pack('>I', iend_crc)
+                
+                return png_signature + ihdr_chunk + idat_chunk + iend_chunk
             
-            title = title_match.group(1).strip() if title_match else "Slide Title"
-            content = content_match.group(1).strip() if content_match else "Slide Content"
+            # Create and write the PNG
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Creating minimal PNG...")
+            minimal_start = time.time()
             
-            # Clean HTML tags from text
-            title = re.sub(r'<[^>]+>', '', title)
-            content = re.sub(r'<[^>]+>', '', content)
+            png_data = create_minimal_png(1000, 1000)
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Generated PNG data: {len(png_data)} bytes")
             
-            # If we couldn't extract from HTML, try to get from the context
-            if title == "Slide Title" and hasattr(self, '_last_props'):
-                title = self._last_props.get('title', 'Slide Title')
-                content = self._last_props.get('content', 'Slide Content')
+            with open(output_path, 'wb') as f:
+                f.write(png_data)
             
-            # Draw actual slide content with better positioning
-            draw.text((100, 200), f"Title: {title}", fill='white', font=font)
-            draw.text((100, 300), f"Content: {content[:100]}...", fill='white', font=font)
+            minimal_end = time.time()
+            minimal_duration = (minimal_end - minimal_start) * 1000
             
-            # Save the image
-            image.save(output_path, 'PNG')
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ✅ Minimal PNG generation successful in {minimal_duration:.2f}ms: {file_size} bytes")
+                return file_size > 100
+            else:
+                logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ❌ Minimal PNG generation failed - file not created")
+                return False
             
-            file_size = os.path.getsize(output_path)
-            logger.info(f"Simple fallback conversion with actual content: {file_size} bytes")
-            logger.info(f"Extracted title: {title}")
-            logger.info(f"Extracted content: {content[:100]}...")
-            return True
+            return False
             
         except Exception as e:
-            logger.error(f"Simple conversion error: {str(e)}")
+            simple_end = time.time()
+            simple_duration = (simple_end - simple_start) * 1000
+            
+            logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] === SIMPLE FALLBACK FAILED ===")
+            logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Duration before error: {simple_duration:.2f}ms")
+            logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Error type: {type(e).__name__}")
+            logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Enhanced fallback conversion error: {str(e)}")
             return False
+    
+    def _calculate_crc(self, data):
+        """Calculate CRC32 for PNG chunks."""
+        import zlib
+        return zlib.crc32(data) & 0xffffffff
+    
+    def _log_final_verification(self, conversion_id: str, output_path: str, start_time: float, method_used: str, success: bool):
+        """Log final verification details for conversion process."""
+        import time
+        import os
+        
+        end_time = time.time()
+        total_duration = (end_time - start_time) * 1000
+        
+        logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] === FINAL VERIFICATION ===")
+        
+        if os.path.exists(output_path):
+            try:
+                file_stats = os.stat(output_path)
+                file_size = file_stats.st_size
+                file_mtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_stats.st_mtime))
+                
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ✅ Output file created successfully")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] File details:")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - path: {output_path}")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - size: {file_size} bytes")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - modified: {file_mtime}")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - size category: {'VERY_SMALL' if file_size < 1000 else 'SMALL' if file_size < 10000 else 'MEDIUM' if file_size < 100000 else 'LARGE'}")
+                
+                # Try to read file header for validation
+                try:
+                    with open(output_path, 'rb') as f:
+                        header = f.read(16)
+                        header_hex = header.hex()
+                        logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - file header: {header_hex}")
+                        
+                        # Check PNG signature
+                        png_signature = b'\x89PNG\r\n\x1a\n'
+                        is_valid_png = header.startswith(png_signature)
+                        logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}]   - valid PNG: {is_valid_png}")
+                        
+                        if not is_valid_png:
+                            logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ⚠️ File does not have valid PNG signature!")
+                        
+                except Exception as header_error:
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Could not validate file header: {header_error}")
+                
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] === CONVERSION COMPLETED ===")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Total processing time: {total_duration:.2f}ms")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Method used: {method_used}")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Success status: {success}")
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] File size check: {file_size > 0}")
+                
+            except Exception as stat_error:
+                logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Could not get file stats: {stat_error}")
+        else:
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ Output file was not created: {output_path}")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Total processing time: {total_duration:.2f}ms")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Method attempted: {method_used}")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Success status: {success}")
     
     async def convert_html_to_png(self, 
                                 html_content: str, 
@@ -246,41 +495,143 @@ class HTMLToImageService:
         Returns:
             True if successful, False otherwise
         """
+        import time
+        start_time = time.time()
+        conversion_id = f"conv-{int(time.time())}-{template_id}"
+        
         try:
-            logger.info(f"Converting HTML to PNG for template: {template_id} using {self.method}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ========== HTML-TO-IMAGE CONVERSION STARTED ==========")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Template ID: {template_id}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Conversion method: {self.method}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Target dimensions: {self.video_width}x{self.video_height}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Output path: {output_path}")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] HTML content length: {len(html_content)} characters")
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] HTML preview (first 150 chars): {html_content[:150]}...")
             
             # Use the appropriate conversion method with fallback
-            if self.method == "html2image":
+            logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] === CONVERSION METHOD EXECUTION ===")
+            method_start = time.time()
+            
+            if self.method == "playwright":
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Attempting Playwright conversion...")
+                success = await self.convert_html_to_png_playwright(html_content, output_path)
+                method_end = time.time()
+                method_duration = (method_end - method_start) * 1000
+                
+                if not success:
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ Playwright failed after {method_duration:.2f}ms, falling back to simple method")
+                    fallback_start = time.time()
+                    fallback_success = await self.convert_html_to_png_simple(html_content, output_path)
+                    fallback_end = time.time()
+                    fallback_duration = (fallback_end - fallback_start) * 1000
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Fallback completed in {fallback_duration:.2f}ms, success: {fallback_success}")
+                    self._log_final_verification(conversion_id, output_path, start_time, "playwright+simple", fallback_success)
+                    return fallback_success
+                else:
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ✅ Playwright conversion successful in {method_duration:.2f}ms")
+                    self._log_final_verification(conversion_id, output_path, start_time, "playwright", success)
+                    return success
+                
+            elif self.method == "html2image":
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Attempting html2image conversion...")
                 success = await self.convert_html_to_png_html2image(html_content, output_path)
+                method_end = time.time()
+                method_duration = (method_end - method_start) * 1000
+                
                 if not success:
-                    logger.warning("html2image failed, falling back to simple method")
-                    return await self.convert_html_to_png_simple(html_content, output_path)
-                return success
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ html2image failed after {method_duration:.2f}ms, falling back to simple method")
+                    fallback_start = time.time()
+                    fallback_success = await self.convert_html_to_png_simple(html_content, output_path)
+                    fallback_end = time.time()
+                    fallback_duration = (fallback_end - fallback_start) * 1000
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Fallback completed in {fallback_duration:.2f}ms, success: {fallback_success}")
+                    self._log_final_verification(conversion_id, output_path, start_time, "html2image+simple", fallback_success)
+                    return fallback_success
+                else:
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ✅ html2image conversion successful in {method_duration:.2f}ms")
+                    self._log_final_verification(conversion_id, output_path, start_time, "html2image", success)
+                    return success
+                
             elif self.method == "imgkit":
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Attempting imgkit conversion...")
                 success = await self.convert_html_to_png_imgkit(html_content, output_path)
+                method_end = time.time()
+                method_duration = (method_end - method_start) * 1000
+                
                 if not success:
-                    logger.warning("imgkit failed, falling back to simple method")
-                    return await self.convert_html_to_png_simple(html_content, output_path)
-                return success
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ imgkit failed after {method_duration:.2f}ms, falling back to simple method")
+                    fallback_start = time.time()
+                    fallback_success = await self.convert_html_to_png_simple(html_content, output_path)
+                    fallback_end = time.time()
+                    fallback_duration = (fallback_end - fallback_start) * 1000
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Fallback completed in {fallback_duration:.2f}ms, success: {fallback_success}")
+                    self._log_final_verification(conversion_id, output_path, start_time, "imgkit+simple", fallback_success)
+                    return fallback_success
+                else:
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ✅ imgkit conversion successful in {method_duration:.2f}ms")
+                    self._log_final_verification(conversion_id, output_path, start_time, "imgkit", success)
+                    return success
+                
             elif self.method == "weasyprint":
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Attempting weasyprint conversion...")
                 success = await self.convert_html_to_png_weasyprint(html_content, output_path)
+                method_end = time.time()
+                method_duration = (method_end - method_start) * 1000
+                
                 if not success:
-                    logger.warning("weasyprint failed, falling back to simple method")
-                    return await self.convert_html_to_png_simple(html_content, output_path)
-                return success
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ weasyprint failed after {method_duration:.2f}ms, falling back to simple method")
+                    fallback_start = time.time()
+                    fallback_success = await self.convert_html_to_png_simple(html_content, output_path)
+                    fallback_end = time.time()
+                    fallback_duration = (fallback_end - fallback_start) * 1000
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Fallback completed in {fallback_duration:.2f}ms, success: {fallback_success}")
+                    self._log_final_verification(conversion_id, output_path, start_time, "weasyprint+simple", fallback_success)
+                    return fallback_success
+                else:
+                    logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ✅ weasyprint conversion successful in {method_duration:.2f}ms")
+                    self._log_final_verification(conversion_id, output_path, start_time, "weasyprint", success)
+                    return success
             else:
-                return await self.convert_html_to_png_simple(html_content, output_path)
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Using simple fallback method directly")
+                method_end = time.time()
+                method_duration = (method_end - method_start) * 1000
+                success = await self.convert_html_to_png_simple(html_content, output_path)
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Simple method completed in {method_duration:.2f}ms, success: {success}")
+                self._log_final_verification(conversion_id, output_path, start_time, "simple", success)
+                return success
                 
         except Exception as e:
-            logger.error(f"Failed to convert HTML to PNG: {str(e)}")
-            logger.warning("Falling back to simple method due to exception")
-            return await self.convert_html_to_png_simple(html_content, output_path)
+            end_time = time.time()
+            total_duration = (end_time - start_time) * 1000
+            
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] === CONVERSION FAILED ===")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Error time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Duration before error: {total_duration:.2f}ms")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Error type: {type(e).__name__}")
+            logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Error message: {str(e)}")
+            logger.warning(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] 🔄 Falling back to simple method due to exception")
+            
+            try:
+                fallback_start = time.time()
+                fallback_success = await self.convert_html_to_png_simple(html_content, output_path)
+                fallback_end = time.time()
+                fallback_duration = (fallback_end - fallback_start) * 1000
+                
+                logger.info(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] Exception fallback completed in {fallback_duration:.2f}ms, success: {fallback_success}")
+                self._log_final_verification(conversion_id, output_path, start_time, "exception+simple", fallback_success)
+                return fallback_success
+            except Exception as fallback_error:
+                logger.error(f"🖼️ [HTML_TO_IMAGE] [{conversion_id}] ❌ Even fallback failed: {fallback_error}")
+                self._log_final_verification(conversion_id, output_path, start_time, "failed", False)
+                return False
     
     async def convert_slide_to_png(self, 
                                  template_id: str,
                                  props: Dict[str, Any],
                                  theme: str,
-                                 output_path: str) -> bool:
+                                 output_path: str,
+                                 metadata: Dict[str, Any] = None) -> bool:
         """
         Convert a slide with props to PNG image.
         
@@ -289,6 +640,7 @@ class HTMLToImageService:
             props: Slide properties
             theme: Theme name
             output_path: Where to save PNG
+            metadata: Slide metadata (contains elementPositions for drag-and-drop)
             
         Returns:
             True if successful, False otherwise
@@ -300,6 +652,7 @@ class HTMLToImageService:
             logger.info(f"  - Theme: {theme}")
             logger.info(f"  - Output path: {output_path}")
             logger.info(f"  - Props keys: {list(props.keys())}")
+            logger.info(f"  - Metadata: {metadata}")
             
             # Store props for fallback access
             self._last_props = props
@@ -317,7 +670,7 @@ class HTMLToImageService:
             # Generate clean HTML
             logger.info(f"🎬 [HTML_TO_IMAGE] Generating HTML content...")
             html_content = html_template_service.generate_clean_html_for_video(
-                template_id, props, theme
+                template_id, props, theme, metadata=metadata
             )
             
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")

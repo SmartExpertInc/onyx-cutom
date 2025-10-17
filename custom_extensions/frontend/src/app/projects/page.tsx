@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import OffersTable from '../../components/OffersTable';
+import AuditsTable from '../../components/AuditsTable';
 import CreateOfferModal from '../../components/CreateOfferModal';
 import {
   Search,
@@ -27,32 +28,68 @@ import {
   LayoutTemplate,
   HardDrive,
   FileText,
-  Upload
+  Upload,
+  Coins,
+  ClipboardCheck
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
+import TariffPlanModal from '@/components/ui/tariff-plan-modal';
+import AddOnsModal from '../../components/AddOnsModal';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 import WorkspaceMembers from '../../components/WorkspaceMembers';
-import useFeaturePermission from '../../hooks/useFeaturePermission';
+import useFeaturePermission, { preloadFeaturePermissions } from '../../hooks/useFeaturePermission';
 import workspaceService from '../../services/workspaceService';
 import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
+import { ToastProvider } from '../../components/ui/toast';
+import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
+import Userback, { UserbackWidget } from '@userback/widget';
+import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
+import { Button } from '@/components/ui/button';
+
+
+interface User {
+  id: string;
+  email: string;
+}
 
 // Authentication check function
-const checkAuthentication = async (): Promise<boolean> => {
+const checkAuthentication = async (): Promise<User | null> => {
   try {
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
-    return response.ok;
+    if (!response.ok) {
+      return null;
+    }
+    const userData = await response.json();
+
+    return {
+      id: userData.id,
+      email: userData.email,
+    };
   } catch (error) {
     console.error('Authentication check failed:', error);
-    return false;
+    return null;
+  }
+};
+
+// Check if user completed the questionnaire
+const checkQuestionnaireCompletion = async (userId: string): Promise<boolean> => {
+  try {
+    const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+    const response = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/${userId}/completion`, { credentials: 'same-origin' });
+    const data = await response.json();
+    return !!data.completed;
+  } catch (error) {
+    console.error('Questionnaire check failed:', error);
+    return true; // Default to true to avoid blocking access on error
   }
 };
 
@@ -359,6 +396,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const { isEnabled: deloitteBannerEnabled } = useFeaturePermission('deloitte_banner');
   const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
+  const { isEnabled: exportToLMSEnabled } = useFeaturePermission('export_to_lms');
+  const { isEnabled: eventPostersEnabled } = useFeaturePermission('event_posters');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -438,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const isSearching = folderSearch.trim().length > 0;
 
   return (
-    <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
+    <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm z-40">
       <div className="relative mb-6">
         {deloitteBannerEnabled ? (
           <div className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
@@ -465,7 +504,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=smart-drive"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Smart Drive");
+            onFolderSelect(null);
+          }}
         >
           <HardDrive size={18} />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
@@ -474,10 +516,23 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Link
             href="/projects?tab=offers"
             className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-            onClick={() => onFolderSelect(null)}
+            onClick={() => {
+            trackPageView("Offers");
+            onFolderSelect(null);
+          }}
           >
             <FileText size={18} />
             <span>{t('interface.offers', 'Offers')}</span>
+          </Link>
+        )}
+        {aiAuditEnabled && (
+          <Link
+            href="/projects?tab=audits"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => onFolderSelect(null)}
+          >
+            <ClipboardCheck size={18} />
+            <span>{t('interface.audits', 'Audits')}</span>
           </Link>
         )}
         {workspaceTabEnabled && (
@@ -490,14 +545,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <span>{t('interface.workspace', 'Workspace')}</span>
           </Link>
         )}
-        <Link
-          href="/projects?tab=export-lms"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
-        >
-          <Upload size={18} />
-          <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
-        </Link>
+        {exportToLMSEnabled && (
+          <Link
+            href="/projects?tab=export-lms"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => {
+            trackPageView("Export to LMS");
+            onFolderSelect(null);
+          }}
+          >
+            <Upload size={18} />
+            <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
+          </Link>
+        )}
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
@@ -518,9 +578,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         </div>
 
         {folders.length === 0 ? (
-          <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
+          <div className="bg-gray-50 border border-gray-100 p-4 rounded-lg text-center transition-shadow duration-200">
+            <p className="mb-2 text-gray-700 leading-relaxed">{t('interface.organizeCourses', 'Organize your courses into folders, keep them structured and work more efficiently')}</p>
+            <button className="inline-flex text-blue-600 items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('interface.createFirstFolder', 'Create First Folder')}
+            </button>
           </div>
         ) : filteredFolders.length === 0 ? (
           <div className="bg-gray-50 p-3 rounded-lg text-center">
@@ -548,16 +613,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
-        {aiAuditEnabled && (
-          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-            <LayoutTemplate size={18} />
-            <span>{t('interface.templates', 'Templates')}</span>
+        {eventPostersEnabled && (
+          <Link href="/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <Presentation size={18} />
+            <span>{t('interface.eventPoster', 'Event Poster')}</span>
           </Link>
         )}
-        <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Palette size={18} />
-          <span>{t('interface.themes', 'Themes')}</span>
-        </Link>
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>
@@ -567,7 +628,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, workspaceData }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -597,6 +658,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
     if (isTrash) return t('interface.trash', 'Trash');
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
+    if (isAudits) return t('interface.audits', 'Audits');
     if (isWorkspace) {
       return workspaceData?.name || t('interface.workspace', 'Workspace');
     }
@@ -608,9 +670,14 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <span className="text-sm font-semibold text-gray-800">
+        <Button variant="download" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
+        <button 
+          onClick={onAddOnsModalOpen}
+          className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer"
+        >
+          <Coins size={20} className="text-gray-900" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
-        </span>
+        </button>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
@@ -623,11 +690,12 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
 const ProjectsPageInner: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const isSmartDrive = currentTab === 'smart-drive';
   const isOffers = currentTab === 'offers';
+  const isAudits = currentTab === 'audits';
   const isWorkspace = currentTab === 'workspace';
   const isExportLMS = currentTab === 'export-lms';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
@@ -639,17 +707,28 @@ const ProjectsPageInner: React.FC = () => {
   const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
   const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
   const [workspaceData, setWorkspaceData] = useState<any>(null);
+  const [tariffModalOpen, setTariffModalOpen] = useState(false);
+  const [addOnsModalOpen, setAddOnsModalOpen] = useState(false);
   
   // LMS Export states
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
 
-  // Feature flags for conditional tabs/content
-  const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
-  const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
+  // Userback
+  const [currentUser, setUser] = useState<User | null>(null);
+  const [userback, setUserback] = useState<UserbackWidget | null>(null);
+
+  // Feature flags for conditional tabs/content (optimized to avoid multiple requests)
+  const { isEnabled: offersTabEnabled, loading: offersLoading } = useFeaturePermission('offers_tab');
+  const { isEnabled: workspaceTabEnabled, loading: workspaceLoading } = useFeaturePermission('workspace_tab');
+  const { isEnabled: exportToLMSEnabled, loading: exportLoading } = useFeaturePermission('export_to_lms');
+  
   const isOffersAllowed = isOffers && offersTabEnabled;
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
+  const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
+
+  const [isQuestionnaireCompleted, setQuestionnaireCompleted] = useState<boolean | null>(sessionStorage.getItem('questionnaireCompleted') === 'true');
 
   // Debug logging for state changes
   useEffect(() => {
@@ -662,6 +741,8 @@ const ProjectsPageInner: React.FC = () => {
       // Clear lesson context from sessionStorage
       sessionStorage.removeItem('lessonContext');
       sessionStorage.removeItem('lessonContextForDropdowns');
+      sessionStorage.removeItem('activeProductType');
+      sessionStorage.removeItem('stylesState');
     } catch (error) {
       console.error('Error clearing lesson context:', error);
     }
@@ -671,16 +752,43 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const authenticated = await checkAuthentication();
+        const user = await checkAuthentication();
+        setUser(user);
+
+        const authenticated = user !== null;
         setIsAuthenticated(authenticated);
 
         if (!authenticated) {
+          resetUserIdentity();
           // Redirect to main app's login with return URL
           const currentUrl = window.location.pathname + window.location.search;
           redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
+
+        if (!isQuestionnaireCompleted) {
+          const completed = await checkQuestionnaireCompletion(user.id);
+          sessionStorage.setItem('questionnaireCompleted', completed.toString());
+          setQuestionnaireCompleted(completed);
+        }
+
+        // Identify user for Mixpanel
+        identifyUser(user.id);
+        updateUserProfile(user.email);
+
+        // Batch load common feature permissions to reduce initial request load
+        preloadFeaturePermissions([
+          'course_table',
+          'col_quality_tier',
+          'offers_tab',
+          'workspace_tab',
+          'export_to_lms'
+        ]).catch(error => {
+          console.warn('Failed to preload feature permissions:', error);
+        });
       } catch (error) {
+        setUser(null);
+        resetUserIdentity();
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;
@@ -692,6 +800,42 @@ const ProjectsPageInner: React.FC = () => {
 
     checkAuth();
   }, []);
+
+  // Initialize userback instance with current user
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      const token: string | undefined = process.env.NEXT_PUBLIC_USERBACK_TOKEN;
+
+      if (token == undefined) {
+        console.warn('Userback token is missing! Check your .env file.');
+        return;
+      }
+
+      const init = async () => {
+        try {
+          const instance = await Userback(token, {
+            widget_settings: {
+              language: language == 'uk' ? 'en' : language
+            },
+            user_data: {
+              id: currentUser.id,
+              info: {
+                email: currentUser.email,
+              },
+            },
+            autohide: false, // Controls auto-hiding behavior after submit
+          });
+
+          setUserback(instance);
+          console.log('Userback is successfully initialized');
+        } catch (error) {
+          console.error('Userback initialization failed:', error);
+        }
+      };
+
+      init();
+    }
+  }, [isAuthenticated]);
 
   // Load folders and projects after authentication is confirmed
   // Fetch workspace data when on workspace tab
@@ -922,6 +1066,31 @@ const ProjectsPageInner: React.FC = () => {
     setSelectedProducts(new Set());
   };
 
+  // Handle survey completion
+  const handleSurveyComplete = async (surveyData: any) => {
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const answers = Object.entries(surveyData)
+        .filter(([_, v]) => v)
+        .map(([k, v]) => ({ question: k, answer: v }));
+      const payload = { onyx_user_id: currentUser?.id || 'dummy-onyx-user-id', answers };
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        sessionStorage.setItem('questionnaireCompleted', 'true');
+        setQuestionnaireCompleted(true);
+        console.log('Survey answers saved successfully');
+      } else {
+        console.error('Failed to save survey answers:', await res.text());
+      }
+    } catch (err) {
+      console.error('Error sending survey answers:', err);
+    }
+  };
+
   // Show account modal when first visiting LMS tab
   useEffect(() => {
     const loadChoice = async () => {
@@ -1000,41 +1169,40 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
-        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-          {isSmartDrive ? (
-            <SmartDriveConnectors />
-          ) : isOffersAllowed ? (
-            <OffersTable companyId={selectedFolderId} />
-          ) : isWorkspaceAllowed ? (
-            <WorkspaceMembers />
-          ) : isExportLMS ? (
-            <>
-              {lmsAccountStatus === 'no-account' && (
-                <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
-              )}
-              {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
-                <LMSProductSelector
-                  selectedProducts={selectedProducts}
-                  onProductToggle={handleProductToggle}
-                  onSelectAll={handleSelectAllProducts}
-                  onDeselectAll={handleDeselectAllProducts}
-                />
-              )}
-            </>
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
+          {!isQuestionnaireCompleted ? (
+            <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
-            <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+            isSmartDrive ? (
+              <SmartDriveConnectors />
+            ) : isOffersAllowed ? (
+              <OffersTable companyId={selectedFolderId} />
+            ) : isAudits ? (
+              <AuditsTable companyId={selectedFolderId} />
+            ) : isWorkspaceAllowed ? (
+              <WorkspaceMembers />
+            ) : isExportLMSAllowed ? (
+              <>
+                {lmsAccountStatus === 'no-account' && (
+                  <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
+                )}
+                {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
+                  <ToastProvider>
+                    <LMSProductSelector
+                      selectedProducts={selectedProducts}
+                      onProductToggle={handleProductToggle}
+                      onSelectAll={handleSelectAllProducts}
+                      onDeselectAll={handleDeselectAllProducts}
+                    />
+                  </ToastProvider>
+                )}
+              </>
+            ) : (
+              <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+            )
           )}
         </main>
-        <div className="fixed bottom-4 right-4">
-          <button
-            type="button"
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
-            aria-label="Help"
-          >
-            ?
-          </button>
-        </div>
       </div>
       <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
       {showCreateOfferModal && (
@@ -1048,6 +1216,14 @@ const ProjectsPageInner: React.FC = () => {
         isOpen={showAccountModal}
         onClose={() => setShowAccountModal(false)}
         onAccountStatus={handleLMSAccountStatus}
+      />
+      <TariffPlanModal
+        open={tariffModalOpen}
+        onOpenChange={setTariffModalOpen}
+      />
+      <AddOnsModal
+        isOpen={addOnsModalOpen}
+        onClose={() => setAddOnsModalOpen(false)}
       />
     </div>
   );

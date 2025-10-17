@@ -4,6 +4,7 @@ export const en = {
     lesson: "LESSON",
     save: "Save",
     saving: "Saving...",
+    close: "Close",
     confirmCancelEdit:
       "Are you sure you want to cancel? Any unsaved changes will be lost.",
     errorDetails: "Details:",
@@ -14,6 +15,12 @@ export const en = {
     downloadPdf: "Download PDF",
     saveErrorTitle: "Save Error:",
     rendering: "Rendering content...",
+  },
+  insufficientCredits: {
+    title: "Insufficient Credits",
+    message:
+      "You cannot create new products right now due to insufficient credits for this operation. Please purchase more credits to continue.",
+    buyMore: "Buy More"
   },
   qualityTiers: {
     basic: "Basic",
@@ -49,6 +56,7 @@ export const en = {
     acceptChanges: "Accept Changes",
     revertChanges: "Revert Changes",
     reviewChanges: "Review Changes",
+    reviewChangesMessage: "Please review the changes below. The updated content is now displayed in the table. You can accept these changes to save them permanently, or revert to go back to the original content.",
     changesPreview: "Changes Preview",
     outlineOnly: "Outline Only",
     moveAll: "Move All",
@@ -112,6 +120,34 @@ export const en = {
     failed: "Failed",
     processing: "Processing",
     pleaseWait: "Please wait...",
+  },
+  smartEdit: {
+    examples: {
+      makeAllTests: {
+        short: "Make all lessons have assessment type 'test'",
+        detailed: "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types.",
+      },
+      addExercises: {
+        short: "Add practical exercises to each module",
+        detailed: "Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.",
+      },
+      restructureShorter: {
+        short: "Restructure into shorter modules",
+        detailed: "Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.",
+      },
+      addCaseStudies: {
+        short: "Add case studies and real examples",
+        detailed: "Include relevant case studies and real-world examples in each module to provide practical context for learners.",
+      },
+      increaseAdvancedDepth: {
+        short: "Increase advanced content depth",
+        detailed: "Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.",
+      },
+      addQuizzes: {
+        short: "Add assessment quizzes",
+        detailed: "Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.",
+      },
+    },
   },
   videoLesson: {
     slide: "Slide",
@@ -372,6 +408,7 @@ export const en = {
     smartDrive: "Smart Drive",
     offers: "Offers",
     exportToLMS: "Export to LMS",
+    eventPoster: "Event Poster",
     trash: "Trash",
     getUnlimitedAI: "Get unlimited AI",
     credits: "credits",
@@ -390,6 +427,27 @@ export const en = {
       "Organize your products by topic and share them with your team",
     templates: "Templates",
     themes: "Themes",
+    createFirstFolder: "Create First Folder",
+    organizeCourses: "Organize your courses into folders, keep them structured and work more efficiently",
+    audit: "Audit",
+
+    // Landing page
+    landing: {
+      home: "Home",
+      heroTitle: "Create Online Courses in Just 30 Minutes",
+      heroSubtitle: "Build engaging, professional courses with the help of AI. No technical skills required.",
+      getStarted: "Get Started",
+      learnMore: "Learn More",
+      feature1Title: "AI-Powered Creation",
+      feature1Description: "Generate course content, slides, and assessments automatically with advanced AI.",
+      feature2Title: "Professional Templates",
+      feature2Description: "Choose from hundreds of beautiful, customizable templates designed for learning.",
+      feature3Title: "Easy Export",
+      feature3Description: "Export your courses as PDFs, presentations, or interactive web content.",
+      ctaTitle: "Ready to Start Creating?",
+      ctaDescription: "Join thousands of educators who are already using Content Builder AI to create amazing courses.",
+      startCreating: "Start Creating Now",
+    },
 
     // Smart Drive content
     smartDriveBrowser: "Smart Drive Browser",
@@ -616,7 +674,7 @@ export const en = {
     numberOfLessons: "Number of Lessons",
     estCreationTime: "Est. Creation Time",
     estCompletionTime: "Est. Completion Time",
-    actions: "Actions",
+    actions: "ACTIONS",
 
     // Project actions
     rename: "Rename",
@@ -646,7 +704,12 @@ export const en = {
     renameFolder: "Rename Folder",
     deleteFolder: "Delete Folder",
     moveFolder: "Move Folder",
-
+    creatingFolders: "Creating Folders...",
+    createFolders: "Create Folder",
+    createNewFolder: "Create New Folder",
+    enterFolderNamePlaceholder: "Enter folder name...",
+    organizeProjectsByFolder: "Organize your projects by folder for better management",
+    
     // Modals
     createFolder: "Create or join a folder",
     createFolderDescription:
@@ -922,7 +985,7 @@ export const en = {
     importFileOrUrl: "Create from files",
     importFileOrUrlDescription:
       "Enhance existing docs, presentations, or webpages",
-    popular: "POPULAR",
+    popular: "Popular",
 
     // Projects table toolbar
     createNew: "Create new",
@@ -978,7 +1041,7 @@ export const en = {
       // Additional keys for preview pages
       loading: "Generating...",
       back: "Back",
-      backButton: "Back",
+      backButton: "To previous step",
       lessonQuestion:
         "Do you want to create a lesson from an existing Course Outline?",
       yesContentForLesson: "Yes, content for the lesson from the outline",
@@ -989,14 +1052,15 @@ export const en = {
       selectModule: "Select Module",
       selectLesson: "Select Lesson",
       selectQuestionTypes: "Select Question Types",
-      typesSelected: "types selected",
+      questionTypes: "Question Types",
+      typesSelected: "Types selected",
       multipleChoice: "Multiple Choice",
       multiSelect: "Multi-Select",
       matching: "Matching",
       sorting: "Sorting",
       openAnswer: "Open Answer",
-      questions: "questions",
-      slides: "slides",
+      questions: "Questions",
+      slides: "Slides",
       lesson: "Lesson",
       generatingLessonContent: "Generating lesson content...",
       applyingEdit: "Applying edit...",
@@ -1016,12 +1080,18 @@ export const en = {
       generate: "Generate",
       finalizingQuiz: "Finalizing quiz...",
       words: "words",
+      questionSingular: "question",
+      questionTypesSelected: "Types selected",
       // Additional keys for course outline
-      courseOutline: "Course Outline",
+      courseOutline: "Course",
       videoLesson: "Video Lesson",
       presentation: "Presentation",
       onePager: "One-Pager",
       modules: "Modules",
+      lessonsPerModule: "Lessons per module",
+      length: "Length",
+      stylesSelected: "Styles selected",
+      styles: "Styles",
       creatingFromFiles: "Creating from files",
       foldersSelected: "folder selected",
       foldersSelectedPlural: "folders selected",
@@ -1038,8 +1108,9 @@ export const en = {
       short: "Short",
       medium: "Medium",
       long: "Long",
+      questionFew: "Questions",
+      lessons: "Lessons",
       selectStyles: "Select styles",
-      stylesSelected: "styles selected",
       // Text style options
       headlines: "Headlines",
       paragraphs: "Paragraphs",
@@ -1051,6 +1122,17 @@ export const en = {
       sectionBreaks: "Section Breaks",
       icons: "Icons",
       importantSections: "Important Sections",
+      // Style purposes for tooltips
+      headlinesPurpose: "Section titles and headings",
+      paragraphsPurpose: "Regular text blocks",
+      bulletListsPurpose: "Unordered lists with bullet points",
+      numberedListsPurpose: "Ordered lists with numbers",
+      tablesPurpose: "Data in rows and columns",
+      alertsPurpose: "Important warnings or tips",
+      recommendationsPurpose: "Actionable advice",
+      sectionBreaksPurpose: "Visual separators between sections",
+      iconsPurpose: "Emojis and visual elements",
+      importantSectionsPurpose: "Highlighted critical content",
       // One-pager specific translations
       yesContentForOnePager: "Yes, content for the one-pager from the outline",
       noStandaloneOnePager: "No, I want standalone one-pager",
@@ -1116,6 +1198,110 @@ export const en = {
       credits: "credits",
       generate: "Generate",
       helpComingSoon: "Help (coming soon)",
+      examples: {
+        adaptIndustry: {
+          short: "Adapt to U.S. industry specifics",
+          detailed: "Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don't align with the American context.",
+        },
+        adoptTrends: {
+          short: "Adopt trends and latest practices",
+          detailed: "Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+        },
+        topExamples: {
+          short: "Incorporate top industry examples",
+          detailed: "Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.",
+        },
+        simplify: {
+          short: "Simplify and restructure the content",
+          detailed: "Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.",
+        },
+        increaseDepth: {
+          short: "Increase value and depth of content",
+          detailed: "Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+        },
+        addApplications: {
+          short: "Add case studies and applications",
+          detailed: "Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+        },
+      },
+      quizExamples: {
+        moreChallenging: {
+          short: "Make questions more challenging",
+          detailed: "Increase the difficulty level of the quiz questions by adding more complex scenarios, requiring deeper analysis, and including higher-order thinking skills.",
+        },
+        morePractical: {
+          short: "Add more practical examples",
+          detailed: "Include more real-world examples and case studies in the questions to make them more applicable and engaging for learners.",
+        },
+        improveClarity: {
+          short: "Improve question clarity",
+          detailed: "Rewrite questions to be clearer and more concise, ensuring they are easy to understand and avoid ambiguity.",
+        },
+        addVariety: {
+          short: "Add variety to question types",
+          detailed: "Incorporate different types of questions (multiple choice, true/false, short answer) to make the quiz more engaging and comprehensive.",
+        },
+        focusObjectives: {
+          short: "Focus on key learning objectives",
+          detailed: "Restructure the quiz to better align with the main learning objectives and ensure questions test the most important concepts.",
+        },
+        includeFeedback: {
+          short: "Include feedback and explanations",
+          detailed: "Add detailed explanations for correct and incorrect answers to help learners understand the reasoning behind each response.",
+        },
+      },
+      onePagerExamples: {
+        adaptIndustry: {
+          short: "Adapt to U.S. industry specifics",
+          detailed: "Update the one-pager's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+        },
+        adoptTrends: {
+          short: "Adopt trends and latest practices",
+          detailed: "Update the one-pager's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+        },
+        topExamples: {
+          short: "Incorporate top industry examples",
+          detailed: "Analyze the best one-pagers on the market in this topic and restructure our content accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+        },
+        simplify: {
+          short: "Simplify and restructure the content",
+          detailed: "Rewrite the one-pager's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+        },
+        increaseDepth: {
+          short: "Increase value and depth of content",
+          detailed: "Strengthen the one-pager by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+        },
+        addApplications: {
+          short: "Add case studies and applications",
+          detailed: "Revise the one-pager's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+        },
+      },
+      lessonExamples: {
+        adaptIndustry: {
+          short: "Adapt to U.S. industry specifics",
+          detailed: "Update the Lesson's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+        },
+        adoptTrends: {
+          short: "Adopt trends and latest practices",
+          detailed: "Update the lesson's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+        },
+        topExamples: {
+          short: "Incorporate top industry examples",
+          detailed: "Analyze the best lessons on the market in this topic and restructure our lesson accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+        },
+        simplify: {
+          short: "Simplify and restructure the content",
+          detailed: "Rewrite the lesson's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+        },
+        increaseDepth: {
+          short: "Increase value and depth of content",
+          detailed: "Strengthen the lesson by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+        },
+        addApplications: {
+          short: "Add case studies and applications",
+          detailed: "Revise the lesson's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+        },
+      },
       finalizingProduct: "Finalizing product...",
       // Offers translations
       offers: "Offers",
@@ -1268,5 +1454,335 @@ export const en = {
       specificFileSelectionDesc: "Choose exactly which files to include, giving you precise control over your source material.",
       backToCreateFromFiles: "Back to Create from Files",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Back",
+      openProducts: "Open Products",
+      smartEdit: "Smart Edit",
+      smartEditTooltip: "Smart edit with AI",
+      downloadPdfTooltip: "Download content as PDF",
+      loadingProjectDetails: "Loading project details...",
+      error: "Error:",
+      projectNotFound: "Project not found or data unavailable.",
+      courseOutline: "Course Outline",
+      courseTitle: "Course Title",
+      moduleTitle: "Module",
+      lessonTitle: "Lesson Title",
+      editCourseTitle: "Edit course title",
+      editModuleTitle: "Edit module title",
+      editLessonTitle: "Edit lesson title",
+      noModulesFound: "No modules found in this course outline.",
+      lessons: "lessons",
+      create: "Create",
+      createContent: "Create content",
+      presentation: "Presentation",
+      onePager: "One-Pager",
+      quiz: "Quiz",
+      videoLesson: "Video Lesson",
+      regenerate: "Regenerate",
+      regenerateProduct: "Regenerate Product",
+      regenerateDescription: "You are about to create a new product. The old one will be deleted.",
+      cancel: "Cancel",
+      ok: "OK",
+      // View-new-2 specific tooltips
+      view: "View",
+      add: "Add",
+      viewProduct: "View product",
+      regenerateProductTooltip: "Regenerate product",
+      addProduct: "Add product"
+    },
+    customViewCard: {
+      courseSummary: "Course Summary",
+      totalModules: "Total Modules",
+      totalLessons: "Total Lessons",
+      sources: "Sources",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Document",
+        createdfromscratch: "Created from scratch"
+      }
+    },
+
+    // Event Poster Questionnaire
+    eventPosterForm: {
+      title: "Event Poster Questionnaire",
+      subtitle: "Fill out the form below to create your event poster template",
+      eventInformation: "Event Information",
+      speakerInformation: "Speaker Information",
+      ticketInformation: "Ticket Information",
+      generatingPoster: "Generating Poster...",
+      generateAndDownloadPoster: "Generate and Download Poster",
+      posterGenerationInProgress: "Poster image generation in progress...",
+      generateAndDownloadPosterTooltip: "Generate and download poster image",
+      editInstructions: "Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.",
+      eventName: "Event Name",
+      eventNameUkrainian: "Назва події (Event Name)",
+      date: "Date",
+      dateUkrainian: "Дата (Date)",
+      topic: "Topic/Title",
+      topicUkrainian: "Тема/Заголовок (Topic/Title)",
+      mainSpeaker: "Main Speaker",
+      mainSpeakerUkrainian: "Головний спікер (Main Speaker)",
+      speakerDescription: "Speaker Description",
+      speakerDescriptionUkrainian: "Опис спікера (Speaker Description)",
+      additionalSpeakers: "Additional Speakers",
+      additionalSpeakersUkrainian: "Додаткові спікери (Additional Speakers)",
+      ticketPrice: "Ticket Price",
+      ticketPriceUkrainian: "Ціна квитка (Ticket Price)",
+      ticketType: "Ticket Type",
+      ticketTypeUkrainian: "Тип квитка (Ticket Type)",
+      freeAccessConditions: "Free Access Conditions",
+      freeAccessConditionsUkrainian: "Умови безкоштовного доступу (Free Access Conditions)",
+      speakerPhoto: "Speaker Photo",
+      speakerPhotoUkrainian: "Фото спікера (Speaker Photo)",
+      generateEventPoster: "Generate Event Poster",
+      eventNamePlaceholder: "Enter event name",
+      datePlaceholder: "Enter date",
+      topicPlaceholder: "Enter topic/title",
+      mainSpeakerPlaceholder: "Enter main speaker name",
+      speakerDescriptionPlaceholder: "Enter speaker description",
+      additionalSpeakersPlaceholder: "Enter additional speakers",
+      ticketPricePlaceholder: "Enter ticket price",
+      ticketTypePlaceholder: "Enter ticket type",
+      freeAccessConditionsPlaceholder: "Enter free access conditions",
+      imageUploadedSuccessfully: "✓ Image uploaded successfully",
+      editQuestionnaire: "Edit Questionnaire",
+      backToProjects: "Back to Projects", 
+      eventPosterTitle: "Event Poster",
+      posterGeneratedSuccessfully: "Your event poster has been generated successfully"
+    },
+    
+    // Billing
+    billing: "Billing",
+    billingAndSubscription: "Billing and subscription"
   },
+  survey: {
+    step1: {
+      title: "What do you plan to use ContentBuilder for?"
+    },
+    step2Work: {
+      title: "What best describes your role"
+    },
+    step3: {
+      title: "What is the size of your company?"
+    },
+    step4: {
+      title: "What's your primary use case?"
+    },
+    step2Personal: {
+      title: "What will you mainly use the platform for?"
+    },
+    description: "This helps us recommend the best features for you",
+    category: {
+      work: "Work",
+      workDescription: "Professional use for business, marketing, or team collaboration",
+      personal: "Personal",
+      personalDescription: "Personal projects, learning, or creative endeavors"
+    },
+    role: {
+      marketer: "Marketer",
+      hrLd: "HR / L&D",
+      businessOwner: "Business Owner",
+      contentCreator: "Content Creator",
+      developer: "Developer",
+      other: "Other"
+    },
+    industry: {
+      videoProduction: "Video Production",
+      digitalMarketing: "Digital Marketing",
+      learningDevelopment: "Learning & Development",
+      internalCommunications: "Internal Communications",
+      creativeBranding: "Creative / Branding",
+      other: "Other"
+    },
+    personalUse: {
+      personalProjects: "Personal projects",
+      learningSkills: "Learning new skills",
+      portfolioCreation: "Portfolio creation",
+      socialMedia: "Social media content"
+    },
+    navigation: {
+      previous: "Previous",
+      continue: "Continue",
+      completeSetup: "Complete Setup",
+      step: "Step",
+      of: "of"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Back to plans",
+    completeYourPurchase: "Complete Your Purchase",
+    subscribeTo: "Subscribe to",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    subscription: "subscription",
+    month: "month",
+    year: "year",
+    whatsIncluded: "What's included:",
+    paymentInformation: "Payment Information",
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailAddress: "Email Address",
+    cardNumber: "Card Number",
+    expiryDate: "Expiry Date",
+    cvv: "CVV",
+    sslEncrypted: "SSL Encrypted",
+    instantAccess: "Instant Access",
+    cancelAnytime: "Cancel Anytime",
+    processingPayment: "Processing Payment...",
+    contactSales: "Contact Sales",
+    subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
+    chooseYourPlan: "Choose your plan",
+    billMonthly: "Bill Monthly",
+    billYearly: "Bill Yearly",
+    mostPopular: "Most Popular",
+    credits: "Credits",
+    storage: "Storage",
+    support: "Support",
+    connectors: "Connectors",
+    collaboration: "Collaboration",
+    current: "Current",
+    purchasePlan: "Purchase Plan",
+    plans: {
+      starter: {
+        name: "Starter (Free)",
+        credits: "200 (one-time on registration)",
+        support: "Email up to 48 hours",
+        storage: "1 GB",
+        lmsExport: "Only SmartExpert",
+        slides: "max 20",
+        features: {
+          0: "200 credits on registration",
+          1: "1 GB storage",
+          2: "Basic email support",
+          3: "No connectors",
+          4: "No collaboration"
+        }
+      },
+      pro: {
+        name: "Pro",
+        credits: "600 / month",
+        support: "Email up to 24 hours",
+        storage: "5 GB",
+        collaboration: "1 (up to 3 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "600 credits per month",
+          1: "5 GB storage",
+          2: "Priority email support (24h)",
+          3: "2 platform connectors",
+          4: "Team collaboration (up to 3)"
+        }
+      },
+      business: {
+        name: "Business",
+        credits: "2,000 / month",
+        support: "Priority support",
+        storage: "10 GB",
+        collaboration: "3 (up to 10 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "2,000 credits per month",
+          1: "10 GB storage",
+          2: "Priority support",
+          3: "5 platform connectors",
+          4: "Team collaboration (up to 10)"
+        }
+      },
+      enterprise: {
+        name: "Enterprise",
+        credits: "10,000+ / month (flexible)",
+        support: "Dedicated manager",
+        storage: "50 GB + pay-as-you-go",
+        connectors: "All",
+        collaboration: "Unlimited",
+        lmsExport: "SmartExpert + custom",
+        features: {
+          0: "Custom credit allocation",
+          1: "Unlimited storage",
+          2: "Dedicated account manager",
+          3: "All platform connectors",
+          4: "Unlimited team collaboration",
+          5: "Custom features & integrations"
+        }
+      }
+    }
+  },
+  addOns: {
+    title: "Manage Add-ons",
+    description: "Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.",
+    credits: "Credits",
+    connectors: "Connectors",
+    storage: "Storage",
+    contactSales: "Contact Sales",
+    buyNow: "Buy Now",
+    packages: {
+      credits: {
+        small: {
+          name: "Small",
+          description: "Perfect for individual users getting started with basic credit needs.",
+          amount: "100 credits",
+          priceNote: "$0.20 per credit"
+        },
+        medium: {
+          name: "Medium",
+          description: "Great for growing teams with moderate usage requirements.",
+          amount: "300 credits",
+          priceNote: "$0.17 per credit"
+        },
+        large: {
+          name: "Large",
+          description: "Ideal for businesses with high-volume processing demands.",
+          amount: "1,000 credits",
+          priceNote: "$0.15 per credit"
+        },
+        enterprise: {
+          name: "Enterprise",
+          description: "Tailored solutions for large organizations with unique needs.",
+          amount: "Custom credits",
+          price: "Custom"
+        }
+      },
+      connectors: {
+        single: {
+          name: "Single Connector",
+          description: "Perfect for connecting one data source to your platform.",
+          amount: "1 connector"
+        },
+        five: {
+          name: "5 Connectors",
+          description: "Great for teams managing multiple data sources.",
+          amount: "5 connectors"
+        },
+        ten: {
+          name: "10 Connectors",
+          description: "Ideal for businesses with extensive integration needs.",
+          amount: "10 connectors"
+        },
+        all: {
+          name: "All Connectors",
+          description: "Unlimited access to all available connectors.",
+          amount: "Unlimited connectors"
+        }
+      },
+      storage: {
+        oneGb: {
+          name: "1 GB Storage",
+          description: "Perfect for small projects with minimal storage needs.",
+          amount: "1 GB storage"
+        },
+        fiveGb: {
+          name: "5 GB Storage",
+          description: "Great for growing teams with moderate storage requirements.",
+          amount: "5 GB storage"
+        },
+        tenGb: {
+          name: "10 GB Storage",
+          description: "Ideal for businesses with extensive data storage needs.",
+          amount: "10 GB storage"
+        }
+      }
+    }
+  }
 };

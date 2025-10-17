@@ -6,15 +6,22 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit, XCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import PresentationPreview from "../../../components/PresentationPreview";
-import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
+import { THEME_OPTIONS, getThemeSvg, getFilteredThemeOptions } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -183,6 +190,7 @@ export default function LessonPresentationClient() {
   const isFromConnectors = params?.get("fromConnectors") === "true";
   const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
   const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
 
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -228,6 +236,15 @@ export default function LessonPresentationClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
+  
+  // Retry state for error handling
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
 
 
 
@@ -251,6 +268,12 @@ export default function LessonPresentationClient() {
   const [slidesCount, setSlidesCount] = useState<number>(
     params?.get("slidesCount") ? Number(params.get("slidesCount")) : 5
   );
+  
+  // Force regeneration when slides count changes
+  const handleSlidesCountChange = (value: string) => {
+    const newCount = Number(value);
+    setSlidesCount(newCount);
+  };
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -289,37 +312,39 @@ export default function LessonPresentationClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const lessonExamples: { short: string; detailed: string }[] = [
     {
-      short: "Adapt to U.S. industry specifics",
-      detailed:
-        "Update the Lesson's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+      short: t('interface.generate.lessonExamples.adaptIndustry.short', 'Adapt to U.S. industry specifics'),
+      detailed: t('interface.generate.lessonExamples.adaptIndustry.detailed', "Update the Lesson's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context."),
     },
     {
-      short: "Adopt trends and latest practices",
-      detailed:
-        "Update the lesson's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+      short: t('interface.generate.lessonExamples.adoptTrends.short', 'Adopt trends and latest practices'),
+      detailed: t('interface.generate.lessonExamples.adoptTrends.detailed', "Update the lesson's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content."),
     },
     {
-      short: "Incorporate top industry examples",
-      detailed:
-        "Analyze the best lessons on the market in this topic and restructure our lesson accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+      short: t('interface.generate.lessonExamples.topExamples.short', 'Incorporate top industry examples'),
+      detailed: t('interface.generate.lessonExamples.topExamples.detailed', 'Analyze the best lessons on the market in this topic and restructure our lesson accordingly: change or add content which others present more effectively. Focus on content flow and clarity.'),
     },
     {
-      short: "Simplify and restructure the content",
-      detailed:
-        "Rewrite the lesson's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+      short: t('interface.generate.lessonExamples.simplify.short', 'Simplify and restructure the content'),
+      detailed: t('interface.generate.lessonExamples.simplify.detailed', "Rewrite the lesson's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity."),
     },
     {
-      short: "Increase value and depth of content",
-      detailed:
-        "Strengthen the lesson by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+      short: t('interface.generate.lessonExamples.increaseDepth.short', 'Increase value and depth of content'),
+      detailed: t('interface.generate.lessonExamples.increaseDepth.detailed', 'Strengthen the lesson by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.'),
     },
     {
-      short: "Add case studies and applications",
-      detailed:
-        "Revise the lesson's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+      short: t('interface.generate.lessonExamples.addApplications.short', 'Add case studies and applications'),
+      detailed: t('interface.generate.lessonExamples.addApplications.detailed', "Revise the lesson's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact."),
     },
   ];
 
@@ -442,7 +467,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, slidesCount, lengthOption, params, language]);
 
   // Fetch lessons when a course outline is selected
@@ -527,6 +552,43 @@ export default function LessonPresentationClient() {
         setContent("");
         setTextareaVisible(true);
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate lesson – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = {
@@ -569,6 +631,9 @@ export default function LessonPresentationClient() {
             requestBody.fromConnectors = true;
             requestBody.connectorIds = connectorIds.join(',');
             requestBody.connectorSources = connectorSources.join(',');
+            if (selectedFiles.length > 0) {
+              requestBody.selectedFiles = selectedFiles.join(',');
+            }
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -595,12 +660,23 @@ export default function LessonPresentationClient() {
           while (true) {
             const { done, value } = await reader.read();
 
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+
             if (done) {
+              // Update last data time for final buffer processing
+              lastDataTime = Date.now();
+              
               // Process any remaining buffer
               if (buffer.trim()) {
                 try {
                   const pkt = JSON.parse(buffer.trim());
                   if (pkt.type === "delta") {
+                    // Start heartbeat only after receiving first delta package
+                    if (!heartbeatStarted) {
+                      heartbeatStarted = true;
+                      setupHeartbeat();
+                    }
                     accumulatedText += pkt.text;
                     setContent(accumulatedText);
                   }
@@ -628,6 +704,11 @@ export default function LessonPresentationClient() {
                 gotFirstChunk = true;
 
                 if (pkt.type === "delta") {
+                  // Start heartbeat only after receiving first delta package
+                  if (!heartbeatStarted) {
+                    heartbeatStarted = true;
+                    setupHeartbeat();
+                  }
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
                 } else if (pkt.type === "done") {
@@ -674,6 +755,9 @@ export default function LessonPresentationClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           // Always set loading to false when stream completes or is aborted
           setLoading(false);
           if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
@@ -689,20 +773,164 @@ export default function LessonPresentationClient() {
 
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
+      // Reset JSON tracking state for new preview
+      jsonConvertedRef.current = false;
+      setOriginalJsonResponse(null);
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount, retryTrigger]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
+
+  // Track if we've converted a JSON preview to markdown to avoid loops
+  const jsonConvertedRef = useRef<boolean>(false);
+  // Store original JSON response to send during finalization instead of converted markdown
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string | null>(null);
+  // Editable state for titles and preview bullets
+  const [editedTitles, setEditedTitles] = useState<Record<number, string>>({});
+  const [editedBullets, setEditedBullets] = useState<Record<number, string[]>>({});
+
+  const setTitleForSlide = (idx: number, value: string) => {
+    setEditedTitles((prev) => ({ ...prev, [idx + 1]: value }));
+  };
+  const setBulletForSlide = (idx: number, bulletIdx: number, value: string) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr[bulletIdx] = value;
+      return { ...prev, [key]: arr };
+    });
+  };
+  const addBulletForSlide = (idx: number) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr.push("");
+      return { ...prev, [key]: arr };
+    });
+  };
+
+  // Helper: detect if a string is a single JSON object with slides
+  const tryParsePresentationJson = (text: string): any | null => {
+    try {
+      const trimmed = (text || "").trim();
+      if (!trimmed.startsWith("{")) return null;
+      const obj = JSON.parse(trimmed);
+      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Helper: convert JSON SlideDeckDetails to markdown for current preview UI
+  const convertPresentationJsonToMarkdown = (data: any): string => {
+    if (!data || !Array.isArray(data.slides)) return content;
+    const slidesMd: string[] = data.slides.map((s: any, idx: number) => {
+      const num = s?.slideNumber || idx + 1;
+      const title = (s?.slideTitle || `Slide ${num}`).toString();
+      const templateId = (s?.templateId || "content-slide").toString();
+      const props = s?.props || {};
+
+      const lines: string[] = [];
+      // Title line with layout hint
+      lines.push(`**Slide ${num}: ${title}** \`${templateId}\``);
+
+      // Preview key points (for preview UI only)
+      if (Array.isArray(s?.previewKeyPoints) && s.previewKeyPoints.length) {
+        lines.push(...s.previewKeyPoints.map((b: any) => `- ${String(b)}`));
+      }
+
+      // Minimal content reconstruction per common templates
+      if (props.title && typeof props.title === "string") {
+        lines.push(`## ${props.title}`);
+      }
+
+      if (Array.isArray(props.bullets) && props.bullets.length) {
+        lines.push(...props.bullets.map((b: any) => `- ${String(b)}`));
+      }
+
+      if ((props.leftTitle || props.rightTitle) || (props.leftContent || props.rightContent)) {
+        if (props.leftTitle) lines.push(`### ${props.leftTitle}`);
+        if (props.leftContent) lines.push(String(props.leftContent));
+        if (props.rightTitle) lines.push(`### ${props.rightTitle}`);
+        if (props.rightContent) lines.push(String(props.rightContent));
+      }
+
+      // Big numbers or metrics-like content
+      if (Array.isArray(props.boxes) && props.boxes.length) {
+        // four-box-grid style
+        props.boxes.forEach((box: any, i: number) => {
+          if (box?.title) lines.push(`- ${i + 1}. ${box.title}`);
+          if (box?.description) lines.push(`${box.description}`);
+        });
+      }
+
+      if (Array.isArray(props.steps) && props.steps.length) {
+        props.steps.forEach((step: any, i: number) => {
+          const t = step?.title || step?.label || `Step ${i + 1}`;
+          const d = step?.description || step?.text || "";
+          lines.push(`${i + 1}. ${t}${d ? ": " + d : ""}`);
+        });
+      }
+
+      if (props.subtitle && typeof props.subtitle === "string") {
+        lines.push(String(props.subtitle));
+      }
+
+      // Image placeholder hint if present
+      if (props.imagePrompt) {
+        lines.push(`[IMAGE_PLACEHOLDER: MEDIUM | CENTER | ${String(props.imagePrompt).slice(0, 140)}]`);
+      }
+
+      return lines.join("\n\n");
+    });
+
+    return slidesMd.join("\n\n---\n\n");
+  };
+
+  // If stream completed and preview is JSON, convert it to markdown once
+  useEffect(() => {
+    if (!streamDone) return;
+    if (jsonConvertedRef.current) return;
+    const json = tryParsePresentationJson(content);
+    if (json) {
+      const md = convertPresentationJsonToMarkdown(json);
+      if (md && md.trim()) {
+        jsonConvertedRef.current = true;
+        setOriginalJsonResponse(content); // Store original JSON for finalization
+        setContent(md);
+        // Initialize editable state from full JSON
+        try {
+          const obj = JSON.parse(content);
+          if (Array.isArray(obj?.slides)) {
+            const titles: Record<number, string> = {};
+            const bullets: Record<number, string[]> = {};
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              if (typeof s?.slideTitle === 'string') titles[num] = s.slideTitle;
+              if (Array.isArray(s?.previewKeyPoints)) bullets[num] = [...s.previewKeyPoints];
+            });
+            setEditedTitles(titles);
+            setEditedBullets(bullets);
+          }
+        } catch {}
+      }
+    }
+  }, [streamDone, content]);
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
+      // Do not strip first line if this is JSON or was converted from JSON
+      const looksLikeJson = (content || "").trim().startsWith("{");
+      if (!looksLikeJson && !jsonConvertedRef.current) {
       const parts = content.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
         // Remove leading blank lines (one or more) at the very start
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setContent(trimmed);
+        }
       }
       setFirstLineRemoved(true);
     }
@@ -726,6 +954,12 @@ export default function LessonPresentationClient() {
     // Replicate slide parsing logic used in the UI to count slides
     const countParsedSlides = (text: string): number => {
       if (!text || !text.trim()) return 0;
+
+      // Handle JSON preview directly
+      const json = tryParsePresentationJson(text);
+      if (json && Array.isArray(json.slides)) {
+        return json.slides.length;
+      }
 
       // Clean the content first
       const cleanedText = cleanContent(text);
@@ -752,6 +986,12 @@ export default function LessonPresentationClient() {
       slidesFound: slideCount
     });
 
+    // Don't trigger regeneration if we're handling insufficient credits
+    if (isHandlingInsufficientCredits) {
+      console.log(`[RESTART_SKIP] Skipping regeneration due to insufficient credits handling`);
+      return;
+    }
+
     if (slideCount === 0) {
       if (formatRetryCounter < 2) {
         console.log(`[RESTART_TRIGGER] Triggering restart attempt ${formatRetryCounter + 1}/2`);
@@ -770,13 +1010,29 @@ export default function LessonPresentationClient() {
         setFormatRetryCounter(0);
       }
     }
-  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
     if (isGenerating) return;
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
+    }
+
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsGenerating(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
     }
 
     setIsGenerating(true);
@@ -794,10 +1050,39 @@ export default function LessonPresentationClient() {
       setError("Finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
+    const activeProductType = sessionStorage.getItem('activeProductType');
+
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = currentPrompt?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+
+      // Log what we're sending for debugging
+      const responseToSend = originalJsonResponse || content;
+      const isUsingJson = !!originalJsonResponse;
+      console.log(`[FINALIZE] Sending ${isUsingJson ? 'original JSON' : 'markdown'} response (${responseToSend.length} chars)`);
+
+      // Build edits payload if any
+      let edits: Array<{ slideNumber: number; newTitle?: string; previewKeyPoints?: string[] }> = [];
+      try {
+        if (originalJsonResponse) {
+          const obj = JSON.parse(originalJsonResponse);
+          if (Array.isArray(obj?.slides)) {
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              const origTitle = typeof s?.slideTitle === 'string' ? s.slideTitle : '';
+              const origBullets: string[] = Array.isArray(s?.previewKeyPoints) ? s.previewKeyPoints : [];
+              const newTitle = editedTitles[num];
+              const newBullets = editedBullets[num];
+              const titleChanged = typeof newTitle === 'string' && newTitle !== '' && newTitle !== origTitle;
+              const bulletsChanged = Array.isArray(newBullets) && JSON.stringify(newBullets) !== JSON.stringify(origBullets);
+              if (titleChanged || bulletsChanged) {
+                edits.push({ slideNumber: num, ...(titleChanged ? { newTitle } : {}), ...(bulletsChanged ? { previewKeyPoints: newBullets } : {}) });
+              }
+            });
+          }
+        }
+      } catch {}
 
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
@@ -806,18 +1091,27 @@ export default function LessonPresentationClient() {
           outlineProjectId: selectedOutlineId || undefined,
           lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: content,
+          // Send original JSON if available, otherwise send markdown content
+          aiResponse: originalJsonResponse || content,
+          prompt: currentPrompt,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation
           folderId: folderContext?.folderId || undefined,
           // Include selected theme
           theme: selectedTheme,
+          // Edits tracking
+          hasUserEdits: edits.length > 0,
+          originalContent: originalJsonResponse || null,
+          editedSlides: edits,
           // Add connector context if creating from connectors
           ...(isFromConnectors && {
             fromConnectors: true,
             connectorIds: connectorIds.join(','),
             connectorSources: connectorSources.join(','),
+            ...(selectedFiles.length > 0 && {
+              selectedFiles: selectedFiles.join(','),
+            }),
           }),
         }),
         signal: abortController.signal
@@ -828,6 +1122,15 @@ export default function LessonPresentationClient() {
 
       if (!res.ok) {
         const errorText = await res.text();
+        // Check for insufficient credits (402)
+        if (res.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
+          setShowInsufficientCreditsModal(true);
+          // Clear timeout since we're not proceeding
+          clearTimeout(timeoutId);
+          return;
+        }
         throw new Error(errorText || `HTTP ${res.status}`);
       }
 
@@ -838,13 +1141,59 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType ?? undefined,
+        undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
       // Navigate immediately without delay to prevent cancellation
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
-      const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}` : `/projects/view/${data.id}`;
+      const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}?from=create` : `/projects/view/${data.id}?from=create`;
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
       router.push(redirectPath);
 
     } catch (error: any) {
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType ?? undefined,
+            undefined, 
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
+      
       caughtError = error;
       // Clear timeout on error
       clearTimeout(timeoutId);
@@ -887,7 +1236,10 @@ export default function LessonPresentationClient() {
                 console.log('Found newly created slide deck, redirecting...', newestProject.id);
                 // Use new interface for Video Lessons, old interface for regular presentations
                 const isVideoLesson = newestProject.design_microproduct_type === 'VideoLessonPresentationDisplay';
-                const redirectPath = isVideoLesson ? `/projects-2/view/${newestProject.id}` : `/projects/view/${newestProject.id}`;
+                const redirectPath = isVideoLesson ? `/projects-2/view/${newestProject.id}?from=create` : `/projects/view/${newestProject.id}?from=create`;
+                if (typeof window !== 'undefined') {
+                  try { sessionStorage.setItem('last_created_product_id', String(newestProject.id)); } catch (_) {}
+                }
                 router.push(redirectPath);
               } else {
                 // No new slide deck found, redirect to products page
@@ -1075,8 +1427,11 @@ export default function LessonPresentationClient() {
     }
   };
 
-  // Use the actual theme options from our theme system
-  const themeOptions = THEME_OPTIONS;
+  // Check ChudoMarket themes feature flag
+  const { isEnabled: hasChudoMarketThemes } = useFeaturePermission('chudo_market_themes');
+  
+  // Use filtered theme options based on feature flags
+  const themeOptions = getFilteredThemeOptions(hasChudoMarketThemes);
 
   // Cleanup effect to prevent stuck states
   useEffect(() => {
@@ -1166,26 +1521,105 @@ export default function LessonPresentationClient() {
 
   const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
+  // Extract slide objects from partial JSON streaming buffer
+  const extractSlidesFromPartialJson = (text: string): any[] => {
+    try {
+      const s = (text || "");
+      const slidesKeyIdx = s.indexOf('"slides"');
+      if (slidesKeyIdx < 0) return [];
+      const arrayStart = s.indexOf('[', slidesKeyIdx);
+      if (arrayStart < 0) return [];
+
+      const slides: any[] = [];
+      let i = arrayStart + 1;
+      const n = s.length;
+      while (i < n) {
+        while (i < n && (s[i] === ' ' || s[i] === '\n' || s[i] === '\r' || s[i] === '\t' || s[i] === ',')) i++;
+        if (i >= n) break;
+        if (s[i] === ']') break;
+        if (s[i] !== '{') {
+          const nextObj = s.indexOf('{', i);
+          if (nextObj < 0) break;
+          i = nextObj;
+        }
+        let depth = 0;
+        let start = i;
+        let end = -1;
+        while (i < n) {
+          const ch = s[i];
+          if (ch === '{') depth++;
+          else if (ch === '}') {
+            depth--;
+            if (depth === 0) { end = i + 1; break; }
+          }
+          i++;
+        }
+        if (end > 0) {
+          const objStr = s.slice(start, end);
+          try {
+            const slideObj = JSON.parse(objStr);
+            slides.push(slideObj);
+          } catch { /* ignore */ }
+        } else {
+          break;
+        }
+      }
+      return slides;
+    } catch { return []; }
+  };
+
+  // Build a live preview markdown from partial JSON during streaming
+  const getPreviewTextFromPartialJson = (text: string): string | null => {
+    try {
+      const slides = extractSlidesFromPartialJson(text);
+      if (!slides.length) return null;
+      const tmp = { slides };
+      return convertPresentationJsonToMarkdown(tmp);
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Decide what to render in the preview during streaming
+  const getLivePreviewText = (text: string): string => {
+    if (jsonConvertedRef.current) return text;
+    const md = getPreviewTextFromPartialJson(text);
+    if (md && md.trim()) return md;
+    return text;
+  };
+
   return (
     <>
       <main
         className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
         style={{
-          background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
       >
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+        {/* Back button */}
           <Link
             href="/create/generate"
-            className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
-          >
-            <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
+            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{
+            color: '#0F58F9',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
+        >
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {t('interface.generate.back', 'Back')}
           </Link>
 
-          <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+
+          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1209,156 +1643,267 @@ export default function LessonPresentationClient() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
+                    {/* Course Structure dropdowns - Outline, Module, Lesson */}
+                    {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
+                        <div className="flex items-center">
                     {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedOutlineId(val ? Number(val) : null);
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedOutlineId?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const val = value ? Number(value) : null;
+                                setSelectedOutlineId(val);
                           // clear module & lesson selections when outline changes
                           setSelectedModuleIndex(null);
                           setLessonsForModule([]);
                           setSelectedLesson("");
                         }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
                         {outlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
+                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                              </SelectContent>
+                            </Select>
                     </div>
 
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Module dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedModuleIndex?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const idx = value ? Number(value) : null;
                             setSelectedModuleIndex(idx);
                             setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                             setSelectedLesson("");
                           }}
                           disabled={modulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
                           {modulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
+                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                              </SelectContent>
+                            </Select>
+                      </div>
+
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Lesson dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                          value={selectedLesson}
+                              onValueChange={setSelectedLesson}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                          {lessonsForModule.map((l) => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
                       </div>
                     )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedLesson}
-                          onChange={(e) => setSelectedLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                          {lessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
+                    {/* Initial Outline dropdown - shows when no outline is selected yet */}
+                    {!selectedOutlineId && (
+                      <Select
+                        value={selectedOutlineId?.toString() ?? ""}
+                        onValueChange={(value: string) => {
+                          const val = value ? Number(value) : null;
+                          setSelectedOutlineId(val);
+                          // clear module & lesson selections when outline changes
+                          setSelectedModuleIndex(null);
+                          setLessonsForModule([]);
+                          setSelectedLesson("");
+                        }}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300">
+                          {outlines.map((o) => (
+                            <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <>
-                        <div className="relative">
-                          <select
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center">
+                          {/* Language dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
                             value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">{t('interface.english', 'English')}</option>
-                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                            <option value="ru">{t('interface.russian', 'Russian')}</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                              onValueChange={setLanguage}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                                  <span className="text-[#09090B]">{language === 'en' ? `${t('interface.english', 'English')}` : language === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : language === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
                         </div>
-                        <div className="relative">
-                          <select
-                            value={slidesCount}
-                            onChange={(e) => setSlidesCount(Number(e.target.value))}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                          
+                          {/* Slides count dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={slidesCount.toString()}
+                              onValueChange={handleSlidesCountChange}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                                  <span className="text-[#09090B]">{slidesCount}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
                             {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
+                                  <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                             ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                              </SelectContent>
+                            </Select>
                         </div>
-                      </>
+                        </div>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone lesson dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
-                    <div className="relative">
-                      <select
+                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                    <div className="flex items-center">
+                      {/* Language dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">{t('interface.english', 'English')}</option>
-                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                        <option value="ru">{t('interface.russian', 'Russian')}</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                          onValueChange={setLanguage}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                              <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                     </div>
-                    <div className="relative">
-                      <select
-                        value={slidesCount}
-                        onChange={(e) => setSlidesCount(Number(e.target.value))}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
+                          </SelectTrigger>
+                          <SelectContent className="border-white">
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                      
+                      {/* Slides count dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={slidesCount.toString()}
+                          onValueChange={(value: string) => setSlidesCount(Number(value))}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                              <span className="text-[#09090B]">{slidesCount}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
                         {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                          <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
+                              <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                          </SelectContent>
+                        </Select>
                     </div>
-                  </>
+                    </div>
+                  </div>
                 )}
 
-                {/* Reset button */}
-                <button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  {t('interface.generate.backButton', '← Back')}
-                </button>
               </div>
             )}
           </div>
 
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
-            <textarea
+            <div className="relative group">
+              <Textarea
               value={currentPrompt || ""}
               onChange={(e) => {
                 const newPrompt = e.target.value;
@@ -1377,8 +1922,14 @@ export default function LessonPresentationClient() {
               }}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               rows={1}
-              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                style={{ background: "rgba(255,255,255,0.95)" }}
             />
+              <Edit 
+                size={16} 
+                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              />
+            </div>
           )}
 
           <section className="flex flex-col gap-3">
@@ -1395,12 +1946,32 @@ export default function LessonPresentationClient() {
                 )}
               </div>
             )}
-            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+                <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                  <XCircle className="h-5 w-5" />
+                  {t('interface.error', 'Error')}
+                </div>
+                <div className="text-sm text-red-700 mb-4">
+                  <p>{error}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setRetryCount(0);
+                    setRetryTrigger(prev => prev + 1);
+                  }}
+                  className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+                >
+                  {t('interface.generate.retryGeneration', 'Retry Generation')}
+                </button>
+              </div>
+            )}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
+                className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
                 style={{ animation: 'fadeInDown 0.25s ease-out both' }}
               >
                 {loadingEdit && (
@@ -1417,7 +1988,7 @@ export default function LessonPresentationClient() {
                   };
 
                   // Clean the content first to handle malformed AI responses
-                  const cleanedContent = cleanContent(content);
+                  const cleanedContent = cleanContent(getLivePreviewText(content));
 
                   // Split slides properly - first try by --- separators, then by language-agnostic patterns
                   let slides = [];
@@ -1438,41 +2009,83 @@ export default function LessonPresentationClient() {
                     let title = '';
 
                     if (titleMatch) {
-                      title = titleMatch[1].trim();
+                      title = titleMatch[1]; // do not trim to allow trailing spaces
                     } else {
                       // Fallback: look for any **text** pattern at the start
                       const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                      title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                      title = fallbackMatch ? fallbackMatch[1] : `Slide ${slideIdx + 1}`;
                     }
 
                     return (
-                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                        {/* Left colored bar with index - matching course outline styling */}
-                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
+                      <div key={slideIdx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                        {/* Left blue square with number */}
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[7px]">
+                          {slideIdx + 1}
                         </div>
 
-                        {/* Main card - matching course outline styling */}
-                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        {/* Main content section */}
+                        <div className="flex-1">
                           {/* Slide title */}
                           <input
                             type="text"
-                            value={title}
+                            value={editedTitles[slideIdx + 1] ?? title}
                             onChange={(e) => {
                               const newTitle = e.target.value;
-                              // Update the content with new title using language-agnostic pattern
-                              const slidePattern = titleMatch
-                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
-
-                              const updatedContent = content.replace(slidePattern,
-                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                              );
-                              setContent(updatedContent);
+                              setTitleForSlide(slideIdx, newTitle);
                             }}
+                            disabled={!streamDone}
                             className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
+
+                          {/* Preview bullets under title (from original JSON if available) */}
+                          {(() => {
+                            try {
+                              // Prefer full original JSON (post-stream). Otherwise, use partial slides during stream
+                              let bullets: string[] = [];
+                              if (originalJsonResponse) {
+                                const obj = JSON.parse(originalJsonResponse);
+                                const slideObj = Array.isArray(obj?.slides)
+                                  ? obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
+                              if (!bullets.length) {
+                                const partialSlides = extractSlidesFromPartialJson(content);
+                                const slideObj = Array.isArray(partialSlides)
+                                  ? partialSlides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
+                              // Use edited bullets if present
+                              const edited = editedBullets[slideIdx + 1];
+                              if (Array.isArray(edited) && edited.length) bullets = edited;
+                              if (!bullets.length) return null;
+                              return (
+                                <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                                  {bullets.slice(0, 5).map((b, i) => (
+                                    <div key={i} className="flex items-center gap-2">
+                                      <span className="inline-block w-2 h-2 bg-gray-500 rounded-full" />
+                                      <input
+                                        type="text"
+                                        value={String(b)}
+                                        onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
+                                        disabled={!streamDone}
+                                        className="text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0 flex-1"
+                                        placeholder={t('interface.generate.topic', 'Topic') as string}
+                                      />
+                                    </div>
+                                  ))}
+                                  {/* Add bullet button removed from preview */}
+                                  {false && (
+                                  <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
+                                    + {t('interface.generate.addBullet', 'Add bullet')}
+                                  </button>
+                                  )}
+                                </div>
+                              );
+                            } catch (_) { return null; }
+                          })()}
                         </div>
                       </div>
                     );
@@ -1486,12 +2099,13 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <>
               {showAdvanced && (
-                <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <textarea
+                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
                   {/* Example prompts */}
@@ -1501,7 +2115,7 @@ export default function LessonPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}
@@ -1513,10 +2127,17 @@ export default function LessonPresentationClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyLessonEdit}
-                      className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
+                      onClick={() => {
+                        handleApplyLessonEdit();
+                        setAdvancedModeState("Used");
+                      }}
+                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                      style={{
+                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                        fontWeight: 500
+                      }}
                     >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
+                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
                     </button>
                   </div>
                 </div>
@@ -1524,11 +2145,18 @@ export default function LessonPresentationClient() {
               <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
-                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
+                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                 >
-                  {t('interface.generate.advancedMode', 'Advanced Mode')}
-                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                  <Sparkles size={16} />
+                  Smart Edit
                 </button>
               </div>
             </>
@@ -1537,7 +2165,7 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -1564,9 +2192,9 @@ export default function LessonPresentationClient() {
                           key={theme.id}
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
+                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
                             ? 'bg-[#cee2fd]'
-                            : ''
+                            : 'hover:shadow-lg'
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
@@ -1584,50 +2212,13 @@ export default function LessonPresentationClient() {
                       );
                     })}
                   </div>
-
-                  {/* Content section */}
-                  <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                    <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.contentDescription', 'Adjust text and image styles for your lesson')}</p>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
-                      <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                        {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
-                          <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
-                            {opt.icon} {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                      <div className="relative w-full">
-                        <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                      <div className="relative w-full">
-                        <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </section>
           )}
 
           {streamDone && content && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between" style={{ animation: 'fadeInDown 0.6s ease-out both' }}>
               <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
                 {/* Credits calculated based on slide count */}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -1665,6 +2256,26 @@ export default function LessonPresentationClient() {
           <LoadingAnimation message="Finalizing lesson..." />
         </div>
       )}
+      
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientCreditsModal}
+        onClose={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        }}
+        onBuyMore={() => {
+          setShowInsufficientCreditsModal(false);
+          setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+          setShowAddonsModal(true);
+        }}
+      />
+      
+      {/* Add-ons Modal */}
+      <ManageAddonsModal 
+        isOpen={showAddonsModal} 
+        onClose={() => setShowAddonsModal(false)} 
+      />
     </>
   );
 } 

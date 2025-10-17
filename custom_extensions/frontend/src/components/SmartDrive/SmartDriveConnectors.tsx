@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
+import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
+import ManageAddonsModal from '../AddOnsModal';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
+import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
 
 interface ConnectorConfig {
   id: string;
@@ -56,6 +59,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConnectorModal, setShowConnectorModal] = useState(false);
+  const [showQuotaModal, setShowQuotaModal] = useState<null | { type: 'connectors' | 'storage'; message: string }>(null);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<{id: string, name: string} | null>(null);
   const [showManagementPage, setShowManagementPage] = useState(false);
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
@@ -63,6 +68,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [showAllConnectors, setShowAllConnectors] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const isLoadingRef = useRef(false);
+  const [isConnectorFailed, setIsConnectorFailed] = useState(false);
+  const [entitlements, setEntitlements] = useState<any>(null);
+  const [connectorVisibility, setConnectorVisibility] = useState<Record<string, boolean>>({});
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -351,6 +359,42 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     ]
   };
 
+  // Feature-gated connector ids (must match ids above)
+  const GATED_CONNECTOR_IDS = useMemo(() => (
+    [
+      's3', 'r2', 'google_cloud_storage', 'oci_storage', 'sharepoint',
+      'teams', 'discourse', 'gong', 'axero', 'mediawiki',
+      'bookstack', 'guru', 'slab', 'linear', 'highspot', 'loopio'
+    ]
+  ), []);
+
+  // Load feature flags for gated connectors
+  useEffect(() => {
+    const abort = new AbortController();
+    const loadFlags = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const entries = await Promise.all(
+          GATED_CONNECTOR_IDS.map(async (id: string) => {
+            try {
+              const res = await fetch(`${base}/features/check/connector_${id}`, { credentials: 'same-origin', signal: abort.signal });
+              if (!res.ok) return [id, false] as const;
+              const json = await res.json();
+              return [id, Boolean(json?.is_enabled)] as const;
+            } catch {
+              return [id, false] as const;
+            }
+          })
+        );
+        setConnectorVisibility(Object.fromEntries(entries));
+      } catch {
+        // ignore
+      }
+    };
+    loadFlags();
+    return () => abort.abort();
+  }, [GATED_CONNECTOR_IDS]);
+
   // Load user's existing connectors
   const loadUserConnectors = useCallback(async () => {
     console.log('[POPUP_DEBUG] loadUserConnectors called, isLoadingRef.current:', isLoadingRef.current);
@@ -416,14 +460,35 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     }
   }, []); // useCallback dependency array
 
+  // Fetch entitlements
+  const fetchEntitlements = useCallback(async () => {
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/entitlements/me`, {
+        credentials: 'same-origin',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[ENTITLEMENTS] Fetched data:', data);
+        setEntitlements(data);
+      } else {
+        console.error('[ENTITLEMENTS] Failed to fetch:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('[ENTITLEMENTS] Error fetching entitlements:', error);
+    }
+  }, []);
+
   useEffect(() => {
     console.log('[POPUP_DEBUG] useEffect triggered - loading connectors');
     loadUserConnectors();
+    fetchEntitlements();
     
-    // Set up periodic refresh to update connector statuses (including removing fully deleted ones)
+    // Set up periodic refresh to update connector statuses and entitlements
     const refreshInterval = setInterval(() => {
-      console.log('[POPUP_DEBUG] Periodic refresh of connectors...');
+      console.log('[POPUP_DEBUG] Periodic refresh of connectors and entitlements...');
       loadUserConnectors();
+      fetchEntitlements();
     }, 10000); // Refresh every 10 seconds
     
     return () => {
@@ -441,6 +506,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   const handleConnectClick = (connectorId: string, connectorName: string) => {
+    setIsConnectorFailed(false);
+    timeEvent("Connect Connector");
+    // Enforce connectors entitlement before opening modal
+    const connectorsUsed = entitlements?.connectors_used ?? 0;
+    const connectorsLimit = entitlements?.connectors_limit ?? 0;
+    if (connectorsLimit && connectorsUsed >= connectorsLimit) {
+      setShowQuotaModal({
+        type: 'connectors',
+        message: `You have reached your connector limit (${connectorsUsed}/${connectorsLimit}).`
+      });
+      return;
+    }
     setSelectedConnector({ id: connectorId, name: connectorName });
     setShowConnectorModal(true);
   };
@@ -453,6 +530,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   const handleConnectorSubmit = async (formData: any) => {
+    // Enforce connectors entitlement on submit as well (double-check)
+    const connectorsUsed = entitlements?.connectors_used ?? 0;
+    const connectorsLimit = entitlements?.connectors_limit ?? 0;
+    if (connectorsLimit && connectorsUsed >= connectorsLimit) {
+      setShowConnectorModal(false);
+      setShowQuotaModal({
+        type: 'connectors',
+        message: `You have reached your connector limit (${connectorsUsed}/${connectorsLimit}).`
+      });
+      return;
+    }
+    const connector = Object.values(connectorCategories).flat().find(c => c.id === formData.connector_id);
     try {
       const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/create", {
         method: "POST",
@@ -468,12 +557,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
       const result = await response.json();
       console.log("Connector created successfully:", result);
+      if (connector) {
+        await trackConnector("Completed", connector.id, connector.name);
+      }
 
       // Close the modal and refresh the connector list
       setShowConnectorModal(false);
       setSelectedConnector(null);
       loadUserConnectors();
     } catch (error) {
+      if (connector) {
+        setIsConnectorFailed(true);
+        await trackConnector("Failed", connector.id, connector.name);
+      }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
     }
@@ -532,17 +628,112 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
         </div>
         
-        <SmartDriveFrame />
+        {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+          <SmartDriveFrame />
+        ) : (
+          <SmartDriveBrowser mode="manage" />
+        )}
       </div>
     );
   }
 
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
+      {/* Quota Exceeded Modal */}
+      {showQuotaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Quota Exceeded</h3>
+            <p className="text-sm text-gray-700 mb-6">{showQuotaModal.message}</p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowQuotaModal(null)}>Close</Button>
+              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }} className="text-gray-900">Buy More</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Usage Progress Bars */}
+      {entitlements && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
+          </div>
+          <div className="space-y-4">
+            {/* Connectors Progress */}
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700 font-medium">Connectors</span>
+                <span className="text-gray-600">
+                  {entitlements.connectors_used} / {entitlements.connectors_limit}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    entitlements.connectors_used >= entitlements.connectors_limit
+                      ? 'bg-red-500'
+                      : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(
+                      (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                      100
+                    )}%`,
+                  }}
+                />
+              </div>
+              {entitlements.connectors_used >= entitlements.connectors_limit && (
+                <div className="mt-2 text-right">
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)} className="text-gray-900">Buy More</Button>
+                </div>
+              )}
+            </div>
+
+            {/* Storage Progress */}
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700 font-medium">Storage</span>
+                <span className="text-gray-600">
+                  {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    entitlements.storage_used_gb >= entitlements.storage_gb
+                      ? 'bg-red-500'
+                      : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
+                      ? 'bg-yellow-500'
+                      : 'bg-blue-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(
+                      (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                      100
+                    )}%`,
+                  }}
+                />
+              </div>
+              {entitlements.storage_used_gb >= entitlements.storage_gb && (
+                <div className="mt-2 text-right">
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)} className="text-gray-900">Buy More</Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Smart Drive Browser Section */}
       <div className="mb-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <SmartDriveFrame />
+          {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+            <SmartDriveFrame />
+          ) : (
+            <SmartDriveBrowser mode="manage" />
+          )}
         </div>
       </div>
 
@@ -566,7 +757,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  style={{
                    backgroundColor: 'white',
                    borderColor: '#e2e8f0',
-                   background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                   background: 'white',
                    borderWidth: '1px',
                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                  }}
@@ -578,9 +769,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  }}
                  onClick={() => handleConnectClick(connector.id, connector.name)}
                >
-                 <CardContent className="p-6">
+                <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
+                <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
+                 <CardContent className="p-6 relative z-10">
                    <div className="flex items-center gap-4 mb-4">
-                     <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                        <Image
                          src={connector.logoPath}
                          alt={`${connector.name} logo`}
@@ -590,9 +782,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                          priority={false}
                          unoptimized={true}
                        />
-                     </div>
                      <div className="flex-1 min-w-0">
-                       <h3 className="text-lg font-semibold text-gray-900 truncate">
+                       <h3 className="text-lg font-semibold text-blue-600 truncate">
                          {connector.name}
                        </h3>
                      </div>
@@ -713,7 +904,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 {categoryName}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {connectors.map((connector) => {
+                {connectors
+                  .filter((connector) => !GATED_CONNECTOR_IDS.includes(connector.id) || connectorVisibility[connector.id])
+                  .map((connector) => {
                   const userConnectorsForSource = getConnectorsBySource(connector.id);
                   const hasConnectors = userConnectorsForSource.length > 0;
                   const hasMultipleConnectors = userConnectorsForSource.length > 1;
@@ -725,7 +918,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       style={{
                         backgroundColor: 'white',
                         borderColor: '#e2e8f0',
-                        background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                        background: 'white',
                         borderWidth: '1px',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
@@ -737,9 +930,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       }}
                       onClick={() => handleConnectClick(connector.id, connector.name)}
                     >
-                      <CardContent className="p-6">
+                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
+                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
+                      <CardContent className="p-6 relative z-10">
                         <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                             <Image
                               src={connector.logoPath}
                               alt={`${connector.name} logo`}
@@ -749,9 +943,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               priority={false}
                               unoptimized={true}
                             />
-                          </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            <h3 className="text-lg font-semibold text-blue-600 truncate">
                               {connector.name}
                             </h3>
                           </div>
@@ -764,7 +957,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               handleConnectClick(connector.id, connector.name);
                             }}
                             variant="download"
-                            className="flex-1 rounded-full bg-green-600 hover:bg-green-700"
+                            className="flex-1 rounded-full"
                           >
                             {t('interface.connect', 'Connect')}
                           </Button>
@@ -813,7 +1006,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             ) : (
                               <Button
                                 variant="outline"
-                                onClick={(e) => {
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                   e.stopPropagation();
                                   console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
                                   if (!showManagementPage && !isManagementOpening) {
@@ -882,6 +1075,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
+                    !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -897,6 +1091,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
+                  !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}
@@ -920,6 +1115,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           }}
         />
       )}
+      {/* Add-ons Modal */}
+      <ManageAddonsModal isOpen={showAddonsModal} onClose={() => setShowAddonsModal(false)} />
+
     </div>
   );
 };

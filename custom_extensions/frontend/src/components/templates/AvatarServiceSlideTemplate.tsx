@@ -290,132 +290,156 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   return (
-    <div style={slideStyles}>
+    <div style={slideStyles} data-slide-canvas="true">
       {/* Dark shape in top-left corner */}
       <div style={darkShapeStyles}></div>
       
       <div style={contentContainerStyles}>
         {/* Left content */}
         <div style={leftContentStyles}>
-          {/* Title */}
-          {isEditable && editingTitle ? (
-            <InlineEditor
-              initialValue={title || ''}
-              onSave={handleTitleSave}
-              onCancel={handleTitleCancel}
-              multiline={true}
-              placeholder="Enter slide title..."
-              className="inline-editor-title"
-              style={{
-                ...titleStyles,
-                margin: '0',
-                padding: '8px 12px',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '4px'
-              }}
-            />
-          ) : (
-            <h1 
-              style={titleStyles}
-              onClick={() => {
-                if (isEditable) {
-                  setEditingTitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {title || 'Клиентский сервис -'}
-            </h1>
-          )}
+          {/* Title - wrapped in draggable div */}
+          <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
+            {isEditable && editingTitle ? (
+              <InlineEditor
+                initialValue={title || ''}
+                onSave={handleTitleSave}
+                onCancel={handleTitleCancel}
+                multiline={true}
+                placeholder="Enter slide title..."
+                className="inline-editor-title"
+                style={{
+                  ...titleStyles,
+                  margin: '0',
+                  padding: '8px 12px',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px'
+                }}
+              />
+            ) : (
+              <h1 
+                style={titleStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setEditingTitle(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {title || 'Клиентский сервис -'}
+              </h1>
+            )}
+          </div>
 
-          {/* Subtitle */}
+          {/* Subtitle - wrapped in draggable div */}
           {subtitle && (
-            isEditable && editingSubtitle ? (
-              <InlineEditor
-                initialValue={subtitle}
-                onSave={handleSubtitleSave}
-                onCancel={handleSubtitleCancel}
-                multiline={true}
-                placeholder="Enter subtitle..."
-                className="inline-editor-subtitle"
-                style={{
-                  ...subtitleStyles,
-                  margin: '0',
-                  padding: '8px 12px',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '4px'
-                }}
-              />
-            ) : (
-              <h2 
-                style={subtitleStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    setEditingSubtitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {subtitle}
-              </h2>
-            )
+            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
+              {isEditable && editingSubtitle ? (
+                <InlineEditor
+                  initialValue={subtitle}
+                  onSave={handleSubtitleSave}
+                  onCancel={handleSubtitleCancel}
+                  multiline={true}
+                  placeholder="Enter subtitle..."
+                  className="inline-editor-subtitle"
+                  style={{
+                    ...subtitleStyles,
+                    margin: '0',
+                    padding: '8px 12px',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '4px'
+                  }}
+                />
+              ) : (
+                <h2 
+                  style={subtitleStyles}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingSubtitle(true);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {subtitle}
+                </h2>
+              )}
+            </div>
           )}
 
-          {/* Content */}
+          {/* Content - wrapped in draggable div */}
           {content && (
-            isEditable && editingContent ? (
-              <InlineEditor
-                initialValue={content}
-                onSave={handleContentSave}
-                onCancel={handleContentCancel}
-                multiline={true}
-                placeholder="Enter content..."
-                className="inline-editor-content"
-                style={{
-                  ...contentStyles,
-                  margin: '0',
-                  padding: '8px 12px',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '4px'
-                }}
-              />
-            ) : (
-              <p 
-                style={contentStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    setEditingContent(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {content}
-              </p>
-            )
+            <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
+              {isEditable && editingContent ? (
+                <InlineEditor
+                  initialValue={content}
+                  onSave={handleContentSave}
+                  onCancel={handleContentCancel}
+                  multiline={true}
+                  placeholder="Enter content..."
+                  className="inline-editor-content"
+                  style={{
+                    ...contentStyles,
+                    margin: '0',
+                    padding: '8px 12px',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '4px'
+                  }}
+                />
+              ) : (
+                <p 
+                  style={contentStyles}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingContent(true);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {content}
+                </p>
+              )}
+            </div>
           )}
         </div>
 

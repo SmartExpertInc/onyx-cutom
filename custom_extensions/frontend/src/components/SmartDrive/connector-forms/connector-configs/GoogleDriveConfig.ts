@@ -20,56 +20,36 @@ export const GoogleDriveConfig: ConnectorFormConfig = {
       description: 'A descriptive name for this Google Drive connection'
     },
     {
-      name: 'folder_ids',
-      label: 'Folder IDs',
+      name: 'shared_folder_urls',
+      label: 'Shared Folder URLs',
       type: 'textarea',
-      placeholder: 'Enter folder IDs, one per line',
-      description: 'Specific folder IDs to index (leave empty to index all accessible folders)',
+      placeholder: 'Enter folder URLs, one per line (optional)',
+      description: 'Specific folder URLs to index (leave empty to index based on options below)',
       validation: {
-        pattern: '^[a-zA-Z0-9-_\\s\\n]*$',
-        message: 'Folder IDs should contain only letters, numbers, hyphens, and underscores'
+        pattern: '^[a-zA-Z0-9-_/:\\.\\s\\n]*$',
+        message: 'Folder URLs should contain valid URL characters'
       }
     },
     {
-      name: 'include_shared',
-      label: 'Include Shared Folders',
+      name: 'include_files_shared_with_me',
+      label: 'Include Files Shared With Me',
       type: 'boolean',
       defaultValue: true,
-      description: 'Whether to include folders shared with you'
+      description: 'Whether to include files shared directly with you'
     },
     {
-      name: 'include_my_drive',
-      label: 'Include My Drive',
+      name: 'include_my_drives',
+      label: 'Include My Drives',
       type: 'boolean',
       defaultValue: true,
       description: 'Whether to include files in your personal Google Drive'
     },
     {
-      name: 'file_types',
-      label: 'File Types to Index',
-      type: 'multiselect',
-      defaultValue: ['document', 'spreadsheet', 'presentation', 'pdf'],
-      options: [
-        { value: 'document', label: 'Google Docs' },
-        { value: 'spreadsheet', label: 'Google Sheets' },
-        { value: 'presentation', label: 'Google Slides' },
-        { value: 'pdf', label: 'PDF Files' },
-        { value: 'image', label: 'Images' },
-        { value: 'video', label: 'Videos' }
-      ],
-      description: 'Select which file types to include in the index'
-    }
-  ],
-  sections: [
-    {
-      title: 'Basic Configuration',
-      description: 'Set up the basic connection to your Google Drive',
-      fields: ['name']
-    },
-    {
-      title: 'Content Selection',
-      description: 'Configure what content to include in the index',
-      fields: ['folder_ids', 'include_shared', 'include_my_drive', 'file_types']
+      name: 'include_shared_drives',
+      label: 'Include Shared Drives',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Whether to include shared team drives'
     }
   ]
 }; 

@@ -547,9 +547,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
               className="relative overflow-hidden border-2 border-blue-500 bg-gray-100 rounded-lg"
               style={{
                 width: placeholderDimensions.width,
-                height: placeholderDimensions.height,
-                maxWidth: '100%',
-                maxHeight: '60vh'
+                height: placeholderDimensions.height
               }}
             >
               {/* Dimensions indicator */}

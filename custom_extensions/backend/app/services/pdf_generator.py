@@ -81,9 +81,9 @@ MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
 BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
 
 # --- Setup Jinja2 Environment ---
-TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
 if not os.path.exists(TEMPLATE_DIR):
-    TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
+    TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 
 logger.info(f"PDF Template Directory expected at: {TEMPLATE_DIR}")
 if not os.path.isdir(TEMPLATE_DIR):
@@ -2284,7 +2284,9 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
-async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
+from typing import Optional
+
+async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: Optional[str] = None) -> list:
     """
     Process a batch of slides in parallel for better performance.
     
@@ -2298,6 +2300,23 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     """
     tasks = []
     for slide_data, slide_height, output_path, slide_index, template_id in slides_batch:
+        # NOTE: We do NOT add _old suffix for PDF rendering because:
+        # 1. The Jinja PDF template doesn't have _old versions of templates
+        # 2. Old and new slides render the same way in PDF (colors are handled by theme)
+        # 3. The _old suffix is only for frontend React component selection
+        try:
+            effective_version = deck_template_version
+            if not effective_version:
+                effective_version = (slide_data or {}).get('metadata', {}).get('version')
+            
+            original_template_id = slide_data.get('templateId') if isinstance(slide_data, dict) else None
+            logger.info(f"🔍 PDF VERSION CHECK - Slide {slide_index}: deck_template_version={deck_template_version}, effective_version={effective_version}, templateId={original_template_id}")
+            
+            # PDF templates are version-agnostic - they use the base template ID
+            # Theme colors will be applied based on deck version elsewhere
+            logger.info(f"✅ PDF RENDERING - Slide {slide_index}: Using base template {original_template_id}")
+        except Exception as e:
+            logger.error(f"❌ PDF VERSION CHECK ERROR - Slide {slide_index}: {e}", exc_info=True)
         task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
         tasks.append(task)
     
@@ -2467,7 +2486,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     slides_data: list,
     theme: str,
     output_filename: str,
-    use_cache: bool = True
+    use_cache: bool = True,
+    deck_template_version: Optional[str] = None
 ) -> str:
     """
     Generate a PDF slide deck with dynamic height per slide.
@@ -2484,6 +2504,8 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     """
     pdf_path_in_cache = PDF_CACHE_DIR / output_filename
     
+    logger.info(f"🔍 PDF GENERATION START - deck_template_version={deck_template_version}, slides_count={len(slides_data)}, theme={theme}")
+    
     if use_cache and pdf_path_in_cache.exists():
         logger.info(f"PDF CACHE: Serving cached PDF: {pdf_path_in_cache}")
         return str(pdf_path_in_cache)
@@ -2496,7 +2518,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
     start_time = time.time()
     
     try:
-        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}")
+        logger.info(f"Generating slide deck PDF with {len(slides_data)} slides, theme: {theme}, version: {deck_template_version}")
         
         # Step 1: Calculate heights for all slides with a single browser instance
         logger.info("Calculating slide heights...")
@@ -2546,7 +2568,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
             try:
-                batch_results = await process_slide_batch(batch, theme, batch_browser)
+                batch_results = await process_slide_batch(batch, theme, batch_browser, deck_template_version)
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
             except Exception as e:
@@ -2904,12 +2926,68 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         _log.error("[PDF] Invalid slides data after normalization")
         raise HTTPException(status_code=500, detail="Failed to generate slide deck PDF: Invalid slides data")
 
+    # Determine theme from stored content with sensible defaults
+    theme_value = "dark-purple"
+    try:
+        if isinstance(raw_content, dict):
+            theme_value = (
+                raw_content.get("theme")
+                or (raw_content.get("details") or {}).get("theme")
+                or theme_value
+            )
+        elif isinstance(content_obj, dict):
+            theme_value = (
+                content_obj.get("theme")
+                or (content_obj.get("details") or {}).get("theme")
+                or theme_value
+            )
+    except Exception:
+        # Fallback to default on any parsing issue
+        theme_value = "dark-purple"
+
+    # Extract deck templateVersion for version-aware rendering
+    deck_template_version = None
+    try:
+        if isinstance(raw_content, dict):
+            deck_template_version = (
+                raw_content.get("templateVersion")
+                or (raw_content.get("details") or {}).get("templateVersion")
+            )
+        elif isinstance(content_obj, dict):
+            deck_template_version = (
+                content_obj.get("templateVersion")
+                or (content_obj.get("details") or {}).get("templateVersion")
+            )
+    except Exception:
+        pass
+    
+    _log.info(f"🔍 PDF DECK VERSION - product_id={product_data['id']}, templateVersion={deck_template_version}, raw_content_type={type(raw_content).__name__}")
+    
+    # Apply version-aware theme mapping (matching frontend logic)
+    # Legacy decks (no version or < v2) should use v1 theme variants with old colors
+    THEME_V1_MAP = {
+        'dark-purple': 'dark-purple-v1',
+        # Add other theme mappings as needed
+    }
+    
+    original_theme = theme_value
+    if not deck_template_version or deck_template_version < 'v2':
+        v1_theme = THEME_V1_MAP.get(theme_value)
+        if v1_theme:
+            theme_value = v1_theme
+            _log.info(f"🎨 PDF THEME MAPPING - Legacy deck: {original_theme} -> {theme_value}")
+        else:
+            _log.info(f"🎨 PDF THEME - Legacy deck using: {theme_value} (no v1 variant)")
+    else:
+        _log.info(f"🎨 PDF THEME - New deck (v2+) using: {theme_value}")
+
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
         slides_list,
-        'default',
+        theme_value,
         output_filename,
-        use_cache=False
+        use_cache=False,
+        deck_template_version=deck_template_version
     )
 
     with open(pdf_path, 'rb') as pdf_file:
@@ -2979,12 +3057,8 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     except Exception:
         pass
 
-    # Build wrapper context expected by templates (details/locale)
-    wrapper_context = {
-        'details': data_for_template_render,
-        'locale': {}
-    }
-
+    # Build wrapper contexts expected by templates (details/locale)
+    # We'll construct the exact wrapper per template when rendering to keep compatibility across templates
     candidates = []
     # Prefer template by component/type; fall back to the other
     if comp_name in ("pdf lesson", "pdflesson") or mtype in ("pdf lesson", "pdflesson"):
@@ -3004,6 +3078,24 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     for tpl in candidates:
         _log.info(f"[PDF] One-pager: trying template '{tpl}' (mtype='{mtype}', component='{comp_name}')")
         try:
+            # Build context per template to satisfy expected structure
+            if tpl == 'pdf_lesson_pdf_template.html':
+                # pdf_lesson template expects details.details
+                wrapper_context = {
+                    'details': {
+                        'details': data_for_template_render,
+                        'parentProjectName': product_data.get('parent_project_name') or product_data.get('parentProjectName'),
+                        'lessonNumber': product_data.get('lesson_number') or product_data.get('lessonNumber'),
+                        'locale': {}
+                    }
+                }
+            else:
+                # text presentation expects details.* directly
+                wrapper_context = {
+                    'details': data_for_template_render,
+                    'locale': {}
+                }
+
             pdf_path = await generate_pdf_from_html_template(
                 tpl,
                 wrapper_context,

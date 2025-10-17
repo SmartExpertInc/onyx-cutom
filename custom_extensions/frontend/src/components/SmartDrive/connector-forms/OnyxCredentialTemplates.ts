@@ -51,7 +51,7 @@ export const credentialTemplates: Record<ValidSources, CredentialTemplate> = {
   airtable: { airtable_access_token: "" },
   discord: { discord_bot_token: "" },
   gitbook: { gitbook_api_key: "" },
-  google_drive: { google_service_account_key: "", google_primary_admin: "" },
+  google_drive: { google_service_account_key: ""},
   gmail: { google_service_account_key: "", google_primary_admin: "" },
   xenforo: null,
   google_sites: null,

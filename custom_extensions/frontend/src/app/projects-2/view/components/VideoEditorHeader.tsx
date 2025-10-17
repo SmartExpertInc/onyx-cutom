@@ -6,6 +6,8 @@ import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
+import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
+import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 
 interface EmailInput {
   id: string;
@@ -16,9 +18,19 @@ interface EmailInput {
 interface VideoEditorHeaderProps {
   aspectRatio: string;
   onAspectRatioChange: (ratio: string) => void;
+  // Video generation data props
+  videoLessonData?: any;
+  componentBasedSlideDeck?: any;
+  currentSlideId?: string;
 }
 
-export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: VideoEditorHeaderProps) {
+export default function VideoEditorHeader({ 
+  aspectRatio, 
+  onAspectRatioChange,
+  videoLessonData,
+  componentBasedSlideDeck,
+  currentSlideId
+}: VideoEditorHeaderProps) {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
@@ -32,6 +44,27 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
     { id: '1', email: '', role: 'editor' }
   ]);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  
+  // Video generation state - transferred from VideoDownloadButton
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationJobId, setGenerationJobId] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  
+  // Use global avatar context instead of local state
+  const { defaultAvatar } = useAvatarDisplay();
+  
+  // Debug logging for avatar context
+  useEffect(() => {
+    console.log('🎬 [VIDEO_GENERATION] Avatar context updated:', {
+      hasDefaultAvatar: !!defaultAvatar,
+      avatarName: defaultAvatar?.avatar?.name,
+      avatarCode: defaultAvatar?.avatar?.code,
+      variantName: defaultAvatar?.selectedVariant?.name,
+      variantCode: defaultAvatar?.selectedVariant?.code
+    });
+  }, [defaultAvatar]);
+  
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const sharePopupRef = useRef<HTMLDivElement>(null);
@@ -131,6 +164,441 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
     // Don't allow deleting the first input
     if (id === '1') return;
     setEmailInputs(prev => prev.filter(input => input.id !== id));
+  };
+
+  // Video generation constants and functions - transferred from VideoDownloadButton
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Function to extract actual slide data from current project - updated to use props
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
+    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
+    console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
+    console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
+    console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
+    
+    try {
+      // First try to get data from componentBasedSlideDeck (newer structure)
+      if (componentBasedSlideDeck?.slides && componentBasedSlideDeck.slides.length > 0) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in componentBasedSlideDeck:', componentBasedSlideDeck.slides.length, 'slides');
+        
+        // Extract voiceover texts from slides
+        const voiceoverTexts = componentBasedSlideDeck.slides
+          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText || '')
+          .filter((text: string) => text && text.trim().length > 0);
+        
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck:', voiceoverTexts);
+        
+        return {
+          slides: componentBasedSlideDeck.slides,
+          theme: componentBasedSlideDeck.theme || 'dark-purple',
+          voiceoverTexts: voiceoverTexts
+        };
+      }
+      
+      // Then try to get data from videoLessonData (older structure)
+      if (videoLessonData?.slides && videoLessonData.slides.length > 0) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in videoLessonData:', videoLessonData.slides.length, 'slides');
+        
+        // Extract voiceover texts from slides
+        const voiceoverTexts = videoLessonData.slides
+          .map((slide: any) => slide.voiceoverText || '')
+          .filter((text: string) => text && text.trim().length > 0);
+        
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from videoLessonData:', voiceoverTexts);
+        
+        return {
+          slides: videoLessonData.slides,
+          theme: videoLessonData.theme || 'dark-purple',
+          voiceoverTexts: voiceoverTexts
+        };
+      }
+
+      // If no slides found, create a fallback with the current slide if available
+      if (currentSlideId) {
+        console.log('🎬 [VIDEO_DOWNLOAD] No slides found, but currentSlideId exists:', currentSlideId);
+        
+        // Try to find the current slide in either data structure
+        let currentSlide = null;
+        if (componentBasedSlideDeck?.slides) {
+          currentSlide = componentBasedSlideDeck.slides.find((s: any) => s.slideId === currentSlideId);
+        } else if (videoLessonData?.slides) {
+          currentSlide = videoLessonData.slides.find((s: any) => s.slideId === currentSlideId);
+        }
+        
+        if (currentSlide) {
+          const voiceoverText = currentSlide.voiceoverText || currentSlide.props?.voiceoverText || 
+            'Welcome to this professional presentation. We will explore key concepts and insights.';
+          
+          console.log('🎬 [VIDEO_DOWNLOAD] Using current slide as fallback:', voiceoverText);
+          
+          return {
+            slides: [currentSlide],
+            theme: 'dark-purple',
+            voiceoverTexts: [voiceoverText]
+          };
+        }
+      }
+
+      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data - no slides found');
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+        
+    } catch (error) {
+      console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
+    }
+  };
+
+  // Avatar selection is now handled by the global AvatarDisplayManager context
+
+  // Download video function - transferred from VideoDownloadButton
+  const downloadVideo = async (jobId: string) => {
+    try {
+      console.log('🎬 [VIDEO_GENERATION] Downloading video for job:', jobId);
+      
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/mp4',
+        },
+        credentials: 'same-origin',
+      });
+       
+      console.log('🎬 [VIDEO_GENERATION] Download response status:', downloadResponse.status);
+      if (!downloadResponse.ok) {
+        console.error('🎬 [VIDEO_GENERATION] Download failed with status:', downloadResponse.status);
+        throw new Error(`Download failed: ${downloadResponse.status}`);
+      }
+
+      // Create blob and download
+      console.log('🎬 [VIDEO_GENERATION] Creating blob and initiating download...');
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `professional_presentation_${jobId}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('🎬 [VIDEO_GENERATION] Video downloaded successfully!');
+       
+    } catch (error) {
+      console.error('🎬 [VIDEO_GENERATION] Download failed:', error);
+      setGenerationError(error instanceof Error ? error.message : 'Download failed');
+    }
+  };
+
+  // Save generated video as a product in the database
+  const saveVideoAsProduct = async (jobId: string) => {
+    try {
+      console.log('🎬 [VIDEO_GENERATION] Saving video as product for job:', jobId);
+      
+      // Get the first slide data for the product name
+      const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
+      const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
+      
+      // Find or create video product template
+      let videoTemplateId = 1; // Default fallback
+      try {
+        const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
+        if (templatesResponse.ok) {
+          const templates = await templatesResponse.json();
+          const videoTemplate = templates.find((t: any) => t.component_name === 'VideoProductDisplay');
+          
+          if (videoTemplate) {
+            videoTemplateId = videoTemplate.id;
+            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', videoTemplateId);
+          } else {
+            // Create video product template
+            const newTemplate = {
+              template_name: 'Video Product',
+              template_structuring_prompt: JSON.stringify({
+                videoJobId: 'string',
+                videoUrl: 'string',
+                thumbnailUrl: 'string',
+                generatedAt: 'string',
+                sourceSlides: 'array',
+                component_name: 'VideoProductDisplay'
+              }),
+              microproduct_type: 'video_product',
+              component_name: 'VideoProductDisplay'
+            };
+            
+            const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates/add`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newTemplate)
+            });
+            
+            if (createResponse.ok) {
+              const createdTemplate = await createResponse.json();
+              videoTemplateId = createdTemplate.id;
+              console.log('🎬 [VIDEO_GENERATION] Created new video template:', videoTemplateId);
+            } else {
+              console.warn('🎬 [VIDEO_GENERATION] Failed to create video template, using default:', videoTemplateId);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('🎬 [VIDEO_GENERATION] Error handling video template, using default:', error);
+      }
+      
+      // Create project data following the golden reference pattern
+      const projectData = {
+        projectName: productName,
+        microProductName: productName,
+        design_template_id: videoTemplateId, // Use the video product template
+        aiResponse: JSON.stringify({
+          videoJobId: jobId,
+          videoUrl: `/presentations/${jobId}/video`,
+          thumbnailUrl: `/presentations/${jobId}/thumbnail`,
+          generatedAt: new Date().toISOString(),
+          sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || [],
+          component_name: "VideoProductDisplay" // Use the new component type
+        })
+      };
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(projectData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save video as product: ${response.status}`);
+      }
+
+      const savedProject = await response.json();
+      console.log('🎬 [VIDEO_GENERATION] Video saved as product:', savedProject);
+      
+      return savedProject;
+      
+    } catch (error) {
+      console.error('🎬 [VIDEO_GENERATION] Failed to save video as product:', error);
+      // Don't throw error - this is not critical for the main flow
+    }
+  };
+
+  // Main video generation function - transferred from VideoDownloadButton
+  const handleVideoGeneration = async () => {
+    console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
+    console.log('🎬 [VIDEO_GENERATION] Global defaultAvatar:', defaultAvatar);
+    
+    // Use the global avatar context instead of local state
+    let avatarToUse = defaultAvatar?.avatar;
+    let variantToUse = defaultAvatar?.selectedVariant;
+    
+    if (!avatarToUse) {
+      console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
+      // Use a real avatar that exists in the backend as fallback
+      avatarToUse = {
+        id: 'max-avatar',
+        code: 'max',
+        name: 'Max',
+        type: null,
+        status: 1,
+        accountId: 'default',
+        gender: 'male' as const,
+        thumbnail: '',
+        canvas: '',
+        variants: [{
+          id: 'business-variant',
+          code: 'business',
+          name: 'Business',
+          thumbnail: '',
+          canvas: ''
+        }]
+      };
+      variantToUse = {
+        id: 'business-variant',
+        code: 'business',
+        name: 'Business',
+        thumbnail: '',
+        canvas: ''
+      };
+      console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+    } else {
+      console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
+    }
+
+          try {
+        setGenerationStatus('generating');
+        setGenerationProgress(0);
+        setGenerationError(null);
+
+        // Debug: Log all available data at generation start
+        console.log('🎬 [VIDEO_GENERATION] Generation started with data:', {
+          selectedAvatar: avatarToUse?.name,
+          selectedVariant: variantToUse?.name,
+          videoTitle,
+          videoLessonData: videoLessonData ? 'Available' : 'Not available',
+          componentBasedSlideDeck: componentBasedSlideDeck ? 'Available' : 'Not available',
+          currentSlideId,
+          videoLessonDataSlides: videoLessonData?.slides?.length || 0,
+          componentBasedSlides: componentBasedSlideDeck?.slides?.length || 0
+        });
+
+      console.log('🎬 [VIDEO_GENERATION] Starting video generation with avatar:', {
+        avatar: avatarToUse?.name,
+        variant: variantToUse?.name,
+        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code
+      });
+
+      // Extract slide data
+      console.log('🎬 [VIDEO_GENERATION] Extracting slide data...');
+      const slideData = await extractSlideData();
+      
+      if (!slideData.slides || slideData.slides.length === 0) {
+        const errorMsg = 'No slide data found. Please make sure you have a slide open.';
+        console.error('🎬 [VIDEO_GENERATION]', errorMsg);
+        setGenerationError(errorMsg);
+        setGenerationStatus('error');
+        return;
+      }
+
+      console.log('🎬 [VIDEO_GENERATION] Slide data extracted successfully');
+      console.log('🎬 [VIDEO_GENERATION] Slides count:', slideData.slides.length);
+      console.log('🎬 [VIDEO_GENERATION] Theme:', slideData.theme);
+      console.log('🎬 [VIDEO_GENERATION] Voiceover texts count:', slideData.voiceoverTexts.length);
+
+      // Create the request payload
+      const requestPayload = {
+        projectName: videoTitle || 'Generated Video',
+        voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
+          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
+        ],  // Use actual voiceover texts or fallback
+        slidesData: slideData.slides,  // Add the extracted slide data
+        theme: slideData.theme,  // Use the extracted theme
+        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
+        useAvatarMask: true,
+        layout: 'picture_in_picture',
+        duration: 30.0,
+        quality: 'high',
+        resolution: [1920, 1080]
+      };
+
+              console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
+
+        // Additional debugging for the request payload
+        console.log('🎬 [VIDEO_GENERATION] Final request payload:', {
+          projectName: requestPayload.projectName,
+          voiceoverTextsCount: requestPayload.voiceoverTexts.length,
+          voiceoverTexts: requestPayload.voiceoverTexts,
+          slidesCount: requestPayload.slidesData.length,
+          theme: requestPayload.theme,
+          avatarCode: requestPayload.avatarCode
+        });
+
+      // Create presentation
+      console.log('🎬 [VIDEO_GENERATION] Making API request to:', `${CUSTOM_BACKEND_URL}/presentations`);
+      const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(requestPayload)
+      });
+
+      console.log('🎬 [VIDEO_GENERATION] API response status:', createResponse.status);
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        console.error('🎬 [VIDEO_GENERATION] API request failed:', errorText);
+        throw new Error(`Failed to create presentation: ${createResponse.status} - ${errorText}`);
+      }
+
+      const createData = await createResponse.json();
+      console.log('🎬 [VIDEO_GENERATION] API response data:', createData);
+
+      if (!createData.success) {
+        console.error('🎬 [VIDEO_GENERATION] API returned success: false:', createData.error);
+        throw new Error(createData.error || 'Failed to create presentation');
+      }
+
+      const newJobId = createData.jobId;
+      setGenerationJobId(newJobId);
+      console.log('🎬 [VIDEO_GENERATION] Presentation job created successfully:', newJobId);
+
+      // Close GenerateModal and open GenerationCompletedModal
+      console.log('🎬 [VIDEO_GENERATION] Closing GenerateModal and opening GenerationCompletedModal');
+      setIsGenerateModalOpen(false);
+      setIsGenerationCompletedModalOpen(true);
+
+      // Poll for completion
+      console.log('🎬 [VIDEO_GENERATION] Starting polling for job completion...');
+      const pollInterval = setInterval(async () => {
+        try {
+          console.log('🎬 [VIDEO_GENERATION] Polling job status for:', newJobId);
+          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+          });
+
+          if (!statusResponse.ok) {
+            console.error('🎬 [VIDEO_GENERATION] Status check failed with status:', statusResponse.status);
+            throw new Error(`Status check failed: ${statusResponse.status}`);
+          }
+
+          const statusData = await statusResponse.json();
+          console.log('🎬 [VIDEO_GENERATION] Status response:', statusData);
+          
+          if (statusData.success) {
+            const currentProgress = statusData.progress || 0;
+            setGenerationProgress(currentProgress);
+            
+            console.log('🎬 [VIDEO_GENERATION] Job progress:', currentProgress, 'Status:', statusData.status);
+            
+            if (statusData.status === 'completed') {
+              clearInterval(pollInterval);
+              setGenerationStatus('completed');
+              setGenerationProgress(100);
+              console.log('🎬 [VIDEO_GENERATION] Video generation completed successfully!');
+              
+              // Auto-download the video
+              console.log('🎬 [VIDEO_GENERATION] Starting video download...');
+              await downloadVideo(newJobId);
+              
+              // Save video as a product in the database
+              console.log('🎬 [VIDEO_GENERATION] Saving video as product...');
+              await saveVideoAsProduct(newJobId);
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval);
+              setGenerationStatus('error');
+              console.error('🎬 [VIDEO_GENERATION] Video generation failed:', statusData.error);
+              throw new Error(statusData.error || 'Video generation failed');
+            }
+          } else {
+            console.error('🎬 [VIDEO_GENERATION] Status check returned success: false:', statusData.error);
+            throw new Error(statusData.error || 'Status check failed');
+          }
+        } catch (error) {
+          console.error('🎬 [VIDEO_GENERATION] Status check error:', error);
+          clearInterval(pollInterval);
+          setGenerationStatus('error');
+          setGenerationError(error instanceof Error ? error.message : 'Status check failed');
+        }
+      }, 2000);
+
+      // Set a timeout to stop polling after 10 minutes
+      setTimeout(() => {
+        console.log('🎬 [VIDEO_GENERATION] Polling timeout reached (10 minutes)');
+        clearInterval(pollInterval);
+        if (generationStatus === 'generating') {
+          setGenerationStatus('error');
+          setGenerationError('Video generation timed out after 10 minutes. This may indicate a backend issue. Please check the status manually.');
+        }
+      }, 600000);
+
+    } catch (error) {
+      console.error('🎬 [VIDEO_GENERATION] Video generation failed:', error);
+      setGenerationStatus('error');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      setGenerationError(errorMsg);
+    }
   };
 
   const handleDropdownToggle = (id: string) => {
@@ -275,7 +743,16 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
           {/* Home button */}
-          <button className="bg-white border border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2">
+          <button className="bg-white border border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2" onClick={() => {
+            try {
+              const params = new URLSearchParams(window.location.search);
+              if (params.get('from') === 'create') {
+                window.location.assign('/custom-projects-ui/create/generate');
+                return;
+              }
+            } catch (e) {}
+            window.history.back();
+          }}>
             <span className="text-sm font-normal">Home</span>
           </button>
 
@@ -567,7 +1044,9 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         isOpen={isGenerateModalOpen} 
         onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
-        onGenerationStart={() => setIsGenerationCompletedModalOpen(true)}
+        onGenerationStart={handleVideoGeneration}
+        generationStatus={generationStatus}
+        generationError={generationError}
       />
 
       {/* Generation Completed Modal */}
@@ -575,6 +1054,13 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         isOpen={isGenerationCompletedModalOpen}
         onClose={() => setIsGenerationCompletedModalOpen(false)}
         videoTitle={videoTitle}
+        generationStatus={generationStatus}
+        generationProgress={generationProgress}
+        generationJobId={generationJobId}
+        generationError={generationError}
+        videoLessonData={videoLessonData}
+        componentBasedSlideDeck={componentBasedSlideDeck}
+        currentSlideId={currentSlideId}
       />
 
       {/* Upgrade Modal */}

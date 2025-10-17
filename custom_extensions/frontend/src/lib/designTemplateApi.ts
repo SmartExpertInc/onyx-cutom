@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/lib/designTemplateApi.ts
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { 
   DesignTemplate, 

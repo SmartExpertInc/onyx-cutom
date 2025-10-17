@@ -3,125 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { MarketShareTemplateProps } from '@/types/slideTemplates';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   onUpdate?: (props: any) => void;
@@ -515,24 +397,22 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={title}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
               placeholder="Enter slide title..."
               className="inline-editor-title"
               style={{
                 ...titleStyles,
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.1'
               }}
             />
           ) : (
@@ -549,9 +429,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {title}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
           )}
         </div>
 
@@ -562,24 +441,22 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingSubtitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={subtitle}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
-              multiline={true}
               placeholder="Enter subtitle..."
               className="inline-editor-subtitle"
               style={{
                 ...subtitleStyles,
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.4'
               }}
             />
           ) : (
@@ -596,9 +473,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subtitle}
-            </div>
+              dangerouslySetInnerHTML={{ __html: subtitle }}
+            />
           )}
         </div>
 
@@ -612,23 +488,21 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 </span>
               </div>
               {isEditable && editingListItem === index ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={item.description || 'Lorem ipsum dolor sit amet'}
                   onSave={(value) => handleListItemSave(index, value)}
                   onCancel={handleListItemCancel}
-                  multiline={false}
                   placeholder="Enter list item..."
                   className="inline-editor-list-item"
                   style={{
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
                     wordWrap: 'break-word',
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
                     display: 'block',
+                    lineHeight: '1.4',
                     flex: 1,
                     color: '#ffffff',
                     fontSize: '1.3rem',
@@ -649,9 +523,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                     }
                   }}
                   className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.description || 'Lorem ipsum dolor sit amet'}
-                </span>
+                  dangerouslySetInnerHTML={{ __html: item.description || 'Lorem ipsum dolor sit amet' }}
+                />
               )}
             </div>
           ))}
@@ -847,24 +720,22 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                   textAlign: 'center'
                 }}>
                   {isEditable && editingYear === index ? (
-                    <InlineEditor
+                    <WysiwygEditor
                       initialValue={item.label}
                       onSave={(value) => handleYearSave(index, value)}
                       onCancel={handleYearCancel}
-                      multiline={false}
                       placeholder="Enter year..."
                       className="inline-editor-year"
                       style={{
                         ...yearLabelStyles,
-                        padding: '0',
-                        border: 'none',
-                        outline: 'none',
-                        resize: 'none',
-                        overflow: 'hidden',
+                        padding: '8px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '4px',
                         wordWrap: 'break-word',
                         whiteSpace: 'pre-wrap',
                         boxSizing: 'border-box',
                         display: 'block',
+                        lineHeight: '1.2',
                         width: '90px',
                         textAlign: 'center'
                       }}
@@ -883,9 +754,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                         }
                       }}
                       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                    >
-                      {item.label}
-                    </div>
+                      dangerouslySetInnerHTML={{ __html: item.label }}
+                    />
                   )}
                 </div>
               </div>

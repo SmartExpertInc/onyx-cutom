@@ -262,8 +262,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         width,
         height,
         quality: 'standard',
-        style: 'vivid',
-        model: 'dall-e-3'
+        style: 'natural',
+        model: 'gemini-2.5-flash-image-preview'
       };
 
       const result = await generateAIImage(request);

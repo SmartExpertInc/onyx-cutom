@@ -3,10 +3,9 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList, Network, RulerDimensionLine } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { generatePromptId } from "../../../utils/promptUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,37 +14,38 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path d="M12.37 8.87988H17.62" stroke="#fbcb79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 8.87988L7.13 9.62988L9.38 7.37988" stroke="#fbcb79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12.37 15.8799H17.62" stroke="#fbcb79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 15.8799L7.13 16.6299L9.38 14.3799" stroke="#fbcb79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#fbcb79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path d="M12.37 8.87988H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 8.87988L7.13 9.62988L9.38 7.37988" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12.37 15.8799H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 15.8799L7.13 16.6299L9.38 14.3799" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
-<svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="#fbb1e4" stroke-width="2" stroke-linejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="#fbb1e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12 7L12 13" stroke="#fbb1e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M16 8L16 13" stroke="#fbb1e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 9L8 13" stroke="#fbb1e4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+<svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12 7L12 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M16 8L16 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 9L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const QuizIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
-<svg width={size} height={size} strokeWidth="2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width={size} height={size} strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
 <g id="SVGRepo_iconCarrier"> 
-  <circle cx="12" cy="12" r="10" stroke="#FEEDA9" stroke-width="2"></circle>
-  <path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="#FEEDA9" stroke-width="2" stroke-linecap="round"></path>
-  <circle cx="12" cy="16" r="1" fill="#FEEDA9"></circle> 
+  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"></circle>
+  <path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+  <circle cx="12" cy="16" r="1" fill="currentColor"></circle> 
 </g>
 </svg>
 );
 
 const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
-<svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="#6db7fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+<svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="#c081f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 8H16" stroke="#c081f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 12H12" stroke="#c081f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 12H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 
@@ -60,77 +60,56 @@ function GenerateProductPicker() {
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   
   // NEW: Connector context from URL parameters and sessionStorage
   const isFromConnectors = searchParams?.get('fromConnectors') === 'true';
   const connectorIds = searchParams?.get('connectorIds')?.split(',').filter(Boolean) || [];
   const connectorSources = searchParams?.get('connectorSources')?.split(',').filter(Boolean) || [];
-  const selectedFiles = searchParams?.get('selectedFiles')?.split(',').filter(Boolean).map(file => decodeURIComponent(file)) || [];
   const [connectorContext, setConnectorContext] = useState<{
     fromConnectors: boolean;
     connectorIds: string[];
     connectorSources: string[];
-    selectedFiles: string[];
   } | null>(null);
+
+  // Also carry over any pre-selected files coming from Smart Drive
+  const selectedFiles = searchParams?.get('selectedFiles')
+    ?.split(',')
+    .filter(Boolean)
+    .map(file => decodeURIComponent(file)) || [];
 
   // Load connector context from sessionStorage
   useEffect(() => {
-    console.log('🔍 [STEP 3] Generate page useEffect triggered with:', {
-      isFromConnectors,
-      connectorIds,
-      connectorSources,
-      selectedFiles,
-      urlParams: window.location.search
-    });
-    
     if (isFromConnectors) {
       try {
-        const storedConnectorContext = sessionStorage.getItem('combinedContext');
-        console.log('🔍 [STEP 3] SessionStorage combinedContext:', storedConnectorContext);
-        
+        const storedConnectorContext = sessionStorage.getItem('connectorContext');
         if (storedConnectorContext) {
           const context = JSON.parse(storedConnectorContext);
-          console.log('🔍 [STEP 3] Parsed sessionStorage context:', context);
-          
           // Check if data is recent (within 1 hour)
           if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
-            const finalContext = {
-              fromConnectors: true,
-              connectorIds: connectorIds.length > 0 ? connectorIds : (context.connectorIds || []),
-              connectorSources: connectorSources.length > 0 ? connectorSources : (context.connectorSources || []),
-              selectedFiles: selectedFiles.length > 0 ? selectedFiles : (context.selectedFiles || [])
-            };
-            console.log('🔍 [STEP 3] Setting merged connectorContext:', finalContext);
-            setConnectorContext(finalContext);
+            setConnectorContext(context);
           } else {
-            console.log('🔍 [STEP 3] SessionStorage data expired, removing');
-            sessionStorage.removeItem('combinedContext');
+            sessionStorage.removeItem('connectorContext');
           }
         } else {
           // Use URL parameters if sessionStorage is not available
-          const urlContext = {
+          setConnectorContext({
             fromConnectors: true,
             connectorIds,
-            connectorSources,
-            selectedFiles
-          };
-          console.log('🔍 [STEP 3] No sessionStorage, using URL parameters:', urlContext);
-          setConnectorContext(urlContext);
+            connectorSources
+          });
         }
       } catch (error) {
-        console.error('🔍 [STEP 3] Error retrieving connector context:', error);
+        console.error('Error retrieving connector context:', error);
         // Fallback to URL parameters
-        const fallbackContext = {
+        setConnectorContext({
           fromConnectors: true,
           connectorIds,
-          connectorSources,
-          selectedFiles
-        };
-        console.log('🔍 [STEP 3] Using fallback context:', fallbackContext);
-        setConnectorContext(fallbackContext);
+          connectorSources
+        });
       }
     }
-  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(','), selectedFiles.join(',')]);
+  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(',')]);
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -173,8 +152,8 @@ function GenerateProductPicker() {
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
-  const [lessonsPerModule, setLessonsPerModule] = useState("3-4");
-  const [language, setLanguage] = useState("en");
+  const [lessonsPerModule, setLessonsPerModule] = useState(`3-4 ${t('interface.generate.perModule', 'per module')}`);
+  const [language, setLanguage] = useState(t('interface.english', 'English'));
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -195,6 +174,19 @@ function GenerateProductPicker() {
     "Customer journey mapping",
     "A guide to investing in real estate",
   ];
+
+  const stylePurposes = {
+    headlines: t('interface.generate.headlinesPurpose', 'Section titles and headings'),
+    paragraphs: t('interface.generate.paragraphsPurpose', 'Regular text blocks'),
+    bullet_lists: t('interface.generate.bulletListsPurpose', 'Unordered lists with bullet points'),
+    numbered_lists: t('interface.generate.numberedListsPurpose', 'Ordered lists with numbers'),
+    alerts: t('interface.generate.alertsPurpose', 'Important warnings or tips'),
+    recommendations: t('interface.generate.recommendationsPurpose', 'Actionable advice'),
+    section_breaks: t('interface.generate.sectionBreaksPurpose', 'Visual separators between sections'),
+    icons: t('interface.generate.iconsPurpose', 'Emojis and visual elements'),
+    important_sections: t('interface.generate.importantSectionsPurpose', 'Highlighted critical content')
+  };
+
   const getRandomExamples = () => {
     const shuffled = [...allExamples].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 6);
@@ -273,35 +265,23 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      console.log('[GeneratePageDEBUG] Adding connector context to course outline URL:', connectorContext);
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
-
-      // Fallback: if connectorContext.selectedFiles is empty, use selectedFiles from URL params
-      const filesToUse = (connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0)
-        ? connectorContext.selectedFiles
-        : (selectedFiles && selectedFiles.length > 0 ? selectedFiles : []);
-
-      if (filesToUse.length > 0) {
-        console.log('[GeneratePageDEBUG] Adding selectedFiles to URL (resolved):', filesToUse);
-        params.set("selectedFiles", filesToUse.join(','));
-      } else {
-        console.log('[GeneratePageDEBUG] No selectedFiles to add after fallback:', { 
-          connectorContextSelectedFiles: connectorContext.selectedFiles,
-          urlSelectedFiles: selectedFiles
-        });
-      }
-    } else {
-      console.log('[GeneratePageDEBUG] No connector context:', { 
-        connectorContext,
-        isFromConnectors,
-        connectorIds,
-        connectorSources,
-        selectedFiles 
-      });
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
+
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
+    }
+
+    // Pass ISO language code to preview page
+    params.set("lang", mapLanguageToCode(language));
 
     router.push(`/create/course-outline?${params.toString()}`);
   };
@@ -319,16 +299,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
-
-  // Feature flag for Video Lesson
-  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-
-  useEffect(() => {
-    if (activeProduct === "Video Lesson" && !videoLessonEnabled) {
-      setActiveProduct("Course Outline");
-    }
-  }, [activeProduct, videoLessonEnabled]);
+  const [activeProduct, setActiveProduct] = useState<"Course" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -410,7 +381,7 @@ function GenerateProductPicker() {
 
           // Clear lesson context when switching away from Presentation
     if (activeProduct !== "Presentation") {
-        setUseExistingOutline(null);
+        setUseExistingOutline(false);  // Default to standalone mode instead of null
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
         setLessonsForModule([]);
@@ -419,7 +390,7 @@ function GenerateProductPicker() {
       
       // Clear quiz context when switching away from Quiz
       if (activeProduct !== "Quiz") {
-        setUseExistingQuizOutline(null);
+        setUseExistingQuizOutline(false);  // Default to standalone mode instead of null
         setSelectedQuizOutlineId(null);
         setSelectedQuizModuleIndex(null);
         setQuizLessonsForModule([]);
@@ -428,7 +399,7 @@ function GenerateProductPicker() {
       
       // Clear text presentation context when switching away from One-Pager
       if (activeProduct !== "One-Pager") {
-        setUseExistingTextOutline(null);
+        setUseExistingTextOutline(false);  // Default to standalone mode instead of null
         setSelectedTextOutlineId(null);
         setSelectedTextModuleIndex(null);
         setTextLessonsForModule([]);
@@ -453,7 +424,30 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(null);
+  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15,20]);
+  const [entitlements, setEntitlements] = useState<any | null>(null);
+
+  // Fetch entitlements to decide on slides options
+  useEffect(() => {
+    const loadEntitlements = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const res = await fetch(`${backendUrl}/entitlements/me`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setEntitlements(data);
+        // Merge default options with entitlement-based extended options (additive)
+        const defaultOpts = [5,6,7,8,9,10,12,15,20];
+        const extended = Array.isArray(data?.slides_options) && data.slides_options.length > 0
+          ? data.slides_options
+          : (data?.slides_max > 20 ? [25, 30, 35, 40] : []);
+        const merged = Array.from(new Set([...defaultOpts, ...extended])).sort((a,b)=>a-b);
+        setSlidesOptions(merged);
+      } catch {}
+    };
+    loadEntitlements();
+  }, []);
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
   const [quizOutlines, setQuizOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -463,8 +457,8 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState("en");
-  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(null);
+  const [quizLanguage, setQuizLanguage] = useState(t('interface.english', 'English'));
+  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
     "multi-select", 
@@ -752,13 +746,22 @@ function GenerateProductPicker() {
       params.set("prompt", promptReference);
     }
     
-    params.set("lang", language);
+    params.set("lang", mapLanguageToCode(language));
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
+    }
+
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
@@ -789,7 +792,7 @@ function GenerateProductPicker() {
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
     params.set("questionCount", String(quizQuestionCount));
-    params.set("lang", quizLanguage);
+    params.set("lang", mapLanguageToCode(quizLanguage));
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -836,34 +839,44 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/quiz?${params.toString()}`);
   };
 
   // Text Presentation state (mimicking quiz pattern)
-  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(null);
+  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(false);
   const [textOutlines, setTextOutlines] = useState<{ id: number; name: string }[]>([]);
   const [textModulesForOutline, setTextModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
   const [selectedTextModuleIndex, setSelectedTextModuleIndex] = useState<number | null>(null);
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>("en");
-  const [textLength, setTextLength] = useState<string>("medium");
+  const [textLanguage, setTextLanguage] = useState<string>(t('interface.english', 'English'));
+  const [textLength, setTextLength] = useState<string>(t('interface.generate.medium', 'medium'));
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
+
+  // Track usage of styles feature
+  const [stylesState, setStylesState] = useState<string | undefined>(undefined);
+  const handleStylesClick = () => {
+    if (stylesState === undefined) {
+      setStylesState("Clicked");
+    }
+  };
 
   // Fetch one-pager outlines when product is selected
   useEffect(() => {
@@ -999,7 +1012,7 @@ function GenerateProductPicker() {
         }
       }
     }
-    params.set("lang", textLanguage);
+    params.set("lang", mapLanguageToCode(textLanguage));
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
@@ -1036,7 +1049,7 @@ function GenerateProductPicker() {
       params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
-      const finalPrompt = prompt.trim();
+      const finalPrompt = prompt.trim(); 
       // Store prompt in sessionStorage if it's long
       let promptReference = finalPrompt;
       if (finalPrompt.length > 500) {
@@ -1048,18 +1061,25 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
+
+    sessionStorage.setItem('stylesState', stylesState ?? ""); 
+
+    // Pass ISO language code to preview page
+    params.set("lang", mapLanguageToCode(language));
 
     router.push(`/create/text-presentation?${params.toString()}`);
   };
@@ -1072,7 +1092,7 @@ function GenerateProductPicker() {
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
-    params.set("lang", language);
+    params.set("lang", mapLanguageToCode(language));
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -1119,27 +1139,39 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
   };
 
+  // Map UI language selection to ISO code for preview pages
+  const mapLanguageToCode = (label: string): string => {
+    const l = (label || '').toLowerCase();
+    if (l.startsWith('en')) return 'en';
+    if (l.startsWith('uk')) return 'uk';
+    if (l.startsWith('es') || l.startsWith('sp')) return 'es';
+    if (l.startsWith('ru')) return 'ru';
+    return 'en';
+  };
+
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
-      <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
+      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1148,14 +1180,14 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <HeadTextCustom 
-          text={t('interface.generate.title', 'Generate')} 
-          description={isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
-            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
-            isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
-            isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
-            t('interface.generate.subtitle', 'What would you like to create today?')}
-        />
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-900 mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <p className="text-center text-gray-600 text-lg -mt-1">
+          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
+           t('interface.generate.subtitle', 'What would you like to create today?')}
+        </p>
 
         {/* File context indicator */}
         {isFromFiles && (
@@ -1190,25 +1222,20 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <Alert className="bg-green-50/80 backdrop-blur-sm border border-green-200/50 shadow-sm">
-            <AlertDescription className="text-green-700">
-              <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
-                <FileText className="h-5 w-5" />
-                {t('interface.generate.creatingFromText', 'Creating from text')}
+          <Alert className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 backdrop-blur-sm border border-gray-100/50 shadow-md">
+            <AlertDescription className="text-blue-600">
+              <div className="flex items-center gap-2 text-blue-600 mb-2">
+                <FileText className="h-6 w-6" />
+                <span className="text-lg font-semibold">{t('interface.generate.creatingFromText', 'Creating from text')}</span>
               </div>
-              <p className="font-medium">
+              <p className="font-medium text-gray-600">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
-              <p className="mt-1 text-green-600">
+              <p className="mt-1 text-gray-500">
                 {textMode === 'context' 
                   ? t('interface.generate.aiWillUseTextAsContext', 'The AI will use your text as reference material and context to create new educational content.')
                   : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
               </p>
-              {userText && (
-                <p className="mt-2 text-xs text-green-600 bg-green-100/80 p-2 rounded max-h-20 overflow-y-auto">
-                  {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
-                </p>
-              )}
             </AlertDescription>
           </Alert>
         )}
@@ -1232,76 +1259,17 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Connector and Files context indicator */}
+        {/* Connector context indicator */}
         {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+          <div className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-md">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
-                </svg>
-              </div>
+                <Network className="h-10 w-10 text-blue-600" />
               <div>
-                <h3 className="text-lg font-semibold text-purple-900">
-                  {(() => {
-                    const hasConnectors = connectorContext.connectorIds && connectorContext.connectorIds.length > 0;
-                    const hasFiles = connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0;
-                    
-                    if (hasConnectors && hasFiles) {
-                      return t('interface.generate.creatingFromConnectorsAndFiles', 'Creating from Connectors and Files');
-                    } else if (hasConnectors) {
-                      return t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors');
-                    } else if (hasFiles) {
-                      return t('interface.generate.creatingFromFiles', 'Creating from Selected Files');
-                    } else {
-                      return t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors');
-                    }
-                  })()}
+                <h3 className="text-lg font-semibold text-blue-600">
+                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
                 </h3>
-                <p className="text-sm text-purple-700 mt-1">
-                  {(() => {
-                    const hasConnectors = connectorContext.connectorIds && connectorContext.connectorIds.length > 0;
-                    const hasFiles = connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0;
-                    
-                    if (hasConnectors && hasFiles) {
-                      return t('interface.generate.aiWillUseConnectorAndFileData', 'The AI will use data from your selected connectors and files to create educational content.');
-                    } else if (hasConnectors) {
-                      return t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.');
-                    } else if (hasFiles) {
-                      return t('interface.generate.aiWillUseFileData', 'The AI will use data from your selected files to create educational content.');
-                    } else {
-                      return t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.');
-                    }
-                  })()}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {connectorContext.connectorSources.map((source, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
-                >
-                  {source}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Knowledge Base context indicator */}
-        {isFromKnowledgeBase && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
-                <Search className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-blue-900">
-                  {t('interface.generate.creatingFromKnowledgeBase', 'Creating from Knowledge Base')}
-                </h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  {t('interface.generate.aiWillSearchKnowledgeBase', 'The AI will search your entire Knowledge Base to find relevant information and create educational content.')}
+                <p className="text-sm text-gray-500 mt-1">
+                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
                 </p>
               </div>
             </div>
@@ -1311,199 +1279,158 @@ function GenerateProductPicker() {
 
 
         {/* Tab selector */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 px-4">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-3 sm:gap-3 md:gap-4 lg:gap-5 mb-1 px-1">
           <GenerateCard
-            label={t('interface.generate.courseOutline', 'Course Outline')}
+            label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
-            gradientTo="#E8F0FE"
-            active={activeProduct === "Course Outline"}
-            onClick={() => setActiveProduct("Course Outline")}
+            active={activeProduct === "Course"}
+            onClick={() => setActiveProduct("Course")}
           />
           {videoLessonEnabled && (
-            <GenerateCard 
-              label={t('interface.generate.videoLesson', 'Video Lesson')} 
-              Icon={VideoScriptIcon}
-              gradientTo="#E8F0FE"
-              active={activeProduct === "Video Lesson"}
-              onClick={() => setActiveProduct("Video Lesson")}
-            />
+          <GenerateCard 
+            label={t('interface.generate.videoLesson', 'Video Lesson')} 
+            Icon={VideoScriptIcon}
+            active={activeProduct === "Video Lesson"}
+            onClick={() => setActiveProduct("Video Lesson")}
+          />
           )}
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon}
-            gradientTo="#E8F0FE"
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
           />
           <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
-            gradientTo="#E8F0FE"
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
           />
           <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
-            gradientTo="#E8F0FE"
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
           />
         </div>
 
         {/* Dropdown chips */}
-        {activeProduct === "Course Outline" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-2">
-            <Select value={modulesCount.toString()} onValueChange={(value) => setModulesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                  <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-              </SelectContent>
-            </Select>
+        {activeProduct === "Course" && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+            <CustomPillSelector
+              value={modulesCount.toString()}
+              onValueChange={(value) => setModulesCount(Number(value))}
+              options={Array.from({ length: 10 }, (_, i) => ({
+                value: (i + 1).toString(),
+                label: `${i + 1} ${t('interface.generate.modules', 'Modules')}`
+              }))}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label={t('interface.generate.modules', 'Modules')}
+            />
+            <CustomPillSelector
+              value={lessonsPerModule}
+              onValueChange={setLessonsPerModule}
+              options={["1-2", "3-4", "5-7", "8-10"].map((rng) => ({
+                value: `${rng} ${t('interface.generate.perModule', 'per module')}`,
+                label: `${rng} ${t('interface.generate.perModule', 'per module')}`
+              }))}
+              icon={<FileText className="w-4 h-4 text-gray-600" />}
+              label={t('interface.generate.lessons', 'Lessons')}
+            />
+            <CustomPillSelector
+              value={language}
+              onValueChange={setLanguage}
+              options={[
+                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+              ]}
+              icon={<Globe className="w-4 h-4 text-gray-600" />}
+              label={t('interface.language', 'Language')}
+            />
           </div>
         )}
 
-        {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
-            {/* Step 1: Choose source */}
-            {useExistingOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentFromOutline', 'Yes, content for the presentation from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandalone', 'No, I want standalone presentation')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+        {activeProduct === "Presentation" && useExistingOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <Select
-                      value={selectedOutlineId?.toString() ?? ""}
+                    <CustomPillSelector
+                      value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
                       onValueChange={(value) => {
-                        setSelectedOutlineId(value ? Number(value) : null);
+                        const outline = outlines.find(o => o.name === value);
+                        setSelectedOutlineId(outline ? outline.id : null);
                         // clear module & lesson selections when outline changes
                         setSelectedModuleIndex(null);
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                        <SelectValue placeholder="Select Outline" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {outlines.map((o) => (
-                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={outlines.map((o) => ({
+                        value: o.name,
+                        label: o.name
+                      }))}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
-                      <Select
-                        value={selectedModuleIndex?.toString() ?? ""}
+                      <CustomPillSelector
+                        value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedModuleIndex(idx);
-                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          const idx = modulesForOutline.findIndex(m => m.name === value);
+                          setSelectedModuleIndex(idx !== -1 ? idx : null);
+                          setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <SelectValue placeholder="Select Module" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {modulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={modulesForOutline.map((m, idx) => ({
+                          value: m.name,
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label={t('interface.generate.modules', 'Modules')}
+                      />
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedModuleIndex !== null && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedLesson}
                         onValueChange={setSelectedLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <SelectValue placeholder="Select Lesson" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {lessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={lessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
-                        <Select value={language} onValueChange={setLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={language}
+                          onValueChange={setLanguage}
+                          options={[
+                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
+                        <CustomPillSelector
+                          value={slidesCount.toString()}
+                          onValueChange={(value) => setSlidesCount(Number(value))}
+                          options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
+                          icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.generate.slides', 'Slides')}
+                        />
                       </>
                     )}
                   </>
@@ -1512,307 +1439,35 @@ function GenerateProductPicker() {
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                    <Select value={language} onValueChange={setLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                          <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <CustomPillSelector
+                      value={language}
+                      onValueChange={setLanguage}
+                      options={[
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                    />
+                    <CustomPillSelector
+                      value={slidesCount.toString()}
+                      onValueChange={(value) => setSlidesCount(Number(value))}
+                      options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
+                      icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.generate.slides', 'Slides')}
+                    />
                   </>
                 )}
-
-                <Button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
               </div>
-            )}
-          </div>
         )}
 
         {/* Quiz Configuration */}
-        {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
-            {/* Step 1: Choose source */}
-            {useExistingQuizOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingQuizOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
-                {/* Show outline flow if user chose existing outline */}
-                {useExistingQuizOutline === true && (
-                  <>
-                    {/* Outline dropdown */}
-                    <Select
-                      value={selectedQuizOutlineId?.toString() ?? ""}
-                      onValueChange={(value) => {
-                        setSelectedQuizOutlineId(value ? Number(value) : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedQuizModuleIndex(null);
-                        setQuizLessonsForModule([]);
-                        setSelectedQuizLesson("");
-                      }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {quizOutlines.map((outline) => (
-                          <SelectItem key={outline.id} value={outline.id.toString()}>
-                            {outline.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedQuizOutlineId && (
-                      <Select
-                        value={selectedQuizModuleIndex?.toString() ?? ""}
-                        onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedQuizModuleIndex(idx);
-                          setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
-                          setSelectedQuizLesson("");
-                        }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {quizModulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedQuizModuleIndex !== null && (
-                      <Select
-                        value={selectedQuizLesson}
-                        onValueChange={setSelectedQuizLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {quizLessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-
-                    {/* Show final dropdowns when lesson is selected */}
-                    {selectedQuizLesson && (
-                      <>
-                        <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <div className="relative question-types-dropdown">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="rounded-full border border-gray-300 bg-white/90 text-black flex items-center gap-2 min-w-[200px]"
-                          >
-                            <span>
-                              {selectedQuestionTypes.length === 0
-                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                                : selectedQuestionTypes.length === 1
-                                ? selectedQuestionTypes[0]
-                                : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                            </span>
-                            <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                          </Button>
-                          {showQuestionTypesDropdown && (
-                            <div 
-                              className="absolute top-full text-gray-700 left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                              style={{
-                                backgroundColor: `white`,
-                              }}
-                            >
-                                                        {[
-                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
-                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                                <label
-                                  key={type.value}
-                                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedQuestionTypes.includes(type.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                      } else {
-                                        setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  {type.label}
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[5, 10, 15, 20, 25, 30].map((count) => (
-                              <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {/* Show standalone quiz dropdowns if user chose standalone */}
-                {useExistingQuizOutline === false && (
-                  <>
-                    <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="relative question-types-dropdown">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
-                      >
-                        <span>
-                          {selectedQuestionTypes.length === 0
-                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                            : selectedQuestionTypes.length === 1
-                            ? selectedQuestionTypes[0]
-                            : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                        </span>
-                        <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                      </Button>
-                      {showQuestionTypesDropdown && (
-                        <div 
-                          className="absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                          style={{
-                            backgroundColor: `rgb(var(--generate-card-bg))`,
-                            borderColor: `rgb(var(--generate-card-border))`,
-                            borderWidth: '1px'
-                          }}
-                        >
-                          {[
-                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
-                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                            <label
-                              key={type.value}
-                              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedQuestionTypes.includes(type.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                  } else {
-                                    setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                  }
-                                }}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              {type.label}
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[5, 10, 15, 20, 25, 30].map((count) => (
-                          <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
-                )}
-
-                <Button
+        {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+                {/* Back button at the start of the section */}
+                {/* <Button
                   onClick={() => {
                     setUseExistingQuizOutline(null);
                     setSelectedQuizOutlineId(null);
@@ -1825,244 +1480,156 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* One-Pager Configuration */}
-        {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
-            {/* Step 1: Choose source */}
-            {useExistingTextOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingTextOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingTextOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingTextOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+                </Button> */}
+                
                 {/* Show outline flow if user chose existing outline */}
-                {useExistingTextOutline === true && (
+                {useExistingQuizOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <Select
-                      value={selectedTextOutlineId?.toString() ?? ""}
+                    <CustomPillSelector
+                      value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
                       onValueChange={(value) => {
-                        setSelectedTextOutlineId(value ? Number(value) : null);
+                        const outline = quizOutlines.find(o => o.name === value);
+                        setSelectedQuizOutlineId(outline ? outline.id : null);
                         // clear module & lesson selections when outline changes
-                        setSelectedTextModuleIndex(null);
-                        setTextLessonsForModule([]);
-                        setSelectedTextLesson("");
+                        setSelectedQuizModuleIndex(null);
+                        setQuizLessonsForModule([]);
+                        setSelectedQuizLesson("");
                       }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {textOutlines.map((o) => (
-                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={quizOutlines.map((outline) => ({
+                        value: outline.name,
+                        label: outline.name
+                      }))}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
 
                     {/* Module dropdown – appears once outline is selected */}
-                    {selectedTextOutlineId && (
-                      <Select
-                        value={selectedTextModuleIndex?.toString() ?? ""}
+                    {selectedQuizOutlineId && (
+                      <CustomPillSelector
+                        value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedTextModuleIndex(idx);
-                          setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
-                          setSelectedTextLesson("");
+                          const idx = quizModulesForOutline.findIndex(m => m.name === value);
+                          setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
+                          setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
+                          setSelectedQuizLesson("");
                         }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {textModulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={quizModulesForOutline.map((m, idx) => ({
+                          value: m.name,
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Module"
+                      />
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
-                    {selectedTextModuleIndex !== null && (
-                      <Select
-                        value={selectedTextLesson}
-                        onValueChange={setSelectedTextLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {textLessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {selectedQuizModuleIndex !== null && (
+                      <CustomPillSelector
+                        value={selectedQuizLesson}
+                        onValueChange={setSelectedQuizLesson}
+                        options={quizLessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
-                    {selectedTextLesson && (
+                    {selectedQuizLesson && (
                       <>
-                        <Select value={textLanguage} onValueChange={setTextLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select value={textLength} onValueChange={setTextLength}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
-                            <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
-                            <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select open={showTextStylesDropdown} onOpenChange={setShowTextStylesDropdown}>
-                          <SelectTrigger className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]">
-                            <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60 overflow-y-auto">
-                            {[
-                              { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                              { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                              { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                              { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                              { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                              { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                              { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                              { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                              { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
-                            ].map((option) => (
-                              <div key={option.value} className="flex items-center px-2 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <Checkbox
-                                  checked={textStyles.includes(option.value)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setTextStyles([...textStyles, option.value]);
-                                    } else {
-                                      setTextStyles(textStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="mr-3"
-                                />
-                                <span className="text-sm">{option.label}</span>
-                              </div>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={quizLanguage}
+                          onValueChange={setQuizLanguage}
+                          options={[
+                            { value: "English", label: t('interface.english', 'English') },
+                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
+                        <CustomMultiSelector
+                          selectedValues={selectedQuestionTypes}
+                          onSelectionChange={setSelectedQuestionTypes}
+                          options={[
+                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
+                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                          ]}
+                          icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.generate.questionTypes', 'Question Types')}
+                          placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                        />
+                        <CustomPillSelector
+                          value={quizQuestionCount.toString()}
+                          onValueChange={(value) => setQuizQuestionCount(Number(value))}
+                          options={[5, 10, 15, 20, 25, 30].map((count) => ({
+                            value: count.toString(),
+                            label: `${count} ${t('interface.generate.questions', 'questions')}`
+                          }))}
+                          icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.generate.questions', 'Questions')}
+                        />
                       </>
                     )}
                   </>
                 )}
 
-                {/* Show standalone one-pager dropdowns if user chose standalone */}
-                {useExistingTextOutline === false && (
+                {/* Show standalone quiz dropdowns if user chose standalone */}
+                {useExistingQuizOutline === false && (
                   <>
-                    <Select value={textLanguage} onValueChange={setTextLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={textLength} onValueChange={setTextLength}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
-                        <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
-                        <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="relative text-styles-dropdown">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
-                      >
-                        <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                        <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
-                      </Button>
-                      {showTextStylesDropdown && (
-                        <div 
-                          className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                          style={{
-                            backgroundColor: `rgb(var(--generate-card-bg))`,
-                            borderColor: `rgb(var(--generate-card-border))`,
-                            borderWidth: '1px'
-                          }}
-                        >
-                          {[
-                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
-                          ].map((option) => (
-                            <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={textStyles.includes(option.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setTextStyles([...textStyles, option.value]);
-                                  } else {
-                                    setTextStyles(textStyles.filter(s => s !== option.value));
-                                  }
-                                }}
-                                className="mr-3"
-                              />
-                              <span className="text-sm">{option.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <CustomPillSelector
+                      value={quizLanguage}
+                      onValueChange={setQuizLanguage}
+                      options={[
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                    />
+                    <CustomMultiSelector
+                      selectedValues={selectedQuestionTypes}
+                      onSelectionChange={setSelectedQuestionTypes}
+                      options={[
+                        { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                        { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
+                        { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                        { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                        { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                      ]}
+                      icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.generate.questionTypes', 'Question Types')}
+                      placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                    />
+                    <CustomPillSelector
+                      value={quizQuestionCount.toString()}
+                      onValueChange={(value) => setQuizQuestionCount(Number(value))}
+                      options={[5, 10, 15, 20, 25, 30].map((count) => ({
+                        value: count.toString(),
+                        label: `${count} ${t('interface.generate.questions', 'questions')}`
+                      }))}
+                      icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.generate.questions', 'Questions')}
+                    />
                   </>
                 )}
+              </div>
+        )}
 
-                <Button
+        {/* One-Pager Configuration */}
+        {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+                {/* Back button at the start of the section */}
+                {/* <Button
                   onClick={() => {
                     setUseExistingTextOutline(null);
                     setSelectedTextOutlineId(null);
@@ -2075,48 +1642,195 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
+                </Button> */}
+                
+                {/* Show outline flow if user chose existing outline */}
+                {useExistingTextOutline === true && (
+                  <>
+                    {/* Outline dropdown */}
+                    <CustomPillSelector
+                      value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
+                      onValueChange={(value) => {
+                        const outline = textOutlines.find(o => o.name === value);
+                        setSelectedTextOutlineId(outline ? outline.id : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedTextModuleIndex(null);
+                        setTextLessonsForModule([]);
+                        setSelectedTextLesson("");
+                      }}
+                      options={textOutlines.map((o) => ({
+                        value: o.name,
+                        label: o.name
+                      }))}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
+
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedTextOutlineId && (
+                      <CustomPillSelector
+                        value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
+                        onValueChange={(value) => {
+                          const idx = textModulesForOutline.findIndex(m => m.name === value);
+                          setSelectedTextModuleIndex(idx !== -1 ? idx : null);
+                          setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
+                          setSelectedTextLesson("");
+                        }}
+                        options={textModulesForOutline.map((m, idx) => ({
+                          value: m.name,
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Module"
+                      />
+                    )}
+
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedTextModuleIndex !== null && (
+                      <CustomPillSelector
+                        value={selectedTextLesson}
+                        onValueChange={setSelectedTextLesson}
+                        options={textLessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
+                    )}
+
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedTextLesson && (
+                      <>
+                        <CustomPillSelector
+                          value={textLanguage}
+                          onValueChange={setTextLanguage}
+                          options={[
+                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
+                        <CustomPillSelector
+                          value={textLength}
+                          onValueChange={setTextLength}
+                          options={[
+                            { value: t('interface.generate.short', 'Short'), label: t('interface.generate.short', 'Short') },
+                            { value: t('interface.generate.medium', 'Medium'), label: t('interface.generate.medium', 'Medium') },
+                            { value: t('interface.generate.long', 'Long'), label: t('interface.generate.long', 'Long') }
+                          ]}
+                          icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.generate.length', 'Length')}
+                        />
+                        <CustomMultiSelector
+                          selectedValues={textStyles}
+                          onSelectionChange={setTextStyles}
+                          options={[
+                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                            { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
+                          ]}
+                          icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.generate.selectStyles', 'Styles')}
+                          placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                        />
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Show standalone one-pager dropdowns if user chose standalone */}
+                {useExistingTextOutline === false && (
+                  <>
+                    <CustomPillSelector
+                      value={textLanguage}
+                      onValueChange={setTextLanguage}
+                      options={[
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                      />
+                    <CustomPillSelector
+                      value={textLength}
+                      onValueChange={setTextLength}
+                      options={[
+                        { value: t('interface.generate.short', 'Short'), label: t('interface.generate.short', 'Short') },
+                        { value: t('interface.generate.medium', 'Medium'), label: t('interface.generate.medium', 'Medium') },
+                        { value: t('interface.generate.long', 'Long'), label: t('interface.generate.long', 'Long') }
+                      ]}
+                      icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.generate.length', 'Length')}
+                    />
+                    <CustomMultiSelector
+                      selectedValues={textStyles}
+                      onSelectionChange={setTextStyles}
+                      options={[
+                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                        { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
+                      ]}
+                      icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.generate.selectStyles', 'Styles')}
+                      placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                    />
+                  </>
+                )}
               </div>
-            )}
-          </div>
         )}
 
         {/* Video Lesson Configuration */}
-        {activeProduct === "Video Lesson" && videoLessonEnabled && (
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => (
-                  <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.slides', 'slides')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-              </SelectContent>
-            </Select>
+        {activeProduct === "Video Lesson" && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+            <CustomPillSelector
+              value={slidesCount.toString()}
+              onValueChange={(value) => setSlidesCount(Number(value))}
+              options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
+              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+              label={t('interface.generate.slides', 'Slides')}
+            />
+            <CustomPillSelector
+              value={language}
+              onValueChange={setLanguage}
+              options={[
+                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+              ]}
+              icon={<Globe className="w-4 h-4 text-gray-600" />}
+              label={t('interface.language', 'Language')}
+            />
           </div>
         )}
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
-        {((activeProduct === "Course Outline") || 
+        {((activeProduct === "Course") || 
           (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
+          <div className="flex flex-col items-center gap-3 w-full max-w-3xl">
             {/* Simple prompt input */}
-            <div className="w-full">
+            <div className="w-full relative">
             <Textarea
               ref={promptRef}
               value={prompt}
@@ -2124,16 +1838,16 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 relative z-10"
               style={{ background: "rgba(255,255,255,0.95)" }}
-              rows={3}
+              rows={6}
             />
             </div>
 
             {/* Simple examples grid */}
-            <div className={`w-full transition-opacity duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}>
+            <div className={`w-full mt-5 transition-all duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'opacity-100 max-h-screen'}`}>
             <div className="w-full relative z-0">
-              <div className="flex items-center justify-center mb-3 relative">
+              <div className="flex items-center justify-center mb-2 relative">
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
                   <div className="flex-1 border-t border-blue-100"></div>
                 </div>
@@ -2158,7 +1872,7 @@ function GenerateProductPicker() {
                   )
                 )}
               </div>
-              <div className="flex justify-center mt-6">
+              <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
                   variant="blueGradient"
@@ -2173,19 +1887,20 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
-          (activeProduct === "Video Lesson" && videoLessonEnabled && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+        {((activeProduct === "Course" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
           (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-3 mb-4">
             <Button
               onClick={() => {
+                sessionStorage.setItem('activeProductType', activeProduct);
                 switch (activeProduct) {
-                  case "Course Outline":
+                  case "Course":
                     handleCourseOutlineStart();
                     break;
                   case "Video Lesson":
@@ -2207,7 +1922,7 @@ function GenerateProductPicker() {
               style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
-              {activeProduct === "Course Outline" && t('interface.generate.generateCourseOutline', 'Generate Course Outline')}
+              {activeProduct === "Course" && t('interface.generate.generateCourseOutline', 'Generate Course')}
               {activeProduct === "Video Lesson" && t('interface.generate.generateVideoLesson', 'Generate Video Lesson')}
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
               {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}

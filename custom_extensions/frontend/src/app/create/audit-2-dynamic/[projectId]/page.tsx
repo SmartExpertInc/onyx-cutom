@@ -1,0 +1,5992 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { useParams } from 'next/navigation'
+import Image from 'next/image'
+import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
+
+// InlineEditor component for text editing
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  // Update local state when initialValue changes
+  useEffect(() => {
+    console.log('🔄 [TEXT EDIT EFFECT] Initial value changed:', initialValue);
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    console.log('🚀 [TEXT EDIT MOUNT] InlineEditor mounted');
+    console.log('🚀 [TEXT EDIT MOUNT] Initial value:', initialValue);
+    console.log('🚀 [TEXT EDIT MOUNT] Placeholder:', placeholder);
+    console.log('🚀 [TEXT EDIT MOUNT] Multiline:', multiline);
+    
+    if (inputRef.current) {
+      console.log('🎯 [TEXT EDIT MOUNT] Input ref exists, focusing...');
+      console.log('🎯 [TEXT EDIT MOUNT] Input element:', inputRef.current);
+      inputRef.current.focus();
+      inputRef.current.select();
+      console.log('✅ [TEXT EDIT MOUNT] Focus and select called');
+      console.log('✅ [TEXT EDIT MOUNT] Active element:', document.activeElement);
+      console.log('✅ [TEXT EDIT MOUNT] Is focused?', document.activeElement === inputRef.current);
+    } else {
+      console.error('❌ [TEXT EDIT MOUNT] Input ref is null!');
+    }
+    
+    return () => {
+      console.log('💀 [TEXT EDIT UNMOUNT] InlineEditor unmounting');
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Enter key pressed - saving value:', value);
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Ctrl+Enter pressed - saving value:', value);
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Escape key pressed - canceling edit');
+      onCancel();
+    }
+  };
+
+  const handleFocus = () => {
+    console.log('🎯 [TEXT EDIT] Focus started - initial value:', initialValue);
+    console.log('🎯 [TEXT EDIT] Input element:', inputRef.current);
+    console.log('🎯 [TEXT EDIT] Active element:', document.activeElement);
+    console.log('🎯 [TEXT EDIT] Has focus:', document.activeElement === inputRef.current);
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    console.log('💨 [TEXT EDIT BLUR] Blur event triggered');
+    console.log('💨 [TEXT EDIT BLUR] Related target:', e.relatedTarget);
+    console.log('💨 [TEXT EDIT BLUR] Current target:', e.currentTarget);
+    console.log('💨 [TEXT EDIT BLUR] Active element at blur:', document.activeElement);
+    
+    // 🔧 CRITICAL FIX: Check if blur is happening due to re-render (relatedTarget is another InlineEditor input)
+    const relatedTargetIsInput = e.relatedTarget && 
+                                  (e.relatedTarget as HTMLElement).classList?.contains('inline-editor-input');
+    
+    if (relatedTargetIsInput) {
+      console.log('🔄 [TEXT EDIT BLUR] Blur to another InlineEditor input - ignoring (React re-render)');
+      console.log('🔄 [TEXT EDIT BLUR] This is a React re-render, NOT a user action');
+      return; // Don't save, this is just React re-rendering
+    }
+    
+    // Small delay to prevent immediate blur from click propagation
+    setTimeout(() => {
+      console.log('⏰ [TEXT EDIT BLUR] After 100ms delay');
+      console.log('⏰ [TEXT EDIT BLUR] Active element now:', document.activeElement);
+      console.log('⏰ [TEXT EDIT BLUR] Input ref:', inputRef.current);
+      console.log('⏰ [TEXT EDIT BLUR] Still has focus?', document.activeElement === inputRef.current);
+      
+      // 🔧 CRITICAL FIX: Check if the input ref still exists (not unmounted)
+      if (!inputRef.current) {
+        console.log('❌ [TEXT EDIT BLUR] Input ref is null - component unmounted, aborting save');
+        return; // Component unmounted during re-render, don't try to save
+      }
+      
+      // Check if the element still doesn't have focus
+      if (document.activeElement !== inputRef.current) {
+        // Ensure we save the current value from the input/textarea
+        const currentValue = inputRef.current?.value || value;
+        console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
+        console.log('🔍 [BLUR DETAILED] Element details:', {
+          elementType: inputRef.current?.tagName,
+          elementId: inputRef.current?.id,
+          elementClass: inputRef.current?.className,
+          initialValue: initialValue,
+          currentValue: currentValue,
+          valueChanged: initialValue !== currentValue,
+          timestamp: new Date().toISOString()
+        });
+        onSave(currentValue);
+      } else {
+        console.log('✋ [TEXT EDIT BLUR] Input still has focus, NOT saving');
+      }
+    }, 100);
+  };
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={4}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}
+    />
+  );
+}
+
+interface JobPosition {
+  title: string
+  description: string
+  icon: string
+}
+
+interface PersonnelShortageChartData {
+  month: string
+  shortage: number
+}
+
+interface ChartData {
+  industry: string
+  chartData: PersonnelShortageChartData[]
+  totalShortage: number
+  trend: string
+  description: string
+}
+
+interface YearlyShortageData {
+  yearlyShortage: number
+  industry: string
+  description: string
+}
+
+interface WorkforceCrisisData {
+  industry: string
+  fullTitle: string
+  missingPersonnelDescription: string
+  burnout: {
+    title: string
+    months: string
+    industryName: string
+    fullDescription: string
+  }
+  turnover: {
+    percentage: string
+    earlyExit: {
+      percentage: string
+      months: string
+    }
+    fullTitle: string
+    fullDescription: string
+  }
+  losses: {
+    amount: string
+    fullTitle: string
+    fullDescription: string
+  }
+  searchTime: {
+    days: string
+    fullTitle: string
+    fullDescription: string
+  }
+  chartData: ChartData
+  yearlyShortage: YearlyShortageData
+}
+
+interface CourseTemplate {
+  title: string
+  description: string
+  modules: number
+  lessons: number
+  rating: string
+  image: string
+}
+
+interface CourseModule {
+  title: string
+  lessons: string[]
+}
+
+interface LandingPageData {
+  projectId: number
+  projectName: string
+  companyName: string
+  companyDescription: string
+  jobPositions: JobPosition[]
+  workforceCrisis: WorkforceCrisisData
+  courseOutlineModules: CourseModule[]
+  courseTemplates: CourseTemplate[]
+  serviceTemplatesDescription: string
+  language?: string
+  courseOutlineTableHeaders?: {
+    lessons: string
+    assessment: string
+    duration: string
+  }
+}
+
+// Localization helper function
+const getLocalizedText = (language: string | undefined, texts: { en: any; es: any; ua: any; ru: any }) => {
+  switch (language) {
+    case 'en': return texts.en
+    case 'es': return texts.es
+    case 'ua': return texts.ua
+    case 'ru': return texts.ru
+    default: return texts.ru // Default to Russian
+  }
+}
+
+export default function DynamicAuditLandingPage() {
+  const params = useParams()
+  const projectId = params?.projectId as string
+  const [landingPageData, setLandingPageData] = useState<LandingPageData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({ 'module-0': true })
+  const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
+  
+  // Text editing state
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null)
+  const [isSharing, setIsSharing] = useState(false)
+  const [shareError, setShareError] = useState<string | null>(null)
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules(prev => ({
+      ...prev,
+      [moduleId]: !prev[moduleId]
+    }))
+  }
+
+  // Text editing handlers
+  const startEditing = (field: string) => {
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
+    console.log('🚀 [START EDITING] Function called with field:', field);
+    console.log('🚀 [START EDITING] Current editingField state:', editingField);
+    console.log('🚀 [START EDITING] Active element before setState:', document.activeElement);
+    console.log('🚀 [START EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(field);
+    console.log('🚀 [START EDITING] setEditingField called with:', field);
+    console.log('🚀 [START EDITING] Active element after setState:', document.activeElement);
+    
+    // Log state after React updates (next tick)
+    setTimeout(() => {
+      console.log('⏰ [START EDITING] After state update:');
+      console.log('⏰ [START EDITING] editingField should now be:', field);
+      console.log('⏰ [START EDITING] Active element:', document.activeElement);
+    }, 0);
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
+  }
+
+  const stopEditing = () => {
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
+    console.log('🛑 [STOP EDITING] Function called');
+    console.log('🛑 [STOP EDITING] Current editingField state:', editingField);
+    console.log('🛑 [STOP EDITING] Active element before setState:', document.activeElement);
+    console.log('🛑 [STOP EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(null);
+    console.log('🛑 [STOP EDITING] setEditingField(null) called');
+    console.log('🛑 [STOP EDITING] Active element after setState:', document.activeElement);
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
+  }
+
+  const handleTextSave = async (field: string, newValue: string) => {
+    console.log('🚀 [TEXT SAVE START] ===========================================');
+    console.log('🚀 [TEXT SAVE START] Field:', field);
+    console.log('🚀 [TEXT SAVE START] New value:', newValue);
+    console.log('🚀 [TEXT SAVE START] Timestamp:', new Date().toISOString());
+    console.log('🚀 [TEXT SAVE START] Project ID:', projectId);
+    
+    if (!landingPageData) {
+      console.error('❌ [TEXT SAVE ERROR] landingPageData is null or undefined');
+      return;
+    }
+    
+    console.log('🔍 [TEXT SAVE] Current landingPageData structure:', {
+      keys: Object.keys(landingPageData),
+      hasCompanyName: 'companyName' in landingPageData,
+      hasJobPositions: 'jobPositions' in landingPageData,
+      hasSections: 'sections' in landingPageData,
+      hasTheme: 'theme' in landingPageData,
+      fullData: landingPageData
+    });
+    
+    // 🔍 CRITICAL: Validate that we have AI audit data structure, not slide deck data
+    if ('sections' in landingPageData && 'theme' in landingPageData && !('companyName' in landingPageData)) {
+      console.error('🚨 [DATA CORRUPTION] landingPageData has wrong structure - contains sections/theme instead of AI audit data');
+      console.error('🚨 [DATA CORRUPTION] Current data:', landingPageData);
+      console.error('🚨 [DATA CORRUPTION] Attempting to refetch correct data...');
+      
+      // Refetch the correct data from the server
+      try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+        const response = await fetch(apiUrl)
+        if (response.ok) {
+          const correctData = await response.json()
+          console.log('✅ [DATA RECOVERY] Successfully refetched correct AI audit data');
+          setLandingPageData(correctData)
+          // Retry the save with correct data
+          setTimeout(() => handleTextSave(field, newValue), 100);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [DATA RECOVERY] Failed to refetch data:', error);
+      }
+      
+      // If refetch fails, abort the save to prevent data corruption
+      console.error('❌ [SAVE ABORTED] Cannot save with corrupted data structure');
+      stopEditing();
+      return;
+    }
+    
+    // Get the current value for comparison
+    let currentValue = '';
+    switch (field) {
+      case 'companyName':
+        currentValue = landingPageData.companyName || '';
+        break
+      case 'companyDescription':
+        currentValue = landingPageData.companyDescription || '';
+        break
+      case 'projectName':
+        currentValue = landingPageData.projectName || '';
+        break
+      case 'yearlyShortage':
+        currentValue = landingPageData.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '';
+        break
+      case 'workforceCrisisIndustry':
+        currentValue = landingPageData.workforceCrisis?.industry || '';
+        break
+      case 'workforceCrisisFullTitle':
+        currentValue = landingPageData.workforceCrisis?.fullTitle || 
+          `Workforce Crisis in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry`;
+        break
+      case 'workforceCrisisDescription':
+        currentValue = landingPageData.workforceCrisis?.yearlyShortage?.description || '';
+        break
+      case 'workforceCrisisMissingText':
+        // This is the full "Missing per year" text - now we handle the complete description
+        currentValue = landingPageData.workforceCrisis?.missingPersonnelDescription || 
+          `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`;
+        break
+      case 'burnoutTitle':
+        currentValue = landingPageData.workforceCrisis?.burnout?.title || 'Burnout';
+        break
+      case 'burnoutDescription':
+        currentValue = landingPageData.workforceCrisis?.burnout?.months || '24';
+        break
+      case 'burnoutFullDescription':
+        currentValue = landingPageData.workforceCrisis?.burnout?.fullDescription || 
+          `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`;
+        break
+      case 'turnoverPercentage':
+        currentValue = landingPageData.workforceCrisis?.turnover?.percentage || '85';
+        break
+      case 'turnoverFullTitle':
+        currentValue = landingPageData.workforceCrisis?.turnover?.fullTitle || 
+          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`;
+        break
+      case 'turnoverFullDescription':
+        currentValue = landingPageData.workforceCrisis?.turnover?.fullDescription || 
+          `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`;
+        break
+      case 'turnoverEarlyExit':
+        currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.percentage || '45';
+        break
+      case 'turnoverEarlyExitMonths':
+        currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.months || '3';
+        break
+      case 'lossesAmount':
+        currentValue = landingPageData.workforceCrisis?.losses?.amount || '$10K–$18K';
+        break
+      case 'lossesFullTitle':
+        currentValue = landingPageData.workforceCrisis?.losses?.fullTitle || 
+          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`;
+        break
+      case 'lossesFullDescription':
+        currentValue = landingPageData.workforceCrisis?.losses?.fullDescription || 
+          'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.';
+        break
+      case 'searchTimeDays':
+        currentValue = landingPageData.workforceCrisis?.searchTime?.days || '30–60';
+        break
+      case 'searchTimeFullTitle':
+        currentValue = landingPageData.workforceCrisis?.searchTime?.fullTitle || 
+          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`;
+        break
+      case 'searchTimeFullDescription':
+        currentValue = landingPageData.workforceCrisis?.searchTime?.fullDescription || 
+          'Candidate search';
+        break
+      case 'onboardingCourseTitle':
+        currentValue = landingPageData.courseTemplates?.[0]?.title || 'HVAC Installer';
+        break
+      case 'serviceTemplatesDescription':
+        currentValue = landingPageData.serviceTemplatesDescription || 'Ready-made course templates for onboarding and training your employees:';
+        break
+      case 'tableHeaderLessons':
+        currentValue = landingPageData.courseOutlineTableHeaders?.lessons || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Lessons in module',
+            es: 'Lecciones en módulo',
+            ua: 'Уроки в модулі',
+            ru: 'Уроки в модуле'
+          });
+        break
+      case 'tableHeaderAssessment':
+        currentValue = landingPageData.courseOutlineTableHeaders?.assessment || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Knowledge check: test / practice with mentor',
+            es: 'Verificación de conocimientos: prueba / práctica con mentor',
+            ua: 'Перевірка знань: тест / практика з куратором',
+            ru: 'Проверка знаний: тест / практика с куратором'
+          });
+        break
+      case 'tableHeaderDuration':
+        currentValue = landingPageData.courseOutlineTableHeaders?.duration || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Training duration',
+            es: 'Duración del entrenamiento',
+            ua: 'Тривалість навчання',
+            ru: 'Длительность обучения'
+          });
+        break
+      default:
+        if (field.startsWith('jobPosition_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.jobPositions?.[index]?.title || '';
+        } else if (field.startsWith('courseTemplate_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseTemplates?.[index]?.title || '';
+        } else if (field.startsWith('courseTemplateDescription_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseTemplates?.[index]?.description || '';
+        } else if (field.startsWith('courseModule_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseOutlineModules?.[index]?.title || '';
+        } else if (field.startsWith('courseLesson_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessons?.[lessonIndex] || '';
+        }
+        break
+    }
+    
+    console.log('🔄 [TEXT SAVE] Saving field:', field);
+    console.log('📝 [TEXT SAVE] Previous value:', currentValue);
+    console.log('📝 [TEXT SAVE] New value:', newValue);
+    console.log('📝 [TEXT SAVE] Value changed:', currentValue !== newValue);
+    
+    // Only proceed if the value actually changed
+    if (currentValue === newValue) {
+      console.log('⏭️ [TEXT SAVE] No change detected, skipping save');
+      stopEditing()
+      return
+    }
+    
+    // Update local state first
+    let updatedData = { ...landingPageData }
+    
+    // 🔍 DEBUG: Log the data structure being sent
+    console.log('🔍 [DEBUG] landingPageData structure:', {
+      keys: Object.keys(landingPageData || {}),
+      hasCompanyName: 'companyName' in (landingPageData || {}),
+      hasJobPositions: 'jobPositions' in (landingPageData || {}),
+      hasSections: 'sections' in (landingPageData || {}),
+      hasTheme: 'theme' in (landingPageData || {}),
+      fullData: landingPageData
+    });
+    
+    // Update specific fields based on the field name
+    switch (field) {
+      case 'companyName':
+        updatedData.companyName = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated companyName');
+        break
+      case 'companyDescription':
+        updatedData.companyDescription = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated companyDescription');
+        break
+      case 'projectName':
+        updatedData.projectName = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated projectName');
+        break
+      case 'yearlyShortage':
+        if (updatedData.workforceCrisis?.yearlyShortage) {
+          updatedData.workforceCrisis.yearlyShortage.yearlyShortage = parseInt(newValue) || 0
+          console.log('✅ [TEXT SAVE] Successfully updated yearlyShortage');
+        }
+        break
+      case 'workforceCrisisIndustry':
+        if (updatedData.workforceCrisis) {
+          updatedData.workforceCrisis.industry = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisIndustry');
+        }
+        break
+      case 'workforceCrisisFullTitle':
+        if (updatedData.workforceCrisis) {
+          updatedData.workforceCrisis.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisFullTitle');
+        }
+        break
+      case 'workforceCrisisDescription':
+        if (updatedData.workforceCrisis?.yearlyShortage) {
+          updatedData.workforceCrisis.yearlyShortage.description = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisDescription');
+        }
+        break
+      case 'workforceCrisisMissingText':
+        if (updatedData.workforceCrisis) {
+          updatedData.workforceCrisis.missingPersonnelDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisMissingText');
+        }
+        break
+      case 'burnoutTitle':
+        if (updatedData.workforceCrisis?.burnout) {
+          updatedData.workforceCrisis.burnout.title = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated burnoutTitle');
+        }
+        break
+      case 'burnoutDescription':
+        if (updatedData.workforceCrisis?.burnout) {
+          updatedData.workforceCrisis.burnout.months = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated burnoutDescription');
+        }
+        break
+      case 'burnoutFullDescription':
+        if (updatedData.workforceCrisis?.burnout) {
+          updatedData.workforceCrisis.burnout.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated burnoutFullDescription');
+        }
+        break
+      case 'turnoverPercentage':
+        if (updatedData.workforceCrisis?.turnover) {
+          updatedData.workforceCrisis.turnover.percentage = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverPercentage');
+        }
+        break
+      case 'turnoverFullTitle':
+        if (updatedData.workforceCrisis?.turnover) {
+          updatedData.workforceCrisis.turnover.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverFullTitle');
+        }
+        break
+      case 'turnoverFullDescription':
+        if (updatedData.workforceCrisis?.turnover) {
+          updatedData.workforceCrisis.turnover.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverFullDescription');
+        }
+        break
+      case 'turnoverEarlyExit':
+        if (updatedData.workforceCrisis?.turnover?.earlyExit) {
+          updatedData.workforceCrisis.turnover.earlyExit.percentage = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverEarlyExit');
+        }
+        break
+      case 'turnoverEarlyExitMonths':
+        if (updatedData.workforceCrisis?.turnover?.earlyExit) {
+          updatedData.workforceCrisis.turnover.earlyExit.months = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverEarlyExitMonths');
+        }
+        break
+      case 'lossesAmount':
+        if (updatedData.workforceCrisis?.losses) {
+          updatedData.workforceCrisis.losses.amount = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated lossesAmount');
+        }
+        break
+      case 'lossesFullTitle':
+        if (updatedData.workforceCrisis?.losses) {
+          updatedData.workforceCrisis.losses.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated lossesFullTitle');
+        }
+        break
+      case 'lossesFullDescription':
+        if (updatedData.workforceCrisis?.losses) {
+          updatedData.workforceCrisis.losses.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated lossesFullDescription');
+        }
+        break
+      case 'searchTimeDays':
+        if (updatedData.workforceCrisis?.searchTime) {
+          updatedData.workforceCrisis.searchTime.days = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated searchTimeDays');
+        }
+        break
+      case 'searchTimeFullTitle':
+        if (updatedData.workforceCrisis?.searchTime) {
+          updatedData.workforceCrisis.searchTime.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated searchTimeFullTitle');
+        }
+        break
+      case 'searchTimeFullDescription':
+        if (updatedData.workforceCrisis?.searchTime) {
+          updatedData.workforceCrisis.searchTime.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated searchTimeFullDescription');
+        }
+        break
+      case 'onboardingCourseTitle':
+        if (updatedData.courseTemplates && updatedData.courseTemplates[0]) {
+          updatedData.courseTemplates[0].title = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated onboardingCourseTitle');
+        }
+        break
+      case 'serviceTemplatesDescription':
+        updatedData.serviceTemplatesDescription = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated serviceTemplatesDescription');
+        break
+      case 'tableHeaderLessons':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderLessons field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting lessons to:', newValue);
+        updatedData.courseOutlineTableHeaders.lessons = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header lessons');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
+      case 'tableHeaderAssessment':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderAssessment field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting assessment to:', newValue);
+        updatedData.courseOutlineTableHeaders.assessment = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header assessment');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
+      case 'tableHeaderDuration':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderDuration field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting duration to:', newValue);
+        updatedData.courseOutlineTableHeaders.duration = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header duration');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
+      default:
+        // Handle nested fields like job positions, course templates, and course modules
+        if (field.startsWith('jobPosition_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.jobPositions && updatedData.jobPositions[index]) {
+            updatedData.jobPositions[index] = { ...updatedData.jobPositions[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated job position', index);
+          }
+        } else if (field.startsWith('courseTemplate_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseTemplates && updatedData.courseTemplates[index]) {
+            updatedData.courseTemplates[index] = { ...updatedData.courseTemplates[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course template', index);
+          }
+        } else if (field.startsWith('courseTemplateDescription_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseTemplates && updatedData.courseTemplates[index]) {
+            updatedData.courseTemplates[index] = { ...updatedData.courseTemplates[index], description: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course template description', index);
+          }
+        } else if (field.startsWith('courseModule_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[index]) {
+            updatedData.courseOutlineModules[index] = { ...updatedData.courseOutlineModules[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course module', index);
+          }
+        } else if (field.startsWith('courseLesson_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessons) {
+            updatedData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue
+            console.log('✅ [TEXT SAVE] Successfully updated course lesson', moduleIndex, lessonIndex);
+          }
+        }
+        break
+    }
+    
+    // Update local state
+    console.log('🔄 [STATE UPDATE] ==========================================');
+    console.log('🔄 [STATE UPDATE] Updating local state with new data');
+    console.log('🔄 [STATE UPDATE] Field changed:', field);
+    console.log('🔄 [STATE UPDATE] New value:', newValue);
+    console.log('🔄 [STATE UPDATE] Updated data keys:', Object.keys(updatedData));
+    console.log('🔄 [STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in updatedData);
+    if ('courseOutlineTableHeaders' in updatedData) {
+      console.log('🔄 [STATE UPDATE] courseOutlineTableHeaders value:', updatedData.courseOutlineTableHeaders);
+    }
+    console.log('🔄 [STATE UPDATE] Calling setLandingPageData...');
+    setLandingPageData(updatedData);
+    console.log('🔄 [STATE UPDATE] setLandingPageData called successfully');
+    console.log('🔄 [STATE UPDATE] ==========================================');
+    
+    // Automatically save to database
+    console.log('💾 [AUTO SAVE] ==========================================');
+    console.log('💾 [AUTO SAVE] Starting automatic save to database');
+    console.log('💾 [AUTO SAVE] Field to save:', field);
+    console.log('💾 [AUTO SAVE] New value to save:', newValue);
+    console.log('💾 [AUTO SAVE] Project ID:', projectId);
+    console.log('💾 [AUTO SAVE] ==========================================');
+    
+    // 🚨 CRITICAL DATA VALIDATION: Ensure we're not sending corrupted data
+    if (!updatedData || typeof updatedData !== 'object') {
+      console.error('❌ [CRITICAL ERROR] updatedData is null or not an object:', updatedData);
+      return;
+    }
+    
+    // Check if the data has the wrong structure (slide deck/text presentation instead of AI audit)
+    const hasWrongStructure = ('sections' in updatedData && 'theme' in updatedData) && 
+                              !('companyName' in updatedData || 'jobPositions' in updatedData);
+    
+    if (hasWrongStructure) {
+      console.error('❌ [CRITICAL ERROR] Detected corrupted data structure - has slide deck/text presentation fields instead of AI audit fields');
+      console.error('❌ [CRITICAL ERROR] Corrupted data:', updatedData);
+      console.error('❌ [CRITICAL ERROR] Attempting to recover from original landingPageData...');
+      
+      // Try to recover by refetching the data
+      console.log('🔄 [RECOVERY] ==========================================');
+      console.log('🔄 [RECOVERY] Refetching landing page data to recover from corruption...');
+      console.log('🔄 [RECOVERY] Field being saved:', field);
+      console.log('🔄 [RECOVERY] New value:', newValue);
+      console.log('🔄 [RECOVERY] ==========================================');
+      try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const recoveryUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`;
+        
+        console.log('📡 [RECOVERY API] GET request to:', recoveryUrl);
+        
+        const response = await fetch(recoveryUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        console.log('📡 [RECOVERY API] Response status:', response.status);
+        console.log('📡 [RECOVERY API] Response ok:', response.ok);
+        
+        if (response.ok) {
+          const freshData = await response.json();
+          console.log('✅ [RECOVERY] ==========================================');
+          console.log('✅ [RECOVERY] Successfully recovered fresh data');
+          console.log('✅ [RECOVERY] Fresh data keys:', Object.keys(freshData));
+          console.log('✅ [RECOVERY] Fresh data has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in freshData);
+          if ('courseOutlineTableHeaders' in freshData) {
+            console.log('✅ [RECOVERY] Fresh courseOutlineTableHeaders:', freshData.courseOutlineTableHeaders);
+          }
+          console.log('✅ [RECOVERY] Full fresh data:', freshData);
+          console.log('✅ [RECOVERY] ==========================================');
+          
+          // Update the recovered data with the user's change
+          const recoveredData = { ...freshData };
+          switch (field) {
+            case 'companyName':
+              recoveredData.companyName = newValue;
+              break;
+            case 'companyDescription':
+              recoveredData.companyDescription = newValue;
+              break;
+            case 'projectName':
+              recoveredData.projectName = newValue;
+              break;
+            case 'yearlyShortage':
+              if (recoveredData.workforceCrisis?.yearlyShortage) {
+                recoveredData.workforceCrisis.yearlyShortage.yearlyShortage = parseInt(newValue) || 0;
+              }
+              break;
+            case 'workforceCrisisIndustry':
+              if (recoveredData.workforceCrisis) {
+                recoveredData.workforceCrisis.industry = newValue;
+              }
+              break;
+            case 'workforceCrisisFullTitle':
+              if (recoveredData.workforceCrisis) {
+                recoveredData.workforceCrisis.fullTitle = newValue;
+              }
+              break;
+            case 'workforceCrisisDescription':
+              if (recoveredData.workforceCrisis?.yearlyShortage) {
+                recoveredData.workforceCrisis.yearlyShortage.description = newValue;
+              }
+              break;
+            case 'workforceCrisisMissingText':
+              if (recoveredData.workforceCrisis) {
+                recoveredData.workforceCrisis.missingPersonnelDescription = newValue;
+              }
+              break;
+            case 'burnoutTitle':
+              if (recoveredData.workforceCrisis?.burnout) {
+                recoveredData.workforceCrisis.burnout.title = newValue;
+              }
+              break;
+            case 'burnoutDescription':
+              if (recoveredData.workforceCrisis?.burnout) {
+                recoveredData.workforceCrisis.burnout.months = newValue;
+              }
+              break;
+            case 'burnoutFullDescription':
+              if (recoveredData.workforceCrisis?.burnout) {
+                recoveredData.workforceCrisis.burnout.fullDescription = newValue;
+              }
+              break;
+            case 'turnoverPercentage':
+              if (recoveredData.workforceCrisis?.turnover) {
+                recoveredData.workforceCrisis.turnover.percentage = newValue;
+              }
+              break;
+            case 'turnoverFullTitle':
+              if (recoveredData.workforceCrisis?.turnover) {
+                recoveredData.workforceCrisis.turnover.fullTitle = newValue;
+              }
+              break;
+            case 'turnoverFullDescription':
+              if (recoveredData.workforceCrisis?.turnover) {
+                recoveredData.workforceCrisis.turnover.fullDescription = newValue;
+              }
+              break;
+            case 'turnoverEarlyExit':
+              if (recoveredData.workforceCrisis?.turnover?.earlyExit) {
+                recoveredData.workforceCrisis.turnover.earlyExit.percentage = newValue;
+              }
+              break;
+            case 'turnoverEarlyExitMonths':
+              if (recoveredData.workforceCrisis?.turnover?.earlyExit) {
+                recoveredData.workforceCrisis.turnover.earlyExit.months = newValue;
+              }
+              break;
+            case 'lossesAmount':
+              if (recoveredData.workforceCrisis?.losses) {
+                recoveredData.workforceCrisis.losses.amount = newValue;
+              }
+              break;
+            case 'lossesFullTitle':
+              if (recoveredData.workforceCrisis?.losses) {
+                recoveredData.workforceCrisis.losses.fullTitle = newValue;
+              }
+              break;
+            case 'lossesFullDescription':
+              if (recoveredData.workforceCrisis?.losses) {
+                recoveredData.workforceCrisis.losses.fullDescription = newValue;
+              }
+              break;
+            case 'searchTimeDays':
+              if (recoveredData.workforceCrisis?.searchTime) {
+                recoveredData.workforceCrisis.searchTime.days = newValue;
+              }
+              break;
+            case 'searchTimeFullTitle':
+              if (recoveredData.workforceCrisis?.searchTime) {
+                recoveredData.workforceCrisis.searchTime.fullTitle = newValue;
+              }
+              break;
+            case 'searchTimeFullDescription':
+              if (recoveredData.workforceCrisis?.searchTime) {
+                recoveredData.workforceCrisis.searchTime.fullDescription = newValue;
+              }
+              break;
+            case 'onboardingCourseTitle':
+              if (recoveredData.courseTemplates && recoveredData.courseTemplates[0]) {
+                recoveredData.courseTemplates[0].title = newValue;
+              }
+              break;
+            case 'serviceTemplatesDescription':
+              recoveredData.serviceTemplatesDescription = newValue;
+              break;
+            case 'tableHeaderLessons':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderLessons to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting lessons to:', newValue);
+              recoveredData.courseOutlineTableHeaders.lessons = newValue;
+              console.log('✅ [RECOVERY] Updated table header lessons in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
+            case 'tableHeaderAssessment':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderAssessment to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting assessment to:', newValue);
+              recoveredData.courseOutlineTableHeaders.assessment = newValue;
+              console.log('✅ [RECOVERY] Updated table header assessment in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
+            case 'tableHeaderDuration':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderDuration to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting duration to:', newValue);
+              recoveredData.courseOutlineTableHeaders.duration = newValue;
+              console.log('✅ [RECOVERY] Updated table header duration in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
+            default:
+              if (field.startsWith('jobPosition_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.jobPositions && recoveredData.jobPositions[index]) {
+                  recoveredData.jobPositions[index] = { ...recoveredData.jobPositions[index], title: newValue };
+                }
+              } else if (field.startsWith('courseTemplate_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseTemplates && recoveredData.courseTemplates[index]) {
+                  recoveredData.courseTemplates[index] = { ...recoveredData.courseTemplates[index], title: newValue };
+                }
+              } else if (field.startsWith('courseTemplateDescription_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseTemplates && recoveredData.courseTemplates[index]) {
+                  recoveredData.courseTemplates[index] = { ...recoveredData.courseTemplates[index], description: newValue };
+                }
+              } else if (field.startsWith('courseModule_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[index]) {
+                  recoveredData.courseOutlineModules[index] = { ...recoveredData.courseOutlineModules[index], title: newValue };
+                }
+              } else if (field.startsWith('courseLesson_')) {
+                const parts = field.split('_');
+                const moduleIndex = parseInt(parts[1]);
+                const lessonIndex = parseInt(parts[2]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessons) {
+                  recoveredData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue;
+                }
+              }
+              break;
+          }
+          
+          // Update local state with recovered data
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
+          console.log('🔄 [RECOVERY STATE UPDATE] Applying recovered data to local state');
+          console.log('🔄 [RECOVERY STATE UPDATE] Recovered data keys:', Object.keys(recoveredData));
+          console.log('🔄 [RECOVERY STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in recoveredData);
+          if ('courseOutlineTableHeaders' in recoveredData) {
+            console.log('🔄 [RECOVERY STATE UPDATE] courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+          }
+          console.log('🔄 [RECOVERY STATE UPDATE] Calling setLandingPageData with recovered data...');
+          setLandingPageData(recoveredData);
+          updatedData = recoveredData;
+          console.log('✅ [RECOVERY] Updated local state with recovered data');
+          console.log('✅ [RECOVERY] updatedData now equals recoveredData');
+          console.log('✅ [RECOVERY] updatedData.courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
+        } else {
+          console.error('❌ [RECOVERY FAILED] ==========================================');
+          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data');
+          console.error('❌ [RECOVERY FAILED] Response status:', response.status);
+          console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+          console.error('❌ [RECOVERY FAILED] ==========================================');
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [RECOVERY FAILED] ==========================================');
+        console.error('❌ [RECOVERY FAILED] Exception during data recovery');
+        console.error('❌ [RECOVERY FAILED] Error:', error);
+        console.error('❌ [RECOVERY FAILED] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+        console.error('❌ [RECOVERY FAILED] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+        console.error('❌ [RECOVERY FAILED] ==========================================');
+        return;
+      }
+    }
+    
+    // Final validation before sending
+    const isValidAuditData = updatedData && 
+                            (typeof updatedData.companyName === 'string' || 
+                             Array.isArray(updatedData.jobPositions) ||
+                             typeof updatedData.companyDescription === 'string');
+    
+    if (!isValidAuditData) {
+      console.error('❌ [CRITICAL ERROR] Data validation failed - not valid AI audit data structure');
+      console.error('❌ [CRITICAL ERROR] Invalid data:', updatedData);
+      return;
+    }
+    
+    console.log('✅ [VALIDATION PASSED] Data structure validated as AI audit data');
+    console.log('🔍 [DEBUG] Final data being sent to backend:', {
+      microProductContent: updatedData,
+      microProductContentKeys: Object.keys(updatedData || {}),
+      hasCompanyName: 'companyName' in (updatedData || {}),
+      hasJobPositions: 'jobPositions' in (updatedData || {}),
+      hasCourseOutlineTableHeaders: 'courseOutlineTableHeaders' in (updatedData || {}),
+      courseOutlineTableHeaders: updatedData.courseOutlineTableHeaders,
+      dataStructureValid: isValidAuditData
+    });
+    
+    // 🔍 CRITICAL LOGGING: Verify table headers are in the payload
+    if (field.startsWith('tableHeader')) {
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Saving table header field:', field);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] New value:', newValue);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] courseOutlineTableHeaders in updatedData:', updatedData.courseOutlineTableHeaders);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Full courseOutlineTableHeaders:', JSON.stringify(updatedData.courseOutlineTableHeaders, null, 2));
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Will be included in API payload: YES');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+    }
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
+      const requestPayload = { microProductContent: updatedData };
+      
+      console.log('🌐 [API CALL START] ===========================================');
+      console.log('🌐 [API CALL START] Endpoint:', apiEndpoint);
+      console.log('🌐 [API CALL START] Method: PUT');
+      console.log('🌐 [API CALL START] Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('🌐 [API CALL START] Request payload:', JSON.stringify(requestPayload, null, 2));
+      console.log('🌐 [API CALL START] Payload size:', JSON.stringify(requestPayload).length, 'bytes');
+      console.log('🌐 [API CALL START] Timestamp:', new Date().toISOString());
+      
+      // 🔍 EXTRA LOGGING: Table headers in payload
+      if (field.startsWith('tableHeader')) {
+        console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
+      }
+      
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      console.log('📤 [SENDING TO BACKEND] About to send PUT request');
+      console.log('📤 [SENDING TO BACKEND] URL:', apiEndpoint);
+      console.log('📤 [SENDING TO BACKEND] Body size:', JSON.stringify(requestPayload).length, 'bytes');
+      console.log('📤 [SENDING TO BACKEND] Timestamp:', new Date().toISOString());
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload),
+      });
+      
+      console.log('📡 [API RESPONSE] ===========================================');
+      console.log('📡 [API RESPONSE] Received response from backend');
+      console.log('📡 [API RESPONSE] Status:', response.status);
+      console.log('📡 [API RESPONSE] Status Text:', response.statusText);
+      console.log('📡 [API RESPONSE] OK:', response.ok);
+      console.log('📡 [API RESPONSE] Headers:', Object.fromEntries(response.headers.entries()));
+      console.log('📡 [API RESPONSE] Timestamp:', new Date().toISOString());
+      console.log('📡 [API RESPONSE] ===========================================');
+      
+      if (response.ok) {
+        console.log('✅ [API SUCCESS] Request successful');
+        const responseData = await response.json();
+        console.log('✅ [API SUCCESS] Response data:', JSON.stringify(responseData, null, 2));
+        console.log('✅ [AUTO SAVE] Successfully saved to database');
+        
+        // 🎯 CRITICAL LOGGING: Confirm table headers were saved
+        if (field.startsWith('tableHeader')) {
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+          console.log('🎯 [TABLE HEADER SAVED] Field:', field);
+          console.log('🎯 [TABLE HEADER SAVED] New value:', newValue);
+          console.log('🎯 [TABLE HEADER SAVED] Database save confirmed: YES');
+          console.log('🎯 [TABLE HEADER SAVED] Updated courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🎯 [TABLE HEADER SAVED] On next page load, this value should be retrieved from DB');
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+        }
+        
+        setHasUnsavedChanges(false)
+      } else {
+        console.error('❌ [API ERROR] Request failed');
+        const errorText = await response.text();
+        console.error('❌ [API ERROR] Error response body:', errorText);
+        console.error('❌ [AUTO SAVE] Database save failed with status:', response.status);
+        console.error('❌ [AUTO SAVE] Error details:', errorText);
+        setHasUnsavedChanges(true)
+      }
+    } catch (error: any) {
+      console.error('❌ [NETWORK ERROR] ===========================================');
+      console.error('❌ [NETWORK ERROR] Error type:', error?.constructor?.name || 'Unknown');
+      console.error('❌ [NETWORK ERROR] Error message:', error?.message || 'Unknown error');
+      console.error('❌ [NETWORK ERROR] Error stack:', error?.stack || 'No stack trace');
+      console.error('❌ [NETWORK ERROR] Timestamp:', new Date().toISOString());
+      console.error('❌ [AUTO SAVE] Error saving to database:', error)
+      setHasUnsavedChanges(true)
+    }
+    
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    console.log('🏁 [SAVE COMPLETE] Save workflow finished');
+    console.log('🏁 [SAVE COMPLETE] Field:', field);
+    console.log('🏁 [SAVE COMPLETE] Final value:', newValue);
+    console.log('🏁 [SAVE COMPLETE] Calling stopEditing to exit edit mode...');
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    
+    stopEditing()
+    
+    console.log('🎬 [SAVE END] ==========================================');
+    console.log('🎬 [SAVE END] handleTextSave function completed');
+    console.log('🎬 [SAVE END] Edit mode should now be closed');
+    console.log('🎬 [SAVE END] Data should be persisted in database');
+    console.log('🎬 [SAVE END] Timestamp:', new Date().toISOString());
+    console.log('🎬 [SAVE END] ==========================================');
+  }
+
+
+  const handleTextCancel = () => {
+    console.log('❌ [TEXT EDIT] Edit canceled for field:', editingField);
+    stopEditing()
+  }
+
+  const handleShare = async () => {
+    if (!projectId) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${projectId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share audit: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      
+      console.log('✅ [SHARE] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('❌ [SHARE] Error sharing audit:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+      console.log('✅ [COPY] Link copied to clipboard');
+    } catch (error) {
+      console.error('❌ [COPY] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // Click outside handler to stop editing
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField) {
+        // Check if click is outside any editing input
+        const target = event.target as HTMLElement;
+        if (!target.closest('input, textarea')) {
+          console.log('🖱️ [TEXT EDIT] Clicked outside - stopping edit for field:', editingField);
+          
+          // Find the currently editing input/textarea and save its value before stopping
+          const editingElement = document.querySelector('input.inline-editor-input, textarea.inline-editor-textarea') as HTMLInputElement | HTMLTextAreaElement;
+          if (editingElement && editingElement.value !== undefined) {
+            console.log('💾 [TEXT EDIT] Saving value from click outside:', editingElement.value);
+            handleTextSave(editingField, editingElement.value);
+          } else {
+            stopEditing();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField]);
+
+  // Helper function to generate random assessment type and duration
+  const getRandomAssessment = () => {
+    // 📊 DETAILED LOGGING: Language parameter usage in conditional rendering
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "${landingPageData?.language}"`)
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${landingPageData?.language === 'en'}`)
+    
+    const assessments = getLocalizedText(landingPageData?.language, {
+      en: ['none', 'test', 'practice'],
+      es: ['ninguno', 'prueba', 'práctica'],
+      ua: ['немає', 'тест', 'практика'],
+      ru: ['нет', 'тест', 'практика']
+    })
+    
+    const durations = getLocalizedText(landingPageData?.language, {
+      en: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      es: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      ua: ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв'],
+      ru: ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+    })
+    
+    return {
+      type: assessments[Math.floor(Math.random() * assessments.length)],
+      duration: durations[Math.floor(Math.random() * durations.length)]
+    }
+  }
+
+  // Generate stable assessment data for all modules
+  const generateAssessmentData = () => {
+    if (!landingPageData?.courseOutlineModules) return {}
+    
+    const data: { [key: string]: { type: string; duration: string }[] } = {}
+    
+    landingPageData.courseOutlineModules.forEach((module, moduleIndex) => {
+      if (module.lessons) {
+        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      }
+    })
+    
+    return data
+  }
+
+  // Calculate total modules and lessons count from course outline
+  const getTotalModulesAndLessons = () => {
+    if (!landingPageData?.courseOutlineModules) return { modules: 0, lessons: 0 }
+    
+    const modules = landingPageData.courseOutlineModules.length
+    const lessons = landingPageData.courseOutlineModules.reduce((total, module) => {
+      return total + (module.lessons?.length || 0)
+    }, 0)
+    
+    return { modules, lessons }
+  }
+
+  // Generate assessment data when landing page data is loaded
+  useEffect(() => {
+    if (landingPageData?.courseOutlineModules) {
+      const data = generateAssessmentData()
+      setAssessmentData(data)
+    }
+    
+    // Log chart data for verification
+        if (landingPageData?.workforceCrisis?.chartData) {
+          console.log('📊 Chart Data Received:', landingPageData.workforceCrisis.chartData)
+          console.log('📊 Chart Data Points:', landingPageData.workforceCrisis.chartData.chartData)
+          console.log('📊 Total Shortage:', landingPageData.workforceCrisis.chartData.totalShortage)
+          console.log('📊 Trend:', landingPageData.workforceCrisis.chartData.trend)
+        }
+        
+        if (landingPageData?.workforceCrisis?.yearlyShortage) {
+          console.log('📈 Yearly Shortage Data Received:', landingPageData.workforceCrisis.yearlyShortage)
+          console.log('📈 Yearly Shortage Number:', landingPageData.workforceCrisis.yearlyShortage.yearlyShortage)
+          console.log('📈 Industry:', landingPageData.workforceCrisis.yearlyShortage.industry)
+          console.log('📈 Description:', landingPageData.workforceCrisis.yearlyShortage.description)
+        }
+  }, [landingPageData?.courseOutlineModules, landingPageData?.workforceCrisis?.chartData])
+
+  useEffect(() => {
+    const fetchLandingPageData = async () => {
+      try {
+        // 📊 LOG: Frontend data fetch started
+        console.log(`🔍 [FRONTEND DATA FLOW] Starting data fetch for project ID: ${projectId}`)
+        
+        if (!projectId) {
+          console.error('❌ [FRONTEND DATA FLOW] Project ID is required')
+          setError('Project ID is required')
+          setLoading(false)
+          return
+        }
+        
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+        
+        // 📊 LOG: API request details
+        console.log(`📡 [FRONTEND DATA FLOW] Making API request to: ${apiUrl}`)
+        console.log(`📡 [FRONTEND DATA FLOW] Backend URL: ${CUSTOM_BACKEND_URL}`)
+        
+        const response = await fetch(apiUrl)
+        
+        // 📊 LOG: API response received
+        console.log(`📡 [FRONTEND DATA FLOW] API response status: ${response.status}`)
+        console.log(`📡 [FRONTEND DATA FLOW] API response ok: ${response.ok}`)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error(`❌ [FRONTEND DATA FLOW] API request failed: ${response.status} - ${errorText}`)
+          throw new Error(`Failed to fetch landing page data: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        // 📊 DETAILED LOGGING: Language preference received from API
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data - language: "${data.language}"`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data keys:`, Object.keys(data))
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data type:`, typeof data.language)
+        
+        // 📊 LOG: Data received from API
+        console.log(`📥 [FRONTEND DATA FLOW] Data received from API:`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Project ID: ${data.projectId}`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Project Name: "${data.projectName}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Company Name: "${data.companyName}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
+        
+        // 🎯 CRITICAL LOGGING: Table headers retrieval
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders in response:`, data.courseOutlineTableHeaders)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] Has courseOutlineTableHeaders: ${'courseOutlineTableHeaders' in data}`)
+        if (data.courseOutlineTableHeaders) {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Lessons: "${data.courseOutlineTableHeaders.lessons || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Assessment: "${data.courseOutlineTableHeaders.assessment || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Duration: "${data.courseOutlineTableHeaders.duration || 'NOT SET'}"`)
+        } else {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders NOT FOUND in API response`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] Table headers will use default localized values`)
+        }
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
+        
+        if (data.jobPositions && data.jobPositions.length > 0) {
+          console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
+          data.jobPositions.forEach((position: any, index: number) => {
+            console.log(`📥 [FRONTEND DATA FLOW] - Position ${index + 1}: ${position.title} (${position.icon})`)
+          })
+        }
+        
+        // 🖼️ [IMAGE URL FIX] Process course template images to ensure full URLs
+        if (data.courseTemplates && Array.isArray(data.courseTemplates)) {
+          console.log(`🔍 [FRONTEND IMAGE PROCESSING] Processing ${data.courseTemplates.length} course templates`)
+          console.log(`🔍 [FRONTEND IMAGE PROCESSING] Current window location: ${window.location.protocol}//${window.location.host}`)
+          
+          data.courseTemplates = data.courseTemplates.map((template: any, index: number) => {
+            const originalImage = template.image
+            const processedImage = template.image && template.image.startsWith('/static_design_images/') 
+              ? `${window.location.protocol}//${window.location.host}${template.image}`
+              : template.image
+            
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] Template ${index + 1}: "${template.title}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Original image: "${originalImage}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Processed image: "${processedImage}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Image changed: ${originalImage !== processedImage}`)
+            
+            return {
+              ...template,
+              image: processedImage
+            }
+          })
+          
+          // 📊 LOG: Course template images processed
+          console.log(`🖼️ [IMAGE URL FIX] Course templates processed:`)
+          data.courseTemplates.forEach((template: any, index: number) => {
+            console.log(`🖼️ [IMAGE URL FIX] - Template ${index + 1}: "${template.title}" -> "${template.image}"`)
+          })
+        }
+        
+        // Initialize serviceTemplatesDescription with default value if not present
+        if (!data.serviceTemplatesDescription) {
+          data.serviceTemplatesDescription = getLocalizedText(data.language, {
+            en: 'Ready-made course templates for onboarding and training your employees:',
+            es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+            ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+            ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+          });
+          console.log('🔧 [INIT] Initialized serviceTemplatesDescription with default value');
+        }
+        
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
+        console.log('🔄 [FRONTEND STATE UPDATE] Setting landing page data to state');
+        console.log('🔄 [FRONTEND STATE UPDATE] Data keys:', Object.keys(data));
+        console.log('🔄 [FRONTEND STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in data);
+        if ('courseOutlineTableHeaders' in data && data.courseOutlineTableHeaders) {
+          console.log('🔄 [FRONTEND STATE UPDATE] ✅ courseOutlineTableHeaders present in data!');
+          console.log('🔄 [FRONTEND STATE UPDATE] Table headers:', data.courseOutlineTableHeaders);
+          console.log('🔄 [FRONTEND STATE UPDATE] - Lessons:', data.courseOutlineTableHeaders.lessons || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Assessment:', data.courseOutlineTableHeaders.assessment || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Duration:', data.courseOutlineTableHeaders.duration || 'NOT SET');
+        } else {
+          console.log('🔄 [FRONTEND STATE UPDATE] ❌ courseOutlineTableHeaders NOT in data or is null/undefined');
+          console.log('🔄 [FRONTEND STATE UPDATE] Will use default localized values for table headers');
+        }
+        console.log('🔄 [FRONTEND STATE UPDATE] Calling setLandingPageData...');
+        setLandingPageData(data);
+        console.log('✅ [FRONTEND DATA FLOW] Landing page data set successfully');
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
+        
+        // 📊 DETAILED LOGGING: Language parameter after setting state
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`);
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`);
+        
+      } catch (err) {
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
+        console.error('❌ [FRONTEND DATA FLOW] Error occurred during data fetch');
+        console.error('❌ [FRONTEND DATA FLOW] Error:', err);
+        console.error('❌ [FRONTEND DATA FLOW] Error type:', err instanceof Error ? err.constructor.name : typeof err);
+        console.error('❌ [FRONTEND DATA FLOW] Error message:', err instanceof Error ? err.message : String(err));
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false);
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
+        console.log('🏁 [FRONTEND DATA FLOW] Data fetch process completed');
+        console.log('🏁 [FRONTEND DATA FLOW] Loading state set to false');
+        console.log('🏁 [FRONTEND DATA FLOW] Component ready to render');
+        console.log('🏁 [FRONTEND DATA FLOW] Timestamp:', new Date().toISOString());
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
+      }
+    }
+
+    if (projectId) {
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
+      console.log('🚀 [COMPONENT MOUNT] DynamicAuditLandingPage component mounting');
+      console.log('🚀 [COMPONENT MOUNT] Project ID available:', projectId);
+      console.log('🚀 [COMPONENT MOUNT] Starting data fetch...');
+      console.log('🚀 [COMPONENT MOUNT] Timestamp:', new Date().toISOString());
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
+      fetchLandingPageData()
+    } else {
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
+      console.error('❌ [COMPONENT MOUNT] Project ID not found in URL params');
+      console.error('❌ [COMPONENT MOUNT] Cannot fetch landing page data');
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
+      setError('Project ID not found')
+      setLoading(false)
+    }
+  }, [projectId])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#0F58F9] mx-auto"></div>
+          <p className="mt-4 text-[#71717A]">
+            {getLocalizedText(landingPageData?.language, {
+              en: 'Loading data...',
+              es: 'Cargando datos...',
+              ua: 'Завантаження даних...',
+              ru: 'Загрузка данных...'
+            })}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !landingPageData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">
+            {getLocalizedText(landingPageData?.language, {
+              en: 'Error: ',
+              es: 'Error: ',
+              ua: 'Помилка: ',
+              ru: 'Ошибка: '
+            })}{error || getLocalizedText(landingPageData?.language, {
+              en: 'Data not found',
+              es: 'Datos no encontrados',
+              ua: 'Дані не знайдено',
+              ru: 'Данные не найдены'
+            })}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const { companyName, companyDescription, jobPositions } = landingPageData
+  
+  // 📊 LOG: Data rendering
+  console.log(`🎨 [FRONTEND DATA FLOW] Rendering landing page with data:`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Company Name: "${companyName}"`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Company Description: "${companyDescription}"`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Job Positions: ${jobPositions?.length || 0} positions`)
+  
+  if (jobPositions && jobPositions.length > 0) {
+    console.log(`🎨 [FRONTEND DATA FLOW] Rendering job positions:`)
+    jobPositions.forEach((position: any, index: number) => {
+      console.log(`🎨 [FRONTEND DATA FLOW] - Position ${index + 1}: "${position.title}" with icon "${position.icon}"`)
+    })
+  }
+  
+  // 🎯 CRITICAL LOGGING: Table headers rendering values
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
+  console.log('🎨 [TABLE HEADER RENDER] About to render table headers in UI');
+  console.log('🎨 [TABLE HEADER RENDER] landingPageData.courseOutlineTableHeaders:', landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in landingPageData);
+  
+  // Calculate what will actually be displayed
+  const displayedLessonsHeader = landingPageData.courseOutlineTableHeaders?.lessons || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Lessons in module',
+      es: 'Lecciones en módulo',
+      ua: 'Уроки в модулі',
+      ru: 'Уроки в модуле'
+    });
+  const displayedAssessmentHeader = landingPageData.courseOutlineTableHeaders?.assessment || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Knowledge check: test / practice with mentor',
+      es: 'Verificación de conocimientos: prueba / práctica con mentor',
+      ua: 'Перевірка знань: тест / практика з куратором',
+      ru: 'Проверка знаний: тест / практика с куратором'
+    });
+  const displayedDurationHeader = landingPageData.courseOutlineTableHeaders?.duration || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Training duration',
+      es: 'Duración del entrenamiento',
+      ua: 'Тривалість навчання',
+      ru: 'Длительность обучения'
+    });
+  
+  console.log('🎨 [TABLE HEADER RENDER] ACTUAL VALUES TO BE DISPLAYED:');
+  console.log('🎨 [TABLE HEADER RENDER] - Lessons column:', displayedLessonsHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Assessment column:', displayedAssessmentHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Duration column:', displayedDurationHeader);
+  console.log('🎨 [TABLE HEADER RENDER] Language:', landingPageData?.language);
+  console.log('🎨 [TABLE HEADER RENDER] Using custom values:', !!landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Using default localized values:', !landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
+
+  return (
+      <>
+        <style jsx global>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+            
+          .module-item:last-child {
+            border-bottom: none !important;
+          }
+            
+          /* Set default text color for the entire page */
+          body, html {
+            color: #09090B;
+            font-weight: 400;
+          }
+        `}</style>
+        
+        <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
+          
+          {/* Header */}
+          <header className="h-[50px] xl:h-[81px] mb-[33px] xl:hidden">
+            <div className="w-full px-[20px] pt-[10px] xl:w-[1440px] xl:mx-auto xl:px-[120px] xl:pt-[22px] h-full">
+              <div className="flex items-center justify-between h-full">
+                <svg width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M38.5949 19.1995C38.5949 19.5844 38.6639 19.9104 38.8021 20.1777C38.9403 20.445 39.121 20.6641 39.3442 20.8352C39.578 20.9955 39.849 21.1185 40.1572 21.204C40.4654 21.2788 40.7843 21.3162 41.1138 21.3162C41.337 21.3162 41.5761 21.3002 41.8312 21.2681C42.0863 21.2254 42.3254 21.1505 42.5486 21.0436C42.7718 20.9367 42.9578 20.7924 43.1066 20.6107C43.2554 20.4182 43.3298 20.1777 43.3298 19.889C43.3298 19.579 43.2288 19.3278 43.0269 19.1354C42.8355 18.9429 42.5805 18.7826 42.2616 18.6543C41.9428 18.526 41.5814 18.4138 41.1775 18.3175C40.7737 18.2213 40.3645 18.1144 39.95 17.9968C39.5248 17.8899 39.1103 17.7616 38.7065 17.612C38.3026 17.4516 37.9412 17.2485 37.6224 17.0026C37.3035 16.7567 37.0431 16.452 36.8412 16.0886C36.6499 15.7144 36.5542 15.2654 36.5542 14.7416C36.5542 14.1536 36.6765 13.6458 36.9209 13.2182C37.176 12.7799 37.5055 12.4164 37.9093 12.1277C38.3132 11.8391 38.7702 11.6253 39.2804 11.4863C39.7905 11.3473 40.3007 11.2778 40.8109 11.2778C41.406 11.2778 41.9747 11.3473 42.5167 11.4863C43.0694 11.6146 43.5583 11.8284 43.9834 12.1277C44.4085 12.4271 44.7433 12.8119 44.9878 13.2823C45.2429 13.742 45.3704 14.3033 45.3704 14.9661H42.9471C42.9259 14.624 42.8515 14.3407 42.7239 14.1162C42.607 13.8917 42.4476 13.7153 42.2457 13.587C42.0437 13.4587 41.8099 13.3678 41.5442 13.3144C41.2891 13.2609 41.0075 13.2342 40.6993 13.2342C40.4973 13.2342 40.2954 13.2556 40.0934 13.2983C39.8915 13.3411 39.7055 13.4159 39.5355 13.5228C39.376 13.6297 39.2432 13.7634 39.1369 13.9237C39.0306 14.0841 38.9775 14.2872 38.9775 14.5331C38.9775 14.7576 39.02 14.9393 39.105 15.0783C39.19 15.2173 39.3548 15.3456 39.5992 15.4632C39.8543 15.5808 40.1997 15.6984 40.6355 15.816C41.0819 15.9336 41.6611 16.0832 42.3732 16.265C42.5858 16.3077 42.8781 16.3879 43.2501 16.5055C43.6327 16.6124 44.01 16.7888 44.382 17.0347C44.754 17.2806 45.0728 17.612 45.3385 18.0289C45.6148 18.4351 45.753 18.959 45.753 19.6004C45.753 20.1242 45.652 20.6107 45.4501 21.0597C45.2482 21.5087 44.9453 21.8989 44.5414 22.2303C44.1481 22.551 43.6539 22.8022 43.0587 22.984C42.4742 23.1657 41.794 23.2566 41.0181 23.2566C40.391 23.2566 39.7799 23.1764 39.1847 23.016C38.6002 22.8664 38.0794 22.6258 37.6224 22.2944C37.176 21.963 36.8199 21.5407 36.5542 21.0276C36.2885 20.5144 36.161 19.9051 36.1716 19.1995H38.5949Z" fill="#0F58F9"/>
+                  <path d="M47.5452 14.7095H49.6815V15.832H49.7133C50.0109 15.4044 50.367 15.073 50.7815 14.8378C51.2066 14.6026 51.6902 14.485 52.2322 14.485C52.753 14.485 53.226 14.5865 53.6511 14.7897C54.0869 14.9928 54.4164 15.3509 54.6395 15.8641C54.884 15.5006 55.2135 15.1799 55.628 14.9019C56.0531 14.624 56.5526 14.485 57.1266 14.485C57.5623 14.485 57.9662 14.5384 58.3382 14.6453C58.7102 14.7523 59.029 14.9233 59.2947 15.1585C59.5604 15.3937 59.7677 15.7037 59.9165 16.0886C60.0653 16.4627 60.1397 16.9171 60.1397 17.4516V23H57.8759V18.3015C57.8759 18.0236 57.8652 17.7616 57.844 17.5158C57.8227 17.2699 57.7643 17.0561 57.6686 16.8743C57.573 16.6926 57.4295 16.5483 57.2382 16.4414C57.0575 16.3344 56.8077 16.281 56.4889 16.281C56.17 16.281 55.9096 16.3451 55.7077 16.4734C55.5164 16.591 55.3623 16.7514 55.2454 16.9545C55.1391 17.1469 55.0647 17.3714 55.0222 17.628C54.9903 17.8739 54.9743 18.1251 54.9743 18.3817V23H52.7105V18.3496C52.7105 18.1037 52.7052 17.8632 52.6946 17.628C52.6839 17.3821 52.6361 17.1576 52.5511 16.9545C52.4767 16.7514 52.3438 16.591 52.1525 16.4734C51.9718 16.3451 51.7008 16.281 51.3395 16.281C51.2332 16.281 51.0897 16.3077 50.909 16.3612C50.739 16.4039 50.5689 16.4948 50.3989 16.6338C50.2394 16.7621 50.1013 16.9545 49.9844 17.2111C49.8674 17.457 49.809 17.783 49.809 18.1893V23H47.5452V14.7095Z" fill="#0F58F9"/>
+                  <path d="M62.3118 17.2592C62.3437 16.7247 62.4766 16.281 62.7104 15.9282C62.9442 15.5754 63.2418 15.2921 63.6032 15.0783C63.9645 14.8645 64.3684 14.7148 64.8148 14.6293C65.2718 14.5331 65.7288 14.485 66.1859 14.485C66.6004 14.485 67.0202 14.5171 67.4453 14.5812C67.8704 14.6347 68.2584 14.7469 68.6091 14.918C68.9598 15.089 69.2468 15.3295 69.47 15.6396C69.6932 15.9389 69.8048 16.3398 69.8048 16.8423V21.1559C69.8048 21.53 69.826 21.8882 69.8686 22.2303C69.9111 22.5724 69.9855 22.8289 70.0918 23H67.796C67.7535 22.8717 67.7163 22.7434 67.6844 22.6151C67.6632 22.4762 67.6472 22.3372 67.6366 22.1982C67.2753 22.5724 66.8501 22.8343 66.3612 22.984C65.8723 23.1336 65.3728 23.2085 64.8626 23.2085C64.4694 23.2085 64.1027 23.1603 63.7626 23.0641C63.4225 22.9679 63.1249 22.8183 62.8698 22.6151C62.6147 22.412 62.4128 22.1554 62.264 21.8454C62.1258 21.5354 62.0568 21.1666 62.0568 20.7389C62.0568 20.2686 62.1365 19.8837 62.2959 19.5844C62.466 19.2743 62.6785 19.0285 62.9336 18.8467C63.1993 18.665 63.4969 18.5314 63.8264 18.4458C64.1665 18.3496 64.5066 18.2748 64.8467 18.2213C65.1868 18.1679 65.5216 18.1251 65.8511 18.093C66.1805 18.061 66.4728 18.0129 66.7279 17.9487C66.983 17.8846 67.1849 17.7937 67.3337 17.6761C67.4825 17.5478 67.5516 17.3661 67.541 17.1309C67.541 16.885 67.4984 16.6926 67.4134 16.5536C67.339 16.4039 67.2327 16.2917 67.0946 16.2169C66.967 16.1313 66.8129 16.0779 66.6322 16.0565C66.4622 16.0244 66.2762 16.0084 66.0743 16.0084C65.6279 16.0084 65.2771 16.1046 65.0221 16.297C64.767 16.4895 64.6182 16.8102 64.5757 17.2592H62.3118ZM67.541 18.9429C67.4453 19.0285 67.3231 19.098 67.1743 19.1514C67.0361 19.1942 66.882 19.2316 66.712 19.2637C66.5525 19.2957 66.3825 19.3225 66.2018 19.3438C66.0211 19.3652 65.8404 19.3919 65.6598 19.424C65.4897 19.4561 65.3196 19.4988 65.1496 19.5523C64.9902 19.6058 64.8467 19.6806 64.7192 19.7768C64.6022 19.8623 64.5066 19.9746 64.4322 20.1136C64.3578 20.2525 64.3206 20.4289 64.3206 20.6427C64.3206 20.8458 64.3578 21.0169 64.4322 21.1559C64.5066 21.2949 64.6076 21.4071 64.7351 21.4926C64.8626 21.5675 65.0114 21.6209 65.1815 21.653C65.3515 21.6851 65.5269 21.7011 65.7076 21.7011C66.154 21.7011 66.4994 21.6263 66.7438 21.4766C66.9883 21.3269 67.169 21.1505 67.2859 20.9474C67.4028 20.7336 67.4719 20.5198 67.4931 20.306C67.525 20.0922 67.541 19.9211 67.541 19.7928V18.9429Z" fill="#0F58F9"/>
+                  <path d="M72.0402 14.7095H74.1924V16.2489H74.2243C74.3306 15.9924 74.4741 15.7572 74.6548 15.5434C74.8354 15.3189 75.0427 15.1318 75.2765 14.9821C75.5103 14.8217 75.7601 14.6988 76.0258 14.6133C76.2915 14.5278 76.5679 14.485 76.8548 14.485C77.0036 14.485 77.1684 14.5117 77.349 14.5652V16.6819C77.2428 16.6605 77.1152 16.6445 76.9664 16.6338C76.8176 16.6124 76.6741 16.6017 76.536 16.6017C76.1215 16.6017 75.7707 16.6712 75.4838 16.8102C75.1968 16.9492 74.963 17.1416 74.7823 17.3875C74.6123 17.6227 74.49 17.9006 74.4156 18.2213C74.3412 18.542 74.304 18.8895 74.304 19.2637V23H72.0402V14.7095Z" fill="#0F58F9"/>
+                  <path d="M81.5845 14.7095H83.2425V16.2329H81.5845V20.3381C81.5845 20.7229 81.6483 20.9795 81.7758 21.1078C81.9033 21.2361 82.1584 21.3002 82.541 21.3002C82.6686 21.3002 82.7908 21.2949 82.9077 21.2842C83.0246 21.2735 83.1362 21.2574 83.2425 21.2361V23C83.0512 23.0321 82.8386 23.0534 82.6048 23.0641C82.371 23.0748 82.1425 23.0802 81.9193 23.0802C81.5686 23.0802 81.2338 23.0534 80.9149 23C80.6067 22.9572 80.3304 22.8664 80.0859 22.7274C79.8521 22.5884 79.6661 22.3906 79.5279 22.1341C79.3898 21.8775 79.3207 21.5407 79.3207 21.1238V16.2329H77.9496V14.7095H79.3207V12.2239H81.5845V14.7095Z" fill="#0F58F9"/>
+                  <path d="M85.037 11.5504H93.5503V13.6672H87.54V16.1206H93.0561V18.077H87.54V20.8833H93.6778V23H85.037V11.5504Z" fill="#0F58F9"/>
+                  <path d="M97.7182 18.6383L95.008 14.7095H97.5907L99.0415 16.8743L100.476 14.7095H102.979L100.269 18.5902L103.314 23H100.731L99.0096 20.3862L97.2878 23H94.7529L97.7182 18.6383Z" fill="#0F58F9"/>
+                  <path d="M108.816 21.5087C109.188 21.5087 109.496 21.4338 109.741 21.2842C109.996 21.1345 110.198 20.9421 110.346 20.7069C110.506 20.461 110.617 20.1777 110.681 19.857C110.745 19.5363 110.777 19.2102 110.777 18.8788C110.777 18.5474 110.74 18.2213 110.665 17.9006C110.601 17.5799 110.49 17.2966 110.33 17.0507C110.171 16.7941 109.964 16.591 109.709 16.4414C109.464 16.281 109.161 16.2008 108.8 16.2008C108.428 16.2008 108.114 16.281 107.859 16.4414C107.615 16.591 107.413 16.7888 107.254 17.0347C107.105 17.2806 106.998 17.5639 106.935 17.8846C106.871 18.2053 106.839 18.5367 106.839 18.8788C106.839 19.2102 106.871 19.5363 106.935 19.857C107.009 20.1777 107.121 20.461 107.269 20.7069C107.429 20.9421 107.636 21.1345 107.891 21.2842C108.146 21.4338 108.455 21.5087 108.816 21.5087ZM104.655 14.7095H106.807V15.7679H106.839C107.115 15.3188 107.466 14.9928 107.891 14.7897C108.316 14.5865 108.784 14.485 109.294 14.485C109.943 14.485 110.5 14.6079 110.968 14.8538C111.436 15.0997 111.824 15.4258 112.132 15.832C112.44 16.2382 112.669 16.714 112.817 17.2592C112.966 17.7937 113.041 18.355 113.041 18.9429C113.041 19.4988 112.966 20.0334 112.817 20.5465C112.669 21.0597 112.44 21.514 112.132 21.9096C111.834 22.3051 111.457 22.6205 111 22.8557C110.554 23.0909 110.028 23.2085 109.422 23.2085C108.912 23.2085 108.439 23.1069 108.003 22.9038C107.578 22.69 107.227 22.3799 106.951 21.9737H106.919V25.9025H104.655V14.7095Z" fill="#0F58F9"/>
+                  <path d="M120.427 17.9648C120.321 17.3875 120.13 16.9492 119.853 16.6498C119.588 16.3505 119.178 16.2008 118.626 16.2008C118.264 16.2008 117.961 16.265 117.717 16.3932C117.483 16.5108 117.292 16.6605 117.143 16.8423C117.005 17.024 116.904 17.2164 116.84 17.4195C116.787 17.6227 116.755 17.8044 116.745 17.9648H120.427ZM116.745 19.408C116.776 20.1456 116.962 20.6801 117.303 21.0116C117.643 21.343 118.132 21.5087 118.769 21.5087C119.226 21.5087 119.619 21.3964 119.949 21.1719C120.278 20.9367 120.48 20.6908 120.555 20.4343H122.548C122.229 21.4285 121.74 22.1394 121.081 22.567C120.422 22.9946 119.625 23.2085 118.689 23.2085C118.041 23.2085 117.457 23.1069 116.936 22.9038C116.415 22.69 115.974 22.3906 115.613 22.0058C115.251 21.6209 114.97 21.1612 114.768 20.6267C114.576 20.0922 114.481 19.5042 114.481 18.8628C114.481 18.2427 114.582 17.6654 114.784 17.1309C114.986 16.5964 115.273 16.1367 115.645 15.7518C116.016 15.3563 116.458 15.0462 116.968 14.8217C117.489 14.5972 118.062 14.485 118.689 14.485C119.391 14.485 120.002 14.624 120.523 14.9019C121.044 15.1692 121.469 15.5327 121.798 15.9924C122.138 16.452 122.383 16.9759 122.532 17.5639C122.68 18.1518 122.734 18.7665 122.691 19.408H116.745Z" fill="#0F58F9"/>
+                  <path d="M124.512 14.7095H126.664V16.2489H126.696C126.802 15.9924 126.946 15.7572 127.127 15.5434C127.307 15.3189 127.514 15.1318 127.748 14.9821C127.982 14.8217 128.232 14.6988 128.498 14.6133C128.763 14.5278 129.04 14.485 129.327 14.485C129.475 14.485 129.64 14.5117 129.821 14.5652V16.6819C129.715 16.6605 129.587 16.6445 129.438 16.6338C129.289 16.6124 129.146 16.6017 129.008 16.6017C128.593 16.6017 128.243 16.6712 127.956 16.8102C127.669 16.9492 127.435 17.1416 127.254 17.3875C127.084 17.6227 126.962 17.9006 126.887 18.2213C126.813 18.542 126.776 18.8895 126.776 19.2637V23H124.512V14.7095Z" fill="#0F58F9"/>
+                  <path d="M134.056 14.7095H135.714V16.2329H134.056V20.3381C134.056 20.7229 134.12 20.9795 134.248 21.1078C134.375 21.2361 134.63 21.3002 135.013 21.3002C135.14 21.3002 135.263 21.2949 135.379 21.2842C135.496 21.2735 135.608 21.2574 135.714 21.2361V23C135.523 23.0321 135.31 23.0534 135.077 23.0641C134.843 23.0748 134.614 23.0802 134.391 23.0802C134.04 23.0802 133.706 23.0534 133.387 23C133.078 22.9572 132.802 22.8664 132.558 22.7274C132.324 22.5884 132.138 22.3906 132 22.1341C131.862 21.8775 131.792 21.5407 131.792 21.1238V16.2329H130.421V14.7095H131.792V12.2239H134.056V14.7095Z" fill="#0F58F9"/>
+                  <path d="M13.8043 6.30907L12.8074 9.30057C13.0461 9.44235 13.2287 9.64083 13.355 9.88185L17.5252 8.36484C17.523 8.34696 17.5208 8.32979 17.5186 8.31305C17.5071 8.22355 17.4971 8.14624 17.4971 8.03875C17.4971 7.96786 17.4971 7.91115 17.5112 7.84027L14.4502 5.82703C14.2817 6.0397 14.0571 6.20983 13.8043 6.30907Z" fill="#0F58F9"/>
+                  <path d="M8.30022 7.04659C8.28619 7.11739 8.27217 7.18817 8.25815 7.2448L10.8417 9.44235C11.0523 9.25804 11.305 9.14461 11.5859 9.07372L12.5266 6.23819C12.2879 6.12476 12.0913 5.94045 11.9369 5.72779L8.30022 7.04659Z" fill="#0F58F9"/>
+                  <path d="M6.55919 8.32231L5.74481 10.2079C5.89926 10.3639 6.01159 10.5624 6.09583 10.775L10.0554 10.449L7.42973 8.20889C7.21911 8.30813 6.99446 8.36484 6.75576 8.36484C6.71087 8.36484 6.67172 8.35325 6.63097 8.34118C6.60799 8.33438 6.5845 8.32742 6.55919 8.32231Z" fill="#0F58F9"/>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M6.79584 29.9716H8.03145L18.5341 30H19.557V29.4764C19.557 28.3718 20.4472 27.4764 21.5454 27.4764H21.6231C21.9168 27.4764 22.1943 27.4844 22.4539 27.4919C23.9817 27.5362 24.8947 27.5626 24.8947 25.8297V20.3166L27.1693 20.0047C27.7169 19.8629 28.082 19.5794 28.2645 19.1399C28.5734 18.431 28.3207 17.4953 28.0118 16.914L26.1022 13.1002C25.8775 12.689 25.6929 10.2804 25.6789 9.95432C25.3138 3.33333 19.7978 0 12.7633 0C5.84105 0 0 5.54348 0 12.0936C0 17.0699 2.12019 21.0113 6.13591 23.4641C6.5431 23.7193 6.79584 24.4991 6.79584 25.5766V29.9716ZM4.45304 12.9017C3.61058 12.845 2.95065 12.1645 2.95065 11.3138C2.95065 10.4206 3.66674 9.69755 4.57941 9.68337C4.58643 9.68337 4.59345 9.68691 4.60047 9.69046C4.60749 9.694 4.61451 9.69754 4.62153 9.69754L5.47803 7.69849C5.26742 7.42911 5.12701 7.10303 5.12701 6.73441C5.12701 5.84121 5.85714 5.11815 6.75576 5.11815C7.28932 5.11815 7.75267 5.4017 8.04753 5.81286L11.6841 4.49433C11.8246 3.74291 12.4564 3.1758 13.2427 3.1758C14.0571 3.1758 14.6889 3.77127 14.8153 4.55104L18.129 6.74858C18.3957 6.5501 18.7187 6.40832 19.0838 6.40832C19.9824 6.40832 20.7125 7.13138 20.7125 8.02458C20.7125 8.91777 19.9824 9.64083 19.0838 9.64083C18.7889 9.64083 18.5362 9.54159 18.2975 9.41399L13.4393 11.172C13.2006 11.7958 12.6249 12.2354 11.9228 12.2354C11.4314 12.2354 10.9961 11.9943 10.7013 11.6399L6.01159 12.0369C5.9133 12.207 5.80098 12.3771 5.64652 12.5047L7.19103 15.5104C7.22188 15.5059 7.24719 15.5015 7.27001 15.4975C7.31991 15.4887 7.35788 15.482 7.41569 15.482C8.30027 15.482 9.01636 16.2335 9.01636 17.1267C9.01636 18.0199 8.30027 18.7287 7.40165 18.7287C6.50302 18.7287 5.77289 18.0057 5.77289 17.1125C5.77289 16.758 5.9133 16.4036 6.10988 16.1342L4.45304 12.9017Z" fill="#0F58F9"/>
+                </svg>
+                
+                {/* Mobile Menu - Only visible on mobile */}
+                <svg className="h-[20px] xl:hidden" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_379_8707)">
+                    <rect width="21" height="2" rx="1" fill="#222222"/>
+                    <rect x="4" y="9" width="17" height="2" rx="1" fill="#222222"/>
+                    <rect y="18" width="21" height="2" rx="1" fill="#222222"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_379_8707">
+                      <rect width="21" height="20" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </header>
+  
+          {/* Main Content */}
+          <main className="w-full xl:w-[1440px] xl:mx-auto flex-1">
+            {/* First Section */}
+            <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
+              
+              {/* Navigation Buttons - positioned in top-right */}
+              <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20 flex gap-3">
+                {/* Return to Audits Button */}
+                <button
+                  onClick={() => window.location.href = '/projects?tab=audits'}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Return to Audits',
+                    es: 'Volver a Auditorías',
+                    ua: 'Повернутися до Аудитів',
+                    ru: 'Вернуться к Аудитам'
+                  })}
+                >
+                  <svg 
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Back to Audits',
+                      es: 'Volver a Auditorías',
+                      ua: 'Повернутися до Аудитів',
+                      ru: 'Вернуться к Аудитам'
+                    })}
+                  </span>
+                </button>
+
+                {/* Share Button */}
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Share audit',
+                    es: 'Compartir auditoría',
+                    ua: 'Поділитися аудитом',
+                    ru: 'Поделиться аудитом'
+                  })}
+                >
+                  <svg 
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Share',
+                      es: 'Compartir',
+                      ua: 'Поділитися',
+                      ru: 'Поделиться'
+                    })}
+                  </span>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
+                <svg className="hidden xl:block xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M47.6003 23.6794C47.6003 24.1541 47.6855 24.5562 47.8559 24.8858C48.0264 25.2154 48.2492 25.4857 48.5245 25.6967C48.8128 25.8945 49.1471 26.0461 49.5272 26.1516C49.9074 26.2439 50.3006 26.29 50.707 26.29C50.9823 26.29 51.2772 26.2702 51.5918 26.2307C51.9064 26.1779 52.2013 26.0857 52.4766 25.9538C52.7519 25.822 52.9813 25.644 53.1648 25.4198C53.3483 25.1825 53.44 24.8858 53.44 24.5298C53.44 24.1475 53.3155 23.8376 53.0665 23.6003C52.8305 23.363 52.5159 23.1652 52.1227 23.007C51.7294 22.8487 51.2837 22.7103 50.7856 22.5916C50.2875 22.473 49.7829 22.3411 49.2716 22.1961C48.7473 22.0642 48.2361 21.906 47.738 21.7214C47.2399 21.5237 46.7942 21.2731 46.4009 20.9699C46.0077 20.6666 45.6865 20.2909 45.4375 19.8426C45.2015 19.3811 45.0836 18.8273 45.0836 18.1813C45.0836 17.4561 45.2343 16.8298 45.5358 16.3024C45.8504 15.7618 46.2567 15.3135 46.7549 14.9575C47.253 14.6015 47.8166 14.3378 48.4458 14.1664C49.075 13.995 49.7042 13.9093 50.3334 13.9093C51.0675 13.9093 51.7687 13.995 52.4373 14.1664C53.1189 14.3247 53.7219 14.5884 54.2462 14.9575C54.7705 15.3267 55.1834 15.8014 55.4849 16.3815C55.7995 16.9485 55.9568 17.6407 55.9568 18.4581H52.9682C52.9419 18.0362 52.8502 17.6868 52.6929 17.4099C52.5487 17.1331 52.3521 16.9155 52.103 16.7573C51.854 16.5991 51.5656 16.487 51.2379 16.4211C50.9233 16.3551 50.5759 16.3222 50.1958 16.3222C49.9467 16.3222 49.6976 16.3485 49.4486 16.4013C49.1995 16.454 48.9701 16.5463 48.7604 16.6782C48.5638 16.81 48.3999 16.9748 48.2689 17.1726C48.1378 17.3704 48.0722 17.6209 48.0722 17.9242C48.0722 18.201 48.1247 18.4252 48.2295 18.5966C48.3344 18.768 48.5376 18.9262 48.8391 19.0712C49.1537 19.2163 49.5797 19.3613 50.1171 19.5063C50.6677 19.6514 51.3821 19.836 52.2603 20.0601C52.5225 20.1129 52.8829 20.2117 53.3417 20.3568C53.8136 20.4886 54.279 20.7062 54.7378 21.0094C55.1965 21.3127 55.5898 21.7214 55.9175 22.2356C56.2583 22.7367 56.4287 23.3827 56.4287 24.1738C56.4287 24.8199 56.3042 25.4198 56.0551 25.9736C55.8061 26.5274 55.4325 27.0086 54.9344 27.4173C54.4494 27.8129 53.8398 28.1227 53.1058 28.3469C52.3848 28.571 51.5459 28.6831 50.589 28.6831C49.8156 28.6831 49.0619 28.5842 48.3278 28.3864C47.6069 28.2018 46.9646 27.9052 46.4009 27.4964C45.8504 27.0877 45.4113 26.5669 45.0836 25.934C44.7558 25.3011 44.5985 24.5496 44.6117 23.6794H47.6003Z" fill="#0F58F9"/>
+                  <path d="M58.639 18.1417H61.2738V19.5261H61.3131C61.6801 18.9987 62.1193 18.59 62.6305 18.2999C63.1548 18.0099 63.7512 17.8648 64.4198 17.8648C65.0621 17.8648 65.6454 17.9901 66.1697 18.2406C66.7071 18.4911 67.1135 18.9328 67.3888 19.5657C67.6903 19.1174 68.0966 18.7218 68.6078 18.379C69.1322 18.0362 69.7483 17.8648 70.4561 17.8648C70.9935 17.8648 71.4916 17.9307 71.9504 18.0626C72.4092 18.1944 72.8025 18.4054 73.1302 18.6955C73.4579 18.9855 73.7135 19.3679 73.897 19.8426C74.0805 20.304 74.1723 20.8644 74.1723 21.5237V28.3667H71.3802V22.5719C71.3802 22.229 71.3671 21.906 71.3409 21.6028C71.3147 21.2995 71.2426 21.0358 71.1246 20.8117C71.0066 20.5875 70.8297 20.4095 70.5937 20.2777C70.3709 20.1458 70.0629 20.0799 69.6696 20.0799C69.2764 20.0799 68.9552 20.159 68.7062 20.3172C68.4702 20.4623 68.2801 20.66 68.1359 20.9105C68.0049 21.1479 67.9131 21.4248 67.8607 21.7412C67.8214 22.0445 67.8017 22.3543 67.8017 22.6707V28.3667H65.0096V22.6312C65.0096 22.3279 65.0031 22.0313 64.99 21.7412C64.9769 21.4379 64.9179 21.1611 64.813 20.9105C64.7213 20.66 64.5574 20.4623 64.3214 20.3172C64.0986 20.159 63.7644 20.0799 63.3187 20.0799C63.1876 20.0799 63.0106 20.1129 62.7878 20.1788C62.5781 20.2315 62.3683 20.3436 62.1586 20.515C61.962 20.6732 61.7916 20.9105 61.6474 21.227C61.5032 21.5302 61.4311 21.9324 61.4311 22.4334V28.3667H58.639V18.1417Z" fill="#0F58F9"/>
+                  <path d="M76.8513 21.2863C76.8906 20.6271 77.0545 20.0799 77.3428 19.6448C77.6312 19.2097 77.9982 18.8603 78.4439 18.5966C78.8896 18.3329 79.3877 18.1483 79.9383 18.0428C80.5019 17.9242 81.0656 17.8648 81.6292 17.8648C82.1404 17.8648 82.6582 17.9044 83.1825 17.9835C83.7069 18.0494 84.1853 18.1879 84.6179 18.3988C85.0505 18.6098 85.4044 18.9064 85.6797 19.2888C85.9549 19.658 86.0926 20.1524 86.0926 20.7721V26.0922C86.0926 26.5537 86.1188 26.9954 86.1712 27.4173C86.2237 27.8393 86.3154 28.1557 86.4465 28.3667H83.6151C83.5627 28.2084 83.5168 28.0502 83.4775 27.892C83.4513 27.7206 83.4316 27.5492 83.4185 27.3778C82.9728 27.8393 82.4485 28.1623 81.8455 28.3469C81.2425 28.5315 80.6264 28.6238 79.9972 28.6238C79.5122 28.6238 79.06 28.5644 78.6405 28.4458C78.2211 28.3271 77.8541 28.1425 77.5395 27.892C77.2249 27.6415 76.9758 27.325 76.7923 26.9427C76.6219 26.5603 76.5367 26.1054 76.5367 25.578C76.5367 24.9979 76.635 24.5232 76.8316 24.1541C77.0413 23.7717 77.3035 23.4684 77.6181 23.2443C77.9458 23.0201 78.3129 22.8553 78.7192 22.7499C79.1387 22.6312 79.5581 22.5389 79.9776 22.473C80.3971 22.407 80.81 22.3543 81.2163 22.3148C81.6227 22.2752 81.9831 22.2159 82.2977 22.1368C82.6123 22.0576 82.8614 21.9456 83.0449 21.8005C83.2284 21.6423 83.3136 21.4182 83.3005 21.1281C83.3005 20.8248 83.2481 20.5875 83.1432 20.4161C83.0515 20.2315 82.9204 20.0931 82.75 20.0008C82.5927 19.8953 82.4026 19.8294 82.1798 19.803C81.97 19.7635 81.7406 19.7437 81.4916 19.7437C80.941 19.7437 80.5085 19.8623 80.1939 20.0997C79.8793 20.337 79.6958 20.7326 79.6433 21.2863H76.8513ZM83.3005 23.363C83.1825 23.4684 83.0318 23.5541 82.8483 23.6201C82.6779 23.6728 82.4878 23.719 82.2781 23.7585C82.0815 23.7981 81.8717 23.831 81.6489 23.8574C81.426 23.8838 81.2032 23.9167 80.9804 23.9563C80.7706 23.9958 80.5609 24.0486 80.3512 24.1145C80.1545 24.1804 79.9776 24.2727 79.8203 24.3914C79.6761 24.4969 79.5581 24.6353 79.4664 24.8067C79.3746 24.9781 79.3287 25.1957 79.3287 25.4594C79.3287 25.7099 79.3746 25.9208 79.4664 26.0922C79.5581 26.2637 79.6827 26.4021 79.84 26.5076C79.9973 26.5999 80.1808 26.6658 80.3905 26.7053C80.6002 26.7449 80.8165 26.7647 81.0394 26.7647C81.5899 26.7647 82.0159 26.6724 82.3174 26.4878C82.6189 26.3032 82.8417 26.0857 82.9859 25.8351C83.1301 25.5714 83.2153 25.3077 83.2415 25.044C83.2809 24.7803 83.3005 24.5694 83.3005 24.4112V23.363Z" fill="#0F58F9"/>
+                  <path d="M88.8496 18.1417H91.504V20.0403H91.5433C91.6744 19.7239 91.8514 19.4338 92.0742 19.1701C92.2971 18.8932 92.5527 18.6625 92.841 18.4779C93.1294 18.2801 93.4375 18.1285 93.7652 18.023C94.0929 17.9176 94.4337 17.8648 94.7876 17.8648C94.9711 17.8648 95.1743 17.8978 95.3972 17.9637V20.5743C95.2661 20.548 95.1088 20.5282 94.9253 20.515C94.7417 20.4886 94.5648 20.4754 94.3944 20.4754C93.8832 20.4754 93.4506 20.5611 93.0967 20.7326C92.7427 20.904 92.4544 21.1413 92.2315 21.4445C92.0218 21.7346 91.871 22.0774 91.7793 22.473C91.6875 22.8685 91.6416 23.297 91.6416 23.7585V28.3667H88.8496V18.1417Z" fill="#0F58F9"/>
+                  <path d="M100.621 18.1417H102.666V20.0206H100.621V25.0836C100.621 25.5583 100.7 25.8747 100.857 26.0329C101.014 26.1911 101.329 26.2702 101.801 26.2702C101.958 26.2702 102.109 26.2637 102.253 26.2505C102.397 26.2373 102.535 26.2175 102.666 26.1911V28.3667C102.43 28.4062 102.168 28.4326 101.879 28.4458C101.591 28.459 101.309 28.4655 101.034 28.4655C100.601 28.4655 100.188 28.4326 99.7951 28.3667C99.4149 28.3139 99.0741 28.2018 98.7726 28.0304C98.4842 27.859 98.2548 27.6151 98.0844 27.2987C97.914 26.9822 97.8288 26.5669 97.8288 26.0527V20.0206H96.1379V18.1417H97.8288V15.0762H100.621V18.1417Z" fill="#0F58F9"/>
+                  <path d="M104.879 14.2455H115.379V16.8562H107.966V19.8821H114.769V22.295H107.966V25.756H115.536V28.3667H104.879V14.2455Z" fill="#0F58F9"/>
+                  <path d="M120.519 22.9872L117.177 18.1417H120.362L122.151 20.8117L123.921 18.1417H127.008L123.665 22.9279L127.421 28.3667H124.235L122.112 25.1429L119.988 28.3667H116.862L120.519 22.9872Z" fill="#0F58F9"/>
+                  <path d="M134.206 26.5274C134.665 26.5274 135.045 26.4351 135.347 26.2505C135.661 26.0659 135.91 25.8285 136.094 25.5385C136.29 25.2352 136.428 24.8858 136.507 24.4903C136.585 24.0947 136.625 23.6926 136.625 23.2838C136.625 22.8751 136.579 22.473 136.487 22.0774C136.408 21.6819 136.271 21.3325 136.074 21.0292C135.878 20.7128 135.622 20.4623 135.307 20.2777C135.006 20.0799 134.632 19.981 134.187 19.981C133.728 19.981 133.341 20.0799 133.027 20.2777C132.725 20.4623 132.476 20.7062 132.279 21.0094C132.096 21.3127 131.965 21.6621 131.886 22.0576C131.807 22.4532 131.768 22.8619 131.768 23.2838C131.768 23.6926 131.807 24.0947 131.886 24.4903C131.978 24.8858 132.116 25.2352 132.299 25.5385C132.496 25.8285 132.751 26.0659 133.066 26.2505C133.38 26.4351 133.761 26.5274 134.206 26.5274ZM129.074 18.1417H131.729V19.447H131.768C132.109 18.8932 132.542 18.4911 133.066 18.2406C133.59 17.9901 134.167 17.8648 134.796 17.8648C135.596 17.8648 136.284 18.0164 136.861 18.3197C137.437 18.623 137.916 19.0251 138.296 19.5261C138.676 20.0272 138.958 20.6139 139.142 21.2863C139.325 21.9456 139.417 22.6378 139.417 23.363C139.417 24.0486 139.325 24.7078 139.142 25.3407C138.958 25.9736 138.676 26.5339 138.296 27.0218C137.929 27.5096 137.464 27.8986 136.9 28.1887C136.349 28.4787 135.701 28.6238 134.953 28.6238C134.324 28.6238 133.741 28.4985 133.204 28.248C132.679 27.9843 132.247 27.6019 131.906 27.1009H131.866V31.9464H129.074V18.1417Z" fill="#0F58F9"/>
+                  <path d="M148.527 22.1565C148.396 21.4445 148.16 20.904 147.819 20.5348C147.491 20.1656 146.987 19.981 146.305 19.981C145.859 19.981 145.486 20.0601 145.184 20.2183C144.896 20.3634 144.66 20.548 144.476 20.7721C144.306 20.9963 144.182 21.2336 144.103 21.4841C144.037 21.7346 143.998 21.9588 143.985 22.1565H148.527ZM143.985 23.9365C144.024 24.8463 144.254 25.5055 144.673 25.9143C145.093 26.323 145.696 26.5274 146.482 26.5274C147.046 26.5274 147.531 26.3889 147.937 26.112C148.343 25.822 148.592 25.5187 148.684 25.2023H151.142C150.749 26.4285 150.146 27.3053 149.333 27.8327C148.52 28.3601 147.537 28.6238 146.384 28.6238C145.584 28.6238 144.863 28.4985 144.221 28.248C143.579 27.9843 143.035 27.6151 142.589 27.1404C142.143 26.6658 141.796 26.0988 141.547 25.4396C141.311 24.7803 141.193 24.0552 141.193 23.2641C141.193 22.4993 141.317 21.7874 141.566 21.1281C141.816 20.4689 142.169 19.9019 142.628 19.4272C143.087 18.9394 143.631 18.557 144.26 18.2801C144.902 18.0033 145.61 17.8648 146.384 17.8648C147.249 17.8648 148.003 18.0362 148.645 18.379C149.287 18.7087 149.812 19.1569 150.218 19.7239C150.637 20.2909 150.939 20.9369 151.122 21.6621C151.306 22.3873 151.371 23.1454 151.319 23.9365H143.985Z" fill="#0F58F9"/>
+                  <path d="M153.565 18.1417H156.219V20.0403H156.259C156.39 19.7239 156.567 19.4338 156.789 19.1701C157.012 18.8932 157.268 18.6625 157.556 18.4779C157.845 18.2801 158.153 18.1285 158.48 18.023C158.808 17.9176 159.149 17.8648 159.503 17.8648C159.686 17.8648 159.889 17.8978 160.112 17.9637V20.5743C159.981 20.548 159.824 20.5282 159.64 20.515C159.457 20.4886 159.28 20.4754 159.11 20.4754C158.598 20.4754 158.166 20.5611 157.812 20.7326C157.458 20.904 157.17 21.1413 156.947 21.4445C156.737 21.7346 156.586 22.0774 156.494 22.473C156.403 22.8685 156.357 23.297 156.357 23.7585V28.3667H153.565V18.1417Z" fill="#0F58F9"/>
+                  <path d="M165.336 18.1417H167.381V20.0206H165.336V25.0836C165.336 25.5583 165.415 25.8747 165.572 26.0329C165.729 26.1911 166.044 26.2702 166.516 26.2702C166.673 26.2702 166.824 26.2637 166.968 26.2505C167.112 26.2373 167.25 26.2175 167.381 26.1911V28.3667C167.145 28.4062 166.883 28.4326 166.594 28.4458C166.306 28.459 166.024 28.4655 165.749 28.4655C165.316 28.4655 164.903 28.4326 164.51 28.3667C164.13 28.3139 163.789 28.2018 163.488 28.0304C163.199 27.859 162.97 27.6151 162.8 27.2987C162.629 26.9822 162.544 26.5669 162.544 26.0527V20.0206H160.853V18.1417H162.544V15.0762H165.336V18.1417Z" fill="#0F58F9"/>
+                  <path d="M17.0254 7.78119L15.7958 11.4707C16.0902 11.6456 16.3153 11.8904 16.4712 12.1876L21.6144 10.3166C21.6117 10.2946 21.609 10.2734 21.6063 10.2528C21.5921 10.1424 21.5798 10.047 21.5798 9.91446C21.5798 9.82703 21.5798 9.75709 21.5971 9.66966L17.8219 7.18667C17.6141 7.44896 17.3371 7.65879 17.0254 7.78119Z" fill="#0F58F9"/>
+                  <path d="M10.2369 8.6908C10.2196 8.77811 10.2023 8.8654 10.1851 8.93526L13.3714 11.6456C13.6312 11.4182 13.9429 11.2784 14.2892 11.1909L15.4495 7.69376C15.1551 7.55388 14.9127 7.32656 14.7222 7.06427L10.2369 8.6908Z" fill="#0F58F9"/>
+                  <path d="M8.08967 10.2642L7.08527 12.5898C7.27576 12.7821 7.41429 13.0269 7.5182 13.2892L12.4017 12.8871L9.16333 10.1243C8.90357 10.2467 8.6265 10.3166 8.33211 10.3166C8.27674 10.3166 8.22846 10.3023 8.1782 10.2875C8.14986 10.2791 8.12089 10.2705 8.08967 10.2642Z" fill="#0F58F9"/>
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M8.38153 36.965H9.90545L22.8587 37H24.1203V36.3542C24.1203 34.9919 25.2183 33.8875 26.5726 33.8875H26.6685C27.0308 33.8875 27.3729 33.8974 27.6932 33.9067C29.5775 33.9613 30.7034 33.9939 30.7034 31.8567V25.0572L33.5088 24.6725C34.1842 24.4976 34.6344 24.1479 34.8596 23.6059C35.2406 22.7316 34.9288 21.5775 34.5479 20.8606L32.1927 16.1569C31.9156 15.6498 31.688 12.6792 31.6706 12.277C31.2204 4.11111 24.4173 0 15.7414 0C7.20396 0 0 6.83696 0 14.9154C0 21.0529 2.6149 25.914 7.56763 28.939C8.06983 29.2538 8.38153 30.2155 8.38153 31.5444V36.965ZM5.49208 15.9121C4.45305 15.8422 3.63914 15.0028 3.63914 13.9537C3.63914 12.8521 4.52232 11.9603 5.64793 11.9428C5.65659 11.9428 5.66525 11.9472 5.67391 11.9516C5.68257 11.9559 5.69123 11.9603 5.69989 11.9603L6.75624 9.4948C6.49648 9.16257 6.32331 8.7604 6.32331 8.30577C6.32331 7.20416 7.2238 6.31238 8.33211 6.31238C8.99016 6.31238 9.56163 6.6621 9.92529 7.16919L14.4105 5.54301C14.5836 4.61626 15.3629 3.91682 16.3327 3.91682C17.3371 3.91682 18.1163 4.65123 18.2722 5.61295L22.3591 8.32325C22.6881 8.07845 23.0864 7.90359 23.5366 7.90359C24.6449 7.90359 25.5454 8.79537 25.5454 9.89698C25.5454 10.9986 24.6449 11.8904 23.5366 11.8904C23.173 11.8904 22.8613 11.768 22.5669 11.6106L16.5751 13.7788C16.2807 14.5482 15.5707 15.0903 14.7048 15.0903C14.0987 15.0903 13.5619 14.793 13.1982 14.3559L7.4143 14.8455C7.29308 15.0553 7.15454 15.2651 6.96405 15.4225L8.86894 19.1295C8.90698 19.124 8.9382 19.1185 8.96635 19.1136C9.02789 19.1028 9.07472 19.0945 9.14602 19.0945C10.237 19.0945 11.1202 20.0213 11.1202 21.1229C11.1202 22.2245 10.237 23.0988 9.1287 23.0988C8.0204 23.0988 7.1199 22.207 7.1199 21.1054C7.1199 20.6682 7.29308 20.2311 7.53552 19.8989L5.49208 15.9121Z" fill="#0F58F9"/>
+                </svg>
+                
+                {/* Pill-shaped div */}
+                <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] xl:px-[25px] py-[6px] xl:py-[4px] flex items-center gap-2 xl:mb-[5px]">
+                  {/* Circle with gradient background */}
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8] xl:bg-gradient-to-r xl:from-[#0F58F9] xl:to-[#6496F8]"></div>
+                  
+                  {/* Text */}
+                  <span className="font-medium text-[13px] xl:text-[16px] text-[#71717A] xl:text-[#09090B] tracking-[0.05em]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Implement AI onboarding in 7 days',
+                      es: 'Implemente incorporación con IA en 7 días',
+                      ua: 'Впровадьте AI-онбординг за 7 днів',
+                      ru: 'Внедрите AI-онбординг за 7 дней'
+                    })}
+                  </span>
+                </div>
+                
+                {/* Title with colored text and span */}
+                <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'AI Audit',
+                    es: 'Auditoría IA',
+                    ua: 'AI-аудит',
+                    ru: 'AI-аудит'
+                  })} <span className="text-[#09090B]">{getLocalizedText(landingPageData?.language, {
+                    en: 'for company',
+                    es: 'para empresa',
+                    ua: 'для компанії',
+                    ru: 'для компании'
+                  }                  )} {editingField === 'companyName' ? (
+                    <InlineEditor
+                      initialValue={companyName}
+                      onSave={(value) => handleTextSave('companyName', value)}
+                      onCancel={handleTextCancel}
+                      className="inline-block"
+                      style={{ 
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        lineHeight: 'inherit'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('companyName')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit company name"
+                    >
+                      {companyName}
+                    </span>
+                  )}</span>
+                </h1>
+                
+                {/* Description text */}
+                <p className="font-normal text-[18px] xl:text-[20px] text-[#71717A] tracking-[0%]">
+                  {editingField === 'companyDescription' ? (
+                    <InlineEditor
+                      initialValue={companyDescription}
+                      onSave={(value) => handleTextSave('companyDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      placeholder="Enter company description..."
+                      style={{ 
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        lineHeight: 'inherit',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('companyDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                      title="Click to edit company description"
+                    >
+                  {companyDescription}
+                    </span>
+                  )}
+                </p>
+              </div>
+              
+              {/* Image */}
+              <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-0 xl:-mx-0 xl:z-10">
+                {/* Mobile Image */}
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-1-mobile.png"
+                  alt="Audit"
+                  width={360}
+                  height={339}
+                  className="w-full xl:hidden"
+                  style={{ height: '339.39px' }}
+                />
+                {/* Desktop Image */}
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-1-desktop.png"
+                  alt="Audit"
+                  width={1030}
+                  height={660}
+                  className="hidden xl:block"
+                  style={{ 
+                    width: '1030px',
+                    height: '660px'
+                  }}
+                />
+              </div>
+            </section>
+  
+            {/* Second Section */}
+            <section className="flex flex-col gap-[30px] xl:gap-[50px] bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
+              <h2 className="font-medium text-[30px] xl:text-[46px] leading-[115%] tracking-[-0.03em]">
+                {getLocalizedText(landingPageData?.language, {
+                  en: 'How with AI:',
+                  es: 'Cómo con IA:',
+                  ua: 'Як за допомогою AI:',
+                  ru: 'Как с помощью AI:'
+                })}
+              </h2>
+              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
+                {/* Card 1 */}
+                <div className="h-[350px] border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                  <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                    <div className="flex flex-col gap-[15px] xl:gap-[25px]">
+                      <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                        <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">1</span>
+                      </div>
+                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ua: <>Зменшіть плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ru: <>Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
+                        })}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="pt-[13.26px] xl:pt-[16px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[19px] border-t border-[#E0E0E0]">
+                    <Image 
+                      src="/custom-projects-ui/images/audit-section-2-card-1-mobile.png"
+                      alt="Card 1"
+                      width={290}
+                      height={203}
+                      className="w-full xl:w-[349.44px] xl:h-[244.46px]"
+                    />
+                  </div>
+                </div>
+  
+                {/* Card 2 */}
+                <div className="h-[350px] border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                  <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                    <div className="flex flex-col gap-[15px] xl:gap-[25px]">
+                      <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                        <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">2</span>
+                      </div>
+                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ua: <>Підвищіть продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ru: <>Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
+                        })}
+                      </h3>
+                    </div>
+                  </div>
+                    <div className="pt-[13.26px] xl:pt-[31px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[36px] border-t border-[#E0E0E0]">
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-2-card-2-mobile.png"
+                        alt="Card 2"
+                        width={290}
+                        height={203}
+                        className="w-full xl:w-[350px] xl:h-[213px]"
+                      />
+                    </div>
+                </div>
+  
+                {/* Card 3 */}
+                <div className="h-[350px] border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                  <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                    <div className="flex flex-col gap-[15px] xl:gap-[25px]">
+                      <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                        <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">3</span>
+                      </div>
+                      <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'AI Onboarding Implementation',
+                          es: 'Implementación de Incorporación IA',
+                          ua: 'Впровадження AI-онбордингу',
+                          ru: 'Внедрение AI-онбординг'
+                        })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
+                          en: 'in 7 days',
+                          es: 'en 7 días',
+                          ua: 'за 7 днів',
+                          ru: 'за 7 дней'
+                        })}</span>
+                      </h3>
+                    </div>
+                  </div>
+                    <div className="pt-[13.26px] xl:pt-[20px] px-[14.88px] xl:px-[20px] pb-[3.85px] xl:pb-[20px] border-t border-[#E0E0E0]">
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-2-card-3-mobile.png"
+                        alt="Card 3"
+                        width={290}
+                        height={203}
+                        className="w-full xl:w-[346px] xl:h-[240px]"
+                      />
+                    </div>
+                </div>
+              </div>
+            </section>
+  
+            {/* Third Section */}
+            <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
+              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
+                {getLocalizedText(landingPageData?.language, {
+                  en: 'Open Positions',
+                  es: 'Posiciones Abiertas',
+                  ua: 'Відкриті вакансії',
+                  ru: 'Открытые вакансии'
+                })} <br className="xl:hidden"/> {companyName}
+              </h2>
+              
+              <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
+                <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
+                  {/* Dynamic Job Cards - Only render if data is available */}
+                  {jobPositions && jobPositions.length > 0 && (
+                    jobPositions.map((position, index) => (
+                      <div key={index} className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+                        <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </div>
+                        {editingField === `jobPosition_${index}` ? (
+                          <InlineEditor
+                            initialValue={position.title}
+                            onSave={(value) => handleTextSave(`jobPosition_${index}`, value)}
+                            onCancel={handleTextCancel}
+                            className="flex-1"
+                            style={{ 
+                              fontSize: 'inherit',
+                              fontWeight: 'inherit',
+                              color: 'inherit',
+                              fontFamily: 'inherit'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing(`jobPosition_${index}`)}
+                            className="font-medium text-[16px] xl:text-[18px] flex-1 cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit job position"
+                          >
+                            {position.title}
+                          </span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+  
+                <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+                  <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] xl:mb-0 text-center xl:text-left">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Shortage of Qualified Personnel',
+                      es: 'Escasez de Personal Calificado',
+                      ua: 'Дефіцит кваліфікованих кадрів',
+                      ru: 'Дефицит квалифицированных кадров'
+                    })}
+                  </h3>
+                  
+                  {/* First Card */}
+                  <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:pt-[30px] xl:pb-[30px] px-[15px] xl:pl-[20px] xl:pr-[35px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px] xl:w-[620px] xl:h-[284px]">
+                    {/* Dynamic Yearly Shortage Number - Mobile */}
+                    <div className="block xl:hidden flex flex-col items-center justify-center w-[164px] h-[164px]">
+                      <div className="relative w-full h-full flex flex-col items-center justify-center">
+                        {/* Circular Progress Background */}
+                        <svg className="absolute inset-0 w-full h-full" width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="82" cy="82" r="80" stroke="#EAF7FE" strokeWidth="2.85714"/>
+                          <path d="M162 82C162 126.183 126.183 162 82 162C37.8172 162 2 126.183 2 82C2 37.8172 37.8172 2 82 2" stroke="#55BFF9" strokeWidth="4" strokeLinecap="round"/>
+                          <path d="M162 82C162 126.183 126.183 162 82 162" stroke="#0F58F9" strokeWidth="4" strokeLinecap="round"/>
+                        </svg>
+                        
+                        {/* Dynamic Number and Text */}
+                        <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                          <div className="font-bold text-[36px] leading-[1] text-[#09090B] mb-1">
+                            {editingField === 'yearlyShortage' ? (
+                              <InlineEditor
+                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                onCancel={handleTextCancel}
+                                className="text-center"
+                                style={{ fontSize: '36px', fontWeight: 'bold', color: '#09090B' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('yearlyShortage')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit personnel shortage number"
+                              >
+                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="font-normal text-[12px] text-[#09090B]">
+                            {getLocalizedText(landingPageData?.language, {
+                              en: 'specialists',
+                              es: 'especialistas',
+                              ua: 'спеціалістів',
+                              ru: 'специалистов'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+  
+                    {/* Dynamic Yearly Shortage Number */}
+                    <div className="hidden xl:flex flex-col items-center justify-center w-[224px] h-[224px]">
+                      <div className="relative w-full h-full flex flex-col items-center justify-center">
+                        {/* Circular Progress Background */}
+                        <svg className="absolute inset-0 w-full h-full" width="224" height="224" viewBox="0 0 228 228" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="114" cy="114" r="112" stroke="#EAF7FE" strokeWidth="4"/>
+                          <path d="M226 114C226 175.856 175.856 226 114 226C52.1441 226 2 175.856 2 114C2 52.1441 52.1441 2 114 2" stroke="#55BFF9" strokeWidth="4"/>
+                          <path d="M226 114C226 175.856 175.856 226 114 226" stroke="#0F58F9" strokeWidth="4"/>
+                        </svg>
+                        
+                        {/* Dynamic Number and Text */}
+                        <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                          <div className="font-bold text-[48px] leading-[1] text-[#09090B] mb-1">
+                            {editingField === 'yearlyShortage' ? (
+                              <InlineEditor
+                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                onCancel={handleTextCancel}
+                                className="text-center"
+                                style={{ fontSize: '48px', fontWeight: 'bold', color: '#09090B' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('yearlyShortage')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit personnel shortage number"
+                              >
+                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="font-normal text-[14px] text-[#09090B]">
+                            {getLocalizedText(landingPageData?.language, {
+                              en: 'specialists',
+                              es: 'especialistas',
+                              ua: 'спеціалістів',
+                              ru: 'специалистов'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
+                      <p className="font-semibold text-[16px] xl:text-[20px]">
+                        {editingField === 'workforceCrisisMissingText' ? (
+                          <InlineEditor
+                            initialValue={landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                              `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`}
+                            onSave={(value) => handleTextSave('workforceCrisisMissingText', value)}
+                            onCancel={handleTextCancel}
+                            multiline={true}
+                            className="font-semibold"
+                            style={{ fontSize: '16px' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('workforceCrisisMissingText')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit full description text"
+                          >
+                            {landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                              getLocalizedText(landingPageData?.language, {
+                          en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
+                          es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
+                          ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
+                          ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
+                        })}
+                          </span>
+                        )}
+                      </p>
+                      <p className="font-normal italic text-[12px] text-[#BABABE]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'According to Bureau of Labor Statistics',
+                          es: 'Según la Oficina de Estadísticas Laborales',
+                          ua: 'За даними Bureau of Labor Statistics',
+                          ru: 'По данным Bureau of Labor Statistics'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+  
+                  {/* Second Card */}
+                  <div 
+                    className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
+                    style={{ minHeight: '256px', maxHeight: '256px' }}
+                  >
+                    {landingPageData?.workforceCrisis?.chartData ? (
+                      <div className="w-full h-[226px] flex justify-center items-center overflow-visible">
+                        <PersonnelShortageChart 
+                          chartData={landingPageData.workforceCrisis.chartData} 
+                          isMobile={true}
+                          language={landingPageData?.language}
+                        />
+                      </div>
+                    ) : (
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
+                        alt="Audit section 3 card 2 mobile" 
+                        width={271}
+                        height={226}
+                        className="w-full h-[226px] object-cover"
+                        style={{ maxHeight: '226px' }}
+                      />
+                    )}
+                  </div>
+  
+                  <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
+                    {landingPageData?.workforceCrisis?.chartData ? (
+                      <div className="w-full h-full flex justify-center items-center overflow-visible">
+                        <PersonnelShortageChart 
+                          chartData={landingPageData.workforceCrisis.chartData} 
+                          isMobile={false}
+                          language={landingPageData?.language}
+                        />
+                      </div>
+                    ) : (
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
+                        alt="Audit section 3 card 2 desktop" 
+                        width={620}
+                        height={420}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+  
+            {/* Fourth Section */}
+            <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
+              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
+                {editingField === 'workforceCrisisFullTitle' ? (
+                  <InlineEditor
+                    initialValue={landingPageData?.workforceCrisis?.fullTitle || 
+                      getLocalizedText(landingPageData?.language, {
+                        en: `Workforce Crisis in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry`,
+                        es: `Crisis de Personal en la Industria ${landingPageData?.workforceCrisis?.industry || 'HVAC'}`,
+                        ua: `Кадрова криза в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі`,
+                        ru: `Кадровый кризис в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли`
+                      })}
+                    onSave={(value) => handleTextSave('workforceCrisisFullTitle', value)}
+                    onCancel={handleTextCancel}
+                    multiline={true}
+                    className="font-medium"
+                    style={{ fontSize: '32px', textAlign: 'center' }}
+                  />
+                ) : (
+                  <span 
+                    onClick={() => startEditing('workforceCrisisFullTitle')}
+                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                    title="Click to edit full workforce crisis title"
+                  >
+                    {landingPageData?.workforceCrisis?.fullTitle || 
+                      getLocalizedText(landingPageData?.language, {
+                  en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
+                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
+                  ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
+                })}
+                  </span>
+                )}
+              </h2>
+  
+              <Image 
+                src="/custom-projects-ui/images/audit-section-4-image.png" 
+                alt={getLocalizedText(landingPageData?.language, {
+                  en: 'Workforce Crisis in HVAC Industry',
+                  es: 'Crisis de Personal en la Industria HVAC',
+                  ua: 'Кадрова криза в HVAC-галузі',
+                  ru: 'Кадровый кризис в HVAC-отрасли'
+                })} 
+                width={320}
+                height={220}
+                className="w-full xl:hidden"
+              />
+                
+              <div className="flex flex-col gap-[15px] xl:hidden">
+                <div className="flex items-center gap-[10px]">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                    <path d="M10.8602 9.18066H17.8546C17.8687 9.18066 17.8822 9.18625 17.8921 9.19621C17.9021 9.20616 17.9077 9.21965 17.9077 9.23373V9.56174C17.9093 9.98704 17.8267 10.4084 17.6648 10.8017C17.5028 11.195 17.2647 11.5523 16.964 11.8532C16.6634 12.154 16.3063 12.3924 15.9131 12.5546C15.52 12.7169 15.0986 12.7998 14.6733 12.7985H14.0318C13.6077 12.7988 13.1877 12.7155 12.7959 12.5532C12.4041 12.391 12.0481 12.1531 11.7483 11.8531C11.4486 11.5532 11.2109 11.197 11.049 10.805C10.8871 10.4131 10.8041 9.99305 10.8047 9.56898V9.24337C10.8047 9.2293 10.8103 9.2158 10.8202 9.20585C10.8302 9.1959 10.8437 9.19031 10.8578 9.19031L10.8602 9.18066Z" fill="white"/>
+                    <path d="M17.8984 21.3223H10.8027V20.0416C10.8046 19.1872 11.1455 18.3684 11.7506 17.7652C12.3557 17.1619 13.1754 16.8235 14.0298 16.8241H14.6714C15.5258 16.8235 16.3455 17.1619 16.9505 17.7652C17.5556 18.3684 17.8965 19.1872 17.8984 20.0416V21.3223Z" fill="white"/>
+                    <path d="M19.6564 9.25767V6.55637H20.4861C20.614 6.55637 20.7367 6.50555 20.8271 6.41509C20.9176 6.32462 20.9684 6.20193 20.9684 6.074V5.38179C20.9684 5.25386 20.9176 5.13116 20.8271 5.0407C20.7367 4.95024 20.614 4.89941 20.4861 4.89941H8.1855C8.05757 4.89941 7.93487 4.95024 7.84441 5.0407C7.75395 5.13116 7.70312 5.25386 7.70312 5.38179V6.06435C7.70312 6.19228 7.75395 6.31498 7.84441 6.40544C7.93487 6.4959 8.05757 6.54672 8.1855 6.54672H9.04413V9.24802C9.042 10.2331 9.3135 11.1994 9.82837 12.0392C10.3432 12.879 11.0812 13.5593 11.9601 14.0042C11.0827 14.4485 10.3457 15.1272 9.8309 15.9652C9.31613 16.8031 9.04378 17.7674 9.04413 18.7508V21.4521H8.20479C8.07686 21.4521 7.95417 21.5029 7.8637 21.5934C7.77324 21.6839 7.72242 21.8065 7.72242 21.9345V22.617C7.72242 22.745 7.77324 22.8677 7.8637 22.9581C7.95417 23.0486 8.07686 23.0994 8.20479 23.0994H20.5054C20.6333 23.0994 20.756 23.0486 20.8464 22.9581C20.9369 22.8677 20.9877 22.745 20.9877 22.617V21.9441C20.9877 21.8162 20.9369 21.6935 20.8464 21.603C20.756 21.5126 20.6333 21.4618 20.5054 21.4618H19.6564V18.7508C19.6567 17.7674 19.3844 16.8031 18.8696 15.9652C18.3548 15.1272 17.6178 14.4485 16.7404 14.0042C17.6178 13.56 18.3548 12.8812 18.8696 12.0433C19.3844 11.2054 19.6567 10.2411 19.6564 9.25767ZM15.0183 14.0042C15.0173 14.1729 15.0704 14.3375 15.1698 14.4739C15.2692 14.6102 15.4097 14.711 15.5707 14.7616C16.4253 15.023 17.1736 15.5515 17.7057 16.2695C18.2379 16.9875 18.526 17.8571 18.5276 18.7508V21.3219H10.1729V18.7508C10.1745 17.8571 10.4626 16.9875 10.9948 16.2695C11.5269 15.5515 12.2752 15.023 13.1298 14.7616C13.2908 14.711 13.4313 14.6102 13.5307 14.4739C13.6301 14.3375 13.6832 14.1729 13.6822 14.0042C13.6832 13.8355 13.6301 13.6709 13.5307 13.5346C13.4313 13.3983 13.2908 13.2975 13.1298 13.2469C12.2752 12.9855 11.5269 12.457 10.9948 11.739C10.4626 11.021 10.1745 10.1514 10.1729 9.25767V6.68661H18.5276V9.25767C18.526 10.1514 18.2379 11.021 17.7057 11.739C17.1736 12.457 16.4253 12.9855 15.5707 13.2469C15.4097 13.2975 15.2692 13.3983 15.1698 13.5346C15.0704 13.6709 15.0173 13.8355 15.0183 14.0042Z" fill="white"/>
+                    <path d="M14.1045 13.7491C14.3004 13.7491 14.4591 13.5904 14.4591 13.3946C14.4591 13.1988 14.3004 13.04 14.1045 13.04C13.9087 13.04 13.75 13.1988 13.75 13.3946C13.75 13.5904 13.9087 13.7491 14.1045 13.7491Z" fill="white"/>
+                    <path d="M14.5889 14.7013C14.7847 14.7013 14.9435 14.5425 14.9435 14.3467C14.9435 14.1509 14.7847 13.9922 14.5889 13.9922C14.3931 13.9922 14.2344 14.1509 14.2344 14.3467C14.2344 14.5425 14.3931 14.7013 14.5889 14.7013Z" fill="white"/>
+                    <path d="M13.9639 15.7071C14.1597 15.7071 14.3185 15.5484 14.3185 15.3526C14.3185 15.1568 14.1597 14.998 13.9639 14.998C13.7681 14.998 13.6094 15.1568 13.6094 15.3526C13.6094 15.5484 13.7681 15.7071 13.9639 15.7071Z" fill="white"/>
+                    <path d="M14.4483 16.6603C14.6441 16.6603 14.8028 16.5015 14.8028 16.3057C14.8028 16.1099 14.6441 15.9512 14.4483 15.9512C14.2525 15.9512 14.0938 16.1099 14.0938 16.3057C14.0938 16.5015 14.2525 16.6603 14.4483 16.6603Z" fill="white"/>
+                  </svg>
+                  <span className="font-semibold text-[20px]">
+                    {editingField === 'burnoutTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.burnout?.title || 'Burnout'}
+                        onSave={(value) => handleTextSave('burnoutTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('burnoutTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit burnout title"
+                      >
+                        {landingPageData?.workforceCrisis?.burnout?.title || getLocalizedText(landingPageData?.language, {
+                    en: 'Burnout',
+                    es: 'Agotamiento',
+                    ua: 'Вигорання',
+                    ru: 'Выгорание'
+                        })}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <p className="font-normal text-[14px] text-[#71717A]">
+                  {editingField === 'burnoutFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                        `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`}
+                      onSave={(value) => handleTextSave('burnoutFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('burnoutFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full burnout description"
+                    >
+                      {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                    en: <>Average work duration in<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
+                    es: <>Duración promedio de trabajo en<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
+                    ua: <>Середня тривалість роботи в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
+                    ru: <>Средняя продолжительность работы в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
+                  })}
+                    </span>
+                  )}
+                </p>
+              </div>
+  
+              <div className="flex flex-col gap-[15px] xl:hidden">
+                <div className="flex items-center gap-[10px]">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                    <path d="M5.33362 17.017L7.92637 18.3861C7.95353 18.4005 7.98137 18.4126 8.00943 18.4236C8.011 18.4243 8.01228 18.4253 8.01385 18.4259C8.01432 18.4261 8.01481 18.4261 8.01528 18.4263C8.05771 18.4426 8.10109 18.4541 8.14479 18.463C8.15577 18.4652 8.16664 18.4671 8.17762 18.4689C8.21882 18.4755 8.26017 18.48 8.30151 18.4803C8.30347 18.4803 8.30543 18.4808 8.30739 18.4808C8.35788 18.4808 8.40753 18.4745 8.45653 18.4654C8.46967 18.4629 8.48242 18.4596 8.49544 18.4565C8.53334 18.4475 8.57024 18.4358 8.60636 18.4216C8.61823 18.4169 8.63021 18.413 8.64189 18.4077C8.68729 18.3873 8.73092 18.3633 8.77202 18.3349C8.77902 18.33 8.78529 18.3241 8.79216 18.319C8.82733 18.2931 8.86014 18.2641 8.891 18.2325C8.89604 18.2273 8.90214 18.2238 8.90706 18.2184C8.91234 18.2127 8.91612 18.2061 8.92122 18.2003C8.93881 18.1802 8.95501 18.1589 8.97071 18.1369C8.98099 18.1225 8.99132 18.1083 9.00056 18.0933C9.01321 18.0729 9.02426 18.0513 9.03519 18.0294C9.04419 18.0114 9.05344 17.9938 9.06105 17.9753C9.0635 17.9693 9.06695 17.9641 9.06927 17.9581L10.0362 15.4507C10.1984 15.03 9.9888 14.5576 9.56829 14.3954C9.14739 14.2331 8.67507 14.4426 8.51285 14.8632L8.25913 15.5212C8.13018 15.027 8.06067 14.5171 8.06067 14.0007C8.06067 12.3771 8.69221 10.8551 9.8425 9.7117C10.9824 8.5649 12.5044 7.93334 14.128 7.93334C15.2713 7.93334 16.3871 8.25718 17.3549 8.8699C17.7361 9.11124 18.2399 8.99794 18.4813 8.61691C18.7224 8.23608 18.609 7.73177 18.2282 7.49064C16.999 6.71221 15.581 6.30078 14.128 6.30078C12.0664 6.30078 10.1333 7.10342 8.68803 8.55733C7.23065 10.0059 6.42811 11.9391 6.42811 14.0007C6.42811 14.635 6.50664 15.2628 6.65969 15.871L6.09611 15.5734C5.69713 15.3626 5.2035 15.5157 4.99304 15.914C4.78258 16.3127 4.93504 16.8065 5.33362 17.017Z" fill="white"/>
+                    <path d="M20.1567 9.5913C20.1459 9.58658 20.1367 9.57981 20.1256 9.57552C20.1201 9.57342 20.1145 9.57299 20.1091 9.57103C20.0687 9.5564 20.0278 9.54542 19.9864 9.53742C19.9783 9.53585 19.9703 9.53291 19.9622 9.53159C19.9131 9.52365 19.8638 9.52063 19.8145 9.52169C19.8006 9.522 19.7871 9.52436 19.7732 9.52538C19.738 9.52795 19.703 9.53191 19.6685 9.53902C19.6518 9.54244 19.6357 9.54714 19.6193 9.55159C19.5879 9.56008 19.5572 9.57014 19.527 9.58236C19.511 9.58881 19.4954 9.59548 19.4798 9.60293C19.4504 9.61701 19.4222 9.63334 19.3944 9.65103C19.3801 9.66009 19.3658 9.66854 19.3521 9.67848C19.3242 9.69874 19.2983 9.72184 19.2729 9.74588C19.2618 9.75635 19.2498 9.76554 19.2392 9.77668C19.237 9.77898 19.2345 9.78068 19.2323 9.783C19.2001 9.8178 19.1717 9.85492 19.1466 9.89367C19.1429 9.89941 19.1404 9.90602 19.1368 9.91188C19.1136 9.94969 19.0937 9.98883 19.0772 10.0293C19.0752 10.0342 19.072 10.0383 19.0701 10.0434L18.1029 12.5507C17.9407 12.9713 18.1502 13.4438 18.5709 13.606C18.6675 13.6433 18.7668 13.6609 18.8644 13.6609C19.1921 13.6609 19.5012 13.4623 19.6263 13.1382L19.8801 12.4802C20.009 12.9743 20.0785 13.4843 20.0785 14.0007C20.0785 15.6245 19.447 17.1465 18.2967 18.2897C17.1569 19.4365 15.635 20.0681 14.0112 20.0681C12.868 20.0681 11.7522 19.7442 10.7843 19.1314C10.4035 18.8905 9.89925 19.0038 9.65792 19.3845C9.41679 19.7655 9.53017 20.2697 9.91101 20.5109C11.1404 21.2892 12.5584 21.7007 14.0112 21.7007C16.073 21.7007 18.0061 20.898 19.451 19.4441C20.9084 17.9957 21.7111 16.0625 21.7111 14.0007C21.7111 13.3663 21.6328 12.7386 21.4795 12.1303L22.0433 12.4281C22.4429 12.639 22.9361 12.486 23.1464 12.0874C23.3568 11.6887 23.2044 11.195 22.8058 10.9844L20.213 9.6153C20.1947 9.6056 20.1755 9.59946 20.1567 9.5913Z" fill="white"/>
+                  </svg>
+  
+                  <span className="font-semibold text-[20px]">
+                    {editingField === 'turnoverFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`}
+                        onSave={(value) => handleTextSave('turnoverFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('turnoverFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full turnover title"
+                      >
+                        {landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`,
+                      es: `Rotación hasta ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% por año`,
+                      ua: `Плинність до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% на рік`,
+                      ru: `Текучка до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <p className="font-normal text-[14px] text-[#71717A]">
+                  {editingField === 'turnoverFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                        `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`}
+                      onSave={(value) => handleTextSave('turnoverFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('turnoverFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full turnover description"
+                    >
+                      {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months
+                          </>,
+                          es: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} meses
+                          </>,
+                          ua: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці
+                          </>,
+                          ru: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% увольняются</span> в первые {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} месяца
+                          </>
+                        })}
+                    </span>
+                  )}
+                </p>
+              </div>
+              
+              <div className="flex flex-col gap-[15px] xl:hidden">
+                <div className="flex items-center gap-[10px]">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M14.3685 13.3505H14.1373V13.3344C13.6341 13.2558 13.2039 12.8873 13.1025 12.38H13.0799V12.1553C13.0799 11.6025 13.4759 11.1525 13.9922 11.0086L13.9944 10.7061C13.9959 10.4939 14.168 10.3236 14.3787 10.3258C14.5895 10.3273 14.7587 10.5005 14.7565 10.7127L14.7543 11.021C15.248 11.1767 15.6221 11.6179 15.6265 12.1516C15.6287 12.3638 15.4587 12.5371 15.2487 12.5386C15.038 12.54 14.8666 12.3697 14.8644 12.1583C14.8608 11.775 14.2978 11.5753 13.9784 11.8661C13.6859 12.1318 13.8916 12.5819 14.3612 12.5819H14.5705V12.598C15.0737 12.6766 15.504 13.0451 15.6053 13.5524H15.6279V13.7771C15.6279 14.3299 15.232 14.78 14.7156 14.9239L14.7135 15.2256C14.712 15.4378 14.5399 15.6081 14.3291 15.6059C14.1184 15.6044 13.9492 15.4312 13.9514 15.219L13.9536 14.9107C13.4599 14.755 13.0865 14.3138 13.0814 13.78C13.0792 13.5679 13.2491 13.3946 13.4591 13.3931C13.6692 13.3917 13.8413 13.562 13.8434 13.7734C13.8471 14.1567 14.4108 14.3564 14.7295 14.0656C15.027 13.7955 14.8017 13.3564 14.3685 13.3505ZM7.21079 15.4796L5.74279 15.7043C5.65163 15.7182 5.58964 15.8041 5.6035 15.8959L6.55372 22.2575C6.56757 22.3507 6.64998 22.4131 6.74405 22.3984L8.21205 22.1738C8.30321 22.1598 8.3652 22.0739 8.35134 21.9822L7.40112 15.6206C7.38727 15.5273 7.30486 15.4649 7.21079 15.4796ZM14.8461 16.5787C16.6291 16.3349 17.9746 14.7968 17.9746 12.9658C17.9746 10.9519 16.3535 9.31997 14.3532 9.31997C12.3528 9.31997 10.7318 10.952 10.7318 12.9658C10.7318 13.4246 10.8156 13.8636 10.9695 14.2674C11.1212 14.6661 11.3393 15.031 11.6105 15.3474C12.1866 15.4531 12.8386 15.6462 13.5984 15.9538C13.605 15.956 13.6108 15.959 13.6166 15.9626C13.9609 16.1256 14.2343 16.2659 14.4721 16.3892C14.6062 16.4582 14.7287 16.5207 14.8461 16.5787ZM14.7469 16.9465L14.3042 16.7226C14.0694 16.6014 13.8003 16.4634 13.4598 16.3019C10.6616 15.1705 9.40352 15.6609 7.88236 16.3224L8.59267 21.0769C8.78009 21.0204 9.03387 20.9543 9.19868 20.9345C9.67781 20.8772 10.6105 21.0564 11.6636 21.2583C12.5299 21.4242 13.37 21.582 14.2408 21.6804C14.6675 21.7237 15.423 21.6936 16.2959 21.5541C16.9931 21.4425 17.7632 21.2605 18.4968 20.9903C19.0883 20.7722 20.5672 20.2062 21.7062 19.5007C22.7483 18.8553 23.4987 18.0991 22.8738 17.4472C22.682 17.2989 22.453 17.2908 22.1759 17.3781C21.855 17.4795 21.4743 17.7049 21.0251 17.9956C20.7837 18.152 20.3571 18.3656 19.8925 18.5668C19.4615 18.754 18.9926 18.9324 18.6054 19.0484C17.8149 19.4478 16.7881 19.7128 16.3322 19.7693C15.1574 19.9154 13.9206 19.4397 13.0571 19.1079C12.7545 18.9911 12.4992 18.8935 12.3228 18.8516C12.0843 18.7951 12.1689 18.431 12.4074 18.4868C12.6094 18.5345 12.8748 18.6365 13.1899 18.7577C14.0176 19.0756 15.2041 19.5322 16.2878 19.3971C16.7735 19.3369 17.8616 19.0432 18.6069 18.6255C19.0517 18.3759 19.3741 18.0888 19.3427 17.7988C19.2836 17.2614 17.9243 17.6527 17.206 17.5683C15.8773 17.4112 15.3544 17.2409 14.7469 16.9465ZM8.54241 10.96L10.467 8.17237C10.5181 8.09822 10.4707 7.99544 10.3751 7.99544H9.70494C9.60211 7.99544 9.51897 7.91174 9.51897 7.80823L9.51825 5.97575C9.51825 5.76944 9.35051 5.60059 9.14559 5.60059H7.32681C7.12188 5.60059 6.95416 5.76944 6.95416 5.97575V7.80823C6.95416 7.91174 6.87102 7.99544 6.7682 7.99544H6.09727C6.00174 7.99544 5.95434 8.09822 6.00538 8.17237L7.92923 10.96C8.07946 11.1773 8.39218 11.1773 8.54241 10.96ZM20.7772 10.96L22.701 8.17237C22.7521 8.09822 22.7047 7.99544 22.6091 7.99544H21.939C21.8361 7.99544 21.753 7.91174 21.753 7.80823V5.97575C21.753 5.76944 21.5853 5.60059 21.3804 5.60059H19.5616C19.3566 5.60059 19.1889 5.76944 19.1889 5.97575V7.80823C19.1889 7.91174 19.1058 7.99544 19.003 7.99544H18.3328C18.2372 7.99544 18.1898 8.09822 18.2409 8.17237L20.1647 10.96C20.315 11.1773 20.6277 11.1773 20.7772 10.96Z" fill="white"/>
+                  </svg>
+  
+                  <span className="font-semibold text-[20px]">
+                    {editingField === 'lossesFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
+                        onSave={(value) => handleTextSave('lossesFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('lossesFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full losses title"
+                      >
+                        {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
+                      ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <p className="font-normal text-[14px] text-[#71717A]">
+                  {editingField === 'lossesFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                        'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.'}
+                      onSave={(value) => handleTextSave('lossesFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('lossesFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full losses description"
+                    >
+                      {landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.',
+                          es: 'Pérdidas de la empresa por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.',
+                          ua: 'Збитки компанії на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.',
+                          ru: 'Потери компании при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.'
+                        })}
+                    </span>
+                  )}
+                </p>
+              </div>
+              
+              <div className="flex flex-col gap-[15px] xl:hidden">
+                <div className="flex items-center gap-[10px]">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                    <path d="M22.402 7.96962V9.90814H5.60156V7.96962C5.60641 7.1393 6.27842 6.46648 7.10957 6.46242H9.04808V6.24676C9.04808 5.88974 9.33724 5.60059 9.69425 5.60059C10.0505 5.60059 10.3404 5.88974 10.3404 6.24676V6.46242H17.664L17.6632 6.24676C17.6632 5.88974 17.9531 5.60059 18.3093 5.60059C18.6664 5.60059 18.9555 5.88974 18.9555 6.24676V6.46242H20.894C21.7251 6.46646 22.3971 7.13928 22.402 7.96962Z" fill="white"/>
+                    <path d="M5.60156 11.1992H22.402V20.8918C22.3972 21.7229 21.7252 22.3949 20.894 22.3998H7.10957C6.27844 22.3949 5.60642 21.7229 5.60156 20.8918V11.1992ZM16.8021 13.9996C16.8062 14.3541 17.0929 14.6409 17.4483 14.6457H19.1712C19.5282 14.6457 19.8173 14.3566 19.8173 13.9996C19.8173 13.6426 19.5282 13.3534 19.1712 13.3534H17.4483C17.0929 13.3582 16.8062 13.645 16.8021 13.9996ZM16.8021 16.5843C16.8062 16.9388 17.0929 17.2256 17.4483 17.2304H19.1712C19.5282 17.2304 19.8173 16.9413 19.8173 16.5843C19.8173 16.2272 19.5282 15.9381 19.1712 15.9381H17.4483C17.0929 15.9429 16.8062 16.2297 16.8021 16.5843ZM16.8021 19.1689C16.8062 19.5235 17.0929 19.8103 17.4483 19.8151H19.1712C19.5282 19.8151 19.8173 19.526 19.8173 19.1689C19.8173 18.8119 19.5282 18.5228 19.1712 18.5228H17.4483C17.0929 18.5276 16.8062 18.8144 16.8021 19.1689ZM12.4938 13.9996C12.4986 14.3541 12.7854 14.6409 13.14 14.6457H14.8636C15.2198 14.6457 15.5098 14.3566 15.5098 13.9996C15.5098 13.6426 15.2198 13.3534 14.8636 13.3534H13.14C12.7854 13.3582 12.4986 13.645 12.4938 13.9996ZM12.4938 16.5843C12.4986 16.9388 12.7854 17.2256 13.14 17.2304H14.8636C15.2198 17.2304 15.5098 16.9413 15.5098 16.5843C15.5098 16.2272 15.2198 15.9381 14.8636 15.9381H13.14C12.7854 15.9429 12.4986 16.2297 12.4938 16.5843ZM12.4938 19.1689C12.4986 19.5235 12.7854 19.8103 13.14 19.8151H14.8636C15.2198 19.8151 15.5098 19.526 15.5098 19.1689C15.5098 18.8119 15.2198 18.5228 14.8636 18.5228H13.14C12.7854 18.5276 12.4986 18.8144 12.4938 19.1689ZM8.18627 13.9996C8.19111 14.3541 8.47786 14.6409 8.83244 14.6457H10.5553C10.9123 14.6457 11.2015 14.3566 11.2015 13.9996C11.2015 13.6426 10.9123 13.3534 10.5553 13.3534H8.83244C8.47786 13.3582 8.1911 13.645 8.18627 13.9996ZM8.18627 16.5843C8.19111 16.9388 8.47786 17.2256 8.83244 17.2304H10.5553C10.9123 17.2304 11.2015 16.9413 11.2015 16.5843C11.2015 16.2272 10.9123 15.9381 10.5553 15.9381H8.83244C8.47786 15.9429 8.1911 16.2297 8.18627 16.5843ZM8.18627 19.1689C8.19111 19.5235 8.47786 19.8103 8.83244 19.8151H10.5553C10.9123 19.8151 11.2015 19.526 11.2015 19.1689C11.2015 18.8119 10.9123 18.5228 10.5553 18.5228H8.83244C8.47786 18.5276 8.1911 18.8144 8.18627 19.1689Z" fill="white"/>
+                  </svg>
+  
+                  <span className="font-semibold text-[20px]">
+                    {editingField === 'searchTimeFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
+                        onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('searchTimeFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full search time title"
+                      >
+                        {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
+                      es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
+                      ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
+                      ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <p className="font-normal text-[14px] text-[#71717A]">
+                  {editingField === 'searchTimeFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                        'Candidate search'}
+                      onSave={(value) => handleTextSave('searchTimeFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('searchTimeFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full search time description"
+                    >
+                      {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                    en: 'Candidate search',
+                    es: 'Búsqueda de candidatos',
+                    ua: 'Пошук кандидата',
+                    ru: 'Поиск кандидата'
+                  })}
+                    </span>
+                  )}
+                </p>
+              </div>
+  
+              <div className="hidden xl:block w-full xl:flex xl:gap-[80px] xl:h-[280px]">
+                <div className="flex flex-col gap-[50px] my-[36px] w-[340px]">
+                  <div className="flex flex-col gap-[12px]">
+                    <div className="flex items-center gap-[20px] mb-[10px]">
+                      <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                        <path d="M10.8602 9.18066H17.8546C17.8687 9.18066 17.8822 9.18625 17.8921 9.19621C17.9021 9.20616 17.9077 9.21965 17.9077 9.23373V9.56174C17.9093 9.98704 17.8267 10.4084 17.6648 10.8017C17.5028 11.195 17.2647 11.5523 16.964 11.8532C16.6634 12.154 16.3063 12.3924 15.9131 12.5546C15.52 12.7169 15.0986 12.7998 14.6733 12.7985H14.0318C13.6077 12.7988 13.1877 12.7155 12.7959 12.5532C12.4041 12.391 12.0481 12.1531 11.7483 11.8531C11.4486 11.5532 11.2109 11.197 11.049 10.805C10.8871 10.4131 10.8041 9.99305 10.8047 9.56898V9.24337C10.8047 9.2293 10.8103 9.2158 10.8202 9.20585C10.8302 9.1959 10.8437 9.19031 10.8578 9.19031L10.8602 9.18066Z" fill="white"/>
+                        <path d="M17.8984 21.3223H10.8027V20.0416C10.8046 19.1872 11.1455 18.3684 11.7506 17.7652C12.3557 17.1619 13.1754 16.8235 14.0298 16.8241H14.6714C15.5258 16.8235 16.3455 17.1619 16.9505 17.7652C17.5556 18.3684 17.8965 19.1872 17.8984 20.0416V21.3223Z" fill="white"/>
+                        <path d="M19.6564 9.25767V6.55637H20.4861C20.614 6.55637 20.7367 6.50555 20.8271 6.41509C20.9176 6.32462 20.9684 6.20193 20.9684 6.074V5.38179C20.9684 5.25386 20.9176 5.13116 20.8271 5.0407C20.7367 4.95024 20.614 4.89941 20.4861 4.89941H8.1855C8.05757 4.89941 7.93487 4.95024 7.84441 5.0407C7.75395 5.13116 7.70312 5.25386 7.70312 5.38179V6.06435C7.70312 6.19228 7.75395 6.31498 7.84441 6.40544C7.93487 6.4959 8.05757 6.54672 8.1855 6.54672H9.04413V9.24802C9.042 10.2331 9.3135 11.1994 9.82837 12.0392C10.3432 12.879 11.0812 13.5593 11.9601 14.0042C11.0827 14.4485 10.3457 15.1272 9.8309 15.9652C9.31613 16.8031 9.04378 17.7674 9.04413 18.7508V21.4521H8.20479C8.07686 21.4521 7.95417 21.5029 7.8637 21.5934C7.77324 21.6839 7.72242 21.8065 7.72242 21.9345V22.617C7.72242 22.745 7.77324 22.8677 7.8637 22.9581C7.95417 23.0486 8.07686 23.0994 8.20479 23.0994H20.5054C20.6333 23.0994 20.756 23.0486 20.8464 22.9581C20.9369 22.8677 20.9877 22.745 20.9877 22.617V21.9441C20.9877 21.8162 20.9369 21.6935 20.8464 21.603C20.756 21.5126 20.6333 21.4618 20.5054 21.4618H19.6564V18.7508C19.6567 17.7674 19.3844 16.8031 18.8696 15.9652C18.3548 15.1272 17.6178 14.4485 16.7404 14.0042C17.6178 13.56 18.3548 12.8812 18.8696 12.0433C19.3844 11.2054 19.6567 10.2411 19.6564 9.25767ZM15.0183 14.0042C15.0173 14.1729 15.0704 14.3375 15.1698 14.4739C15.2692 14.6102 15.4097 14.711 15.5707 14.7616C16.4253 15.023 17.1736 15.5515 17.7057 16.2695C18.2379 16.9875 18.526 17.8571 18.5276 18.7508V21.3219H10.1729V18.7508C10.1745 17.8571 10.4626 16.9875 10.9948 16.2695C11.5269 15.5515 12.2752 15.023 13.1298 14.7616C13.2908 14.711 13.4313 14.6102 13.5307 14.4739C13.6301 14.3375 13.6832 14.1729 13.6822 14.0042C13.6832 13.8355 13.6301 13.6709 13.5307 13.5346C13.4313 13.3983 13.2908 13.2975 13.1298 13.2469C12.2752 12.9855 11.5269 12.457 10.9948 11.739C10.4626 11.021 10.1745 10.1514 10.1729 9.25767V6.68661H18.5276V9.25767C18.526 10.1514 18.2379 11.021 17.7057 11.739C17.1736 12.457 16.4253 12.9855 15.5707 13.2469C15.4097 13.2975 15.2692 13.3983 15.1698 13.5346C15.0704 13.6709 15.0173 13.8355 15.0183 14.0042Z" fill="white"/>
+                        <path d="M14.1045 13.7491C14.3004 13.7491 14.4591 13.5904 14.4591 13.3946C14.4591 13.1988 14.3004 13.04 14.1045 13.04C13.9087 13.04 13.75 13.1988 13.75 13.3946C13.75 13.5904 13.9087 13.7491 14.1045 13.7491Z" fill="white"/>
+                        <path d="M14.5889 14.7013C14.7847 14.7013 14.9435 14.5425 14.9435 14.3467C14.9435 14.1509 14.7847 13.9922 14.5889 13.9922C14.3931 13.9922 14.2344 14.1509 14.2344 14.3467C14.2344 14.5425 14.3931 14.7013 14.5889 14.7013Z" fill="white"/>
+                        <path d="M13.9639 15.7071C14.1597 15.7071 14.3185 15.5484 14.3185 15.3526C14.3185 15.1568 14.1597 14.998 13.9639 14.998C13.7681 14.998 13.6094 15.1568 13.6094 15.3526C13.6094 15.5484 13.7681 15.7071 13.9639 15.7071Z" fill="white"/>
+                        <path d="M14.4483 16.6603C14.6441 16.6603 14.8028 16.5015 14.8028 16.3057C14.8028 16.1099 14.6441 15.9512 14.4483 15.9512C14.2525 15.9512 14.0938 16.1099 14.0938 16.3057C14.0938 16.5015 14.2525 16.6603 14.4483 16.6603Z" fill="white"/>
+                      </svg>
+                      <span className="font-semibold text-[20px]">
+                        {editingField === 'burnoutTitle' ? (
+                          <InlineEditor
+                            initialValue={landingPageData?.workforceCrisis?.burnout?.title || 'Burnout'}
+                            onSave={(value) => handleTextSave('burnoutTitle', value)}
+                            onCancel={handleTextCancel}
+                            className="font-semibold"
+                            style={{ fontSize: '20px' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('burnoutTitle')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit burnout title"
+                          >
+                            {landingPageData?.workforceCrisis?.burnout?.title || getLocalizedText(landingPageData?.language, {
+                        en: 'Burnout',
+                        es: 'Agotamiento',
+                        ua: 'Вигорання',
+                        ru: 'Выгорание'
+                            })}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <p className="font-normal text-[14px] text-[#71717A]">
+                      {editingField === 'burnoutFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                            `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`}
+                          onSave={(value) => handleTextSave('burnoutFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('burnoutFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full burnout description"
+                        >
+                          {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                        en: <>Average work duration in<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
+                        es: <>Duración promedio de trabajo en<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
+                        ua: <>Середня тривалість роботи в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
+                        ru: <>Средняя продолжительность работы в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
+                      })}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+  
+                  <div className="flex flex-col gap-[12px]">
+                    <div className="flex items-center gap-[20px] mb-[10px]">
+                      <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                        <path d="M5.33362 17.017L7.92637 18.3861C7.95353 18.4005 7.98137 18.4126 8.00943 18.4236C8.011 18.4243 8.01228 18.4253 8.01385 18.4259C8.01432 18.4261 8.01481 18.4261 8.01528 18.4263C8.05771 18.4426 8.10109 18.4541 8.14479 18.463C8.15577 18.4652 8.16664 18.4671 8.17762 18.4689C8.21882 18.4755 8.26017 18.48 8.30151 18.4803C8.30347 18.4803 8.30543 18.4808 8.30739 18.4808C8.35788 18.4808 8.40753 18.4745 8.45653 18.4654C8.46967 18.4629 8.48242 18.4596 8.49544 18.4565C8.53334 18.4475 8.57024 18.4358 8.60636 18.4216C8.61823 18.4169 8.63021 18.413 8.64189 18.4077C8.68729 18.3873 8.73092 18.3633 8.77202 18.3349C8.77902 18.33 8.78529 18.3241 8.79216 18.319C8.82733 18.2931 8.86014 18.2641 8.891 18.2325C8.89604 18.2273 8.90214 18.2238 8.90706 18.2184C8.91234 18.2127 8.91612 18.2061 8.92122 18.2003C8.93881 18.1802 8.95501 18.1589 8.97071 18.1369C8.98099 18.1225 8.99132 18.1083 9.00056 18.0933C9.01321 18.0729 9.02426 18.0513 9.03519 18.0294C9.04419 18.0114 9.05344 17.9938 9.06105 17.9753C9.0635 17.9693 9.06695 17.9641 9.06927 17.9581L10.0362 15.4507C10.1984 15.03 9.9888 14.5576 9.56829 14.3954C9.14739 14.2331 8.67507 14.4426 8.51285 14.8632L8.25913 15.5212C8.13018 15.027 8.06067 14.5171 8.06067 14.0007C8.06067 12.3771 8.69221 10.8551 9.8425 9.7117C10.9824 8.5649 12.5044 7.93334 14.128 7.93334C15.2713 7.93334 16.3871 8.25718 17.3549 8.8699C17.7361 9.11124 18.2399 8.99794 18.4813 8.61691C18.7224 8.23608 18.609 7.73177 18.2282 7.49064C16.999 6.71221 15.581 6.30078 14.128 6.30078C12.0664 6.30078 10.1333 7.10342 8.68803 8.55733C7.23065 10.0059 6.42811 11.9391 6.42811 14.0007C6.42811 14.635 6.50664 15.2628 6.65969 15.871L6.09611 15.5734C5.69713 15.3626 5.2035 15.5157 4.99304 15.914C4.78258 16.3127 4.93504 16.8065 5.33362 17.017Z" fill="white"/>
+                        <path d="M20.1567 9.5913C20.1459 9.58658 20.1367 9.57981 20.1256 9.57552C20.1201 9.57342 20.1145 9.57299 20.1091 9.57103C20.0687 9.5564 20.0278 9.54542 19.9864 9.53742C19.9783 9.53585 19.9703 9.53291 19.9622 9.53159C19.9131 9.52365 19.8638 9.52063 19.8145 9.52169C19.8006 9.522 19.7871 9.52436 19.7732 9.52538C19.738 9.52795 19.703 9.53191 19.6685 9.53902C19.6518 9.54244 19.6357 9.54714 19.6193 9.55159C19.5879 9.56008 19.5572 9.57014 19.527 9.58236C19.511 9.58881 19.4954 9.59548 19.4798 9.60293C19.4504 9.61701 19.4222 9.63334 19.3944 9.65103C19.3801 9.66009 19.3658 9.66854 19.3521 9.67848C19.3242 9.69874 19.2983 9.72184 19.2729 9.74588C19.2618 9.75635 19.2498 9.76554 19.2392 9.77668C19.237 9.77898 19.2345 9.78068 19.2323 9.783C19.2001 9.8178 19.1717 9.85492 19.1466 9.89367C19.1429 9.89941 19.1404 9.90602 19.1368 9.91188C19.1136 9.94969 19.0937 9.98883 19.0772 10.0293C19.0752 10.0342 19.072 10.0383 19.0701 10.0434L18.1029 12.5507C17.9407 12.9713 18.1502 13.4438 18.5709 13.606C18.6675 13.6433 18.7668 13.6609 18.8644 13.6609C19.1921 13.6609 19.5012 13.4623 19.6263 13.1382L19.8801 12.4802C20.009 12.9743 20.0785 13.4843 20.0785 14.0007C20.0785 15.6245 19.447 17.1465 18.2967 18.2897C17.1569 19.4365 15.635 20.0681 14.0112 20.0681C12.868 20.0681 11.7522 19.7442 10.7843 19.1314C10.4035 18.8905 9.89925 19.0038 9.65792 19.3845C9.41679 19.7655 9.53017 20.2697 9.91101 20.5109C11.1404 21.2892 12.5584 21.7007 14.0112 21.7007C16.073 21.7007 18.0061 20.898 19.451 19.4441C20.9084 17.9957 21.7111 16.0625 21.7111 14.0007C21.7111 13.3663 21.6328 12.7386 21.4795 12.1303L22.0433 12.4281C22.4429 12.639 22.9361 12.486 23.1464 12.0874C23.3568 11.6887 23.2044 11.195 22.8058 10.9844L20.213 9.6153C20.1947 9.6056 20.1755 9.59946 20.1567 9.5913Z" fill="white"/>
+                      </svg>
+  
+                      <span className="font-semibold text-[20px]">
+                    {editingField === 'turnoverFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`}
+                        onSave={(value) => handleTextSave('turnoverFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('turnoverFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full turnover title"
+                      >
+                        {landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`,
+                      es: `Rotación hasta ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% por año`,
+                      ua: `Плинність до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% на рік`,
+                      ru: `Текучка до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                    </div>
+                    <p className="font-normal text-[14px] text-[#71717A]">
+                      {editingField === 'turnoverFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                            `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`}
+                          onSave={(value) => handleTextSave('turnoverFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('turnoverFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full turnover description"
+                        >
+                          {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                    en: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months</>,
+                    es: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} meses</>,
+                    ua: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці</>,
+                    ru: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% увольняются</span> в первые {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} месяца</>
+                  })}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+  
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
+                  alt={getLocalizedText(landingPageData?.language, {
+                    en: 'Workforce Crisis in HVAC Industry',
+                    es: 'Crisis de Personal en la Industria HVAC',
+                    ua: 'Кадрова криза в HVAC-галузі',
+                    ru: 'Кадровый кризис в HVAC-отрасли'
+                  })} 
+                  width={360}
+                  height={280}
+                  className="w-[360px] h-[280px]"
+                />
+  
+                <div className="flex flex-col gap-[50px] my-[36px] w-[340px]">
+                  <div className="flex flex-col gap-[12px]">
+                    <div className="flex items-center gap-[20px] mb-[10px]">
+                      <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M14.3685 13.3505H14.1373V13.3344C13.6341 13.2558 13.2039 12.8873 13.1025 12.38H13.0799V12.1553C13.0799 11.6025 13.4759 11.1525 13.9922 11.0086L13.9944 10.7061C13.9959 10.4939 14.168 10.3236 14.3787 10.3258C14.5895 10.3273 14.7587 10.5005 14.7565 10.7127L14.7543 11.021C15.248 11.1767 15.6221 11.6179 15.6265 12.1516C15.6287 12.3638 15.4587 12.5371 15.2487 12.5386C15.038 12.54 14.8666 12.3697 14.8644 12.1583C14.8608 11.775 14.2978 11.5753 13.9784 11.8661C13.6859 12.1318 13.8916 12.5819 14.3612 12.5819H14.5705V12.598C15.0737 12.6766 15.504 13.0451 15.6053 13.5524H15.6279V13.7771C15.6279 14.3299 15.232 14.78 14.7156 14.9239L14.7135 15.2256C14.712 15.4378 14.5399 15.6081 14.3291 15.6059C14.1184 15.6044 13.9492 15.4312 13.9514 15.219L13.9536 14.9107C13.4599 14.755 13.0865 14.3138 13.0814 13.78C13.0792 13.5679 13.2491 13.3946 13.4591 13.3931C13.6692 13.3917 13.8413 13.562 13.8434 13.7734C13.8471 14.1567 14.4108 14.3564 14.7295 14.0656C15.027 13.7955 14.8017 13.3564 14.3685 13.3505ZM7.21079 15.4796L5.74279 15.7043C5.65163 15.7182 5.58964 15.8041 5.6035 15.8959L6.55372 22.2575C6.56757 22.3507 6.64998 22.4131 6.74405 22.3984L8.21205 22.1738C8.30321 22.1598 8.3652 22.0739 8.35134 21.9822L7.40112 15.6206C7.38727 15.5273 7.30486 15.4649 7.21079 15.4796ZM14.8461 16.5787C16.6291 16.3349 17.9746 14.7968 17.9746 12.9658C17.9746 10.9519 16.3535 9.31997 14.3532 9.31997C12.3528 9.31997 10.7318 10.952 10.7318 12.9658C10.7318 13.4246 10.8156 13.8636 10.9695 14.2674C11.1212 14.6661 11.3393 15.031 11.6105 15.3474C12.1866 15.4531 12.8386 15.6462 13.5984 15.9538C13.605 15.956 13.6108 15.959 13.6166 15.9626C13.9609 16.1256 14.2343 16.2659 14.4721 16.3892C14.6062 16.4582 14.7287 16.5207 14.8461 16.5787ZM14.7469 16.9465L14.3042 16.7226C14.0694 16.6014 13.8003 16.4634 13.4598 16.3019C10.6616 15.1705 9.40352 15.6609 7.88236 16.3224L8.59267 21.0769C8.78009 21.0204 9.03387 20.9543 9.19868 20.9345C9.67781 20.8772 10.6105 21.0564 11.6636 21.2583C12.5299 21.4242 13.37 21.582 14.2408 21.6804C14.6675 21.7237 15.423 21.6936 16.2959 21.5541C16.9931 21.4425 17.7632 21.2605 18.4968 20.9903C19.0883 20.7722 20.5672 20.2062 21.7062 19.5007C22.7483 18.8553 23.4987 18.0991 22.8738 17.4472C22.682 17.2989 22.453 17.2908 22.1759 17.3781C21.855 17.4795 21.4743 17.7049 21.0251 17.9956C20.7837 18.152 20.3571 18.3656 19.8925 18.5668C19.4615 18.754 18.9926 18.9324 18.6054 19.0484C17.8149 19.4478 16.7881 19.7128 16.3322 19.7693C15.1574 19.9154 13.9206 19.4397 13.0571 19.1079C12.7545 18.9911 12.4992 18.8935 12.3228 18.8516C12.0843 18.7951 12.1689 18.431 12.4074 18.4868C12.6094 18.5345 12.8748 18.6365 13.1899 18.7577C14.0176 19.0756 15.2041 19.5322 16.2878 19.3971C16.7735 19.3369 17.8616 19.0432 18.6069 18.6255C19.0517 18.3759 19.3741 18.0888 19.3427 17.7988C19.2836 17.2614 17.9243 17.6527 17.206 17.5683C15.8773 17.4112 15.3544 17.2409 14.7469 16.9465ZM8.54241 10.96L10.467 8.17237C10.5181 8.09822 10.4707 7.99544 10.3751 7.99544H9.70494C9.60211 7.99544 9.51897 7.91174 9.51897 7.80823L9.51825 5.97575C9.51825 5.76944 9.35051 5.60059 9.14559 5.60059H7.32681C7.12188 5.60059 6.95416 5.76944 6.95416 5.97575V7.80823C6.95416 7.91174 6.87102 7.99544 6.7682 7.99544H6.09727C6.00174 7.99544 5.95434 8.09822 6.00538 8.17237L7.92923 10.96C8.07946 11.1773 8.39218 11.1773 8.54241 10.96ZM20.7772 10.96L22.701 8.17237C22.7521 8.09822 22.7047 7.99544 22.6091 7.99544H21.939C21.8361 7.99544 21.753 7.91174 21.753 7.80823V5.97575C21.753 5.76944 21.5853 5.60059 21.3804 5.60059H19.5616C19.3566 5.60059 19.1889 5.76944 19.1889 5.97575V7.80823C19.1889 7.91174 19.1058 7.99544 19.003 7.99544H18.3328C18.2372 7.99544 18.1898 8.09822 18.2409 8.17237L20.1647 10.96C20.315 11.1773 20.6277 11.1773 20.7772 10.96Z" fill="white"/>
+                      </svg>
+  
+                      <span className="font-semibold text-[20px]">
+                    {editingField === 'lossesFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
+                        onSave={(value) => handleTextSave('lossesFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('lossesFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full losses title"
+                      >
+                        {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
+                      ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                    </div>
+                    <p className="font-normal text-[14px] text-[#71717A]">
+                      {editingField === 'lossesFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                            'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.'}
+                          onSave={(value) => handleTextSave('lossesFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('lossesFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full losses description"
+                        >
+                          {landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                              en: 'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.',
+                              es: 'Pérdidas de la empresa por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.',
+                              ua: 'Збитки компанії на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.',
+                              ru: 'Потери компании при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.'
+                            })}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col gap-[12px]">
+                    <div className="flex items-center gap-[20px] mb-[10px]">
+                      <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="28" height="28" rx="1.89831" fill="#0F58F9"/>
+                        <path d="M22.402 7.96962V9.90814H5.60156V7.96962C5.60641 7.1393 6.27842 6.46648 7.10957 6.46242H9.04808V6.24676C9.04808 5.88974 9.33724 5.60059 9.69425 5.60059C10.0505 5.60059 10.3404 5.88974 10.3404 6.24676V6.46242H17.664L17.6632 6.24676C17.6632 5.88974 17.9531 5.60059 18.3093 5.60059C18.6664 5.60059 18.9555 5.88974 18.9555 6.24676V6.46242H20.894C21.7251 6.46646 22.3971 7.13928 22.402 7.96962Z" fill="white"/>
+                        <path d="M5.60156 11.1992H22.402V20.8918C22.3972 21.7229 21.7252 22.3949 20.894 22.3998H7.10957C6.27844 22.3949 5.60642 21.7229 5.60156 20.8918V11.1992ZM16.8021 13.9996C16.8062 14.3541 17.0929 14.6409 17.4483 14.6457H19.1712C19.5282 14.6457 19.8173 14.3566 19.8173 13.9996C19.8173 13.6426 19.5282 13.3534 19.1712 13.3534H17.4483C17.0929 13.3582 16.8062 13.645 16.8021 13.9996ZM16.8021 16.5843C16.8062 16.9388 17.0929 17.2256 17.4483 17.2304H19.1712C19.5282 17.2304 19.8173 16.9413 19.8173 16.5843C19.8173 16.2272 19.5282 15.9381 19.1712 15.9381H17.4483C17.0929 15.9429 16.8062 16.2297 16.8021 16.5843ZM16.8021 19.1689C16.8062 19.5235 17.0929 19.8103 17.4483 19.8151H19.1712C19.5282 19.8151 19.8173 19.526 19.8173 19.1689C19.8173 18.8119 19.5282 18.5228 19.1712 18.5228H17.4483C17.0929 18.5276 16.8062 18.8144 16.8021 19.1689ZM12.4938 13.9996C12.4986 14.3541 12.7854 14.6409 13.14 14.6457H14.8636C15.2198 14.6457 15.5098 14.3566 15.5098 13.9996C15.5098 13.6426 15.2198 13.3534 14.8636 13.3534H13.14C12.7854 13.3582 12.4986 13.645 12.4938 13.9996ZM12.4938 16.5843C12.4986 16.9388 12.7854 17.2256 13.14 17.2304H14.8636C15.2198 17.2304 15.5098 16.9413 15.5098 16.5843C15.5098 16.2272 15.2198 15.9381 14.8636 15.9381H13.14C12.7854 15.9429 12.4986 16.2297 12.4938 16.5843ZM12.4938 19.1689C12.4986 19.5235 12.7854 19.8103 13.14 19.8151H14.8636C15.2198 19.8151 15.5098 19.526 15.5098 19.1689C15.5098 18.8119 15.2198 18.5228 14.8636 18.5228H13.14C12.7854 18.5276 12.4986 18.8144 12.4938 19.1689ZM8.18627 13.9996C8.19111 14.3541 8.47786 14.6409 8.83244 14.6457H10.5553C10.9123 14.6457 11.2015 14.3566 11.2015 13.9996C11.2015 13.6426 10.9123 13.3534 10.5553 13.3534H8.83244C8.47786 13.3582 8.1911 13.645 8.18627 13.9996ZM8.18627 16.5843C8.19111 16.9388 8.47786 17.2256 8.83244 17.2304H10.5553C10.9123 17.2304 11.2015 16.9413 11.2015 16.5843C11.2015 16.2272 10.9123 15.9381 10.5553 15.9381H8.83244C8.47786 15.9429 8.1911 16.2297 8.18627 16.5843ZM8.18627 19.1689C8.19111 19.5235 8.47786 19.8103 8.83244 19.8151H10.5553C10.9123 19.8151 11.2015 19.526 11.2015 19.1689C11.2015 18.8119 10.9123 18.5228 10.5553 18.5228H8.83244C8.47786 18.5276 8.1911 18.8144 8.18627 19.1689Z" fill="white"/>
+                      </svg>
+  
+                      <span className="font-semibold text-[20px]">
+                    {editingField === 'searchTimeFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
+                        onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('searchTimeFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full search time title"
+                      >
+                        {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
+                      es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
+                      ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
+                      ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
+                    })}
+                      </span>
+                    )}
+                  </span>
+                    </div>
+                    <p className="font-normal text-[14px] text-[#71717A]">
+                      {editingField === 'searchTimeFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                            'Candidate search'}
+                          onSave={(value) => handleTextSave('searchTimeFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('searchTimeFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full search time description"
+                        >
+                          {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                    en: 'Candidate search',
+                    es: 'Búsqueda de candidatos',
+                    ua: 'Пошук кандидата',
+                    ru: 'Поиск кандидата'
+                  })}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+  
+            {/* Fifth Section */}
+            <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
+              <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
+                {getLocalizedText(landingPageData?.language, {
+                  en: 'We offer three',
+                  es: 'Ofrecemos tres',
+                  ua: 'Пропонуємо три',
+                  ru: 'Предлагаем три'
+                })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                  en: 'ready solutions:',
+                  es: 'soluciones listas:',
+                  ua: 'готових рішення:',
+                  ru: 'готовых решения:'
+                })}
+              </h2>
+  
+              {/* Service 1 */}
+              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Service 1:',
+                      es: 'Servicio 1:',
+                      ua: 'Послуга 1:',
+                      ru: 'Услуга 1:'
+                    })}
+                  </span>
+                </div>
+                
+                <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
+                  {editingField === 'serviceTemplatesDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Buy ready-made course templates for onboarding and training:',
+                          es: 'Compre plantillas de cursos listas para incorporación y entrenamiento:',
+                          ua: 'Купуйте готові шаблони курсів для онбордингу і навчання:',
+                          ru: 'Купите готовые шаблоны курсов для онбординга и обучения:'
+                        })}
+                      onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-medium"
+                      style={{ fontSize: '22px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('serviceTemplatesDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit service templates description"
+                    >
+                      {landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                    en: 'Buy ready-made course templates',
+                    es: 'Compre plantillas de cursos listas',
+                    ua: 'Купуйте готові шаблони курсів',
+                    ru: 'Купите готовые шаблоны'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'for onboarding',
+                    es: 'para incorporación',
+                    ua: 'для онбордингу',
+                    ru: 'курсов для онбординга'
+                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'and',
+                    es: 'y',
+                    ua: 'і',
+                    ru: 'и'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'training:',
+                    es: 'entrenamiento:',
+                    ua: 'навчання:',
+                    ru: 'обучения:'
+                  })}
+                    </span>
+                  )}
+                </h3>
+  
+                <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                  {editingField === 'serviceTemplatesDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Ready-made course templates for onboarding and training your employees:',
+                          es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+                          ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+                          ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+                        })}
+                      onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-medium"
+                      style={{ fontSize: '40px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('serviceTemplatesDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit service templates description"
+                    >
+                      {landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
+                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
+                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
+                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                  })}
+                    </span>
+                  )}
+                </h3>
+                
+                <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
+                  {/* Dynamic Course Templates */}
+                  {landingPageData?.courseTemplates && landingPageData.courseTemplates.length > 0 && landingPageData.courseTemplates.map((template, index) => (
+                    <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
+                      {/* Card Top */}
+                      <div 
+                        className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" 
+                        style={{ 
+                          backgroundImage: template.image 
+                            ? `url(${template.image})` 
+                            : `url(/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png)`,
+                          backgroundColor: template.image ? 'transparent' : '#f3f4f6'
+                        }}
+                        onLoad={() => {
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Course template ${index + 1} image loaded successfully`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Template title: ${template.title}`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Image URL: ${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`}`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Background image CSS: url(${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`})`)
+                        }}
+                        onError={(e) => {
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Failed to load course template ${index + 1} image`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Template title: ${template.title}`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Image URL: ${template.image}`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Fallback URL: /custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Error event:`, e)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Element style:`, e.currentTarget.style.backgroundImage)
+                        }}
+                      >
+                        <span className="font-semibold text-[16px] text-white drop-shadow-lg">
+                          {template.title}
+                        </span>
+                      </div>
+                      
+                      {/* Card Bottom */}
+                      <div className="p-[15px] flex flex-col gap-[6px]">
+                        <h4 className="font-semibold text-[16px]">
+                          {editingField === `courseTemplate_${index}` ? (
+                            <InlineEditor
+                              initialValue={template.title}
+                              onSave={(value) => handleTextSave(`courseTemplate_${index}`, value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing(`courseTemplate_${index}`)}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit course template title"
+                            >
+                          {template.title}
+                            </span>
+                          )}
+                        </h4>
+                        
+                        <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
+                          {editingField === `courseTemplateDescription_${index}` ? (
+                            <InlineEditor
+                              initialValue={template.description}
+                              onSave={(value) => handleTextSave(`courseTemplateDescription_${index}`, value)}
+                              onCancel={handleTextCancel}
+                              multiline={true}
+                              className="font-normal"
+                              style={{ fontSize: '14px', color: '#71717A' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing(`courseTemplateDescription_${index}`)}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                              title="Click to edit course template description"
+                            >
+                          {template.description}
+                            </span>
+                          )}
+                        </p>
+                        
+                        <div className="flex gap-[10px] items-center">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
+                            <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
+                            <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
+                            <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
+                            <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
+                          </svg>
+                          
+                          <span className="font-medium text-[12px]">
+                            {getLocalizedText(landingPageData?.language, {
+                              en: `Modules (${template.modules})`,
+                              es: `Módulos (${template.modules})`,
+                              ua: `Модулів (${template.modules})`,
+                              ru: `Модулей (${template.modules})`
+                            })}
+                          </span>
+                          
+                          <span className="font-medium text-[12px]">
+                            {getLocalizedText(landingPageData?.language, {
+                              en: `Lessons (${template.lessons})`,
+                              es: `Lecciones (${template.lessons})`,
+                              ua: `Уроків (${template.lessons})`,
+                              ru: `Уроков (${template.lessons})`
+                            })}
+                          </span>
+                        </div>
+                        
+                        <div className="flex gap-[6px] items-center">
+                          <span className="font-medium text-[12px] text-[#09090B]">
+                            {template.rating}
+                          </span>
+                          
+                          <div className="flex gap-[3.33px]">
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <svg key={i} width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+  
+  
+  
+  
+  
+                </div>
+                
+                <div className="flex flex-col gap-[10px] xl:gap-[15px]">
+                  <div className="px-[18px] xl:px-[20px] py-[8px] xl:py-[10px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[25px] xl:mt-0 w-fit">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12.726 14H1.274C0.574 14 0 13.426 0 12.726V1.274C0 0.573999 0.574 0 1.274 0H12.726C13.426 0 14 0.573999 14 1.274V12.726C14 13.426 13.426 14 12.726 14ZM2.548 10.822C2.548 11.018 2.674 11.144 2.87 11.144H6.048C6.244 11.144 6.37 11.018 6.37 10.822V7.644C6.37 7.448 6.244 7.322 6.048 7.322H2.87C2.674 7.322 2.548 7.448 2.548 7.644V10.822ZM10.178 2.548C10.178 2.352 10.052 2.226 9.856 2.226H2.856C2.66 2.226 2.534 2.352 2.534 2.548V3.178C2.534 3.374 2.66 3.5 2.856 3.5H9.856C10.052 3.5 10.178 3.374 10.178 3.178V2.548ZM11.452 5.096C11.452 4.9 11.326 4.774 11.13 4.774H2.87C2.674 4.774 2.548 4.9 2.548 5.096V5.726C2.548 5.922 2.674 6.048 2.87 6.048H11.144C11.34 6.048 11.466 5.922 11.466 5.726V5.096H11.452ZM11.452 7.63C11.452 7.434 11.326 7.308 11.13 7.308H7.952C7.756 7.308 7.63 7.434 7.63 7.63V8.26C7.63 8.456 7.756 8.582 7.952 8.582H11.13C11.326 8.582 11.452 8.456 11.452 8.26V7.63ZM11.452 10.178C11.452 9.982 11.326 9.856 11.13 9.856H7.952C7.756 9.856 7.63 9.982 7.63 10.178V10.808C7.63 11.004 7.756 11.13 7.952 11.13H11.13C11.326 11.13 11.452 11.004 11.452 10.808V10.178Z" fill="black"/>
+                    </svg>
+                    
+                    <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Course Example',
+                        es: 'Ejemplo de Curso',
+                        ua: 'Приклад курсу',
+                        ru: 'Пример курса'
+                      })}
+                    </span>
+                  </div>
+                  
+                  <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Onboarding course for',
+                      es: 'Curso de incorporación para',
+                      ua: 'Курс онбордингу для',
+                      ru: 'Онбординг курс для'
+                    })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'position',
+                      es: 'posición',
+                      ua: 'посади',
+                      ru: 'должности'
+                    })}{' '}
+                    {editingField === 'onboardingCourseTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
+                        onSave={(value) => handleTextSave('onboardingCourseTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-medium text-[#09090B]"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('onboardingCourseTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit onboarding course title"
+                      >
+                        {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
+                      </span>
+                    )}
+                  </h4>
+                  
+                  <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
+                    <div 
+                      className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" 
+                      style={{ 
+                        backgroundImage: `url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})`,
+                        backgroundColor: landingPageData?.courseTemplates?.[0]?.image ? 'transparent' : '#f3f4f6'
+                      }}
+                      onLoad={() => {
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Main course image loaded successfully`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Image URL: ${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'}`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Background image CSS: url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})`)
+                      }}
+                      onError={(e) => {
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Failed to load main course image`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Image URL: ${landingPageData?.courseTemplates?.[0]?.image}`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Fallback URL: /custom-projects-ui/images/audit-section-5-job-4-desktop.png`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Error event:`, e)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Element style:`, e.currentTarget.style.backgroundImage)
+                      }}
+                    >
+                      <div className="absolute bottom-[5px] xl:bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
+                          <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
+                          <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
+                          <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
+                          <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
+                        </svg>
+                        
+                        <span className="font-medium text-[12px] text-white">
+                          {landingPageData?.language === 'en' ? `Modules (${getTotalModulesAndLessons().modules})` : `Модулей (${getTotalModulesAndLessons().modules})`}
+                        </span>
+                        
+                        <span className="font-medium text-[12px] text-white">
+                          {landingPageData?.language === 'en' ? `Lessons (${getTotalModulesAndLessons().lessons})` : `Уроков (${getTotalModulesAndLessons().lessons})`}
+                        </span>
+                      </div>
+                      
+                      <div className="absolute bottom-[5px] xl:bottom-[10px] right-[6px] xl:right-[20px] flex gap-[6px] items-center">
+                        <span className="font-medium text-[12px] text-white">
+                          5.0
+                        </span>
+                        
+                        <div className="flex gap-[3.33px]">
+                          <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                          </svg>
+                          <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                          </svg>
+                          <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                          </svg>
+                          <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                          </svg>
+                          <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
+                      <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Training Plan',
+                          es: 'Plan de Entrenamiento',
+                          ua: 'План навчання',
+                          ru: 'План обучения'
+                        })}
+                      </h4>
+  
+                      {/* Module 1*/}
+                      <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-0'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'Module 01:',
+                                es: 'Módulo 01:',
+                                ua: 'Модуль 01:',
+                                ru: 'Модуль 01:'
+                              })}
+                            </span>
+  
+                            <h5 className="hidden xl:block font-medium text-[16px]">
+                              {editingField === 'courseModule_0' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                  onSave={(value) => handleTextSave('courseModule_0', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_0')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                </span>
+                              )}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module-0')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module-0'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module-0'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] xl:hidden">
+                          {editingField === 'courseModule_0' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                              onSave={(value) => handleTextSave('courseModule_0', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_0')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                          {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                            </span>
+                          )}
+                        </h5>
+  
+                        {/* Module 1 Expandable Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedModules['module-0'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          }`}
+                        >
+                          {/* XL Desktop Table Layout */}
+                          <div className="hidden xl:block">
+                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                              {/* Table Header */}
+                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                                <div className="grid grid-cols-3 gap-[20px]">
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Table Rows - Dynamic */}
+                              <div className="bg-white">
+                                {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                                  const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
+                                  const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {editingField === `courseLesson_0_${index}` ? (
+                                            <InlineEditor
+                                              initialValue={lesson}
+                                              onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                              onCancel={handleTextCancel}
+                                              className="font-medium"
+                                              style={{ fontSize: '12px', color: '#09090B' }}
+                                            />
+                                          ) : (
+                                            <span 
+                                              onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                              title="Click to edit lesson name"
+                                            >
+                                          {lesson}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                          </svg>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
+                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        Основные этапы открытия салона
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {getLocalizedText(landingPageData?.language, {
+                                            en: 'none',
+                                            es: 'ninguno',
+                                            ua: 'немає',
+                                            ru: 'нет'
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          5 мин
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Mobile Layout - Hidden on XL */}
+                          <div className="xl:hidden">
+                            {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                              const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
+                              const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {editingField === `courseLesson_0_${index}` ? (
+                                      <InlineEditor
+                                        initialValue={lesson}
+                                        onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium"
+                                        style={{ fontSize: '14px', color: '#09090B' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                        title="Click to edit lesson name"
+                                      >
+                                    {lesson}
+                                      </span>
+                                    )}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }) || (
+                              // Fallback if no lessons available
+                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  Основные этапы открытия салона
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {getLocalizedText(landingPageData?.language, {
+                                        en: 'Knowledge check: none',
+                                        es: 'Verificación de conocimientos: ninguno',
+                                        ua: 'Перевірка знань: немає',
+                                        ru: 'Проверка знаний: нет'
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      5 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+  
+  
+                          </div>
+                        </div>
+                      </div>
+  
+                      {/* Module 2*/}
+                      <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'Module 02:',
+                                es: 'Módulo 02:',
+                                ua: 'Модуль 02:',
+                                ru: 'Модуль 02:'
+                              })}
+                            </span>
+  
+                            <h5 className="hidden xl:block font-medium text-[16px]">
+                              {editingField === 'courseModule_1' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                                  onSave={(value) => handleTextSave('courseModule_1', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_1')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                                </span>
+                              )}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module-1')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module-1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module-1'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] xl:hidden">
+                          {editingField === 'courseModule_1' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                              onSave={(value) => handleTextSave('courseModule_1', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_1')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                          {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                            </span>
+                          )}
+                        </h5>
+  
+                        {/* Module 2 Expandable Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedModules['module-1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          }`}
+                        >
+                          {/* XL Desktop Table Layout */}
+                          <div className="hidden xl:block">
+                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                              {/* Table Header */}
+                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                                <div className="grid grid-cols-3 gap-[20px]">
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Table Body */}
+                              <div className="bg-white">
+                                {landingPageData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
+                                  const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
+                                  const isLast = index === (landingPageData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {lesson}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                          </svg>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
+                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        Поиск и отбор сотрудников
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {getLocalizedText(landingPageData?.language, {
+                                            en: 'none',
+                                            es: 'ninguno',
+                                            ua: 'немає',
+                                            ru: 'нет'
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          5 мин
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Mobile Layout - Hidden on XL */}
+                          <div className="xl:hidden">
+                            {landingPageData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
+                              const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
+                              const isLast = index === (landingPageData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {lesson}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }) || (
+                              // Fallback if no lessons available
+                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  Поиск и отбор сотрудников
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {getLocalizedText(landingPageData?.language, {
+                                        en: 'Knowledge check: none',
+                                        es: 'Verificación de conocimientos: ninguno',
+                                        ua: 'Перевірка знань: немає',
+                                        ru: 'Проверка знаний: нет'
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      5 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+  
+                      {/* Module 3*/}
+                      <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-2'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'Module 03:',
+                                es: 'Módulo 03:',
+                                ua: 'Модуль 03:',
+                                ru: 'Модуль 03:'
+                              })}
+                            </span>
+  
+                            <h5 className="font-medium text-[16px] hidden xl:block">
+                              {editingField === 'courseModule_2' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                                  onSave={(value) => handleTextSave('courseModule_2', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_2')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                                </span>
+                              )}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module-2')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module-2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module-2'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] xl:hidden">
+                          {editingField === 'courseModule_2' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                              onSave={(value) => handleTextSave('courseModule_2', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_2')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                          {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                            </span>
+                          )}
+                        </h5>
+  
+                        {/* Module 3 Expandable Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedModules['module-2'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          }`}
+                        >
+                          {/* XL Desktop Table Layout */}
+                          <div className="hidden xl:block">
+                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                              {/* Table Header */}
+                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                                <div className="grid grid-cols-3 gap-[20px]">
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Table Body */}
+                              <div className="bg-white">
+                                {landingPageData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
+                                  const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
+                                  const isLast = index === (landingPageData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {lesson}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                          </svg>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
+                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        Стратегия продвижения
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {getLocalizedText(landingPageData?.language, {
+                                            en: 'none',
+                                            es: 'ninguno',
+                                            ua: 'немає',
+                                            ru: 'нет'
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          5 мин
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Mobile Layout - Hidden on XL */}
+                          <div className="xl:hidden">
+                            {landingPageData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
+                              const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
+                              const isLast = index === (landingPageData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {lesson}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }) || (
+                              // Fallback if no lessons available
+                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  Стратегия продвижения
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {getLocalizedText(landingPageData?.language, {
+                                        en: 'Knowledge check: none',
+                                        es: 'Verificación de conocimientos: ninguno',
+                                        ua: 'Перевірка знань: немає',
+                                        ru: 'Проверка знаний: нет'
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      5 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+  
+                      {/* Module 4*/}
+                      <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module-3'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              {getLocalizedText(landingPageData?.language, {
+                                en: 'Module 04:',
+                                es: 'Módulo 04:',
+                                ua: 'Модуль 04:',
+                                ru: 'Модуль 04:'
+                              })}
+                            </span>
+  
+                            <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
+                              {editingField === 'courseModule_3' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                                  onSave={(value) => handleTextSave('courseModule_3', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px', color: '#09090B' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_3')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                                </span>
+                              )}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module-3')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module-3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module-3'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
+                          {editingField === 'courseModule_3' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                              onSave={(value) => handleTextSave('courseModule_3', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px', color: '#09090B' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_3')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                          {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                            </span>
+                          )}
+                        </h5>
+  
+                        {/* Module 4 Expandable Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedModules['module-3'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          }`}
+                        >
+                          {/* XL Desktop Table Layout */}
+                          <div className="hidden xl:block">
+                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                              {/* Table Header */}
+                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                                <div className="grid grid-cols-3 gap-[20px]">
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Table Body */}
+                              <div className="bg-white">
+                                {landingPageData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
+                                  const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
+                                  const isLast = index === (landingPageData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {lesson}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                          </svg>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
+                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        Финансовое планирование
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {getLocalizedText(landingPageData?.language, {
+                                            en: 'none',
+                                            es: 'ninguno',
+                                            ua: 'немає',
+                                            ru: 'нет'
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          5 мин
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Mobile Layout - Hidden on XL */}
+                          <div className="xl:hidden">
+                            {landingPageData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
+                              const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
+                              const isLast = index === (landingPageData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {lesson}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }) || (
+                              // Fallback if no lessons available
+                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  Финансовое планирование
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {getLocalizedText(landingPageData?.language, {
+                                        en: 'Knowledge check: none',
+                                        es: 'Verificación de conocimientos: ninguno',
+                                        ua: 'Перевірка знань: немає',
+                                        ru: 'Проверка знаний: нет'
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      5 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+  
+              {/* Service 2 */}
+              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Service 2:',
+                      es: 'Servicio 2:',
+                      ua: 'Послуга 2:',
+                      ru: 'Услуга 2:'
+                    })}
+                  </span>
+                </div>
+                
+                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                  ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
+                    en: 'platform for',
+                    es: 'plataforma para',
+                    ua: 'платформа для',
+                    ru: 'платформа для'
+                  })} <br/> {getLocalizedText(landingPageData?.language, {
+                    en: 'automating course creation',
+                    es: 'automatización de creación de cursos',
+                    ua: 'автоматизації створення курсів',
+                    ru: 'автоматизации создания'
+                  })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'and updating',
+                    es: 'y actualización',
+                    ua: 'і оновлення',
+                    ru: 'и обновления'
+                  })} {getLocalizedText(landingPageData?.language, {
+                    en: 'courses',
+                    es: 'cursos',
+                    ua: 'курсів',
+                    ru: 'курсов'
+                  })}
+                </h3>
+  
+                <div 
+                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
+                  style={{ 
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                  }}
+                ></div>
+                
+                <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] mb-[15px] xl:mb-[40px]">
+                  <div 
+                    className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
+                  >
+                    <h4 className="font-semibold text-[20px] xl:text-[32px]">
+                      AI capabilities:
+                    </h4>
+                    
+                    {/* Capability 1 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.293 0.9C12.4299 -0.3 7.63535 -0.3 2.77228 0.9C1.33391 1.23333 0.375 2.56667 0.375 3.96667V10.0333C0.375 11.4333 1.33391 12.7667 2.77228 13.1C7.56685 14.3 12.4299 14.3 17.2245 13.1C18.6629 12.7667 19.6218 11.4333 19.6218 10.0333V3.96667C19.6903 2.56667 18.6629 1.3 17.293 0.9ZM12.3614 7.76667L9.48468 9.63333C9.34769 9.7 9.14221 9.76667 9.00522 9.76667C8.86824 9.76667 8.73125 9.7 8.59426 9.63333C8.32028 9.5 8.1148 9.16667 8.1148 8.83333V5.16667C8.1148 4.83333 8.32028 4.5 8.59426 4.36667C8.86823 4.23333 9.2792 4.23333 9.55317 4.43333L12.4299 6.3C12.7039 6.5 12.8409 6.76667 12.8409 7.03333C12.7724 7.36667 12.6354 7.63333 12.3614 7.76667Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Video lesson generation',
+                          es: 'Generación de lecciones en video',
+                          ua: 'Генерація відеоуроків',
+                          ru: 'Генерация видеоуроков'
+                        })}
+                      </span>
+                    </div>
+  
+                    {/* Capability 2 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.346 0H0.654005C0.431842 0 0.25 0.173272 0.25 0.384963V13.615C0.25 13.8287 0.431842 14 0.654005 14H17.3453C17.5675 14 17.7493 13.828 17.7493 13.615L17.75 0.384963C17.75 0.173272 17.5682 0 17.346 0ZM8.326 4.86581V4.43916H5.91975V9.56344H6.91711C7.13927 9.56344 7.32111 9.73539 7.32111 9.9484C7.32111 10.1601 7.13927 10.3334 6.91711 10.3334H4.11711C3.8929 10.3334 3.71311 10.1601 3.71311 9.9484C3.71311 9.73476 3.89357 9.56344 4.11711 9.56344H5.11311V4.43916H2.70686V4.86581C2.70686 5.0775 2.52502 5.25078 2.30285 5.25078C2.07864 5.25078 1.89885 5.0775 1.89885 4.86581V4.05355C1.89885 3.84186 2.07931 3.66859 2.30285 3.66859H8.7306C8.95276 3.66859 9.1346 3.84186 9.1346 4.05355V4.86581C9.1346 5.0775 8.95276 5.25078 8.7306 5.25078C8.50639 5.25143 8.326 5.0775 8.326 4.86581ZM14.5912 9.04494H9.19417C8.97201 9.04494 8.79017 8.87167 8.79017 8.65998C8.79017 8.44829 8.97201 8.27502 9.19417 8.27502H14.5912C14.8154 8.27502 14.9952 8.44829 14.9952 8.65998C14.9959 8.87297 14.8168 9.04494 14.5912 9.04494ZM14.5912 5.72625H11.7912C11.567 5.72625 11.3872 5.55298 11.3872 5.34129C11.3872 5.12765 11.5676 4.95633 11.7912 4.95633H14.5912C14.8154 4.95633 14.9952 5.12828 14.9952 5.34129C14.9959 5.55298 14.8168 5.72625 14.5912 5.72625Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Test generation',
+                          es: 'Generación de pruebas',
+                          ua: 'Генерація тестів',
+                          ru: 'Генерация тестов'
+                        })}
+                      </span>
+                    </div>
+  
+                    {/* Capability 3 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M10.0712 4.52778C10.0712 5.65571 10.9849 6.56944 12.1128 6.56944H16.974V16.3889C16.974 17.1408 16.3648 17.75 15.6128 17.75H5.50174C4.74978 17.75 4.14062 17.1408 4.14062 16.3889V15.8056H9.97396C11.2629 15.8056 12.3073 14.7612 12.3073 13.4722V9.38889C12.3073 8.09994 11.2629 7.05556 9.97396 7.05556H4.14062V1.61111C4.14062 0.859156 4.74978 0.25 5.50174 0.25H10.0712V4.52778Z" fill="white"/>
+                          <path d="M2.78016 10.5579C2.9974 10.58 3.16753 10.7638 3.16753 10.9878C3.16753 11.2263 2.97385 11.4193 2.73534 11.42H2.19531V10.5557H2.73534L2.78016 10.5579Z" fill="white"/>
+                          <path d="M5.81761 10.5557C6.07585 10.5557 6.28472 10.7646 6.28472 11.0228V11.8386C6.28472 12.0968 6.07585 12.3057 5.81761 12.3057H5.3125V10.5557L5.81761 10.5557Z" fill="white"/>
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M9.97222 8.41699C10.5092 8.41699 10.9444 8.85222 10.9444 9.38921V13.4725C10.9444 14.0095 10.5092 14.4448 9.97222 14.4448H1.22222C0.685225 14.4448 0.25 14.0095 0.25 13.4725V9.38921C0.25 8.85222 0.685225 8.41699 1.22222 8.41699H9.97222ZM1.41667 13.0837H2.19444V12.198H2.73448C3.40288 12.1973 3.94444 11.6557 3.94444 10.9881C3.94444 10.3409 3.4363 9.81227 2.79678 9.77962L2.73449 9.7781H1.41668L1.41667 13.0837ZM4.52778 13.0837H5.81066C6.49806 13.0837 7.05556 12.5261 7.05556 11.8388V11.023C7.05556 10.3356 6.49804 9.77812 5.81066 9.77812H4.52778V13.0837ZM7.63889 13.0837H8.41667V12.1084H9.77778V11.3306H8.41667V10.5559H9.77778V9.7781H7.63889V13.0837Z" fill="white"/>
+                          <path d="M11.4375 0.253906C11.9077 0.284288 12.3528 0.484809 12.6877 0.819779L16.4096 4.54164C16.6017 4.73381 16.7491 4.9609 16.8456 5.20853H12.1182C11.7423 5.20853 11.4377 4.90395 11.4377 4.52797L11.4375 0.253906Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Presentation generation',
+                          es: 'Generación de presentaciones',
+                          ua: 'Генерація презентацій',
+                          ru: 'Генерация презентаций'
+                        })}
+                      </span>
+                    </div>
+  
+                    {/* Capability 4 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6562 0.21875V12.25H9.09375L4.71875 15.5312V12.25H0.34375V0.21875H15.6562ZM11.8281 2.95312V1.85938H10.7344V2.95312H9.09375V4.04688H11.8041C11.7762 4.37992 11.7237 4.71023 11.6449 5.03562C11.529 5.51523 11.3567 5.98008 11.1363 6.42086C11.0674 6.33883 11.0007 6.25516 10.9356 6.17094C10.6408 5.78758 10.3816 5.37797 10.1574 4.94977C10.1476 4.93008 10.1372 4.91039 10.1268 4.8907L9.15447 5.39055L9.18671 5.45344L9.22116 5.51906C9.58209 6.19391 10.0191 6.83375 10.538 7.39813C10.4298 7.54578 10.3155 7.68906 10.1957 7.82742C9.96548 8.09375 9.715 8.34203 9.44703 8.57008C9.33054 8.66906 9.20967 8.76313 9.08717 8.855C9.01444 8.9075 9.01446 8.9075 8.94118 8.9589C8.8668 9.00976 8.8668 9.00977 8.79187 9.05953L9.39563 9.97172C9.78172 9.71578 10.1448 9.42976 10.4806 9.11093C10.7929 8.81453 11.0806 8.49297 11.3409 8.15062C11.6148 8.36773 11.9074 8.56079 12.2197 8.71829C12.3887 8.80305 12.5626 8.87523 12.7409 8.93813L13.1029 7.90562C12.988 7.8657 12.8759 7.82086 12.7666 7.76836C12.4707 7.62617 12.1967 7.44078 11.9435 7.23133C12.2634 6.66148 12.5117 6.05172 12.6769 5.41789C12.7939 4.96781 12.8672 4.50953 12.9005 4.04688H13.4688V2.95312H11.8281ZM4.71875 3.5H3.99744L1.65353 8.96875H2.84351L3.07812 8.42188L3.31274 7.875H6.12476L6.59399 8.96875H7.78397L5.44006 3.5H4.71875ZM3.78141 6.78125H5.65609L4.71875 4.59375L3.78141 6.78125Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Translation to 120+ languages',
+                          es: 'Traducción a 120+ idiomas',
+                          ua: 'Переклад на 120+ мов',
+                          ru: 'Перевод на 120+ языков'
+                        })}
+                      </span>
+                    </div>
+  
+                    {/* Capability 5 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.6256 3.12563C15.7571 2.60973 15.3988 2.25058 14.8829 0.382948C14.8404 0.230304 14.7017 0.125 14.5433 0.125C14.385 0.125 14.2462 0.231115 14.2038 0.382948C13.6879 2.2514 13.3295 2.60969 11.4611 3.12563C11.3084 3.16807 11.2031 3.30684 11.2031 3.4652C11.2031 3.62356 11.3092 3.76233 11.4619 3.80477C13.3295 4.32066 13.6886 4.679 14.2046 6.54745C14.2462 6.70009 14.3858 6.8054 14.5441 6.8054C14.7025 6.8054 14.8413 6.69928 14.8837 6.54745C15.3996 4.679 15.7588 4.32071 17.6264 3.80477C17.779 3.76232 17.8852 3.62356 17.8852 3.4652C17.8852 3.30684 17.7799 3.16807 17.6272 3.12563H17.6256Z" fill="white"/>
+                          <path d="M14.5413 7.45803C14.0899 7.45803 13.6907 7.15438 13.5723 6.7193C13.1193 5.07858 12.9275 4.88677 11.286 4.43362C10.8518 4.31445 10.5481 3.9161 10.5481 3.46471C10.5481 3.01414 10.8518 2.61579 11.286 2.4958C11.504 2.43539 11.695 2.37989 11.8656 2.3252H2.51603C1.26631 2.3252 0.25 3.34146 0.25 4.59122V11.1607C0.25 12.4104 1.26627 13.4267 2.51603 13.4267H3.84167V15.2217C3.84167 15.4797 3.99349 15.7139 4.23022 15.8184C4.31511 15.856 4.4049 15.8747 4.49469 15.8747C4.65304 15.8747 4.81058 15.8168 4.93304 15.7058L7.44962 13.4268H13.0035C14.2532 13.4268 15.2695 12.4105 15.2695 11.1608V7.14463C15.0834 7.33972 14.8221 7.45803 14.5413 7.45803ZM3.84156 8.85549C3.84156 9.21629 3.54935 9.50851 3.18854 9.50851C2.82774 9.50851 2.53553 9.21629 2.53553 8.85549V7.22295C2.53553 6.86214 2.82774 6.56993 3.18854 6.56993C3.54935 6.56993 3.84156 6.86214 3.84156 7.22295V8.85549ZM6.12724 9.83502C6.12724 10.1958 5.83502 10.488 5.47422 10.488C5.11342 10.488 4.8212 10.1958 4.8212 9.83502V6.56993C4.8212 6.20913 5.11342 5.91691 5.47422 5.91691C5.83502 5.91691 6.12724 6.20913 6.12724 6.56993V9.83502ZM8.41291 8.85549C8.41291 9.21629 8.12069 9.50851 7.75989 9.50851C7.39909 9.50851 7.10687 9.21629 7.10687 8.85549V7.22295C7.10687 6.86214 7.39909 6.56993 7.75989 6.56993C8.12069 6.56993 8.41291 6.86214 8.41291 7.22295V8.85549ZM10.6986 9.83502C10.6986 10.1958 10.4064 10.488 10.0456 10.488C9.68476 10.488 9.39254 10.1958 9.39254 9.83502V6.56993C9.39254 6.20913 9.68476 5.91691 10.0456 5.91691C10.4064 5.91691 10.6986 6.20913 10.6986 6.56993V9.83502ZM12.9843 8.85549C12.9843 9.21629 12.692 9.50851 12.3312 9.50851C11.9704 9.50851 11.6782 9.21629 11.6782 8.85549V7.22295C11.6782 6.86214 11.9704 6.56993 12.3312 6.56993C12.692 6.56993 12.9843 6.86214 12.9843 7.22295V8.85549Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Voice-over and AI avatars',
+                          es: 'Voz en off y avatares IA',
+                          ua: 'Озвучка та AI-аватари',
+                          ru: 'Озвучка и AI-аватары'
+                        })}
+                      </span>
+                    </div>
+  
+                    {/* Capability 6 */}
+                    <div className="flex gap-[15px]">
+                      <div 
+                        className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                        style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+                      >
+                        <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M15.3548 9.69576L14.0618 6.98235C13.9026 6.64847 13.8164 6.2894 13.7682 5.92386C13.3437 2.70736 11.0024 0.25 6.98389 0.25C2.52475 0.25 0.125 3.2751 0.125 7.00609C0.125 8.73522 0.786128 10.3117 1.87166 11.5063C2.3582 12.0417 2.61022 12.7433 2.50648 13.4542L1.98123 17.0535C1.92791 17.4204 2.21719 17.75 2.59413 17.75H9.24992C9.56186 17.75 9.82484 17.5212 9.8643 17.2168L10.1149 15.2633H11.955C12.9201 15.2633 13.7032 14.4926 13.7032 13.5413V10.9055H14.5747C15.2059 10.9055 15.623 10.2592 15.3548 9.69576ZM10.9505 6.59937C11.204 6.59937 11.4093 6.80158 11.4093 7.05054C11.4093 7.30024 11.204 7.50243 10.9505 7.50243H10.0812V8.27021H10.9505C11.204 8.27021 11.4093 8.47242 11.4093 8.72282C11.4093 8.97252 11.204 9.1747 10.9505 9.1747H10.0629C10.0191 9.5899 9.69255 9.91083 9.27104 9.95472V10.829C9.27104 11.078 9.06575 11.2809 8.81228 11.2809C8.5588 11.2809 8.35351 11.0787 8.35351 10.829V9.97272H7.57331V10.829C7.57331 11.078 7.36803 11.2809 7.11455 11.2809C6.86106 11.2809 6.65579 11.0787 6.65579 10.829V9.97272H5.87559V10.829C5.87559 11.078 5.67031 11.2809 5.41683 11.2809C5.16335 11.2809 4.95807 11.0787 4.95807 10.829V9.95472C4.53656 9.91083 4.21075 9.59061 4.16691 9.1747H3.27933C3.02583 9.1747 2.82057 8.9725 2.82057 8.72282C2.82057 8.47312 3.02585 8.27021 3.27933 8.27021H4.14937V7.50243H3.27933C3.02583 7.50243 2.82057 7.30022 2.82057 7.05054C2.82057 6.80086 3.02585 6.59937 3.27933 6.59937H4.14937V5.83087H3.27933C3.02583 5.83087 2.82057 5.62866 2.82057 5.37898C2.82057 5.1293 3.02585 4.92638 3.27933 4.92638H4.16764C4.21147 4.5119 4.53729 4.19025 4.9588 4.14708V3.27351C4.9588 3.02382 5.16408 2.82091 5.41756 2.82091C5.67104 2.82091 5.87632 3.02384 5.87632 3.27351V4.1298H6.65652V3.27351C6.65652 3.02382 6.8618 2.82091 7.11528 2.82091C7.36876 2.82091 7.57404 3.02384 7.57404 3.27351V4.1298H8.35424V3.27351C8.35424 3.02382 8.55953 2.82091 8.81301 2.82091C9.06648 2.82091 9.27177 3.02384 9.27177 3.27351V4.14708C9.69328 4.19025 10.0191 4.51119 10.0637 4.92638H10.9512C11.2047 4.92638 11.41 5.1293 11.41 5.37898C11.41 5.62866 11.2047 5.83087 10.9512 5.83087H10.0819V6.59937H10.9512H10.9505Z" fill="white"/>
+                          <path d="M5.90535 4.98926H8.55819C8.93303 4.98926 9.23698 5.29319 9.23698 5.66805V8.32088C9.23698 8.69573 8.93305 8.99967 8.55819 8.99967H5.90535C5.53051 8.99967 5.22656 8.69502 5.22656 8.32088V5.66879C5.22656 5.29395 5.53049 4.99 5.90535 4.99V4.98926Z" fill="white"/>
+                        </svg>
+                      </div>
+  
+                      <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'LMS platform integration',
+                          es: 'Integración con plataformas LMS',
+                          ua: 'Інтеграція з LMS платформами',
+                          ru: 'Интеграция с LMS платформами'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+  
+                  <div className="w-[300px] h-[234px] px-[10px] border border-[#E0E0E0] rounded-[6px] xl:hidden">
+                    <Image 
+                      src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                      alt="Card 1"
+                      width={280}
+                      height={218}
+                      // className="w-full h-full object-cover rounded-[6px]"
+                    />
+                  </div>
+  
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                    alt="Card 1"
+                    width={560}
+                    height={437}
+                    className="hidden xl:block"
+                  />
+                </div>
+  
+                <div className="flex flex-col gap-[15px] xl:gap-[40px]">
+                  <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'How it works:',
+                      es: 'Cómo funciona:',
+                      ua: 'Як це працює:',
+                      ru: 'Как это работает:'
+                    })}
+                  </h4>
+                  
+                  <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
+                    {/* Card 1 */}
+                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                      <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                        <div 
+                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                        >
+                          1
+                        </div>
+                        
+                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Methodologist',
+                            es: 'Metodólogo',
+                            ua: 'Методолог',
+                            ru: 'Методолог'
+                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'uploads your',
+                            es: 'sube tus',
+                            ua: 'завантажує ваші',
+                            ru: 'загружает ваши'
+                          })}</span><br className="xl:hidden"/>
+                          <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'materials',
+                            es: 'materiales',
+                            ua: 'матеріали',
+                            ru: 'материалы'
+                          })}</span><br className="hidden xl:block"/> ({getLocalizedText(landingPageData?.language, {
+                            en: 'texts,',
+                            es: 'textos,',
+                            ua: 'тексти,',
+                            ru: 'тексты,'
+                          })}<br className="xl:hidden"/>
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'instructions, PDF, videos, etc.)',
+                            es: 'instrucciones, PDF, videos, etc.)',
+                            ua: 'інструкції, PDF, відео та ін.)',
+                            ru: 'инструкции, PDF, видео и др.)'
+                          })}
+                        </h5>
+                      </div>
+                      <div 
+                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
+                        style={{
+                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                        }}
+                      >
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-mobile.png"
+                          alt="Upload"
+                          width={280}
+                          height={175}
+                          className="xl:hidden"
+                        />
+  
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-3-desktop.png"
+                          alt="Upload"
+                          width={410}
+                          height={175}
+                          className="hidden xl:block"
+                        />
+                      </div>
+                    </div>
+  
+                    {/* Card 2 */}
+                    <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                      <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                        <div 
+                          className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                          style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                        >
+                          2
+                        </div>
+                        
+                        <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Platform converts',
+                            es: 'La plataforma convierte',
+                            ua: 'Платформа перетворює',
+                            ru: 'Платформа превращает'
+                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'them into',
+                            es: 'en',
+                            ua: 'їх у',
+                            ru: 'их в'
+                          })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
+                            en: 'lessons,',
+                            es: 'lecciones,',
+                            ua: 'уроки,',
+                            ru: 'уроки,'
+                          })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'tests,',
+                            es: 'pruebas,',
+                            ua: 'тести,',
+                            ru: 'тесты,'
+                          })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                            en: 'videos and presentations',
+                            es: 'videos y presentaciones',
+                            ua: 'відео та презентації',
+                            ru: 'видео и презентации'
+                          })}</span>
+                        </h5>
+                      </div>
+  
+                      <div 
+                        className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
+                        style={{
+                          boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                        }}
+                      >
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
+                          alt="Upload"
+                          width={280}
+                          height={175}
+                          className="xl:hidden"
+                        />
+  
+                        <Image 
+                          src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
+                          alt="Upload"
+                          width={375}
+                          height={175}
+                          className="hidden xl:block"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+  
+              {/* Service 3 */}
+              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Service 3:',
+                      es: 'Servicio 3:',
+                      ua: 'Послуга 3:',
+                      ru: 'Услуга 3:'
+                    })}
+                  </span>
+                </div>
+                
+                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'LMS platform',
+                    es: 'Plataforma LMS',
+                    ua: 'LMS-платформа',
+                    ru: 'LMS-платформа'
+                  })}<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'automation',
+                    es: 'automatización',
+                    ua: 'автоматизація',
+                    ru: 'автоматизация'
+                  })}<br /> {getLocalizedText(landingPageData?.language, {
+                    en: 'of corporate',
+                    es: 'de capacitación',
+                    ua: 'корпоративного',
+                    ru: 'корпоративного'
+                  })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'training and onboarding',
+                    es: 'y incorporación',
+                    ua: 'навчання та онбордингу',
+                    ru: 'обучения и онбординга'
+                  })}
+                </h3>
+  
+                <div 
+                  className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
+                  style={{ 
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png)',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                  }}
+                ></div>
+  
+                <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
+                  <h4 className="font-semibold text-[20px] xl:text-[32px]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Platform capabilities:',
+                      es: 'Capacidades de la plataforma:',
+                      ua: 'Можливості платформи:',
+                      ru: 'Возможности платформы:'
+                    })}
+                  </h4>
+                  
+                  {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
+                  <div className="flex flex-col gap-[20px] xl:flex xl:flex-row xl:gap-x-[70px] xl:gap-y-[30px]">
+                    {/* Left Column - Perks 1-4 */}
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                      {/* Perk 1 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="13" viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.8397 9.66293C8.82642 9.46261 8.74345 9.27686 8.60405 9.14572C8.47793 9.02552 8.31861 8.95996 8.15268 8.95996C7.95355 8.95996 7.76438 9.05466 7.63493 9.21857L6.69902 10.4023C6.57953 10.5553 6.51979 10.7483 6.53307 10.9523C6.54635 11.1526 6.62932 11.3384 6.76872 11.4695C6.89483 11.5897 7.05415 11.6553 7.22009 11.6553C7.41922 11.6553 7.60839 11.5606 7.74115 11.3967L8.67707 10.2166C8.79323 10.0599 8.85297 9.8669 8.8397 9.66293Z" fill="white"/>
+                        <path d="M7.84603 7.59336C7.72169 7.48114 7.56462 7.41992 7.40102 7.41992H7.35194C7.17197 7.43352 7.0051 7.51854 6.88728 7.66138L5.16613 9.71545C4.92071 10.0079 4.95018 10.4534 5.23484 10.7119C5.35918 10.8241 5.51625 10.8853 5.67332 10.8853C5.69295 10.8853 5.70931 10.8853 5.72567 10.8819C5.90564 10.8683 6.07251 10.7833 6.19033 10.6405L7.91148 8.58639C8.16016 8.29732 8.13071 7.85182 7.84603 7.59336Z" fill="white"/>
+                        <path d="M8.98711 10.501H8.94486C8.77886 10.5127 8.62797 10.5861 8.51628 10.7093L8.22354 11.0349C7.99718 11.2872 8.02436 11.6744 8.28692 11.8915C8.4016 11.9883 8.54648 12.0412 8.69737 12.0412H8.73962C8.90562 12.0294 9.05953 11.9561 9.1682 11.8329L9.45793 11.5072C9.56658 11.384 9.6209 11.2285 9.60883 11.0642C9.59676 10.9029 9.52131 10.7533 9.39455 10.6477C9.2859 10.5567 9.13802 10.501 8.98711 10.501Z" fill="white"/>
+                        <path d="M6.37216 7.79512C6.48546 7.65495 6.54211 7.47806 6.52952 7.29451C6.51693 7.11095 6.43825 6.94076 6.30606 6.8206C6.18647 6.71047 6.03856 6.65039 5.88119 6.65039H5.83398C5.66088 6.66374 5.50038 6.74717 5.38707 6.88735L3.99602 8.58271C3.75997 8.86973 3.78831 9.3069 4.05896 9.56054C4.17855 9.67067 4.32963 9.73074 4.48698 9.73074C4.50271 9.73074 4.51845 9.73074 4.53419 9.7274C4.70728 9.71406 4.86778 9.63062 4.9811 9.49045L6.37216 7.79512Z" fill="white"/>
+                        <path d="M15.1482 8.02288C14.6905 7.62764 13.4954 6.59174 13.4509 6.55349C12.9423 6.0945 12.1063 5.2594 11.6518 4.80361L11.4961 4.64743L11.3975 4.84824C11.1973 5.25304 10.8921 5.79171 10.5711 6.06263C10.3105 6.28256 10.0276 6.40369 9.77014 6.40369C9.69385 6.40369 9.62393 6.39413 9.554 6.37182C9.35375 6.31125 9.08358 6.12957 8.93419 5.6132C8.68945 4.77491 9.12172 3.75494 9.68114 3.25463L9.84642 3.10482L9.65253 2.99645C9.42051 2.86576 9.18212 2.79883 8.9469 2.79883C8.56865 2.79883 8.24445 2.96457 7.9552 3.14307L7.9107 3.17175C7.81217 3.23232 7.631 3.30562 7.3354 3.30562C7.06523 3.30562 6.76327 3.24825 6.42634 3.13032L3.83594 7.14654C3.96308 7.27404 4.09022 7.4079 4.21101 7.55135L4.33179 7.69478L5.43154 6.42939C5.60636 6.22858 5.85747 6.11383 6.12127 6.11383C6.34059 6.11383 6.55355 6.19351 6.71883 6.33696C6.87776 6.4772 6.98265 6.66527 7.01443 6.88201L7.04303 7.05732L7.21149 7.01269C7.26871 6.99676 7.32592 6.9872 7.38631 6.98401C7.40856 6.98401 7.43081 6.98082 7.45306 6.98082C7.67556 6.98082 7.88216 7.05732 8.05062 7.20713C8.3939 7.50676 8.46064 8.02311 8.20319 8.40878L8.07287 8.60321L8.30172 8.65421C8.46064 8.68927 8.59732 8.7562 8.70857 8.85183C8.89292 9.0112 9.00416 9.23431 9.02005 9.47974C9.02959 9.59767 9.01369 9.7188 8.97555 9.83036L8.91516 10.012L9.10269 10.0375C9.27751 10.063 9.4396 10.1364 9.57311 10.2543C9.85282 10.4997 9.9577 10.8854 9.83693 11.2424L9.80515 11.3412L10.8318 12.2942C10.9272 12.3803 11.0543 12.4249 11.1878 12.4249H11.2228C11.369 12.4154 11.5025 12.3484 11.601 12.2369L11.6709 12.154C11.7885 12.0201 11.8458 11.8512 11.833 11.6759C11.8203 11.5038 11.744 11.3444 11.6137 11.2265L10.746 10.4615C10.7206 10.4392 10.7047 10.4073 10.7015 10.3754C10.6983 10.3404 10.711 10.3085 10.7333 10.283C10.7587 10.2543 10.7905 10.2384 10.8286 10.2384C10.8509 10.2384 10.8827 10.2447 10.9113 10.2702L12.0873 11.303C12.2081 11.4113 12.3607 11.4655 12.5228 11.4655H12.5641C12.7389 11.4528 12.901 11.3731 13.0154 11.2424L13.0886 11.1595C13.2888 10.93 13.2666 10.5826 13.0345 10.3818L11.3563 8.90601C11.3308 8.8837 11.315 8.85183 11.3118 8.81995C11.3086 8.78489 11.3213 8.75302 11.3436 8.72752C11.369 8.69883 11.4008 8.68289 11.4389 8.68289C11.4612 8.68289 11.4929 8.68927 11.5216 8.71477L13.4032 10.3659C13.524 10.4742 13.6766 10.5284 13.8419 10.5284H13.88C14.0548 10.5157 14.2169 10.436 14.3314 10.3053C14.449 10.1714 14.5062 10.0025 14.4935 9.82716C14.4807 9.65185 14.4013 9.48931 14.2709 9.37454L12.2748 7.62146C12.2494 7.59915 12.2335 7.56727 12.2304 7.5354C12.2272 7.50033 12.2399 7.46846 12.2621 7.44296C12.2876 7.41428 12.3193 7.39834 12.3575 7.39834C12.3797 7.39834 12.4115 7.40472 12.4401 7.43021L14.3027 9.06853C14.4203 9.17053 14.5729 9.22471 14.7287 9.22471C14.9194 9.22471 15.1005 9.14184 15.2245 8.9984C15.4629 8.72427 15.4375 8.30674 15.1609 8.0645L15.1482 8.02288Z" fill="white"/>
+                        <path d="M5.73763 1.75165L4.54107 1.01316C4.12261 0.754527 3.56029 0.869824 3.28894 1.26866L0.519955 5.35067C0.248601 5.74952 0.369569 6.28547 0.788024 6.5441L1.98458 7.28259C2.40305 7.54122 2.96536 7.42592 3.23672 7.02708L6.0057 2.94508C6.27706 2.54623 6.15609 2.01028 5.73763 1.75165Z" fill="white"/>
+                        <path d="M13.1602 3.53605C12.8334 3.52999 12.5647 3.43606 12.3265 3.35122C12.0822 3.26638 11.8501 3.18457 11.56 3.18457C11.3249 3.18457 11.0744 3.23911 10.7966 3.35425L10.7019 3.39364C10.5309 3.46333 10.366 3.52999 10.2011 3.60271C9.6575 3.86935 9.03758 4.90259 9.2941 5.77521C9.38571 6.08731 9.52924 6.27214 9.72468 6.33274C9.76743 6.34486 9.81324 6.35092 9.8621 6.35092C10.0484 6.35092 10.2652 6.25699 10.4698 6.08428C10.7172 5.87521 11.0225 5.40858 11.3035 4.79954C11.334 4.73288 11.3982 4.6844 11.4715 4.67228C11.4837 4.66925 11.4959 4.66925 11.5112 4.66925C11.5722 4.66925 11.6303 4.69349 11.673 4.73591C12.0578 5.12073 13.0136 6.06913 13.5694 6.56605C13.6763 6.6721 14.9497 7.77806 15.1482 7.92653L15.1788 7.94774L15.1879 7.9538L15.2215 7.98107C15.2398 7.99622 15.2521 8.0144 15.2673 8.02955L15.4139 8.19014L15.6766 7.8538C15.8262 7.65988 15.9819 7.45384 16.1652 7.25385L13.6977 3.46927C13.5267 3.51169 13.3465 3.53605 13.1602 3.53605Z" fill="white"/>
+                        <path d="M19.4823 5.35067L16.7133 1.26866C16.4419 0.869816 15.8829 0.754529 15.4611 1.01316L14.2646 1.75165C13.8461 2.01028 13.7252 2.54312 13.9965 2.94508L16.7655 7.02708C17.0369 7.42593 17.5959 7.54122 18.0176 7.28258L19.2142 6.5441C19.6327 6.28235 19.7536 5.74951 19.4823 5.35067Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Onboarding and adaptation',
+                        es: 'Incorporación y adaptación',
+                        ua: 'Онбординг та адаптація',
+                        ru: 'Онбординг и адаптация'
+                      })}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{getLocalizedText(landingPageData?.language, {
+                        en: 'of new',
+                        es: 'de nuevos',
+                        ua: 'нових',
+                        ru: 'новых'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                        en: 'employees',
+                        es: 'empleados',
+                        ua: 'співробітників',
+                        ru: 'сотрудников'
+                      })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 2 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M16.6014 7.78296V16.3851C16.6014 16.7067 16.3178 16.969 15.9697 16.969H10.294C9.65187 16.969 9.08305 17.2721 8.74605 17.7315C8.74012 17.7389 8.70753 17.7456 8.66013 17.75V7.83707H10.6554C10.9175 7.83707 11.1709 7.75038 11.3775 7.59254C11.5841 7.75037 11.8367 7.83707 12.0996 7.83707H16.1257C16.2894 7.83707 16.4479 7.81855 16.6012 7.78298L16.6014 7.78296ZM8.14691 1.64016C8.03803 1.61867 7.92545 1.60756 7.81066 1.60756C6.84561 1.60756 6.06273 2.39078 6.06273 3.35629C6.06273 3.64675 6.13309 3.92019 6.25825 4.161C5.54055 4.32921 5.00581 4.97311 5.00581 5.743C5.00581 6.64034 5.73312 7.36797 6.63005 7.36797H10.6561C10.8435 7.36797 11.0146 7.29536 11.1435 7.17754V1.03323C10.8591 0.563436 10.3428 0.250008 9.75403 0.250008C8.93635 0.250008 8.26024 0.853983 8.14691 1.64016ZM11.6123 7.17746C11.7412 7.29528 11.9123 7.3679 12.0997 7.3679H16.1258C17.0227 7.3679 17.75 6.64026 17.75 5.74292C17.75 4.97303 17.2153 4.32912 16.4976 4.16092C16.6227 3.92011 16.6931 3.64669 16.6931 3.35621C16.6931 2.39072 15.9102 1.60748 14.9451 1.60748C14.8303 1.60748 14.7178 1.61859 14.6089 1.64008C14.4956 0.853904 13.8194 0.25 13.0017 0.25C12.4129 0.25 11.8966 0.563428 11.6122 1.03322L11.6123 7.17746ZM12.8137 4.0705C12.69 4.10681 12.5596 4.03567 12.5233 3.91193C12.487 3.78818 12.5581 3.65778 12.6818 3.62147C13.0359 3.51699 13.4151 3.5696 13.7284 3.76522C14.0054 3.02127 14.9593 2.82194 15.5141 3.37694C15.6059 3.46882 15.6059 3.61701 15.5141 3.7089C15.4222 3.80079 15.2741 3.80078 15.1823 3.7089C14.7882 3.3147 14.1683 3.57775 14.1283 4.1609C14.1942 4.26315 14.2446 4.37504 14.2794 4.49064C14.3727 4.80557 14.3453 5.15678 14.1757 5.46949C14.1646 5.4895 14.152 5.50802 14.1365 5.52358C13.9476 5.71253 13.6262 5.48505 13.7735 5.23015C13.8735 5.03602 13.8883 4.81816 13.8306 4.62254C13.7024 4.18906 13.2469 3.94232 12.8137 4.0705ZM7.57277 3.70815C7.48092 3.80003 7.3328 3.80003 7.24096 3.70815C7.14911 3.61626 7.14911 3.46807 7.24096 3.37619C7.7957 2.82119 8.74891 3.02125 9.02666 3.76447C9.33921 3.56886 9.71842 3.51624 10.0732 3.62072C10.1969 3.65703 10.268 3.78744 10.2317 3.91117C10.1954 4.03492 10.065 4.10604 9.94137 4.06974C9.50808 3.94155 9.05333 4.18756 8.92519 4.62179C8.86594 4.82333 8.88297 5.04637 8.99037 5.24496C9.00889 5.27905 9.01999 5.31758 9.01925 5.35685C9.01925 5.59914 8.68375 5.69251 8.5682 5.44799C8.40822 5.14122 8.38452 4.79814 8.47562 4.4899C8.50969 4.3743 8.56079 4.26242 8.62671 4.16015C8.58672 3.57626 7.96678 3.31395 7.57277 3.70815ZM10.1992 15.4609H14.8275C14.9571 15.4609 15.0622 15.3557 15.0622 15.226C15.0622 15.0963 14.9571 14.9911 14.8275 14.9911H10.1992C10.0696 14.9911 9.96439 15.0963 9.96439 15.226C9.96439 15.3564 10.0696 15.4609 10.1992 15.4609ZM10.1992 13.4395H14.8275C14.9571 13.4395 15.0622 13.3343 15.0622 13.2046C15.0622 13.075 14.9571 12.9697 14.8275 12.9697H10.1992C10.0696 12.9697 9.96439 13.075 9.96439 13.2046C9.96439 13.3343 10.0696 13.4395 10.1992 13.4395ZM10.1992 11.4174H14.8275C14.9571 11.4174 15.0622 11.3122 15.0622 11.1825C15.0622 11.0529 14.9571 10.9476 14.8275 10.9476H10.1992C10.0696 10.9476 9.96439 11.0529 9.96439 11.1825C9.96439 11.3129 10.0696 11.4174 10.1992 11.4174ZM10.1992 9.39606H14.8275C14.9571 9.39606 15.0622 9.29084 15.0622 9.16117C15.0622 9.0315 14.9571 8.92627 14.8275 8.92627H10.1992C10.0696 8.92627 9.96439 9.03149 9.96439 9.16117C9.96439 9.29084 10.0696 9.39606 10.1992 9.39606ZM2.02395 7.37471H5.3176C5.6768 7.66442 6.13305 7.83708 6.63003 7.83708H8.19205V17.7492C8.14391 17.7448 8.11132 17.7389 8.10614 17.7307C7.76916 17.2713 7.20034 16.9683 6.55818 16.9683H0.881766C0.533669 16.9683 0.25 16.706 0.25 16.3844V5.98165C0.25 5.66007 0.533669 5.39776 0.881766 5.39776H4.56505C4.54653 5.51039 4.53616 5.62598 4.53616 5.74306C4.53616 6.17283 4.66577 6.57222 4.88798 6.90492H2.02398C1.89437 6.90492 1.78919 7.01014 1.78919 7.13982C1.78919 7.26949 1.89434 7.37471 2.02395 7.37471ZM2.02395 15.4611H6.65223C6.78184 15.4611 6.88702 15.3559 6.88702 15.2262C6.88702 15.0965 6.78185 14.9913 6.65223 14.9913H2.02395C1.89434 14.9913 1.78917 15.0965 1.78917 15.2262C1.78917 15.3566 1.89434 15.4611 2.02395 15.4611ZM2.02395 13.4397H6.65223C6.78184 13.4397 6.88702 13.3345 6.88702 13.2048C6.88702 13.0752 6.78185 12.9699 6.65223 12.9699H2.02395C1.89434 12.9699 1.78917 13.0752 1.78917 13.2048C1.78917 13.3345 1.89434 13.4397 2.02395 13.4397ZM2.02395 11.4176H6.65223C6.78184 11.4176 6.88702 11.3124 6.88702 11.1827C6.88702 11.053 6.78185 10.9478 6.65223 10.9478H2.02395C1.89434 10.9478 1.78917 11.053 1.78917 11.1827C1.78917 11.3131 1.89434 11.4176 2.02395 11.4176ZM2.02395 9.39625H6.65223C6.78184 9.39625 6.88702 9.29103 6.88702 9.16136C6.88702 9.03169 6.78185 8.92646 6.65223 8.92646H2.02395C1.89434 8.92646 1.78917 9.03168 1.78917 9.16136C1.78917 9.29103 1.89434 9.39625 2.02395 9.39625Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Role-based training',
+                      es: 'Entrenamiento basado en roles',
+                      ua: 'Навчання за ролями',
+                      ru: 'Обучение по ролям'
+                    })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                      en: 'and',
+                      es: 'y',
+                      ua: 'і',
+                      ru: 'и'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'departments',
+                      es: 'departamentos',
+                      ua: 'департаментам',
+                      ru: 'департаментам'
+                    })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 3 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.875 9.125V5.75C15.8743 5.15347 15.637 4.58157 15.2152 4.15976C14.7934 3.73795 14.2215 3.50068 13.625 3.5H11.375V2.375C11.3743 1.77847 11.137 1.20657 10.7152 0.784763C10.2934 0.362954 9.72153 0.125682 9.125 0.125H6.875C6.27847 0.125682 5.70657 0.362954 5.28476 0.784763C4.86295 1.20657 4.62568 1.77847 4.625 2.375V3.5H2.375C1.77847 3.50068 1.20657 3.73795 0.784763 4.15976C0.362954 4.58157 0.125682 5.15347 0.125 5.75V9.125H15.875ZM5.75 2.375C5.7503 2.07672 5.86892 1.79075 6.07983 1.57983C6.29075 1.36892 6.57672 1.2503 6.875 1.25H9.125C9.42328 1.2503 9.70925 1.36892 9.92017 1.57983C10.1311 1.79075 10.2497 2.07672 10.25 2.375V3.5H5.75V2.375ZM15.875 10.25V13.625C15.8743 14.2215 15.637 14.7934 15.2152 15.2152C14.7934 15.637 14.2215 15.8743 13.625 15.875H2.375C1.77847 15.8743 1.20657 15.637 0.784763 15.2152C0.362954 14.7934 0.125682 14.2215 0.125 13.625V10.25H5.75V10.8125C5.74996 10.8864 5.76448 10.9595 5.79273 11.0278C5.82098 11.0961 5.86241 11.1581 5.91466 11.2103C5.9669 11.2626 6.02892 11.304 6.09719 11.3323C6.16545 11.3605 6.23862 11.375 6.3125 11.375H9.6875C9.76138 11.375 9.83455 11.3605 9.90281 11.3323C9.97108 11.304 10.0331 11.2626 10.0853 11.2103C10.1376 11.1581 10.179 11.0961 10.2073 11.0278C10.2355 10.9595 10.25 10.8864 10.25 10.8125V10.25H15.875Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Knowledge base',
+                        es: 'Base de conocimientos',
+                        ua: 'База знань',
+                        ru: 'База знаний'
+                      })} <span className="font-normal text-[#71717A]">{getLocalizedText(landingPageData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'centralized',
+                        es: 'actualización centralizada',
+                        ua: 'централізоване',
+                        ru: 'централизованное'
+                      })}<br/>{getLocalizedText(landingPageData?.language, {
+                        en: 'content updates',
+                        es: 'de contenido',
+                        ua: 'оновлення контенту',
+                        ru: 'обновление контента'
+                      })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 4 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.7303 5.13219C16.2366 3.93731 15.0978 3.16353 13.8387 3.16353H10.5405V0.855009C10.5405 0.382616 10.1692 0 9.7108 0C9.25238 0 8.88107 0.382616 8.88107 0.855009V3.16139H5.58289C4.3217 3.16139 3.1829 3.93518 2.68921 5.13005L0.569243 10.5102C0.0900728 11.673 0.523607 13.0196 1.58151 13.6566C2.55023 14.2402 3.77823 14.0649 4.55817 13.2355L5.71358 12.0043C6.172 11.5148 6.8026 11.2391 7.46223 11.2391H11.9552C12.6149 11.2391 13.2455 11.5148 13.7039 12.0043L14.8593 13.2355C15.6392 14.067 16.8672 14.2402 17.8359 13.6566C18.8939 13.0196 19.3274 11.6709 18.8461 10.5081L16.7262 5.13005L16.7303 5.13219ZM7.38963 7.80195H6.55783V8.6591C6.55783 8.95408 6.3255 9.19348 6.03924 9.19348C5.75299 9.19348 5.52066 8.95408 5.52066 8.6591V7.80195H4.68886C4.4026 7.80195 4.17028 7.56255 4.17028 7.26757C4.17028 6.97259 4.4026 6.73319 4.68886 6.73319H5.52066V5.87605C5.52066 5.58107 5.75299 5.34167 6.03924 5.34167C6.3255 5.34167 6.55783 5.58107 6.55783 5.87605V6.73319H7.38963C7.67589 6.73319 7.90821 6.97259 7.90821 7.26757C7.90821 7.56255 7.67589 7.80195 7.38963 7.80195ZM12.7538 8.78308C12.4178 9.12935 11.8723 9.12935 11.5362 8.78308C11.2002 8.4368 11.2002 7.87463 11.5362 7.52835C11.8723 7.18207 12.4178 7.18207 12.7538 7.52835C13.0899 7.87463 13.0899 8.4368 12.7538 8.78308ZM14.4797 7.00466C14.1436 7.35094 13.5981 7.35094 13.2621 7.00466C12.926 6.65838 12.926 6.09621 13.2621 5.74993C13.5981 5.40365 14.1436 5.40365 14.4797 5.74993C14.8157 6.09621 14.8157 6.65838 14.4797 7.00466Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Gamification',
+                        es: 'Gamificación',
+                        ua: 'Гейміфікація',
+                        ru: 'Геймификация'
+                      })}<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'testing',
+                        es: 'pruebas',
+                        ua: 'тестування',
+                        ru: 'тестирование'
+                      })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'and assessment',
+                        es: 'y evaluación',
+                        ua: 'і оцінка',
+                        ru: 'и оценка'
+                      })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'of competencies',
+                        es: 'de competencias',
+                        ua: 'компетенцій',
+                        ru: 'компетенций'
+                      })}</span>
+                    </span>
+                  </div>
+                    </div>
+  
+                    {/* Right Column - Perks 5-8 */}
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                      {/* Perk 5 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.74999 0.125C0.990321 0.125 0.375 0.748672 0.375 1.51865V4.30596H19.6249V1.51865C19.6249 0.748672 19.0095 0.125 18.2499 0.125H1.74999ZM19.625 14.5262V5.23521H0.375147V14.5262C0.375147 15.2962 0.990467 15.9199 1.75014 15.9199H18.25C19.0097 15.9199 19.625 15.2962 19.625 14.5262ZM7.24995 10.5776C7.24995 10.0643 7.66014 9.64851 8.16661 9.64851H10.6874C11.1939 9.64851 11.6041 10.0643 11.6041 10.5776V12.9004C11.6041 13.4137 11.1939 13.8295 10.6874 13.8295H8.16661C7.66014 13.8295 7.24995 13.4137 7.24995 12.9004V10.5776ZM10.6875 10.5776H8.16667V12.9004H10.6875V10.5776ZM13.896 9.64851C13.3895 9.64851 12.9793 10.0643 12.9793 10.5776V12.9004C12.9793 13.4137 13.3895 13.8295 13.896 13.8295H16.4168C16.9232 13.8295 17.3334 13.4137 17.3334 12.9004V10.5776C17.3334 10.0643 16.9232 9.64851 16.4168 9.64851H13.896ZM13.896 10.5776H16.4168V12.9004H13.896V10.5776ZM7.47933 7.09341C7.22611 7.09341 7.021 7.3013 7.021 7.55796C7.021 7.81462 7.22611 8.02251 7.47933 8.02251H16.875C17.1282 8.02251 17.3334 7.81462 17.3334 7.55796C17.3334 7.3013 17.1282 7.09341 16.875 7.09341H7.47933ZM2.89603 10.8098C2.89603 10.5532 3.10114 10.3453 3.35436 10.3453H5.41683C5.67006 10.3453 5.87516 10.5532 5.87516 10.8098C5.87516 11.0665 5.67006 11.2744 5.41683 11.2744H3.35436C3.10114 11.2744 2.89603 11.0665 2.89603 10.8098ZM3.35436 12.9003C3.10114 12.9003 2.89603 13.1082 2.89603 13.3648C2.89603 13.6215 3.10114 13.8294 3.35436 13.8294H5.41683C5.67006 13.8294 5.87516 13.6215 5.87516 13.3648C5.87516 13.1082 5.67006 12.9003 5.41683 12.9003H3.35436ZM18.0209 2.21546C18.0209 2.59989 17.7127 2.9123 17.3334 2.9123C16.9541 2.9123 16.6459 2.59989 16.6459 2.21546C16.6459 1.83104 16.9541 1.51862 17.3334 1.51862C17.7127 1.51862 18.0209 1.83104 18.0209 2.21546ZM3.81255 8.25447C4.19182 8.25447 4.50006 7.94206 4.50006 7.55763C4.50006 7.17321 4.19182 6.86079 3.81255 6.86079C3.43327 6.86079 3.12504 7.17321 3.12504 7.55763C3.12504 7.94206 3.43327 8.25447 3.81255 8.25447ZM14.8125 2.21546C14.8125 2.59989 14.5042 2.9123 14.125 2.9123C13.7457 2.9123 13.4374 2.59989 13.4374 2.21546C13.4374 1.83104 13.7457 1.51862 14.125 1.51862C14.5042 1.51862 14.8125 1.83104 14.8125 2.21546Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Reporting, dashboards',
+                        es: 'Reportes, tableros',
+                        ua: 'Звітність, дашборди',
+                        ru: 'Отчётность, дашборды'
+                      })}<span className="font-normal text-[#71717A]"> {getLocalizedText(landingPageData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br/>{getLocalizedText(landingPageData?.language, {
+                        en: 'training analytics',
+                        es: 'análisis de entrenamiento',
+                        ua: 'аналітика з навчання',
+                        ru: 'аналитика по обучению'
+                      })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 6 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.5124 8.68801C13.0797 7.46398 12.1578 6.5412 10.9337 2.10925C10.8948 1.9683 10.7668 1.87109 10.621 1.87109C10.4752 1.87109 10.3472 1.9683 10.3083 2.10925C9.08427 6.54203 8.16148 7.46384 3.72954 8.68801C3.58858 8.72689 3.49219 8.85489 3.49219 9.0007C3.49219 9.14651 3.5894 9.2745 3.72954 9.31339C8.16231 10.5374 9.08412 11.4602 10.3083 15.8921C10.3472 16.0331 10.4752 16.1303 10.621 16.1303C10.7668 16.1303 10.8948 16.0331 10.9337 15.8921C12.1577 11.4594 13.0805 10.5376 17.5124 9.31339C17.6534 9.2745 17.7498 9.14651 17.7498 9.0007C17.7498 8.85489 17.6526 8.72689 17.5124 8.68801Z" fill="white"/>
+                        <path d="M3.50164 7.14211C3.54052 7.28307 3.66851 7.38027 3.81433 7.38027C3.96014 7.38027 4.08813 7.28306 4.12702 7.14211C4.69408 5.08937 5.08858 4.6948 7.1413 4.12782C7.28226 4.08894 7.37865 3.96095 7.37865 3.81513C7.37865 3.66932 7.28144 3.54133 7.1413 3.50244C5.08856 2.93538 4.694 2.54169 4.12702 0.488157C4.08813 0.347202 3.96014 0.25 3.81433 0.25C3.66851 0.25 3.54052 0.34721 3.50164 0.488157C2.93457 2.5409 2.54007 2.93546 0.487348 3.50244C0.346393 3.54133 0.25 3.66932 0.25 3.81513C0.25 3.96095 0.34721 4.08894 0.487348 4.12782C2.54009 4.69489 2.93466 5.08858 3.50164 7.14211Z" fill="white"/>
+                        <path d="M7.62222 14.3581C5.89998 13.8826 5.56948 13.5521 5.09404 11.83C5.05515 11.689 4.92716 11.5918 4.78135 11.5918C4.63554 11.5918 4.50754 11.689 4.46866 11.83C3.99313 13.5522 3.66263 13.8827 1.94047 14.3581C1.79952 14.397 1.70312 14.525 1.70312 14.6708C1.70312 14.8166 1.80033 14.9446 1.94047 14.9835C3.66271 15.459 3.99322 15.7895 4.46866 17.5117C4.50754 17.6527 4.63554 17.7499 4.78135 17.7499C4.92716 17.7499 5.05515 17.6527 5.09404 17.5117C5.56956 15.7895 5.90007 15.459 7.62222 14.9835C7.76318 14.9446 7.85957 14.8166 7.85957 14.6708C7.85957 14.525 7.76236 14.397 7.62222 14.3581Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Built-in AI assistant',
+                        es: 'Asistente IA integrado',
+                        ua: 'Вбудований AI-асистент',
+                        ru: 'Встроенный AI-ассистент'
+                      })}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{getLocalizedText(landingPageData?.language, {
+                        en: 'for',
+                        es: 'para',
+                        ua: 'для',
+                        ru: 'для'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                        en: 'support and',
+                        es: 'soporte y',
+                        ua: 'підтримки та',
+                        ru: 'сопровождения и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'automation',
+                        es: 'automatización',
+                        ua: 'автоматизації',
+                        ru: 'автоматизации'
+                      })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 7 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.15865 4.69118L7.1962 6.48006H5.12334L6.15865 4.69118ZM7.66131 7.294L7.58305 7.15536H4.73649L3.98964 8.4523C3.96001 8.50317 3.91759 8.5454 3.8666 8.57482C3.81561 8.60424 3.75781 8.61982 3.69894 8.62C3.63999 8.62084 3.58195 8.60536 3.53124 8.57528C3.45708 8.53093 3.4029 8.45967 3.37998 8.37636C3.35707 8.29304 3.3672 8.20409 3.40825 8.12806L5.8702 3.85264C5.89961 3.80155 5.94196 3.75911 5.993 3.72961C6.04403 3.7001 6.10194 3.68456 6.16089 3.68456C6.21984 3.68456 6.27775 3.7001 6.32878 3.72961C6.37982 3.75911 6.42217 3.80155 6.45158 3.85264L8.17114 6.82218C9.24911 5.9031 10.5966 5.35924 12.0105 5.27256C11.8709 4.35359 11.5166 3.48049 10.9762 2.72419C10.4358 1.9679 9.72467 1.34972 8.90052 0.919881C8.07636 0.490041 7.16244 0.260658 6.23298 0.250363C5.30353 0.240067 4.38475 0.44915 3.55127 0.860629C2.7178 1.27211 1.99313 1.87438 1.43613 2.61852C0.879133 3.36267 0.505512 4.2277 0.345615 5.14336C0.185718 6.05901 0.244054 6.99948 0.515885 7.88835C0.787715 8.77723 1.26538 9.58946 1.91007 10.2591L0.378338 11.4554C0.323393 11.4985 0.283279 11.5577 0.263595 11.6247C0.243911 11.6917 0.245639 11.7632 0.268537 11.8292C0.291435 11.8952 0.334361 11.9524 0.391325 11.9928C0.44829 12.0332 0.51645 12.0548 0.586296 12.0547H5.84113C5.84113 11.9786 5.84113 11.9048 5.84113 11.831C5.84062 10.1402 6.49358 8.51465 7.66355 7.294H7.66131ZM11.0915 10.6481C11.3211 11.5526 11.7783 12.3832 12.4197 13.0609C13.0562 12.3788 13.5127 11.5488 13.748 10.6459L11.0915 10.6481ZM18.2 17.1507C18.255 17.1938 18.2951 17.253 18.3148 17.3201C18.3345 17.3871 18.3327 17.4586 18.3098 17.5245C18.2869 17.5905 18.244 17.6477 18.1871 17.6881C18.1301 17.7286 18.0619 17.7502 17.9921 17.75H12.4197C11.0525 17.7521 9.72668 17.2815 8.66688 16.4178C7.60708 15.554 6.87854 14.3504 6.60477 13.0109C6.33099 11.6714 6.52882 10.2785 7.16472 9.0682C7.80063 7.85791 8.83547 6.90473 10.0939 6.37025C11.3522 5.83577 12.7567 5.75287 14.0692 6.1356C15.3818 6.51833 16.5215 7.34314 17.2954 8.47022C18.0693 9.59731 18.4296 10.9573 18.3153 12.3197C18.201 13.6821 17.6192 14.9631 16.6683 15.9455L18.2 17.1507ZM12.9206 13.4925C13.6567 12.6864 14.1768 11.7072 14.4322 10.6459H15.0114C15.1003 10.6459 15.1856 10.6106 15.2485 10.5477C15.3114 10.4848 15.3468 10.3995 15.3468 10.3105C15.3468 10.2215 15.3114 10.1362 15.2485 10.0733C15.1856 10.0104 15.1003 9.97508 15.0114 9.97508H12.7529V9.18797C12.7529 9.09901 12.7176 9.0137 12.6547 8.9508C12.5918 8.8879 12.5064 8.85256 12.4175 8.85256C12.3285 8.85256 12.2432 8.8879 12.1803 8.9508C12.1174 9.0137 12.0821 9.09901 12.0821 9.18797V9.97508H9.82809C9.73913 9.97508 9.65382 10.0104 9.59092 10.0733C9.52801 10.1362 9.49267 10.2215 9.49267 10.3105C9.49267 10.3995 9.52801 10.4848 9.59092 10.5477C9.65382 10.6106 9.73913 10.6459 9.82809 10.6459H10.4072C10.66 11.7045 11.1761 12.6821 11.9077 13.488C11.3171 13.9041 10.6173 14.1374 9.89517 14.1588C9.80622 14.1606 9.72161 14.1976 9.65996 14.2618C9.59832 14.326 9.56469 14.412 9.56647 14.5009C9.56825 14.5899 9.60529 14.6745 9.66945 14.7362C9.73361 14.7978 9.81963 14.8314 9.90859 14.8296H9.92424C10.8284 14.8039 11.7015 14.4941 12.4197 13.9442C13.136 14.4907 14.0057 14.7988 14.9063 14.8252H14.9219C14.966 14.8261 15.0098 14.8183 15.0508 14.8022C15.0918 14.7862 15.1293 14.7622 15.1611 14.7317C15.1928 14.7012 15.2183 14.6647 15.2359 14.6243C15.2536 14.584 15.2632 14.5405 15.264 14.4965C15.2649 14.4524 15.2571 14.4086 15.2411 14.3676C15.225 14.3266 15.2011 14.2891 15.1705 14.2573C15.14 14.2256 15.1035 14.2001 15.0632 14.1824C15.0228 14.1648 14.9794 14.1552 14.9353 14.1543C14.2137 14.1345 13.5135 13.9044 12.9206 13.4925Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Multilingual support',
+                        es: 'Soporte multilingüe',
+                        ua: 'Багатомовність',
+                        ru: 'Мультиязычность'
+                      })}<span className="font-normal text-[#71717A]"> {getLocalizedText(landingPageData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'support for',
+                        es: 'soporte para',
+                        ua: 'підтримка',
+                        ru: 'поддержка'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                        en: 'global',
+                        es: 'equipos globales',
+                        ua: 'глобальних',
+                        ru: 'глобальных'
+                      })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'teams',
+                        es: '',
+                        ua: 'команд',
+                        ru: 'команд'
+                      })}</span>
+                    </span>
+                  </div>
+  
+                      {/* Perk 8 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.84232 8.69152C6.35498 8.69152 6.77058 8.27395 6.77058 7.75885C6.77058 7.24374 6.35498 6.82617 5.84232 6.82617C5.32966 6.82617 4.91406 7.24374 4.91406 7.75885C4.91406 8.27395 5.32966 8.69152 5.84232 8.69152Z" fill="white"/>
+                        <path d="M8.08576 12.735C8.08576 11.4542 7.07123 10.4121 5.8241 10.4121C4.57707 10.4121 3.5625 11.4542 3.5625 12.735V12.9347H8.08571L8.08576 12.735Z" fill="white"/>
+                        <path d="M8.21875 2.32121C8.21875 3.365 9.06392 4.2142 10.1028 4.2142C11.1416 4.2142 11.9868 3.365 11.9868 2.32121V0.125H8.21875V2.32121Z" fill="white"/>
+                        <path d="M0.375 4.35236V14.35C0.375 15.1904 1.05553 15.8742 1.89201 15.8742H18.3018C19.1382 15.8742 19.8188 15.1904 19.8188 14.35V4.35236C19.8188 3.51189 19.1382 2.82812 18.3018 2.82812H12.9471C12.7071 4.19069 11.5208 5.22919 10.0969 5.22919C8.67297 5.22919 7.48662 4.19074 7.24668 2.82812H1.89201C1.05553 2.82812 0.375 3.51189 0.375 4.35236ZM11.7118 8.03185H14.5338C14.813 8.03185 15.0394 8.25936 15.0394 8.53992C15.0394 8.82048 14.813 9.048 14.5338 9.048H11.7118C11.4326 9.048 11.2061 8.82048 11.2061 8.53992C11.2061 8.25936 11.4325 8.03185 11.7118 8.03185ZM11.7118 11.277H17.0621C17.3414 11.277 17.5678 11.5045 17.5678 11.7851C17.5678 12.0656 17.3414 12.2931 17.0621 12.2931H11.7118C11.4326 12.2931 11.2061 12.0656 11.2061 11.7851C11.2061 11.5045 11.4325 11.277 11.7118 11.277ZM2.54725 12.7334C2.54725 11.1861 3.58438 9.8816 4.9866 9.50451C4.34678 9.18564 3.90573 8.5226 3.90573 7.75774C3.90573 6.68316 4.77584 5.80891 5.84532 5.80891C6.91481 5.80891 7.78497 6.68311 7.78497 7.75769C7.78497 8.52986 7.33568 9.19859 6.686 9.5138C8.07178 9.90218 9.09318 11.198 9.09318 12.7334V13.4411C9.09318 13.7217 8.86675 13.9492 8.58752 13.9492H3.05292C2.77369 13.9492 2.54725 13.7217 2.54725 13.4411V12.7334Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Flexible access management',
+                        es: 'Gestión flexible de acceso',
+                        ua: 'Гнучке управління',
+                        ru: 'Гибкое управление'
+                      })}<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> {getLocalizedText(landingPageData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'доступами',
+                        ru: 'доступами'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                        en: 'branding',
+                        es: 'marca',
+                        ua: 'і брендуванням',
+                        ru: 'и брендированием'
+                      })}</span>
+                    </span>
+                  </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              {/* Service 4 */}
+              <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+                <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                  <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Service 4:',
+                      es: 'Servicio 4:',
+                      ua: 'Послуга 4:',
+                      ru: 'Услуга 4:'
+                    })}
+                  </span>
+                </div>
+                
+                <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
+                  Expert-as-a-Service — {getLocalizedText(landingPageData?.language, {
+                    en: 'Methodologist:',
+                    es: 'Metodólogo:',
+                    ua: 'Методолог:',
+                    ru: 'Методолог:'
+                  })}
+                </h3>
+  
+                <div className="xl:h-[531px] xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile.png"
+                    alt="Card 1"
+                    width={300}
+                    height={300}
+                    className="w-full xl:h-[490px] xl:w-[470px]"
+                  />
+  
+                  <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">
+                    <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] w-fit">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
+                        <path d="M2.60109 5.51323C2.6322 5.62599 2.73458 5.70374 2.85122 5.70374C2.96786 5.70374 3.07025 5.62598 3.10136 5.51323C3.55497 3.87117 3.87054 3.55555 5.51259 3.102C5.62534 3.0709 5.70245 2.96851 5.70245 2.85187C5.70245 2.73523 5.62469 2.63284 5.51259 2.60174C3.87053 2.14813 3.5549 1.8332 3.10136 0.19051C3.07025 0.0777549 2.96786 0 2.85122 0C2.73458 0 2.6322 0.0777615 2.60109 0.19051C2.14748 1.83257 1.8319 2.14819 0.189863 2.60174C0.0771079 2.63284 0 2.73523 0 2.85187C0 2.96851 0.0777615 3.0709 0.189863 3.102C1.83192 3.55561 2.14755 3.87054 2.60109 5.51323Z" fill="#09090B"/>
+                        <path d="M5.89895 11.2861C4.52127 10.9057 4.25689 10.6414 3.87657 9.26375C3.84546 9.151 3.74308 9.07324 3.62644 9.07324C3.5098 9.07324 3.40741 9.151 3.37631 9.26375C2.99592 10.6414 2.73154 10.9058 1.35393 11.2861C1.24117 11.3172 1.16406 11.4196 1.16406 11.5363C1.16406 11.6529 1.24182 11.7553 1.35393 11.7864C2.7316 12.1668 2.99598 12.4312 3.37631 13.8088C3.40741 13.9215 3.5098 13.9993 3.62644 13.9993C3.74308 13.9993 3.84546 13.9215 3.87657 13.8088C4.25696 12.4311 4.52134 12.1667 5.89895 11.7864C6.0117 11.7553 6.08881 11.6529 6.08881 11.5363C6.08881 11.4196 6.01105 11.3172 5.89895 11.2861Z" fill="#09090B"/>
+                      </svg>
+                      
+                      <span className="font-semibold text-[14px] text-[#09090B]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Trial Package',
+                          es: 'Paquete de Prueba',
+                          ua: 'Пробний пакет',
+                          ru: 'Пробный пакет'
+                        })}
+                      </span>
+                    </div>
+  
+                    <div>
+                      <span className="font-bold text-[30px] leading-[120%]">
+                        <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(landingPageData?.language, {
+                          en: 'hours',
+                          es: 'horas',
+                          ua: 'годин',
+                          ru: 'часов'
+                        })}
+                      </span>
+                    </div>
+  
+                    <div className="flex flex-col gap-[15px] xl:gap-[10px]">
+                      {/* Card 1 */}
+                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.3415 8.79931L16.0405 9.27831C16.1665 9.46431 16.2785 9.65932 16.3775 9.8613L16.9425 9.8413C17.3145 9.8273 17.6455 10.0703 17.7435 10.4283C18.0255 11.4583 18.0245 12.5433 17.7435 13.5712C17.6465 13.9302 17.3135 14.1732 16.9425 14.1602L16.3775 14.1392C16.2795 14.3412 16.1665 14.5362 16.0405 14.7222L16.3415 15.2012C16.5385 15.5162 16.4935 15.9262 16.2325 16.1892C15.4825 16.9472 14.5425 17.4902 13.5105 17.7612C13.1515 17.8552 12.7745 17.6902 12.6005 17.3612L12.3354 16.8622C12.1114 16.8772 11.8864 16.8772 11.6624 16.8612L11.3985 17.3612C11.2235 17.6892 10.8475 17.8552 10.4885 17.7612C9.45647 17.4902 8.51546 16.9472 7.76538 16.1892C7.50439 15.9252 7.45938 15.5162 7.65638 15.2012L7.95739 14.7222C7.83139 14.5362 7.71939 14.3412 7.62039 14.1392L7.0554 14.1592C6.6844 14.1732 6.35239 13.9302 6.2544 13.5722C5.97239 12.5422 5.97339 11.4572 6.2544 10.4293C6.3524 10.0703 6.6844 9.82729 7.0554 9.8403L7.62039 9.8613C7.71839 9.6593 7.83139 9.46429 7.95739 9.27831L7.65738 8.79931C7.45938 8.4843 7.50438 8.07432 7.76538 7.8113C8.51538 7.05331 9.45539 6.51031 10.4885 6.23931C10.8474 6.14531 11.2235 6.31031 11.3975 6.63931L11.6625 7.1383C11.8865 7.1233 12.1125 7.1233 12.3355 7.1393L12.6005 6.63931C12.7745 6.31132 13.1505 6.14531 13.5105 6.23931C14.5415 6.51031 15.4825 7.05331 16.2325 7.8113C16.4935 8.07529 16.5385 8.4843 16.3415 8.79931ZM13.1986 9.9233C12.0526 9.26131 10.5836 9.6553 9.92256 10.8013C9.26057 11.9473 9.65356 13.4153 10.7996 14.0773C11.9466 14.7393 13.4146 14.3453 14.0766 13.1993C14.7376 12.0533 14.3446 10.5853 13.1986 9.9233ZM12.3986 11.3093C12.7806 11.5293 12.9106 12.0173 12.6906 12.3993C12.4706 12.7813 11.9816 12.9123 11.5996 12.6913C11.2186 12.4713 11.0876 11.9833 11.3076 11.6013C11.5286 11.2193 12.0166 11.0883 12.3986 11.3093ZM2.03162 7.83821C3.1266 5.22214 5.22163 3.1273 7.8377 2.03315C7.8117 2.21815 7.7987 2.40714 7.7987 2.60014C7.7987 2.99315 7.8537 3.37413 7.9547 3.73514C6.12271 4.63514 4.63361 6.12413 3.73479 7.95607C3.37378 7.85407 2.9928 7.80007 2.59879 7.80007C2.40679 7.80007 2.2176 7.81321 2.03162 7.83821ZM16.1615 2.03315C18.7766 3.12714 20.8724 5.22214 21.9666 7.83821C21.7806 7.81321 21.5916 7.80021 21.3996 7.80021C21.0056 7.80021 20.6246 7.85421 20.2636 7.95621C19.3646 6.12422 17.8746 4.63512 16.0437 3.7363C16.1447 3.37429 16.1987 2.99332 16.1997 2.6003C16.1997 2.4073 16.1865 2.21814 16.1615 2.03315ZM21.9666 16.162C20.8716 18.7781 18.7766 20.873 16.1605 21.9671C16.1865 21.7821 16.1995 21.5931 16.1995 21.4001C16.1995 21.0071 16.1445 20.6261 16.0435 20.2651C17.8755 19.3651 19.3646 17.8761 20.2634 16.0442C20.6254 16.1462 21.0054 16.2002 21.3994 16.2002C21.5924 16.2002 21.7816 16.187 21.9666 16.162ZM7.8377 21.9671C5.22163 20.8731 3.12576 18.7781 2.03162 16.162C2.21762 16.187 2.4066 16.2 2.5986 16.2C2.99261 16.2 3.37359 16.146 3.7346 16.044C4.6336 17.876 6.1236 19.3651 7.95553 20.264C7.85353 20.626 7.79953 21.0069 7.79953 21.4C7.79953 21.593 7.8127 21.7821 7.8377 21.9671ZM11.9997 0C13.4348 0 14.5997 1.165 14.5997 2.59994C14.5997 4.03487 13.4337 5.19987 11.9987 5.19987C10.5637 5.19987 9.39981 4.03487 9.39981 2.59994C9.39981 1.165 10.5638 0 11.9997 0ZM11.9997 18.8001C13.4348 18.8001 14.5987 19.9651 14.5997 21.4001C14.5997 22.8351 13.4347 24 11.9987 24C10.5637 24 9.39878 22.835 9.39878 21.4001C9.39978 19.9651 10.5648 18.8001 11.9997 18.8001ZM21.3998 9.40006C22.8348 9.40006 23.9997 10.5651 23.9987 12C23.9987 13.435 22.8347 14.5999 21.3998 14.5999C19.9638 14.5999 18.7999 13.4349 18.7999 12C18.7989 10.565 19.9649 9.40006 21.3998 9.40006ZM2.59891 9.40006C4.03492 9.40006 5.19987 10.5651 5.19987 12C5.19987 13.4349 4.03387 14.5999 2.59891 14.5999C1.1649 14.5999 0 13.4349 0 12C0 10.5651 1.165 9.40006 2.59891 9.40006Z" fill="#0F58F9"/>
+                          </svg>
+                        </div>
+  
+                        <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Structures and systematizes your knowledge',
+                            es: 'Estructura y sistematiza tu conocimiento',
+                            ua: 'Структурує та систематизує ваші знання',
+                            ru: 'Структурирует и систематизирует ваши знания'
+                          })}
+                        </span>
+                      </div>
+  
+                      {/* Card 2 */}
+                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.7031 18.2383L15.5326 21.093L21.343 15.2826L18.5136 12.4531L12.7031 18.2383Z" fill="#0F58F9"/>
+                            <path d="M23.8486 12L21.8023 9.95373C21.5749 9.72636 21.2465 9.72636 21.0191 9.95373L19.7812 11.1916L22.6107 14.021L23.8486 12.7832C24.0507 12.5811 24.0507 12.2274 23.8486 12Z" fill="#0F58F9"/>
+                            <path d="M10.6083 20.3376C10.5073 20.4386 10.4567 20.5649 10.4315 20.6913L10.1536 22.9396C10.1031 23.3438 10.4315 23.6723 10.8357 23.6217L13.0841 23.3438C13.2104 23.3186 13.3367 23.2681 13.4377 23.167L14.2967 22.3081L11.4672 19.5039L10.6083 20.3376Z" fill="#0F58F9"/>
+                            <path d="M18.0629 10.4083V1.11156C18.0629 0.505255 17.5576 0 16.9513 0H1.11156C0.505255 0 0 0.505255 0 1.11156V16.9766C0 17.5829 0.505255 18.0881 1.11156 18.0881H10.383L18.0629 10.4083ZM10.1304 12.5809C10.1304 13.1872 9.62512 13.6924 9.01881 13.6924C8.4125 13.6924 7.90725 13.1872 7.90725 12.5809V10.1556H5.48202C4.87572 10.1556 4.37046 9.65038 4.37046 9.04407C4.37046 8.43777 4.87572 7.93251 5.48202 7.93251H7.90725V5.50728C7.90725 4.90098 8.4125 4.39572 9.01881 4.39572C9.62512 4.39572 10.1304 4.90098 10.1304 5.50728V7.93251H12.5556C13.1619 7.93251 13.6672 8.43777 13.6672 9.04407C13.6672 9.65038 13.1619 10.1556 12.5556 10.1556H10.1304V12.5809Z" fill="#0F58F9"/>
+                          </svg>
+                        </div>
+  
+                        <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Creates courses, video lessons, tests, presentations',
+                            es: 'Crea cursos, lecciones en video, pruebas, presentaciones',
+                            ua: 'Створює курси, відеоуроки, тести, презентації',
+                            ru: 'Создаёт курсы, видеоуроки, тесты, презентации'
+                          })}
+                        </span>
+                      </div>
+  
+                      {/* Card 3 */}
+                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                          <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18.5143 4.87381C18.1546 4.87381 17.7949 4.91032 17.4532 4.98333C17.1655 2.19039 14.8276 0 11.9951 0C9.17167 0 6.83365 2.19054 6.54591 4.98333C6.20871 4.9126 5.87038 4.87609 5.52533 4.87381C3.01998 4.85441 0.858486 6.45053 0.204455 8.90586C-0.788015 12.6309 1.97135 16 5.48504 16H10.8735C11.1219 16 11.3231 15.7958 11.3231 15.5436V10.6322C11.3231 10.6322 10.261 11.7103 10.2576 11.7137C9.65852 12.3218 8.68176 11.3772 9.30446 10.7462L11.5221 8.49524C11.7851 8.22827 12.2122 8.22827 12.4752 8.49524C12.4752 8.49524 14.685 10.7383 14.6928 10.7462C15.2964 11.3589 14.3612 12.3458 13.7397 11.7137L12.673 10.631V15.5425C12.673 15.7946 12.8742 15.9989 13.1226 15.9989H18.329C21.1119 15.9989 23.5972 13.976 23.9534 11.1738C24.3839 7.78433 21.774 4.87384 18.5146 4.87384L18.5143 4.87381Z" fill="#0F58F9"/>
+                          </svg>
+                        </div>
+                        
+                        <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Uploads and adapts materials to LMS',
+                            es: 'Sube y adapta materiales al LMS',
+                            ua: 'Завантажує та адаптує матеріали в LMS',
+                            ru: 'Загружает и адаптирует материалы в LMS'
+                          })}
+                        </span>
+                      </div>
+  
+                      {/* Card 4 */}
+                      <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                        <div className="w-[40px] h-[40px] xl:w-[50px] xl:h-[50px] rounded-[4px] flex-shrink-0 flex items-center justify-center" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>
+                          <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18.3489 20.0391H14.1202C13.8936 20.0391 13.7109 20.1893 13.7109 20.374V21.0653C13.7109 21.2499 13.8947 21.4002 14.1202 21.4002H18.3489C18.5755 21.4002 18.7581 21.2499 18.7581 21.0653V20.374C18.7593 20.1894 18.5755 20.0391 18.3489 20.0391Z" fill="#0F58F9"/>
+                            <path d="M3.23586 16.1156V14.1211H1.09375L3.23586 16.1156Z" fill="#0F58F9"/>
+                            <path d="M11.724 13.9308C11.7044 13.6453 11.5529 13.3866 11.3044 13.2191L9.55182 12.0222C8.68826 11.4372 8.48711 10.3358 9.09288 9.52001C9.58535 8.8491 10.5865 8.66768 11.3194 9.11209L13.8869 10.6761L13.8857 1.41113C13.8857 0.962431 13.4904 0.599609 13.0118 0.599609L1.27238 0.600683C0.789169 0.600683 0.398438 0.963505 0.398438 1.4122V13.2158H3.72304C3.99124 13.2158 4.21087 13.4198 4.21087 13.6688V16.7559H12.1436C11.9679 16.4253 11.8453 16.0582 11.8268 15.6685L11.724 13.9308ZM7.63291 11.9277C7.63291 12.1811 7.41326 12.3807 7.14508 12.3807C6.87689 12.3807 6.65725 12.1811 6.65725 11.9277V11.2204C6.65725 10.9713 6.87689 10.7674 7.14508 10.7674C7.41326 10.7674 7.63291 10.9713 7.63291 11.2204V11.9277ZM7.63291 8.00219V9.66604C7.63291 9.91508 7.41326 10.119 7.14508 10.119C6.87689 10.119 6.65725 9.91507 6.65725 9.66604V8.00219C6.65725 7.21749 7.15549 6.50152 7.93119 6.17088C8.60513 5.88104 9.03981 5.24663 9.02478 4.55748C9.01553 3.6558 8.2144 2.88506 7.24798 2.83461C6.28617 2.78952 5.46191 3.40139 5.29083 4.26229C5.2469 4.51133 4.99258 4.67449 4.72437 4.6294C4.46079 4.58432 4.28507 4.34817 4.33363 4.09911C4.59258 2.7938 5.86191 1.8642 7.30104 1.92754C8.77033 2.00483 9.9807 3.17382 10.0004 4.54245C10.02 5.59442 9.3657 6.55516 8.33568 6.99421C7.9068 7.17777 7.63291 7.57174 7.63291 8.00219Z" fill="#0F58F9"/>
+                            <path d="M18.9981 10.3967L14.8688 6.97461V11.2717L15.1855 11.4671C15.4144 11.6077 15.4734 11.8889 15.3266 12.0972C15.1797 12.3054 14.878 12.3645 14.6526 12.2239L10.787 9.87086C10.4946 9.69374 10.0992 9.76673 9.90382 10.034C9.5963 10.4462 9.6992 10.999 10.1327 11.2942L11.8899 12.4868C12.3731 12.8174 12.6713 13.3252 12.7002 13.8834L12.8031 15.6191C12.8563 16.4758 13.5256 17.1874 14.4389 17.342L15.2886 17.4644C15.5568 17.5052 15.7325 17.7413 15.6839 17.9904C15.64 18.2083 15.4354 18.3618 15.2007 18.3618C15.1718 18.3618 15.1417 18.3575 15.1128 18.3532L14.2678 18.2309C14.1892 18.2223 14.121 18.1944 14.0528 18.1761V19.3226H18.3486V15.3885C18.3486 15.352 18.3533 15.3155 18.3637 15.2801L19.3844 11.4683C19.4677 11.0807 19.3255 10.6685 18.9983 10.397L18.9981 10.3967Z" fill="#0F58F9"/>
+                          </svg>
+                        </div>
+                        
+                        <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Performs technical and methodological',
+                            es: 'Realiza tareas técnicas y metodológicas',
+                            ua: 'Виконує технічні та методологічні',
+                            ru: 'Выполняет технические и методологические'
+                          })}<br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
+                            en: 'tasks upon your request',
+                            es: 'a tu solicitud',
+                            ua: 'завдання за вашим запитом',
+                            ru: 'задачи по вашему запросу'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div 
+                  className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
+                  style={{ background: '#EBF2FF87' }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
+                    <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
+                  </svg>
+                  <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'You get',
+                      es: 'Obtienes',
+                      ua: 'Ви отримуєте',
+                      ru: 'Вы приобретаете'
+                    })} <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">{getLocalizedText(landingPageData?.language, {
+                      en: 'hourly',
+                      es: 'acceso por horas',
+                      ua: 'погодинний',
+                      ru: 'почасовой'
+                    })} <br className="xl:hidden"/>{getLocalizedText(landingPageData?.language, {
+                      en: 'access to a professional',
+                      es: 'a un',
+                      ua: 'доступ до професійного',
+                      ru: 'доступ к профессиональному'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'methodologist',
+                      es: 'metodólogo',
+                      ua: 'методологу',
+                      ru: 'методологу'
+                    })}</span> {getLocalizedText(landingPageData?.language, {
+                      en: 'on a prepaid',
+                      es: 'en un modelo prepago.',
+                      ua: 'за передоплаченою',
+                      ru: 'по предоплаченной'
+                    })}<br/> {getLocalizedText(landingPageData?.language, {
+                      en: 'model. The methodologist is your',
+                      es: 'El metodólogo es tu',
+                      ua: 'моделлю. Методолог — це ваша',
+                      ru: 'модели. Методолог — это ваша'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: '"right hand" that takes on',
+                      es: '"mano derecha" que se encarga de',
+                      ua: '«права рука», яка бере на',
+                      ru: '«правая рука», которая берёт на'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'all operational',
+                      es: 'todo el trabajo operativo:',
+                      ua: 'себе всю операційну',
+                      ru: 'себя всю операционную'
+                    })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'work: from',
+                      es: 'desde',
+                      ua: 'роботу: від',
+                      ru: 'работу: от'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'knowledge structuring to',
+                      es: 'estructuración del conocimiento hasta',
+                      ua: 'структурування знань до',
+                      ru: 'структурирования знаний до'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'preparing training materials',
+                      es: 'preparar materiales de entrenamiento',
+                      ua: 'підготовки навчальних матеріалів',
+                      ru: 'подготовки обучающих материалов'
+                    })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'and uploading them to',
+                      es: 'y subirlos al',
+                      ua: 'і завантаження їх у',
+                      ru: 'и загрузки их в'
+                    })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                      en: 'the system.',
+                      es: 'sistema.',
+                      ua: 'систему.',
+                      ru: 'систему.'
+                    })}
+                  </span>
+                </div> 
+              </div>
+            </section>
+  
+            {/* Section 6 */}
+            <section className="bg-[#3E3AD9] pt-[60px] xl:pt-[120px] px-[20px] xl:px-[120px]">
+              <div className="relative bg-white rounded-t-lg px-8 xl:px-[255px] pt-[30px] xl:pt-[71px] pb-[100px] xl:pb-[172px] flex flex-col items-center justify-center overflow-hidden">
+                <svg 
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '204px',
+                    height: '195px',
+                    top: '121px',
+                    left: '-42px',
+                    opacity: 1
+                  }}
+                  width="204" 
+                  height="195" 
+                  viewBox="0 0 162 165" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M-23.4889 0V195M0.358345 0V195M24.2056 0V195M48.0528 0V195M71.9 0V195M95.7473 0V195M119.594 0V195M143.442 0V195M162 2.26744L-42 2.26743M162 26.1228L-42 26.1228M162 49.9782L-42 49.9782M162 73.8336L-42 73.8336M162 97.6889L-42 97.6889M162 121.544L-42 121.544M162 145.4L-42 145.4M162 169.255L-42 169.255M162 193.11L-42 193.11" stroke="url(#paint0_linear_379_21259)" strokeWidth="0.54"/>
+                  <defs>
+                    <linearGradient id="paint0_linear_379_21259" x1="5.97777" y1="190.465" x2="132.587" y2="29.7078" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#0094FF" stopOpacity="0.6"/>
+                      <stop offset="1" stopColor="white" stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+  
+                {/* Left SVG - visible only on XL screens */}
+                <svg 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '352px',
+                    height: '335.8px',
+                    top: '59px',
+                    left: '0',
+                    opacity: 1
+                  }}
+                  width="352" 
+                  height="336" 
+                  viewBox="0 0 352 336" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M31.9408 0V335.804M73.0889 0V335.804M114.237 0V335.804M155.385 0V335.804M196.533 0V335.804M237.682 0V335.804M278.83 0V335.804M319.978 0V335.804M352 3.90469L0 3.90468M352 44.9853L0 44.9853M352 86.066L0 86.0659M352 127.147L0 127.147M352 168.227L0 168.227M352 209.308L0 209.308M352 250.389L0 250.388M352 291.469L0 291.469M352 332.55L0 332.55" stroke="url(#paint0_linear_379_19289_left)" strokeWidth="0.539877"/>
+                  <defs>
+                    <linearGradient id="paint0_linear_379_19289_left" x1="82.7852" y1="327.994" x2="300.713" y2="50.7385" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#0094FF" stopOpacity="0.6"/>
+                      <stop offset="1" stopColor="white" stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+  
+                {/* Right SVG - visible only on XL screens */}
+                <svg 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '352px',
+                    height: '335.8px',
+                    top: '59px',
+                    right: '0',
+                    opacity: 1
+                  }}
+                  width="352" 
+                  height="336" 
+                  viewBox="0 0 352 336" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M31.9408 0V335.804M73.0889 0V335.804M114.237 0V335.804M155.385 0V335.804M196.533 0V335.804M237.682 0V335.804M278.83 0V335.804M319.978 0V335.804M352 3.90469L0 3.90468M352 44.9853L0 44.9853M352 86.066L0 86.0659M352 127.147L0 127.147M352 168.227L0 168.227M352 209.308L0 209.308M352 250.389L0 250.388M352 291.469L0 291.469M352 332.55L0 332.55" stroke="url(#paint0_linear_379_19289_right)" strokeWidth="0.539877"/>
+                  <defs>
+                    <linearGradient id="paint0_linear_379_19289_right" x1="82.7852" y1="327.994" x2="300.713" y2="50.7385" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#0094FF" stopOpacity="0.6"/>
+                      <stop offset="1" stopColor="white" stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                
+                <div className="flex flex-col gap-[30px] xl:gap-[40px] z-10 relative">
+                  <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] text-[#09090B] text-center">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Book a Demo',
+                      es: 'Reservar una Demo',
+                      ua: 'Записатися на демонстрацію',
+                      ru: 'Записаться на демонстрацию'
+                    })}
+                  </h2>
+                  
+                  <div 
+                    className="relative w-fit mx-auto block pl-[2px] pt-[2px]"
+                    style={{
+                      boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
+                    }}
+                  >
+                    <div 
+                      className="absolute inset-0 px-12 py-3.5 rounded-md"
+                      style={{
+                        background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)'
+                      }}
+                    ></div>
+                    <button 
+                      className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10 cursor-pointer transition-colors duration-200 hover:bg-[#0D4ED8]"
+                      onClick={() => window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank')}
+                    >
+                      <span className="text-white font-semibold text-[16px] xl:text-[18px]">{getLocalizedText(landingPageData?.language, {
+                        en: 'Book Now',
+                        es: 'Reservar Ahora',
+                        ua: 'Забронювати Зараз',
+                        ru: 'Забронировать'
+                      })}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+          
+          {/* Footer */}
+          <footer className="px-[20px] xl:px-[120px] py-[30px] bg-black h-[122px] xl:h-[129px] flex flex-col gap-[13px] items-center justify-center xl:items-start xl:justify-start">
+            <svg width="146" height="32" className="xl:h-[37px]" viewBox="0 0 146 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M41.785 20.4795C41.785 20.89 41.8587 21.2378 42.0061 21.5229C42.1535 21.808 42.3462 22.0417 42.5843 22.2242C42.8337 22.3952 43.1228 22.5264 43.4516 22.6176C43.7803 22.6974 44.1204 22.7373 44.4719 22.7373C44.7099 22.7373 44.965 22.7202 45.2371 22.686C45.5092 22.6404 45.7643 22.5606 46.0023 22.4465C46.2404 22.3325 46.4388 22.1786 46.5975 21.9847C46.7562 21.7794 46.8356 21.5229 46.8356 21.215C46.8356 20.8843 46.7279 20.6163 46.5125 20.4111C46.3084 20.2058 46.0364 20.0348 45.6962 19.8979C45.3561 19.7611 44.9707 19.6413 44.5399 19.5387C44.1091 19.4361 43.6726 19.3221 43.2305 19.1966C42.777 19.0826 42.3349 18.9457 41.9041 18.7861C41.4733 18.6151 41.0878 18.3984 40.7477 18.1361C40.4076 17.8738 40.1299 17.5488 39.9145 17.1611C39.7104 16.762 39.6084 16.2831 39.6084 15.7243C39.6084 15.0972 39.7387 14.5555 39.9995 14.0994C40.2716 13.6318 40.623 13.2441 41.0538 12.9362C41.4846 12.6284 41.9721 12.4003 42.5163 12.2521C43.0604 12.1038 43.6046 12.0297 44.1488 12.0297C44.7836 12.0297 45.3902 12.1038 45.9683 12.2521C46.5578 12.3889 47.0793 12.617 47.5328 12.9362C47.9863 13.2555 48.3434 13.666 48.6042 14.1678C48.8762 14.6581 49.0123 15.2568 49.0123 15.9638H46.4275C46.4048 15.5989 46.3254 15.2967 46.1894 15.0572C46.0647 14.8178 45.8946 14.6296 45.6792 14.4928C45.4638 14.3559 45.2144 14.259 44.931 14.202C44.6589 14.145 44.3585 14.1165 44.0297 14.1165C43.8143 14.1165 43.5989 14.1393 43.3835 14.1849C43.1681 14.2305 42.9697 14.3103 42.7884 14.4244C42.6183 14.5384 42.4766 14.6809 42.3632 14.852C42.2499 15.023 42.1932 15.2397 42.1932 15.502C42.1932 15.7414 42.2385 15.9353 42.3292 16.0835C42.4199 16.2318 42.5956 16.3686 42.8564 16.4941C43.1285 16.6195 43.4969 16.7449 43.9617 16.8704C44.4379 16.9958 45.0557 17.1554 45.8153 17.3493C46.042 17.3949 46.3538 17.4804 46.7506 17.6059C47.1587 17.7199 47.5612 17.9081 47.958 18.1703C48.3547 18.4326 48.6948 18.7861 48.9783 19.2308C49.273 19.6641 49.4204 20.2229 49.4204 20.9071C49.4204 21.4659 49.3127 21.9847 49.0973 22.4636C48.8819 22.9426 48.5588 23.3588 48.128 23.7123C47.7085 24.0544 47.1814 24.3224 46.5465 24.5162C45.923 24.7101 45.1974 24.807 44.3698 24.807C43.701 24.807 43.0491 24.7215 42.4142 24.5504C41.7907 24.3908 41.2352 24.1342 40.7477 23.7807C40.2716 23.4272 39.8918 22.9768 39.6084 22.4294C39.3249 21.8821 39.1889 21.2321 39.2002 20.4795H41.785Z" fill="white"/>
+              <path d="M51.332 15.6901H53.6107V16.8875H53.6447C53.9622 16.4313 54.342 16.0778 54.7841 15.827C55.2376 15.5761 55.7534 15.4507 56.3316 15.4507C56.8871 15.4507 57.3916 15.559 57.845 15.7756C58.3099 15.9923 58.6613 16.3743 58.8994 16.9217C59.1601 16.534 59.5116 16.1919 59.9537 15.8954C60.4072 15.5989 60.94 15.4507 61.5522 15.4507C62.017 15.4507 62.4478 15.5077 62.8446 15.6217C63.2414 15.7357 63.5815 15.9182 63.8649 16.1691C64.1483 16.4199 64.3694 16.7506 64.5281 17.1611C64.6868 17.5603 64.7662 18.0449 64.7662 18.615V24.5333H62.3514V19.5216C62.3514 19.2251 62.3401 18.9457 62.3174 18.6835C62.2948 18.4212 62.2324 18.1931 62.1304 17.9993C62.0283 17.8054 61.8753 17.6515 61.6712 17.5374C61.4785 17.4234 61.2121 17.3664 60.872 17.3664C60.5319 17.3664 60.2541 17.4348 60.0387 17.5717C59.8347 17.6971 59.6703 17.8681 59.5456 18.0848C59.4322 18.2901 59.3528 18.5295 59.3075 18.8032C59.2735 19.0655 59.2565 19.3335 59.2565 19.6071V24.5333H56.8417V19.5729C56.8417 19.3106 56.8361 19.0541 56.8247 18.8032C56.8134 18.5409 56.7624 18.3015 56.6717 18.0848C56.5923 17.8681 56.4506 17.6971 56.2465 17.5717C56.0538 17.4348 55.7647 17.3664 55.3793 17.3664C55.2659 17.3664 55.1129 17.3949 54.9201 17.4519C54.7388 17.4975 54.5574 17.5945 54.376 17.7427C54.2059 17.8795 54.0585 18.0848 53.9338 18.3585C53.8091 18.6208 53.7468 18.9685 53.7468 19.4019V24.5333H51.332V15.6901Z" fill="white"/>
+              <path d="M67.0832 18.4098C67.1172 17.8396 67.2589 17.3664 67.5083 16.9901C67.7577 16.6138 68.0751 16.3116 68.4606 16.0835C68.846 15.8555 69.2768 15.6958 69.753 15.6046C70.2405 15.502 70.7279 15.4507 71.2154 15.4507C71.6576 15.4507 72.1054 15.4849 72.5588 15.5533C73.0123 15.6103 73.4261 15.73 73.8002 15.9125C74.1743 16.0949 74.4804 16.3515 74.7185 16.6822C74.9566 17.0015 75.0756 17.4291 75.0756 17.9651V22.5663C75.0756 22.9654 75.0983 23.3474 75.1436 23.7123C75.189 24.0772 75.2683 24.3509 75.3817 24.5333H72.933C72.8876 24.3965 72.8479 24.2596 72.8139 24.1228C72.7913 23.9746 72.7742 23.8263 72.7629 23.6781C72.3774 24.0772 71.924 24.3566 71.4025 24.5162C70.881 24.6759 70.3482 24.7557 69.804 24.7557C69.3845 24.7557 68.9934 24.7044 68.6306 24.6017C68.2678 24.4991 67.9504 24.3395 67.6783 24.1228C67.4063 23.9061 67.1909 23.6325 67.0321 23.3018C66.8848 22.9711 66.8111 22.5777 66.8111 22.1215C66.8111 21.6198 66.8961 21.2093 67.0661 20.89C67.2475 20.5593 67.4743 20.297 67.7464 20.1032C68.0298 19.9093 68.3472 19.7668 68.6987 19.6755C69.0614 19.5729 69.4242 19.4931 69.787 19.4361C70.1498 19.3791 70.5069 19.3335 70.8583 19.2992C71.2098 19.265 71.5215 19.2137 71.7936 19.1453C72.0657 19.0769 72.2811 18.98 72.4398 18.8545C72.5985 18.7177 72.6722 18.5238 72.6609 18.273C72.6609 18.0107 72.6155 17.8054 72.5248 17.6572C72.4455 17.4975 72.3321 17.3778 72.1847 17.298C72.0487 17.2068 71.8843 17.1497 71.6916 17.1269C71.5102 17.0927 71.3118 17.0756 71.0964 17.0756C70.6203 17.0756 70.2461 17.1782 69.9741 17.3835C69.702 17.5888 69.5432 17.9309 69.4979 18.4098H67.0832ZM72.6609 20.2058C72.5588 20.297 72.4285 20.3711 72.2698 20.4282C72.1224 20.4738 71.958 20.5137 71.7766 20.5479C71.6066 20.5821 71.4252 20.6106 71.2324 20.6334C71.0397 20.6562 70.847 20.6847 70.6543 20.7189C70.4729 20.7532 70.2915 20.7988 70.1101 20.8558C69.94 20.9128 69.787 20.9926 69.6509 21.0953C69.5262 21.1865 69.4242 21.3062 69.3449 21.4545C69.2655 21.6027 69.2258 21.7908 69.2258 22.0189C69.2258 22.2356 69.2655 22.418 69.3449 22.5663C69.4242 22.7145 69.5319 22.8342 69.668 22.9255C69.804 23.0053 69.9627 23.0623 70.1441 23.0965C70.3255 23.1307 70.5126 23.1478 70.7053 23.1478C71.1814 23.1478 71.5499 23.068 71.8106 22.9084C72.0714 22.7487 72.2641 22.5606 72.3888 22.3439C72.5135 22.1158 72.5872 21.8878 72.6099 21.6597C72.6439 21.4316 72.6609 21.2492 72.6609 21.1124V20.2058Z" fill="white"/>
+              <path d="M77.4601 15.6901H79.7558V17.3322H79.7898C79.9032 17.0585 80.0562 16.8076 80.2489 16.5796C80.4417 16.3401 80.6627 16.1406 80.9121 15.9809C81.1616 15.8099 81.428 15.6787 81.7114 15.5875C81.9948 15.4963 82.2896 15.4507 82.5957 15.4507C82.7544 15.4507 82.9301 15.4792 83.1228 15.5362V17.794C83.0095 17.7712 82.8734 17.7541 82.7147 17.7427C82.556 17.7199 82.4029 17.7085 82.2556 17.7085C81.8134 17.7085 81.4393 17.7826 81.1332 17.9309C80.8271 18.0791 80.5777 18.2844 80.385 18.5466C80.2036 18.7975 80.0732 19.094 79.9939 19.4361C79.9145 19.7782 79.8748 20.1488 79.8748 20.5479V24.5333H77.4601V15.6901Z" fill="white"/>
+              <path d="M87.6406 15.6901H89.4092V17.3151H87.6406V21.6939C87.6406 22.1044 87.7087 22.3781 87.8447 22.515C87.9808 22.6518 88.2528 22.7202 88.661 22.7202C88.797 22.7202 88.9274 22.7145 89.0521 22.7031C89.1768 22.6917 89.2958 22.6746 89.4092 22.6518V24.5333C89.2051 24.5675 88.9784 24.5903 88.729 24.6017C88.4796 24.6131 88.2358 24.6188 87.9978 24.6188C87.6236 24.6188 87.2665 24.5903 86.9264 24.5333C86.5977 24.4877 86.3029 24.3908 86.0422 24.2425C85.7927 24.0943 85.5943 23.8833 85.447 23.6097C85.2996 23.336 85.2259 22.9768 85.2259 22.5321V17.3151H83.7635V15.6901H85.2259V13.0389H87.6406V15.6901Z" fill="white"/>
+              <path d="M91.3233 12.3205H100.404V14.5783H93.9932V17.1953H99.877V19.2821H93.9932V22.2755H100.54V24.5333H91.3233V12.3205Z" fill="white"/>
+              <path d="M104.85 19.8808L101.959 15.6901H104.714L106.261 17.9993L107.792 15.6901H110.462L107.571 19.8295L110.819 24.5333H108.064L106.227 21.7452L104.391 24.5333H101.687L104.85 19.8808Z" fill="white"/>
+              <path d="M116.687 22.9426C117.084 22.9426 117.413 22.8628 117.674 22.7031C117.946 22.5435 118.161 22.3382 118.32 22.0873C118.49 21.8251 118.609 21.5229 118.677 21.1808C118.745 20.8387 118.779 20.4909 118.779 20.1374C118.779 19.7839 118.739 19.4361 118.66 19.094C118.592 18.7519 118.473 18.4497 118.303 18.1874C118.133 17.9138 117.912 17.6971 117.64 17.5374C117.379 17.3664 117.056 17.2809 116.67 17.2809C116.274 17.2809 115.939 17.3664 115.667 17.5374C115.406 17.6971 115.191 17.9081 115.021 18.1703C114.862 18.4326 114.749 18.7348 114.681 19.0769C114.613 19.419 114.579 19.7725 114.579 20.1374C114.579 20.4909 114.613 20.8387 114.681 21.1808C114.76 21.5229 114.879 21.8251 115.038 22.0873C115.208 22.3382 115.429 22.5435 115.701 22.7031C115.973 22.8628 116.302 22.9426 116.687 22.9426ZM112.249 15.6901H114.545V16.819H114.579C114.874 16.3401 115.248 15.9923 115.701 15.7756C116.155 15.559 116.653 15.4507 117.198 15.4507C117.889 15.4507 118.484 15.5818 118.983 15.8441C119.482 16.1063 119.896 16.4541 120.225 16.8875C120.553 17.3208 120.797 17.8282 120.956 18.4098C121.115 18.98 121.194 19.5786 121.194 20.2058C121.194 20.7988 121.115 21.3689 120.956 21.9163C120.797 22.4636 120.553 22.9483 120.225 23.3702C119.907 23.7921 119.505 24.1285 119.017 24.3794C118.541 24.6303 117.98 24.7557 117.334 24.7557C116.79 24.7557 116.285 24.6474 115.82 24.4307C115.367 24.2026 114.993 23.8719 114.698 23.4386H114.664V27.6293H112.249V15.6901Z" fill="white"/>
+              <path d="M129.073 19.1624C128.96 18.5466 128.755 18.0791 128.461 17.7598C128.177 17.4405 127.741 17.2809 127.151 17.2809C126.766 17.2809 126.443 17.3493 126.182 17.4861C125.933 17.6116 125.729 17.7712 125.57 17.9651C125.422 18.1589 125.315 18.3642 125.247 18.5808C125.19 18.7975 125.156 18.9914 125.145 19.1624H129.073ZM125.145 20.7018C125.179 21.4887 125.377 22.0588 125.74 22.4123C126.103 22.7658 126.624 22.9426 127.304 22.9426C127.792 22.9426 128.211 22.8228 128.563 22.5834C128.914 22.3325 129.13 22.0702 129.209 21.7966H131.335C130.994 22.857 130.473 23.6154 129.77 24.0715C129.067 24.5276 128.217 24.7557 127.219 24.7557C126.528 24.7557 125.904 24.6474 125.349 24.4307C124.793 24.2026 124.323 23.8833 123.937 23.4728C123.552 23.0623 123.251 22.572 123.036 22.0018C122.832 21.4316 122.73 20.8045 122.73 20.1203C122.73 19.4589 122.838 18.8431 123.053 18.273C123.268 17.7028 123.575 17.2125 123.971 16.8019C124.368 16.38 124.839 16.0493 125.383 15.8099C125.938 15.5704 126.55 15.4507 127.219 15.4507C127.968 15.4507 128.619 15.5989 129.175 15.8954C129.73 16.1805 130.184 16.5682 130.535 17.0585C130.898 17.5488 131.159 18.1076 131.318 18.7348C131.476 19.362 131.533 20.0176 131.488 20.7018H125.145Z" fill="white"/>
+              <path d="M133.43 15.6901H135.726V17.3322H135.76C135.873 17.0585 136.026 16.8076 136.219 16.5796C136.412 16.3401 136.633 16.1406 136.882 15.9809C137.131 15.8099 137.398 15.6787 137.681 15.5875C137.965 15.4963 138.259 15.4507 138.566 15.4507C138.724 15.4507 138.9 15.4792 139.093 15.5362V17.794C138.979 17.7712 138.843 17.7541 138.685 17.7427C138.526 17.7199 138.373 17.7085 138.225 17.7085C137.783 17.7085 137.409 17.7826 137.103 17.9309C136.797 18.0791 136.548 18.2844 136.355 18.5466C136.173 18.7975 136.043 19.094 135.964 19.4361C135.884 19.7782 135.845 20.1488 135.845 20.5479V24.5333H133.43V15.6901Z" fill="white"/>
+              <path d="M143.611 15.6901H145.379V17.3151H143.611V21.6939C143.611 22.1044 143.679 22.3781 143.815 22.515C143.951 22.6518 144.223 22.7202 144.631 22.7202C144.767 22.7202 144.897 22.7145 145.022 22.7031C145.147 22.6917 145.266 22.6746 145.379 22.6518V24.5333C145.175 24.5675 144.948 24.5903 144.699 24.6017C144.449 24.6131 144.206 24.6188 143.968 24.6188C143.594 24.6188 143.236 24.5903 142.896 24.5333C142.568 24.4877 142.273 24.3908 142.012 24.2425C141.763 24.0943 141.564 23.8833 141.417 23.6097C141.269 23.336 141.196 22.9768 141.196 22.5321V17.3151H139.733V15.6901H141.196V13.0389H143.611V15.6901Z" fill="white"/>
+              <path d="M15.3418 6.72968L14.2784 9.92061C14.5331 10.0718 14.7278 10.2836 14.8626 10.5406L19.3107 8.9225C19.3084 8.90343 19.306 8.88511 19.3037 8.86725C19.2914 8.77179 19.2808 8.68932 19.2808 8.57467C19.2808 8.49905 19.2808 8.43856 19.2958 8.36295L16.0308 6.2155C15.851 6.44234 15.6114 6.62382 15.3418 6.72968Z" fill="white"/>
+              <path d="M9.47075 7.51637C9.45579 7.59188 9.44084 7.66738 9.42588 7.72779L12.1817 10.0718C12.4063 9.87524 12.6759 9.75425 12.9754 9.67864L13.9789 6.65407C13.7243 6.53308 13.5146 6.33648 13.3499 6.10964L9.47075 7.51637Z" fill="white"/>
+              <path d="M7.61366 8.87713L6.74499 10.8885C6.90973 11.0548 7.02955 11.2665 7.11941 11.4934L11.3429 11.1456L8.54223 8.75614C8.31758 8.862 8.07794 8.9225 7.82333 8.9225C7.77545 8.9225 7.73369 8.91013 7.69023 8.89726C7.66571 8.89 7.64066 8.88258 7.61366 8.87713Z" fill="white"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M7.86608 31.9698H9.18406L20.3869 32H21.478V31.4415C21.478 30.2633 22.4276 29.3081 23.5989 29.3081H23.6819C23.9952 29.3081 24.2911 29.3167 24.5681 29.3247C26.1977 29.3719 27.1715 29.4001 27.1715 27.5517V21.6711L29.5978 21.3384C30.1819 21.1871 30.5713 20.8847 30.766 20.4159C31.0955 19.6597 30.8259 18.6616 30.4964 18.0416L28.4595 13.9735C28.2199 13.535 28.023 10.9658 28.008 10.6179C27.6186 3.55556 21.7348 0 14.2313 0C6.84764 0 0.617188 5.91304 0.617188 12.8998C0.617188 18.2079 2.87872 22.4121 7.16216 25.0284C7.5965 25.3006 7.86608 26.1323 7.86608 27.2817V31.9698ZM5.36709 13.7618C4.46847 13.7013 3.76455 12.9754 3.76455 12.0681C3.76455 11.1153 4.52838 10.344 5.50189 10.3289C5.50938 10.3289 5.51687 10.3327 5.52436 10.3365C5.53184 10.3403 5.53933 10.344 5.54682 10.344L6.46042 8.21172C6.23577 7.92439 6.08599 7.57656 6.08599 7.18337C6.08599 6.23062 6.8648 5.45936 7.82333 5.45936C8.39246 5.45936 8.88671 5.76182 9.20122 6.20038L13.0803 4.79395C13.2301 3.99244 13.904 3.38752 14.7427 3.38752C15.6114 3.38752 16.2854 4.02268 16.4202 4.85444L19.9548 7.19849C20.2393 6.98677 20.5838 6.83554 20.9732 6.83554C21.9317 6.83554 22.7105 7.60681 22.7105 8.55955C22.7105 9.51229 21.9317 10.2836 20.9732 10.2836C20.6587 10.2836 20.3891 10.1777 20.1345 10.0416L14.9524 11.9168C14.6978 12.5822 14.0837 13.051 13.3349 13.051C12.8107 13.051 12.3464 12.794 12.0319 12.4159L7.02955 12.8393C6.92471 13.0208 6.80489 13.2023 6.64015 13.3384L8.28762 16.5444C8.32052 16.5397 8.34753 16.5349 8.37187 16.5307C8.42509 16.5213 8.4656 16.5142 8.52726 16.5142C9.47081 16.5142 10.2346 17.3157 10.2346 18.2684C10.2346 19.2212 9.47081 19.9773 8.51228 19.9773C7.55375 19.9773 6.77494 19.2061 6.77494 18.2533C6.77494 17.8752 6.92471 17.4972 7.13439 17.2098L5.36709 13.7618Z" fill="white"/>
+            </svg>
+              
+            <span className="text-[#A1A1AA] font-normal text-[14px] xl:text-[16px] leading-[120%]">
+              © 2025 SmartExpert, Inc.
+            </span>
+          </footer>
+        </div>
+
+        {/* Share Modal */}
+        {showShareModal && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareData(null);
+                  setShareError(null);
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Modal content */}
+              <div className="pr-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'Share Audit',
+                    es: 'Compartir Auditoría',
+                    ua: 'Поділитися Аудитом',
+                    ru: 'Поделиться Аудитом'
+                  })}
+                </h3>
+
+                {!shareData ? (
+                  <div>
+                    <p className="text-gray-600 mb-6">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Create a public link to share this audit with others. The link will expire in 30 days.',
+                        es: 'Crea un enlace público para compartir esta auditoría con otros. El enlace expirará en 30 días.',
+                        ua: 'Створіть публічне посилання, щоб поділитися цим аудитом з іншими. Посилання діятиме 30 днів.',
+                        ru: 'Создайте публичную ссылку, чтобы поделиться этим аудитом с другими. Ссылка будет действительна 30 дней.'
+                      })}
+                    </p>
+
+                    {shareError && (
+                      <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                        <p className="text-red-800 text-sm">{shareError}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowShareModal(false);
+                          setShareError(null);
+                        }}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Cancel',
+                          es: 'Cancelar',
+                          ua: 'Скасувати',
+                          ru: 'Отмена'
+                        })}
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        disabled={isSharing}
+                        className="flex-1 px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      >
+                        {isSharing ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {getLocalizedText(landingPageData?.language, {
+                              en: 'Creating...',
+                              es: 'Creando...',
+                              ua: 'Створення...',
+                              ru: 'Создание...'
+                            })}
+                          </>
+                        ) : (
+                          getLocalizedText(landingPageData?.language, {
+                            en: 'Create Share Link',
+                            es: 'Crear Enlace',
+                            ua: 'Створити Посилання',
+                            ru: 'Создать Ссылку'
+                          })
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-600 mb-4">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Your audit is now publicly accessible via this link:',
+                        es: 'Su auditoría ahora es públicamente accesible a través de este enlace:',
+                        ua: 'Ваш аудит тепер публічно доступний за цим посиланням:',
+                        ru: 'Ваш аудит теперь публично доступен по этой ссылке:'
+                      })}
+                    </p>
+
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={shareData.publicUrl}
+                          readOnly
+                          className="flex-1 bg-transparent text-sm text-gray-800 outline-none"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(shareData.publicUrl)}
+                          className="px-3 py-1 text-xs bg-[#0F58F9] text-white rounded hover:bg-[#0F58F9]/90 transition-colors"
+                          title={getLocalizedText(landingPageData?.language, {
+                            en: 'Copy to clipboard',
+                            es: 'Copiar al portapapeles',
+                            ua: 'Копіювати в буфер обміну',
+                            ru: 'Копировать в буфер обмена'
+                          })}
+                        >
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Copy',
+                            es: 'Copiar',
+                            ua: 'Копіювати',
+                            ru: 'Копировать'
+                          })}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-6">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: `Link expires on: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        es: `El enlace expira el: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ua: `Посилання діє до: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ru: `Ссылка действительна до: ${new Date(shareData.expiresAt).toLocaleDateString()}`
+                      })}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        setShowShareModal(false);
+                        setShareData(null);
+                      }}
+                      className="w-full px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 transition-colors"
+                    >
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Done',
+                        es: 'Hecho',
+                        ua: 'Готово',
+                        ru: 'Готово'
+                      })}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+
+  )
+}

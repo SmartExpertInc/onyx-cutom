@@ -1,6 +1,7 @@
 # custom_extensions/backend/app/services/quiz_exporter.py
 import json
 import uuid
+import re
 from typing import Dict, List, Any
 from fastapi import HTTPException
 from app.core.database import get_connection
@@ -64,38 +65,173 @@ async def export_quiz_to_cbai(product_data, user_id: str) -> bytes:
             }
             if qtype == 'multiple-choice':
                 opts = q.get('options') or []
-                correct = q.get('correct_option_id') or q.get('correct_answer') or 'A'
                 out_q["options"] = []
-                out_q["correct_option_id"] = correct
+                # Map original option ids/index/text to new letter ids
+                option_orig_to_new: Dict[str, str] = {}
                 for i, opt in enumerate(opts):
-                    text = opt.get('text') if isinstance(opt, dict) else str(opt)
-                    out_q["options"].append({"id": chr(65+i), "text": text, "uid": str(uuid.uuid4())})
+                    if isinstance(opt, dict):
+                        text = opt.get('text') or str(opt.get('value') or '')
+                        orig_id = str(opt.get('id')) if opt.get('id') is not None else None
+                    else:
+                        text = str(opt)
+                        orig_id = None
+                    new_id = chr(65 + i)
+                    out_q["options"].append({"id": new_id, "text": text, "uid": str(uuid.uuid4())})
+                    # Build robust mappings
+                    if orig_id:
+                        option_orig_to_new[orig_id] = new_id
+                    option_orig_to_new[new_id] = new_id
+                    option_orig_to_new[str(i)] = new_id
+                    option_orig_to_new[str(i + 1)] = new_id
+                correct_raw = q.get('correct_option_id') or q.get('correct_answer') or 'A'
+                correct_str = str(correct_raw)
+                mapped = option_orig_to_new.get(correct_str)
+                if not mapped and len(correct_str) == 1 and correct_str.upper() in option_orig_to_new.values():
+                    mapped = correct_str.upper()
+                out_q["correct_option_id"] = mapped or 'A'
             elif qtype == 'multi-select':
                 opts = q.get('options') or []
-                correct_ids = q.get('correct_option_ids') or q.get('correct_answers') or []
                 out_q["options"] = []
-                out_q["correct_option_ids"] = correct_ids
+                option_orig_to_new: Dict[str, str] = {}
                 for i, opt in enumerate(opts):
-                    text = opt.get('text') if isinstance(opt, dict) else str(opt)
-                    out_q["options"].append({"id": chr(65+i), "text": text, "uid": str(uuid.uuid4())})
+                    if isinstance(opt, dict):
+                        text = opt.get('text') or str(opt.get('value') or '')
+                        orig_id = str(opt.get('id')) if opt.get('id') is not None else None
+                    else:
+                        text = str(opt)
+                        orig_id = None
+                    new_id = chr(65 + i)
+                    out_q["options"].append({"id": new_id, "text": text, "uid": str(uuid.uuid4())})
+                    if orig_id:
+                        option_orig_to_new[orig_id] = new_id
+                    option_orig_to_new[new_id] = new_id
+                    option_orig_to_new[str(i)] = new_id
+                    option_orig_to_new[str(i + 1)] = new_id
+                correct_ids = q.get('correct_option_ids') or q.get('correct_answers') or []
+                mapped_ids: List[str] = []
+                for cid in correct_ids:
+                    c = str(cid)
+                    m = option_orig_to_new.get(c)
+                    if not m and len(c) == 1 and c.upper() in option_orig_to_new.values():
+                        m = c.upper()
+                    if m and m not in mapped_ids:
+                        mapped_ids.append(m)
+                out_q["correct_option_ids"] = mapped_ids
             elif qtype == 'matching':
                 opts = q.get('options') or []
                 prompts = q.get('prompts') or []
                 out_q["options"], out_q["prompts"] = [], []
-                out_q["correct_matches"] = q.get('correct_matches') or q.get('matches') or {}
+                option_orig_to_new: Dict[str, str] = {}
+                prompt_orig_to_new: Dict[str, str] = {}
+                # Build options with letter IDs
                 for i, opt in enumerate(opts):
-                    text = opt.get('text') if isinstance(opt, dict) else str(opt)
-                    out_q["options"].append({"id": chr(65+i), "text": text, "uid": str(uuid.uuid4())})
+                    if isinstance(opt, dict):
+                        text = opt.get('text') or str(opt.get('value') or '')
+                        orig_id = str(opt.get('id')) if opt.get('id') is not None else None
+                    else:
+                        text = str(opt)
+                        orig_id = None
+                    new_id = chr(65 + i)
+                    out_q["options"].append({"id": new_id, "text": text, "uid": str(uuid.uuid4())})
+                    if orig_id:
+                        option_orig_to_new[orig_id] = new_id
+                    option_orig_to_new[new_id] = new_id
+                    option_orig_to_new[str(i)] = new_id
+                    option_orig_to_new[str(i + 1)] = new_id
+                # Build prompts with numeric-string IDs
                 for i, prm in enumerate(prompts):
-                    text = prm.get('text') if isinstance(prm, dict) else str(prm)
-                    out_q["prompts"].append({"id": str(i+1), "text": text, "uid": str(uuid.uuid4())})
+                    if isinstance(prm, dict):
+                        text = prm.get('text') or str(prm.get('value') or '')
+                        orig_id = str(prm.get('id')) if prm.get('id') is not None else None
+                    else:
+                        text = str(prm)
+                        orig_id = None
+                    new_id = str(i + 1)
+                    out_q["prompts"].append({"id": new_id, "text": text, "uid": str(uuid.uuid4())})
+                    if orig_id:
+                        prompt_orig_to_new[orig_id] = new_id
+                    prompt_orig_to_new[new_id] = new_id
+                    prompt_orig_to_new[str(i)] = new_id
+                    prompt_orig_to_new[str(i + 1)] = new_id
+                # Normalize correct_matches to map prompt.id -> option.id with NEW ids
+                provided = q.get('correct_matches') or q.get('matches') or {}
+                normalized: Dict[str, str] = {}
+                if isinstance(provided, dict):
+                    for k, v in provided.items():
+                        ks, vs = str(k), str(v)
+                        if ks in prompt_orig_to_new and vs in option_orig_to_new:
+                            normalized[prompt_orig_to_new[ks]] = option_orig_to_new[vs]
+                        elif ks in option_orig_to_new and vs in prompt_orig_to_new:
+                            # reversed mapping provided
+                            normalized[prompt_orig_to_new[vs]] = option_orig_to_new[ks]
+                        else:
+                            # Try to accept already-normalized ids
+                            if ks in prompt_orig_to_new.values() and vs in option_orig_to_new.values():
+                                normalized[ks] = vs
+                            else:
+                                # Last resort: try to map via numeric suffixes or letters
+                                # prompt key may be like "prompt2" and value like "B"
+                                mk = re.search(r"(\d+)$", ks)
+                                if mk:
+                                    pi = int(mk.group(1)) - 1
+                                    if 0 <= pi < len(out_q["prompts"]):
+                                        new_pk = str(pi + 1)
+                                    else:
+                                        new_pk = None
+                                else:
+                                    new_pk = None
+                                mv = re.search(r"([A-Za-z])$", vs)
+                                if mv:
+                                    new_ov = mv.group(1).upper()
+                                else:
+                                    # maybe it's numeric index for option
+                                    mi = re.search(r"(\d+)$", vs)
+                                    if mi:
+                                        oi = int(mi.group(1)) - 1
+                                        new_ov = chr(65 + oi) if 0 <= oi < len(out_q["options"]) else None
+                                    else:
+                                        new_ov = None
+                                if new_pk and new_ov:
+                                    normalized[new_pk] = new_ov
+                out_q["correct_matches"] = normalized
             elif qtype == 'sorting':
                 items = q.get('items_to_sort') or q.get('items') or []
                 out_q["items_to_sort"] = []
-                out_q["correct_order"] = q.get('correct_order') or []
+                item_orig_to_new: Dict[str, str] = {}
                 for i, item in enumerate(items):
-                    text = item.get('text') if isinstance(item, dict) else str(item)
-                    out_q["items_to_sort"].append({"id": chr(65+i), "text": text, "uid": str(uuid.uuid4())})
+                    if isinstance(item, dict):
+                        text = item.get('text') or str(item.get('value') or '')
+                        orig_id = str(item.get('id')) if item.get('id') is not None else None
+                    else:
+                        text = str(item)
+                        orig_id = None
+                    new_id = chr(65 + i)
+                    out_q["items_to_sort"].append({"id": new_id, "text": text, "uid": str(uuid.uuid4())})
+                    if orig_id:
+                        item_orig_to_new[orig_id] = new_id
+                    item_orig_to_new[new_id] = new_id
+                    item_orig_to_new[str(i)] = new_id
+                    item_orig_to_new[str(i + 1)] = new_id
+                desired_order = q.get('correct_order') or []
+                mapped_order: List[str] = []
+                for token in desired_order:
+                    s = str(token)
+                    if s in item_orig_to_new:
+                        mapped_order.append(item_orig_to_new[s])
+                        continue
+                    if len(s) == 1 and s.upper() in item_orig_to_new.values():
+                        mapped_order.append(s.upper())
+                        continue
+                    # try suffix number mapping e.g. "step3" -> C
+                    m = re.search(r"(\d+)$", s)
+                    if m:
+                        idx = int(m.group(1)) - 1
+                        if 0 <= idx < len(items):
+                            mapped_order.append(chr(65 + idx))
+                # If mapping failed or incomplete, default to sequential A..Z by items order
+                if len(mapped_order) != len(out_q["items_to_sort"]):
+                    mapped_order = [itm["id"] for itm in out_q["items_to_sort"]]
+                out_q["correct_order"] = mapped_order
             elif qtype == 'open-answer':
                 out_q["acceptable_answers"] = q.get('acceptable_answers') or []
             cbai["questions"].append(out_q)

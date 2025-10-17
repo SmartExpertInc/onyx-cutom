@@ -235,7 +235,7 @@ export const CreateContentTypeModal = ({
       
       if (result.success) {
         // Redirect to the newly created lesson plan
-        router.push(`/projects/view/${result.project_id}`);
+        router.push(`/projects/view/${result.project_id}?from=create`);
         onClose();
       } else {
         throw new Error(result.message || 'Lesson plan generation failed');

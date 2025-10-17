@@ -27,8 +27,8 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   const [playTime, setPlayTime] = useState(0);
   // Get current slide data from either structure
   const currentSlide = componentBasedSlideDeck 
-    ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
-    : videoLessonData?.slides.find(s => s.slideId === currentSlideId);
+    ? componentBasedSlideDeck.slides?.find(s => s.slideId === currentSlideId)
+    : videoLessonData?.slides?.find(s => s.slideId === currentSlideId);
   
   // Use voiceover text from current slide or fallback to placeholder
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
@@ -41,13 +41,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     
     // Save changes back to video lesson data if we have the necessary props
     if (onTextChange && currentSlide) {
-      if (componentBasedSlideDeck) {
+      if (componentBasedSlideDeck?.slides) {
         // Handle component-based slide deck
         const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlide.slideId);
         if (slideIndex !== -1) {
           onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
         }
-      } else if (videoLessonData) {
+      } else if (videoLessonData?.slides) {
         // Handle old video lesson data
         const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
         if (slideIndex !== -1) {

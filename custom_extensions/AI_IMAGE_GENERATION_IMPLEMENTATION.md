@@ -2,12 +2,12 @@
 
 ## Overview
 
-This document describes the implementation of AI image generation capabilities using DALL-E 3, integrated into the existing ContentBuilder.ai project. The implementation extends the current image upload functionality to include AI-powered image generation.
+This document describes the implementation of AI image generation capabilities using Google's Gemini 2.5 Flash Image (Nano Banana) API, integrated into the existing ContentBuilder.ai project. The implementation extends the current image upload functionality to include AI-powered image generation.
 
 ## Features Implemented
 
 ### ✅ Core Functionality
-- **DALL-E 3 Integration**: Direct integration with OpenAI's DALL-E 3 API for image generation
+- **Gemini 2.5 Flash Image Integration**: Direct integration with Google's Gemini 2.5 Flash Image (Nano Banana) API for image generation
 - **Dynamic Sizing**: Generated images automatically match placeholder dimensions
 - **Dual Upload Options**: Users can choose between file upload and AI generation
 - **Seamless Integration**: Maintains existing upload functionality while adding AI capabilities
@@ -40,7 +40,7 @@ This document describes the implementation of AI image generation capabilities u
   "height": 1024,
   "quality": "standard",
   "style": "vivid",
-  "model": "dall-e-3"
+  "model": "gemini-2.5-flash-image-preview"
 }
 ```
 
@@ -162,11 +162,12 @@ const handleAIImageGenerated = (imagePath: string) => {
 
 ## Technical Specifications
 
-### DALL-E 3 Requirements
-- **Supported Sizes**: 1024×1024, 1792×1024, 1024×1792
+### Gemini 2.5 Flash Image Requirements
+- **Supported Sizes**: 1024×1024, 1792×1024, 1024×1792 (flexible sizing supported)
 - **Quality Options**: standard, hd
 - **Style Options**: vivid, natural
-- **Model**: dall-e-3 (latest)
+- **Model**: gemini-2.5-flash-image-preview (latest)
+- **Authentication**: Requires GEMINI_API_KEY environment variable
 
 ### Error Handling
 - **API Failures**: Graceful fallback with user-friendly messages

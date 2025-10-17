@@ -16,6 +16,7 @@ export interface ConnectorField {
     label: string;
     fields: ConnectorField[];
   }>;
+  defaultTab?: string;
 }
 
 export interface ConnectorConfig {
@@ -27,7 +28,28 @@ export interface ConnectorConfig {
   advancedValuesVisibleCondition?: (values: any, currentCredential: any) => boolean;
 }
 
-export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
+// Universal indexing start field that will be added to all connectors
+const UNIVERSAL_INDEXING_START_FIELD: ConnectorField = {
+  type: "text",
+  query: "Enter the Start Date:",
+  label: "Indexing Start Date",
+  name: "indexing_start",
+  description: `Only documents after this date will be indexed. Format: YYYY-MM-DD`,
+  optional: true,
+};
+
+// Function to add universal fields to connector configurations
+const addUniversalFields = (config: ConnectorConfig): ConnectorConfig => {
+  return {
+    ...config,
+    advanced_values: [
+      ...(config.advanced_values || []),
+      UNIVERSAL_INDEXING_START_FIELD
+    ]
+  };
+};
+
+const baseConnectorConfigs: Record<string, ConnectorConfig> = {
   web: {
     description: "Configure Web connector",
     values: [
@@ -69,7 +91,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
       {
         type: "text",
         query: "Enter the GitHub username or organization:",
-        label: "Repository Owner",
+        label: "Repository Owner Username",
         name: "repo_owner",
         optional: false,
       },
@@ -203,88 +225,114 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     values: [
       {
         type: "list",
-        query: "Enter channel IDs:",
-        label: "Channel IDs",
-        name: "channel_ids",
-        description: "Specify 0 or more channel IDs to index from.",
+        query: "Enter channels to index:",
+        label: "Channels",
+        name: "channels",
+        description: "Specify 0 or more channels to index from.",
         optional: true,
       },
       {
         type: "checkbox",
-        query: "Include public channels?",
-        label: "Include Public Channels",
-        name: "include_public_channels",
-        description: "Index all public channels in the workspace",
+        query: "Enable channel regex?",
+        label: "Enable Channel Regex",
+        name: "channel_regex_enabled",
+        description: `If enabled, we will treat the "channels" specified above as regular expressions. A channel's messages will be pulled in by the connector if the name of the channel fully matches any of the specified regular expressions. For example, specifying .*-support.* as a "channel" will cause the connector to include any channels with "-support" in the name.`,
         optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include private channels?",
-        label: "Include Private Channels",
-        name: "include_private_channels",
-        description: "Index private channels you're a member of",
-        optional: true,
-        default: false,
-      },
-      {
-        type: "checkbox",
-        query: "Include direct messages?",
-        label: "Include Direct Messages",
-        name: "include_direct_messages",
-        description: "Index direct messages",
-        optional: true,
-        default: false,
-      },
-      {
-        type: "checkbox",
-        query: "Include thread replies?",
-        label: "Include Thread Replies",
-        name: "include_thread_replies",
-        description: "Index thread replies in addition to main messages",
-        optional: true,
-        default: true,
       },
     ],
-    advanced_values: [
-      {
-        type: "number",
-        query: "Message limit per channel:",
-        label: "Message Limit",
-        name: "message_limit",
-        description: "Maximum number of messages to index per channel",
-        optional: true,
-        default: 1000,
-      },
-    ],
+    advanced_values: [],
   },
   confluence: {
     description: "Configure Confluence connector",
     values: [
       {
-        type: "text",
-        query: "Enter the Confluence URL:",
-        label: "Confluence URL",
-        name: "confluence_url",
-        optional: false,
-        description: "The URL of your Confluence instance (e.g., https://your-domain.atlassian.net)",
-      },
-      {
-        type: "list",
-        query: "Enter space keys:",
-        label: "Space Keys",
-        name: "space_keys",
-        description: "Specify 0 or more space keys to index from. If none specified, will index all accessible spaces.",
-        optional: true,
-      },
-      {
         type: "checkbox",
-        query: "Include attachments?",
-        label: "Include Attachments",
-        name: "include_attachments",
-        description: "Index file attachments in addition to page content",
-        optional: true,
+        query: "Is this a Confluence Cloud instance?",
+        label: "Is Cloud",
+        name: "is_cloud",
+        optional: false,
         default: true,
+        description: "Check if this is a Confluence Cloud instance, uncheck for Confluence Server/Data Center",
+      },
+      {
+        type: "text",
+        query: "Enter the wiki base URL:",
+        label: "Wiki Base URL",
+        name: "wiki_base",
+        optional: false,
+        description: "The base URL of your Confluence instance (e.g., https://your-domain.atlassian.net/wiki)",
+      },
+      {
+        type: "tab",
+        name: "indexing_scope",
+        label: "How Should We Index Your Confluence?",
+        optional: true,
+        tabs: [
+          {
+            value: "everything",
+            label: "Everything",
+            fields: [
+              {
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description: "This connector will index all pages the provided credentials have access to!",
+              },
+            ],
+          },
+          {
+            value: "space",
+            label: "Space",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the space:",
+                label: "Space Key",
+                name: "space",
+                default: "",
+                description: "The Confluence space key to index (e.g. `KB`).",
+              },
+            ],
+          },
+          {
+            value: "page",
+            label: "Page",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the page ID:",
+                label: "Page ID",
+                name: "page_id",
+                default: "",
+                description: "Specific page ID to index (e.g. `131368`)",
+              },
+              {
+                type: "checkbox",
+                query: "Should index pages recursively?",
+                label: "Index Recursively",
+                name: "index_recursively",
+                description: "If this is set, we will index the page indicated by the Page ID as well as all of its children.",
+                optional: false,
+                default: true,
+              },
+            ],
+          },
+          {
+            value: "cql",
+            label: "CQL Query",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the CQL query (optional):",
+                label: "CQL Query",
+                name: "cql_query",
+                default: "",
+                description: "IMPORTANT: We currently only support CQL queries that return objects of type 'page'. This means all CQL queries must contain 'type=page' as the only type filter. It is also important that no filters for 'lastModified' are used as it will cause issues with our connector polling logic. We will still get all attachments and comments for the pages returned by the CQL query. Any 'lastmodified' filters will be overwritten. See https://developer.atlassian.com/server/confluence/advanced-searching-using-cql/ for more details.",
+              },
+            ],
+          },
+        ],
+        defaultTab: "space",
       },
     ],
     advanced_values: [],
@@ -294,37 +342,57 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     values: [
       {
         type: "text",
-        query: "Enter the Jira URL:",
-        label: "Jira URL",
-        name: "jira_url",
+        query: "Enter the Jira base URL:",
+        label: "Jira Base URL",
+        name: "jira_base_url",
         optional: false,
-        description: "The URL of your Jira instance (e.g., https://your-domain.atlassian.net)",
+        description:
+          "The base URL of your Jira instance (e.g., https://your-domain.atlassian.net)",
+      },
+      {
+        type: "tab",
+        name: "indexing_scope",
+        label: "How Should We Index Your Jira?",
+        optional: true,
+        tabs: [
+          {
+            value: "everything",
+            label: "Everything",
+            fields: [
+              {
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description:
+                  "This connector will index all issues the provided credentials have access to!",
+              },
+            ],
+          },
+          {
+            value: "project",
+            label: "Project",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the project key:",
+                label: "Project Key",
+                name: "project_key",
+                description:
+                  "The key of a specific project to index (e.g., 'PROJ').",
+              },
+            ],
+          },
+        ],
+        defaultTab: "everything",
       },
       {
         type: "list",
-        query: "Enter project keys:",
-        label: "Project Keys",
-        name: "project_keys",
-        description: "Specify 0 or more project keys to index from. If none specified, will index all accessible projects.",
+        query: "Enter email addresses to blacklist from comments:",
+        label: "Comment Email Blacklist",
+        name: "comment_email_blacklist",
+        description:
+          "This is generally useful to ignore certain bots. Add user emails which comments should NOT be indexed.",
         optional: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include issues?",
-        label: "Include Issues",
-        name: "include_issues",
-        description: "Index Jira issues",
-        optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include comments?",
-        label: "Include Comments",
-        name: "include_comments",
-        description: "Index issue comments in addition to issue content",
-        optional: true,
-        default: true,
       },
     ],
     advanced_values: [],
@@ -369,99 +437,57 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     description: "Configure Google Drive connector",
     values: [
       {
-        type: "tab",
-        name: "indexing_scope",
-        label: "How should we index your Google Drive?",
+        type: "list",
+        query: "Enter shared folder URLs (optional):",
+        label: "Shared Folder URLs",
+        name: "shared_folder_urls",
+        description: "Specify folder URLs to index. Leave empty to index based on the checkboxes below.",
         optional: true,
-        tabs: [
-          {
-            value: "specific_folders",
-            label: "Specific Folders",
-            fields: [
-              {
-                type: "list",
-                query: "Enter folder IDs:",
-                label: "Folder IDs",
-                name: "folder_ids",
-                description: "Specify 0 or more folder IDs to index from.",
-                optional: true,
-              },
-            ],
-          },
-          {
-            value: "everything",
-            label: "Everything",
-            fields: [
-              {
-                type: "string_tab",
-                label: "Everything",
-                name: "everything",
-                description:
-                  "This connector will index all files and folders the provided credentials have access to!",
-              },
-            ],
-          },
-        ],
       },
       {
         type: "checkbox",
-        query: "Include shared folders?",
-        label: "Include Shared Folders",
-        name: "include_shared_folders",
-        description: "Index folders shared with you",
+        query: "Include files shared with me?",
+        label: "Include Files Shared With Me",
+        name: "include_files_shared_with_me",
+        description: "Index files shared directly with you",
         optional: true,
         default: true,
       },
       {
         type: "checkbox",
-        query: "Include my drive?",
-        label: "Include My Drive",
-        name: "include_my_drive",
+        query: "Include my drives?",
+        label: "Include My Drives",
+        name: "include_my_drives",
         description: "Index files in your personal Google Drive",
         optional: true,
         default: true,
       },
-    ],
-    advanced_values: [
       {
-        type: "list",
-        query: "File types to index:",
-        label: "File Types",
-        name: "file_types",
-        description: "Specify which file types to include in the index",
+        type: "checkbox",
+        query: "Include shared drives?",
+        label: "Include Shared Drives",
+        name: "include_shared_drives",
+        description: "Index shared team drives",
         optional: true,
-        default: ["document", "spreadsheet", "presentation", "pdf"],
+        default: false,
       },
     ],
+    advanced_values: [],
   },
   zendesk: {
     description: "Configure Zendesk connector",
     values: [
       {
-        type: "text",
-        query: "Enter the Zendesk subdomain:",
-        label: "Subdomain",
-        name: "zendesk_subdomain",
+        type: "select",
+        query: "Select the what content this connector will index:",
+        label: "Content Type",
+        name: "content_type",
         optional: false,
-        description: "Your Zendesk subdomain (without .zendesk.com)",
-      },
-      {
-        type: "checkbox",
-        query: "Include tickets?",
-        label: "Include Tickets",
-        name: "include_tickets",
-        description: "Index Zendesk tickets",
-        optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include articles?",
-        label: "Include Articles",
-        name: "include_articles",
-        description: "Index help center articles",
-        optional: true,
-        default: true,
+        options: [
+          { name: "articles", value: "articles" },
+          { name: "tickets", value: "tickets" },
+        ],
+        default: "articles",
       },
     ],
     advanced_values: [],
@@ -470,30 +496,31 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     description: "Configure Asana connector",
     values: [
       {
-        type: "list",
-        query: "Enter project IDs:",
+        type: "text",
+        query: "Enter your Asana workspace ID:",
+        label: "Workspace ID",
+        name: "asana_workspace_id",
+        optional: false,
+        description:
+          "The ID of the Asana workspace to index. You can find this at https://app.asana.com/api/1.0/workspaces. It's a number that looks like 1234567890123456.",
+      },
+      {
+        type: "text",
+        query: "Enter project IDs to index (optional):",
         label: "Project IDs",
-        name: "project_ids",
-        description: "Specify 0 or more project IDs to index from. If none specified, will index all accessible projects.",
+        name: "asana_project_ids",
+        description:
+          "IDs of specific Asana projects to index, separated by commas. Leave empty to index all projects in the workspace. Example: 1234567890123456,2345678901234567",
         optional: true,
       },
       {
-        type: "checkbox",
-        query: "Include tasks?",
-        label: "Include Tasks",
-        name: "include_tasks",
-        description: "Index Asana tasks",
+        type: "text",
+        query: "Enter the Team ID (optional):",
+        label: "Team ID",
+        name: "asana_team_id",
         optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include comments?",
-        label: "Include Comments",
-        name: "include_comments",
-        description: "Index task comments in addition to task content",
-        optional: true,
-        default: true,
+        description:
+          "ID of a team to use for accessing team-visible tasks. This allows indexing of team-visible tasks in addition to public tasks. Leave empty if you don't want to use this feature.",
       },
     ],
     advanced_values: [],
@@ -727,8 +754,8 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
       {
         type: "file",
         query: "Enter the zip path:",
-        label: "File Locations",
-        name: "file_locations",
+        label: "Zip Path",
+        name: "zip_path",
         optional: false,
         description:
           "Upload a zip file containing the HTML of your Google Site",
@@ -1018,6 +1045,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         description:
           "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
         optional: false,
+        default: 0,
       },
     ],
     advanced_values: [],
@@ -1066,6 +1094,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         description:
           "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
         optional: true,
+        default: 0,
       },
     ],
     advanced_values: [],
@@ -1096,4 +1125,12 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     advanced_values: [],
   },
   // Add more connectors as needed...
-}; 
+};
+
+// Apply universal fields to all connector configurations
+const processedConfigs: Record<string, ConnectorConfig> = {};
+Object.keys(baseConnectorConfigs).forEach(key => {
+  processedConfigs[key] = addUniversalFields(baseConnectorConfigs[key]);
+});
+
+export { processedConfigs as onyxConnectorConfigs }; 

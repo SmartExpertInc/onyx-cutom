@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Globe, Settings, Upload } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
+import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 
 interface SmartDriveCardsProps {
   className?: string;
@@ -86,7 +87,11 @@ const SmartDriveCards: React.FC<SmartDriveCardsProps> = ({ className = '' }) => 
               Hide Browser
             </button>
           </div>
-          <SmartDriveFrame />
+          {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+            <SmartDriveFrame />
+          ) : (
+            <SmartDriveBrowser mode="manage" />
+          )}
         </div>
       )}
     </div>

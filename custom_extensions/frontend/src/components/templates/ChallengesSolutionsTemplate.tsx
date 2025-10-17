@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import Image from 'next/image';
 import groupImg from './group_img.png';
 
@@ -113,31 +114,39 @@ function InlineEditor({
   );
 }
 
-const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
+const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>> = ({
   title = 'Challenges & Solutions',
   subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
   isEditable = true,
   slideId = 'challenges-solutions',
-  onUpdate
-}: ChallengesSolutionsTemplateProps) => {
+  onUpdate,
+  challengesTitle = 'Challenges',
+  solutionsTitle = 'Solutions',
+  challenges = [],
+  solutions = []
+}: ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>) => {
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
+  const [isEditingChallengesTitle, setIsEditingChallengesTitle] = useState(false);
+  const [isEditingSolutionsTitle, setIsEditingSolutionsTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [currentChallengesTitle, setCurrentChallengesTitle] = useState(challengesTitle);
+  const [currentSolutionsTitle, setCurrentSolutionsTitle] = useState(solutionsTitle);
   
   // Состояние для элементов списков
-  const [challengeItems, setChallengeItems] = useState([
-    'Title goes here',
-    'Title goes here', 
-    'Title goes here'
-  ]);
-  const [solutionItems, setSolutionItems] = useState([
-    'Title goes here',
-    'Title goes here',
-    'Title goes here'
-  ]);
+  const [challengeItems, setChallengeItems] = useState(
+    (Array.isArray(challenges) && challenges.length > 0) ? challenges : [
+      'Title goes here', 'Title goes here', 'Title goes here'
+    ]
+  );
+  const [solutionItems, setSolutionItems] = useState(
+    (Array.isArray(solutions) && solutions.length > 0) ? solutions : [
+      'Title goes here', 'Title goes here', 'Title goes here'
+    ]
+  );
   
   // Состояния редактирования для каждого элемента
   const [editingChallengeItems, setEditingChallengeItems] = useState([false, false, false]);
@@ -158,6 +167,22 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     setIsEditingSubtitle(false);
     if (onUpdate) {
       onUpdate({ subtitle: value });
+    }
+  };
+
+  const handleChallengesTitleSave = (value: string) => {
+    setCurrentChallengesTitle(value);
+    setIsEditingChallengesTitle(false);
+    if (onUpdate) {
+      onUpdate({ challengesTitle: value });
+    }
+  };
+
+  const handleSolutionsTitleSave = (value: string) => {
+    setCurrentSolutionsTitle(value);
+    setIsEditingSolutionsTitle(false);
+    if (onUpdate) {
+      onUpdate({ solutionsTitle: value });
     }
   };
 
@@ -295,19 +320,23 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
 
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
-        {/* Left side text items */}
-        <div style={{
-          position: 'absolute',
-          left: '140px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '81px',
-          zIndex: 10
-        }}>
-          {challengeItems.map((item: string, index: number) => (
-            <div key={index}>
+        {/* Left side text items - positioned next to icons */}
+        {challengeItems.map((item: string, index: number) => {
+          // Position each challenge next to its icon
+          const positions = [
+            { top: '15%', left: '20px' },   // Top icon
+            { top: '48%', left: '20px' },   // Middle icon
+            { top: '75%', left: '20px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '280px',
+              zIndex: 10
+            }}>
               {editingChallengeItems[index] ? (
                 <InlineEditor
                   initialValue={challengeItems[index]}
@@ -319,7 +348,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
                   }}
                   placeholder="Enter challenge"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
@@ -330,11 +359,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
               ) : (
                 <div 
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    cursor: isEditable ? 'pointer' : 'default'
+                    cursor: isEditable ? 'pointer' : 'default',
+                    textAlign: 'left',
+                    width: '100%',
+                    wordWrap: 'break-word'
                   }}
                   onClick={() => handleChallengeItemEdit(index)}
                   data-draggable={isEditable}
@@ -343,22 +375,26 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
 
-        {/* Right side text items */}
-        <div style={{
-          position: 'absolute',
-          right: '140px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '81px',
-          zIndex: 10
-        }}>
-          {solutionItems.map((item: string, index: number) => (
-            <div key={index}>
+        {/* Right side text items - positioned next to icons */}
+        {solutionItems.map((item: string, index: number) => {
+          // Position each solution next to its icon
+          const positions = [
+            { top: '15%', right: '10px' },   // Top icon
+            { top: '48%', right: '10px' },   // Middle icon
+            { top: '75%', right: '10px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '280px',
+              zIndex: 10
+            }}>
               {editingSolutionItems[index] ? (
                 <InlineEditor
                   initialValue={solutionItems[index]}
@@ -370,11 +406,11 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
                   }}
                   placeholder="Enter solution"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    textAlign: 'right',
+                    textAlign: 'left',
                     width: '100%',
                     minWidth: '200px'
                   }}
@@ -382,12 +418,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
               ) : (
                 <div 
                   style={{
-                    fontSize: '20px',
+                    fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
-                    textAlign: 'right',
-                    cursor: isEditable ? 'pointer' : 'default'
+                    textAlign: 'left',
+                    cursor: isEditable ? 'pointer' : 'default',
+                    width: '100%',
+                    wordWrap: 'break-word'
                   }}
                   onClick={() => handleSolutionItemEdit(index)}
                   data-draggable={isEditable}
@@ -396,41 +434,90 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
 
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
         </div>
 
-        {/* Bottom labels */}
+        {/* Bottom labels - positioned below central icons */}
         <div style={{
           position: 'absolute',
-          top: '45%',
+          top: '50%',
           left: '50%',
-          transform: 'translate(-50%, 120px)',
+          transform: 'translate(-50%, 160px)',
           display: 'flex',
-          gap: '70px',
+          gap: '90px',
           zIndex: 10,
-          paddingRight: '15px'
+          paddingLeft: '40px'
         }}>
-          <div style={{
-            fontSize: '19px',
-            color: '#000000',
-            fontFamily: 'Arial, sans-serif',
-            fontWeight: 'normal',
-            textAlign: 'center',
-          }}>
-            Challenges
+          {/* Challenges Title */}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && isEditingChallengesTitle ? (
+              <InlineEditor
+                initialValue={currentChallengesTitle}
+                onSave={handleChallengesTitleSave}
+                onCancel={() => setIsEditingChallengesTitle(false)}
+                placeholder="Challenges"
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  cursor: isEditable ? 'pointer' : 'default',
+                }}
+                onClick={() => isEditable && setIsEditingChallengesTitle(true)}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {currentChallengesTitle}
+              </div>
+            )}
           </div>
-          <div style={{
-            fontSize: '19px',
-            color: '#000000',
-            fontFamily: 'Arial, sans-serif',
-            fontWeight: 'normal',
-            textAlign: 'center',
-          }}>
-            Solutions
+          
+          {/* Solutions Title */}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && isEditingSolutionsTitle ? (
+              <InlineEditor
+                initialValue={currentSolutionsTitle}
+                onSave={handleSolutionsTitleSave}
+                onCancel={() => setIsEditingSolutionsTitle(false)}
+                placeholder="Solutions"
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: '19px',
+                  color: '#000000',
+                  fontFamily: 'Arial, sans-serif',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  cursor: isEditable ? 'pointer' : 'default',
+                }}
+                onClick={() => isEditable && setIsEditingSolutionsTitle(true)}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              >
+                {currentSolutionsTitle}
+              </div>
+            )}
           </div>
         </div>
       </div>

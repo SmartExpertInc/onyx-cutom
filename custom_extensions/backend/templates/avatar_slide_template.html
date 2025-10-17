@@ -577,6 +577,12 @@
             /* Remove all text and icon styles */
         }
         
+        /* CRITICAL FIX: Enable transform positioning for draggable text elements */
+        .positioned-element {
+            /* Keep elements in their natural flexbox flow while allowing transforms */
+            /* Removed position: relative to prevent positioning conflicts (same fix as PDF) */
+        }
+        
         /* Hide all placeholder content */
         .avatar-placeholder .placeholder-icon,
         .avatar-placeholder .placeholder-text,
@@ -690,6 +696,29 @@
     </style>
 </head>
 <body>
+    {# ====================================================================== #}
+    {# COORDINATE SCALING FOR VIDEO GENERATION                               #}
+    {# CRITICAL FIX: Use ACTUAL canvas dimensions from metadata              #}
+    {# ====================================================================== #}
+    
+    {# Get actual canvas dimensions from metadata if available #}
+    {% if metadata and metadata.canvasDimensions %}
+        {% set EDITOR_WIDTH = metadata.canvasDimensions.width %}
+        {% set EDITOR_HEIGHT = metadata.canvasDimensions.height %}
+    {% else %}
+        {# Fallback to design dimensions if no metadata #}
+        {% set EDITOR_WIDTH = 1174 %}
+        {% set EDITOR_HEIGHT = 600 %}
+    {% endif %}
+    
+    {# Video canvas dimensions (always 1920×1080) #}
+    {% set VIDEO_WIDTH = 1920 %}
+    {% set VIDEO_HEIGHT = 1080 %}
+    
+    {# Calculate scale factors using ACTUAL editor dimensions #}
+    {% set SCALE_X = VIDEO_WIDTH / EDITOR_WIDTH %}
+    {% set SCALE_Y = VIDEO_HEIGHT / EDITOR_HEIGHT %}
+    
     <div class="slide-page">
         <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
             {% if templateId == 'avatar-checklist' %}
@@ -711,14 +740,28 @@
                         <div class="right-content">
                             <!-- Title with question mark -->
                             {% if title %}
-                                <div style="display: flex; align-items: center; gap: 18px;">
+                                <div style="display: flex; align-items: center; gap: 18px;" class="positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="display: flex; align-items: center; gap: 18px; transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
                                 <span class="icon question-icon">?</span>
                                     <h1 class="slide-title">{{title}}</h1>
                             </div>
                             {% endif %}
 
                             <!-- Checklist -->
-                            <div class="checklist-container">
+                            <div class="checklist-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set checklistId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[checklistId] %}
+                                        style="transform: translate({{ metadata.elementPositions[checklistId].x }}px, {{ metadata.elementPositions[checklistId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for item in items %}
                                     <div class="checklist-item">
                                         <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
@@ -755,12 +798,26 @@
                     <!-- Left Panel - Dark Promotional Section -->
                     <div class="left-panel">
                         <!-- Pink Banner -->
-                        <div class="banner">
+                        <div class="banner positioned-element"
+                            {% if metadata and metadata.elementPositions %}
+                                {% set bannerId = 'draggable-' + slideId + '-0' %}
+                                {% if metadata.elementPositions[bannerId] %}
+                                    style="transform: translate({{ metadata.elementPositions[bannerId].x }}px, {{ metadata.elementPositions[bannerId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {{ title }}
                         </div>
                         
                         <!-- Checklist -->
-                        <div class="checklist">
+                        <div class="checklist positioned-element"
+                            {% if metadata and metadata.elementPositions %}
+                                {% set checklistId = 'draggable-' + slideId + '-1' %}
+                                {% if metadata.elementPositions[checklistId] %}
+                                    style="transform: translate({{ metadata.elementPositions[checklistId].x }}px, {{ metadata.elementPositions[checklistId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {% if subtitle %}
                             <div class="checklist-item">
                                 <span class="checkmark">✓</span>
@@ -797,6 +854,59 @@
                 </div>
                 
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                🔍 AVATAR-SERVICE POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                Template ID: {{ templateId }}
+                Slide ID: {{ slideId }}
+                
+                📐 Canvas Dimensions Analysis:
+                  ACTUAL Editor Canvas (from metadata):
+                    - Width:  {{ "%.2f"|format(EDITOR_WIDTH) }}px
+                    - Height: {{ "%.2f"|format(EDITOR_HEIGHT) }}px
+                    - Aspect Ratio: {{ "%.6f"|format(EDITOR_WIDTH / EDITOR_HEIGHT) }}
+                    - Total Pixels: {{ "{:,}".format((EDITOR_WIDTH * EDITOR_HEIGHT)|int) }}
+                    - Source: {{ 'metadata.canvasDimensions' if metadata and metadata.canvasDimensions else 'fallback defaults' }}
+                    {% if not metadata or not metadata.canvasDimensions %}
+                    - ⚠️ Using fallback - may cause positioning errors!
+                    {% endif %}
+                  
+                  Design Editor Canvas (reference):
+                    - Width:  1174px
+                    - Height: 600px
+                    - Aspect Ratio: 1.956667 (1.957:1)
+                    {% if metadata and metadata.canvasDimensions and (EDITOR_WIDTH - 1174)|abs > 1 %}
+                    - ⚠️ MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
+                    {% endif %}
+                  
+                  Video Canvas (Backend):
+                    - Width:  {{ VIDEO_WIDTH }}px
+                    - Height: {{ VIDEO_HEIGHT }}px
+                    - Aspect Ratio: {{ "%.6f"|format(VIDEO_WIDTH / VIDEO_HEIGHT) }} (1.778:1 - 16:9)
+                    - Total Pixels: {{ "{:,}".format(VIDEO_WIDTH * VIDEO_HEIGHT) }}
+                  
+                  Dimension Comparison:
+                    - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
+                    - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
+                    - Aspect Ratio Mismatch: {{ "%.6f"|format((EDITOR_WIDTH/EDITOR_HEIGHT) - (VIDEO_WIDTH/VIDEO_HEIGHT)|abs) }}
+                    - ⚠️ Non-uniform scaling required (different X/Y factors)
+                
+                📏 Scale Factors (using ACTUAL dimensions):
+                  - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
+                  - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
+                  - Scale Factor Ratio: {{ "%.6f"|format(SCALE_Y/SCALE_X) }} (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% {{ 'larger' if SCALE_Y > SCALE_X else 'smaller' }})
+                
+                Metadata Available: {{ 'YES' if metadata else 'NO' }}
+                Canvas Dimensions in Metadata: {{ 'YES' if metadata and metadata.canvasDimensions else 'NO' }}
+                Element Positions Available: {{ 'YES' if metadata and metadata.elementPositions else 'NO' }}
+                {% if metadata and metadata.elementPositions %}
+                Total Positioned Elements: {{ metadata.elementPositions|length }}
+                Position Keys: {{ metadata.elementPositions.keys()|list }}
+                {% endif %}
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
+                
                 <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
                     <!-- Dark shape in top-left corner -->
                     <div class="dark-shape"></div>
@@ -804,19 +914,106 @@
                     <div class="content-container" style="background-color: transparent; height: 100%;">
                         <!-- Left content -->
                         <div class="left-content" style="background-color: transparent;">
-                            <!-- Title -->
+                            <!-- Title with positioning support -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set titleId = 'draggable-' + slideId + '-0' %}
+                                    {% if metadata.elementPositions[titleId] %}
+                                        {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 TITLE POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ titleId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[titleId].x }}px
+                                          y: {{ metadata.elementPositions[titleId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
+                                        <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
+                                    {% else %}
+                                        <!-- 📍 TITLE: No custom position found for {{ titleId }}, using default layout -->
+                                        <h1 class="slide-title">{{ title }}</h1>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- 📍 TITLE: No metadata available, using default layout -->
+                                    <h1 class="slide-title">{{ title }}</h1>
+                                {% endif %}
                             {% endif %}
 
-                            <!-- Subtitle -->
+                            <!-- Subtitle with positioning support -->
                             {% if subtitle %}
-                                <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[subtitleId] %}
+                                        {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 SUBTITLE POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ subtitleId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[subtitleId].x }}px
+                                          y: {{ metadata.elementPositions[subtitleId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
+                                        <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
+                                    {% else %}
+                                        <!-- 📍 SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
+                                        <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- 📍 SUBTITLE: No metadata available, using default layout -->
+                                    <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                                {% endif %}
                             {% endif %}
 
-                            <!-- Content -->
+                            <!-- Content with positioning support -->
                             {% if content %}
-                                <p class="content-text">{{ content }}</p>
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set contentId = 'draggable-' + slideId + '-2' %}
+                                    {% if metadata.elementPositions[contentId] %}
+                                        {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 CONTENT POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ contentId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[contentId].x }}px
+                                          y: {{ metadata.elementPositions[contentId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
+                                        <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
+                                    {% else %}
+                                        <!-- 📍 CONTENT: No custom position found for {{ contentId }}, using default layout -->
+                                        <p class="content-text">{{ content }}</p>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- 📍 CONTENT: No metadata available, using default layout -->
+                                    <p class="content-text">{{ content }}</p>
+                                {% endif %}
                             {% endif %}
                         </div>
 
@@ -828,6 +1025,12 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                ✅ END AVATAR-SERVICE POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
                 
             {% elif templateId == 'avatar-buttons' %}
                 <div class="avatar-buttons">
@@ -843,11 +1046,25 @@
                         <div class="right-content">
                             <!-- Title -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                <h1 class="slide-title positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ title }}</h1>
                             {% endif %}
 
                             <!-- Buttons Grid -->
-                            <div class="buttons-container">
+                            <div class="buttons-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set buttonsId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[buttonsId] %}
+                                        style="transform: translate({{ metadata.elementPositions[buttonsId].x }}px, {{ metadata.elementPositions[buttonsId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for button in buttons %}
                                     <div class="button">{{ button.text }}</div>
                                 {% endfor %}
@@ -869,11 +1086,25 @@
                         <div class="left-content">
                             <!-- Title -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                <h1 class="slide-title positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ title }}</h1>
                             {% endif %}
 
                             <!-- Steps -->
-                            <div class="steps-container">
+                            <div class="steps-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set stepsId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[stepsId] %}
+                                        style="transform: translate({{ metadata.elementPositions[stepsId].x }}px, {{ metadata.elementPositions[stepsId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for step in steps %}
                                     <div class="step-box">{{ step }}</div>
                                     {% if not loop.last %}
@@ -907,15 +1138,48 @@
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
                     {% if title %}
-                        <h1 class="slide-title" style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
+                        <h1 class="slide-title positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slideId + '-0' %}
+                                {% if metadata.elementPositions[titleId] %}
+                                    style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem; transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                {% else %}
+                                    style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;"
+                            {% endif %}
+                        >{{ title }}</h1>
                     {% endif %}
                     
                     {% if subtitle %}
-                        <h2 class="slide-subtitle" style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
+                        <h2 class="slide-subtitle positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                                {% if metadata.elementPositions[subtitleId] %}
+                                    style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem; transform: translate({{ metadata.elementPositions[subtitleId].x }}px, {{ metadata.elementPositions[subtitleId].y }}px);"
+                                {% else %}
+                                    style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;"
+                            {% endif %}
+                        >{{ subtitle }}</h2>
                     {% endif %}
                     
                     {% if content %}
-                        <p class="content-text" style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;">{{ content }}</p>
+                        <p class="content-text positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set contentId = 'draggable-' + slideId + '-2' %}
+                                {% if metadata.elementPositions[contentId] %}
+                                    style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto; transform: translate({{ metadata.elementPositions[contentId].x }}px, {{ metadata.elementPositions[contentId].y }}px);"
+                                {% else %}
+                                    style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;"
+                            {% endif %}
+                        >{{ content }}</p>
                     {% endif %}
                     
                     {% if not title and not subtitle and not content %}

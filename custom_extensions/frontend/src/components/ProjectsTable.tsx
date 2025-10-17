@@ -23,6 +23,7 @@ import {
   List,
   Plus,
   ChevronsUpDown,
+  ArrowUpDown,
   LucideIcon,
   Share2,
   Trash2,
@@ -31,8 +32,6 @@ import {
   Link as LinkIcon,
   RefreshCw,
   AlertTriangle,
-  FolderMinus,
-  Folder,
   ChevronRight,
   ChevronDown,
   CheckSquare,
@@ -48,7 +47,6 @@ import {
   TableOfContents,
   Search
 } from "lucide-react";
-import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ProjectCard as CustomProjectCard } from "./ui/project-card";
@@ -64,6 +62,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Dialog,
   DialogContent,
@@ -86,6 +85,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import useFeaturePermission from "../hooks/useFeaturePermission";
+import { timeEvent } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -113,7 +113,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
 const getProductTypeDisplayName = (type: string): string => {
   switch (type) {
     case "Training Plan":
-      return "Course Outline";
+      return "Course";
     case "Slide Deck":
       return "Presentation";
     case "Text Presentation":
@@ -127,11 +127,11 @@ const TitleIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="#6A7282" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
-const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
+const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#6A7282"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#6A728"}}></path></g></svg>
 );
 
-const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
+const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
@@ -860,6 +860,8 @@ interface ProjectsTableProps {
   /** If true – table displays items from Trash and hides create/filter toolbars */
   trashMode?: boolean;
   folderId?: number | null;
+  /** If true – table displays only audit projects */
+  auditMode?: boolean;
 }
 
 interface ColumnVisibility {
@@ -888,7 +890,6 @@ const FolderRow: React.FC<{
   level: number;
   index: number;
   trashMode: boolean;
-  columnVisibility: ColumnVisibility;
   columnWidths: ColumnWidths;
   expandedFolders: Set<number>;
   folderProjects: Record<number, Project[]>;
@@ -927,7 +928,6 @@ const FolderRow: React.FC<{
   level,
   index,
   trashMode,
-  columnVisibility,
   columnWidths,
   expandedFolders,
   folderProjects,
@@ -952,6 +952,7 @@ const FolderRow: React.FC<{
   allFolders,
 }) => {
   const { t } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const hasChildren = folder.children && folder.children.length > 0;
   const isExpanded = expandedFolders.has(folder.id);
@@ -1009,28 +1010,14 @@ const FolderRow: React.FC<{
         }}
         onClick={() => toggleFolder(folder.id)}
       >
-        {columnVisibility.title && (
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -
+          </TableCell>
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
               className="inline-flex items-center"
               style={{ paddingLeft: `${level * 20}px` }}
             >
-              <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="opacity-60 group-hover:opacity-100"
-                >
-                  <circle cx="9" cy="5" r="2" />
-                  <circle cx="9" cy="12" r="2" />
-                  <circle cx="9" cy="19" r="2" />
-                  <circle cx="15" cy="5" r="2" />
-                  <circle cx="15" cy="12" r="2" />
-                  <circle cx="15" cy="19" r="2" />
-                </svg>
-              </div>
               <Button 
                 variant="ghost" 
                 size="icon"
@@ -1043,18 +1030,23 @@ const FolderRow: React.FC<{
                   }`}
                 />
               </Button>
-              <Folder
-                size={16}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
                 style={{ color: getFolderTierColor(folder, allFolders) }}
                 className="mr-2"
-              />
+              >
+                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+              </svg>
               <DynamicText
                 text={folder.name}
                 columnWidthPercent={columnWidths.title}
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
-              <Badge variant="outline" className="ml-2 text-xs text-gray-500 bg-gray-100">
+              <Badge variant="outline" className="ml-2 text-xs text-gray-700 bg-gray-100">
                 {getTotalItemsInFolder(folder, folderProjects)}{" "}
                 {getTotalItemsInFolder(folder, folderProjects) === 1
                   ? t("interface.item", "item")
@@ -1062,18 +1054,9 @@ const FolderRow: React.FC<{
               </Badge>
             </span>
           </TableCell>
-        )}
-        {columnVisibility.type && (
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
-          </TableCell>
-        )}
-        {columnVisibility.created && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
           </TableCell>
-        )}
-        {columnVisibility.creator && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span className="inline-flex items-center">
               <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
@@ -1082,34 +1065,6 @@ const FolderRow: React.FC<{
               You
             </span>
           </TableCell>
-        )}
-        {columnVisibility.numberOfLessons && (
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalLessons = getTotalLessonsInFolder(folder);
-              return totalLessons > 0 ? totalLessons : "-";
-            })()}
-          </TableCell>
-        )}
-        {columnVisibility.estCreationTime && (
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalHours = getTotalHoursInFolder(folder);
-              return totalHours > 0 ? `${totalHours}h` : "-";
-            })()}
-          </TableCell>
-        )}
-        {columnVisibility.estCompletionTime && (
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalCompletionTime =
-                getTotalCompletionTimeInFolder(folder);
-              return totalCompletionTime > 0
-                ? formatCompletionTimeLocalized(totalCompletionTime)
-                : "-";
-            })()}
-          </TableCell>
-        )}
         <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
@@ -1176,50 +1131,6 @@ const FolderRow: React.FC<{
               handleDragEnd(e);
             }}
           >
-            {columnVisibility.title && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <span
-                  className="inline-flex items-center"
-                  style={{ paddingLeft: `${(level + 1) * 20}px` }}
-                >
-                  <div
-                    className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                      getModalState()
-                        ? "cursor-grab active:cursor-grabbing"
-                        : "cursor-default opacity-30"
-                    }`}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="opacity-60 group-hover:opacity-100"
-                    >
-                      <circle cx="9" cy="5" r="2" />
-                      <circle cx="9" cy="12" r="2" />
-                      <circle cx="9" cy="19" r="2" />
-                      <circle cx="15" cy="5" r="2" />
-                      <circle cx="15" cy="12" r="2" />
-                      <circle cx="15" cy="19" r="2" />
-                    </svg>
-                  </div>
-                  <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
-                  <Star size={16} className="text-gray-300 mr-2" />
-                  <DynamicText
-                    text={p.title}
-                    columnWidthPercent={columnWidths.title}
-                    href={trashMode ? "#" : (
-                      p.designMicroproductType === "Video Lesson Presentation" 
-                        ? `/projects-2/view/${p.id}`
-                        : `/projects/view/${p.id}`
-                    )}
-                    title={p.title}
-                  />
-                </span>
-              </TableCell>
-            )}
-            {columnVisibility.type && (
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
@@ -1229,50 +1140,38 @@ const FolderRow: React.FC<{
                   "-"
                 )}
               </TableCell>
-            )}
-            {columnVisibility.created && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(p.createdAt)}
-              </TableCell>
-            )}
-            {columnVisibility.creator && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span className="inline-flex items-center">
-                  <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                    <span className="text-xs font-bold text-gray-700">Y</span>
-                  </span>
-                  You
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <span
+                  className="inline-flex items-center"
+                  style={{ paddingLeft: `${(level + 1) * 20}px` }}
+                >
+                  <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
+                  {/* <Star size={16} className="text-gray-300 mr-2" /> */}
+                  <DynamicText
+                    text={p.title}
+                    columnWidthPercent={columnWidths.title}
+                    href={trashMode ? "#" : (
+                      p.designMicroproductType === "Video Lesson Presentation" 
+                        ? `/projects-2/view/${p.id}`
+                        : (p.designMicroproductType === "Training Plan"
+                          ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
+                          : `/projects/view/${p.id}`)
+                    )}
+                    title={p.title}
+                  />
                 </span>
               </TableCell>
-            )}
-            {columnVisibility.numberOfLessons && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData ? lessonData.lessonCount : "-";
-                })()}
-              </TableCell>
-            )}
-            {columnVisibility.estCreationTime && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData && lessonData.totalHours
-                    ? `${lessonData.totalHours}h`
-                    : "-";
-                })()}
-              </TableCell>
-            )}
-            {columnVisibility.estCompletionTime && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData
-                    ? formatCompletionTimeLocalized(lessonData.completionTime)
-                    : "-";
-                })()}
-              </TableCell>
-            )}
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {formatDate(p.createdAt)}
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <span className="inline-flex items-center">
+                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-700">Y</span>
+                </span>
+                You
+              </span>
+            </TableCell>
             <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
@@ -1294,7 +1193,7 @@ const FolderRow: React.FC<{
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
         <TableRow>
           <TableCell
-            colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
+            colSpan={4}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
@@ -1313,7 +1212,6 @@ const FolderRow: React.FC<{
             level={level + 1}
             index={childIndex}
             trashMode={trashMode}
-            columnVisibility={columnVisibility}
             columnWidths={columnWidths}
             expandedFolders={expandedFolders}
             folderProjects={folderProjects}
@@ -1377,6 +1275,7 @@ const ProjectRowMenu: React.FC<{
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -1490,7 +1389,7 @@ const ProjectRowMenu: React.FC<{
     <div ref={menuRef} className="inline-block">
       <Button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        className="text-gray-400 shadow-none border-none hover:text-gray-600 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
@@ -1508,7 +1407,7 @@ const ProjectRowMenu: React.FC<{
                 : 0,
               top: buttonRef.current
                 ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
+                  ? buttonRef.current.getBoundingClientRect().top - 200
                   : buttonRef.current.getBoundingClientRect().bottom + 8
                 : 0,
             }}
@@ -1552,7 +1451,7 @@ const ProjectRowMenu: React.FC<{
             ) : (
               <>
                 <div className="py-1">
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
                   </Button>
@@ -1563,28 +1462,28 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
                   </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </Button>
+                  </Button> */}
                   <Button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
                   </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </Button>
+                  </Button> */}
                   {isOutline && qualityTierEnabled && (
                     <Button
                       onClick={(e) => {
@@ -1593,7 +1492,7 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
@@ -1607,16 +1506,19 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
-                      <FolderMinus size={16} className="text-orange-500" />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-orange-500">
+                        <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        <path d="M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
                     </Button>
                   )}
                 </div>
-                <div className="py-1 border-t border-gray-100">
+                <div className="py-1">
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1624,7 +1526,7 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
@@ -1737,13 +1639,13 @@ const ProjectRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">{t("actions.rename", "Rename")}</h4>
             <div className="mb-6">
               <Label
                 htmlFor="newName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
-                New Name:
+                {t("actions.newName", "New Name:")}
               </Label>
               <Input
                 id="newName"
@@ -1754,7 +1656,7 @@ const ProjectRowMenu: React.FC<{
                 className="w-full px-3 py-2"
               />
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-start gap-3">
               <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
@@ -1870,7 +1772,7 @@ const ProjectRowMenu: React.FC<{
           onClose={() => setShowSettingsModal(false)}
           projectName={project.title}
           projectId={project.id}
-          onTierChange={(tier) => {
+          onTierChange={(tier: string) => {
             console.log("Project tier changed to:", tier);
           }}
         />
@@ -2047,7 +1949,7 @@ const FolderRowMenu: React.FC<{
                   : 0,
                 top: buttonRef.current
                   ? menuPosition === "above"
-                    ? buttonRef.current.getBoundingClientRect().top - 220
+                    ? buttonRef.current.getBoundingClientRect().top - 200
                     : buttonRef.current.getBoundingClientRect().bottom + 8
                   : 0,
               }}
@@ -2063,13 +1965,13 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <Button className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
                 </Button>
                 <Button
                   onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
@@ -2077,7 +1979,7 @@ const FolderRowMenu: React.FC<{
                 {qualityTierEnabled && (
                   <Button
                     onClick={handleSettingsClick}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Settings size={16} className="text-gray-500" />
                     <span>{t("actions.settings", "Settings")}</span>
@@ -2085,7 +1987,7 @@ const FolderRowMenu: React.FC<{
                 )}
                 <Button
                   onClick={handleExportFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
@@ -2094,7 +1996,7 @@ const FolderRowMenu: React.FC<{
               <div className="py-1 border-t border-gray-100">
                 <Button
                   onClick={handleDeleteFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>
@@ -2117,14 +2019,14 @@ const FolderRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">
               {t("actions.renameFolder", "Rename Folder")}
             </h4>
 
             <div className="mb-6">
               <Label
                 htmlFor="newFolderName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
                 {t("actions.newName", "New Name:")}
               </Label>
@@ -2200,7 +2102,7 @@ const FolderRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                variant="default"
+                variant="download"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
@@ -2212,16 +2114,6 @@ const FolderRowMenu: React.FC<{
         </div>
       )}
 
-      <FolderSettingsModal
-        open={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-        folderName={folder.name}
-        folderId={folder.id}
-        currentTier={folder.quality_tier || "medium"}
-        onTierChange={(tier) => {
-          console.log("Folder tier changed to:", tier);
-        }}
-      />
 
       {/* Loading Modal for Folder Export */}
       <FolderExportLoadingModal isOpen={isExporting} folderName={folder.name} />
@@ -2232,15 +2124,18 @@ const FolderRowMenu: React.FC<{
 const ProjectsTable: React.FC<ProjectsTableProps> = ({
   trashMode = false,
   folderId = null,
+  auditMode = false,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed">(
+  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator">(
     "lastViewed"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -2258,6 +2153,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   );
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [contentTypeFilter, setContentTypeFilter] = useState("All");
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(
     new Set()
   );
@@ -2274,15 +2170,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
     >
   >({});
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
-    title: true,
-    created: false,
-    creator: false,
-    numberOfLessons: true,
-    estCreationTime: true,
-    estCompletionTime: true,
-    type: false,
-  });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 48,
     created: 15,
@@ -2292,8 +2179,53 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     estCompletionTime: 13.5,
     type: 5,
   });
-  const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+
+  // Helper to compute a human-friendly display title for the products page
+  // Prefer unique instance names for non-outline products; fall back to content-derived titles
+  const computeDisplayTitleFromProjectApi = useCallback((p: any): string => {
+    try {
+      const typeRaw: string = p?.design_microproduct_type || '';
+      const type = String(typeRaw).toLowerCase();
+
+      // Treat outlines specially; keep the project name as the display name
+      if (type === 'training plan' || type === 'course outline') {
+        return p?.projectName || p?.microproduct_name || 'Untitled';
+      }
+
+      // 1) Prefer explicitly stored instance name if it's provided and not a generic template label
+      const instanceName: string | undefined = p?.projectName?.trim() || p?.microproduct_name?.trim();
+      const genericNames = new Set([
+        'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video Lesson Presentation'
+      ]);
+      if (instanceName && !genericNames.has(instanceName)) {
+        return instanceName;
+      }
+
+      // 2) Try to extract a meaningful title from the content payload
+      const content = p?.microproduct_content || {};
+      if (content && typeof content === 'object') {
+        const candidates = [
+          content.lessonTitle,
+          content.title,
+          content.quizTitle,
+          content.name,
+        ].filter(Boolean);
+        if (candidates.length > 0) {
+          const candidate = String(candidates[0]).trim();
+          if (candidate.length > 0) {
+            return candidate;
+          }
+        }
+      }
+
+      // 3) Fallbacks
+      return p?.projectName || instanceName || 'Untitled';
+    } catch (e) {
+      console.warn('[PRODUCTS PAGE] computeDisplayTitleFromProjectApi error:', e);
+      return p?.projectName || p?.microproduct_name || 'Untitled';
+    }
+  }, []);
 
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
@@ -2305,39 +2237,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
 
-  // Column resizing functionality
-  const handleColumnResize = (columnKey: string, newWidth: number) => {
-    setColumnWidths((prev) => ({
-      ...prev,
-      [columnKey]: Math.max(10, Math.min(80, newWidth)), // Min 10%, Max 80%
-    }));
+  // Handle sorting
+  const handleSort = (column: typeof sortBy) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
   };
 
-  const handleResizeStart = (e: React.MouseEvent, columnKey: string) => {
-    e.preventDefault();
-    setResizingColumn(columnKey);
-
-    const startX = e.clientX;
-    const startWidth = columnWidths[columnKey as keyof ColumnWidths];
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX;
-      const containerWidth =
-        (e.target as Element).closest("table")?.clientWidth || 1000;
-      const deltaPercent = (deltaX / containerWidth) * 100;
-      const newWidth = startWidth + deltaPercent;
-      handleColumnResize(columnKey, newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setResizingColumn(null);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
+  // Feature flag: enable outline-related filtering (hides products generated from course outlines)
+  const ENABLE_OUTLINE_FILTERING = false;
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -2396,15 +2307,39 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         apiUrl: projectsApiUrl,
         projects: projectsData.map((p: any) => ({
           id: p.id,
-          name: p.projectName || p.microproduct_name,
-          type: p.design_microproduct_type,
-          created_at: p.created_at
+          projectName: p.projectName,
+          microproduct_name: p.microproduct_name,
+          design_microproduct_type: p.design_microproduct_type,
+          created_at: p.created_at,
+          has_content: !!p.microproduct_content,
+          content_keys: p?.microproduct_content ? Object.keys(p.microproduct_content) : []
         }))
       });
       
+      // 📦 EXTRA DEBUG: Print full objects and computed display titles to find real name field
+      try {
+        projectsData.forEach((p: any) => {
+          const computedTitle = computeDisplayTitleFromProjectApi(p);
+          const nameCandidates = {
+            projectName: p?.projectName,
+            microproduct_name: p?.microproduct_name,
+            content_title: p?.microproduct_content?.title,
+            content_lessonTitle: p?.microproduct_content?.lessonTitle,
+            content_quizTitle: p?.microproduct_content?.quizTitle,
+          };
+          console.groupCollapsed(`📄 [PRODUCT] #${p?.id} (${p?.design_microproduct_type || 'unknown'})`);
+          console.log('Raw:', p);
+          console.log('Name candidates:', nameCandidates);
+          console.log('Computed displayTitle:', computedTitle);
+          console.groupEnd();
+        });
+      } catch (e) {
+        console.warn('[PRODUCTS PAGE] Error during debug logging:', e);
+      }
+      
       const processedProjects = projectsData.map((p: any) => ({
         id: p.id,
-        title: p.projectName || p.microproduct_name || "Untitled",
+        title: computeDisplayTitleFromProjectApi(p),
         imageUrl: p.imageUrl || "",
         lastViewed: p.lastViewed || "Never",
         createdAt: p.created_at,
@@ -2419,7 +2354,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         source_chat_session_id: p.source_chat_session_id,
       }));
 
-      // Sort projects by order field
+      // Sort projects by order field (default sorting)
       const sortedProjects = processedProjects.sort(
         (a: Project, b: Project) => (a.order || 0) - (b.order || 0)
       );
@@ -2585,12 +2520,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      const allProjects = deduplicateProjects(sortedProjects);
+      const allProjects = ENABLE_OUTLINE_FILTERING
+        ? deduplicateProjects(sortedProjects)
+        : sortedProjects;
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
       const folderProjectsMap: Record<number, Project[]> = {};
-      allProjects.forEach((project) => {
+      allProjects.forEach((project: Project) => {
         if (project.folderId) {
           if (!folderProjectsMap[project.folderId]) {
             folderProjectsMap[project.folderId] = [];
@@ -2622,7 +2559,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [trashMode, folderId, router]);
+  }, [trashMode, folderId, router, auditMode]);
 
   // Fetch projects for a specific folder
   const fetchFolderProjects = useCallback(
@@ -2659,7 +2596,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         const projectsData = await response.json();
         const processedProjects = projectsData.map((p: any) => ({
           id: p.id,
-          title: p.projectName || p.microproduct_name || "Untitled",
+          title: computeDisplayTitleFromProjectApi(p),
           imageUrl: p.imageUrl || "",
           lastViewed: p.lastViewed || "Never",
           createdAt: p.created_at,
@@ -2714,6 +2651,25 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const getUnassignedProjects = useCallback(() => {
     let filteredProjects = projects.filter((p) => p.folderId === null);
 
+    // Apply content type filter
+    if (contentTypeFilter !== "All") {
+      filteredProjects = filteredProjects.filter((p) => {
+        const designType = (p.designMicroproductType || "").toLowerCase();
+        switch (contentTypeFilter) {
+          case "Course":
+            return designType === "training plan";
+          case "Presentation":
+            return designType === "slide deck";
+          case "Quiz":
+            return designType === "quiz";
+          case "Video Lesson":
+            return designType === "video lesson presentation";
+          default:
+            return true;
+        }
+      });
+    }
+
     // Apply search filter if search term exists
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -2733,17 +2689,36 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     }
 
     return filteredProjects;
-  }, [projects, searchTerm]);
+  }, [projects, searchTerm, contentTypeFilter]);
 
   // Helper function to get projects for a specific folder (including subfolders) with search
   const getProjectsForFolder = useCallback(
     (targetFolderId: number | null) => {
       let filteredProjects = projects;
 
+      // Apply content type filter
+      if (contentTypeFilter !== "All") {
+        filteredProjects = filteredProjects.filter((p) => {
+          const designType = (p.designMicroproductType || "").toLowerCase();
+          switch (contentTypeFilter) {
+            case "Course":
+              return designType === "training plan";
+            case "Presentation":
+              return designType === "slide deck";
+            case "Quiz":
+              return designType === "quiz";
+            case "Video Lesson":
+              return designType === "video lesson presentation";
+            default:
+              return true;
+          }
+        });
+      }
+
       // Apply search filter if search term exists
       if (searchTerm.trim()) {
         const searchLower = searchTerm.toLowerCase().trim();
-        filteredProjects = projects.filter((p) => {
+        filteredProjects = filteredProjects.filter((p) => {
           const title = (p.title || "").toLowerCase();
           const instanceName = (p.instanceName || "").toLowerCase();
           const designType = (p.designMicroproductType || "").toLowerCase();
@@ -2758,8 +2733,40 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         });
       }
 
+      // Apply sorting to filtered projects
+      const sortedFilteredProjects = filteredProjects.sort((a: Project, b: Project) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortBy) {
+          case 'title':
+            aValue = a.title.toLowerCase();
+            bValue = b.title.toLowerCase();
+            break;
+          case 'created':
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          case 'lastViewed':
+            aValue = a.lastViewed === "Never" ? new Date(0) : new Date(a.lastViewed);
+            bValue = b.lastViewed === "Never" ? new Date(0) : new Date(b.lastViewed);
+            break;
+          case 'creator':
+            aValue = a.createdBy.toLowerCase();
+            bValue = b.createdBy.toLowerCase();
+            break;
+          default:
+            aValue = a.order || 0;
+            bValue = b.order || 0;
+        }
+
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+
       if (targetFolderId === null) {
-        return filteredProjects;
+        return sortedFilteredProjects;
       }
 
       // Get all projects that belong to this folder or any of its subfolders
@@ -2775,16 +2782,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       };
 
       const folderIds = getFolderAndSubfolderIds(targetFolderId);
-      return filteredProjects.filter(
+      return sortedFilteredProjects.filter(
         (p) => p.folderId && folderIds.includes(p.folderId)
       );
     },
-    [projects, folders, searchTerm]
+    [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache, contentTypeFilter]
   );
 
-  // Helper function to calculate lesson data for a project
+  // Helper function to calculate lesson data for a project with cancellation support
   const getLessonData = useCallback(
-    async (project: Project) => {
+    async (project: Project, signal?: AbortSignal) => {
       if (project.designMicroproductType !== "Training Plan") {
         return { lessonCount: "-", totalHours: "-", completionTime: "-" };
       }
@@ -2805,6 +2812,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             method: "GET",
             headers,
             credentials: "same-origin",
+            signal, // Add AbortSignal support
           }
         );
 
@@ -2823,6 +2831,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           return { lessonCount: "?", totalHours: "?", completionTime: "?" };
         }
       } catch (error) {
+        // Don't log errors if the request was cancelled
+        if (error instanceof Error && error.name === 'AbortError') {
+          return { lessonCount: "...", totalHours: "...", completionTime: "..." };
+        }
         console.error("Error fetching lesson data:", error);
         return { lessonCount: "?", totalHours: "?", completionTime: "?" };
       }
@@ -2835,44 +2847,98 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     return formatCompletionTimeLocalized(minutes);
   };
 
-  // Load lesson data for all Training Plan projects on mount
+  // Load lesson data for Training Plan projects in parallel (non-blocking)
   useEffect(() => {
-    const loadLessonData = async () => {
-      const trainingPlanProjects = projects.filter(
-        (p) => p.designMicroproductType === "Training Plan"
-      );
-      const newCache: Record<
-        number,
-        {
-          lessonCount: number | string;
-          totalHours: number | string;
-          completionTime: number | string;
-        }
-      > = {};
+    const trainingPlanProjects = projects.filter(
+      (p) => p.designMicroproductType === "Training Plan"
+    );
 
-      for (const project of trainingPlanProjects) {
-        try {
-          const data = await getLessonData(project);
-          newCache[project.id] = data;
-        } catch (error) {
-          console.error(
-            `Error loading lesson data for project ${project.id}:`,
-            error
-          );
-          newCache[project.id] = {
-            lessonCount: "?",
-            totalHours: "?",
-            completionTime: "?",
-          };
+    if (trainingPlanProjects.length === 0) {
+      return;
+    }
+
+    // Cancel any existing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    const currentController = abortControllerRef.current;
+
+    // Initialize cache with loading state
+    const loadingCache: Record<number, any> = {};
+    trainingPlanProjects.forEach(project => {
+      loadingCache[project.id] = {
+        lessonCount: "...",
+        totalHours: "...",
+        completionTime: "...",
+      };
+    });
+    setLessonDataCache(prev => ({ ...prev, ...loadingCache }));
+
+    // Load lesson data in parallel (non-blocking)
+    const loadLessonDataParallel = async () => {
+      try {
+        // Process projects in batches of 3 to avoid overwhelming the server
+        const batchSize = 3;
+        
+        for (let i = 0; i < trainingPlanProjects.length; i += batchSize) {
+          const batch = trainingPlanProjects.slice(i, i + batchSize);
+          
+          const batchPromises = batch.map(async (project) => {
+            try {
+              const data = await getLessonData(project, currentController.signal);
+              
+              // Update cache immediately when each request completes
+              if (!currentController.signal.aborted) {
+                setLessonDataCache(prev => ({
+                  ...prev,
+                  [project.id]: data,
+                }));
+              }
+              
+              return { projectId: project.id, data };
+            } catch (error) {
+              if (!currentController.signal.aborted) {
+                const errorData = {
+                  lessonCount: "?",
+                  totalHours: "?",
+                  completionTime: "?",
+                };
+                setLessonDataCache(prev => ({
+                  ...prev,
+                  [project.id]: errorData,
+                }));
+              }
+              return { projectId: project.id, data: null };
+            }
+          });
+
+          // Wait for current batch before starting next batch
+          await Promise.all(batchPromises);
+          
+          // Small delay between batches to be nice to the server
+          if (i + batchSize < trainingPlanProjects.length && !currentController.signal.aborted) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+      } catch (error) {
+        if (!currentController.signal.aborted) {
+          console.error('Error in parallel lesson data loading:', error);
         }
       }
-
-      setLessonDataCache(newCache);
     };
 
-    if (projects.length > 0) {
-      loadLessonData();
-    }
+    // Start loading in background (don't await - non-blocking)
+    loadLessonDataParallel();
+
+    // Cleanup function
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [projects, getLessonData]);
 
   useEffect(() => {
@@ -2887,23 +2953,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     return () => window.removeEventListener("refreshProjects", handleRefresh);
   }, [refreshProjects]);
 
-  // Handle clicking outside the columns dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest("[data-columns-dropdown]")) {
-        setShowColumnsDropdown(false);
-      }
-    };
-
-    if (showColumnsDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showColumnsDropdown]);
 
   useEffect(() => {
     localStorage.setItem("projectsViewMode", viewMode);
@@ -3511,13 +3560,29 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     t("interface.all", "All"),
     t("interface.recentlyViewed", "Recently viewed"),
     t("interface.createdByYou", "Created by you"),
-    t("interface.favorites", "Favorites"),
+    // t("interface.favorites", "Favorites"),
   ];
   const filterIcons: Record<string, LucideIcon> = {
     [t("interface.all", "All")]: Home,
     [t("interface.recentlyViewed", "Recently viewed")]: Clock,
     [t("interface.createdByYou", "Created by you")]: User,
-    [t("interface.favorites", "Favorites")]: Star,
+    // [t("interface.favorites", "Favorites")]: Star,
+  };
+
+  // Content type filters for list view
+  const contentTypeFilters = [
+    "All",
+    "Course", 
+    "Presentation",
+    "Quiz",
+    "Video Lesson"
+  ];
+  const contentTypeFilterIcons: Record<string, LucideIcon> = {
+    "All": Home,
+    "Course": TableOfContents,
+    "Presentation": Presentation,
+    "Quiz": HelpCircle,
+    "Video Lesson": Video,
   };
 
   // Add PDF download function
@@ -3545,8 +3610,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       queryParams.append("folder_id", folderId.toString());
     }
 
-    // Add column visibility settings
-    queryParams.append("column_visibility", JSON.stringify(columnVisibility));
 
     // Add column widths settings
     queryParams.append("column_widths", JSON.stringify(columnWidths));
@@ -3575,13 +3638,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     window.open(pdfUrl, "_blank");
   };
 
+  const handleCreateProduct = () => {
+    // Clear previous state of product creation
+    if (sessionStorage.getItem('createProductFailed')) {
+      sessionStorage.removeItem('createProductFailed');
+    }
+    // Start timer
+    timeEvent('Create Product');
+  };
+
   // Add these just before the render block
-  const visibleProjects =
-    viewMode === "list"
+  const visibleProjects = ENABLE_OUTLINE_FILTERING
+    ? viewMode === "list"
       ? getProjectsForFolder(folderId).filter(
           (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
         )
-      : getProjectsForFolder(folderId);
+      : getProjectsForFolder(folderId)
+    : getProjectsForFolder(folderId);
 
   const visibleUnassignedProjects =
     viewMode === "list"
@@ -3615,28 +3688,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-              <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
+              <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
                 <Button 
                   variant="gradient" 
                   className="rounded-full font-semibold"
+                  onClick={handleCreateProduct}
                   asChild
                 >
                   <div>
                   <Plus size={16} className="text-white" />
-                  {t("interface.createNew", "Create new")}
+                  {auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}
                   <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
                   </div>
                 </Button>
               </Link>
-            <Button 
-              variant="import" 
-              className="rounded-full font-semibold"
-            >
-              {t("interface.import", "Import")}
-              <ChevronsUpDown size={16} className="text-gray-500" />
-            </Button>
           </div>
         </div>
       )}
@@ -3663,7 +3730,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    className="flex items-center gap-2 text-sm font-semibold"
                  >
                    <ListFilter size={16} className="text-gray-800" />
-                   {activeFilter}
+                   {contentTypeFilter}
                    <ChevronDown size={14} className="text-gray-600" />
                  </Button>
                </DropdownMenuTrigger>
@@ -3674,14 +3741,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    </p>
                  </DropdownMenuLabel>
                  <DropdownMenuSeparator />
-                 {filters.map((filter) => {
-                   const Icon = filterIcons[filter];
+                 {contentTypeFilters.map((filter) => {
+                   const Icon = contentTypeFilterIcons[filter];
                    return (
                      <DropdownMenuItem
                        key={filter}
-                       onClick={() => setActiveFilter(filter)}
+                       onClick={() => setContentTypeFilter(filter)}
                        className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                         activeFilter === filter 
+                         contentTypeFilter === filter 
                            ? "bg-blue-50 text-blue-700 font-semibold" 
                            : "text-gray-700 hover:bg-gray-50"
                        }`}
@@ -3695,100 +3762,49 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
              </DropdownMenu>
             )}
 
-            {/* Columns Dropdown - only show in list view */}
+            {/* Content Type Filter - only show in list view */}
             {viewMode === "list" && (
-              <div className="relative" data-columns-dropdown>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                 <Button
-                  onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
                   variant="columns"
                   className="flex items-center gap-2 text-sm font-semibold"
                 >
-                  <List size={16} className="text-gray-800" />
-                  {t("interface.columns", "Columns")}
+                    <ListFilter size={16} className="text-gray-800" />
+                    {contentTypeFilter}
                   <ChevronDown size={14} className="text-gray-600" />
                 </Button>
-
-                {showColumnsDropdown && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="p-2">
-                      <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
-                        {t("interface.showColumns", "Show columns")}
-                      </div>
-                      {[
-                        { key: "title", label: t("interface.title", "Title") },
-                        {
-                          key: "type",
-                          label: t("interface.type", "Type"),
-                        },
-                        {
-                          key: "created",
-                          label: t("interface.created", "Created"),
-                        },
-                        {
-                          key: "creator",
-                          label: t("interface.creator", "Creator"),
-                        },
-                        {
-                          key: "numberOfLessons",
-                          label: t(
-                            "interface.numberOfLessonsShort",
-                            "Number of lessons"
-                          ),
-                        },
-                        {
-                          key: "estCreationTime",
-                          label: t(
-                            "interface.estCreationTimeShort",
-                            "Est. creation time"
-                          ),
-                        },
-                        {
-                          key: "estCompletionTime",
-                          label: t(
-                            "interface.estCompletionTimeShort",
-                            "Est. completion time"
-                          ),
-                        },
-                      ].map((column) => (
-                        <Label
-                          key={column.key}
-                          className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                        >
-                          {columnVisibility[
-                            column.key as keyof ColumnVisibility
-                          ] ? (
-                            <CheckSquare size={16} className="text-blue-600" />
-                          ) : (
-                            <Square size={16} className="text-gray-400" />
-                          )}
-                          <span className="text-sm text-gray-700">
-                            {column.label}
-                          </span>
-                          <Input
-                            type="checkbox"
-                            checked={
-                              columnVisibility[
-                                column.key as keyof ColumnVisibility
-                              ]
-                            }
-                            onChange={(e) => {
-                              setColumnVisibility((prev) => ({
-                                ...prev,
-                                [column.key]: e.target.checked,
-                              }));
-                            }}
-                            className="sr-only"
-                          />
-                        </Label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48">
+                  <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                    <p className="font-semibold text-sm text-gray-900">
+                      {t("interface.filterBy", "Filter by")}
+                    </p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {contentTypeFilters.map((filter) => {
+                    const Icon = contentTypeFilterIcons[filter];
+                    return (
+                      <DropdownMenuItem
+                        key={filter}
+                        onClick={() => setContentTypeFilter(filter)}
+                        className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                          contentTypeFilter === filter 
+                            ? "bg-blue-50 text-blue-700 font-semibold" 
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon size={16} />
+                        {filter}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* PDF Download Button - only show in list view */}
-            {viewMode === "list" && (
+            {/* {viewMode === "list" && (
               <Button
                 onClick={handlePdfDownload}
                 variant="download"
@@ -3801,7 +3817,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <ArrowDownToLine size={16} />
                 {t("common.downloadPdf", "Download PDF")}
               </Button>
-            )}
+            )} */}
 
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
               <Button
@@ -3845,181 +3861,70 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
           >
-            <style jsx>{`
-              .cursor-col-resize {
-                cursor: col-resize !important;
-              }
-              .cursor-col-resize:hover {
-                background-color: #3b82f6 !important;
-              }
-              .resizing {
-                user-select: none;
-              }
-            `}</style>
             <Table
-              className={`min-w-full divide-y divide-gray-200 ${
-                resizingColumn ? "resizing" : ""
-              }`}
+              className="min-w-full divide-y divide-gray-200"
             >
               <TableHeader className="bg-white">
                 <TableRow>
-                  {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.title}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <TitleIcon size={15} />
-                        {t("interface.title", "Title")}
-                      </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "title")}
-                      />
-                    </TableHead>
-                  )}
-                  {columnVisibility.created && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.created}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CreatedIcon size={15} />
-                        {t("interface.created", "Created")}
-                      </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "created")}
-                      />
-                    </TableHead>
-                  )}
-                  {columnVisibility.type && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
                       <div className="flex items-center gap-2">
                         <TypeIcon size={15} />
                         {t("interface.type", "Type")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "type")}
-                      />
                     </TableHead>
-                  )}
-                  {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      style={{ width: `${columnWidths.title}%` }}
+                      onClick={() => handleSort('title')}
+                    >
+                      <div className="flex items-center gap-2">
+                        <TitleIcon size={15} />
+                        {t("interface.title", "Title")}
+                        {sortBy === 'title' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.creator}%` }}
+                      onClick={() => handleSort('creator')}
                     >
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
                         {t("interface.creator", "Creator")}
+                        {sortBy === 'creator' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
                     </TableHead>
-                  )}
-                  {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.numberOfLessons}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      style={{ width: `${columnWidths.created}%` }}
+                      onClick={() => handleSort('created')}
                     >
                       <div className="flex items-center gap-2">
-                        {t("interface.numberOfLessons", "Number of Lessons")}
+                        <CreatedIcon size={15} />
+                        {t("interface.created", "Created")}
+                        {sortBy === 'created' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "numberOfLessons")
-                        }
-                      />
                     </TableHead>
-                  )}
-                  {columnVisibility.estCreationTime && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.estCreationTime}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        {t("interface.estCreationTime", "Est. Creation Time")}
-                      </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCreationTime")
-                        }
-                      />
-                    </TableHead>
-                  )}
-                  {columnVisibility.estCompletionTime && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.estCompletionTime}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        {t("interface.estCompletionTime", "Est. Completion Time")}
-                      </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCompletionTime")
-                        }
-                      />
-                    </TableHead>
-                  )}
                   <TableHead
-                    className="px-6 py-3 text-right text-xs font-semibold text-gray-500 tracking-wider"
+                    className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {/* {t("interface.actions", "Actions")} */}
+                    {t("interface.actions", "ACTIONS")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white divide-y divide-gray-100">
-                {/* Show nested folders as expandable rows when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  buildFolderTree(folders).map((folder, folderIndex) => (
-                    <FolderRow
-                      key={`folder-${folder.id}`}
-                      folder={folder}
-                      level={0}
-                      index={folderIndex}
-                      trashMode={trashMode}
-                      columnVisibility={columnVisibility}
-                      columnWidths={columnWidths}
-                      expandedFolders={expandedFolders}
-                      folderProjects={filteredFolderProjects}
-                      lessonDataCache={lessonDataCache}
-                      draggedFolder={draggedFolder}
-                      draggedProject={draggedProject}
-                      dragOverIndex={dragOverIndex}
-                      isDragging={isDragging}
-                      isReordering={isReordering}
-                      formatDate={formatDate}
-                      formatCompletionTime={formatCompletionTimeLocalized}
-                      toggleFolder={toggleFolder}
-                      handleDragStart={handleDragStart}
-                      handleDragOver={handleDragOver}
-                      handleDragLeave={handleDragLeave}
-                      handleDrop={handleDrop}
-                      handleDragEnd={handleDragEnd}
-                      handleDeleteProject={handleDeleteProject}
-                      handleRestoreProject={handleRestoreProject}
-                      handleDeletePermanently={handleDeletePermanently}
-                      handleDeleteFolder={handleDeleteFolder}
-                      allFolders={folders}
-                    />
-                  ))}
-
-                {/* Show unassigned projects when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  visibleUnassignedProjects.map((p: Project, index: number) => (
+                {/* Show filtered projects based on folder */}
+                {visibleProjects.map((p: Project, index: number) => (
                     <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
@@ -4069,46 +3974,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         handleDragEnd(e);
                       }}
                     >
-                      {columnVisibility.title && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : (
-                                p.designMicroproductType === "Video Lesson Presentation" 
-                                  ? `/projects-2/view/${p.id}`
-                                  : `/projects/view/${p.id}`
-                              )}
-                              title={p.title}
-                            />
-                          </span>
-                        </TableCell>
-                      )}
-                      {columnVisibility.type && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
@@ -4118,13 +3983,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "-"
                           )}
                         </TableCell>
-                      )}
-                      {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <span className="inline-flex items-center">
+                            {/* <Star size={16} className="text-gray-300 mr-2" /> */}
+                            <DynamicText
+                              text={p.title}
+                              columnWidthPercent={columnWidths.title}
+                              href={trashMode ? "#" : (
+                                p.designMicroproductType === "Video Lesson Presentation" 
+                                  ? `/projects-2/view/${p.id}`
+                                  : (p.designMicroproductType === "Training Plan"
+                                    ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
+                                    : `/projects/view/${p.id}`)
+                              )}
+                              title={p.title}
+                            />
+                          </span>
                         </TableCell>
-                      )}
-                      {columnVisibility.creator && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
@@ -4135,203 +4010,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             You
                           </span>
                         </TableCell>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      <TableCell
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ProjectRowMenu
-                          project={p}
-                          formatDate={formatDate}
-                          trashMode={trashMode}
-                          onDelete={handleDeleteProject}
-                          onRestore={handleRestoreProject}
-                          onDeletePermanently={handleDeletePermanently}
-                          folderId={folderId}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-
-                {/* Show projects for specific folder or all projects in trash mode */}
-                {(trashMode || folderId !== null) &&
-                  visibleProjects.map((p: Project, index: number) => (
-                    <TableRow
-                      key={p.id}
-                      className={`hover:bg-gray-50 transition group ${
-                        !getModalState()
-                          ? "cursor-grab active:cursor-grabbing"
-                          : "cursor-default"
-                      } ${
-                        dragOverIndex === index
-                          ? "bg-blue-50 border-t-2 border-blue-300"
-                          : ""
-                      } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                      draggable={!trashMode && !getModalState()}
-                      onDragStart={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          return;
-                        }
-                        handleDragStart(e, p, "project");
-                      }}
-                      onDragOver={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragOver(e, index);
-                      }}
-                      onDragLeave={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragLeave(e);
-                      }}
-                      onDrop={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDrop(e, index);
-                      }}
-                      onDragEnd={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragEnd(e);
-                      }}
-                    >
-                      {columnVisibility.title && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : (
-                                p.designMicroproductType === "Video Lesson Presentation" 
-                                  ? `/projects-2/view/${p.id}`
-                                  : `/projects/view/${p.id}`
-                              )}
-                              title={p.title}
-                            />
-                          </span>
-                        </TableCell>
-                      )}
-                      {columnVisibility.type && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <span className="text-gray-500 font-medium">
-                              {getProductTypeDisplayName(p.designMicroproductType)}
-                            </span>
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                      )}
-                      {columnVisibility.created && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
                         </TableCell>
-                      )}
-                      {columnVisibility.creator && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </TableCell>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
                       <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}

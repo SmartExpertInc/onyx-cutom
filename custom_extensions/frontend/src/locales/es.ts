@@ -14,6 +14,13 @@ export const es = {
     downloadPdf: "Descargar PDF",
     saveErrorTitle: "Error al guardar:",
     rendering: "Renderizando contenido...",
+    close: "Cerrar",
+  },
+  insufficientCredits: {
+    title: "Créditos insuficientes",
+    message:
+      "No puedes crear nuevos productos en este momento debido a créditos insuficientes para esta operación. Por favor compra más créditos para continuar.",
+    buyMore: "Comprar"
   },
   qualityTiers: {
     basic: "Básico",
@@ -49,6 +56,7 @@ export const es = {
     acceptChanges: "Aceptar cambios",
     revertChanges: "Revertir cambios",
     reviewChanges: "Revisar cambios",
+    reviewChangesMessage: "Por favor, revisa los cambios a continuación. El contenido actualizado ahora se muestra en la tabla. Puedes aceptar estos cambios para guardarlos permanentemente, o revertir para volver al contenido original.",
     changesPreview: "Vista previa de cambios",
     outlineOnly: "Solo esquema",
     moveAll: "Mover todo",
@@ -351,6 +359,7 @@ export const es = {
     smartDrive: "Disco Inteligente",
     offers: "Ofertas",
     exportToLMS: "Exportar a LMS",
+    eventPoster: "Póster de Evento",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",
@@ -366,6 +375,8 @@ export const es = {
       "Organiza tus productos por tema y compártelos con tu equipo",
     templates: "Plantillas",
     themes: "Temas",
+    createFirstFolder: "Crear primera carpeta",
+    organizeCourses: "Organiza tus cursos en carpetas, manténlos estructurados y trabaja más eficientemente",
 
     // Smart Drive content
     smartDriveBrowser: "Navegador de Disco Inteligente",
@@ -588,7 +599,7 @@ export const es = {
     numberOfLessons: "Número de lecciones",
     estCreationTime: "Tiempo est. creación",
     estCompletionTime: "Tiempo est. finalización",
-    actions: "Acciones",
+    actions: "ACCIONES",
 
     // Project actions
     rename: "Renombrar",
@@ -607,6 +618,11 @@ export const es = {
     renameFolder: "Renombrar carpeta",
     deleteFolder: "Eliminar carpeta",
     moveFolder: "Mover carpeta",
+    creatingFolders: "Creando carpetas...",
+    createFolders: "Crear carpeta",
+    createNewFolder: "Crear nueva carpeta",
+    enterFolderNamePlaceholder: "Ingrese el nombre de la carpeta...",
+    organizeProjectsByFolder: "Organiza tus proyectos por carpeta para una mejor gestión",
 
     // Modals
     createFolder: "Crear o unirse a una carpeta",
@@ -889,7 +905,7 @@ export const es = {
     importFileOrUrl: "Crear desde archivos",
     importFileOrUrlDescription:
       "Mejorar documentos, presentaciones o páginas web existentes",
-    popular: "POPULAR",
+    popular: "Popular",
 
     // Projects table toolbar
     createNew: "Crear nuevo",
@@ -1236,7 +1252,7 @@ export const es = {
         "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
       aiWillBuildUponText:
         "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
-      courseOutline: "Plan del curso",
+      courseOutline: "Curso",
       videoLesson: "Lección de video",
       presentation: "Presentación",
       quiz: "Cuestionario",
@@ -1265,6 +1281,7 @@ export const es = {
       textStyles: "Estilos de texto",
       selectStyles: "Seleccionar estilos",
       stylesSelected: "estilos seleccionados",
+      styles: "Estilos",
       useExistingOutline: "Usar plan existente",
       createNewOutline: "Crear nuevo plan",
       selectOutline: "Seleccionar plan",
@@ -1285,6 +1302,17 @@ export const es = {
       sectionBreaks: "Saltos de sección",
       icons: "Iconos",
       importantSections: "Secciones importantes",
+      // Style purposes for tooltips
+      headlinesPurpose: "Títulos de sección y encabezados",
+      paragraphsPurpose: "Bloques de texto regulares",
+      bulletListsPurpose: "Listas desordenadas con viñetas",
+      numberedListsPurpose: "Listas ordenadas con números",
+      tablesPurpose: "Datos en filas y columnas",
+      alertsPurpose: "Advertencias o consejos importantes",
+      recommendationsPurpose: "Consejos prácticos",
+      sectionBreaksPurpose: "Separadores visuales entre secciones",
+      iconsPurpose: "Emojis y elementos visuales",
+      importantSectionsPurpose: "Contenido crítico resaltado",
       // One-pager specific translations
       onePagerContent: "Contenido de Una Página",
       generatingOnePagerContent: "Generando contenido de una página...",
@@ -1322,7 +1350,7 @@ export const es = {
         "¿Quieres crear una página desde un plan de curso existente?",
       yesContentForOnePager: "Sí, contenido para la página desde el plan",
       noStandaloneOnePager: "No, quiero una página independiente",
-      backButton: "← Atrás",
+      backButton: "Al paso anterior",
       // Additional keys for preview pages
       loading: "Generando...",
       lessonQuestion:
@@ -1346,9 +1374,120 @@ export const es = {
       creatingQuiz: "Creando cuestionario...",
       finalizingQuiz: "Finalizando cuestionario...",
       words: "palabras",
+      questionSingular: "pregunta",
+      questionTypesSelected: "Tipos seleccionados",
       short: "Corto",
       medium: "Medio",
       long: "Largo",
+      lessons: "Lecciones",
+      english: "Inglés",
+      ukrainian: "Ucraniano",
+      spanish: "Español",
+      russian: "Ruso",
+      courseOutlineExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar el plan del curso según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar el plan del curso añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores planes de cursos del mercado en esta temática y reestructurar nuestro plan en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir el plan del curso para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el plan del curso añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar el plan del curso para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
+      quizExamples: {
+        moreChallenging: {
+          short: "Hacer las preguntas más desafiantes",
+          detailed: "Aumentar el nivel de dificultad de las preguntas del cuestionario añadiendo escenarios más complejos, requiriendo un análisis más profundo e incorporando habilidades de pensamiento de orden superior.",
+        },
+        morePractical: {
+          short: "Añadir más ejemplos prácticos",
+          detailed: "Incluir más ejemplos del mundo real y estudios de caso en las preguntas para hacerlas más aplicables y atractivas para los alumnos.",
+        },
+        improveClarity: {
+          short: "Mejorar la claridad de las preguntas",
+          detailed: "Reescribir las preguntas para que sean más claras y concisas, garantizando que sean fáciles de entender y evitando ambigüedades.",
+        },
+        addVariety: {
+          short: "Añadir variedad de tipos de preguntas",
+          detailed: "Incorporar diferentes tipos de preguntas (opción múltiple, verdadero/falso, respuesta corta) para hacer el cuestionario más atractivo y completo.",
+        },
+        focusObjectives: {
+          short: "Centrarse en los objetivos clave de aprendizaje",
+          detailed: "Reestructurar el cuestionario para alinearlo mejor con los principales objetivos de aprendizaje y asegurarse de que las preguntas evalúan los conceptos más importantes.",
+        },
+        includeFeedback: {
+          short: "Incluir retroalimentación y explicaciones",
+          detailed: "Añadir explicaciones detalladas para respuestas correctas e incorrectas para ayudar a los alumnos a entender el razonamiento detrás de cada respuesta.",
+        },
+      },
+      onePagerExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura del one-pager según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura del one-pager añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores one-pagers del mercado en esta temática y reestructurar nuestro contenido en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura del one-pager para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el one-pager añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura del one-pager para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
+      lessonExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura de la lección según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura de la lección añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar las mejores lecciones del mercado en esta temática y reestructurar nuestra lección en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura de la lección para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer la lección añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura de la lección para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
     },
 
     // Module and Lesson Settings Modals
@@ -1402,5 +1541,363 @@ export const es = {
       footerInfo:
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Atrás",
+      openProducts: "Abrir Productos",
+      smartEdit: "Edición Inteligente",
+      smartEditTooltip: "Edición inteligente con IA",
+      downloadPdfTooltip: "Descargar contenido como PDF",
+      loadingProjectDetails: "Cargando detalles del proyecto...",
+      error: "Error:",
+      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
+      courseOutline: "Plan del Curso",
+      courseTitle: "Título del Curso",
+      moduleTitle: "Módulo",
+      lessonTitle: "Título de la Lección",
+      editCourseTitle: "Editar título del curso",
+      editModuleTitle: "Editar título del módulo",
+      editLessonTitle: "Editar título de la lección",
+      noModulesFound: "No se encontraron módulos en este plan de curso.",
+      lessons: "lecciones",
+      create: "Crear",
+      createContent: "Crear contenido",
+      presentation: "Presentación",
+      onePager: "Una Página",
+      quiz: "Cuestionario",
+      videoLesson: "Video",
+      regenerate: "Regenerar",
+      regenerateProduct: "Regenerar Producto",
+      regenerateDescription: "Estás a punto de crear un nuevo producto. El anterior será eliminado.",
+      cancel: "Cancelar",
+      ok: "OK",
+      // View-new-2 specific tooltips
+      view: "Ver",
+      add: "Agregar",
+      viewProduct: "Ver producto",
+      regenerateProductTooltip: "Regenerar producto",
+      addProduct: "Agregar producto"
+    },
+    customViewCard: {
+      courseSummary: "Resumen del Curso",
+      totalModules: "Total de Módulos",
+      totalLessons: "Total de Lecciones",
+      sources: "Fuentes",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "Documento PDF",
+        createdfromscratch: "Creado desde cero"
+      }
+    },
+
+    // Event Poster Questionnaire
+    eventPosterForm: {
+      title: "Cuestionario de Póster de Evento",
+      subtitle: "Complete el formulario a continuación para crear la plantilla de su póster de evento",
+      eventInformation: "Información del Evento",
+      speakerInformation: "Información del Ponente",
+      ticketInformation: "Información de Entradas",
+      generatingPoster: "Generando Póster...",
+      generateAndDownloadPoster: "Generar y Descargar Póster",
+      posterGenerationInProgress: "Generación de imagen del póster en progreso...",
+      generateAndDownloadPosterTooltip: "Generar y descargar imagen del póster",
+      editInstructions: "Haz clic en cualquier texto del póster para editarlo. Presiona Enter para guardar, Escape para cancelar.",
+      eventName: "Nombre del Evento",
+      eventNameUkrainian: "Назва події (Nombre del Evento)",
+      date: "Fecha",
+      dateUkrainian: "Дата (Fecha)",
+      topic: "Tema/Título",
+      topicUkrainian: "Тема/Заголовок (Tema/Título)",
+      mainSpeaker: "Ponente Principal",
+      mainSpeakerUkrainian: "Головний спікер (Ponente Principal)",
+      speakerDescription: "Descripción del Ponente",
+      speakerDescriptionUkrainian: "Опис спікера (Descripción del Ponente)",
+      additionalSpeakers: "Ponentes Adicionales",
+      additionalSpeakersUkrainian: "Додаткові спікери (Ponentes Adicionales)",
+      ticketPrice: "Precio de Entrada",
+      ticketPriceUkrainian: "Ціна квитка (Precio de Entrada)",
+      ticketType: "Tipo de Entrada",
+      ticketTypeUkrainian: "Тип квитка (Tipo de Entrada)",
+      freeAccessConditions: "Condiciones de Acceso Gratuito",
+      freeAccessConditionsUkrainian: "Умови безкоштовного доступу (Condiciones de Acceso Gratuito)",
+      speakerPhoto: "Foto del Ponente",
+      speakerPhotoUkrainian: "Фото спікера (Foto del Ponente)",
+      generateEventPoster: "Generar Póster de Evento",
+      eventNamePlaceholder: "Ingrese el nombre del evento",
+      datePlaceholder: "Ingrese la fecha",
+      topicPlaceholder: "Ingrese el tema/título",
+      mainSpeakerPlaceholder: "Ingrese el nombre del ponente principal",
+      speakerDescriptionPlaceholder: "Ingrese la descripción del ponente",
+      additionalSpeakersPlaceholder: "Ingrese ponentes adicionales",
+      ticketPricePlaceholder: "Ingrese el precio de entrada",
+      ticketTypePlaceholder: "Ingrese el tipo de entrada",
+      freeAccessConditionsPlaceholder: "Ingrese las condiciones de acceso gratuito",
+      imageUploadedSuccessfully: "✓ Imagen cargada exitosamente",
+      editQuestionnaire: "Editar Cuestionario",
+      backToProjects: "Volver a Proyectos", 
+      eventPosterTitle: "Póster del Evento",
+      posterGeneratedSuccessfully: "Su póster del evento ha sido generado exitosamente"
+    },
+    smartEdit: {
+      examples: {
+        makeAllTests: {
+          short: "Hacer que todos los lecciones tengan tipo de evaluación 'test'",
+          detailed: "Actualizar todas las lecciones del plan de formación para que el tipo de evaluación sea 'test' en lugar de los tipos actuales.",
+        },
+        addExercises: {
+          short: "Añadir ejercicios prácticos a cada módulo",
+          detailed: "Añadir ejercicios prácticos o actividades a cada módulo del plan para aumentar la participación del aprendizaje.",
+        },
+        restructureShorter: {
+          short: "Reestructurar en módulos más cortos",
+          detailed: "Reorganizar el contenido en módulos más cortos y fáciles de asimilar, manteniendo el flujo y los objetivos de aprendizaje.",
+        },
+        addCaseStudies: {
+          short: "Añadir estudios de caso y ejemplos reales",
+          detailed: "Incluir estudios de caso relevantes y ejemplos del mundo real en cada módulo para aportar contexto práctico.",
+        },
+        increaseAdvancedDepth: {
+          short: "Aumentar la profundidad del contenido avanzado",
+          detailed: "Mejorar el plan de formación con contenido de nivel avanzado y perspectivas más profundas manteniendo la accesibilidad.",
+        },
+        addQuizzes: {
+          short: "Añadir cuestionarios de evaluación",
+          detailed: "Incluir cuestionarios y comprobaciones de conocimiento a lo largo del plan de formación para reforzar el aprendizaje.",
+        },
+      },
+    },
+    
+    // Billing
+    billing: "Facturación",
+    billingAndSubscription: "Facturación y suscripción"
   },
+  survey: {
+    step1: {
+      title: "¿Para qué planeas usar ContentBuilder?"
+    },
+    step2Work: {
+      title: "¿Qué describe mejor tu rol?"
+    },
+    step3: {
+      title: "¿Cuál es el tamaño de tu empresa?"
+    },
+    step4: {
+      title: "¿Cuál es tu caso de uso principal?"
+    },
+    step2Personal: {
+      title: "¿Para qué utilizarás principalmente la plataforma?"
+    },
+    description: "Esto nos ayuda a recomendarte las mejores funciones",
+    category: {
+      work: "Trabajo",
+      workDescription: "Uso profesional para negocios, marketing o colaboración en equipo",
+      personal: "Personal",
+      personalDescription: "Proyectos personales, aprendizaje o proyectos creativos"
+    },
+    role: {
+      marketer: "Especialista en Marketing",
+      hrLd: "HR / Formación",
+      businessOwner: "Propietario de Negocio",
+      contentCreator: "Creador de Contenido",
+      developer: "Desarrollador",
+      other: "Otro"
+    },
+    industry: {
+      videoProduction: "Producción de Video",
+      digitalMarketing: "Marketing Digital",
+      learningDevelopment: "Aprendizaje y Desarrollo",
+      internalCommunications: "Comunicaciones Internas",
+      creativeBranding: "Creatividad / Branding",
+      other: "Otro"
+    },
+    personalUse: {
+      personalProjects: "Proyectos personales",
+      learningSkills: "Aprender nuevas habilidades",
+      portfolioCreation: "Creación de portafolio",
+      socialMedia: "Contenido para redes sociales"
+    },
+    navigation: {
+      previous: "Anterior",
+      continue: "Continuar",
+      completeSetup: "Completar Configuración",
+      step: "Paso",
+      of: "de"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Volver a los planes",
+    completeYourPurchase: "Complete su compra",
+    subscribeTo: "Suscribirse a",
+    monthly: "Mensual",
+    yearly: "Anual",
+    subscription: "suscripción",
+    month: "mes",
+    year: "año",
+    whatsIncluded: "Qué incluye:",
+    paymentInformation: "Información de pago",
+    firstName: "Nombre",
+    lastName: "Apellido",
+    emailAddress: "Correo electrónico",
+    cardNumber: "Número de tarjeta",
+    expiryDate: "Fecha de vencimiento",
+    cvv: "CVV",
+    sslEncrypted: "Cifrado SSL",
+    instantAccess: "Acceso instantáneo",
+    cancelAnytime: "Cancelar en cualquier momento",
+    processingPayment: "Procesando pago...",
+    contactSales: "Contactar con ventas",
+    subscriptionActivation: "Su suscripción se activará inmediatamente después de la confirmación del pago",
+    chooseYourPlan: "Elige tu plan",
+    billMonthly: "Facturación mensual",
+    billYearly: "Facturación anual",
+    mostPopular: "Más popular",
+    credits: "Créditos",
+    storage: "Almacenamiento",
+    support: "Soporte",
+    connectors: "Conectores",
+    collaboration: "Colaboración",
+    current: "Actual",
+    purchasePlan: "Comprar plan",
+    plans: {
+      starter: {
+        name: "Inicial (Gratis)",
+        credits: "200 (una vez al registrarse)",
+        support: "Email hasta 48 horas",
+        storage: "1 GB",
+        lmsExport: "Solo SmartExpert",
+        slides: "máx 20",
+        features: {
+          0: "200 créditos al registrarse",
+          1: "1 GB de almacenamiento",
+          2: "Soporte básico por email",
+          3: "Sin conectores",
+          4: "Sin colaboración"
+        }
+      },
+      pro: {
+        name: "Pro",
+        credits: "600 / mes",
+        support: "Email hasta 24 horas",
+        storage: "5 GB",
+        collaboration: "1 (hasta 3 participantes)",
+        lmsExport: "Solo SmartExpert",
+        features: {
+          0: "600 créditos por mes",
+          1: "5 GB de almacenamiento",
+          2: "Soporte prioritario por email (24h)",
+          3: "2 conectores de plataforma",
+          4: "Colaboración en equipo (hasta 3)"
+        }
+      },
+      business: {
+        name: "Empresarial",
+        credits: "2,000 / mes",
+        support: "Soporte prioritario",
+        storage: "10 GB",
+        collaboration: "3 (hasta 10 participantes)",
+        lmsExport: "Solo SmartExpert",
+        features: {
+          0: "2,000 créditos por mes",
+          1: "10 GB de almacenamiento",
+          2: "Soporte prioritario",
+          3: "5 conectores de plataforma",
+          4: "Colaboración en equipo (hasta 10)"
+        }
+      },
+      enterprise: {
+        name: "Empresarial Plus",
+        credits: "10,000+ / mes (flexible)",
+        support: "Gerente dedicado",
+        storage: "50 GB + pago por uso",
+        connectors: "Todos",
+        collaboration: "Ilimitada",
+        lmsExport: "SmartExpert + personalizado",
+        features: {
+          0: "Asignación personalizada de créditos",
+          1: "Almacenamiento ilimitado",
+          2: "Gerente de cuenta dedicado",
+          3: "Todos los conectores de plataforma",
+          4: "Colaboración ilimitada en equipo",
+          5: "Funciones e integraciones personalizadas"
+        }
+      }
+    }
+  },
+  addOns: {
+    title: "Gestionar complementos",
+    description: "Revise sus complementos actuales, ajuste cantidades o explore más opciones para aprovechar al máximo su plan.",
+    credits: "Créditos",
+    connectors: "Conectores",
+    storage: "Almacenamiento",
+    contactSales: "Contactar con ventas",
+    buyNow: "Comprar ahora",
+    packages: {
+      credits: {
+        small: {
+          name: "Pequeño",
+          description: "Perfecto para usuarios individuales que comienzan con necesidades básicas de créditos.",
+          amount: "100 créditos",
+          priceNote: "$0.20 por crédito"
+        },
+        medium: {
+          name: "Mediano",
+          description: "Ideal para equipos en crecimiento con requisitos de uso moderados.",
+          amount: "300 créditos",
+          priceNote: "$0.17 por crédito"
+        },
+        large: {
+          name: "Grande",
+          description: "Ideal para empresas con grandes demandas de procesamiento.",
+          amount: "1,000 créditos",
+          priceNote: "$0.15 por crédito"
+        },
+        enterprise: {
+          name: "Empresarial",
+          description: "Soluciones personalizadas para grandes organizaciones con necesidades únicas.",
+          amount: "Créditos personalizados",
+          price: "Personalizado"
+        }
+      },
+      connectors: {
+        single: {
+          name: "Conector único",
+          description: "Perfecto para conectar una fuente de datos a su plataforma.",
+          amount: "1 conector"
+        },
+        five: {
+          name: "5 Conectores",
+          description: "Ideal para equipos que gestionan múltiples fuentes de datos.",
+          amount: "5 conectores"
+        },
+        ten: {
+          name: "10 Conectores",
+          description: "Ideal para empresas con amplias necesidades de integración.",
+          amount: "10 conectores"
+        },
+        all: {
+          name: "Todos los conectores",
+          description: "Acceso ilimitado a todos los conectores disponibles.",
+          amount: "Conectores ilimitados"
+        }
+      },
+      storage: {
+        oneGb: {
+          name: "1 GB de almacenamiento",
+          description: "Perfecto para proyectos pequeños con necesidades mínimas de almacenamiento.",
+          amount: "1 GB de almacenamiento"
+        },
+        fiveGb: {
+          name: "5 GB de almacenamiento",
+          description: "Ideal para equipos en crecimiento con requisitos moderados de almacenamiento.",
+          amount: "5 GB de almacenamiento"
+        },
+        tenGb: {
+          name: "10 GB de almacenamiento",
+          description: "Ideal para empresas con amplias necesidades de almacenamiento de datos.",
+          amount: "10 GB de almacenamiento"
+        }
+      }
+    }
+  }
 };

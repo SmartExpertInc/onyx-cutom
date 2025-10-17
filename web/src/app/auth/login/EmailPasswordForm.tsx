@@ -12,6 +12,7 @@ import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useUser } from "@/components/user/UserProvider";
+import { identifyUser, trackSignUp, resetUser } from "@/lib/mixpanelClient";
 import { useRouter } from "next/navigation";
 
 export function EmailPasswordForm({
@@ -83,6 +84,10 @@ export function EmailPasswordForm({
               setIsWorking(false);
               return;
             } else {
+              const userJson = await response.json();
+              identifyUser(userJson.id);
+              trackSignUp({ "Referral Source": referralSource }, true);
+              resetUser();
               setPopup({
                 type: "success",
                 message: "Account created successfully. Please log in.",
@@ -135,6 +140,7 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
+              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280]"
             />
 
             <TextFormField
@@ -142,13 +148,14 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
+              className="!bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 !placeholder-[#6b7280]"
             />
 
             <Button
-              variant="agent"
+              variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto  !py-4 w-full"
+              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full shadow-md hover:shadow-xl transition-shadow mt-4 !bg-[#1d4ed8] !text-[#ffffff]"
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Log In"}
             </Button>

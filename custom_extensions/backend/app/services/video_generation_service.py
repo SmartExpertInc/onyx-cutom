@@ -372,26 +372,152 @@ class ElaiVideoGenerationService:
             # Prepare slides for Elai API
             elai_slides = []
             for i, slide in enumerate(slides_data):
+                # Extract slide data
+                slide_id = slide.get("slideId", f"slide-{i}")
+                props = slide.get("props", {})
+                metadata = slide.get("metadata", {})
+                element_positions = metadata.get("elementPositions", {})
+                
+                # 🔍 COMPREHENSIVE POSITIONING DEBUG
+                logger.info(f"🔍 POSITIONING DEBUG for slide {i+1} (ID: {slide_id})")
+                logger.info(f"   📋 Slide data keys: {list(slide.keys())}")
+                logger.info(f"   📋 Props keys: {list(props.keys())}")
+                logger.info(f"   📋 Metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+                logger.info(f"   📋 Element positions dict: {element_positions}")
+                logger.info(f"   📋 Number of positions: {len(element_positions)}")
+                logger.info(f"   📋 Available position keys: {list(element_positions.keys()) if element_positions else 'None'}")
+                
+                # Check if we have any positioning data at all
+                if not element_positions:
+                    logger.warning(f"   ⚠️ NO ELEMENT POSITIONS FOUND for slide {slide_id}")
+                    logger.warning(f"   ⚠️ This means positions will use fallback defaults!")
+                else:
+                    logger.info(f"   ✅ Element positions found: {len(element_positions)} items")
+                
+                # Build canvas objects starting with avatar
+                canvas_objects = [{
+                    "type": "avatar",
+                    "left": 510,
+                    "top": 255,
+                    "fill": "#4868FF",
+                    "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
+                    "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
+                    "width": 1080,
+                    "height": 1080,
+                    "src": avatar_data.get("canvas_url"),
+                    "avatarType": "transparent",
+                    "animation": {
+                        "type": None,
+                        "exitType": None
+                    }
+                }]
+                
+                # Add text elements with dynamic positioning
+                text_elements_added = 0
+                
+                # Add title if present
+                if props.get("title") and props.get("title") != "Click to add title":
+                    title_id = f"draggable-{slide_id}-0"
+                    logger.info(f"   🎯 Looking for title ID: '{title_id}'")
+                    logger.info(f"   🎯 Available position keys: {list(element_positions.keys()) if element_positions else 'None'}")
+                    
+                    title_position = element_positions.get(title_id, {"x": 100, "y": 100})  # Default position
+                    logger.info(f"   🎯 Title position found: {title_position}")
+                    logger.info(f"   🎯 Using fallback? {title_id not in element_positions}")
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": title_position.get("x", 100),
+                        "top": title_position.get("y", 100),
+                        "width": 800,
+                        "height": 100,
+                        "fill": "#000000",
+                        "fontSize": 48,
+                        "fontFamily": "Arial",
+                        "fontWeight": "bold",
+                        "text": props.get("title"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"   ✅ Added title text element at position ({title_position.get('x', 100)}, {title_position.get('y', 100)})")
+                    logger.info(f"   📤 Sending to Elai API: left={title_position.get('x', 100)}, top={title_position.get('y', 100)}")
+                
+                # Add subtitle if present
+                if props.get("subtitle") and props.get("subtitle") != "Click to add content":
+                    subtitle_id = f"draggable-{slide_id}-1"
+                    logger.info(f"   🎯 Looking for subtitle ID: '{subtitle_id}'")
+                    
+                    subtitle_position = element_positions.get(subtitle_id, {"x": 100, "y": 200})  # Default position
+                    logger.info(f"   🎯 Subtitle position found: {subtitle_position}")
+                    logger.info(f"   🎯 Using fallback? {subtitle_id not in element_positions}")
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": subtitle_position.get("x", 100),
+                        "top": subtitle_position.get("y", 200),
+                        "width": 800,
+                        "height": 80,
+                        "fill": "#333333",
+                        "fontSize": 32,
+                        "fontFamily": "Arial",
+                        "fontWeight": "normal",
+                        "text": props.get("subtitle"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"   ✅ Added subtitle text element at position ({subtitle_position.get('x', 100)}, {subtitle_position.get('y', 200)})")
+                    logger.info(f"   📤 Sending to Elai API: left={subtitle_position.get('x', 100)}, top={subtitle_position.get('y', 200)}")
+                
+                # Add content text if present
+                if props.get("content") and props.get("content") != "Click to add content":
+                    content_id = f"draggable-{slide_id}-2"
+                    logger.info(f"   🎯 Looking for content ID: '{content_id}'")
+                    
+                    content_position = element_positions.get(content_id, {"x": 100, "y": 300})  # Default position
+                    logger.info(f"   🎯 Content position found: {content_position}")
+                    logger.info(f"   🎯 Using fallback? {content_id not in element_positions}")
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": content_position.get("x", 100),
+                        "top": content_position.get("y", 300),
+                        "width": 800,
+                        "height": 200,
+                        "fill": "#666666",
+                        "fontSize": 24,
+                        "fontFamily": "Arial",
+                        "fontWeight": "normal",
+                        "text": props.get("content"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"   ✅ Added content text element at position ({content_position.get('x', 100)}, {content_position.get('y', 300)})")
+                    logger.info(f"   📤 Sending to Elai API: left={content_position.get('x', 100)}, top={content_position.get('y', 300)}")
+                
+                logger.info(f"   📊 SUMMARY for slide {i+1}:")
+                logger.info(f"      - Added {text_elements_added} text elements")
+                logger.info(f"      - Element positions available: {list(element_positions.keys()) if element_positions else 'None'}")
+                logger.info(f"      - Canvas objects count: {len(canvas_objects)}")
+                
+                # 🔍 FINAL DEBUG: Log the complete canvas objects being sent to Elai
+                logger.info(f"   📤 FINAL CANVAS OBJECTS for Elai API:")
+                for j, obj in enumerate(canvas_objects):
+                    if obj.get("type") == "text":
+                        logger.info(f"      Text {j}: left={obj.get('left')}, top={obj.get('top')}, text='{obj.get('text', '')[:50]}...'")
+                    else:
+                        logger.info(f"      {obj.get('type', 'unknown')} {j}: left={obj.get('left')}, top={obj.get('top')}")
+                
+                logger.info(f"🔍 END POSITIONING DEBUG for slide {i+1}")
+                logger.info("=" * 80)
+                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
-                        "objects": [{
-                            "type": "avatar",
-                            "left": 510,
-                            "top": 255,
-                            "fill": "#4868FF",
-                            "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
-                            "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
-                            "width": 1080,
-                            "height": 1080,
-                            "src": avatar_data.get("canvas_url"),
-                            "avatarType": "transparent",
-                            "animation": {
-                                "type": None,
-                                "exitType": None
-                            }
-                        }],
+                        "objects": canvas_objects,
                         "background": "#ffffff",  # Keep original white background for safety
                         "version": "4.4.0"
                     },

@@ -22,6 +22,7 @@ import { Checkbox } from './ui/checkbox';
 // Import test utilities for development
 import '../utils/testUserIds';
 import { Button } from './ui/button';
+import { trackAddMember } from '@/lib/mixpanelClient'
 
 // Predefined color options for roles (pale backgrounds with darker text)
 const ROLE_COLORS = [
@@ -298,13 +299,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       
       const addedMember = await workspaceService.addMember(targetWorkspaceId, newMember);
       setMembers(prev => [...prev, addedMember]);
-      
+      await trackAddMember("Completed", getRoleById(newMemberRole)?.name);
+
       // Reset form
       setNewMemberEmail('');
       setNewMemberRole('');
       setNewMemberStatus('pending');
       setShowAddMember(false);
     } catch (err) {
+      await trackAddMember("Failed", getRoleById(newMemberRole)?.name);
       console.error('Failed to add member:', err);
     }
   }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId]);
@@ -445,7 +448,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
         <span className="ml-2 text-gray-600">Loading workspace data...</span>
       </div>
@@ -454,7 +457,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <XCircle className="h-8 w-8 text-red-600" />
         <span className="ml-2 text-red-600">Error: {error}</span>
         <button
@@ -479,9 +482,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     if (workspaces.length === 0) {
       return (
         <>
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
+          <div className="h-[60vh] flex items-center justify-center">
             <div className="text-center">
-              <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <FolderPlus className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
               <p className="text-gray-600 mb-6">Create your first workspace to start collaborating with your team.</p>
                           <Button
@@ -550,7 +553,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     
     // If user has workspaces but none selected
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
           <p className="text-gray-600">Please select a workspace to view its members.</p>
@@ -560,9 +563,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-3">
+    <div className="min-h-screen space-y-3">
       {/* Workspace Header and Selector */}
-      <div className="rounded-lg p-4">
+      <div className="rounded-lg py-4">
         <div className="flex flex-col gap-4">
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
           {!workspaceId && workspaces.length > 1 && (
@@ -590,10 +593,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           )}
           
           {/* Search, Filter, and Create Button Row */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full">
           {/* Search and Filter Row */}
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-4 w-full">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
               <Input
                 type="text"
@@ -601,11 +604,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 placeholder={t('interface.searchPlaceholder', 'Search members...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-9 py-2"
               />
             </div>
             <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-              <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
+              <SelectTrigger variant="filter" size="sm" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg">
@@ -885,7 +888,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
               style={{
                 backgroundColor: 'white',
-                background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.05))`,
                 borderWidth: '1px',
               }}>
                 <CardHeader>
@@ -983,7 +986,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
               style={{
                 backgroundColor: 'white',
-                background: `linear-gradient(to top left, white, white, #E8F0FE)`,
+                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.05))`,
                 borderWidth: '1px',
               }}>
                 <CardHeader>

@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for MoviePy, OpenCV, FFmpeg, and Pyppeteer/Chromium
+# Install system dependencies for MoviePy, OpenCV, FFmpeg, and Pyppeteer/Chromium and HTML-to-image libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     fonts-liberation \
@@ -44,6 +44,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xdg-utils \
     chromium \
     fonts-inter \
+    # HTML-to-image system dependencies (compatible packages)
+    libffi-dev \
+    libxml2-dev \
+    libxslt-dev \
     # FFmpeg and video processing dependencies
     ffmpeg \
     libx264-dev \
@@ -86,6 +90,9 @@ RUN python -c "import moviepy.editor; print('MoviePy installed successfully')"
 
 # Install Playwright browsers
 RUN playwright install chromium
+
+# Install Playwright browsers AFTER pip install (without system deps since we already have them)
+RUN python -m playwright install chromium
 
 COPY . .
 

@@ -77,6 +77,8 @@ interface AnalyticsDashboard {
     response_time_ms: number;
     error_message: string;
     user_id: string;
+    user_email?: string | null;
+    is_timeout?: boolean;
     created_at: string;
   }>;
   performance_percentiles: {
@@ -631,7 +633,11 @@ const AnalyticsTab: React.FC = () => {
                     {formatDuration(error.response_time_ms)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {error.user_id ? (
+                    {error.user_email ? (
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded" title={error.user_email}>
+                        {error.user_email}
+                      </span>
+                    ) : error.user_id ? (
                       <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
                         {error.user_id.substring(0, 8)}...
                       </span>
@@ -640,12 +646,16 @@ const AnalyticsTab: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                    <div className="text-red-600 text-xs" title={error.error_message || t('interface.analytics.noErrorMessage', 'No error message')}>
-                      {error.error_message && error.error_message.length > 50 
-                        ? `${error.error_message.substring(0, 50)}...`
-                        : error.error_message || t('interface.analytics.noErrorMessage', 'No error message')
-                        }
-                      </div>
+                    <div className="text-xs" title={error.error_message || t('interface.analytics.noErrorMessage', 'No error message')}>
+                      {error.is_timeout ? (
+                        <span className="inline-flex items-center mr-2 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Timeout</span>
+                      ) : null}
+                      <span className={error.status_code >= 500 ? 'text-red-600' : 'text-gray-700'}>
+                        {error.error_message && error.error_message.length > 50 
+                          ? `${error.error_message.substring(0, 50)}...`
+                          : error.error_message || t('interface.analytics.noErrorMessage', 'No error message')}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}

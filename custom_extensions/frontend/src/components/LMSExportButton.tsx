@@ -4,21 +4,73 @@ import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from './ui/button';
+import { useToast } from './ui/toast';
+import { Product } from '../types/lmsTypes';
 
 interface LMSExportButtonProps {
   selectedProducts: Set<number>;
+  products: Product[];
   onExportComplete?: (data?: any) => void;
 }
 
 const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   selectedProducts,
+  products,
   onExportComplete,
 }) => {
   const { t } = useLanguage();
+  const { addToast, updateToast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const hasSelectedProducts = selectedProducts.size > 0;
+  
+  // Get selected course names
+  const getSelectedCourseNames = () => {
+    return products
+      .filter(product => selectedProducts.has(product.id))
+      .map(product => product.name || product.title || product.projectName || `Course ${product.id}`)
+      .join(', ');
+  };
+
+  // Get course names for display (truncated if too long)
+  const getDisplayCourseNames = (maxLength = 80) => {
+    const names = getSelectedCourseNames();
+    if (names.length <= maxLength) {
+      return names;
+    }
+    return names.substring(0, maxLength) + '...';
+  };
+
+  // Convert progress message with course numbers to course names
+  const convertProgressMessage = (message: string) => {
+    if (!message) return message;
+    
+    // Look for patterns like "Exporting course 8..." or "course 8" or "course ID 8"
+    let convertedMessage = message;
+    
+    // Replace "course 8" with actual course name
+    convertedMessage = convertedMessage.replace(/course\s+(\d+)/g, (match, courseId) => {
+      const product = products.find(p => p.id === parseInt(courseId));
+      if (product) {
+        const courseName = product.name || product.title || product.projectName || `Course ${courseId}`;
+        return courseName;
+      }
+      return match; // If not found, keep original
+    });
+    
+    // Replace "course ID 8" with actual course name
+    convertedMessage = convertedMessage.replace(/course\s+ID\s+(\d+)/gi, (match, courseId) => {
+      const product = products.find(p => p.id === parseInt(courseId));
+      if (product) {
+        const courseName = product.name || product.title || product.projectName || `Course ${courseId}`;
+        return courseName;
+      }
+      return match; // If not found, keep original
+    });
+    
+    return convertedMessage;
+  };
 
   const handleExport = async () => {
     if (!hasSelectedProducts || isExporting) return;
@@ -26,9 +78,33 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     setIsExporting(true);
     setExportStatus('idle');
 
+    // Determine which LMS base URL will be used (DEV overrides US/EU)
     try {
-      console.log('🎓 Starting LMS export for course outlines:', Array.from(selectedProducts));
+      const devFlagResp = await fetch('/api/custom-projects-backend/features/check/is_dev_lms', { credentials: 'same-origin' });
+      const usFlagResp = await fetch('/api/custom-projects-backend/features/check/is_us_lms', { credentials: 'same-origin' });
+      const devFlag = devFlagResp.ok ? await devFlagResp.json() : { is_enabled: true };
+      const usFlag = usFlagResp.ok ? await usFlagResp.json() : { is_enabled: true };
+      const isDev = !!devFlag.is_enabled;
+      const isUs = !!usFlag.is_enabled;
+      const baseUrl = isDev ? 'https://dev.smartexpert.net' : (isUs ? 'https://app.smartexpert.io' : 'https://app.smartexpert.net');
+      console.log('🔗 LMS export will use base URL:', baseUrl);
+    } catch (e) {
+      console.log('🔗 LMS export base URL (default due to error): https://dev.smartexpert.net');
+    }
 
+    // Show initial export toast
+    const displayCourseNames = getDisplayCourseNames(60);
+    const toastId = addToast({
+      type: 'loading',
+      title: 'Exporting Courses',
+      description: selectedProducts.size <= 3 
+        ? `Starting export of: ${displayCourseNames}...`
+        : `Starting export of ${selectedProducts.size} courses: ${displayCourseNames}...`,
+      duration: 0, // Don't auto-dismiss loading toast
+    });
+
+    try {
+      
       const response = await fetch('/api/custom-projects-backend/lms/export', {
         method: 'POST',
         headers: {
@@ -66,15 +142,22 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
             try {
               const packet = JSON.parse(trimmed);
               if (packet.type === 'progress') {
-                console.log('📦 LMS export progress:', packet.message || packet);
+                // Convert course numbers to course names in progress message
+                const convertedMessage = convertProgressMessage(packet.message || `Processing course export...`);
+                // Update toast with progress
+                updateToast(toastId, {
+                  description: convertedMessage,
+                });
               } else if (packet.type === 'start') {
-                console.log('🚀 LMS export started:', packet);
+                
               } else if (packet.type === 'done') {
                 finalPayload = packet.payload;
                 userMessage = packet.userMessage;
+              } else {
+                
               }
-            } catch (e) {
-              console.warn('⚠️ Failed to parse export stream packet:', e, line);
+            } catch (err) {
+              
             }
           }
         }
@@ -85,19 +168,24 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       if (exportData?.success) {
       setExportStatus('success');
         console.log('✅ Export completed:', exportData.results);
+        
+        // Update toast to success (include LMS link)
+        const successDisplayNames = getDisplayCourseNames(70);
+        const lmsBaseUrl = exportData?.lmsBaseUrl;
+        const lmsSuffix = lmsBaseUrl ? ` (LMS: ${lmsBaseUrl})` : '';
+        updateToast(toastId, {
+          type: 'success',
+          title: 'Export Successful!',
+          description: userMessage || `Successfully exported: ${successDisplayNames}${lmsSuffix}`,
+          duration: 7000,
+        });
+
         exportData.results?.forEach((result: any) => {
           if (result.downloadLink) {
             console.log(`📥 Course "${result.courseTitle}" available at: ${result.downloadLink}`);
           }
         });
-        if (userMessage) {
-          // Simple styled toast; replace with your toast system if available
-          const toast = document.createElement('div');
-          toast.textContent = userMessage;
-          toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
-          document.body.appendChild(toast);
-          setTimeout(() => { toast.remove(); }, 7000);
-        }
+        
         onExportComplete?.(exportData);
       } else {
         throw new Error('Export completed with errors');
@@ -105,6 +193,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     } catch (error) {
       console.error('❌ LMS export failed:', error);
       setExportStatus('error');
+      
+      // Update toast to error
+      updateToast(toastId, {
+        type: 'error',
+        title: 'Export Failed',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred during export',
+        duration: 8000,
+      });
     } finally {
       setIsExporting(false);
       setTimeout(() => {

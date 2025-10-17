@@ -9,6 +9,7 @@ from app.core.auth import get_current_user
 from app.models.user import User
 import json
 import logging
+from app.core.database import get_connection as get_pg_connection
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,30 @@ async def create_connector(
         if not source:
             raise HTTPException(status_code=400, detail="Connector source is required")
         
+        # Enforce connector limit via entitlements
+        try:
+            async with get_pg_connection() as conn:
+                # Effective limit = override if set else base else plan default
+                limit_row = await conn.fetchrow("SELECT connectors_limit FROM user_entitlement_overrides WHERE onyx_user_id = $1", str(current_user.id))
+                limit_val = limit_row and limit_row.get("connectors_limit")
+                if limit_val is None:
+                    base_row = await conn.fetchrow("SELECT connectors_limit FROM user_entitlement_base WHERE onyx_user_id = $1", str(current_user.id))
+                    limit_val = base_row and base_row.get("connectors_limit")
+                if limit_val is None:
+                    # fallback to plan from billing
+                    plan_row = await conn.fetchrow("SELECT current_plan FROM user_billing WHERE onyx_user_id = $1", str(current_user.id))
+                    plan = (plan_row and plan_row.get("current_plan")) or "starter"
+                    limit_val = 2 if plan == "pro" else (5 if plan == "business" else 0)
+                # Count existing connectors (tracked table)
+                count_row = await conn.fetchrow("SELECT COUNT(*) AS c FROM user_connectors WHERE onyx_user_id = $1", str(current_user.id))
+                existing = int(count_row["c"] or 0)
+                if existing >= int(limit_val):
+                    raise HTTPException(status_code=403, detail=f"Connector limit reached: {existing}/{limit_val}")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning(f"Connector limit check failed, continuing: {e}")
+
         # Create the connector payload
         connector_payload = {
             "name": name,
@@ -132,6 +157,21 @@ async def create_connector(
             
             cc_pair_result = cc_pair_response.json()
             
+            # Persist mapping for quota tracking
+            try:
+                async with get_pg_connection() as conn:
+                    await conn.execute(
+                        """
+                        INSERT INTO user_connectors (onyx_user_id, onyx_connector_id, status, created_at, updated_at)
+                        VALUES ($1, $2, 'active', now(), now())
+                        ON CONFLICT (onyx_connector_id) DO NOTHING
+                        """,
+                        str(current_user.id),
+                        connector_id,
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to persist connector tracking: {e}")
+
             return {
                 "success": True,
                 "message": "Connector created successfully",
@@ -220,6 +260,12 @@ async def delete_connector(
                     detail="Failed to delete connector"
                 )
             
+            # Remove from tracking table
+            try:
+                async with get_pg_connection() as conn:
+                    await conn.execute("DELETE FROM user_connectors WHERE onyx_connector_id = $1", connector_id)
+            except Exception as e:
+                logger.warning(f"Failed to delete connector tracking: {e}")
             return {"success": True, "message": "Connector deleted successfully"}
             
     except Exception as e:

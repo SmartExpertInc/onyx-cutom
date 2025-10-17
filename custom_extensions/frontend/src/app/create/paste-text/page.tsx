@@ -80,19 +80,15 @@ export default function PasteTextPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
       {/* back button absolute top-left */}
-      <Button
-        asChild
-        variant="back"
-        size="sm"
-        className="rounded-full"
+      <Link
+        href="/create"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
       >
-        <Link href="/create">
-          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-        </Link>
-      </Button>
+        <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+      </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
@@ -126,7 +122,7 @@ export default function PasteTextPage() {
         </div>
 
         {/* Mode selection */}
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-4xl">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
             {t('interface.pasteText.howToUseText', 'How would you like to use this text?')}
           </h3>
@@ -136,14 +132,9 @@ export default function PasteTextPage() {
               Icon={FileText}
               title={t('interface.pasteText.useAsContext', 'Use as Context')}
               description={t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-              onClick={() => setMode("context")}
-              className={`transition-all ${
-                mode === "context"
-                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
-                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
-              }`}
-              gradientFrom="from-blue-300"
-              gradientTo="to-blue-200"
+              selectable={true}
+              isSelected={mode === "context"}
+              onSelect={() => setMode("context")}
               iconColor="text-blue-600"
               labelColor="text-blue-600"
             />
@@ -152,14 +143,9 @@ export default function PasteTextPage() {
               Icon={Sparkles}
               title={t('interface.pasteText.useAsBase', 'Use as Base')}
               description={t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-              onClick={() => setMode("base")}
-              className={`transition-all ${
-                mode === "base"
-                  ? "border-2 border-purple-500 shadow-lg ring-2 ring-purple-200"
-                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
-              }`}
-              gradientFrom="from-purple-300"
-              gradientTo="to-purple-200"
+              selectable={true}
+              isSelected={mode === "base"}
+              onSelect={() => setMode("base")}
               iconColor="text-purple-600"
               labelColor="text-purple-600"
             />

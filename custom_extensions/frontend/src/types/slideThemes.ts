@@ -37,6 +37,27 @@ export interface SlideTheme {
 
 // Available slide themes
 export const SLIDE_THEMES: Record<string, SlideTheme> = {
+  // V1 (Legacy) Themes - Used by old presentations
+  'dark-purple-v1': {
+    id: 'dark-purple-v1',
+    name: 'Dark Purple (V1)',
+    colors: {
+      backgroundColor: '#110c35',
+      titleColor: '#ffffff',
+      subtitleColor: '#d9e1ff',
+      contentColor: '#d9e1ff',
+      accentColor: '#f35657',
+      borderColor: '#e5e7eb'
+    },
+    fonts: {
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      titleSize: '45px',
+      contentSize: '18px'
+    }
+  },
+
+  // V2 (Current) Themes - Used by new presentations
   'dark-purple': {
     id: 'dark-purple',
     name: 'Dark Purple',
@@ -82,8 +103,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#3b82f6'
     },
     fonts: {
-      titleFont: 'Inter, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '36px',
       contentSize: '16px'
     }
@@ -100,8 +121,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#60a5fa'
     },
     fonts: {
-      titleFont: 'Roboto, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -119,8 +140,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     borderColor: '#d01510'
   },
   fonts: {
-    titleFont: 'Mont Bold, sans-serif',
-    contentFont: 'Mont Regular, sans-serif',
+    titleFont: 'Lora Variable, Lora, serif',
+    contentFont: 'Lora Variable, Lora, serif',
     titleSize: '40px',
     contentSize: '16px'
   }
@@ -138,8 +159,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#d01510'
     },
     fonts: {
-      titleFont: 'Mont Bold, sans-serif',
-      contentFont: 'Mont Regular, sans-serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -156,8 +177,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#ee7623'
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',
-      contentFont: 'Montserrat, sans-serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -174,8 +195,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#ee7623'        
     },
     fonts: {
-      titleFont: 'Montserrat, sans-serif',
-      contentFont: 'Montserrat, sans-serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -185,17 +206,33 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
 // Default theme
 export const DEFAULT_SLIDE_THEME = 'dark-purple';
 
-// Helper function to get theme
-export function getSlideTheme(themeId?: string): SlideTheme {
-  return SLIDE_THEMES[themeId || DEFAULT_SLIDE_THEME] || SLIDE_THEMES[DEFAULT_SLIDE_THEME];
+// Map theme names to their v1 versions for legacy decks
+const THEME_V1_MAP: Record<string, string> = {
+  'dark-purple': 'dark-purple-v1',
+  // Add other theme mappings as needed
+};
+
+// Helper function to get theme with version awareness
+export function getSlideTheme(themeId?: string, deckTemplateVersion?: string): SlideTheme {
+  const effectiveThemeId = themeId || DEFAULT_SLIDE_THEME;
+  
+  // For legacy decks (no version or < v2), use v1 theme if available
+  if (!deckTemplateVersion || deckTemplateVersion < 'v2') {
+    const v1ThemeId = THEME_V1_MAP[effectiveThemeId];
+    if (v1ThemeId && SLIDE_THEMES[v1ThemeId]) {
+      return SLIDE_THEMES[v1ThemeId];
+    }
+  }
+  
+  return SLIDE_THEMES[effectiveThemeId] || SLIDE_THEMES[DEFAULT_SLIDE_THEME];
 }
 
 // Helper function to get theme colors for a specific slide
-export function getThemeColors(themeId?: string) {
-  return getSlideTheme(themeId).colors;
+export function getThemeColors(themeId?: string, deckTemplateVersion?: string) {
+  return getSlideTheme(themeId, deckTemplateVersion).colors;
 }
 
 // Helper function to get theme fonts for a specific slide
-export function getThemeFonts(themeId?: string) {
-  return getSlideTheme(themeId).fonts;
+export function getThemeFonts(themeId?: string, deckTemplateVersion?: string) {
+  return getSlideTheme(themeId, deckTemplateVersion).fonts;
 } 

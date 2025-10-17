@@ -1,118 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { EventListTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 const EventListTemplate: React.FC<EventListTemplateProps & {
   onUpdate?: (props: any) => void;
@@ -333,24 +222,22 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={title || 'Add title'}
               onSave={handleTitleSave}
               onCancel={handleEditCancel}
-              multiline={true}
               placeholder="Enter slide title..."
               className="inline-editor-title"
               style={{
                 ...titleStyles,
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.1'
               }}
             />
           ) : (
@@ -367,9 +254,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {title || 'Add title'}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: title || 'Add title' }}
+            />
           )}
         </div>
 
@@ -380,24 +266,22 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingPresenter ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={presenter || 'Add presenter name'}
               onSave={handlePresenterSave}
               onCancel={handleEditCancel}
-              multiline={false}
               placeholder="Enter presenter name..."
               className="inline-editor-presenter"
               style={{
                 ...presenterStyles,
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.4'
               }}
             />
           ) : (
@@ -414,9 +298,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {presenter || 'Add presenter name'}
-            </div>
+              dangerouslySetInnerHTML={{ __html: presenter || 'Add presenter name' }}
+            />
           )}
         </div>
 
@@ -427,24 +310,22 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingSubject ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={subject || 'Add subject'}
               onSave={handleSubjectSave}
               onCancel={handleEditCancel}
-              multiline={false}
               placeholder="Enter subject..."
               className="inline-editor-subject"
               style={{
                 ...subjectStyles,
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.4'
               }}
             />
           ) : (
@@ -461,9 +342,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subject || 'Add subject'}
-            </div>
+              dangerouslySetInnerHTML={{ __html: subject || 'Add subject' }}
+            />
           )}
         </div>
       </div>
@@ -545,24 +425,22 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               }}>
                 {/* Step description only */}
                 {isEditable && editingIdx === idx && editingField === 'description' ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={event.description}
                     onSave={val => handleEventChange(idx, 'description', val)}
                     onCancel={handleEditCancel}
-                    multiline={false}
                     placeholder="Enter step description..."
                     className="inline-editor-step-description"
                     style={{
                       ...stepDescriptionStyles,
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
+                      lineHeight: '1.4',
                       width: '100%'
                     }}
                   />
@@ -575,9 +453,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                     }}
                     onClick={() => handleEditStart(idx, 'description')}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {event.description || 'description'}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: event.description || 'description' }}
+                  />
                 )}
               </div>
             </div>

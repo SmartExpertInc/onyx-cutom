@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ text_data.detectedLanguage if text_data and text_data.detectedLanguage else 'ru' }}">
+<html lang="{{ details.detectedLanguage if details and details.detectedLanguage else 'ru' }}">
 <head>
     <meta charset="UTF-8">
-    <title>{% set segments = (text_data.textTitle if text_data and text_data.textTitle else 'Text Presentation').split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</title>
+    <title>{{ details.textTitle if details and details.textTitle else 'Text Presentation' }}</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -67,7 +67,7 @@
 
         @page { margin-top: 0mm; margin-bottom: 0mm; margin-left: 5mm; margin-right: 5mm; size: A4; }
         @page :first { margin-top: 0mm; }
-        @page :not(:first) { margin-top: 30mm; }
+        /* Removed non-standard @page :not(:first) rule to satisfy linter while keeping consistent margins */
         body {
             font-family: var(--font-primary), var(--font-emoji); margin: 0; padding: 0;
             background-color: var(--color-background-page); color: var(--color-text-default);
@@ -107,7 +107,7 @@
         .content-wrapper.spacing-expanded { --dynamic-spacing-multiplier: 1.3; --dynamic-font-size-multiplier: 1.05; }
         .content-wrapper.spacing-very-expanded { --dynamic-spacing-multiplier: 1.6; --dynamic-font-size-multiplier: 1.1; }
         .grey-section {
-            background-color: #f4f5f6; 
+            background-color: #EFF6FF; 
             border-radius: 24px; 
             padding: 38px 19px 19px 19px; /* Add more top padding for page break gap */
             margin: 0 auto; 
@@ -240,9 +240,9 @@
             margin-right: 0;
         }
         
-        /* Ensure the list-marker itself has more spacing for custom icons */
-        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker:has(.icon-svg:not(.icon-new-bullet)) {
-            margin-right: 20px;
+        /* Ensure the list-marker itself has more spacing for custom icons - simplified without :has() for compatibility */
+        .content-wrapper > .content-block-wrapper.type-bullet_list ul > li > .list-marker {
+            margin-right: 12px;
         }
         .list-item-content-wrapper ul > li > .list-marker .icon-svg { 
             width: 0.6em; 
@@ -336,7 +336,6 @@
         .list-block-wrapper.has-recommendation .paragraph-block.recommendation::before {
             display: none;
         }
-
         .section-break-block.solid, .section-break-block.dashed { border: none; border-top: 0.5pt solid var(--color-border-light); margin: var(--space-xl) 0; } 
         .section-break-block.none { height: var(--space-lg); border:none; }
         .content-section-divider { border: none; border-top: 0.5pt solid var(--color-border-light); margin: var(--space-md) 0 var(--space-xs) 0; max-width: 100%; }
@@ -513,8 +512,7 @@
                     {% if block_type == 'headline' %}
                         <div class="headline-block h{{ level }}"
                              style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% elif is_in_mini_section %}color: var(--color-primary-accent); fill: var(--color-primary-accent);{% endif %} {% if block_data.fontSize %}font-size: {{ block_data.fontSize }};{% endif %}">
-                            {% if is_in_mini_section and not block_data.iconName %}{{ render_icon_svg_macro('info') }}{% endif %}
-                            {{ render_icon_svg_macro(block_data.iconName) }}
+                            {% if block_data.iconName %}{{ render_icon_svg_macro(block_data.iconName) }}{% endif %}
                             <span>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
                         </div>
                     {% elif block_type == 'table' %}

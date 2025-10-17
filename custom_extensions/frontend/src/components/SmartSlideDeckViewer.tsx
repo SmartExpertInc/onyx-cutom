@@ -113,12 +113,63 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const currentThemeData = getSlideTheme(effectiveTheme);
 
   // Check if any slide has voiceover text
-  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
-    slide.voiceoverText || slide.props?.voiceoverText
-  );
+  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => {
+    const vt = slide.voiceoverText ?? (slide.props as Record<string, unknown>)?.voiceoverText;
+    return typeof vt === 'string' && vt.length > 0;
+  });
 
-  // Get available templates
-  const availableTemplates = getAllTemplates();
+  // Get available templates (presentation mode: hide video-lesson-only templates)
+  const availableTemplates = (() => {
+    const all = getAllTemplates();
+    const cutoff = all.findIndex(t => t.id === 'avatar-service-slide');
+    if (cutoff === -1) return all;
+    // Exclude 'avatar-service-slide' and any that follow
+    return all.slice(0, cutoff);
+  })();
+
+  // =============================================================
+  // Inline editing for Presentation Title (Header)
+  // =============================================================
+  const [isEditingHeaderTitle, setIsEditingHeaderTitle] = useState<boolean>(false);
+  const [headerTitleDraft, setHeaderTitleDraft] = useState<string>('');
+  const headerInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditHeaderTitle = useCallback(() => {
+    if (!isEditable || !componentDeck) return;
+    setHeaderTitleDraft(componentDeck.lessonTitle || '');
+    setIsEditingHeaderTitle(true);
+    // Focus next tick to ensure input is mounted
+    setTimeout(() => headerInputRef.current?.focus(), 0);
+  }, [isEditable, componentDeck]);
+
+  const cancelEditHeaderTitle = useCallback(() => {
+    setIsEditingHeaderTitle(false);
+    setHeaderTitleDraft('');
+  }, []);
+
+  const commitEditHeaderTitle = useCallback(() => {
+    if (!componentDeck) return cancelEditHeaderTitle();
+    const newTitle = headerTitleDraft.trim();
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentDeck,
+      lessonTitle: newTitle.length ? newTitle : (componentDeck.lessonTitle || '')
+    } as ComponentBasedSlideDeck;
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+    setIsEditingHeaderTitle(false);
+  }, [componentDeck, headerTitleDraft, onSave, cancelEditHeaderTitle]);
+
+  const handleHeaderKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitEditHeaderTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditHeaderTitle();
+    }
+  }, [commitEditHeaderTitle, cancelEditHeaderTitle]);
+
+  // =============================================================
 
   // ✅ NEW: Handle generation started for a specific placeholder
   const handleGenerationStarted = useCallback((elementId: string) => {
@@ -340,6 +391,13 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           theme: theme || deck.theme || DEFAULT_SLIDE_THEME
         };
 
+        // 🔍 VERSION DEBUG: Log the templateVersion from the deck
+        console.log('🔍 DECK VERSION INFO:', {
+          templateVersion: deck.templateVersion,
+          deckKeys: Object.keys(deck),
+          fullDeck: deck
+        });
+
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
         // Expose slide data to window object for video generation
@@ -351,7 +409,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentThemeData.colors,
-          templates: deck.slides.map((s: any) => s.templateId)
+          templates: deck.slides.map((s: ComponentBasedSlide) => s.templateId),
+          templateVersion: deckWithTheme.templateVersion
           });
         
         console.log('🎬 Exposed slide data to window for video generation:', (window as any).currentSlideData);
@@ -498,8 +557,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       return;
     }
 
-    // Generate slide title from template props
-    const slideTitle = template.defaultProps.title || `Slide ${componentDeck.slides.length + 1}`;
+    // Generate slide title from template props (type-safe)
+    const templateTitle = (template.defaultProps as Record<string, unknown>).title;
+    const slideTitle = (typeof templateTitle === 'string' && templateTitle.length > 0)
+      ? templateTitle
+      : `Slide ${componentDeck.slides.length + 1}`;
 
     // Create new slide with BOTH frontend and backend compatible structure
     const newSlide: ComponentBasedSlide & { slideTitle?: string } = {
@@ -508,9 +570,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slideTitle: slideTitle, // ← CRITICAL: Add slideTitle for backend compatibility
       templateId: templateId,
       props: {
-        ...template.defaultProps,
+        ...(template.defaultProps as Record<string, unknown>),
         title: slideTitle, // ← Keep title in props for frontend template rendering
-        content: template.defaultProps.content || 'Add your content here...'
+        content: ((): string => {
+          const c = (template.defaultProps as Record<string, unknown>).content;
+          return typeof c === 'string' && c.length > 0 ? c : 'Add your content here...';
+        })()
       },
       metadata: {
         createdAt: new Date().toISOString(),
@@ -646,7 +711,37 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             color: '#111827',
             margin: 0
           }}>
-            {componentDeck.lessonTitle || 'Slide Deck'}
+            {isEditingHeaderTitle ? (
+              <input
+                type="text"
+                value={headerTitleDraft}
+                onChange={(e) => setHeaderTitleDraft(e.target.value)}
+                onBlur={commitEditHeaderTitle}
+                onKeyDown={handleHeaderKeyDown}
+                ref={headerInputRef}
+                style={{
+                  width: '100%',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  padding: '0',
+                  margin: '0',
+                  display: 'block',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <span
+                onClick={isEditable ? startEditHeaderTitle : undefined}
+                style={{ cursor: isEditable ? 'text' : 'default' }}
+                title={isEditable ? 'Click to edit title' : undefined}
+              >
+                {componentDeck.lessonTitle || 'Slide Deck'}
+              </span>
+            )}
           </h1>
           <div style={{
             fontSize: '14px',
@@ -756,13 +851,16 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 }}
               >
                 {/* Component-based slide content */}
-                <div className="slide-content">
+        <div className="slide-content">
                   <ComponentBasedSlideDeckRenderer
                     slides={[slide]}
                     isEditable={isEditable}
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={effectiveTheme}
+            // Pass deck templateVersion to resolve old/new templates
+            // @ts-ignore: prop exists in renderer
+            deckTemplateVersion={(componentDeck as any)?.templateVersion}
                     getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
 
@@ -924,7 +1022,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   Popular Templates
                 </div>
                 {availableTemplates
-                  .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                  .filter(template => [
+                    'content-slide',
+                    'bullet-points',
+                    'two-column',
+                    'title-slide',
+                    // Feature the new exact-design slides at the top
+                    'ai-pharma-market-growth-slide',
+                    'phishing-rise-slide',
+                    'kpi-update-slide',
+                    'interest-growth-slide',
+                    'connection-slide'
+                  ].includes(template.id))
                   .map((template) => (
                     <button
                       key={template.id}
@@ -1055,12 +1164,22 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <VoiceoverPanel
           isOpen={isVoiceoverPanelOpen}
           onClose={() => setIsVoiceoverPanelOpen(false)}
-          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
-            slideId: slide.slideId,
-            slideNumber: slide.slideNumber || 0,
-            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
-            voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
-          }))}
+          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => {
+            const rawTitle = (slide as unknown as { slideTitle?: unknown }).slideTitle;
+            const slideTitle = typeof rawTitle === 'string' && rawTitle.length > 0
+              ? rawTitle
+              : `Slide ${slide.slideNumber || 0}`;
+
+            const vt = (slide.voiceoverText ?? (slide.props as Record<string, unknown>)?.voiceoverText);
+            const voiceoverText = typeof vt === 'string' ? vt : undefined;
+
+            return {
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber || 0,
+              slideTitle,
+              voiceoverText
+            };
+          })}
           currentSlideId={currentSlideId}
           onSlideSelect={(slideId) => {
             setCurrentSlideId(slideId);

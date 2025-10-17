@@ -16,10 +16,16 @@ python-dotenv
 python-multipart
 tiktoken
 openai
+google-generativeai # For Gemini image generation
 Pillow # For pie chart image generation
 sqlalchemy
 cryptography
 psutil
+# HTML-to-image conversion libraries (fixes poster generation bug)
+html2image
+imgkit
+weasyprint
+playwright
 aiohttp
 ffmpeg-python
 playwright
@@ -31,6 +37,7 @@ pytest-asyncio
 black
 flake8
 gunicorn
+stripe
 
 # Video processing dependencies (cleaned up duplicates) - installed separately in Dockerfile
 opencv-python==4.8.0.76

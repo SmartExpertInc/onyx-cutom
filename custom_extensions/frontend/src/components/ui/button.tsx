@@ -40,6 +40,8 @@ const buttonVariants = cva(
           "text-black hover:text-gray-700 transition-colors",
         download:
           "bg-blue-600 rounded-full text-white hover:bg-blue-700 transition-colors",
+        create: 
+          "w-full py-3 px-5 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl",
         view:
           "p-1.5 rounded-md cursor-pointer",
         "view-active":

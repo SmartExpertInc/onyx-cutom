@@ -101,6 +101,7 @@ services:
         - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-}
         - NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED=${NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED:-}
         - NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN=${NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN:-https://ml.contentbuilder.ai}
+        - NEXT_PUBLIC_MIXPANEL_TOKEN=${NEXT_PUBLIC_MIXPANEL_TOKEN}
     depends_on:
       api_server: # Changed from service_healthy to service_started
         condition: service_started
@@ -276,6 +277,8 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_BASE_URL_ARG=/api/custom-projects-backend 
+        - NEXT_PUBLIC_MIXPANEL_TOKEN=${NEXT_PUBLIC_MIXPANEL_TOKEN}
+        - NEXT_PUBLIC_USERBACK_TOKEN=${NEXT_PUBLIC_USERBACK_TOKEN}
     # ports:
       # - "3001:3001"
     restart: always
