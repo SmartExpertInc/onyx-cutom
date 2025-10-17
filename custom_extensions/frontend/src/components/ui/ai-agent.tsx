@@ -268,66 +268,74 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       ) : (
         <>
           {/* Chat view - messenger style with scrolling */}
-          <div className="flex flex-col gap-4 mt-4 max-h-[400px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+          <div className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
             {/* Render all messages from history */}
-            {messages.map((message, index) => (
-              <div key={index}>
-                {/* Message bubble */}
-                <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div 
-                    className="px-4 py-3 max-w-[70%]"
-                    style={message.sender === 'user' ? { 
-                      backgroundColor: '#F7E0FC', 
-                      color: '#0D001B',
-                      borderRadius: '16px',
-                      borderBottomRightRadius: '0'
-                    } : { 
-                      backgroundColor: '#FFFFFF', 
-                      color: '#0D001B',
-                      border: '1px solid #E0E0E0',
-                      borderRadius: '16px',
-                      borderBottomLeftRadius: '0'
-                    }}
-                  >
-                    <p className={`text-sm ${message.sender === 'ai' ? 'font-medium' : ''}`}>
-                      {message.text}
-                    </p>
-                  </div>
-                </div>
+            {messages.map((message, index) => {
+              // Find the index of the last user message
+              const lastUserMessageIndex = messages.map((m, i) => m.sender === 'user' ? i : -1)
+                .filter(i => i !== -1)
+                .pop();
+              const isLastUserMessage = index === lastUserMessageIndex;
 
-                {/* Status updates for user messages */}
-                {message.sender === 'user' && message.status && (
-                  <div className="flex flex-col gap-2 mt-2 mb-2">
-                    {message.status === 'updating' && (
-                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                        <SparklesEmoji />
-                        <span>{t('interface.aiAgent.updating', 'Updating')}</span>
-                      </div>
-                    )}
-                    
-                    {message.status === 'updated' && (
-                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                        <SparklesEmoji />
-                        <span>{t('interface.aiAgent.updated', 'Updated')}</span>
-                      </div>
-                    )}
+              return (
+                <div key={index}>
+                  {/* Message bubble */}
+                  <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div 
+                      className="px-4 py-3 max-w-[70%]"
+                      style={message.sender === 'user' ? { 
+                        backgroundColor: '#F7E0FC', 
+                        color: '#0D001B',
+                        borderRadius: '16px',
+                        borderBottomRightRadius: '0'
+                      } : { 
+                        backgroundColor: '#FFFFFF', 
+                        color: '#0D001B',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '16px',
+                        borderBottomLeftRadius: '0'
+                      }}
+                    >
+                      <p className={`text-sm ${message.sender === 'ai' ? 'font-medium' : ''}`}>
+                        {message.text}
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Status updates only for the last user message */}
+                  {message.sender === 'user' && message.status && isLastUserMessage && (
+                    <div className="flex flex-col gap-2 mt-2 mb-2">
+                      {message.status === 'updating' && (
+                        <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                          <SparklesEmoji />
+                          <span>{t('interface.aiAgent.updating', 'Updating')}</span>
+                        </div>
+                      )}
+                      
+                      {message.status === 'updated' && (
+                        <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                          <SparklesEmoji />
+                          <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             
             {/* Scroll anchor */}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Feedback section */}
-          <div className="flex flex-col items-center gap-2 mt-4 mb-4">
-            <p className="text-sm text-[#949CA8]">{t('interface.aiAgent.feedbackQuestion', 'Did this edit work for you?')}</p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xl text-[#434343]">{t('interface.aiAgent.feedbackQuestion', 'Did this edit work for you?')}</p>
             <div className="flex gap-3">
               {/* Thumbs Down */}
               <button
                 type="button"
-                className="p-2 rounded-md hover:bg-gray-100 transition-colors group"
+                className="p-2 rounded-md transition-colors group"
                 aria-label="Thumbs down"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
@@ -345,7 +353,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
               {/* Thumbs Up */}
               <button
                 type="button"
-                className="p-2 rounded-md hover:bg-gray-100 transition-colors group"
+                className="p-2 rounded-md transition-colors group"
                 aria-label="Thumbs up"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
