@@ -56,7 +56,7 @@ const ImportCard = React.forwardRef<HTMLDivElement, ImportCardProps>(
       <div
         ref={ref}
         className={cn(
-          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[400px]",
           "bg-white border-2 border-[#E0E0E0] shadow-md",
           "hover:bg-[#F2F8FF] hover:border-[#0F58F9] hover:shadow-xl",
           "active:bg-[#F2F8FF] active:border-[#0F58F9] active:shadow-xl",
@@ -66,7 +66,7 @@ const ImportCard = React.forwardRef<HTMLDivElement, ImportCardProps>(
       >
         <div className="relative p-6 h-full flex flex-col items-center">
           {/* Icon section with opacity states */}
-          <div className="flex items-center justify-center h-16 relative mb-4 opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200">
+          <div className="flex items-center justify-center h-16 relative mb-6 opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200">
             {icon}
           </div>
           
@@ -81,7 +81,7 @@ const ImportCard = React.forwardRef<HTMLDivElement, ImportCardProps>(
           {/* Features list */}
           <div className="flex flex-row flex-wrap justify-center gap-x-4 gap-y-2">
             {features.map((feature, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm whitespace-nowrap" style={{ color: '#797979' }}>
+              <div key={index} className="flex items-center gap-2 text-xs whitespace-nowrap" style={{ color: '#797979' }}>
                 <TickIcon />
                 <span>{feature}</span>
               </div>
