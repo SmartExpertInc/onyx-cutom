@@ -112,6 +112,7 @@ export interface TitleSlideProps extends BaseTemplateProps {
   titleColor?: string;
   subtitleColor?: string;
   backgroundImage?: string;
+  logoPath?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
 }
 

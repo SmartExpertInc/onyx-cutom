@@ -314,9 +314,6 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           {/* Headers */}
           <thead>
             <tr>
-              {/* Empty corner cell */}
-              <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}></th>
-              
               {/* Team headers */}
               {tableData.headers.map((header, index) => (
                 <th 
