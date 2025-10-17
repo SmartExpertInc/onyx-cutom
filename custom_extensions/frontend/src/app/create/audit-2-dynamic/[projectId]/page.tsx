@@ -4822,7 +4822,7 @@ export default function DynamicAuditLandingPage() {
                 <div 
                   className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
                   style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                    backgroundImage: `url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${landingPageData?.language === 'ua' ? 'ua' : 'en'}.png)`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
@@ -4837,8 +4837,8 @@ export default function DynamicAuditLandingPage() {
                       {getLocalizedText(landingPageData?.language, {
                         en: 'AI capabilities:',
                         es: 'Capacidades de IA:',
-                        ua: 'Возможности ИИ:',
-                        ru: 'Можливості ШІ:'
+                        ua: 'Можливості ШІ:',
+                        ru: 'Возможности ИИ:'
                       })}
                     </h4>
                     
@@ -5255,7 +5255,7 @@ export default function DynamicAuditLandingPage() {
                     })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
                       en: 'based',
                       es: 'y',
-                      ua: 'і',
+                      ua: 'та',
                       ru: 'и'
                     })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
                       en: 'training',
