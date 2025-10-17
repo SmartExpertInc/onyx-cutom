@@ -1841,10 +1841,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
     avatarPosition: {
-      x: 925,       // Right side of slide
-      y: 118,       // Vertically centered (top-right profile position)
-      width: 935,
-      height: 843,
+      x: 1690,      // ✅ MEASURED: Top-right profile position
+      y: 40,        // ✅ MEASURED: Top padding position
+      width: 170,   // ✅ MEASURED: Circular profile image width
+      height: 170,  // ✅ MEASURED: Circular profile image height
       backgroundColor: '#ffffff'
     }
   },
