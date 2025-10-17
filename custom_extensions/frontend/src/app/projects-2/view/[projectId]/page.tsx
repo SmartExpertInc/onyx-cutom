@@ -766,8 +766,12 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center w-full h-full"
-                style={{ padding: '5%' }}
+                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center"
+                style={{
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  margin: 'auto'
+                }}
               >
                 {/* Slide Container - Keeps original size */}
                 <div
