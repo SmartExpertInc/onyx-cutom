@@ -957,24 +957,90 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
 												>
 													{/* Content Preview Area */}
-													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative">
-														{(() => {
-															const FileIcon = getFileIcon(folderItem.mime_type);
-															return (
-																<div className="flex flex-col items-center text-gray-500">
-																	<FileIcon strokeWidth={1.5} className="w-10 h-10" />
-																	<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-																</div>
-															);
+													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative overflow-hidden">
+														{folderItem.type === 'directory' ? (
+															<div className="flex flex-col items-center text-gray-500">
+																<Folder strokeWidth={1.5} className="w-10 h-10 text-[#0F58F9]" />
+																<span className="text-xs mt-1">FOLDER</span>
+															</div>
+														) : (() => {
+															// Show file preview based on mime type
+															if (folderItem.mime_type?.startsWith('image/')) {
+																// Image preview
+																return (
+																	<div className="w-full h-full relative">
+																		<img 
+																			src={`${CUSTOM_BACKEND_URL}/smartdrive/preview?path=${encodeURIComponent(folderItem.path)}`}
+																			alt={folderItem.name}
+																			className="w-full h-full object-cover"
+																			onError={(e) => {
+																				// Fallback to icon if image fails to load
+																				const target = e.target as HTMLImageElement;
+																				target.style.display = 'none';
+																				const fallback = target.nextElementSibling as HTMLElement;
+																				if (fallback) fallback.style.display = 'flex';
+																			}}
+																		/>
+																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500" style={{display: 'none'}}>
+																			{(() => {
+																				const FileIcon = getFileIcon(folderItem.mime_type);
+																				return <FileIcon strokeWidth={1.5} className="w-10 h-10" />;
+																			})()}
+																			<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																		</div>
+																	</div>
+																);
+															} else if (folderItem.mime_type === 'application/pdf') {
+																// PDF preview
+																return (
+																	<div className="w-full h-full relative bg-white">
+																		<iframe 
+																			src={`${CUSTOM_BACKEND_URL}/smartdrive/preview?path=${encodeURIComponent(folderItem.path)}`}
+																			className="w-full h-full border-0"
+																			onError={(e) => {
+																				// Fallback to icon if PDF fails to load
+																				const target = e.target as HTMLIFrameElement;
+																				target.style.display = 'none';
+																				const fallback = target.nextElementSibling as HTMLElement;
+																				if (fallback) fallback.style.display = 'flex';
+																			}}
+																		/>
+																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500" style={{display: 'none'}}>
+																			<FileText strokeWidth={1.5} className="w-10 h-10" />
+																			<span className="text-xs mt-1">PDF</span>
+																		</div>
+																	</div>
+																);
+															} else if (folderItem.mime_type?.startsWith('text/')) {
+																// Text file preview
+																return (
+																	<div className="w-full h-full relative bg-white p-2">
+																		<div className="w-full h-full overflow-hidden text-xs text-gray-600 font-mono leading-tight">
+																			{/* This would need to be populated with actual text content */}
+																			<div className="text-gray-400">Text file preview</div>
+																			<div className="text-gray-500 mt-1">{folderItem.name}</div>
+																		</div>
+																	</div>
+																);
+															} else {
+																// Default file icon for other types
+																return (
+																	<div className="flex flex-col items-center text-gray-500">
+																		{(() => {
+																			const FileIcon = getFileIcon(folderItem.mime_type);
+																			return <FileIcon strokeWidth={1.5} className="w-10 h-10" />;
+																		})()}
+																		<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																	</div>
+																);
+															}
 														})()}
 														
 														{/* File type icon in top-left */}
 														<div className="absolute top-2 left-2">
 															{folderItem.type === 'directory' ? (
 																<div className="w-6 h-6 bg-white rounded-sm border border-[#E0E0E0] flex items-center justify-center">
-																	<svg width="16" height="16" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-																		<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
-																	</svg>
+																	<Folder strokeWidth={1.5} className="w-4 h-4 text-[#0F58F9]" />
 																</div>
 															) : (() => {
 																const FileIcon = getFileIcon(folderItem.mime_type);
@@ -1561,55 +1627,59 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			{/* Footer buttons removed in select mode; selection is communicated live via onFilesSelected */}
 
 			{/* Rename Modal */}
-			{renameModalOpen && itemToRename && (
-				<Dialog open={renameModalOpen} onOpenChange={setRenameModalOpen}>
-					<DialogContent className="sm:max-w-[425px]">
-						<DialogHeader>
-							<DialogTitle>Rename Item</DialogTitle>
-							<DialogDescription>
-								Enter a new name for "{itemToRename.split('/').pop() || ''}"
-							</DialogDescription>
-						</DialogHeader>
-						<div className="grid gap-4 py-4">
-							<div className="grid gap-2">
-								<Label htmlFor="item-name">Name</Label>
-								<Input
-									id="item-name"
-									value={newItemName}
-									onChange={(e) => setNewItemName(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' && newItemName.trim()) {
-											handleRenameSubmit();
-										}
-									}}
-									placeholder="Enter new name"
-									disabled={isRenaming}
-									autoFocus
-								/>
-							</div>
-						</div>
-						<DialogFooter>
-							<Button
-								variant="outline"
-								onClick={() => {
-									setRenameModalOpen(false);
-									setItemToRename(null);
-									setNewItemName('');
+			<Dialog open={renameModalOpen} onOpenChange={(open) => {
+				if (!open) {
+					setRenameModalOpen(false);
+					setItemToRename(null);
+					setNewItemName('');
+				}
+			}}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>Rename Item</DialogTitle>
+						<DialogDescription>
+							Enter a new name for "{itemToRename?.split('/').pop() || ''}"
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-4 py-4">
+						<div className="grid gap-2">
+							<Label htmlFor="item-name">Name</Label>
+							<Input
+								id="item-name"
+								value={newItemName}
+								onChange={(e) => setNewItemName(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' && newItemName.trim()) {
+										handleRenameSubmit();
+									}
 								}}
+								placeholder="Enter new name"
 								disabled={isRenaming}
-							>
-								Cancel
-							</Button>
-							<Button
-								onClick={handleRenameSubmit}
-								disabled={isRenaming || !newItemName.trim()}
-							>
-								{isRenaming ? 'Renaming...' : 'Rename'}
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
-			)}
+								autoFocus
+							/>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setRenameModalOpen(false);
+								setItemToRename(null);
+								setNewItemName('');
+							}}
+							disabled={isRenaming}
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleRenameSubmit}
+							disabled={isRenaming || !newItemName.trim()}
+						>
+							{isRenaming ? 'Renaming...' : 'Rename'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			{/* Folder Selection Modal for Move/Copy */}
 			{showFolderSelectionModal && moveOperation && (() => {
