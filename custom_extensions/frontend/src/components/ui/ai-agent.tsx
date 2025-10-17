@@ -53,6 +53,12 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
   );
 };
 
+interface Message {
+  text: string;
+  sender: 'user' | 'ai';
+  status?: 'updating' | 'updated';
+}
+
 interface AiAgentProps {
   editPrompt: string;
   setEditPrompt: (value: string) => void;
@@ -90,23 +96,27 @@ export const AiAgent: React.FC<AiAgentProps> = ({
 }) => {
   const { t } = useLanguage();
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
-  const [internalUserMessage, setInternalUserMessage] = useState("");
-  const [showUpdated, setShowUpdated] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
+  ]);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   // Use external state if provided, otherwise use internal state
   const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
   const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
-  
-  const userMessage = externalLastUserMessage !== undefined ? externalLastUserMessage : internalUserMessage;
-  const setUserMessage = externalSetLastUserMessage || setInternalUserMessage;
+
+  // Scroll to bottom when messages change
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Handle send button click
   const handleSend = () => {
     if (!editPrompt.trim()) return;
     
-    setUserMessage(editPrompt);
+    // Add user message to history
+    setMessages(prev => [...prev, { text: editPrompt, sender: 'user' }]);
     setHasStartedChat(true);
-    setShowUpdated(false);
     
     // Call the original onApplyEdit
     onApplyEdit();
@@ -115,16 +125,35 @@ export const AiAgent: React.FC<AiAgentProps> = ({
     setEditPrompt("");
   };
 
-  // Update showUpdated when loading completes
+  // Update last message status when loading completes
   React.useEffect(() => {
-    if (hasStartedChat && !loadingEdit) {
-      // Small delay to show "Updating" state first
-      const timer = setTimeout(() => {
-        setShowUpdated(true);
-      }, 500);
-      return () => clearTimeout(timer);
+    if (hasStartedChat && messages.length > 1) {
+      const lastUserMessage = [...messages].reverse().find(m => m.sender === 'user');
+      if (lastUserMessage) {
+        if (loadingEdit) {
+          // Set status to updating
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastUserIndex = updated.map((m, i) => m.sender === 'user' ? i : -1).filter(i => i !== -1).pop();
+            if (lastUserIndex !== undefined) {
+              updated[lastUserIndex] = { ...updated[lastUserIndex], status: 'updating' };
+            }
+            return updated;
+          });
+        } else {
+          // Set status to updated
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastUserIndex = updated.map((m, i) => m.sender === 'user' ? i : -1).filter(i => i !== -1).pop();
+            if (lastUserIndex !== undefined) {
+              updated[lastUserIndex] = { ...updated[lastUserIndex], status: 'updated' };
+            }
+            return updated;
+          });
+        }
+      }
     }
-  }, [hasStartedChat, loadingEdit]);
+  }, [hasStartedChat, loadingEdit, messages.length]);
   
   return (
     <div 
@@ -238,57 +267,57 @@ export const AiAgent: React.FC<AiAgentProps> = ({
         </>
       ) : (
         <>
-          {/* Chat view - messenger style */}
-          <div className="flex flex-col gap-4 mt-4">
-            {/* First message - AI's question */}
-            <div className="flex justify-start">
-              <div 
-                className="px-4 py-3 max-w-[70%]"
-                style={{ 
-                  backgroundColor: '#FFFFFF', 
-                  color: '#0D001B',
-                  border: '1px solid #E0E0E0',
-                  borderRadius: '16px',
-                  borderBottomLeftRadius: '0'
-                }}
-              >
-                <p className="text-sm font-medium">
-                  {t('interface.aiAgent.question', 'Hey, what do you want to change?')}
-                </p>
-              </div>
-            </div>
-
-            {/* Second message - User's input */}
-            <div className="flex justify-end">
-              <div 
-                className="px-4 py-3 max-w-[70%]"
-                style={{ 
-                  backgroundColor: '#F7E0FC', 
-                  color: '#0D001B',
-                  borderRadius: '16px',
-                  borderBottomRightRadius: '0'
-                }}
-              >
-                <p className="text-sm">{userMessage}</p>
-              </div>
-            </div>
-
-            {/* AI status updates */}
-            <div className="flex flex-col gap-2 mt-2 mb-4">
-              {(loadingEdit || showUpdated) && (
-                <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                  <SparklesEmoji />
-                  <span>{t('interface.aiAgent.updating', 'Updating')}</span>
+          {/* Chat view - messenger style with scrolling */}
+          <div className="flex flex-col gap-4 mt-4 max-h-[400px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+            {/* Render all messages from history */}
+            {messages.map((message, index) => (
+              <div key={index}>
+                {/* Message bubble */}
+                <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div 
+                    className="px-4 py-3 max-w-[70%]"
+                    style={message.sender === 'user' ? { 
+                      backgroundColor: '#F7E0FC', 
+                      color: '#0D001B',
+                      borderRadius: '16px',
+                      borderBottomRightRadius: '0'
+                    } : { 
+                      backgroundColor: '#FFFFFF', 
+                      color: '#0D001B',
+                      border: '1px solid #E0E0E0',
+                      borderRadius: '16px',
+                      borderBottomLeftRadius: '0'
+                    }}
+                  >
+                    <p className={`text-sm ${message.sender === 'ai' ? 'font-medium' : ''}`}>
+                      {message.text}
+                    </p>
+                  </div>
                 </div>
-              )}
-              
-              {showUpdated && !loadingEdit && (
-                <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
-                  <SparklesEmoji />
-                  <span>{t('interface.aiAgent.updated', 'Updated')}</span>
-                </div>
-              )}
-            </div>
+
+                {/* Status updates for user messages */}
+                {message.sender === 'user' && message.status && (
+                  <div className="flex flex-col gap-2 mt-2 mb-2">
+                    {message.status === 'updating' && (
+                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                        <SparklesEmoji />
+                        <span>{t('interface.aiAgent.updating', 'Updating')}</span>
+                      </div>
+                    )}
+                    
+                    {message.status === 'updated' && (
+                      <div className="flex items-center gap-2 text-xs" style={{ color: '#949CA8' }}>
+                        <SparklesEmoji />
+                        <span>{t('interface.aiAgent.updated', 'Updated')}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Feedback section */}
@@ -374,6 +403,24 @@ export const AiAgent: React.FC<AiAgentProps> = ({
           </div>
         </>
       )}
+      
+      {/* Custom scrollbar styling */}
+      <style jsx>{`
+        div::-webkit-scrollbar {
+          width: 6px;
+        }
+        div::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+        div::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+        div::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+      `}</style>
     </div>
   );
 };
