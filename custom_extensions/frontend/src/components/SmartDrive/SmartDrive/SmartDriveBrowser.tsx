@@ -1088,7 +1088,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									<TableHeader className="bg-white divide-y divide-[#E0E0E0] [&_tr]:border-b-0">
 										<TableRow className='divide-y divide-[#E0E0E0] border-b-0'>
 											<TableHead 
-												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider"
+												className="px-3 py-1 text-left text-xs font-normal text-[#71717A] tracking-wider"
 												style={{ width: '100px' }}
 											>
 												<div className="flex items-center gap-2">
@@ -1097,7 +1097,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												className="px-3 py-1 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
 												onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}
 											>
 												<div className="flex items-center gap-2">
@@ -1107,7 +1107,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												className="px-3 py-1 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
 												style={{ width: '150px' }}
 												onClick={()=>{setSortKey('creator'); setSortAsc(k=>sortKey==='creator'?!k:true);}}
 											>
@@ -1118,7 +1118,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
+												className="px-3 py-1 text-left text-xs font-normal text-[#71717A] tracking-wider cursor-pointer hover:bg-gray-50"
 												style={{ width: '160px' }}
 												onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}
 											>
@@ -1129,13 +1129,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
+												className="px-3 py-1 text-right text-xs font-normal text-[#71717A]"
 												style={{ width: '50px' }}
 											>
 											</TableHead>
 										</TableRow>
 									</TableHeader>
-									<TableBody className="bg-white divide-y divide-[#E0E0E0] [&_tr]:border-b-0">
+									<TableBody className="bg-white divide-y divide-[#E0E0E0]">
 								{(() => {
 									// If any folder is expanded, show the folder with blue background and its contents
 									const expandedFolder = Array.from(expandedFolders)[0]; // Get first expanded folder
@@ -1148,7 +1148,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												{/* Show the expanded folder with blue background */}
 												{expandedFolderItem && (
 													<React.Fragment key={expandedFolderItem.path}>
-														<TableRow className={`hover:bg-gray-50 transition cursor-pointer ${
+														<TableRow className={`hover:bg-gray-50 divide-y divide-gray-200 transition cursor-pointer ${
 															expandedFolderItem.type === 'directory' ? 'group' : ''
 														} ${
 															expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) ? 'bg-blue-50' : ''
@@ -1300,10 +1300,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														</div>
 														<div className="text-xs text-[#09090B] ml-5">
 															{it.type === 'file' 
-																? formatSize(it.size) 
+																? ''
 																: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
 																	? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
-																	: (it.type === 'directory' ? 'Folder' : '')
+																	: ''
 																)
 															}
 														</div>

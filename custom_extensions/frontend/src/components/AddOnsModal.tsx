@@ -307,7 +307,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
           <TabsList className="ml-6 w-fit bg-transparent">
             <TabsTrigger 
               value="credits" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
+              className="group rounded-none flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
             >
               <div className="flex items-center gap-2">
                 <Coins size={16} />
@@ -317,7 +317,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
+              className="group rounded-none flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
             >
               <div className="flex items-center gap-2">
                 <HardDrive size={16} />
@@ -327,7 +327,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
+              className="group rounded-none flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 border-b border-[#B5B5B9] data-[state=active]:border-b-2 data-[state=active]:border-b-[#719AF5]"
             >
               <div className="flex items-center gap-2">
                 <Workflow size={16} />
@@ -337,9 +337,9 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
           </TabsList>
 
-          <div className="overflow-y-auto flex-1 px-6 py-5">
-            <TabsContent value="credits" className="mt-0">
-              <ScrollArea className="h-[90vh]">
+          <div className="flex-1 px-6 py-5 overflow-hidden">
+            <ScrollArea className="h-[400px] w-full">
+              <TabsContent value="credits" className="mt-0 pr-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
                     {CREDITS_DATA_TRANSLATED.map((credit) => (
                       <AddOnCard
@@ -351,40 +351,38 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                       />
                     ))}
                   </div>
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="storage" className="mt-0">
-            <ScrollArea className="h-full">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
-                {STORAGE_DATA_TRANSLATED.map((storage) => (
-                  <AddOnCard
-                    key={storage.id}
-                    addOn={storage}
-                    icon={StorageIcon}
-                    quantity={quantities[storage.id]}
-                    onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
-                    showAmount={true}
-                  />
-                ))}
-              </div></ScrollArea>
-            </TabsContent>
+              <TabsContent value="storage" className="mt-0 pr-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
+                  {STORAGE_DATA_TRANSLATED.map((storage) => (
+                    <AddOnCard
+                      key={storage.id}
+                      addOn={storage}
+                      icon={StorageIcon}
+                      quantity={quantities[storage.id]}
+                      onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
+                      showAmount={true}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
 
-            <TabsContent value="connectors" className="mt-0">
-              <ScrollArea className="h-full">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
-                {CONNECTORS_DATA_TRANSLATED.map((connector) => (
-                  <AddOnCard
-                    key={connector.id}
-                    addOn={connector}
-                    icon={ConnectorsIcon}
-                    quantity={quantities[connector.id]}
-                    onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
-                    showAmount={true}
-                  />
-                ))}
-              </div></ScrollArea>
-            </TabsContent>
+              <TabsContent value="connectors" className="mt-0 pr-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
+                  {CONNECTORS_DATA_TRANSLATED.map((connector) => (
+                    <AddOnCard
+                      key={connector.id}
+                      addOn={connector}
+                      icon={ConnectorsIcon}
+                      quantity={quantities[connector.id]}
+                      onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
+                      showAmount={true}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+            </ScrollArea>
           </div>
         </Tabs>
       </DialogContent>
