@@ -5296,9 +5296,6 @@ async def stream_openai_response(prompt: str, model: str = None):
 
         client = get_openai_client()
         model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
 
         # Read the full ContentBuilder.ai assistant instructions
         assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
@@ -5320,9 +5317,7 @@ async def stream_openai_response(prompt: str, model: str = None):
             max_tokens=10000,  # Increased from 4000 to handle larger course outlines
             temperature=0.2
         )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-                
+                        
         async for chunk in stream:            
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
@@ -5332,7 +5327,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
                     break
                     
     except Exception as e:
