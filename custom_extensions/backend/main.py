@@ -1968,6 +1968,24 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 logger.info(f"Final Props: {normalized_props}")
                 logger.info(f"=== END FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
                     
+            # Fix timeline template props
+            elif template_id == 'timeline':
+                # Convert steps[] to events[] if AI generated wrong format
+                if 'steps' in normalized_props and 'events' not in normalized_props:
+                    steps = normalized_props.pop('steps')
+                    events = []
+                    for step in steps:
+                        if isinstance(step, dict):
+                            # Convert step format to event format
+                            event = {
+                                'date': step.get('date') or step.get('heading') or step.get('title') or 'Event',
+                                'title': step.get('title') or step.get('heading') or 'Event Title',
+                                'description': step.get('description') or ''
+                            }
+                            events.append(event)
+                    normalized_props['events'] = events
+                    logger.info(f"Converted steps[] to events[] for timeline slide {slide_index + 1}")
+                    
             # Fix process-steps template props
             elif template_id == 'process-steps':
                 # Remove subtitle as process-steps template doesn't use it
@@ -12283,7 +12301,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "steps" array with value/label/description
-            - For timeline: parse chronological content into "steps" array
+            - For timeline: parse chronological content into "events" array with date, title, and description fields
             - For pyramid: parse hierarchical content into "steps" array
             
             **CRITICAL IMAGE PROMPT EXTRACTION - PRESENTATION ILLUSTRATIONS:**
@@ -12684,15 +12702,15 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            12. **`timeline`** - Horizontal timeline with 4 steps:
+            12. **`timeline`** - Horizontal timeline with 4 events:
             ```json
             "props": {
               "title": "History and Evolution",
-              "steps": [
-                { "heading": "Step 1", "description": "Detailed description of the first phase" },
-                { "heading": "Step 2", "description": "Comprehensive explanation of the second phase" },
-                { "heading": "Step 3", "description": "Thorough description of the third phase" },
-                { "heading": "Step 4", "description": "In-depth explanation of the final phase" }
+              "events": [
+                { "date": "2020", "title": "Phase 1", "description": "Detailed description of the first phase" },
+                { "date": "2021", "title": "Phase 2", "description": "Comprehensive explanation of the second phase" },
+                { "date": "2022", "title": "Phase 3", "description": "Thorough description of the third phase" },
+                { "date": "2023", "title": "Phase 4", "description": "In-depth explanation of the final phase" }
               ]
             }
             ```
@@ -12730,7 +12748,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "items" array with value/label/description
-            - For timeline: parse chronological content into "steps" array
+            - For timeline: parse chronological content into "events" array with date, title, and description fields
             - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
@@ -22305,14 +22323,14 @@ Template Catalog with required props and usage:
 - metrics-analytics: title, metrics[] (number,text)
   • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use ONLY when you have specific, meaningful KPIs, measurements, or operational metrics with concrete numbers (percentages, counts, times, etc). Each metric MUST have context explaining what the number means. DO NOT use for generic lists. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
-  • Usage: bar/ratio comparison; legend-style notes.
+  • Usage: bar/ratio comparison for market distribution or category breakdown. CRITICAL: percentage values MUST represent actual percentages (0-100) that together sum to approximately 100%, or represent meaningful standalone metrics like "market share: 35%", "adoption rate: 67%". DO NOT use arbitrary numbers. The subtitle and description fields MUST clearly explain what the percentages represent (e.g., "Market share by vendor", "Customer segmentation by size", "Technology adoption rates").
 - [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
 - table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
   • Usage: dense tabular data (dark theme); optional checkmarks.
 - table-light: title, tableData: headers[],rows[][], [colors]
   • Usage: dense tabular data (light theme). Each row must have EXACTLY the same number of elements as headers[] (not headers.length + 1). Example: if headers has 3 items, each row must also have exactly 3 items.
-- pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
-  • Usage: distribution breakdown; pie with segment list and monthly notes.
+- pie-chart-infographics: title, chartData.segments[] (label,value,color), monthlyData[], [chartSize], [colors]
+  • Usage: distribution breakdown showing proportional parts of a whole. CRITICAL: segment values MUST sum to 100 (representing percentages) or represent actual quantities that are part of a total. Each segment needs label (category name), value (the number/percentage), and color (hex code like #2563eb). The title MUST clearly explain what distribution is being shown (e.g., "Budget Allocation by Department", "Customer Demographics by Age Group").
 
 CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
@@ -22320,6 +22338,7 @@ CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
 - Prioritize variety: use different templates for different content types to maintain visual interest.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
+- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, four-box-grid, or other content-rich templates instead.
 """
         else:
             json_preview_instructions += f"""
