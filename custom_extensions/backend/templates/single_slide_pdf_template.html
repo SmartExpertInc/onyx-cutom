@@ -237,71 +237,61 @@
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
         .big-image-top {
-            width: 100%;
-            height: 100%;
-            min-height: 600px;
-            background-color: var(--bg-color);
+            height: 600px;
+            background: #ffffff;
             font-family: var(--content-font);
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            justify-content: space-between;
-            padding-bottom: 50px;
+            justify-content: flex-start;
+            padding: 0;
             position: relative;
-            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-top .image-container {
             width: 100%;
+            height: 50%; /* Exactly 50% of 600px = 300px */
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-color);
+            background: #ffffff;
             min-width: 0;
-            margin-bottom: 32px;
-        }
-        
-        .big-image-top .image-placeholder {
-            width: 100%;
-            height: 240px;
-            background-color: #e9ecef;
-            border: 2px dashed #adb5bd;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-            color: #6c757d;
+            margin-bottom: 0;
+            flex-shrink: 0;
         }
         
         .big-image-top .content-container {
             width: 100%;
-            padding: 60px 60px 60px 60px;
+            height: 50%; /* Exactly 50% of 600px = 300px */
+            padding: 40px 40px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            justify-content: flex-start;
             min-width: 0;
+            flex-shrink: 0;
+            overflow: hidden;
         }
         
         .big-image-top .slide-title {
+            font-size: 3rem;
             font-family: var(--title-font);
-            font-size: 45px;
-            color: var(--title-color);
+            color: #000000;
             margin-bottom: 24px;
             line-height: 1.2;
             word-wrap: break-word;
+            font-weight: bold;
+            text-align: left;
         }
         
         .big-image-top .content-text {
+            font-size: 1.1rem;
             font-family: var(--content-font);
-            font-size: 18px;
-            color: var(--content-color);
+            color: #333333;
             line-height: 1.6;
+            width: 75%;
             white-space: pre-wrap;
             word-wrap: break-word;
+            text-align: left;
         }
         
         /* Hero Title Slide Template - EXACT FRONTEND MATCH */
@@ -960,7 +950,7 @@
             align-items: flex-start;
             justify-content: flex-start;
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
-            padding: 80px 60px;
+            padding: 35px;
             clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
             z-index: 2;
         }
@@ -999,13 +989,13 @@
         }
         
         .bullet-points-right .bullets-container {
-            width: 100%;
-            font-size: 18px;
-            font-family: var(--content-font);
+            width: 77%;
+            font-size: 0.9rem;
+            font-family: sans-serif;
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            align-items: flex-start;
         }
         
         .bullet-points-right .placeholder-container {
@@ -1052,29 +1042,34 @@
         .bullet-item {
             display: flex;
             align-items: flex-start;
-            gap: 12px; /* Exact frontend match */
-            margin-bottom: 16px; /* Exact frontend match */
+            gap: 12px;
+            margin-bottom: 35px;
         }
         
         .bullet-icon {
             color: #ffffff;
-            font-weight: 600;
-            min-width: 20px;
-            font-size: 1.2rem;
-            font-family: var(--title-font);
-        }
-        
-        .bullet-icon::before {
-            content: '▶';
-            color: #ffffff;
-            font-size: 1.2rem;
+            font-weight: bold;
+            min-width: 14px;
+            min-height: 14px;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-family: sans-serif;
+            flex-shrink: 0;
         }
         
         .bullet-text {
-            font-family: var(--content-font);
-            font-size: 18px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            margin-top: -5px;
+            opacity: 0.8;
             color: #ffffff;
             line-height: 1.6;
+            flex: 1;
+            min-width: 0;
         }
         
         .bullet-points-right .right-section img {
@@ -1204,15 +1199,16 @@
             width: 210px;
         }
         
-        /* Challenges & Solutions Template - SIMPLIFIED DESIGN */
+        /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
         .challenges-solutions {
+            width: 100%;
+            height: 100%;
             background: #ffffff;
             padding: 40px;
             display: flex;
             flex-direction: column;
-            font-family: Georgia, serif;
+            font-family: 'Georgia, serif';
             min-height: 600px;
-            width: 100%;
             position: relative;
             overflow: hidden;
         }
@@ -1220,21 +1216,23 @@
         .challenges-solutions .slide-title {
             color: #000000;
             font-size: 2.5rem;
-            font-family: Georgia, serif;
+            font-family: 'Georgia, serif';
             margin-bottom: 10px;
-            text-align: left;
+            text-align: center;
             word-wrap: break-word;
             font-weight: bold;
+            flex-shrink: 0;
         }
         
         .challenges-solutions .slide-subtitle {
             color: #000000;
             font-size: 1.1rem;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial, sans-serif';
             margin-bottom: 40px;
-            text-align: left;
+            text-align: center;
             word-wrap: break-word;
             font-weight: normal;
+            flex-shrink: 0;
         }
         
         .challenges-solutions .main-content {
@@ -1244,19 +1242,35 @@
             flex-grow: 1;
             position: relative;
             height: 400px;
+            width: 100%;
         }
         
-        .challenges-solutions .main-image {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        .challenges-solutions .placeholder-image {
+        .challenges-solutions .image-container {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            height: 100%;
+            position: relative;
+        }
+        
+        .challenges-solutions .challenge-text {
+            position: absolute;
+            left: 140px;
+            font-size: 20px;
+            color: #000000;
+            font-family: 'Arial, sans-serif';
+            font-weight: normal;
+        }
+        
+        .challenges-solutions .solution-text {
+            position: absolute;
+            right: 140px;
+            font-size: 20px;
+            color: #000000;
+            font-family: 'Arial, sans-serif';
+            font-weight: normal;
+            text-align: right;
         }
         
         .callout-box {
@@ -1452,7 +1466,7 @@
             word-wrap: break-word;
         }
         
-        /* Big Numbers Template - EXACT FRONTEND MATCH - NEW DESIGN */
+        /* Big Numbers Template - EXACT FRONTEND MATCH */
         .big-numbers {
             width: 100%;
             min-height: 600px;
@@ -1463,7 +1477,7 @@
         }
         
         .big-numbers .header-section {
-            background: var(--bg-color); /* Use theme background gradient */
+            background: var(--bg-color); /* темный фон темы */
             padding: 48px 64px 48px 64px;
             width: 100%;
             display: flex;
@@ -1471,10 +1485,10 @@
             align-items: flex-start;
         }
         
-        .big-numbers .slide-title {
+        .big-numbers .header-section .slide-title {
             font-size: 2.5rem;
             font-family: var(--title-font);
-            color: var(--title-color);
+            color: var(--title-color); /* белый на темном фоне */
             text-align: left;
             margin-bottom: 24px;
             width: 100%;
@@ -1483,10 +1497,10 @@
             line-height: 1.2;
         }
         
-        .big-numbers .slide-subtitle {
+        .big-numbers .header-section .slide-subtitle {
             font-size: 1.5rem;
             font-family: var(--content-font);
-            color: var(--subtitle-color);
+            color: var(--subtitle-color); /* светлый на темном фоне */
             text-align: left;
             width: 95%;
             word-wrap: break-word;
@@ -1501,9 +1515,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            background: white;
         }
         
-        .numbers-grid {
+        .big-numbers .numbers-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 48px;
@@ -1512,7 +1527,7 @@
             margin: 0 auto;
         }
         
-        .number-item {
+        .big-numbers .number-item {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1520,18 +1535,18 @@
             padding: 32px 24px;
         }
         
-        .number-label {
+        .big-numbers .number-label {
             font-size: 1.5rem;
-            color: var(--content-color);
+            color: #000000; /* черный на белом фоне */
             margin-bottom: 12px;
             font-family: var(--title-font);
             word-wrap: break-word;
             font-weight: 600;
         }
         
-        .number-description {
+        .big-numbers .number-description {
             font-size: 1rem;
-            color: var(--content-color);
+            color: #000000; /* черный на белом фоне */
             font-family: var(--content-font);
             line-height: 1.5;
             word-wrap: break-word;
@@ -2193,17 +2208,18 @@
 }
 
 .step-heading {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #000000;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial, sans-serif';
     font-weight: bold;
+    margin-bottom: 8px;
     word-wrap: break-word;
 }
 
 .step-description {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #000000;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial, sans-serif';
     line-height: 1.4;
     word-wrap: break-word;
 }
@@ -2434,78 +2450,39 @@
                 
             {% elif slide.templateId == 'big-image-top' %}
                 <div class="big-image-top">
+                    <!-- Top 50% - Image Container -->
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
-                            <div style="
-                                position: relative;
-                                overflow: hidden;
-                                border-radius: 8px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                width: {{ ('{}px'.format(slide.props.widthPx|int)) if slide.props.widthPx else '100%' }};
-                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
-                                margin: 0 auto;
-                                margin-bottom: 24px !important;
-                            ">
-                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
-                                <img src="{{ slide.props.imagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="
-                                        width: 100%;
-                                        height: 100%;
-                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset or slide.props.imageScale %}
-                                            transform: 
-                                            {% if slide.props.imageOffset %}
-                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
-                                            {% endif %}
-                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
-                                            {% endif %};
-                                            transform-origin: center center;
-                                        {% endif %}
-                                        border-radius: 8px;
-                                        margin: 0;
-                                        padding: 0;
-                                        display: block;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            </div>
-                            <div class="image-placeholder" style="display: none;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A high-quality illustration for the topic' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">100% × 240px</div>
+                            <img src="{{ slide.props.imagePath }}" 
+                                 alt="Uploaded image" 
+                                 style="
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }};
+                                    margin: 0;
+                                    padding: 0;
+                                    display: block;
+                                    border-radius: 0;
+                                 "
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% else %}
                             <!-- Placeholder when no image -->
-                            <div style="width: 100%; height: 240px; border: 2px dashed #e0e0e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; margin-bottom: 32px;">
+                            <div style="width: 100%; height: 100%; border: 2px dashed #e0e0e0; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
                                 <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% endif %}
                     </div>
+                    
+                    <!-- Bottom 50% - Content Container -->
                     <div class="content-container">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            <h1 class="slide-title positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set titleId = slide.slideId + '-0' %}
-                                    {% if slide.metadata.elementPositions[titleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[titleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[titleId].y|float|round(2) }}px);"
-                                    {% endif %}
-                                {% endif %}
-                            >{{ slide.props.title }}</h1>
+                            <h1 class="slide-title">{{ slide.props.title }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            <div class="content-text positioned-element"
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set subtitleId = slide.slideId + '-1' %}
-                                    {% if slide.metadata.elementPositions[subtitleId] %}
-                                        style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[subtitleId].y|float|round(2) }}px);"
-                                    {% endif %}
-                                {% endif %}
-                            >{{ slide.props.subtitle }}</div>
+                            <div class="content-text">{{ slide.props.subtitle }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -2581,19 +2558,21 @@
                                 {% endif %}
                             {% endif %}
                         >
-                            <ul class="bullet-list">
+                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">▶</span>
-                                            <span class="bullet-text">{{ bullet if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] else 'Add bullet point' }}</span>
-                                        </li>
+                                        {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
+                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                                <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
+                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
+                                            </li>
+                                        {% endif %}
                                     {% endfor %}
                                 {% else %}
                                     {% for i in range(3) %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">▶</span>
-                                            <span class="bullet-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
+                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
+                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
                                         </li>
                                     {% endfor %}
                                 {% endif %}
@@ -2665,8 +2644,22 @@
                     <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
                     
                     <div class="main-content">
-                        <!-- Central Image Container -->
-                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <!-- Left side text items (Challenges) -->
+                        <div style="position: absolute; left: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
+                        </div>
+
+                        <!-- Right side text items (Solutions) -->
+                        <div style="position: absolute; right: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
+                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
+                        </div>
+
+                        <!-- Central Image -->
+                        <div class="image-container">
                             <img src="file:///app/static/group_img.png" alt="Group" style="width: 500px; height: 400px; object-fit: contain;" />
                         </div>
 
