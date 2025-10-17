@@ -4371,13 +4371,6 @@ You are creating high-quality educational presentations designed to teach, engag
 - **Visual Learning**: Use strategic image placeholders to enhance comprehension
 - **Engagement**: Create compelling content that maintains learner interest throughout
 
-**BULLET-POINTS EDUCATIONAL STANDARDS:**
-- **COMPREHENSIVE LEARNING**: Every `bullet-points` slide must cover multiple aspects of the topic
-- **DETAILED EXPLANATIONS**: Each bullet point must provide thorough understanding, not just surface-level information
-- **PRACTICAL VALUE**: Every point must include actionable insights learners can implement immediately
-- **EDUCATIONAL DEPTH**: Aim for 6-7 list items to ensure comprehensive topic coverage
-- **QUALITY OVER QUANTITY**: Better to have 5 detailed points than 7 shallow ones, but NEVER fewer than 5
-
 Content Structure:
 
 Main Lesson Title: Start with # [Lesson Title]

@@ -1,4 +1,5 @@
-<div class="slide-content" style="background-color: var(--bg-color);" bis_skin_checked="1">
+<div class="slide-page" bis_skin_checked="1">
+        <div class="slide-content" style="background-color: var(--bg-color);" bis_skin_checked="1">
                 <!-- 
                 ═══════════════════════════════════════════════════════════════════════════
                 🔍 IMPACT-STATEMENTS AVATAR POSITIONING DEBUG LOG
@@ -27,13 +28,17 @@
                   - SCALE_Y: 1.800000
                 
                 🎯 PROFILE-GRADIENT-CONTAINER CSS ANALYSIS:
+                  ⚠️ CRITICAL: CSS dimensions are ALREADY in video space (1920×1080)!
+                     SCALE_X/SCALE_Y are ONLY for draggable elements from React editor.
+                     DO NOT scale CSS values - use them directly!
+                  
                   Container Dimensions (from CSS):
-                    - Width:  784px
-                    - Height: 496px
+                    - Width:  784px   ← Use directly (no scaling)
+                    - Height: 496px   ← Use directly (no scaling)
                   
                   Slide Padding (from CSS):
-                    - Top:    64px
-                    - Left:   80px
+                    - Top:    64px    ← Use directly (no scaling)
+                    - Left:   80px    ← Use directly (no scaling)
                     - Right:  64px
                     - Bottom: 104px
                   
@@ -45,61 +50,40 @@
                   CALCULATED CONTAINER POSITION (CSS Layout):
                     X Position (Left):
                       - Padding left: 80px
-                      - Container starts at: 80px
+                      - Container starts at: 80px ← Use directly (no scaling)
                     
                     Y Position (Top):
                       - Padding top: 64px
-                      - Title height: ~80px (flex: 1, min-height)
+                      - Title height: ~156px (varies based on text, estimate for 2 lines)
                       - Gap after title: 30px
-                      - Container starts at: 64px + 80px + 30px = 174px (approx)
+                      - Container starts at: 64px + 156px + 30px = 250px (approx)
                   
-                  📍 ESTIMATED CSS POSITION:
+                  📍 CORRECT CSS POSITION (NO SCALING NEEDED):
                     - Left:   80px
-                    - Top:    ~174px (64px padding + ~80px title + 30px gap)
+                    - Top:    ~250px (64px padding + ~156px title + 30px gap)
                     - Width:  784px
                     - Height: 496px
+                    - Bottom: 250px + 496px = 746px ✅ (well within 1080px)
                   
-                  📍 SCALED POSITION FOR AVATAR OVERLAY (Backend Compositor):
-                    If we want avatar to appear ABOVE the gradient container:
+                  ❌ WRONG: SCALED POSITION (for reference - don't use this!):
+                    This shows what happens if you incorrectly apply scaling:
                     
-                    Scaled X (Left):
-                      - CSS X: 80px
-                      - Scaled: 80px × 1.635434 = 130.83px
-                    
-                    Scaled Y (Top):
-                      - CSS Y: ~174px
-                      - Scaled: 174px × 1.800000 = 313.20px
-                    
-                    Scaled Width:
-                      - CSS Width: 784px
-                      - Scaled: 784px × 1.635434 = 1282.18px
-                    
-                    Scaled Height:
-                      - CSS Height: 496px
-                      - Scaled: 496px × 1.800000 = 892.80px
+                    Scaled X: 80px × 1.635434 = 130.83px
+                    Scaled Y: 250px × 1.800000 = 450.00px
+                    Scaled Width: 784px × 1.635434 = 1282.18px
+                    Scaled Height: 496px × 1.800000 = 892.80px
+                    Bottom edge: 1343px ❌ EXCEEDS 1080px!
                   
-                  🎬 RECOMMENDED AVATAR POSITION FOR VIDEO COMPOSITOR:
+                  🎬 CORRECT AVATAR POSITION FOR VIDEO COMPOSITOR:
                     {
-                      "x": 131,      // Left edge of gradient container
-                      "y": 313,     // Top edge of gradient container
-                      "width": 1282, // Match container width
-                      "height": 893 // Match container height
+                      "x": 80,        // ✅ Direct CSS value (no scaling)
+                      "y": 250,       // ✅ Direct CSS value (estimated for title space)
+                      "width": 784,   // ✅ Direct CSS value (no scaling)
+                      "height": 496   // ✅ Direct CSS value (no scaling)
                     }
-                  
-                  ⚙️ CURRENT AVATAR POSITION (from registry.ts):
-                    {
-                      "x": 60,
-                      "y": 118,
-                      "width": 935,
-                      "height": 843,
-                      "backgroundColor": "#ffffff"
-                    }
-                  
-                  ⚠️ POSITION COMPARISON:
-                    X Difference: 71px (RIGHT by 71px)
-                    Y Difference: 195px (DOWN by 195px)
-                    Width Difference: 347px (WIDER by 347px)
-                    Height Difference: 50px (TALLER by 50px)
+                    
+                    ✅ Verification: Bottom edge = 250 + 496 = 746px < 1080px
+                    ✅ Right edge = 80 + 784 = 864px < 1920px
                 
                 ═══════════════════════════════════════════════════════════════════════════
                 -->
@@ -117,9 +101,9 @@
                         ───────────────────────────────────────────────────────────────
                         This container is where the avatar should be overlaid.
                         
-                        CSS Properties:
-                          - width: 784px
-                          - height: 496px
+                        CSS Properties (ALREADY in video space 1920×1080):
+                          - width: 784px    ← Use directly
+                          - height: 496px   ← Use directly
                           - background: linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)
                           - border-radius: 13px
                         
@@ -128,11 +112,13 @@
                           - This is the second child (after title)
                           - Position depends on title's actual height
                         
-                        Video Backend Position (for avatar overlay):
-                          X: 131px (slide padding-left scaled)
-                          Y: 313px (padding-top + title + gap, scaled)
-                          Width: 1282px (container width scaled)
-                          Height: 893px (container height scaled)
+                        ✅ CORRECT Video Backend Position (NO SCALING):
+                          X: 80px (slide padding-left, use directly)
+                          Y: 250px (padding-top 64px + title ~156px + gap 30px)
+                          Width: 784px (container width, use directly)
+                          Height: 496px (container height, use directly)
+                          
+                          Verification: 250 + 496 = 746px ✅ < 1080px
                         ───────────────────────────────────────────────────────────────
                         -->
                         <div class="profile-gradient-container" bis_skin_checked="1">
@@ -189,4 +175,143 @@ to businesses in the United States annually.</div>
                 ═══════════════════════════════════════════════════════════════════════════
                 -->
                 
+                <!-- JavaScript Position Logger for Impact Statements Slide -->
+                <script>
+                (function() {
+                    // Wait for page to fully render
+                    window.addEventListener('DOMContentLoaded', function() {
+                        setTimeout(function() {
+                            const container = document.querySelector('.impact-statements-slide .profile-gradient-container');
+                            
+                            if (container) {
+                                const rect = container.getBoundingClientRect();
+                                const computedStyle = window.getComputedStyle(container);
+                                
+                                // Create a GIANT visible debug overlay at the top-right
+                                const debugDiv = document.createElement('div');
+                                debugDiv.style.cssText = `
+                                    position: fixed;
+                                    top: 10px;
+                                    right: 10px;
+                                    background: rgba(255, 0, 0, 0.95);
+                                    color: #00ff00;
+                                    padding: 20px;
+                                    font-family: monospace;
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    z-index: 999999;
+                                    border: 5px solid yellow;
+                                    white-space: pre;
+                                    max-width: 600px;
+                                    box-shadow: 0 0 30px rgba(255, 255, 0, 0.8);
+                                `;
+                                
+                                debugDiv.textContent = `🎯 GRADIENT CONTAINER POSITION
+
+📍 MEASURED POSITION:
+  X: ${Math.round(rect.left)}px
+  Y: ${Math.round(rect.top)}px ← USE THIS!
+  Width: ${Math.round(rect.width)}px
+  Height: ${Math.round(rect.height)}px
+
+📐 EDGES:
+  Bottom: ${Math.round(rect.bottom)}px
+  Right: ${Math.round(rect.right)}px
+
+✅ AVATAR POSITION FOR registry.ts:
+  x: ${Math.round(rect.left)}
+  y: ${Math.round(rect.top)}
+  width: ${Math.round(rect.width)}
+  height: ${Math.round(rect.height)}`;
+                                
+                                document.body.appendChild(debugDiv);
+                                
+                                // Also create a CENTERED overlay for maximum visibility
+                                const centerOverlay = document.createElement('div');
+                                centerOverlay.style.cssText = `
+                                    position: fixed;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    background: rgba(0, 0, 0, 0.98);
+                                    color: #00ff00;
+                                    padding: 50px;
+                                    font-family: monospace;
+                                    font-size: 48px;
+                                    font-weight: bold;
+                                    z-index: 9999999;
+                                    border: 10px solid #00ff00;
+                                    text-align: left;
+                                    box-shadow: 0 0 50px rgba(0, 255, 0, 0.8);
+                                `;
+                                
+                                centerOverlay.innerHTML = `
+                                    <div style="font-size: 64px; color: yellow; margin-bottom: 30px;">🎯 CONTAINER POSITION</div>
+                                    <div>X: ${Math.round(rect.left)}px</div>
+                                    <div style="font-size: 72px; color: yellow; margin: 20px 0;">Y: ${Math.round(rect.top)}px</div>
+                                    <div style="color: #00ff00; font-size: 56px; margin-top: 30px;">👆 USE Y=${Math.round(rect.top)} IN REGISTRY!</div>
+                                    <div style="color: #888; font-size: 32px; margin-top: 20px;">Width: ${Math.round(rect.width)}px, Height: ${Math.round(rect.height)}px</div>
+                                `;
+                                
+                                document.body.appendChild(centerOverlay);
+                                
+                                // Log to console (visible in headless browser logs if captured)
+                                console.log('═══════════════════════════════════════');
+                                console.log('🎯 GRADIENT CONTAINER MEASURED POSITION');
+                                console.log('═══════════════════════════════════════');
+                                console.log('Actual rendered position:');
+                                console.log('  X:', Math.round(rect.left), 'px');
+                                console.log('  Y:', Math.round(rect.top), 'px ← USE THIS VALUE!');
+                                console.log('  Width:', Math.round(rect.width), 'px');
+                                console.log('  Height:', Math.round(rect.height), 'px');
+                                console.log('  Bottom edge:', Math.round(rect.bottom), 'px');
+                                console.log('  Right edge:', Math.round(rect.right), 'px');
+                                console.log('═══════════════════════════════════════');
+                                console.log('✅ Copy this to registry.ts:');
+                                console.log(JSON.stringify({
+                                    x: Math.round(rect.left),
+                                    y: Math.round(rect.top),
+                                    width: Math.round(rect.width),
+                                    height: Math.round(rect.height),
+                                    backgroundColor: '#ffffff'
+                                }, null, 2));
+                                console.log('═══════════════════════════════════════');
+                            } else {
+                                console.error('❌ Could not find .profile-gradient-container element');
+                            }
+                        }, 500); // Wait 500ms for layout to stabilize
+                    });
+                })();
+                </script>
+                
         </div>
+    </div>
+
+
+    <div bis_skin_checked="1" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.98); color: rgb(0, 255, 0); padding: 50px; font-family: monospace; font-size: 48px; font-weight: bold; z-index: 9999999; border: 10px solid rgb(0, 255, 0); text-align: left; box-shadow: rgba(0, 255, 0, 0.8) 0px 0px 50px;">
+                                    <div style="font-size: 64px; color: yellow; margin-bottom: 30px;" bis_skin_checked="1">🎯 CONTAINER POSITION</div>
+                                    <div bis_skin_checked="1">X: 80px</div>
+                                    <div style="font-size: 72px; color: yellow; margin: 20px 0;" bis_skin_checked="1">Y: 480px</div>
+                                    <div style="color: #00ff00; font-size: 56px; margin-top: 30px;" bis_skin_checked="1">👆 USE Y=480 IN REGISTRY!</div>
+                                    <div style="color: #888; font-size: 32px; margin-top: 20px;" bis_skin_checked="1">Width: 784px, Height: 496px</div>
+                                </div>
+
+
+
+                                <div bis_skin_checked="1" style="position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.95); color: rgb(0, 255, 0); padding: 20px; font-family: monospace; font-size: 24px; font-weight: bold; z-index: 999999; border: 5px solid yellow; white-space: pre; max-width: 600px; box-shadow: rgba(255, 255, 0, 0.8) 0px 0px 30px;">🎯 GRADIENT CONTAINER POSITION
+
+📍 MEASURED POSITION:
+  X: 80px
+  Y: 480px ← USE THIS!
+  Width: 784px
+  Height: 496px
+
+📐 EDGES:
+  Bottom: 976px
+  Right: 864px
+
+✅ AVATAR POSITION FOR registry.ts:
+  x: 80
+  y: 480
+  width: 784
+  height: 496</div>
