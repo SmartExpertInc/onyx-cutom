@@ -99,15 +99,20 @@ export const AiAgent: React.FC<AiAgentProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
   ]);
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messagesContainerRef = React.useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = React.useRef(1);
 
   // Use external state if provided, otherwise use internal state
   const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
   const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom only when a new message is added (not when status updates)
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > prevMessagesLengthRef.current && messagesContainerRef.current) {
+      // Scroll the container, not the entire page
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      prevMessagesLengthRef.current = messages.length;
+    }
   }, [messages]);
 
   // Handle send button click
@@ -268,7 +273,7 @@ export const AiAgent: React.FC<AiAgentProps> = ({
       ) : (
         <>
           {/* Chat view - messenger style with scrolling */}
-          <div className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+          <div ref={messagesContainerRef} className="flex flex-col gap-4 mt-4 max-h-[300px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
             {/* Render all messages from history */}
             {messages.map((message, index) => {
               // Find the index of the last user message
@@ -323,9 +328,6 @@ export const AiAgent: React.FC<AiAgentProps> = ({
                 </div>
               );
             })}
-            
-            {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Feedback section */}
