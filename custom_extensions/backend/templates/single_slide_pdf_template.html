@@ -869,81 +869,70 @@
             word-wrap: break-word;
         }
         
-        /* Bullet Points Template - EXACT FRONTEND MATCH */
-        /* Bullet Points Template - EXACT FRONTEND MATCH - FIXED */
-         /* Bullet Points Template - EXACT FRONTEND MATCH */
-         .bullet-points {
+        /* Bullet Points Template - EXACT FRONTEND MATCH - NEW DESIGN */
+        .bullet-points {
             width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
+            height: 600px;
+            min-height: 600px;
+            background: #ffffff; /* White background */
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 80px; /* Exact frontend match */
+            flex-direction: row;
             position: relative;
             font-family: var(--content-font);
-            overflow: visible; /* ALLOW images to move outside original container bounds */
+            overflow: hidden;
+        }
+        
+        /* LEFT section with IMAGE (white background) */
+        .bullet-points .left-section {
+            width: 100%;
+            height: 600px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            z-index: 1;
+        }
+        
+        /* RIGHT section with TITLE and BULLETS (dark blue background with diagonal cut) */
+        .bullet-points .right-section {
+            width: 65%;
+            height: 600px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+            padding: 35px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 15% 100%);
+            z-index: 2;
         }
         
         .bullet-points .slide-title {
-            font-family: var(--title-font);
-            font-size: 45px; /* Exact frontend match */
-            font-weight: 700;
-            color: var(--title-color);
-            text-align: left;
-            margin-bottom: 32px; /* Exact frontend match */
+            font-size: 3.5rem;
+            width: 100%;
+            font-family: serif;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: right;
+            margin-bottom: 40px;
             word-wrap: break-word;
-            line-height: 1.2;
-        }
-        
-        .bullet-points .content-row {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-            justify-content: space-evenly;
-            flex: 1;
-        }
-        
-        .bullet-points .placeholder-container {
-            flex: 0 0 50%; /* Exact frontend match */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 0;
-            width: 50%;
-            height: 100%;
-            overflow: visible; /* ALLOW images to move outside container bounds */
-        }
-        
-        .bullet-points .placeholder {
-            width: 100%;
-            max-width: none;
-            height: auto;
-            max-height: none;
-            aspect-ratio: 1 / 1;
-            background-color: #e9ecef;
-            border: 2px dashed #adb5bd;
-            border-radius: 8px; /* Exact frontend match */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px; /* Exact frontend match */
-            text-align: center;
-            color: #6c757d;
-            margin: 0 auto;
+            line-height: 1.1;
         }
         
         .bullet-points .bullets-container {
-            flex: 1 1 50%; /* Exact frontend match */
-            font-size: 18px; /* Exact frontend match */
-            font-family: var(--content-font);
-            color: var(--content-color);
+            width: 77%;
+            font-size: 0.9rem;
+            font-family: sans-serif;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
-            min-width: 0;
-            padding-left: 40px; /* Exact frontend match */
+            align-items: flex-start;
         }
         
         /* Bullet-Points-Right Template - EXACT PHOTO MATCH */
@@ -1102,61 +1091,117 @@
             position: relative;
             z-index: 1;
         }
-        /* Process Steps Template - EXACT FRONTEND MATCH */
+        /* Process Steps Template - EXACT FRONTEND MATCH - NEW DESIGN */
         .process-steps {
-            width: 100%;
-            height: 100%;
             min-height: 600px;
-            background-color: var(--bg-color);
+            background: #ffffff; /* White background */
+            font-family: 'sans-serif';
+            display: flex;
+            padding: 50px;
+            align-items: flex-start;
+        }
+        
+        .process-steps .left-column {
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            align-items: center;
-            padding: 60px 40px;
-            position: relative;
-            font-family: var(--content-font);
-            overflow: hidden;
+            align-items: flex-start;
         }
         
         .process-steps .slide-title {
-            text-align: center;
-            margin-bottom: 40px; /* Exact frontend match */
-            font-family: var(--title-font);
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
-            word-wrap: break-word;
+            width: 230px;
+            font-size: 3rem;
+            font-family: serif; /* Serif font */
+            color: #000000; /* Black color */
+            font-weight: bold;
+            line-height: 0.85;
+            margin-bottom: 20px;
+            text-align: left;
+            letter-spacing: -0.04em;
         }
         
-        .process-steps .steps-container {
+        .process-steps .slide-subtitle {
+            font-size: 1.4rem;
+            font-family: sans-serif; /* Sans-serif font */
+            color: #09090B; /* Black color */
+            font-weight: normal;
+            text-align: left;
+            opacity: 0.9;
+            letter-spacing: 0.01em;
+        }
+        
+        .process-steps .right-column {
+            flex: 1.8;
             display: flex;
-            justify-content: space-around;
-            align-items: start;
-            gap: 32px; /* Exact frontend match */
-            flex: 1;
+            flex-direction: column;
+            gap: 7px;
         }
         
         .process-step {
-            text-align: center;
-            max-width: 220px; /* Exact frontend match */
-            background: rgba(0,0,0,0.08);
-            border-radius: 12px; /* Exact frontend match */
-            padding: 24px 16px; /* Exact frontend match */
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 25px 36px;
+            border-radius: 2px;
+            min-height: 110px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            position: relative;
         }
         
-        .step-number {
-            font-size: 2rem; /* Exact frontend match */
-            font-weight: 700;
-            color: var(--accent-color);
-            margin-bottom: 10px; /* Exact frontend match */
-            font-family: var(--title-font);
+        .step-number-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: absolute;
+            left: -21px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .step-number-inner {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-left: 25px;
+            gap: 6px;
+        }
+        
+        .step-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: white;
+            margin: 0;
+            font-family: sans-serif;
+            letter-spacing: 0.02em;
         }
         
         .step-description {
-            font-family: var(--content-font);
-            font-size: 18px; /* Exact frontend match */
-            color: var(--content-color);
+            font-size: 1.1rem;
+            color: white;
             margin: 0;
-            word-wrap: break-word;
+            opacity: 0.95;
+            line-height: 1.4;
+            font-family: sans-serif;
+            width: 210px;
         }
         
         /* Challenges & Solutions Template - SIMPLIFIED DESIGN */
@@ -1407,38 +1452,63 @@
             word-wrap: break-word;
         }
         
-        /* Big Numbers Template - EXACT FRONTEND MATCH */
+        /* Big Numbers Template - EXACT FRONTEND MATCH - NEW DESIGN */
         .big-numbers {
             width: 100%;
-            height: 100%;
             min-height: 600px;
-            background-color: var(--bg-color);
+            background: white;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 40px;
-            position: relative;
             font-family: var(--content-font);
-            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+        }
+        
+        .big-numbers .header-section {
+            background: var(--bg-color); /* Use theme background gradient */
+            padding: 48px 64px 48px 64px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
         
         .big-numbers .slide-title {
-            font-size: 45px;
+            font-size: 2.5rem;
             font-family: var(--title-font);
             color: var(--title-color);
             text-align: left;
-            margin-bottom: 56px;
+            margin-bottom: 24px;
             width: 100%;
             word-wrap: break-word;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        
+        .big-numbers .slide-subtitle {
+            font-size: 1.5rem;
+            font-family: var(--content-font);
+            color: var(--subtitle-color);
+            text-align: left;
+            width: 95%;
+            word-wrap: break-word;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        
+        .big-numbers .content-section {
+            padding: 64px;
+            padding-top: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .numbers-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 32px; /* Exact frontend match */
+            gap: 48px;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -1446,56 +1516,47 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            padding: 0 16px;
-        }
-        
-        .number-value {
-            font-size: 4.5rem;
-            color: var(--content-color);
-            margin-bottom: 16px;
-            font-family: var(--title-font);
-            word-wrap: break-word;
+            text-align: start;
+            padding: 32px 24px;
         }
         
         .number-label {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--content-color);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-family: var(--title-font);
             word-wrap: break-word;
+            font-weight: 600;
         }
         
         .number-description {
-            font-size: 18px;
+            font-size: 1rem;
             color: var(--content-color);
             font-family: var(--content-font);
             line-height: 1.5;
             word-wrap: break-word;
         }
         
-        /* Four Box Grid Template - EXACT FRONTEND MATCH */
+        /* Four Box Grid Template - EXACT FRONTEND MATCH - UPDATED */
         .four-box-grid {
             width: 100%;
-            height: 100%;
             min-height: 600px;
-            background-color: var(--bg-color);
+            background: #ffffff; /* White background */
             display: flex;
             flex-direction: column;
-            align-items: stretch;
-            padding: 40px;
+            align-items: flex-start;
+            padding: 60px 80px;
             font-family: var(--content-font);
-            position: relative;
-            overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .four-box-grid .slide-title {
-            font-size: 45px;
+            font-size: 2.5rem;
             font-family: var(--title-font);
-            color: var(--title-color);
+            color: #000000; /* Black color on white background */
             text-align: left;
             margin-bottom: 40px;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .grid-container {
@@ -1504,35 +1565,35 @@
             grid-template-rows: 1fr 1fr;
             gap: 24px;
             width: 100%;
-            flex: 1;
         }
         
         .box-item {
-            background-color: rgba(255,255,255,0.08);
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); /* Blue gradient */
             border-radius: 8px;
             padding: 20px;
-            color: var(--content-color);
+            color: #ffffff; /* White text */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            box-shadow: 0 1px 0 0 #393963;
-            border: 1px solid #393963;
-            min-height: 160px;
+            min-height: 200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .box-heading {
             font-size: 1.5rem;
-            color: var(--content-color);
+            color: #ffffff; /* White text */
             margin-bottom: 12px;
             font-family: var(--title-font);
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .box-text {
-            font-size: 18px;
-            color: var(--content-color);
+            font-size: 1rem;
+            color: #ffffff; /* White text */
             font-family: var(--content-font);
             word-wrap: break-word;
+            opacity: 0.9;
         }
         
         /* Pyramid Template - EXACT FRONTEND MATCH */
@@ -2451,68 +2512,55 @@
                 
                 {% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="content-row">
-                        <div class="placeholder-container">
-                            {% if slide.props.imagePath %}
-                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
-                                <img src="{{ slide.props.imagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="
-                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '480px' }};
-                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '480px' }};
-                                        margin: 0; margin-bottom: 24px !important; 
-                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
-                                        border-radius: 8px; max-width: none; max-height: none;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                <div class="placeholder" style="display: none;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">480px × 480px</div>
-                                </div>
-                            {% else %}
-                                <div class="placeholder" style="width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; aspect-ratio: 1 / 1;">
-                                    <!-- Empty placeholder - maintains layout -->
-                                </div>
-                            {% endif %}
-                        </div>
+                    <!-- LEFT section with IMAGE (white background) -->
+                    <div class="left-section">
+                        {% if slide.props.imagePath %}
+                            <img src="{{ slide.props.imagePath }}" 
+                                 alt="Uploaded image" 
+                                 style="
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    border-radius: 8px;
+                                 "
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        {% else %}
+                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
+                                🖼️ Add image
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- RIGHT section with TITLE and BULLETS (dark blue background) -->
+                    <div class="right-section">
+                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                        
                         <div class="bullets-container positioned-element"
                             {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = 'draggable-' + slide.slideId + '-1' %}
+                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
                                 {% if slide.metadata.elementPositions[bulletsId] %}
                                     style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
                                 {% endif %}
                             {% endif %}
                         >
-                            <ul class="bullet-list">
-                                {% for bullet in slide.props.bullets %}
-                                    {% if bullet and bullet != 'Click to add bullet point' %}
-                                        <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
-                                            </span>
-                                            <span class="bullet-text">{{ bullet }}</span>
+                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
+                                {% if slide.props.bullets and slide.props.bullets|length > 0 %}
+                                    {% for bullet in slide.props.bullets %}
+                                        {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
+                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                                <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
+                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(3) %}
+                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
+                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
                                         </li>
-                                    {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
                             </ul>
                         </div>
                     </div>
@@ -2570,32 +2618,43 @@
                 
             {% elif slide.templateId == 'process-steps' %}
                 <div class="process-steps">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="steps-container">
-                        {% for step in slide.props.steps %}
-                            {% set stepText = step.description if step.description else (step if step is string else '') %}
-                            {% if stepText and stepText != 'Click to add step description' %}
-                                <div class="process-step positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
-                                        {% if slide.metadata.elementPositions[stepId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >
-                                    <div class="step-number">{{ loop.index }}</div>
-                                    <p class="step-description">{{ stepText }}</p>
+                    <!-- Left Column - Title and Subtitle -->
+                    <div class="left-column">
+                        <h1 class="slide-title">{{ slide.props.title or 'The Stages of Research' }}</h1>
+                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Miss Jones Science Class' }}</p>
+                    </div>
+
+                    <!-- Right Column - Process Steps -->
+                    <div class="right-column">
+                        {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
+                        {% set defaultSteps = [
+                            {'title': 'PROBLEM', 'description': 'Identify a problem and form a thesis statement.'},
+                            {'title': 'READ', 'description': 'Review literature related to your topic.'},
+                            {'title': 'HYPOTHESIZE', 'description': 'Come up with an educated guess based on your research.'},
+                            {'title': 'RESEARCH', 'description': 'Read resources to support your hypothesis.'},
+                            {'title': 'CONCLUSION', 'description': 'Interpret the results and write your conclusion.'}
+                        ] %}
+                        {% set displaySteps = slide.props.steps if slide.props.steps and slide.props.steps|length > 0 else defaultSteps %}
+                        
+                        {% for step in displaySteps[:5] %}
+                            {% set stepColor = stepColors[loop.index0] %}
+                            {% set stepTitle = step.title if step.title else ('Step ' + loop.index|string) %}
+                            {% set stepDescription = step.description if step.description else 'Description' %}
+                            
+                            <div class="process-step" style="background: {{ stepColor }};">
+                                <!-- Step Number Circle -->
+                                <div class="step-number-circle" style="border: 3px solid {{ stepColor }};">
+                                    <div class="step-number-inner" style="color: {{ stepColor }};">
+                                        {{ loop.index }}
+                                    </div>
                                 </div>
-                            {% endif %}
+
+                                <!-- Step Content -->
+                                <div class="step-content">
+                                    <h3 class="step-title">{{ stepTitle }}</h3>
+                                    <p class="step-description">{{ stepDescription }}</p>
+                                </div>
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
@@ -2668,51 +2727,23 @@
                 
                 {% elif slide.templateId == 'big-numbers' %}
                 <div class="big-numbers">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="numbers-grid">
-                        {% for item in slide.props.steps %}
-                            <div class="number-item">
-                                {% if item.value %}
-                                    <div class="number-value positioned-element"
-                                        {% if slide.metadata and slide.metadata.elementPositions %}
-                                            {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
-                                            {% if slide.metadata.elementPositions[valueId] %}
-                                                style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
-                                            {% endif %}
-                                        {% endif %}
-                                    >{{ item.value }}</div>
-                                {% endif %}
-                                {% if item.label %}
-                                    <div class="number-label positioned-element"
-                                        {% if slide.metadata and slide.metadata.elementPositions %}
-                                            {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
-                                            {% if slide.metadata.elementPositions[labelId] %}
-                                                style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
-                                            {% endif %}
-                                        {% endif %}
-                                    >{{ item.label }}</div>
-                                {% endif %}
-                                {% if item.description %}
-                                    <div class="number-description positioned-element"
-                                        {% if slide.metadata and slide.metadata.elementPositions %}
-                                            {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
-                                            {% if slide.metadata.elementPositions[descriptionId] %}
-                                                style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
-                                            {% endif %}
-                                        {% endif %}
-                                    >{{ item.description }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+                    <!-- Header Section - Dark Blue Background -->
+                    <div class="header-section">
+                        <h1 class="slide-title">{{ slide.props.title or 'Stress Management Made Simple' }}</h1>
+                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}</p>
+                    </div>
+
+                    <!-- Main Content Area - White Background -->
+                    <div class="content-section">
+                        <div class="numbers-grid">
+                            <!-- Three identical blocks with "Increase Productivity" -->
+                            {% for idx in range(3) %}
+                                <div class="number-item">
+                                    <div class="number-label">Increase Productivity</div>
+                                    <div class="number-description">Gain the skills to be productive and successful in the workplace.</div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
                 
