@@ -1249,7 +1249,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           "Ensembles and stacking to boost accuracy and robustness via voting, bagging, boosting, and layered learners that combine model strengths"
         ],
         "imagePrompt": "PLACEHOLDER_TECH_IMAGE",
-        "imageAlt": "Data scientists working on machine learning algorithms"
+        "imageAlt": "PLACEHOLDER_ALT_IMAGE"
       }
     },
     {
@@ -1267,7 +1267,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "title": "Mastering Feature Engineering for Maximum Model Performance",
         "subtitle": "Feature engineering often separates good from great models. Use systematic methods, automated generation, selection, and domain-specific transforms to improve accuracy and interpretability while managing complexity and overfitting risks.",
         "imagePrompt": "PLACEHOLDER_TECH_IMAGE",
-        "imageAlt": "Feature engineering workflow in data science workspace",
+        "imageAlt": "PLACEHOLDER_ALT_IMAGE",
         "imageSize": "large"
       }
     },
@@ -1414,7 +1414,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "title": "Cutting-Edge Innovations Shaping Data Science Future",
         "subtitle": "The field evolves quickly with breakthroughs in models, compute, and deployment. Large language models, quantum-inspired methods, federated learning, and responsible AI will shape the next generation of solutions.",
         "imagePrompt": "PLACEHOLDER_TECH_IMAGE",
-        "imageAlt": "Futuristic AI research laboratory with advanced technologies",
+        "imageAlt": "PLACEHOLDER_ALT_IMAGE",
         "imageSize": "large"
       }
     },
