@@ -1169,8 +1169,8 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Advanced Data Science Mastery",
-      "templateId": "hero-title-slide",
+      "slideTitle": "Section: Advanced Data Science Mastery",
+      "templateId": "title-slide",
       "previewKeyPoints": [
         "Comprehensive data science training program covering theory and practical applications",
         "Advanced techniques for real-world data challenges and production deployment",
@@ -1180,17 +1180,13 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Advanced Data Science Mastery",
         "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
-        "author": "Data Science Excellence Institute",
-        "date": "2024",
-        "backgroundColor": "#1e40af",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
+        "author": "Data Science Excellence Institute"
       }
     },
     {
       "slideId": "slide_2_statistical_foundations",
       "slideNumber": 2,
-      "slideTitle": "Statistical Foundations and Mathematical Prerequisites",
+      "slideTitle": "Advanced Data Science Mastery — Statistical Foundations and Mathematical Prerequisites",
       "templateId": "two-column",
       "previewKeyPoints": [
         "Essential statistical concepts including probability distributions and hypothesis testing",
@@ -1201,15 +1197,15 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Core Mathematical and Statistical Foundations",
         "leftTitle": "Statistical Concepts",
-        "leftContent": "• Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\n• Hypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\n• Bayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
+        "leftContent": "Probability distributions model uncertainty in data while hypothesis testing validates experimental assumptions.",
         "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "• Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\n• Calculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\n• Discrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
+        "rightContent": "Linear algebra powers dimensionality reduction and neural networks while calculus enables gradient-based optimization."
       }
     },
     {
       "slideId": "slide_3_data_pipeline_architecture",
       "slideNumber": 3,
-      "slideTitle": "Enterprise Data Pipeline Architecture and ETL Processes",
+      "slideTitle": "Advanced Data Science Mastery — Enterprise Data Pipeline Architecture and ETL Processes",
       "templateId": "process-steps",
       "previewKeyPoints": [
         "End-to-end data pipeline design from ingestion to serving predictions at scale",
@@ -1231,7 +1227,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_4_machine_learning_algorithms",
       "slideNumber": 4,
-      "slideTitle": "Advanced Machine Learning Algorithms and Model Selection",
+      "slideTitle": "Advanced Data Science Mastery — Advanced Machine Learning Algorithms and Model Selection",
       "templateId": "bullet-points-right",
       "previewKeyPoints": [
         "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
@@ -1255,8 +1251,8 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_5_feature_engineering",
       "slideNumber": 5,
-      "slideTitle": "Advanced Feature Engineering and Selection Techniques",
-      "templateId": "big-image-top",
+      "slideTitle": "Advanced Data Science Mastery — Advanced Feature Engineering and Selection Techniques",
+      "templateId": "four-box-grid",
       "previewKeyPoints": [
         "Systematic approaches to creating meaningful features from raw data across different domains",
         "Automated feature engineering tools and techniques for scaling feature creation processes",
@@ -1264,17 +1260,31 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "Domain-specific feature engineering for text, images, time series, and categorical data"
       ],
       "props": {
-        "title": "Mastering Feature Engineering for Maximum Model Performance",
-        "subtitle": "Feature engineering often separates good from great models. Use systematic methods, automated generation, selection, and domain-specific transforms to improve accuracy and interpretability while managing complexity and overfitting risks.",
-        "imagePrompt": "Realistic cinematic scene of a feature engineering workflow in a modern data science workspace. Multiple screens display data transformations, correlation matrices, and feature importance plots while data scientists analyze patterns and create new variables. The workspace includes whiteboards with feature engineering diagrams and notebooks with code. Data visualizations and screens are [COLOR1], professionals and workstations are [COLOR2], workspace and equipment are [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide angle, shallow depth of field.",
-        "imageAlt": "Feature engineering workflow in data science workspace",
-        "imageSize": "large"
+        "title": "Essential Feature Engineering Techniques",
+        "boxes": [
+          {
+            "heading": "Domain Knowledge Integration",
+            "text": "Leverage subject matter expertise to create meaningful features that capture underlying patterns and relationships specific to your problem domain."
+          },
+          {
+            "heading": "Automated Feature Generation",
+            "text": "Use tools like Featuretools and tsfresh to systematically generate hundreds of candidate features from temporal and relational data."
+          },
+          {
+            "heading": "Feature Selection Methods",
+            "text": "Apply statistical tests, recursive feature elimination, and model-based importance to identify the most predictive variables and reduce dimensionality."
+          },
+          {
+            "heading": "Domain-Specific Transforms",
+            "text": "Apply specialized encodings for text (TF-IDF, embeddings), images (CNN features), time series (lag features), and categorical data (target encoding)."
+          }
+        ]
       }
     },
     {
       "slideId": "slide_6_model_performance_metrics",
       "slideNumber": 6,
-      "slideTitle": "Comprehensive Model Evaluation and Performance Metrics",
+      "slideTitle": "Advanced Data Science Mastery — Comprehensive Model Evaluation and Performance Metrics",
       "templateId": "big-numbers",
       "previewKeyPoints": [
         "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
@@ -1287,17 +1297,17 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           {
             "value": "95%+",
             "label": "Model Accuracy Threshold",
-            "description": "Accuracy targets with attention to precision–recall balance, class imbalance, and business costs; ensure consistent performance across segments and time."
+            "description": "Balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across segments and set alerts for degradation."
           },
           {
             "value": "0.85+",
             "label": "AUC-ROC Score Target",
-            "description": "Excellent class separation for binary tasks like fraud or churn. >0.85 is strong; >0.9 is exceptional for high-stakes applications."
+            "description": "Indicates strong discriminative power for binary tasks like fraud or churn. Prefer scores >0.9 for high-stakes use cases."
           },
           {
             "value": "<5%",
             "label": "Acceptable Error Rate",
-            "description": "Error budgets vary by domain. Critical systems demand <1%; recommendations can tolerate more. Consider FP/FN costs in tradeoffs."
+            "description": "Error budgets depend on domain. Critical systems need <1%, while recommendations can tolerate higher."
           }
         ]
       }
@@ -1351,14 +1361,14 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "challengesTitle": "Industry Challenges",
         "solutionsTitle": "Proven Solutions",
         "challenges": [
-          "Inconsistent, drifting, or missing data across sources can degrade model reliability and decisions",
-          "Scaling prototypes to high-throughput, low-latency production systems is difficult",
-          "Regulatory and stakeholder needs require interpretable, explainable models"
+          "Data quality degrades model reliability",
+          "Scaling prototypes to production systems",
+          "Stakeholders require interpretable explainable models"
         ],
         "solutions": [
-          "Adopt data validation, profiling, lineage, and automated quality checks throughout pipelines",
-          "Design with cloud-native patterns, efficient algorithms, and performance testing from the start",
-          "Use XAI tools (LIME, SHAP), document decisions, and provide clear visual explanations"
+          "Implement validation and quality checks",
+          "Design with cloud-native efficient patterns",
+          "Use XAI tools with documentation"
         ]
       }
     },
@@ -1402,8 +1412,8 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_10_emerging_technologies",
       "slideNumber": 10,
-      "slideTitle": "Emerging Technologies and Future Trends",
-      "templateId": "big-image-left",
+      "slideTitle": "Section: Emerging Technologies and Future Trends",
+      "templateId": "process-steps",
       "previewKeyPoints": [
         "Latest developments in artificial intelligence including large language models and generative AI",
         "Quantum computing applications in machine learning and optimization problems",
@@ -1411,17 +1421,19 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "Ethical AI considerations and responsible machine learning practices"
       ],
       "props": {
-        "title": "Cutting-Edge Innovations Shaping Data Science Future",
-        "subtitle": "The field evolves quickly with breakthroughs in models, compute, and deployment. Large language models, quantum-inspired methods, federated learning, and responsible AI will shape the next generation of solutions.",
-        "imagePrompt": "Realistic cinematic scene of a futuristic AI research laboratory with scientists working on cutting-edge technologies. Multiple large screens display neural network architectures, quantum computing visualizations, and advanced AI models. Researchers collaborate around holographic displays and high-tech workstations with quantum computers and advanced GPUs visible. Laboratory equipment and displays are [COLOR1], researchers and workstations are [COLOR2], futuristic lab environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, low angle, shallow depth of field.",
-        "imageAlt": "Futuristic AI research laboratory with advanced technologies",
-        "imageSize": "large"
+        "title": "Evolution of AI Technologies",
+        "steps": [
+          "Large language models like GPT-4 and Claude enable natural language understanding, generation, and reasoning at unprecedented scale with applications across content creation, coding assistance, and knowledge synthesis.",
+          "Quantum computing promises exponential speedups for optimization problems, with quantum-inspired algorithms already improving classical machine learning performance in portfolio optimization and drug discovery.",
+          "Edge computing and federated learning enable privacy-preserving AI by training models across distributed devices without centralizing sensitive data, crucial for healthcare and IoT applications.",
+          "Responsible AI frameworks incorporate fairness metrics, explainability tools, and bias detection to ensure ethical deployment while maintaining transparency and accountability in automated decision-making systems."
+        ]
       }
     },
     {
       "slideId": "slide_11_metrics_analytics",
       "slideNumber": 11,
-      "slideTitle": "Operational Analytics Dashboard Highlights",
+      "slideTitle": "Emerging Technologies and Future Trends — Operational Analytics Dashboard Highlights",
       "templateId": "metrics-analytics",
       "previewKeyPoints": [
         "Key performance indicators tracked in day-to-day operations",
@@ -1444,7 +1456,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_12_market_share",
       "slideNumber": 12,
-      "slideTitle": "Market Share by Segment and Year",
+      "slideTitle": "Emerging Technologies and Future Trends — Market Share by Segment and Year",
       "templateId": "market-share",
       "previewKeyPoints": [
         "Year-over-year changes in market penetration by segment",
@@ -1546,22 +1558,20 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "slideId": "slide_16_event_list",
       "slideNumber": 16,
       "slideTitle": "Upcoming Events and Key Dates",
-      "templateId": "event-list",
+      "templateId": "timeline",
       "previewKeyPoints": [
         "Major internal and external events in the next quarter",
         "Deadlines that impact delivery timelines",
         "Engagement opportunities with stakeholders"
       ],
       "props": {
+        "title": "Upcoming Events and Key Dates",
         "events": [
-          { "date": "2024-11-05", "description": "Architecture review with platform council to validate scalability and security design decisions." },
-          { "date": "2024-11-20", "description": "Customer advisory board session to gather feedback on beta features and onboarding experience." },
-          { "date": "2024-12-03", "description": "Internal enablement workshop for support and success teams on new workflows and tooling." },
-          { "date": "2024-12-17", "description": "Public webinar on best practices and lessons learned from early adopters across industries." }
-        ],
-        "titleColor": "#ffffff",
-        "descriptionColor": "#d1d5db",
-        "backgroundColor": "#111827"
+          { "date": "2024-11-05", "title": "Architecture Review", "description": "Validate scalability and security design decisions." },
+          { "date": "2024-11-20", "title": "Customer Advisory Board", "description": "Gather feedback on beta features and onboarding." },
+          { "date": "2024-12-03", "title": "Enablement Workshop", "description": "Train support and success teams on new tooling." },
+          { "date": "2024-12-17", "title": "Public Webinar", "description": "Share best practices from early adopters." }
+        ]
       }
     },
     {
@@ -1576,12 +1586,12 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Maturity Stages",
-        "levels": [
-          { "text": "Strategic Optimization", "description": "Automated retraining, causal inference, and decision optimization integrated with business processes and KPIs." },
-          { "text": "Production Excellence", "description": "Robust MLOps practices, monitoring, alerting, and governance across multiple teams and models." },
-          { "text": "Operationalization", "description": "Reliable pipelines, CI/CD, and standardized feature stores enabling consistent deployments." },
-          { "text": "Prototyping", "description": "Experimentation, evaluation, and iteration with reproducible research workflows and documentation." },
-          { "text": "Foundations", "description": "Data quality, access controls, and core statistical/ML competencies across the team." }
+        "steps": [
+          { "heading": "Strategic Optimization", "number": "01" },
+          { "heading": "Production Excellence", "number": "02" },
+          { "heading": "Operationalization", "number": "03" },
+          { "heading": "Prototyping", "number": "04" },
+          { "heading": "Foundations", "number": "05" }
         ]
       }
     },
@@ -1633,27 +1643,37 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_20_title",
+      "slideId": "slide_20_case_studies",
       "slideNumber": 20,
-      "slideTitle": "Section Transition: Case Studies",
-      "templateId": "title-slide",
+      "slideTitle": "Section: Real-World Data Science Applications",
+      "templateId": "challenges-solutions",
       "previewKeyPoints": [
-        "Transition into applied examples",
-        "What the audience will gain from case studies"
+        "Common challenges faced in real-world data science projects",
+        "Proven solutions and best practices from industry leaders",
+        "Lessons learned from successful implementations"
       ],
       "props": {
-        "title": "Case Studies",
-        "subtitle": "Applying the principles to real-world scenarios",
-        "author": "Data Science Excellence Institute",
-        "backgroundColor": "#1e293b",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
+        "title": "Overcoming Real-World Data Science Challenges",
+        "challengesTitle": "Key Challenges",
+        "solutionsTitle": "Proven Solutions",
+        "challenges": [
+          "Incomplete or messy datasets",
+          "Model deployment at scale",
+          "Stakeholder alignment and communication",
+          "Balancing speed and accuracy"
+        ],
+        "solutions": [
+          "Automated data quality pipelines",
+          "MLOps and containerization strategies",
+          "Executive dashboards and visualization",
+          "Iterative development and A/B testing"
+        ]
       }
     }
   ],
   "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
-}
+} 
 """
 
 DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
