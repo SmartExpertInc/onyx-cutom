@@ -22271,6 +22271,9 @@ MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
 PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
 For generation, use simple placeholder text "PLACEHOLDER_TECH_IMAGE".
 
+IMAGE PROMPT STRUCTURE - Use this exact placeholder text:
+"PLACEHOLDER_TECH_IMAGE"
+
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
   • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
