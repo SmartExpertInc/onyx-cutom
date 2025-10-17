@@ -260,18 +260,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		return crumbs;
 	}, [currentPath]);
 
-	const filtered = useMemo(() => {
+	// Helper function to apply filters to any list of items
+	const applyFilters = useCallback((list: SmartDriveItem[]) => {
 		const term = searchQuery.trim().toLowerCase();
-		let list = items;
+		let filteredList = [...list];
 		
 		// Filter by search term
 		if (term) {
-			list = list.filter(i => i.name.toLowerCase().includes(term));
+			filteredList = filteredList.filter(i => i.name.toLowerCase().includes(term));
 		}
 		
 		// Filter by content type
 		if (contentTypeFilter !== 'all') {
-			list = list.filter(item => {
+			filteredList = filteredList.filter(item => {
 				// Always show directories
 				if (item.type === 'directory') return true;
 				
@@ -319,8 +320,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			}
 			return sortOrder === 'asc' ? base : -base;
 		};
-		return [...list].sort((a, b) => dirFirst(a, b) || cmp(a, b));
-	}, [items, searchQuery, sortBy, sortOrder, contentTypeFilter]);
+		return filteredList.sort((a, b) => dirFirst(a, b) || cmp(a, b));
+	}, [searchQuery, sortBy, sortOrder, contentTypeFilter]);
+
+	const filtered = useMemo(() => {
+		return applyFilters(items);
+	}, [items, applyFilters]);
 
 	// Pagination calculations
 	const totalPages = Math.ceil(filtered.length / rowsPerPage);
@@ -916,7 +921,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							{/* Files Section - Show unassigned files when no folder selected, or selected folder's contents */}
 							{(() => {
 								const filesToShow = selectedFolderForView && folderContentsMap[selectedFolderForView]
-									? folderContentsMap[selectedFolderForView].filter(item => item.type === 'file')
+									? applyFilters(folderContentsMap[selectedFolderForView]).filter(item => item.type === 'file')
 									: filtered.filter(item => item.type === 'file');
 								
 								if (filesToShow.length === 0) return null;
@@ -957,87 +962,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
 												>
 													{/* Content Preview Area */}
-													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative overflow-hidden">
-														{folderItem.type === 'directory' ? (
-															<div className="flex flex-col items-center text-gray-500">
-																<Folder strokeWidth={1.5} className="w-10 h-10 text-[#0F58F9]" />
-																<span className="text-xs mt-1">FOLDER</span>
-															</div>
-														) : (() => {
-															// Show file preview based on mime type
-															if (folderItem.mime_type?.startsWith('image/')) {
-																// Image preview - try to load the actual file
-																return (
-																	<div className="w-full h-full relative">
-																		<img 
-																			src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(folderItem.path)}`}
-																			alt={folderItem.name}
-																			className="w-full h-full object-cover rounded-t-lg"
-																			onError={(e) => {
-																				// Fallback to icon if image fails to load
-																				const target = e.target as HTMLImageElement;
-																				target.style.display = 'none';
-																				const fallback = target.nextElementSibling as HTMLElement;
-																				if (fallback) fallback.style.display = 'flex';
-																			}}
-																		/>
-																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg" style={{display: 'none'}}>
-																			{(() => {
-																				const FileIcon = getFileIcon(folderItem.mime_type);
-																				return <FileIcon strokeWidth={1.5} className="w-10 h-10" />;
-																			})()}
-																			<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-																		</div>
-																	</div>
-																);
-															} else if (folderItem.mime_type === 'application/pdf') {
-																// PDF preview - show PDF icon with enhanced styling
-																return (
-																	<div className="w-full h-full relative bg-white rounded-t-lg flex items-center justify-center">
-																		<div className="flex flex-col items-center text-gray-500">
-																			<div className="w-16 h-16 bg-red-50 rounded-lg shadow-sm border border-red-200 flex items-center justify-center mb-2">
-																				<FileText strokeWidth={1.5} className="w-8 h-8 text-red-600" />
-																			</div>
-																			<span className="text-xs font-medium text-gray-600">PDF</span>
-																			<span className="text-xs text-gray-400 mt-1">Document</span>
-																		</div>
-																	</div>
-																);
-															} else if (folderItem.mime_type?.startsWith('text/')) {
-																// Text file preview
-																return (
-																	<div className="w-full h-full relative bg-white rounded-t-lg flex items-center justify-center">
-																		<div className="flex flex-col items-center text-gray-500">
-																			<div className="w-16 h-16 bg-green-50 rounded-lg shadow-sm border border-green-200 flex items-center justify-center mb-2">
-																				<FileText strokeWidth={1.5} className="w-8 h-8 text-green-600" />
-																			</div>
-																			<span className="text-xs font-medium text-gray-600">TEXT</span>
-																			<span className="text-xs text-gray-400 mt-1">{folderItem.name.split('.').pop()?.toUpperCase()}</span>
-																		</div>
-																	</div>
-																);
-															} else {
-																// Default file icon for other types
-																return (
-																	<div className="flex flex-col items-center text-gray-500">
-																		<div className="w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center mb-2">
-																			{(() => {
-																				const FileIcon = getFileIcon(folderItem.mime_type);
-																				return <FileIcon strokeWidth={1.5} className="w-8 h-8 text-[#0F58F9]" />;
-																			})()}
-																		</div>
-																		<span className="text-xs font-medium text-gray-600">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-																		<span className="text-xs text-gray-400 mt-1">{folderItem.name.split('.').pop()?.toUpperCase()}</span>
-																	</div>
-																);
-															}
+													<div className="h-40 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg flex items-center justify-center relative">
+														{(() => {
+															const FileIcon = getFileIcon(folderItem.mime_type);
+															return (
+																<div className="flex flex-col items-center text-gray-500">
+																	<FileIcon strokeWidth={1.5} className="w-10 h-10" />
+																	<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																</div>
+															);
 														})()}
 														
 														{/* File type icon in top-left */}
 														<div className="absolute top-2 left-2">
 															{folderItem.type === 'directory' ? (
 																<div className="w-6 h-6 bg-white rounded-sm border border-[#E0E0E0] flex items-center justify-center">
-																	<Folder strokeWidth={1.5} className="w-4 h-4 text-[#0F58F9]" />
+																	<svg width="16" height="16" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+																		<path d="M2.33333 12.3333H13C13.3536 12.3333 13.6928 12.1929 13.9428 11.9428C14.1929 11.6928 14.3333 11.3536 14.3333 11V4.33333C14.3333 3.97971 14.1929 3.64057 13.9428 3.39052C13.6928 3.14048 13.3536 3 13 3H7.71333C7.49372 2.99886 7.2778 2.9435 7.08473 2.83883C6.89167 2.73415 6.72745 2.58341 6.60667 2.4L6.06 1.6C5.93922 1.41659 5.775 1.26585 5.58193 1.16117C5.38887 1.0565 5.17294 1.00114 4.95333 1H2.33333C1.97971 1 1.64057 1.14048 1.39052 1.39052C1.14048 1.64057 1 1.97971 1 2.33333V11C1 11.7333 1.6 12.3333 2.33333 12.3333Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
+																	</svg>
 																</div>
 															) : (() => {
 																const FileIcon = getFileIcon(folderItem.mime_type);
@@ -1186,7 +1128,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 divide-y divide-[#E0E0E0] py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
+												className="px-3 py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
 												style={{ width: '50px' }}
 											>
 											</TableHead>
@@ -1240,10 +1182,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																</div>
 															<div className="text-xs text-slate-500">
 																{expandedFolderItem.type === 'file' 
-																	? formatSize(expandedFolderItem.size) 
+																	? '' 
 																	: (expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) && folderItemCounts[expandedFolderItem.path] !== undefined 
 																		? `${folderItemCounts[expandedFolderItem.path]} ${folderItemCounts[expandedFolderItem.path] === 1 ? 'item' : 'items'}`
-																		: (expandedFolderItem.type === 'directory' ? 'Folder' : '')
+																		: ''
 																	)
 																}
 															</div>
@@ -1307,7 +1249,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												)}
 												
 												{/* Show the folder contents */}
-												{folderContentsMap[expandedFolder] && folderContentsMap[expandedFolder]
+												{folderContentsMap[expandedFolder] && applyFilters(folderContentsMap[expandedFolder])
 													.filter(it => {
 														// Filter out any items that have the same path as the expanded folder
 														// to prevent duplicate folder entries
@@ -1464,10 +1406,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											<div className="text-xs text-slate-500">
 												{it.type === 'file' 
-													? formatSize(it.size) 
+													? ''
 													: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
 														? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
-														: (it.type === 'directory' ? 'Folder' : '')
+														: ''
 													)
 												}
 											</div>
@@ -1671,6 +1613,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<Button
 							onClick={handleRenameSubmit}
 							disabled={isRenaming || !newItemName.trim()}
+							variant="download"
 						>
 							{isRenaming ? 'Renaming...' : 'Rename'}
 						</Button>

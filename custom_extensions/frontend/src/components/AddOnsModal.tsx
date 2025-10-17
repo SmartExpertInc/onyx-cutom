@@ -304,42 +304,42 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
         </DialogHeader>
 
         <Tabs defaultValue="credits" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="ml-6 w-fit bg-transparent">
+          <TabsList className="ml-6 w-fit bg-transparent flex">
             <TabsTrigger 
               value="credits" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 px-4"
             >
               <div className="flex items-center gap-2">
                 <Coins size={16} />
                 <span className="font-semibold">{t('addOns.credits', 'Credits')}</span>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 px-4"
             >
               <div className="flex items-center gap-2">
                 <HardDrive size={16} />
                 <span className="font-semibold">{t('addOns.driveStorage', 'Drive storage')}</span>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] py-2 px-4"
             >
               <div className="flex items-center gap-2">
                 <Workflow size={16} />
                 <span className="font-semibold">{t('addOns.connectors', 'Connectors')}</span>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
           </TabsList>
 
-          <div className="overflow-y-auto flex-1 px-6 py-5">
-          <ScrollArea className="h-full">
-            <TabsContent value="credits" className="mt-0">
+          <div className="flex-1 px-6 py-5 overflow-hidden">
+          <ScrollArea className="h-full w-full">
+            <TabsContent value="credits" className="mt-0 pr-4">
             <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
                 {CREDITS_DATA_TRANSLATED.map((credit) => (
                   <AddOnCard
@@ -353,7 +353,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
               </div>
             </TabsContent>
 
-            <TabsContent value="storage" className="mt-0">
+            <TabsContent value="storage" className="mt-0 pr-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
                 {STORAGE_DATA_TRANSLATED.map((storage) => (
                   <AddOnCard
@@ -368,7 +368,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
               </div>
             </TabsContent>
 
-            <TabsContent value="connectors" className="mt-0">
+            <TabsContent value="connectors" className="mt-0 pr-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
                 {CONNECTORS_DATA_TRANSLATED.map((connector) => (
                   <AddOnCard
