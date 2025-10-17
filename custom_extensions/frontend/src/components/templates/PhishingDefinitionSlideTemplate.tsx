@@ -354,7 +354,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         <div style={{
           position: 'absolute',
           bottom: '2.5%',
-          left: '0',
+          left: '2.5%',
           display: 'flex',
           alignItems: 'center',
           gap: '0.68%',
