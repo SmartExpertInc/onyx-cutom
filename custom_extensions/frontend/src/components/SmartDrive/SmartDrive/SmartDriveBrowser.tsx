@@ -24,7 +24,11 @@ import {
 	CalendarDays,
 	ChevronRight,
 	FolderPlus,
-	FilePlus
+	FilePlus,
+	ChevronLeft,
+	ChevronsLeft,
+	ChevronsRight,
+	ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -128,6 +132,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 	const [folderContentsMap, setFolderContentsMap] = useState<Record<string, SmartDriveItem[]>>({});
 	const [selectedFolderForView, setSelectedFolderForView] = useState<string | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -142,7 +148,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const files = Array.isArray(data.files) ? data.files : [];
 			setItems(files);
 			
-			// Fetch item counts for each folder
+			// Fetch item counts for each folder (count only files, not subfolders)
 			const folderCounts: Record<string, number> = {};
 			for (const item of files) {
 				if (item.type === 'directory') {
@@ -150,7 +156,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						const folderRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(item.path)}`, { credentials: 'same-origin' });
 						if (folderRes.ok) {
 							const folderData = await folderRes.json();
-							folderCounts[item.path] = Array.isArray(folderData.files) ? folderData.files.length : 0;
+							// Count only files, not directories
+							const fileCount = Array.isArray(folderData.files) 
+								? folderData.files.filter((f: SmartDriveItem) => f.type === 'file').length 
+								: 0;
+							folderCounts[item.path] = fileCount;
 						} else {
 							folderCounts[item.path] = 0;
 						}
@@ -276,7 +286,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					return mimeType.startsWith('video/');
 				}
 				
-				return true;
+				// If doesn't match selected filter, don't show it
+				return false;
 			});
 		}
 		
@@ -303,6 +314,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		};
 		return [...list].sort((a, b) => dirFirst(a, b) || cmp(a, b));
 	}, [items, searchQuery, sortKey, sortAsc, contentTypeFilter]);
+
+	// Pagination calculations
+	const totalPages = Math.ceil(filtered.length / rowsPerPage);
+	const startIndex = (currentPage - 1) * rowsPerPage;
+	const endIndex = startIndex + rowsPerPage;
+	const paginatedItems = filtered.slice(startIndex, endIndex);
+
+	// Reset to page 1 when filters change
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery, contentTypeFilter, currentPath]);
 
 	const toggle = (p: string) => {
 		const next = new Set(selected);
@@ -839,8 +861,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
 																<p className="text-[11px] text-gray-500">
-																	{(folderItemCounts[it.path]-1) !== undefined 
-																		? `${(folderItemCounts[it.path]-1)} ${(folderItemCounts[it.path]-1) === 1 ? 'item' : 'items'}`
+																	{folderItemCounts[it.path] !== undefined 
+																		? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
 																		: 'Folder'
 																	}
 																</p>
@@ -900,7 +922,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<Folder className='w-7 h-7' /> <span>{(() => { 
 													const folderName = selectedFolderForView.split('/').pop() || 'Folder';
 													try { return decodeURIComponent(folderName); } catch { return folderName; }
-												})()} ({filesToShow.length} items)</span>
+												})()} ({filesToShow.length} {filesToShow.length === 1 ? 'file' : 'files'})</span>
 											</div>
 										)}
 										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-5">
@@ -1050,7 +1072,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								</div>
 							)}
 							
-							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] overflow-x-auto flex-1">
+							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] overflow-hidden flex-1">
 								<Table className="min-w-full divide-y divide-[#E0E0E0]">
 									<TableHeader className="bg-white divide-y divide-[#E0E0E0]">
 										<TableRow>
@@ -1104,10 +1126,106 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									</TableHeader>
 									<TableBody className="bg-white divide-y divide-[#E0E0E0]">
 								{(() => {
-									// If any folder is expanded, show only that folder's contents
+									// If any folder is expanded, show the folder with blue background and its contents
 									const expandedFolder = Array.from(expandedFolders)[0]; // Get first expanded folder
 									if (expandedFolder && folderContentsMap[expandedFolder]) {
-										return <>{folderContentsMap[expandedFolder].map((it, idx) => {
+										// Find the expanded folder in the main items list
+										const expandedFolderItem = paginatedItems.find(item => item.path === expandedFolder);
+										
+										return (
+											<>
+												{/* Show the expanded folder with blue background */}
+												{expandedFolderItem && (
+													<React.Fragment key={expandedFolderItem.path}>
+														<TableRow className={`hover:bg-gray-50 transition cursor-pointer ${
+															expandedFolderItem.type === 'directory' ? 'group' : ''
+														} ${
+															expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) ? 'bg-blue-50' : ''
+														}`} onClick={(e)=>onRowClick(paginatedItems.indexOf(expandedFolderItem), expandedFolderItem, e)}>
+															{/* Type Column */}
+															<TableCell className="px-3 py-2 whitespace-nowrap">
+																<div className="flex items-center gap-2">
+																<div className="w-5 h-5">
+																	{expandedFolderItem.type === 'directory' ? (
+																		<Folder strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>
+																	) : (() => {
+																		const FileIcon = getFileIcon(expandedFolderItem.mime_type);
+																		return <FileIcon strokeWidth={1.5} className="w-5 h-5 text-[#0F58F9]"/>;
+																	})()}
+																</div>
+																<span className="ml-2 text-xs text-[#71717A]">
+																	{expandedFolderItem.type === 'directory' ? 'Folder' : (expandedFolderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE')}
+																</span>
+																</div>
+															</TableCell>
+															
+															{/* Title Column - Main content with more width */}
+															<TableCell className="px-3 py-2">
+																<div className={`flex items-center gap-2 font-regular ${
+																	expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) ? 'text-blue-900' : 'text-[#09090B]'
+																}`}>
+																	{(() => { try { return decodeURIComponent(expandedFolderItem.name); } catch { return expandedFolderItem.name; } })()}
+																</div>
+															<div className="text-xs text-slate-500">
+																{expandedFolderItem.type === 'file' 
+																	? formatSize(expandedFolderItem.size) 
+																	: (expandedFolderItem.type === 'directory' && expandedFolders.has(expandedFolderItem.path) && folderItemCounts[expandedFolderItem.path] !== undefined 
+																		? `${folderItemCounts[expandedFolderItem.path]} ${folderItemCounts[expandedFolderItem.path] === 1 ? 'file' : 'files'}`
+																		: (expandedFolderItem.type === 'directory' ? 'Folder' : '')
+																	)
+																}
+															</div>
+															</TableCell>
+															
+															{/* Creator Column */}
+															<TableCell className="px-3 py-2 whitespace-nowrap text-left text-sm text-slate-700">
+																You
+															</TableCell>
+															
+															{/* Modified Column */}
+															<TableCell className="px-3 py-2 whitespace-nowrap text-left text-sm text-slate-700">
+																{expandedFolderItem.modified ? new Date(expandedFolderItem.modified).toLocaleDateString() : 'No date'}
+															</TableCell>
+															
+															{/* Action Column */}
+															<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+															<div className="flex justify-end">
+																<DropdownMenu>
+																	<DropdownMenuTrigger asChild>
+																		<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+																			<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+																		</Button>
+																	</DropdownMenuTrigger>
+																	<DropdownMenuContent align="end">
+																		<DropdownMenuItem onSelect={() => {
+																			setSelected(new Set([expandedFolderItem.path]));
+																			rename();
+																		}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+																		<DropdownMenuItem onSelect={() => {
+																			setSelected(new Set([expandedFolderItem.path]));
+																			setMoveOperation('move');
+																			setShowFolderSelectionModal(true);
+																		}}><FolderPlus className="w-4 h-4 mr-2"/>Move to folder...</DropdownMenuItem>
+																		<DropdownMenuItem onSelect={() => {
+																			setSelected(new Set([expandedFolderItem.path]));
+																			setMoveOperation('copy');
+																			setShowFolderSelectionModal(true);
+																		}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+																		<DropdownMenuItem onSelect={() => del([expandedFolderItem.path])}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+																		<DropdownMenuItem disabled={expandedFolderItem.type !== 'file'} onSelect={() => {
+																			setSelected(new Set([expandedFolderItem.path]));
+																			download();
+																		}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+																	</DropdownMenuContent>
+																</DropdownMenu>
+															</div>
+															</TableCell>
+														</TableRow>
+													</React.Fragment>
+												)}
+												
+												{/* Show the folder contents */}
+												{folderContentsMap[expandedFolder].map((it, idx) => {
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
 												switch(action) {
@@ -1153,7 +1271,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															{it.type === 'file' 
 																? formatSize(it.size) 
 																: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
-																	? `${folderItemCounts[it.path]} items`
+																	? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
 																	: (it.type === 'directory' ? 'Folder' : '')
 																)
 															}
@@ -1200,11 +1318,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</TableCell>
 												</TableRow>
 											);
-										})}</>;
+										})}
+											</>
+										);
 									}
 									
 									// Otherwise show all items normally
-									return <>{filtered.map((it, idx) => {
+									return <>{paginatedItems.map((it, idx) => {
 									const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 										setSelected(new Set([it.path]));
 								switch(action) {
@@ -1254,15 +1374,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												}`}>
 													{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 												</div>
-												<div className="text-xs text-slate-500">
-													{it.type === 'file' 
-														? formatSize(it.size) 
-														: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
-															? `${folderItemCounts[it.path]} items`
-															: (it.type === 'directory' ? 'Folder' : '')
-														)
-													}
-												</div>
+											<div className="text-xs text-slate-500">
+												{it.type === 'file' 
+													? formatSize(it.size) 
+													: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
+														? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'file' : 'files'}`
+														: (it.type === 'directory' ? 'Folder' : '')
+													)
+												}
+											</div>
 												{it.type === 'file' && (() => { 
 													const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
 													const shouldShow = s && s.status !== 'done';
@@ -1336,6 +1456,74 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									</TableBody>
 								</Table>
 							</div>
+							
+							{/* Pagination Controls */}
+							{filtered.length > 0 && (
+								<div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
+									<div className="flex items-center gap-4">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="outline" className="flex items-center gap-2">
+													<span className="text-sm">{rowsPerPage} rows</span>
+													<ChevronDown size={16} />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent>
+												<DropdownMenuItem onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}>
+													10
+												</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}>
+													25
+												</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => { setRowsPerPage(50); setCurrentPage(1); }}>
+													50
+												</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => { setRowsPerPage(100); setCurrentPage(1); }}>
+													100
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+									<span className="text-sm text-gray-700">
+										Page {currentPage} of {totalPages}
+									</span>
+									
+									<div className="flex items-center gap-2">
+										<button
+											onClick={() => setCurrentPage(1)}
+											disabled={currentPage === 1}
+											className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+											title="First page"
+										>
+											<ChevronsLeft size={16} />
+										</button>
+										<button
+											onClick={() => setCurrentPage(currentPage - 1)}
+											disabled={currentPage === 1}
+											className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+											title="Previous page"
+										>
+											<ChevronLeft size={16} />
+										</button>
+										<button
+											onClick={() => setCurrentPage(currentPage + 1)}
+											disabled={currentPage === totalPages}
+											className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+											title="Next page"
+										>
+											<ChevronRight size={16} />
+										</button>
+										<button
+											onClick={() => setCurrentPage(totalPages)}
+											disabled={currentPage === totalPages}
+											className="px-2 py-2 border border-gray-300 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+											title="Last page"
+										>
+											<ChevronsRight size={16} />
+										</button>
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>

@@ -782,7 +782,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Tabs */}
-      <div className="flex justify-between gap-4 mb-6">
+      <div className="flex justify-between gap-4 mb-2">
           <div className="flex">
             <button
               onClick={() => setActiveTab('smart-drive')}
@@ -827,7 +827,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </Button>
                 )}
                 <div className={`relative ${activeTab === 'connectors' ? 'w-46 pt-3' : 'w-70'} h-9`}>
-                  <Search className="absolute left-3 top-1/2 transform mt-3 -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                  <Search className="absolute left-3 top-1/2 transform ${activeTab === 'connectors' ? 'mt-3' : 'mt-0'} -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
               </div>
@@ -930,7 +930,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <>
           {/* Usage Progress Bars */}
           {entitlements && (
-            <div className="bg-white p-5 mb-6">
+            <div className="bg-white py-5 mb-3">
               <div className="space-y-4">
                 {/* Storage Progress */}
                 <div>
@@ -944,7 +944,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       <div className="flex items-center gap-4">
                         <div className="flex flex-col">
                           {/* Top labels */}
-                          <div className="flex justify-between items-center mb-2">
+                          <div className="flex justify-between items-center mb-1">
                             <span className="text-[#434343] font-medium text-[11px]">Storage used</span>
                             <span className="text-[#434343] text-[11px]">
                               {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
@@ -965,7 +965,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                           </div>
                           
                           {/* Bottom labels */}
-                          <div className="flex justify-between items-center mt-2">
+                          <div className="flex justify-between items-center mt-1">
                             <span className="text-gray-500 text-[11px]">
                               {Math.round((entitlements.storage_used_gb / entitlements.storage_gb) * 100)}% used
                             </span>
