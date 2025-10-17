@@ -32,9 +32,9 @@
       "props": {
         "title": "Core Mathematical and Statistical Foundations",
         "leftTitle": "Statistical Concepts",
-        "leftContent": "Probability distributions model uncertainty in data. Hypothesis testing validates assumptions in experiments.",
+        "leftContent": "Probability distributions model uncertainty in data while hypothesis testing validates experimental assumptions.",
         "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "Linear algebra powers PCA and neural networks. Calculus enables gradient descent optimization."
+        "rightContent": "Linear algebra powers dimensionality reduction and neural networks while calculus enables gradient-based optimization."
       }
     },
     {
