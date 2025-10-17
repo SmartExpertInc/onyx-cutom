@@ -325,10 +325,59 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
       <div style={contentStyles}>
 
         <div style={gridStyles}>
-          {/* Three identical blocks with "Increase Productivity" */}
-          {[1, 2, 3].map((idx) => (
+          {/* Render actual steps data or placeholder */}
+          {(steps && steps.length >= 3 ? steps.slice(0, 3) : [
+            { value: '85%', label: 'Increase Productivity', description: 'Gain the skills to be productive and successful in the workplace.' },
+            { value: '90%', label: 'Reduce Stress', description: 'Learn effective stress management techniques.' },
+            { value: '95%', label: 'Improve Balance', description: 'Achieve better work-life balance.' }
+          ]).map((item, idx) => (
             <div key={idx} style={itemStyles}>
-              {/* Item Label - "Increase Productivity" */}
+              {/* Item Value */}
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-value`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
+                {isEditable && editingItemValues.includes(idx) ? (
+                  <WysiwygEditor
+                    initialValue={item.value || ''}
+                    onSave={(newValue) => handleItemValueSave(idx, newValue)}
+                    onCancel={() => handleItemValueCancel(idx)}
+                    placeholder="Enter value..."
+                    className="inline-editor-item-value"
+                    style={{
+                      ...valueStyles,
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      lineHeight: '1.2'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={valueStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemValue(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: item.value || '' }}
+                  />
+                )}
+              </div>
+              
+              {/* Item Label */}
               <div 
                 data-moveable-element={`${slideId}-item-${idx}-label`}
                 data-draggable="true" 
@@ -336,7 +385,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               >
                 {isEditable && editingItemLabels.includes(idx) ? (
                   <WysiwygEditor
-                    initialValue="Increase Productivity"
+                    initialValue={item.label || ''}
                     onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
                     onCancel={() => handleItemLabelCancel(idx)}
                     placeholder="Enter label..."
@@ -368,12 +417,12 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                    dangerouslySetInnerHTML={{ __html: "Increase Productivity" }}
+                    dangerouslySetInnerHTML={{ __html: item.label || '' }}
                   />
                 )}
               </div>
 
-              {/* Item Description - Same for all blocks */}
+              {/* Item Description */}
               <div 
                 data-moveable-element={`${slideId}-item-${idx}-description`}
                 data-draggable="true" 
@@ -381,7 +430,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
               >
                 {isEditable && editingItemDescriptions.includes(idx) ? (
                   <WysiwygEditor
-                    initialValue="Gain the skills to be productive and successful in the workplace."
+                    initialValue={item.description || ''}
                     onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
                     onCancel={() => handleItemDescriptionCancel(idx)}
                     placeholder="Enter description..."
@@ -413,7 +462,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                    dangerouslySetInnerHTML={{ __html: "Gain the skills to be productive and successful in the workplace." }}
+                    dangerouslySetInnerHTML={{ __html: item.description || '' }}
                   />
                 )}
               </div>

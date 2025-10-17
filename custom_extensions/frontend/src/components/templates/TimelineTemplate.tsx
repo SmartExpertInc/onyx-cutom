@@ -227,7 +227,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     { heading: 'Milestone 4', description: 'Description of the fourth milestone' }
   ];
 
-  const displaySteps = normalizedSteps.length >= 4 ? normalizedSteps.slice(0, 4) : defaultSteps;
+  // Accept 3-4 events, fallback to default only if less than 3
+  const displaySteps = normalizedSteps.length >= 3 ? normalizedSteps.slice(0, 4) : defaultSteps;
 
   return (
     <div className="timeline-template" style={slideStyles}>
@@ -272,7 +273,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         <div style={timelineLineStyles}></div>
 
         {/* Timeline Items */}
-        {timelineItems.map((item, index) => (
+        {timelineItems.slice(0, displaySteps.length).map((item, index) => (
           <React.Fragment key={index}>
             {/* Circle */}
             <div style={circleStyles(item.topCircle)}></div>
