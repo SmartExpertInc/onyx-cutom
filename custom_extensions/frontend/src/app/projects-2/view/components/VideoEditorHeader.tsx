@@ -340,88 +340,94 @@ export default function VideoEditorHeader({
       const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
       const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
       
-      // Find or create video product template
-      let videoTemplateId = 1; // Default fallback
+      // Find video product template - DO NOT create if missing, FAIL EARLY
+      let videoTemplateId: number | null = null;
       try {
         const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
         if (templatesResponse.ok) {
           const templates = await templatesResponse.json();
-          const videoTemplate = templates.find((t: any) => t.component_name === 'VideoProductDisplay');
+          const videoTemplate = templates.find((t: any) => 
+            t.component_name === 'VideoProductDisplay' || 
+            t.microproduct_type === 'video_product'
+          );
           
           if (videoTemplate) {
             videoTemplateId = videoTemplate.id;
-            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', videoTemplateId);
+            console.log('🎬 [VIDEO_GENERATION] Found video template:', videoTemplateId);
           } else {
-            // Create video product template
-            const newTemplate = {
-              template_name: 'Video Product',
-              template_structuring_prompt: JSON.stringify({
-                videoJobId: 'string',
-                videoUrl: 'string',
-                thumbnailUrl: 'string',
-                generatedAt: 'string',
-                sourceSlides: 'array',
-                component_name: 'VideoProductDisplay'
-              }),
-              microproduct_type: 'video_product',
-              component_name: 'VideoProductDisplay'
-            };
-            
-            const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates/add`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newTemplate)
-            });
-            
-            if (createResponse.ok) {
-              const createdTemplate = await createResponse.json();
-              videoTemplateId = createdTemplate.id;
-              console.log('🎬 [VIDEO_GENERATION] Created new video template:', videoTemplateId);
-            } else {
-              console.warn('🎬 [VIDEO_GENERATION] Failed to create video template, using default:', videoTemplateId);
-            }
+            // CRITICAL: Video template must exist - don't create on the fly
+            console.error('🎬 [VIDEO_GENERATION] VideoProductDisplay template not found in database');
+            throw new Error('Video product template not configured. Please contact administrator.');
           }
+        } else {
+          throw new Error(`Failed to fetch templates: ${templatesResponse.status}`);
         }
       } catch (error) {
-        console.warn('🎬 [VIDEO_GENERATION] Error handling video template, using default:', error);
+        console.error('🎬 [VIDEO_GENERATION] Error fetching video template:', error);
+        throw error; // Don't swallow this error
       }
       
-      // Create project data following the golden reference pattern
+      // Create video metadata structure (without component_name field - it comes from template)
+      const videoMetadata = {
+        videoJobId: jobId,
+        videoUrl: `/presentations/${jobId}/video`,
+        thumbnailUrl: `/presentations/${jobId}/thumbnail`,
+        generatedAt: new Date().toISOString(),
+        sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || []
+      };
+      
+      // Create project data following ProjectCreateRequest model
       const projectData = {
         projectName: productName,
         microProductName: productName,
-        design_template_id: videoTemplateId, // Use the video product template
-        aiResponse: JSON.stringify({
-          videoJobId: jobId,
-          videoUrl: `/presentations/${jobId}/video`,
-          thumbnailUrl: `/presentations/${jobId}/thumbnail`,
-          generatedAt: new Date().toISOString(),
-          sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || [],
-          component_name: "VideoProductDisplay" // Use the new component type
-        })
+        design_template_id: videoTemplateId,
+        aiResponse: JSON.stringify(videoMetadata),
+        // Optional but recommended fields for proper organization
+        chatSessionId: null, // TODO: Pass from parent component if available
+        outlineId: null,     // TODO: Pass from parent component if available
+        folder_id: null,     // TODO: Pass from parent component if available
+        theme: null          // TODO: Pass from parent component if available
       };
+
+      console.log('🎬 [VIDEO_GENERATION] Saving video with payload:', {
+        projectName: projectData.projectName,
+        templateId: projectData.design_template_id,
+        hasAiResponse: !!projectData.aiResponse,
+        aiResponseLength: projectData.aiResponse.length
+      });
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'same-origin',
+        credentials: 'same-origin', // Important for session cookies
         body: JSON.stringify(projectData)
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save video as product: ${response.status}`);
+        // Enhanced error handling with response body
+        let errorDetail = `HTTP ${response.status}`;
+        try {
+          const errorBody = await response.json();
+          errorDetail = errorBody.detail || errorBody.message || errorDetail;
+        } catch (e) {
+          // Response might not be JSON
+        }
+        throw new Error(`Failed to save video as product: ${errorDetail}`);
       }
 
       const savedProject = await response.json();
-      console.log('🎬 [VIDEO_GENERATION] Video saved as product:', savedProject);
+      console.log('🎬 [VIDEO_GENERATION] ✅ Video saved as product successfully:', {
+        projectId: savedProject.id,
+        projectName: savedProject.project_name
+      });
       
       return savedProject;
       
     } catch (error) {
-      console.error('🎬 [VIDEO_GENERATION] Failed to save video as product:', error);
-      // Don't throw error - this is not critical for the main flow
+      console.error('🎬 [VIDEO_GENERATION] ❌ Failed to save video as product:', error);
+      throw error; // Re-throw to allow calling code to handle
     }
   };
 
