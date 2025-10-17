@@ -30,7 +30,7 @@ interface AddOnCardProps {
 }
 
 const CoinsIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="27" height="27" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
   <mask id="mask0_600_36680" style={{maskType: 'luminance'}} maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
   <path d="M0.125 0.125002H24.875V24.875H0.125V0.125002Z" fill="white"/>
   </mask>
@@ -81,7 +81,7 @@ const CoinsIcon: React.FC<{ size?: number }> = ({ size }) => (
 );
 
 const StorageIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="27" height="28" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M14.1768 23.9265H10.0332C9.78945 23.9265 9.62695 23.764 9.62695 23.5203C9.62695 23.2765 9.78945 23.114 10.0332 23.114H14.1768C14.4206 23.114 14.5831 23.2765 14.5831 23.5203C14.5831 23.764 14.4206 23.9265 14.1768 23.9265Z" fill="#0F58F9"/>
   <path d="M4.46863 14.6246H5.52485V24.74C5.52485 25.4306 6.09358 25.9993 6.82481 25.9993H17.387C18.0776 25.9993 18.6464 25.4306 18.6464 24.74V14.6246H19.7026C22.1806 14.6246 24.2118 12.5934 24.2118 10.1153C24.2118 7.92166 22.6275 6.05296 20.5151 5.68734C19.4995 3.7374 17.2652 2.80305 15.1933 3.41241C14.259 1.34059 12.1872 0 9.91223 0C6.62169 0 4.14364 2.7218 4.10301 5.64672C1.82808 5.84984 0 7.79979 0 10.1153C0 12.5934 1.99057 14.6246 4.46863 14.6246ZM15.6808 25.1868H8.53102V20.2307C8.53102 19.8651 8.85601 19.5401 9.22162 19.5401H15.0308C15.3965 19.5401 15.7214 19.8651 15.7214 20.2307V25.1868H15.6808ZM17.8745 24.74C17.8745 24.9837 17.6714 25.1868 17.4277 25.1868H16.5339V20.2307C16.5339 19.4182 15.8839 18.7276 15.0308 18.7276H9.22162C8.40915 18.7276 7.71854 19.3776 7.71854 20.2307V25.1868H6.82481C6.58107 25.1868 6.33733 24.9837 6.33733 24.74V12.1465C6.33733 11.9028 6.54045 11.6997 6.82481 11.6997H8.20603V14.259C8.20603 14.5027 8.36852 14.6652 8.61227 14.6652H14.259C14.5027 14.6652 14.6652 14.5027 14.6652 14.259V11.6997H15.9246L17.8339 13.4871V24.74H17.8745ZM9.0185 13.8527V11.6997H13.8527V13.8527H9.0185ZM4.50925 6.41857C4.63112 6.41857 4.71237 6.37795 4.79362 6.2967C4.87487 6.21546 4.91549 6.09358 4.91549 6.01234C4.753 3.37178 6.94669 0.812478 9.91223 0.812478C11.984 0.812478 13.8527 2.11244 14.584 4.06239C14.6246 4.18426 14.7058 4.26551 14.7871 4.30613C14.8683 4.34676 14.9902 4.34676 15.1121 4.30613C16.9402 3.5749 19.0526 4.38738 19.8651 6.21546C19.9057 6.33733 20.0276 6.41857 20.1901 6.4592C22.0182 6.70294 23.3994 8.24665 23.3994 10.1153C23.3994 12.1465 21.7338 13.8121 19.7026 13.8121H18.6464V13.284C18.6464 13.1621 18.6057 13.0809 18.5245 12.9996L16.3714 11.0091C16.2902 10.9278 16.2089 10.8872 16.0871 10.8872C6.05296 10.8872 9.83098 10.8872 6.82481 10.8872C6.13421 10.8872 5.52485 11.4559 5.52485 12.1465V13.8121H4.46863C2.43743 13.8121 0.771854 12.1465 0.771854 10.1153C0.812478 8.08415 2.43743 6.41857 4.50925 6.41857Z" fill="#0F58F9"/>
   <path d="M19.9867 8.04526C21.0023 8.16713 21.7742 9.06086 21.7742 10.0765C21.7742 10.3202 21.9367 10.4827 22.1804 10.4827C22.4241 10.4827 22.5866 10.3202 22.5866 10.0765C22.5866 8.614 21.4898 7.39528 20.068 7.23278C19.8648 7.19216 19.6617 7.35466 19.6211 7.5984C19.6211 7.84214 19.7836 8.04526 19.9867 8.04526Z" fill="#0F58F9"/>
@@ -93,7 +93,7 @@ const StorageIcon: React.FC<{ size?: number }> = ({ size }) => (
 );
 
 const ConnectorsIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="30" height="24" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M9.83063 15.6013C9.6775 15.6013 9.55063 15.7281 9.55063 15.8813V19.32C9.55063 19.7575 9.19188 20.1163 8.75438 20.1163H4.7075C4.7075 20.1163 4.71625 20.0813 4.72063 20.0638C4.75125 19.9719 4.77313 19.8756 4.795 19.7794C4.79938 19.7531 4.80813 19.7269 4.80813 19.705C4.83 19.5781 4.84313 19.4513 4.84313 19.3244C4.84313 19.1975 4.83 19.0706 4.80813 18.9438C4.80375 18.9131 4.795 18.8869 4.79063 18.8606C4.77313 18.7688 4.75125 18.6769 4.72063 18.5894C4.71625 18.5719 4.71188 18.55 4.7075 18.5325H7.6825C7.83563 18.5325 7.9625 18.4056 7.9625 18.2525V11.9525C7.9625 11.7994 7.83563 11.6725 7.6825 11.6725H4.7075C4.7075 11.6725 4.71625 11.6331 4.725 11.6112C4.75125 11.5281 4.77313 11.445 4.79063 11.3575C4.79938 11.3225 4.80813 11.2831 4.8125 11.2481C4.83 11.1256 4.84313 11.0031 4.84313 10.8762C4.84313 10.7494 4.83 10.6269 4.8125 10.5044C4.80813 10.465 4.79938 10.43 4.79063 10.395C4.77313 10.3075 4.75125 10.2244 4.725 10.1413C4.72063 10.1194 4.71625 10.0975 4.7075 10.08H7.6825C7.83563 10.08 7.9625 9.95312 7.9625 9.8V3.49125C7.9625 3.33812 7.83563 3.21125 7.6825 3.21125H4.7075C4.7075 3.21125 4.71625 3.17188 4.72063 3.15C4.75125 3.0625 4.77313 2.97062 4.79063 2.87875C4.795 2.8525 4.80375 2.82188 4.80813 2.79563C4.83 2.66875 4.84313 2.54187 4.84313 2.415C4.84313 2.28812 4.83 2.15687 4.80813 2.03437C4.80813 2.00812 4.79938 1.98187 4.795 1.96C4.7775 1.86375 4.75125 1.7675 4.72063 1.67562C4.71625 1.65812 4.71188 1.64062 4.7075 1.62313H8.75438C9.19625 1.62313 9.55063 1.98187 9.55063 2.41937V3.57438C9.55063 3.7275 9.6775 3.85437 9.83063 3.85437C9.98375 3.85437 10.1106 3.7275 10.1106 3.57438V2.41937C10.1106 1.67125 9.5025 1.06313 8.75438 1.06313H4.41875C3.96813 0.406875 3.22 0 2.41937 0C1.085 0 0 1.085 0 2.41937C0 3.75375 1.085 4.83875 2.41937 4.83875C3.22 4.83875 3.96813 4.43188 4.41438 3.77562H7.39375V9.52437H4.41438C3.96813 8.86375 3.22 8.45687 2.415 8.45687C1.295 8.45687 0.328125 9.21812 0.065625 10.3075C0.030625 10.4563 0.1225 10.6094 0.27125 10.6444C0.42 10.6838 0.573125 10.5875 0.608125 10.4388C0.809375 9.59875 1.55313 9.01688 2.415 9.01688C3.07563 9.01688 3.6925 9.37125 4.025 9.94875C4.18688 10.2244 4.27438 10.5481 4.27438 10.8806C4.27438 10.9638 4.27 11.0469 4.25688 11.13C4.22625 11.375 4.1475 11.6069 4.025 11.8169C3.6925 12.3856 3.07563 12.74 2.415 12.74C1.88125 12.74 1.37375 12.5125 1.02375 12.11C0.923125 11.9919 0.74375 11.9831 0.63 12.0838C0.51625 12.1844 0.503125 12.3594 0.60375 12.4775C1.05875 12.9981 1.71938 13.2956 2.415 13.2956C3.21563 13.2956 3.96375 12.8931 4.41438 12.2369H7.39813V17.9769H4.41875C3.96813 17.3206 3.22 16.9138 2.42375 16.9138C1.08938 16.9138 0.004375 17.9988 0.004375 19.3331C0.004375 20.6675 1.08938 21.7525 2.42375 21.7525C3.22438 21.7525 3.9725 21.3456 4.42313 20.6894H8.75875C9.50688 20.6894 10.115 20.0813 10.115 19.3331V15.8944C10.115 15.7413 9.98813 15.6144 9.835 15.6144L9.83063 15.6013ZM4.13875 3.12812C4.10813 3.2025 4.07313 3.27688 4.02938 3.3425C3.68813 3.92 3.08875 4.27 2.41937 4.27C1.39125 4.27 0.56 3.43438 0.56 2.41062C0.56 1.38688 1.39562 0.55125 2.41937 0.55125C3.08875 0.55125 3.68813 0.896875 4.02938 1.47438C4.19125 1.75 4.27875 2.07375 4.27875 2.40625C4.27875 2.65563 4.23063 2.90063 4.13875 3.12375V3.12812ZM4.02938 20.2519C3.68813 20.8294 3.08875 21.175 2.41937 21.175C1.39125 21.175 0.56 20.3394 0.56 19.3156C0.56 18.2919 1.39562 17.4563 2.41937 17.4563C3.08875 17.4563 3.68813 17.8019 4.02938 18.3837C4.06875 18.4537 4.10813 18.5238 4.13875 18.5981C4.23063 18.8213 4.27875 19.0662 4.27875 19.3156C4.27875 19.6525 4.19125 19.9719 4.02938 20.2475V20.2519Z" fill="#0F58F9"/>
   <path d="M10.1108 9.51172V5.52609C10.1108 5.37297 9.98391 5.24609 9.83078 5.24609C9.67766 5.24609 9.55078 5.37297 9.55078 5.52609V9.79172C9.55078 9.94484 9.67766 10.0717 9.83078 10.0717H13.3789V9.51609H10.1108V9.51172Z" fill="#0F58F9"/>
   <path d="M9.83078 11.6641C9.67766 11.6641 9.55078 11.7909 9.55078 11.9441V13.9172C9.55078 14.0703 9.67766 14.1972 9.83078 14.1972C9.98391 14.1972 10.1108 14.0703 10.1108 13.9172V12.2241H13.3789V11.6684H9.83078V11.6641Z" fill="#0F58F9"/>
@@ -106,18 +106,18 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
   const { t } = useLanguage();
   return (
     <Card className="border border-gray-200">
-      <CardHeader>
+      <CardHeader className='p-4'>
         <div className="flex items-start gap-4">
           <div className="border border-[#0F58F9] rounded-full p-2">
             <Icon className="text-white" size={24} />
           </div>
           <div className="flex-1">
             <CardTitle className="text-base font-semibold text-[#434343]">{addOn.name}</CardTitle>
-            <CardDescription className="mt-1 text-[#949CA8] font-light text-[10px]">{addOn.description}</CardDescription>
+            <CardDescription className="text-[#949CA8] font-light text-[10px]">{addOn.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 p-4">
         {showAmount && (
           <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
             <span>{addOn.amount}</span>
@@ -135,25 +135,25 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
               variant="outline"
               size="icon"
               onClick={() => onQuantityChange(-1)}
-              className="h-8 w-8 bg-blue-500 text-[#0F58F9]"
+              className="h-7 w-7 bg-[#CCDBFC] rounded-xs text-[#0F58F9]"
             >
               -
             </Button>
-            <div className="flex-1 text-center font-medium">{quantity}</div>
+            <div className="flex-1 text-center font-regular text-[#71717A]">{quantity}</div>
             <Button
               variant="outline"
               size="icon"
               onClick={() => onQuantityChange(1)}
-              className="h-8 w-8 bg-white bg-blue-500 text-[#0F58F9]"
+              className="h-7 w-7 bg-white rounded-xs bg-[#CCDBFC] text-[#0F58F9]"
             >
               +
             </Button>
           </div>
         )}
         {addOn.isEnterprise && (
-          <div className="h-10"></div>
+          <div className="h-8"></div>
         )}
-        <Button className={`w-full ${addOn.isEnterprise ? 'bg-[#0F58F9] text-white' : 'bg-[#CCDBFC] text-[#0F58F9]'} cursor-pointer rounded-full`} variant="download">
+        <Button className={`w-full ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
           {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy Now')}
         </Button>
       </CardContent>
@@ -277,7 +277,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/95 blur-md overflow-hidden flex flex-col p-0 rounded-xl">
+      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/95 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl text-[#434343] sora-font-bold">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
           <DialogDescription className="text-[11px] text-[#949CA8]">
@@ -286,36 +286,36 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
         </DialogHeader>
 
         <Tabs defaultValue="credits" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="ml-6 mt-6 w-fit rounded-full">
+          <TabsList className="ml-6 w-fit bg-transparent">
             <TabsTrigger 
               value="credits" 
-              className="group flex flex-col items-center gap-2 bg-gray-100 text-[#8C8C94] data-[state=active]:text-[#719AF5]"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] px-4 py-2"
             >
               <div className="flex items-center gap-2">
                 <Coins size={16} />
-                <span>{t('addOns.credits', 'Credits')}</span>
+                <span className="font-semibold">{t('addOns.credits', 'Credits')}</span>
               </div>
-              <div className="border-b data-[state=active]:border-[#719AF5] w-full h-1 border-[#B5B5B9] rounded-full" />
+              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
-              className="group flex flex-col items-center gap-2 bg-gray-100 text-[#8C8C94] data-[state=active]:text-[#719AF5]"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] px-4 py-2"
             >
               <div className="flex items-center gap-2">
                 <HardDrive size={16} />
-                <span>{t('addOns.driveStorage', 'Drive storage')}</span>
+                <span className="font-semibold">{t('addOns.driveStorage', 'Drive storage')}</span>
               </div>
-              <div className="border-b data-[state=active]:border-[#719AF5] w-full h-1 border-[#B5B5B9] rounded-full" />
+              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
-              className="group flex flex-col items-center gap-2 bg-gray-100 text-[#8C8C94] data-[state=active]:text-[#719AF5]"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] px-4 py-2"
             >
               <div className="flex items-center gap-2">
                 <Workflow size={16} />
-                <span>{t('addOns.connectors', 'Connectors')}</span>
+                <span className="font-semibold">{t('addOns.connectors', 'Connectors')}</span>
               </div>
-              <div className="border-b data-[state=active]:border-[#719AF5] w-full h-1 border-[#B5B5B9] rounded-full" />
+              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
           </TabsList>
 

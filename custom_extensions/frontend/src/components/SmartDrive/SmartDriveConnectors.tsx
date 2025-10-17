@@ -1058,14 +1058,20 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               return userConnectorsForSource.length > 0;
             });
 
-            if (connectedConnectors.length > 0) {
+            // Filter connected connectors by search query
+            const filteredConnectedConnectors = connectedConnectors.filter(connector => {
+              if (!search.trim()) return true;
+              return connector.name.toLowerCase().includes(search.toLowerCase());
+            });
+
+            if (filteredConnectedConnectors.length > 0) {
               return (
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-regular font-semibold text-[#565656]">My connectors <span className='text-[#797979] text-xs font-regular'>({connectedConnectors.length})</span></h3>
+                    <h3 className="text-regular font-semibold text-[#565656]">My connectors <span className='text-[#797979] text-xs font-regular'>({filteredConnectedConnectors.length})</span></h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {connectedConnectors.map((connector) => {
+                    {filteredConnectedConnectors.map((connector) => {
                       const userConnectorsForSource = getConnectorsBySource(connector.id);
                       const hasConnectors = true; // We know it has connectors
                       const isActive = true;
@@ -1176,7 +1182,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   const userConnectorsForSource = getConnectorsBySource(connector.id);
                   return userConnectorsForSource.length === 0;
                 });
-                return availableConnectors.length;
+                // Apply search filter to count
+                const filteredAvailableConnectors = availableConnectors.filter(connector => {
+                  if (!search.trim()) return true;
+                  return connector.name.toLowerCase().includes(search.toLowerCase());
+                });
+                return filteredAvailableConnectors.length;
               })()})</span></h3>
             </div>
 
@@ -1187,8 +1198,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 return userConnectorsForSource.length === 0;
               });
 
-              // Only show category if there are available connectors
-              if (availableConnectors.length === 0) return null;
+              // Apply search filter to available connectors
+              const filteredAvailableConnectors = availableConnectors.filter(connector => {
+                if (!search.trim()) return true;
+                return connector.name.toLowerCase().includes(search.toLowerCase());
+              });
+
+              // Only show category if there are available connectors after filtering
+              if (filteredAvailableConnectors.length === 0) return null;
 
               return (
                 <div key={categoryName} className="space-y-4 mb-8">
@@ -1196,7 +1213,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {categoryName}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {availableConnectors.map((connector) => {
+                    {filteredAvailableConnectors.map((connector) => {
                       return (
                         <div key={connector.id} className="relative">
                           <Card
