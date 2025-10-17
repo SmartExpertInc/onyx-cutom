@@ -2568,9 +2568,9 @@
                 
             {% elif slide.templateId == 'process-steps' %}
                 <!-- EXACT FRONTEND MATCH: slideStyles -->
-                <div style="min-height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; padding: 50px; align-items: flex-start;">
-                    <!-- leftColumnStyles: flex: 1 -->
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                <div style="min-height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; padding: 50px; align-items: flex-start; gap: 80px;">
+                    <!-- leftColumnStyles: flex: 0 0 auto, width: 230px -->
+                    <div style="flex: 0 0 auto; width: 230px; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
                         <!-- titleStyles: width: 230px, fontSize: 3rem, fontFamily: serif, color: #000000, fontWeight: bold, lineHeight: 0.85, marginBottom: 20px, textAlign: left, letterSpacing: -0.04em -->
                         <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin: 0; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em; word-wrap: break-word;">
                             {{ slide.props.title or 'The Stages of Research' }}
@@ -2582,8 +2582,8 @@
                         </p>
                     </div>
 
-                    <!-- rightColumnStyles: flex: 1.8, display: flex, flexDirection: column, gap: 7px -->
-                    <div style="flex: 1.8; display: flex; flex-direction: column; gap: 7px;">
+                    <!-- rightColumnStyles: flex: 1, display: flex, flexDirection: column, gap: 7px -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 7px;">
                         {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
                         {% set defaultSteps = [
                             {'title': 'PROBLEM', 'description': 'Identify a problem and form a thesis statement.'},
