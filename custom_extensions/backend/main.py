@@ -1661,156 +1661,91 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "lessonTitle": "Example Video Lesson with Voiceover",
   "slides": [
     {
-      "slideId": "slide_1_intro",
+      "slideId": "slide_1_course_overview",
       "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "big-image-left",
-      "voiceoverText": "Welcome to this comprehensive lesson. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This introduction sets the stage for what you're about to learn.",
+      "slideTitle": "Course Overview",
+      "templateId": "course-overview-slide",
+      "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn.",
       "props": {
-          "title": "Welcome to the Lesson",
-          "subtitle": "This slide introduces the main topic.",
-          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-          "imageAlt": "Descriptive alt text",
-          "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-          "imageSize": "large"
+        "title": "Welcome to the Course",
+        "subtitle": "This course introduces the main topic and learning objectives",
+        "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
+        "imageAlt": "Course overview illustration",
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "pageNumber": 1
       }
     },
     {
-      "slideId": "slide_2_main",
+      "slideId": "slide_2_impact_statements",
       "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
-      "voiceoverText": "Now let's dive into the core concepts. These fundamental ideas form the foundation of our understanding. We'll explore each concept in detail, ensuring you have a solid grasp before moving forward.",
+      "slideTitle": "Impact Statistics",
+      "templateId": "impact-statements-slide",
+      "voiceoverText": "Let's look at some impressive statistics that demonstrate the real-world impact of what we're learning. These numbers show the tangible benefits and results you can expect to achieve.",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
+        "title": "Impact Statistics",
+        "statements": [
+          { "number": "95%", "description": "Success rate in implementation" },
+          { "number": "3x", "description": "Increase in productivity" },
+          { "number": "50%", "description": "Reduction in time spent" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 2,
+        "logoNew": "https://via.placeholder.com/100x50?text=Logo"
       }
     },
     {
-      "slideId": "slide_3_bullets",
+      "slideId": "slide_3_phishing_definition",
       "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "voiceoverText": "Here are the key takeaways from our lesson. Each of these points represents a critical insight that you should remember. Let me walk you through each one to ensure you understand their significance.",
+      "slideTitle": "Key Definitions",
+      "templateId": "phishing-definition-slide",
+      "voiceoverText": "Now let's define the key concepts we'll be working with. Understanding these definitions is crucial for building a solid foundation of knowledge.",
       "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
+        "title": "Key Definitions",
+        "definitions": [
+          "First important definition with detailed explanation",
+          "Second key concept with comprehensive description",
+          "Third critical term with thorough explanation"
         ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
+        "pageNumber": 3,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
       }
     },
     {
-      "slideId": "slide_4_two_column",
+      "slideId": "slide_4_soft_skills_assessment",
       "slideNumber": 4,
-      "slideTitle": "Comparison Analysis",
-      "templateId": "two-column",
-      "voiceoverText": "Let's examine this topic from two different perspectives. On the left, we have one approach, and on the right, we have another. Both perspectives are valuable and complement each other to give you a complete understanding.",
+      "slideTitle": "Assessment Tips",
+      "templateId": "soft-skills-assessment-slide",
+      "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
       "props": {
-        "title": "Two Column Layout",
-        "leftTitle": "Left Column Title",
-        "leftContent": "Content for the left side with detailed explanations",
-        "rightTitle": "Right Column Title",
-        "rightContent": "Content for the right side with detailed information",
-        "columnRatio": "50-50"
-      }
-    },
-    {
-      "slideId": "slide_5_four_box",
-      "slideNumber": 5,
-      "slideTitle": "Four Key Areas",
-      "templateId": "four-box-grid",
-      "voiceoverText": "Now we'll explore four essential areas that are crucial to understanding this topic. Each box represents a different aspect, and together they provide a comprehensive overview of the subject matter.",
-      "props": {
-        "title": "Main Title for Four Boxes",
-        "boxes": [
-          { "heading": "Box 1 Heading", "text": "Detailed description for the first box" },
-          { "heading": "Box 2 Heading", "text": "Comprehensive explanation for the second box" },
-          { "heading": "Box 3 Heading", "text": "Thorough description for the third box" },
-          { "heading": "Box 4 Heading", "text": "In-depth explanation for the fourth box" }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_6_challenges",
-      "slideNumber": 6,
-      "slideTitle": "Problem Solving",
-      "templateId": "challenges-solutions",
-      "voiceoverText": "Every field has its challenges, but for every challenge, there's a solution. Let's examine the common obstacles you might face and the proven strategies to overcome them effectively.",
-      "props": {
-        "title": "Challenges and Solutions",
-        "challengesTitle": "Common Challenges",
-        "solutionsTitle": "Effective Solutions",
-        "challenges": [
-          "Challenge 1 with detailed explanation of the problem",
-          "Challenge 2 with comprehensive analysis of the issue"
+        "title": "Assessment Tips",
+        "tips": [
+          { "text": "First important tip for success", "isHighlighted": true },
+          { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
-        "solutions": [
-          "Solution 1 with detailed approach and implementation strategy",
-          "Solution 2 with comprehensive methodology and practical steps"
-        ]
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 4,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_7_process",
-      "slideNumber": 7,
-      "slideTitle": "Step-by-Step Process",
-      "templateId": "process-steps",
-      "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
-      "props": {
-        "title": "Implementation Steps",
-        "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_5_table_dark",
+      "slideId": "slide_5_work_life_balance",
       "slideNumber": 5,
-      "slideTitle": "Technology Comparison",
-      "templateId": "table-dark",
-      "voiceoverText": "Let's examine the technology comparison table. This table shows us the key differences between various technologies in terms of performance, security, and cost. Understanding these comparisons helps us make informed decisions.",
+      "slideTitle": "Conclusion",
+      "templateId": "work-life-balance-slide",
+      "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
       "props": {
-        "title": "Technology Comparison",
-        "tableData": {
-          "headers": ["Technology", "Performance", "Security", "Cost"],
-          "rows": [
-            ["React", "High", "Good", "Free"],
-            ["Vue.js", "Medium", "Excellent", "Free"],
-            ["Angular", "High", "Excellent", "Free"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_6_table_light",
-      "slideNumber": 6,
-      "slideTitle": "Product Features",
-      "templateId": "table-light",
-      "voiceoverText": "Now let's look at the product features comparison. This table clearly shows the differences between our various subscription plans, helping you understand what each tier offers.",
-      "props": {
-        "title": "Product Features Comparison",
-        "tableData": {
-          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
-          "rows": [
-            ["Storage", "10GB", "100GB", "Unlimited"],
-            ["Users", "5", "25", "Unlimited"],
-            ["Support", "Email", "Priority", "24/7"]
-          ]
-        }
+        "title": "Conclusion and Next Steps",
+        "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
+        "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
+        "pageNumber": 5,
+        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
       }
     }
   ],
-  "currentSlideId": "slide_1_intro",
+  "currentSlideId": "slide_1_course_overview",
   "detectedLanguage": "en",
   "hasVoiceover": true
 }
@@ -2410,6 +2345,133 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                             ['Characteristic 2', 'Value A2', 'Value B2']
                         ]
                     }
+
+                        # NEW TEMPLATES: Handle new 5-template system for video lesson presentations
+            elif template_id == 'course-overview-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Course Overview'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Course introduction and objectives'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/600x400?text=Course+Image'
+                if not normalized_props.get('imageAlt'):
+                    normalized_props['imageAlt'] = 'Course overview illustration'
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                    
+            elif template_id == 'impact-statements-slide':
+                # Ensure statements array exists and is properly formatted
+                statements = normalized_props.get('statements', [])
+                if not isinstance(statements, list) or len(statements) < 3:
+                    normalized_props['statements'] = [
+                        { "number": "95%", "description": "Success rate in implementation" },
+                        { "number": "3x", "description": "Increase in productivity" },
+                        { "number": "50%", "description": "Reduction in time spent" }
+                    ]
+                else:
+                    # Ensure each statement has required fields
+                    fixed_statements = []
+                    for stmt in statements[:3]:  # Limit to 3 statements
+                        if isinstance(stmt, dict):
+                            fixed_stmt = {
+                                'number': str(stmt.get('number', '0%')),
+                                'description': str(stmt.get('description', 'No description'))
+                            }
+                            fixed_statements.append(fixed_stmt)
+                        else:
+                            fixed_statements.append({'number': '0%', 'description': str(stmt)})
+                    normalized_props['statements'] = fixed_statements
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoNew'):
+                    normalized_props['logoNew'] = 'https://via.placeholder.com/100x50?text=Logo'
+                    
+            elif template_id == 'phishing-definition-slide':
+                # Ensure definitions array exists and is properly formatted
+                definitions = normalized_props.get('definitions', [])
+                if not isinstance(definitions, list) or len(definitions) < 3:
+                    normalized_props['definitions'] = [
+                        "First important definition with detailed explanation",
+                        "Second key concept with comprehensive description", 
+                        "Third critical term with thorough explanation"
+                    ]
+                else:
+                    # Ensure definitions are strings
+                    fixed_definitions = []
+                    for defn in definitions:
+                        if isinstance(defn, str) and defn.strip():
+                            fixed_definitions.append(defn.strip())
+                        elif isinstance(defn, dict):
+                            # Extract text from dict if needed
+                            text = defn.get('text') or defn.get('description') or defn.get('content', '')
+                            if text.strip():
+                                fixed_definitions.append(str(text).strip())
+                    # Pad to at least 3 definitions
+                    while len(fixed_definitions) < 3:
+                        fixed_definitions.append(f"Definition {len(fixed_definitions) + 1}")
+                    normalized_props['definitions'] = fixed_definitions[:6]  # Max 6 definitions
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('rightImagePath'):
+                    normalized_props['rightImagePath'] = 'https://via.placeholder.com/300x200?text=Definition+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                    
+            elif template_id == 'soft-skills-assessment-slide':
+                # Ensure tips array exists and is properly formatted
+                tips = normalized_props.get('tips', [])
+                if not isinstance(tips, list) or len(tips) < 2:
+                    normalized_props['tips'] = [
+                        { "text": "First important tip for success", "isHighlighted": True },
+                        { "text": "Second key recommendation for better results", "isHighlighted": False }
+                    ]
+                else:
+                    # Ensure each tip has required fields
+                    fixed_tips = []
+                    for tip in tips[:2]:  # Limit to 2 tips
+                        if isinstance(tip, dict):
+                            fixed_tip = {
+                                'text': str(tip.get('text', 'No tip text')),
+                                'isHighlighted': bool(tip.get('isHighlighted', False))
+                            }
+                            fixed_tips.append(fixed_tip)
+                        else:
+                            fixed_tips.append({'text': str(tip), 'isHighlighted': False})
+                    normalized_props['tips'] = fixed_tips
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Assessment Guide'
+                    
+            elif template_id == 'work-life-balance-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Conclusion and Next Steps'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/400x300?text=Conclusion+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                if not normalized_props.get('logoPath'):
+                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
         
             normalized_slide['props'] = normalized_props
 
@@ -11855,7 +11917,6 @@ async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
 
 # --- Project and MicroProduct Endpoints ---
-@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     """
     Build source context type and data from a finalize payload.
@@ -11917,7 +11978,7 @@ async def save_slide_creation_error(
         json.dumps(props, ensure_ascii=False),
         error_message
     )
-
+@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
@@ -12998,11 +13059,55 @@ Return ONLY the JSON object.
         # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
             try:
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw AI response for presentation:")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(project_data.aiResponse)} characters")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {project_data.aiResponse[:500]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {project_data.aiResponse[-500:]}")
+                
                 logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
                 cached_json = json.loads(project_data.aiResponse.strip())
                 logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
                 if isinstance(cached_json, dict) and "slides" in cached_json:
-                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(cached_json.get('slides', []))} slides")
+                    slides = cached_json.get('slides', [])
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(slides)} slides")
+                    
+                    # 🔍 CRITICAL DEBUG: Log each slide before parser processing
+                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slides before parser processing:")
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            slide_number = slide.get('slideNumber', 'NO_NUMBER')
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}', slideNumber={slide_number}")
+                            
+                            # Log props structure
+                            props = slide.get('props', {})
+                            if props:
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} props keys: {list(props.keys())}")
+                                # Log specific props for new templates
+                                if template_id == 'course-overview-slide':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}'")
+                                elif template_id == 'impact-statements-slide':
+                                    statements = props.get('statements', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                                elif template_id == 'phishing-definition-slide':
+                                    definitions = props.get('definitions', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                                elif template_id == 'soft-skills-assessment-slide':
+                                    tips = props.get('tips', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                                elif template_id == 'work-life-balance-slide':
+                                    content = props.get('content', '')
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
+                            
+                            # Log voiceover if present
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                        else:
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: Not a dict, type={type(slide)}")
+                    
                     logger.info(f"[FAST_PATH] Presentation JSON detected, bypassing LLM parsing for {project_data.projectName}")
                     
                     # Strip preview-only fields before model construction
@@ -13093,7 +13198,45 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
+            
+            # 🔍 CRITICAL DEBUG: Log slides before normalization
+            logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slides before normalize_slide_props:")
+            for i, slide in enumerate(slides_dict):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+            
             normalized_slides = await normalize_slide_props(slides_dict, selected_design_template.component_name)
+            
+            # 🔍 CRITICAL DEBUG: Log slides after normalization
+            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slides after normalize_slide_props:")
+            for i, slide in enumerate(normalized_slides):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+                        # Log specific props for new templates after normalization
+                        if template_id == 'course-overview-slide':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}', imagePath='{props.get('imagePath', 'NO_IMAGE')}'")
+                        elif template_id == 'impact-statements-slide':
+                            statements = props.get('statements', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                        elif template_id == 'phishing-definition-slide':
+                            definitions = props.get('definitions', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                        elif template_id == 'soft-skills-assessment-slide':
+                            tips = props.get('tips', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                        elif template_id == 'work-life-balance-slide':
+                            content = props.get('content', '')
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
@@ -22049,7 +22192,10 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Randomly select one example to reduce over-reliance on a single pattern
             json_example = random.choice(example_files)
         
-        json_preview_instructions = f"""
+
+        json_preview_instructions = ""  
+        if not is_video_lesson:
+            json_preview_instructions += f"""
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
@@ -22175,8 +22321,141 @@ CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
 - Prioritize variety: use different templates for different content types to maintain visual interest.
 - Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
 """
-        if is_video_lesson:
-            json_preview_instructions += """
+        else:
+            json_preview_instructions += f"""
+
+
+
+
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
+{json_example}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+This enables immediate parsing without additional LLM calls during finalization.
+
+MANDATORY PREVIEW UI REQUIREMENT:
+- EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
+- Include 4-6 content-rich bullets (10–18 words each), specific and informative.
+- These previewKeyPoints are for preview only and will be ignored/stripped on save.
+- Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Generate exact amout of slides you asked to generate.
+- Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
+- The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
+- Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
+- Preserve original language across all text.
+
+CRITICAL TABLE RULE:
+- If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
+
+CONTENT DENSITY AND LEARNING REQUIREMENTS:
+- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
+- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
+- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
+- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
+- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
+- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+
+General Rules:
+- Do NOT duplicate title and subtitle content; keep them distinct.
+- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
+- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
+- Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
+
+
+
+PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
+Based on presentation design best practices, follow these rules for selecting appropriate images:
+
+1. RELEVANCE OVER AESTHETICS: Images must directly support and enhance your slide's message, not just be decorative.
+   - For business concepts: Use workplace scenarios, professional environments, real business activities
+   - For technical topics: Show actual tools, interfaces, workflows, or realistic work environments
+   - For data/analytics: Use realistic data visualization scenarios, not abstract concepts
+   - For processes: Show people actually performing the process or realistic workflow environments
+
+2. AVOID OVERUSED STOCK PHOTO CLICHÉS:
+   - NO: Handshakes, chess pieces, lightbulbs, arrows hitting targets, people pointing at charts
+   - NO: Overly staged business meetings, fake-looking "diverse teams" in conference rooms
+   - NO: Generic "success" imagery (mountains, climbing, finish lines)
+   - YES: Authentic workplace moments, realistic technology use, genuine professional interactions
+
+3. CONTEXT-SPECIFIC IMAGE SELECTION:
+   - Marketing slides: Real marketing campaigns, authentic customer interactions, actual marketing tools in use
+   - Technology slides: Real developers coding, authentic tech environments, actual software interfaces
+   - Finance slides: Real financial professionals at work, authentic trading floors, actual financial data analysis
+   - Education slides: Real learning environments, authentic teaching moments, actual educational technology
+
+4. REALISTIC WORKPLACE SCENES:
+   - Show people actually using the tools/concepts being discussed
+   - Include authentic details: real computer screens, actual work materials, genuine work environments
+   - Avoid posed or overly perfect scenarios; prefer candid, realistic moments
+   - Include diverse but authentic representation without forced staging
+
+5. VISUAL METAPHORS THAT WORK:
+   - Use concrete, relatable metaphors that enhance understanding
+   - Construction/building for development processes, gardens for growth concepts
+   - Transportation for journey/progress concepts, but make them specific and realistic
+   - Avoid abstract or overused metaphors; prefer specific, actionable imagery
+
+
+
+
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+
+- course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
+  • Purpose: Opening slide for course introduction with strong visual impact
+  • Structure: Split-panel design with title/subtitle on gradient background and large avatar display
+  • Required props: title (main heading), subtitle (course description and learning objectives)
+  • Visual elements: imagePath (professional avatar/instructor image), logoPath (course branding)
+  • Usage: MUST be used as the first slide to welcome learners and set course expectations
+  • Content guidelines: Title should be welcoming and engaging; subtitle should outline what learners will achieve
+
+- impact-statements-slide: title, statements[] (array of {{number, description}}), profileImagePath, [pageNumber], [logoNew]
+  • Purpose: Showcase key statistics, metrics, or impact data with visual emphasis
+  • Structure: Three prominent cards displaying numerical achievements with descriptive context
+  • Required props: title (section heading), statements (EXACTLY 3 items with 'number' field like "95%" or "3x" and 'description' field explaining significance)
+  • Visual elements: profileImagePath (avatar reinforcing credibility), logoNew (branding element)
+  • Usage: Present compelling data, success rates, performance metrics, or quantifiable outcomes
+  • Content guidelines: Numbers should be impactful (percentages, multipliers, large numbers); descriptions should explain real-world meaning
+
+- phishing-definition-slide: title, definitions[] (array of strings), profileImagePath, [rightImagePath], [pageNumber], [logoPath]
+  • Purpose: Present multiple key definitions, concepts, or educational points in organized list format
+  • Structure: Left panel with title and definition points; right panel with full avatar image
+  • Required props: title (main topic heading), definitions (array of 3-6 detailed definition strings)
+  • Visual elements: profileImagePath (instructor/expert avatar), rightImagePath (supporting visual illustration)
+  • Usage: Define critical terminology, explain key concepts, list important principles or guidelines
+  • Content guidelines: Each definition should be comprehensive (2-3 sentences); use clear, educational language; maintain consistent depth across all definitions
+
+- soft-skills-assessment-slide: title, tips[] (array of {{text, isHighlighted}}), profileImagePath, [logoPath], [logoText], [pageNumber]
+  • Purpose: Highlight exactly two critical tips, recommendations, or assessment criteria with different visual emphasis
+  • Structure: Large prominent title, avatar display, and two tip cards with contrasting styles (one highlighted, one standard)
+  • Required props: title (assessment or tip category), tips (EXACTLY 2 items with 'text' field containing the tip and 'isHighlighted' boolean)
+  • Visual elements: profileImagePath (expert/instructor image), logoPath (branding), logoText (contextual label like "Assessment Guide")
+  • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
+  • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
+
+- work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
+  • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
+  • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
+  • Required props: title (conclusion or section heading), content (2-4 paragraphs of detailed narrative text)
+  • Visual elements: imagePath (relevant thematic or conclusion image), logoPath (branding)
+  • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
+  • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
+
+MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
+- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
+  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
+  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
+  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
+  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
+  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
+- NO template repetition allowed - each template used EXACTLY ONCE
+- NO additional slides beyond these 5 - maintain strict 5-slide structure
+- NO substitutions - you must use these exact 5 templates in this exact order
+- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.
@@ -22430,7 +22709,38 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
 
-        print("FULL RESPOSE:", assistant_reply)
+        # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for video lesson presentation:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
+        
+        # Try to extract and log JSON structure if present
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+            if json_match:
+                json_text = json_match.group()
+                parsed_json = json.loads(json_text)
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                    slides = parsed_json['slides']
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {len(slides)}")
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                else:
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+            else:
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+        except Exception as e:
+            logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
 
         yield (json.dumps(done_packet) + "\n").encode()
 
@@ -32600,7 +32910,12 @@ async def create_presentation(request: Request):
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
+        # NEW: Extract voice parameters
+        voice_id = body.get("voiceId")
+        voice_provider = body.get("voiceProvider")
+        
         # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
@@ -32613,6 +32928,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - quality: {quality}")
         logger.info(f"  - resolution: {resolution}")
         logger.info(f"  - project_name: {project_name}")
+        
+        # NEW: Log voice parameters
+        logger.info("🎤 [MAIN_ENDPOINT] Voice parameters received:")
+        logger.info(f"  - voice_id: {voice_id}")
+        logger.info(f"  - voice_provider: {voice_provider}")
+        logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
         
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
@@ -32654,9 +32975,12 @@ async def create_presentation(request: Request):
             layout=layout,
             quality=quality,
             resolution=tuple(resolution),
-            project_name=project_name
+            project_name=project_name,
+            voice_id=voice_id,  # NEW: Pass voice ID
+            voice_provider=voice_provider  # NEW: Pass voice provider
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
+        logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)

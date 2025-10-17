@@ -1618,6 +1618,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      x: 925,       // Right side of slide
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+    }
   },
 
   'work-life-balance-slide': {
@@ -1649,6 +1656,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       accentColor: { type: 'color', label: 'Accent Color', default: '#f35657' },
       companyName: { type: 'text', label: 'Company Name', required: true }
     },
+    avatarPosition: {
+      x: 925,       // Right side of slide
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'  // ✅ White background for avatar video
+    }
   },
 
   'thank-you-slide': {
@@ -1909,6 +1923,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    },
+    avatarPosition: {
+      x: 1690,      // ✅ MEASURED: Top-right profile position
+      y: 40,        // ✅ MEASURED: Top padding position
+      width: 170,   // ✅ MEASURED: Circular profile image width
+      height: 170,  // ✅ MEASURED: Circular profile image height
+      backgroundColor: '#ffffff'
     }
   },
 
@@ -1984,6 +2005,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       rightImagePath: { type: 'image', label: 'Right Side Image' },
       rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
+    },
+    avatarPosition: {
+      x: 925,       // Right side of slide (for large right image)
+      y: 118,       // Vertically centered
+      width: 935,
+      height: 843,
+      backgroundColor: '#ffffff'
     }
   },
 
@@ -2013,6 +2041,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 },
       logoNew: { type: 'image', label: 'Company Logo' }
+    },
+    avatarPosition: {
+      x: 80,        // ✅ Direct CSS padding-left (no scaling - CSS is already in video space 1920×1080)
+      y: 480,       // ✅ MEASURED: Actual rendered position from JavaScript logging (padding 64px + title 386px + gap 30px)
+      width: 784,   // ✅ Direct CSS container width (no scaling)
+      height: 496,  // ✅ Direct CSS container height (no scaling) - Result: 480+496=976px < 1080px ✅
+      backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
     }
   },
 
@@ -2836,7 +2871,22 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     category: 'content',
     icon: '🟩',
     component: DeiMethodsSlideTemplate,
-    defaultProps: {},
+    defaultProps: {
+      headerTitle: 'Methods to Meet DEI Standards',
+      section1Title: 'Diverse Recruitment:',
+      section1Lines: [
+        'Source candidates from underrepresented groups.',
+        'Use blind screening processes to focus on skills and qualifications.'
+      ],
+      section2Title: 'Mentorship and Sponsorship Programs:',
+      section2Lines: [
+        'Mentor and sponsor diverse talent.',
+        'Create opportunities for growth & advancement.'
+      ],
+      avatarPath: '',
+      logoPath: '',
+      logoText: 'Your Logo'
+    },
     propSchema: {
       headerTitle: { type: 'text', label: 'Header Title', required: true },
       section1Title: { type: 'text', label: 'Section 1 Title', required: true },

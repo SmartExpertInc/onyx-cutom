@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CourseOverviewSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import AvatarImageDisplay from '../AvatarImageDisplay';
+import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -136,12 +138,16 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  logoPath = '',
+  pageNumber = '01'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -149,8 +155,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    background: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#ffffff',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -163,7 +169,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, title: newTitle });
     }
   };
 
@@ -171,7 +177,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, subtitle: newSubtitle });
     }
   };
 
@@ -187,67 +193,110 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, imagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, imagePath: newImagePath });
     }
   };
 
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, logoPath: newLogoPath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
   return (
-    <div className="course-overview-slide-template" style={slideStyles}>
+    <div className="course-overview-slide-template inter-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: themeAccent,
+        background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
         position: 'relative',
-        borderTopRightRadius: '50px',
-        borderBottomRightRadius: '50px',
         boxSizing: 'border-box'
       }}>
-        {/* Star icon in top left */}
+
+        {/* Logo in top-left corner - MATCHES HTML */}
         <div style={{
           position: 'absolute',
-          top: '30px',
-          left: '30px',
-          width: '20px',
-          height: '20px',
-          color: themeBg,
-          fontSize: '20px',
-          fontWeight: 'bold'
+          top: '2.5%',
+          left: '2.5%'
         }}>
-          ✦
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={handleLogoUploaded}
+            isEditable={isEditable}
+            color="#ffffff"
+            text="Your Logo"
+          />
         </div>
 
-        {/* Vertical line on left edge */}
+        {/* Page number with line - MATCHES HTML */}
         <div style={{
           position: 'absolute',
+          bottom: '2.5%',
           left: '0',
-          top: '0',
-          width: '2px',
-          height: '100%',
-          background: themeBg
-        }} />
-
-        {/* Page number */}
-        <div style={{
-          position: 'absolute',
-          bottom: '30px',
-          left: '30px',
-          color: themeBg,
-          fontSize: '14px',
-          fontWeight: '300'
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.7%'
         }}>
-          01
+          {/* Small line */}
+          <div style={{
+            width: '1.67%',
+            height: '0.19%',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          }} />
+          {/* Page number */}
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#ffffff',
+                fontSize: '1.4vw',
+                fontWeight: '300',
+                width: 'auto',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#ffffff',
+                fontSize: '1.4vw',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
+            </div>
+          )}
         </div>
 
-        {/* Title and Subtitle - Centered vertically */}
+        {/* Title and Subtitle - Centered vertically - MATCHES HTML */}
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '50px',
+          left: '4.17%',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px'
+          gap: '0.83%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -256,26 +305,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleTitleCancel}
               className="course-overview-title-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                userSelect: 'none',
+                position: 'relative'
               }}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -295,26 +337,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleSubtitleCancel}
               className="course-overview-subtitle-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                userSelect: 'none',
+                position: 'relative'
               }}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingSubtitle(true)}
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '5.26vw',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -329,28 +364,25 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         </div>
       </div>
 
-      {/* Right Panel - Theme background with image */}
+      {/* Right Panel - Theme background with avatar */}
       <div style={{
         width: '55%',
         height: '100%',
-        background: themeBg,
+        backgroundColor: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative'
       }}>
-        <ClickableImagePlaceholder
-          imagePath={imagePath}
-          onImageUploaded={handleImageUploaded}
+        <AvatarImageDisplay
           size="LARGE"
           position="CENTER"
-          description="Course overview image"
-          isEditable={isEditable}
           style={{
             position: 'absolute',
-            bottom: '-27px',
-            height: '530px',
-            borderRadius: '10px'
+            bottom: '-2.24%',
+            height: '91%',
+            width: 'auto',
+            borderRadius: '0.83%'
           }}
         />
       </div>

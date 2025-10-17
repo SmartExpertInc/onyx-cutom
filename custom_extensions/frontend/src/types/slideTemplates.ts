@@ -14,6 +14,14 @@ export interface BaseTemplateProps {
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
+export interface AvatarPosition {
+  x: number;        // X position from left edge (pixels)
+  y: number;        // Y position from top edge (pixels)
+  width: number;    // Avatar width (pixels)
+  height: number;   // Avatar height (pixels)
+  backgroundColor?: string; // Optional background color for the template
+}
+
 export interface TemplateComponentInfo {
   id: string;
   name: string;
@@ -26,6 +34,7 @@ export interface TemplateComponentInfo {
   component: React.ComponentType<any>;
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
+  avatarPosition?: AvatarPosition; // Optional avatar positioning for templates with avatars
 }
 
 export interface PropDefinition {

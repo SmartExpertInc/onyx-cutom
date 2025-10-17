@@ -4345,11 +4345,6 @@ For Ukrainian:
 
 Blank Lines Between Lessons: Ensure EXACTLY one blank line after all details of one lesson before starting the next lesson title (or before a new module separator --- if it's the last lesson of a module).
 
-For LESSON PRESENTATION (SLIDE DECK):
-Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Lesson Title]**
-(Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
-(IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
-
 For VIDEO LESSON SLIDES DECK (with voiceover):
 Universal Product Header: **[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
@@ -4375,13 +4370,6 @@ You are creating high-quality educational presentations designed to teach, engag
 - **Practical Application**: Include real-world examples, use cases, and actionable insights
 - **Visual Learning**: Use strategic image placeholders to enhance comprehension
 - **Engagement**: Create compelling content that maintains learner interest throughout
-
-**BULLET-POINTS EDUCATIONAL STANDARDS:**
-- **COMPREHENSIVE LEARNING**: Every `bullet-points` slide must cover multiple aspects of the topic
-- **DETAILED EXPLANATIONS**: Each bullet point must provide thorough understanding, not just surface-level information
-- **PRACTICAL VALUE**: Every point must include actionable insights learners can implement immediately
-- **EDUCATIONAL DEPTH**: Aim for 6-7 list items to ensure comprehensive topic coverage
-- **QUALITY OVER QUANTITY**: Better to have 5 detailed points than 7 shallow ones, but NEVER fewer than 5
 
 Content Structure:
 

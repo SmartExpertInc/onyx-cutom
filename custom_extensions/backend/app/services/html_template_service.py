@@ -212,11 +212,41 @@ class HTMLTemplateService:
                 logger.info(f"")
             
             # Render the template
-            logger.info(f"🔍 [TEXT_POSITIONING_DEBUG] === RENDERING TEMPLATE ===")
+            logger.info(f"🔍 [TEMPLATE_RENDER] === RENDERING TEMPLATE ===")
+            logger.info(f"🔍 [TEMPLATE_RENDER] Theme being applied: {theme}")
+            logger.info(f"🔍 [TEMPLATE_RENDER] Template ID: {template_id}")
+            
             html_content = template.render(**context_data)
             
             logger.info(f"🎬 [HTML_TEMPLATE] HTML content generated successfully")
             logger.info(f"🎬 [HTML_TEMPLATE] HTML content length: {len(html_content)} characters")
+            
+            # CRITICAL: Verify theme class is in the rendered HTML
+            logger.info(f"🔍 [THEME_VERIFICATION] === THEME CLASS VERIFICATION ===")
+            if f'theme-{theme}' in html_content:
+                logger.info(f"🔍 [THEME_VERIFICATION] ✅ Theme class 'theme-{theme}' found in HTML")
+            else:
+                logger.error(f"🔍 [THEME_VERIFICATION] ❌ Theme class 'theme-{theme}' NOT found in HTML")
+                logger.error(f"🔍 [THEME_VERIFICATION] This will cause CSS variables to be undefined!")
+            
+            # Verify CSS variables are defined
+            if '--bg-color:' in html_content:
+                logger.info(f"🔍 [THEME_VERIFICATION] ✅ CSS variables (--bg-color) defined in HTML")
+            else:
+                logger.warning(f"🔍 [THEME_VERIFICATION] ⚠️ CSS variables may not be defined")
+            
+            # Verify body tag has theme class
+            import re
+            body_tag_match = re.search(r'<body[^>]*>', html_content)
+            if body_tag_match:
+                body_tag = body_tag_match.group(0)
+                logger.info(f"🔍 [THEME_VERIFICATION] Body tag: {body_tag}")
+                if f'theme-{theme}' in body_tag:
+                    logger.info(f"🔍 [THEME_VERIFICATION] ✅ Body tag has theme class!")
+                else:
+                    logger.error(f"🔍 [THEME_VERIFICATION] ❌ Body tag missing theme class!")
+            else:
+                logger.warning(f"🔍 [THEME_VERIFICATION] Could not find body tag")
             
             # CRITICAL: Log the raw HTML to check for positioning CSS injection
             logger.info(f"🔍 [TEXT_POSITIONING_DEBUG] === INJECTION FAILURE CHECK ===")

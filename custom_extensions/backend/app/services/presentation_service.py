@@ -40,6 +40,9 @@ class PresentationRequest:
     quality: str = "high"  # high, medium, low
     resolution: tuple = (1920, 1080)
     project_name: str = "Generated Presentation"
+    # NEW: Voice parameters
+    voice_id: Optional[str] = None  # Voice ID from Elai API
+    voice_provider: Optional[str] = None  # Voice provider (azure, elevenlabs, etc.)
 
 @dataclass
 class PresentationJob:
@@ -182,6 +185,14 @@ class ProfessionalPresentationService:
         try:
             job_id = str(uuid.uuid4())
             
+            # Log voice parameters
+            logger.info("🎤 [PRESENTATION_SERVICE] ========== PRESENTATION CREATION STARTED ==========")
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Job ID: {job_id}")
+            logger.info("🎤 [PRESENTATION_SERVICE] Voice parameters received:")
+            logger.info(f"  - voice_id: {request.voice_id}")
+            logger.info(f"  - voice_provider: {request.voice_provider}")
+            logger.info("🎤 [PRESENTATION_SERVICE] ========== VOICE PARAMETERS LOGGED ==========")
+            
             # Create job tracking
             job = PresentationJob(
                 job_id=job_id,
@@ -278,6 +289,12 @@ class ProfessionalPresentationService:
             logger.info(f"  - Avatar Code: {request.avatar_code}")
             logger.info(f"  - Voiceover Texts Count: {len(request.voiceover_texts)}")
             logger.info(f"  - Slides Data Provided: {bool(request.slides_data)}")
+            
+            # Log voice parameters
+            logger.info("🎤 [PRESENTATION_PROCESSING] Voice parameters:")
+            logger.info(f"  - Voice ID: {request.voice_id}")
+            logger.info(f"  - Voice Provider: {request.voice_provider}")
+            logger.info("🎤 [PRESENTATION_PROCESSING] ========== VOICE PARAMETERS LOGGED ==========")
             
             if request.slides_data:
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Slides data analysis:")
@@ -513,7 +530,9 @@ class ProfessionalPresentationService:
                 request.voiceover_texts,
                 request.avatar_code,
                 request.duration,
-                request.use_avatar_mask
+                request.use_avatar_mask,
+                voice_id=request.voice_id,
+                voice_provider=request.voice_provider
             )
             self._update_job_status(job_id, progress=60.0)
             
@@ -524,11 +543,19 @@ class ProfessionalPresentationService:
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
             
+            # Extract avatar position from slide data if available
+            avatar_position = slide_data.get('avatarPosition')
+            if avatar_position:
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Using custom avatar position from template: {avatar_position}")
+            else:
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] No custom avatar position, using default")
+            
             composition_config = CompositionConfig(
                 output_path=str(output_path),
                 resolution=request.resolution,
                 quality=request.quality,
-                layout=request.layout
+                layout=request.layout,
+                avatar_position=avatar_position  # Pass custom avatar position if available
             )
             
             final_video_path = await video_composer_service.compose_presentation(
@@ -627,7 +654,9 @@ class ProfessionalPresentationService:
                     request.use_avatar_mask,
                     job_id,
                     base_progress + 10,  # Start progress
-                    base_progress + 30   # End progress
+                    base_progress + 30,  # End progress
+                    voice_id=request.voice_id,
+                    voice_provider=request.voice_provider
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
@@ -641,11 +670,19 @@ class ProfessionalPresentationService:
                 self._update_job_status(job_id, progress=composition_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
+                # Extract avatar position from slide data if available
+                avatar_position = slide_data.get('avatarPosition')
+                if avatar_position:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1}: Using custom avatar position from template: {avatar_position}")
+                else:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1}: No custom avatar position, using default")
+                
                 composition_config = CompositionConfig(
                     output_path=individual_output_path,
                     resolution=request.resolution,
                     quality=request.quality,
-                    layout=request.layout
+                    layout=request.layout,
+                    avatar_position=avatar_position  # Pass custom avatar position if available
                 )
                 
                 individual_video_path = await video_composer_service.compose_presentation(
@@ -856,7 +893,18 @@ class ProfessionalPresentationService:
             logger.error(f"Error getting available avatar: {str(e)}")
             return "anna"  # Final fallback
     
-    async def _generate_avatar_video_with_progress(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float, use_avatar_mask: bool, job_id: str, start_progress: float, end_progress: float) -> str:
+    async def _generate_avatar_video_with_progress(
+        self, 
+        voiceover_texts: List[str], 
+        avatar_code: Optional[str], 
+        duration: float, 
+        use_avatar_mask: bool, 
+        job_id: str, 
+        start_progress: float, 
+        end_progress: float,
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None
+    ) -> str:
         """
         Generate avatar video using Elai API with progress updates.
         
@@ -881,10 +929,13 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Auto-selected avatar: {avatar_code}")
             
             # Create video with Elai API
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Calling video generation with voice parameters: voice_id={voice_id}, voice_provider={voice_provider}")
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
                 voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
+                avatar_code=avatar_code,
+                voice_id=voice_id,
+                voice_provider=voice_provider
             )
             
             if not result["success"]:
@@ -923,7 +974,15 @@ class ProfessionalPresentationService:
             logger.error(f"Avatar video generation with progress failed: {e}")
             raise
 
-    async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float, use_avatar_mask: bool = True) -> str:
+    async def _generate_avatar_video(
+        self, 
+        voiceover_texts: List[str], 
+        avatar_code: Optional[str], 
+        duration: float, 
+        use_avatar_mask: bool = True,
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None
+    ) -> str:
         """
         Generate avatar video using Elai API.
         
@@ -931,6 +990,9 @@ class ProfessionalPresentationService:
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use (None for auto-selection)
             duration: Video duration
+            use_avatar_mask: Whether to use avatar mask service
+            voice_id: Optional voice ID from Elai API
+            voice_provider: Optional voice provider (azure, elevenlabs, etc.)
             
         Returns:
             Path to generated avatar video
@@ -956,7 +1018,12 @@ class ProfessionalPresentationService:
             # Video composition will be handled by SimpleVideoComposer (not avatar mask service)
             logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using traditional Elai API generation")
             logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Video composition will use SimpleVideoComposer (OpenCV)")
-            return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
+            return await self._generate_with_traditional_method(
+                voiceover_texts, 
+                avatar_code,
+                voice_id=voice_id,
+                voice_provider=voice_provider
+            )
             
         except Exception as e:
             logger.error(f"Avatar video generation failed: {e}")
@@ -1007,13 +1074,21 @@ class ProfessionalPresentationService:
             logger.error(f"Avatar mask service failed: {str(e)}")
             raise
     
-    async def _generate_with_traditional_method(self, voiceover_texts: List[str], avatar_code: str) -> str:
+    async def _generate_with_traditional_method(
+        self, 
+        voiceover_texts: List[str], 
+        avatar_code: str,
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None
+    ) -> str:
         """
         Generate avatar video using traditional method (Elai API + FFmpeg).
         
         Args:
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use
+            voice_id: Optional voice ID from Elai API
+            voice_provider: Optional voice provider (azure, elevenlabs, etc.)
             
         Returns:
             Path to generated avatar video
@@ -1025,7 +1100,12 @@ class ProfessionalPresentationService:
             # Try with the specified avatar first
             try:
                 logger.info("🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Calling _try_generate_with_avatar...")
-                avatar_video_path = await self._try_generate_with_avatar(voiceover_texts, avatar_code)
+                avatar_video_path = await self._try_generate_with_avatar(
+                    voiceover_texts, 
+                    avatar_code,
+                    voice_id=voice_id,
+                    voice_provider=voice_provider
+                )
                 logger.info(f"🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Traditional method completed: {avatar_video_path}")
                 return avatar_video_path
             except Exception as first_error:
@@ -1036,7 +1116,12 @@ class ProfessionalPresentationService:
                 try:
                     # Use a known working avatar as fallback
                     fallback_avatar = "mikhailo"  # This avatar should have a valid canvas
-                    avatar_video_path = await self._try_generate_with_avatar(voiceover_texts, fallback_avatar)
+                    avatar_video_path = await self._try_generate_with_avatar(
+                        voiceover_texts, 
+                        fallback_avatar,
+                        voice_id=voice_id,
+                        voice_provider=voice_provider
+                    )
                     logger.info(f"Successfully generated video with fallback avatar '{fallback_avatar}'")
                     return avatar_video_path
                 except Exception as fallback_error:
@@ -1047,23 +1132,34 @@ class ProfessionalPresentationService:
             logger.error(f"Traditional avatar generation failed: {str(e)}")
             raise
     
-    async def _try_generate_with_avatar(self, voiceover_texts: List[str], avatar_code: str) -> str:
+    async def _try_generate_with_avatar(
+        self, 
+        voiceover_texts: List[str], 
+        avatar_code: str,
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None
+    ) -> str:
         """
         Try to generate avatar video with a specific avatar.
         
         Args:
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use
+            voice_id: Optional voice ID from Elai API
+            voice_provider: Optional voice provider (azure, elevenlabs, etc.)
             
         Returns:
             Path to generated avatar video
         """
         try:
             # Create video with Elai API
+            logger.info(f"🎤 [PRESENTATION_SERVICE] Calling video generation with voice parameters: voice_id={voice_id}, voice_provider={voice_provider}")
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
                 voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
+                avatar_code=avatar_code,
+                voice_id=voice_id,
+                voice_provider=voice_provider
             )
             
             if not result["success"]:

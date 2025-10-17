@@ -8,6 +8,8 @@ import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
 import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
+import { useVoice } from '@/contexts/VoiceContext';
+import { SLIDE_TEMPLATE_REGISTRY } from '@/components/templates/registry';
 
 interface EmailInput {
   id: string;
@@ -54,6 +56,9 @@ export default function VideoEditorHeader({
   // Use global avatar context instead of local state
   const { defaultAvatar } = useAvatarDisplay();
   
+  // Use global voice context
+  const { selectedVoice } = useVoice();
+  
   // Debug logging for avatar context
   useEffect(() => {
     console.log('🎬 [VIDEO_GENERATION] Avatar context updated:', {
@@ -64,6 +69,19 @@ export default function VideoEditorHeader({
       variantCode: defaultAvatar?.selectedVariant?.code
     });
   }, [defaultAvatar]);
+
+  // Debug logging for voice context
+  useEffect(() => {
+    console.log('🎤 [VIDEO_GENERATION] Voice context updated:', {
+      hasSelectedVoice: !!selectedVoice,
+      voiceCharacter: selectedVoice?.character,
+      voiceId: selectedVoice?.voice,
+      voiceProvider: selectedVoice?.voiceProvider,
+      voiceLocale: selectedVoice?.locale,
+      voicePremium: selectedVoice?.premium
+    });
+  }, [selectedVoice]);
+  
   
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
@@ -176,6 +194,24 @@ export default function VideoEditorHeader({
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
     console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
+    // Helper function to attach avatar position from template registry to slides
+    const attachAvatarPositionsToSlides = (slides: any[]) => {
+      return slides.map(slide => {
+        const templateId = slide.templateId;
+        if (templateId) {
+          const template = SLIDE_TEMPLATE_REGISTRY[templateId];
+          if (template?.avatarPosition) {
+            console.log(`🎬 [AVATAR_POSITION] Attaching avatar position for template ${templateId}:`, template.avatarPosition);
+            return {
+              ...slide,
+              avatarPosition: template.avatarPosition
+            };
+          }
+        }
+        return slide;
+      });
+    };
+    
     try {
       // First try to get data from componentBasedSlideDeck (newer structure)
       if (componentBasedSlideDeck?.slides && componentBasedSlideDeck.slides.length > 0) {
@@ -188,8 +224,11 @@ export default function VideoEditorHeader({
         
         console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck:', voiceoverTexts);
         
+        // Attach avatar positions from template registry
+        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(componentBasedSlideDeck.slides);
+        
         return {
-          slides: componentBasedSlideDeck.slides,
+          slides: slidesWithAvatarPositions,
           theme: componentBasedSlideDeck.theme || 'dark-purple',
           voiceoverTexts: voiceoverTexts
         };
@@ -206,8 +245,11 @@ export default function VideoEditorHeader({
         
         console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from videoLessonData:', voiceoverTexts);
         
+        // Attach avatar positions from template registry
+        const slidesWithAvatarPositions = attachAvatarPositionsToSlides(videoLessonData.slides);
+        
         return {
-          slides: videoLessonData.slides,
+          slides: slidesWithAvatarPositions,
           theme: videoLessonData.theme || 'dark-purple',
           voiceoverTexts: voiceoverTexts
         };
@@ -466,6 +508,16 @@ export default function VideoEditorHeader({
       console.log('🎬 [VIDEO_GENERATION] Voiceover texts count:', slideData.voiceoverTexts.length);
 
       // Create the request payload
+      console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION STARTED ==========');
+      console.log('🎤 [VIDEO_GENERATION] Voice data for payload:', {
+        hasSelectedVoice: !!selectedVoice,
+        voiceCharacter: selectedVoice?.character,
+        voiceId: selectedVoice?.voice,
+        voiceProvider: selectedVoice?.voiceProvider,
+        voiceLocale: selectedVoice?.locale,
+        voicePremium: selectedVoice?.premium
+      });
+      
       const requestPayload = {
         projectName: videoTitle || 'Generated Video',
         voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
@@ -474,24 +526,45 @@ export default function VideoEditorHeader({
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
+        voiceId: selectedVoice?.voice || null,  // Add selected voice ID
+        voiceProvider: selectedVoice?.voiceProvider || null,  // Add voice provider
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
         quality: 'high',
         resolution: [1920, 1080]
       };
+      
+      console.log('🎤 [VIDEO_GENERATION] Final request payload:', {
+        projectName: requestPayload.projectName,
+        voiceoverTextsCount: requestPayload.voiceoverTexts.length,
+        slidesDataCount: requestPayload.slidesData.length,
+        theme: requestPayload.theme,
+        avatarCode: requestPayload.avatarCode,
+        voiceId: requestPayload.voiceId,
+        voiceProvider: requestPayload.voiceProvider,
+        useAvatarMask: requestPayload.useAvatarMask,
+        layout: requestPayload.layout,
+        duration: requestPayload.duration,
+        quality: requestPayload.quality,
+        resolution: requestPayload.resolution
+      });
+      console.log('🎤 [VIDEO_GENERATION] ========== PAYLOAD CONSTRUCTION COMPLETED ==========');
+      
 
-              console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
+      console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
 
-        // Additional debugging for the request payload
-        console.log('🎬 [VIDEO_GENERATION] Final request payload:', {
-          projectName: requestPayload.projectName,
-          voiceoverTextsCount: requestPayload.voiceoverTexts.length,
-          voiceoverTexts: requestPayload.voiceoverTexts,
-          slidesCount: requestPayload.slidesData.length,
-          theme: requestPayload.theme,
-          avatarCode: requestPayload.avatarCode
-        });
+      // Additional debugging for the request payload
+      console.log('🎬 [VIDEO_GENERATION] Final request payload:', {
+        projectName: requestPayload.projectName,
+        voiceoverTextsCount: requestPayload.voiceoverTexts.length,
+        voiceoverTexts: requestPayload.voiceoverTexts,
+        slidesCount: requestPayload.slidesData.length,
+        theme: requestPayload.theme,
+        avatarCode: requestPayload.avatarCode,
+        voiceId: requestPayload.voiceId,
+        voiceProvider: requestPayload.voiceProvider
+      });
 
       // Create presentation
       console.log('🎬 [VIDEO_GENERATION] Making API request to:', `${CUSTOM_BACKEND_URL}/presentations`);

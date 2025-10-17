@@ -894,6 +894,61 @@ export default function LessonPresentationClient() {
     if (jsonConvertedRef.current) return;
     const json = tryParsePresentationJson(content);
     if (json) {
+      // 🔍 CRITICAL DEBUG: Log the raw AI response from API before conversion
+      console.log("🔍 [AI_API_RESPONSE] Raw AI response received:");
+      console.log("🔍 [AI_API_RESPONSE] Response length:", content.length, "characters");
+      console.log("🔍 [AI_API_RESPONSE] Full JSON response:", content);
+      
+      // 🔍 CRITICAL DEBUG: Log parsed JSON structure
+      try {
+        const parsedJson = JSON.parse(content);
+        console.log("🔍 [AI_API_RESPONSE] Parsed JSON structure:");
+        console.log("🔍 [AI_API_RESPONSE] JSON keys:", Object.keys(parsedJson));
+        console.log("🔍 [AI_API_RESPONSE] lessonTitle:", parsedJson.lessonTitle);
+        console.log("🔍 [AI_API_RESPONSE] hasVoiceover:", parsedJson.hasVoiceover);
+        console.log("🔍 [AI_API_RESPONSE] detectedLanguage:", parsedJson.detectedLanguage);
+        console.log("🔍 [AI_API_RESPONSE] Number of slides:", parsedJson.slides?.length);
+        
+        // 🔍 CRITICAL DEBUG: Log each slide from AI response
+        if (Array.isArray(parsedJson.slides)) {
+          console.log("🔍 [AI_API_RESPONSE] === SLIDES FROM AI API ===");
+          parsedJson.slides.forEach((slide: any, index: number) => {
+            console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1}:`, {
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber,
+              slideTitle: slide.slideTitle,
+              templateId: slide.templateId,
+              hasVoiceover: !!slide.voiceoverText,
+              propsKeys: Object.keys(slide.props || {}),
+            });
+            
+            // Log specific template props
+            if (slide.templateId === 'course-overview-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [course-overview-slide] props:`, {
+                title: slide.props?.title,
+                subtitle: slide.props?.subtitle,
+                imagePath: slide.props?.imagePath,
+              });
+            } else if (slide.templateId === 'impact-statements-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [impact-statements-slide] statements:`, slide.props?.statements);
+            } else if (slide.templateId === 'phishing-definition-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [phishing-definition-slide] definitions:`, slide.props?.definitions);
+            } else if (slide.templateId === 'soft-skills-assessment-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [soft-skills-assessment-slide] tips:`, slide.props?.tips);
+            } else if (slide.templateId === 'work-life-balance-slide') {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} [work-life-balance-slide] content:`, slide.props?.content?.substring(0, 100) + '...');
+            }
+            
+            if (slide.voiceoverText) {
+              console.log(`🔍 [AI_API_RESPONSE] Slide ${index + 1} voiceover:`, slide.voiceoverText.substring(0, 100) + '...');
+            }
+          });
+          console.log("🔍 [AI_API_RESPONSE] === END SLIDES FROM AI API ===");
+        }
+      } catch (e) {
+        console.error("🔍 [AI_API_RESPONSE] Failed to parse JSON:", e);
+      }
+      
       const md = convertPresentationJsonToMarkdown(json);
       if (md && md.trim()) {
         jsonConvertedRef.current = true;

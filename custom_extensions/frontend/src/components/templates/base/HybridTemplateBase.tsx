@@ -29,6 +29,7 @@ interface HybridTemplateProps extends BaseTemplateProps {
   theme?: SlideTheme;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   children?: React.ReactNode;
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
@@ -41,7 +42,8 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   isEditable = false,
   onUpdate,
   onSlideUpdate,
-  children
+  children,
+  isVideoMode = false
 }) => {
   const [currentItems, setCurrentItems] = useState<PositionableItem[]>(items);
   const [currentCanvasConfig, setCurrentCanvasConfig] = useState<CanvasConfig>(
@@ -261,16 +263,15 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   // FIXED: Use more flexible positioning that doesn't interfere with slide flow
   return (
     <div 
-      className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''}`}
+      className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''} ${isVideoMode ? 'video-mode' : ''}`}
       style={{
         // Use max-width and max-height instead of fixed dimensions to allow natural flow
-        maxWidth: currentCanvasConfig.width,
-        width: '100%',
+        width: isVideoMode ? '80%' : '100%',
         height: 'auto',
-        minHeight: '600px', // Ensure minimum height for consistency
+        minHeight: isVideoMode ? 'auto' : '600px', // No minHeight in video mode
         position: 'relative',
         // Ensure the wrapper doesn't interfere with slide spacing
-        margin: 0,
+        margin: isVideoMode ? '0 auto' : 0,
         padding: 0,
         display: 'block'
       }}

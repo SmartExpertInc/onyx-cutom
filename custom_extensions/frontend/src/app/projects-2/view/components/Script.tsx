@@ -7,6 +7,8 @@ import DictionaryModal from './DictionaryModal';
 // NEW: Import Video Lesson types
 import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+// Import Voice Context
+import { useVoice } from '@/contexts/VoiceContext';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
@@ -25,6 +27,9 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playTime, setPlayTime] = useState(0);
+  
+  // Get selected voice from context
+  const { selectedVoice } = useVoice();
   // Get current slide data from either structure
   const currentSlide = componentBasedSlideDeck 
     ? componentBasedSlideDeck.slides?.find(s => s.slideId === currentSlideId)
@@ -33,13 +38,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   // Use voiceover text from current slide or fallback to placeholder
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
   
-  const [scriptContent, setScriptContent] = useState(defaultPlaceholder);
-  
   // Function to handle script content changes
   const handleScriptContentChange = (newContent: string) => {
-    setScriptContent(newContent);
-    
-    // Save changes back to video lesson data if we have the necessary props
+    // Save changes directly to parent without updating local state
+    // This prevents re-renders that would reset cursor position
     if (onTextChange && currentSlide) {
       if (componentBasedSlideDeck?.slides) {
         // Handle component-based slide deck
@@ -102,23 +104,17 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     };
   }, [isPlaying]);
 
-  // Update script content when current slide changes
+  // Update text content when current slide changes (using ref to avoid re-renders)
   useEffect(() => {
-    if (currentSlide?.voiceoverText) {
-      setScriptContent(currentSlide.voiceoverText);
-    } else {
-      setScriptContent(defaultPlaceholder);
+    if (textAreaRef.current) {
+      const newContent = currentSlide?.voiceoverText || defaultPlaceholder;
+      
+      // Only update if content actually changed to avoid unnecessary DOM updates
+      if (textAreaRef.current.textContent !== newContent) {
+        textAreaRef.current.textContent = newContent;
+      }
     }
-  }, [currentSlide?.voiceoverText, defaultPlaceholder]);
-
-  // Update script content when video lesson data or current slide ID changes
-  useEffect(() => {
-    if (currentSlide?.voiceoverText) {
-      setScriptContent(currentSlide.voiceoverText);
-    } else {
-      setScriptContent(defaultPlaceholder);
-    }
-  }, [videoLessonData, componentBasedSlideDeck, currentSlideId, currentSlide, defaultPlaceholder]);
+  }, [currentSlide?.voiceoverText, currentSlideId, defaultPlaceholder]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
@@ -126,7 +122,6 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   console.log('Script - currentSlideId:', currentSlideId);
   console.log('Script - currentSlide:', currentSlide);
   console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
-  console.log('Script - scriptContent:', scriptContent);
 
   // Play handler
   const handlePlay = () => {
@@ -207,7 +202,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     }
   };
   return (
-    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full">
+    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full script-container">
+      <style>{`
+        .script-container button {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+      `}</style>
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-start justify-start p-8 pb-20">
 
@@ -216,8 +219,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           {/* Avatar Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
-              onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                window.getSelection()?.removeAllRanges();
+              }}
+              onClick={() => {
+                setIsAvatarDropdownOpen(!isAvatarDropdownOpen);
+              }}
               className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              style={{ userSelect: 'none' }}
             >
               <User size={20} className="text-gray-700" />
               <ChevronDown size={16} className="text-gray-500" />
@@ -267,16 +277,28 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             )}
           </div>
 
-          {/* Language/User Selector Button */}
+          {/* Voice Selector Button */}
           <div className="relative w-full sm:w-auto">
             <button
-              onClick={() => setIsLanguageModalOpen(true)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                window.getSelection()?.removeAllRanges();
+              }}
+              onClick={() => {
+                setIsLanguageModalOpen(true);
+              }}
               className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
+              style={{ userSelect: 'none' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
                 <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
               </svg>
-              <span className="text-sm font-medium text-gray-700">US - Leesa</span>
+              <span className="text-sm font-medium text-gray-700">
+                {selectedVoice 
+                  ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
+                  : 'Select Voice'
+                }
+              </span>
             </button>
           </div>
         </div>
@@ -289,8 +311,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             suppressContentEditableWarning
             className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
             style={{ whiteSpace: 'pre-wrap', height: '200px' }}
-            dangerouslySetInnerHTML={{ __html: scriptContent }}
-            onInput={(e) => handleScriptContentChange(e.currentTarget.innerHTML)}
+            onInput={(e) => handleScriptContentChange(e.currentTarget.textContent || '')}
           />
         </div>
       </div>
@@ -320,8 +341,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* AI Button */}
         <div className="relative group" ref={aiButtonRef}>
           <button 
-            onClick={handleAiButtonClick}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              window.getSelection()?.removeAllRanges();
+            }}
+            onClick={() => {
+              handleAiButtonClick();
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+            style={{ userSelect: 'none' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Zm8.446-7.189L18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Zm-1.365 11.852L16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183l.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>
@@ -337,8 +365,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Pause Button */}
         <div className="relative group" ref={pausePopupRef}>
           <button 
-            onClick={() => setIsPausePopupOpen(!isPausePopupOpen)}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              window.getSelection()?.removeAllRanges();
+            }}
+            onClick={() => {
+              setIsPausePopupOpen(!isPausePopupOpen);
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+            style={{ userSelect: 'none' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
@@ -407,8 +442,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Move Button */}
         <div className="relative group">
           <button 
-            onClick={insertMoveMarker}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              window.getSelection()?.removeAllRanges();
+            }}
+            onClick={() => {
+              insertMoveMarker();
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+            style={{ userSelect: 'none' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" className="text-gray-700">
               <circle cx="18" cy="12" r="4" stroke="currentColor" strokeWidth="2"/>
@@ -437,8 +479,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
         {/* Translate Button */}
         <div className="relative group">
           <button 
-            onClick={() => setIsDictionaryModalOpen(true)}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              window.getSelection()?.removeAllRanges();
+            }}
+            onClick={() => {
+              setIsDictionaryModalOpen(true);
+            }}
             className="flex items-center justify-center w-8 h-8 hover:bg-gray-100 rounded-lg transition-colors border-none"
+            style={{ userSelect: 'none' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
               <path fill="currentColor" d="m239.15 212.42l-56-112a8 8 0 0 0-14.31 0l-21.71 43.43A88 88 0 0 1 100 126.93A103.65 103.65 0 0 0 127.69 64H152a8 8 0 0 0 0-16H96V32a8 8 0 0 0-16 0v16H24a8 8 0 0 0 0 16h87.63A87.76 87.76 0 0 1 88 116.35a87.74 87.74 0 0 1-19-31a8 8 0 1 0-15.08 5.34A103.63 103.63 0 0 0 76 127a87.55 87.55 0 0 1-52 17a8 8 0 0 0 0 16a103.46 103.46 0 0 0 64-22.08a104.18 104.18 0 0 0 51.44 21.31l-26.6 53.19a8 8 0 0 0 14.31 7.16L140.94 192h70.11l13.79 27.58A8 8 0 0 0 232 224a8 8 0 0 0 7.15-11.58ZM148.94 176L176 121.89L203.05 176Z"/>

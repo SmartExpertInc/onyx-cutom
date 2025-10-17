@@ -14,6 +14,7 @@ interface ComponentBasedSlideRendererProps {
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -23,7 +24,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   onTemplateChange,
   theme,
   deckTemplateVersion,
-  getPlaceholderGenerationState
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
@@ -145,6 +147,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           isEditable={isEditable}
           onUpdate={handlePropsUpdate}
           onSlideUpdate={onSlideUpdate}
+          isVideoMode={isVideoMode}
         >
           <TemplateComponent {...templateProps} />
         </HybridTemplateBase>
@@ -180,6 +183,7 @@ interface ComponentBasedSlideDeckRendererProps {
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -190,7 +194,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   onTemplateChange,
   theme,
   deckTemplateVersion,
-  getPlaceholderGenerationState
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -222,6 +227,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             theme={theme}
             deckTemplateVersion={deckTemplateVersion}
             getPlaceholderGenerationState={getPlaceholderGenerationState}
+            isVideoMode={isVideoMode}
           />
         </div>
       ))}
