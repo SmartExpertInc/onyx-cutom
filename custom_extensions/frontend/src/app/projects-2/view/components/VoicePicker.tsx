@@ -850,34 +850,34 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {tempSelectedVoice ? (
               <>
                 {/* Row 1: Voice name title */}
-                <div className="mb-2">
+            <div className="mb-2">
                   <h3 className="text-xl text-gray-900">{tempSelectedVoice.character}</h3>
-                </div>
-                
+            </div>
+            
                 {/* Row 2: Flag + locale */}
                 {tempSelectedVoice.name && (
-                  <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3">
                     {tempSelectedVoice.icon === 'us' && <AmericanFlag size={16} />}
                     {tempSelectedVoice.icon === 'gb' && <BritishFlag size={16} />}
                     {tempSelectedVoice.icon === 'au' && <AustralianFlag size={16} />}
                     <span className="text-xs text-gray-700">{tempSelectedVoice.name}</span>
-                  </div>
+            </div>
                 )}
-                
-                {/* Row 3: Badges */}
+            
+            {/* Row 3: Badges */}
                 {tempSelectedVoice.tags && tempSelectedVoice.tags.length > 0 && (
-                  <div className="mb-3">
-                    <div className="flex flex-wrap gap-2">
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2">
                       {tempSelectedVoice.tags.map((tag, index) => (
-                        <span
+                  <span
                           key={index}
-                          className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
-                        >
+                    className="px-2 py-1 bg-gray-50 text-gray-600 text-[10px] rounded-full border border-gray-300"
+                  >
                           {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  </span>
+                ))}
+              </div>
+            </div>
                 )}
               </>
             ) : (
@@ -934,11 +934,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               >
-                <Volume2 size={16} className="text-gray-700" />
+              <Volume2 size={16} className="text-gray-700" />
                 <span className="text-sm font-medium text-gray-700">
                   {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
                 </span>
-              </button>
+            </button>
             )}
           </div>
         </div>
@@ -993,8 +993,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             >
               Cancel
             </button>
-             <button
-               onClick={() => {
+            <button
+              onClick={() => {
                  if (tempSelectedVoice) {
                    console.log('🎤 [VOICE_PICKER] ========== APPLY VOICE STARTED ==========');
                    console.log('🎤 [VOICE_PICKER] Applying voice to global context:', {
@@ -1013,13 +1013,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                  } else {
                    console.warn('🎤 [VOICE_PICKER] ⚠️ No voice selected to apply');
                  }
-                 onClose();
-               }}
-               className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                onClose();
+              }}
+              className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
                disabled={!tempSelectedVoice}
-             >
-               Apply voice
-             </button>
+            >
+              Apply voice
+            </button>
           </div>
         </div>
       </div>
