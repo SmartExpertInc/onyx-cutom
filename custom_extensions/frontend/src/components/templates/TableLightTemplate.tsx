@@ -397,9 +397,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  textAlign: 'center',
+                  verticalAlign: 'middle',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
                   maxWidth: '50px'
@@ -488,11 +487,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 {isEditable && (
                   <td style={{ 
                     ...dataCellStyles, 
-                    textAlign: 'center', 
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
                     position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
                     maxWidth: '50px'
@@ -522,11 +519,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 <td style={{ 
                   ...firstColumnStyles, 
                   textAlign: 'center',
+                  verticalAlign: 'middle',
                   borderRight: '1px solid #E0E0E0',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  position: 'relative'
                 }}>
                   <button
                     onClick={addRow}

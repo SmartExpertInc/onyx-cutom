@@ -564,9 +564,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  textAlign: 'center',
+                  verticalAlign: 'middle',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
                   maxWidth: '50px'
@@ -677,11 +676,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   {isEditable && (
                   <td style={{ 
                     ...dataCellStyles, 
-                    textAlign: 'center', 
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
                     position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
                     maxWidth: '50px'
@@ -711,10 +708,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <td style={{ 
                   ...firstColumnStyles, 
                   textAlign: 'center',
+                  verticalAlign: 'middle',
                   position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   borderBottomLeftRadius: '15px',
                   borderBottomRightRadius: '15px'
                 }}>
