@@ -296,7 +296,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.83%'
+          gap: '2.5%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
