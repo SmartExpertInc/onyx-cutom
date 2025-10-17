@@ -117,7 +117,7 @@ export default function UploadFilesPage() {
       />
 
       {/* Main content */}
-      <div className="w-full max-w-2xl flex flex-col gap-8 items-center relative z-10 mt-20">
+      <div className="w-full max-w-2xl flex flex-col gap-6 items-center relative z-10 mt-20">
         {/* Title */}
         <p className="text-2xl text-center text-[#FAFAFA]">
           {t('interface.fromFiles.importWithAI', 'Import with AI')}
@@ -125,7 +125,7 @@ export default function UploadFilesPage() {
 
         {/* Upload area */}
         <div 
-          className={`w-full bg-white rounded-lg border-[#E0E0E0] flex flex-col min-h-[60px] cursor-pointer transition-colors ${
+          className={`w-full mb-4 bg-white rounded-sm shadow-lg border-[#E0E0E0] flex flex-col min-h-[45px] cursor-pointer transition-colors ${
             isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
           } ${uploadedFiles.length === 0 ? 'items-center justify-center' : ''}`}
           onDragOver={handleDragOver}
@@ -141,14 +141,14 @@ export default function UploadFilesPage() {
             uploadedFiles.map((file, index) => (
               <div
                 key={file.id}
-                className={`flex items-center justify-between px-4 py-3 ${
+                className={`flex items-center justify-between px-8 py-3 ${
                   index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
                 }`}
               >
                 <span className="text-gray-700 font-medium">
                   {file.name}
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-6">
                   <span className="text-gray-500 font-medium">{file.extension}</span>
                   <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
                 </div>
