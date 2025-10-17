@@ -4834,7 +4834,7 @@ export default function DynamicAuditLandingPage() {
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      {getLocalizedText(language, {
+                      {getLocalizedText(landingPageData?.language, {
                         en: 'AI capabilities:',
                         es: 'Capacidades de IA:',
                         ua: 'Возможности ИИ:',
