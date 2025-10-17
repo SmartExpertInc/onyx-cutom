@@ -478,22 +478,25 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const handleRenameSubmit = async () => {
 		if (!itemToRename || !newItemName.trim()) return;
 		const p = itemToRename;
-		const base = p.split('/').slice(0, -1).join('/') || '/';
-		const old = p.split('/').pop() || '';
+		const pathParts = p.split('/').filter(part => part.length > 0);
+		const base = pathParts.slice(0, -1).join('/');
+		const old = pathParts[pathParts.length - 1] || '';
+		
 		if (newItemName === old) {
 			setRenameModalOpen(false);
 			return;
 		}
 		setIsRenaming(true);
 		try {
-			const to = `${base}${base.endsWith('/') ? '' : '/'}${newItemName}`;
+			// Construct the target path more carefully
+			const to = base ? `/${base}/${newItemName}` : `/${newItemName}`;
 			
 			// Debug logging
-			console.log('Rename attempt:', { from: p, to, base, newName: newItemName });
+			console.log('Rename attempt:', { from: p, to, base, newName: newItemName, pathParts });
 			
 			// First, let's check if the target already exists by listing the directory
 			try {
-				const listRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(base)}`, { 
+				const listRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(base || '/')}`, { 
 					credentials: 'same-origin' 
 				});
 				if (listRes.ok) {
@@ -523,7 +526,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				console.error('Rename error response:', { status: res.status, statusText: res.statusText, body: errorText });
 				
 				if (res.status === 409) {
-					alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.\n\nDebug info: ${errorText}`);
+					alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.`);
 				} else if (res.status === 400) {
 					alert('Invalid folder name. Please use only letters, numbers, spaces, and common symbols.');
 				} else if (res.status === 403) {

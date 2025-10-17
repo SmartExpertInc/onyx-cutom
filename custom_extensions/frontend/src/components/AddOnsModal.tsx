@@ -114,7 +114,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
           </div>
           <div>
             <CardTitle className="text-base -mt-1 font-semibold text-[#434343]">{addOn.name}</CardTitle>
-            <CardDescription className="text-[#949CA8] pt-1 leading-none font-light text-[10px]">{addOn.description}</CardDescription>
+            <CardDescription className="text-[#949CA8] pt-1 !leading-none font-light text-[10px]">{addOn.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -297,7 +297,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
           <X className="w-5 h-5 xl:w-6 xl:h-6 text-[#71717A]" />
         </button>
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-xl text-[#434343] sora-font-bold">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
+          <DialogTitle className="text-2xl text-[#434343] sora-font-bold">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
           <DialogDescription className="text-[11px] text-[#949CA8]">
             {t('addOns.description', 'Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.')}
           </DialogDescription>
@@ -353,7 +353,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsContent>
 
             <TabsContent value="storage" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-white border border-[var(--border-light)] rounded-lg px-3 py-4">
                 {STORAGE_DATA_TRANSLATED.map((storage) => (
                   <AddOnCard
                     key={storage.id}
@@ -368,7 +368,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsContent>
 
             <TabsContent value="connectors" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-4 gap-5">
                 {CONNECTORS_DATA_TRANSLATED.map((connector) => (
                   <AddOnCard
                     key={connector.id}
