@@ -22248,7 +22248,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- Generate exact amout of slides you asked to generate.
+- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -22267,7 +22267,7 @@ CONTENT DENSITY AND LEARNING REQUIREMENTS:
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
-- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- **CRITICAL**: Generate EXACTLY the requested number of slides (slidesCount parameter). Do NOT generate fewer slides. If 20 slides are requested, you MUST create all 20 slides with substantial educational content. Add more detailed content to reach the exact count if needed.
 - STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content. Do not end with title slides or resources slides; end on substantive content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
@@ -22316,6 +22316,11 @@ EXAMPLES FOR COMMON SLIDE TYPES:
 - Finance: "Financial analysts examining market data on trading terminals, reviewing financial models on spreadsheets, discussing investment strategies"
 
 Always specify: realistic workplace, professional attire, authentic tools/equipment, natural lighting, environmental portrait composition.
+
+🚨 FINAL REMINDER - EXACT SLIDE COUNT IS MANDATORY 🚨
+Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
+If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
+After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
 Template Catalog with required props and usage:
 - title-slide: title, subtitle, [author], [date]
@@ -22380,7 +22385,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- Generate exact amout of slides you asked to generate.
+- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -22399,7 +22404,7 @@ CONTENT DENSITY AND LEARNING REQUIREMENTS:
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
-- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- **CRITICAL**: Generate EXACTLY the requested number of slides (slidesCount parameter). Do NOT generate fewer slides. If 20 slides are requested, you MUST create all 20 slides with substantial educational content. Add more detailed content to reach the exact count if needed.
 - STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
@@ -22441,6 +22446,10 @@ Based on presentation design best practices, follow these rules for selecting ap
 
 
 
+🚨 FINAL REMINDER - EXACT SLIDE COUNT IS MANDATORY 🚨
+Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
+If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
+After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
 EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
 
@@ -22765,7 +22774,16 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
                 if isinstance(parsed_json, dict) and 'slides' in parsed_json:
                     slides = parsed_json['slides']
-                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {len(slides)}")
+                    actual_count = len(slides)
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                    
+                    # Validate slide count matches request
+                    requested_count = wizard_dict.get('slidesCount', 5)
+                    if actual_count != requested_count:
+                        logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                    else:
+                        logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                    
                     for i, slide in enumerate(slides):
                         if isinstance(slide, dict):
                             template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
