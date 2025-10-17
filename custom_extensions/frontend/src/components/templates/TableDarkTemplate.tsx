@@ -292,8 +292,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     overflow: 'hidden',
     backgroundColor: '#ffffff',
     border: '1px solid #E0E0E0',
-    display: 'flex',
-    justifyContent: 'center',
     padding: '30px'
   };
 
@@ -607,42 +605,32 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                       style={isFirstColumn ? firstColumnStyles : dataCellStyles}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
-                        {isEditingThisCell && isEditable ? (
-                          isFirstColumn ? (
-                          <WysiwygEditor
-                            initialValue={cell}
-                            onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
-                            onCancel={() => setEditingCell(null)}
-                            placeholder="Enter cell content..."
-                            className="inline-editor-cell"
-                            style={{
-                                color: '#000000',
-                                textAlign: 'left',
-                                fontSize: '0.95rem',
-                                fontWeight: 'bold',
-                                padding: '8px',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: '4px',
-                                wordWrap: 'break-word',
-                                whiteSpace: 'pre-wrap',
-                                boxSizing: 'border-box',
-                                display: 'block',
-                                lineHeight: '1.2',
-                                width: '100%'
-                              }}
-                            />
-                          ) : (
-                            <CheckboxEditor
+                        {isFirstColumn ? (
+                          // First column: text with inline editing
+                          isEditingThisCell && isEditable ? (
+                            <WysiwygEditor
                               initialValue={cell}
                               onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                               onCancel={() => setEditingCell(null)}
+                              placeholder="Enter cell content..."
+                              className="inline-editor-cell"
                               style={{
-                                width: '100%'
-                              }}
-                            />
-                          )
-                        ) : (
-                          isFirstColumn ? (
+                                  color: '#000000',
+                                  textAlign: 'left',
+                                  fontSize: '0.95rem',
+                                  fontWeight: 'bold',
+                                  padding: '8px',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '4px',
+                                  wordWrap: 'break-word',
+                                  whiteSpace: 'pre-wrap',
+                                  boxSizing: 'border-box',
+                                  display: 'block',
+                                  lineHeight: '1.2',
+                                  width: '100%'
+                                }}
+                              />
+                          ) : (
                             <span 
                               onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                                 const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
@@ -671,13 +659,14 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                                 <span dangerouslySetInnerHTML={{ __html: cell }} />
                               </div>
                             </span>
-                          ) : (
-                            <div 
-                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            >
-                              {renderCheckbox(cell, rowIndex, colIndex)}
-                            </div>
                           )
+                        ) : (
+                          // All other columns: checkbox only (no text allowed)
+                          <div 
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            {renderCheckbox(cell, rowIndex, colIndex)}
+                          </div>
                         )}
                       </div>
                       </td>

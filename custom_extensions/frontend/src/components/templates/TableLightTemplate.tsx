@@ -180,9 +180,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     width: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    display: 'flex',
-    justifyContent: 'center'
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
   };
 
   // Table styles - perfectly aligned
