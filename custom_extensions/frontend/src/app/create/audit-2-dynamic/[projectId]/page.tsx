@@ -1899,8 +1899,8 @@ export default function DynamicAuditLandingPage() {
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
                           es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ua: <>Зменшіть плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ru: <>Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
+                          ua: <>Зменшити плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ru: <>Сократить текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
                         })}
                       </h3>
                     </div>
@@ -1933,8 +1933,8 @@ export default function DynamicAuditLandingPage() {
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ua: <>Підвищіть продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ru: <>Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
+                          ua: <>Підвищити продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ru: <>Поднять продуктивность <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
                         })}
                       </h3>
                     </div>
@@ -1965,10 +1965,10 @@ export default function DynamicAuditLandingPage() {
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
-                          en: 'AI Onboarding Implementation',
-                          es: 'Implementación de Incorporación IA',
-                          ua: 'Впровадження AI-онбордингу',
-                          ru: 'Внедрение AI-онбординг'
+                          en: 'Implement AI Onboarding',
+                          es: 'Implementar Incorporación IA',
+                          ua: 'Впровадити AI-онбординг за 7 днів',
+                          ru: 'Внедрить AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -2003,7 +2003,7 @@ export default function DynamicAuditLandingPage() {
                 {getLocalizedText(landingPageData?.language, {
                   en: 'Open Positions in',
                   es: 'Posiciones Abiertas en',
-                  ua: 'Відкриті вакансії в',
+                  ua: 'Відкриті вакансії у',
                   ru: 'Открытые вакансии в'
                 })} <br className="xl:hidden"/> {companyName}
               </h2>
@@ -3101,7 +3101,7 @@ export default function DynamicAuditLandingPage() {
                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                         title="Click to edit onboarding course title"
                       >
-                        {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
+                        {`"${landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}"`}
                       </span>
                     )}
                   </h4>
@@ -4834,7 +4834,12 @@ export default function DynamicAuditLandingPage() {
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
+                      {getLocalizedText(language, {
+                        en: 'AI capabilities:',
+                        es: 'Capacidades de IA:',
+                        ua: 'Возможности ИИ:',
+                        ru: 'Можливості ШІ:'
+                      })}
                     </h4>
                     
                     {/* Capability 1 */}
@@ -5017,10 +5022,10 @@ export default function DynamicAuditLandingPage() {
                             ua: 'Методолог',
                             ru: 'Методолог'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
-                            en: 'uploads your',
-                            es: 'sube tus',
-                            ua: 'завантажує ваші',
-                            ru: 'загружает ваши'
+                            en: 'uploads your ',
+                            es: 'sube tus ',
+                            ua: 'завантажує ваші ',
+                            ru: 'загружает ваши '
                           })}</span><br className="xl:hidden"/>
                           <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
                             en: 'materials',
@@ -5084,7 +5089,7 @@ export default function DynamicAuditLandingPage() {
                           })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
                             en: 'them into',
                             es: 'en',
-                            ua: 'їх у',
+                            ua: 'їх в',
                             ru: 'их в'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
                             en: 'lessons,',
@@ -5255,7 +5260,7 @@ export default function DynamicAuditLandingPage() {
                     })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
                       en: 'training',
                       es: 'departamentos',
-                      ua: 'департаментам',
+                      ua: 'департаментами',
                       ru: 'департаментам'
                     })}</span>
                     </span>
@@ -5358,7 +5363,7 @@ export default function DynamicAuditLandingPage() {
                       })}<br/>{getLocalizedText(landingPageData?.language, {
                         en: 'training analytics',
                         es: 'análisis de entrenamiento',
-                        ua: 'аналітика з навчання',
+                        ua: 'аналітика навчання',
                         ru: 'аналитика по обучению'
                       })}</span>
                     </span>
