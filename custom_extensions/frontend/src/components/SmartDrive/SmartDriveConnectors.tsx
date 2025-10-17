@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -131,9 +131,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const contentTypeFilterKeys = Object.keys(contentTypeFilterLabels);
   const contentTypeFilterIcons: Record<string, React.ComponentType<any>> = {
     all: Search,
-    documents: Search,
-    images: Search,
-    videos: Search
+    documents: FileText,
+    images: ImageIcon,
+    videos: Video
   };
   
   // SmartDrive browser functions
@@ -773,7 +773,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
           <SmartDriveFrame />
         ) : (
-          <SmartDriveBrowser mode="manage" viewMode={viewMode} />
+          <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} />
         )}
       </div>
     );
@@ -826,8 +826,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
                 )}
-                <div className={`relative ${activeTab === 'connectors' ? 'w-46 mt-5' : 'w-70'} h-9`}>
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                <div className={`relative ${activeTab === 'connectors' ? 'w-46 pt-3' : 'w-70'} h-9`}>
+                  <Search className="absolute left-3 top-1/2 transform mt-3 -translate-y-1/2 text-[#71717A] z-10" size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
               </div>
@@ -945,8 +945,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         <div className="flex flex-col">
                           {/* Top labels */}
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-700 font-medium text-[11px]">Storage used</span>
-                            <span className="text-gray-600 text-[11px]">
+                            <span className="text-[#434343] font-medium text-[11px]">Storage used</span>
+                            <span className="text-[#434343] text-[11px]">
                               {entitlements.storage_used_gb} GB of {entitlements.storage_gb} GB
                             </span>
                           </div>
@@ -1006,7 +1006,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
-              <SmartDriveBrowser mode="manage" viewMode={viewMode} />
+              <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} />
             )}
           </div>
         </div>
@@ -1037,7 +1037,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
                   <Button 
-                    className="bg-[#719AF5] px-4 py-2 cursor-pointer text-white rounded-md" 
+                    className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-md" 
                     size="sm" 
                     onClick={() => setShowAddonsModal(true)}
                   >
@@ -1358,7 +1358,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMkdirOpen(false)}>Cancel</Button>
-            <Button onClick={createFolder} disabled={!mkdirName.trim() || busy}>Create</Button>
+            <Button onClick={createFolder} variant="download" className="rounded-full" disabled={!mkdirName.trim() || busy}>Create</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

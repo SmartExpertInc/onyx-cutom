@@ -23,7 +23,8 @@ import {
 	Users,
 	CalendarDays,
 	ChevronRight,
-	FolderPlus
+	FolderPlus,
+	FilePlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +35,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input as UiInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { FolderSelectionModal } from '@/components/ui/folder-selection-modal';
 
 // Utility function to format file sizes
 const formatSize = (bytes: number | null | undefined): string => {
@@ -77,6 +79,8 @@ interface SmartDriveBrowserProps {
 	onFilesSelected?: (paths: string[]) => void;
 	initialPath?: string;
 	viewMode?: 'grid' | 'list';
+	contentTypeFilter?: string;
+	searchQuery?: string;
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -96,13 +100,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	onFilesSelected,
 	initialPath = '/',
 	viewMode = 'grid',
+	contentTypeFilter = 'all',
+	searchQuery = '',
 }) => {
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
 	const [items, setItems] = useState<SmartDriveItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selected, setSelected] = useState<Set<string>>(new Set());
-	const [search, setSearch] = useState('');
 	const [busy, setBusy] = useState(false);
 	const [sortKey, setSortKey] = useState<SortKey>('name');
 	const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -240,11 +245,41 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	}, [currentPath]);
 
 	const filtered = useMemo(() => {
-		const term = search.trim().toLowerCase();
+		const term = searchQuery.trim().toLowerCase();
 		let list = items;
+		
+		// Filter by search term
 		if (term) {
 			list = list.filter(i => i.name.toLowerCase().includes(term));
 		}
+		
+		// Filter by content type
+		if (contentTypeFilter !== 'all') {
+			list = list.filter(item => {
+				// Always show directories
+				if (item.type === 'directory') return true;
+				
+				const mimeType = item.mime_type?.toLowerCase() || '';
+				
+				if (contentTypeFilter === 'documents') {
+					return mimeType.includes('pdf') || 
+						mimeType.includes('document') || 
+						mimeType.includes('word') || 
+						mimeType.includes('text') || 
+						mimeType.includes('spreadsheet') || 
+						mimeType.includes('excel') || 
+						mimeType.includes('presentation') || 
+						mimeType.includes('powerpoint');
+				} else if (contentTypeFilter === 'images') {
+					return mimeType.startsWith('image/');
+				} else if (contentTypeFilter === 'videos') {
+					return mimeType.startsWith('video/');
+				}
+				
+				return true;
+			});
+		}
+		
 		const dirFirst = (a: SmartDriveItem, b: SmartDriveItem) => {
 			if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
 			return 0;
@@ -267,7 +302,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			return sortAsc ? base : -base;
 		};
 		return [...list].sort((a, b) => dirFirst(a, b) || cmp(a, b));
-	}, [items, search, sortKey, sortAsc]);
+	}, [items, searchQuery, sortKey, sortAsc, contentTypeFilter]);
 
 	const toggle = (p: string) => {
 		const next = new Set(selected);
@@ -325,16 +360,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const del = async () => {
-		if (selected.size === 0) return;
-		if (!confirm(`Delete ${selected.size} item(s)?`)) return;
+	const del = async (pathsToDelete?: string[]) => {
+		const paths = pathsToDelete || Array.from(selected);
+		if (paths.length === 0) return;
+		if (!confirm(`Delete ${paths.length} item(s)?`)) return;
 		setBusy(true);
 		try {
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/delete`, {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				credentials: 'same-origin',
-				body: JSON.stringify({ paths: Array.from(selected) })
+				body: JSON.stringify({ paths })
 			});
 			if (!res.ok && res.status !== 207) throw new Error(await res.text());
 			clearSel();
@@ -721,7 +757,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={()=>setMkdirOpen(false)}>Cancel</Button>
-						<Button onClick={createFolder} disabled={!mkdirName.trim() || busy} className='rounded-full'>Create</Button>
+						<Button onClick={createFolder} variant="download" disabled={!mkdirName.trim() || busy} className='rounded-full'>Create</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
@@ -776,7 +812,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										setMoveOperation('copy');
 										setShowFolderSelectionModal(true);
 										break;
-									case 'delete': del(); break;
+									case 'delete': del([it.path]); break;
 									case 'download': download(); break;
 								}
 											};
@@ -802,9 +838,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																<h3 className="font-medium text-xs text-gray-900 truncate">
 																	{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 																</h3>
-																<p className="text-[11px] text-gray-500 mt-1">
-																	{folderItemCounts[it.path] !== undefined 
-																		? `${folderItemCounts[it.path]} ${folderItemCounts[it.path] === 1 ? 'item' : 'items'}`
+																<p className="text-[11px] text-gray-500">
+																	{(folderItemCounts[it.path]-1) !== undefined 
+																		? `${(folderItemCounts[it.path]-1)} ${(folderItemCounts[it.path]-1) === 1 ? 'item' : 'items'}`
 																		: 'Folder'
 																	}
 																</p>
@@ -815,7 +851,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																<Button 
 																	variant="ghost" 
 																	size="sm" 
-																	className="h-6 w-6 p-0"
+																	className="h-6 w-6 pt-3"
 																	onClick={(e) => e.stopPropagation()}
 																>
 																	<MoreVertical size={14} className="text-gray-500" />
@@ -881,7 +917,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														setMoveOperation('copy');
 														setShowFolderSelectionModal(true);
 														break;
-													case 'delete': del(); break;
+													case 'delete': del([folderItem.path]); break;
 													case 'download': download(); break;
 												}
 											};
@@ -955,8 +991,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																		<span>Rename</span>
 																	</DropdownMenuItem>
 																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('move')}>
-																		<MoveRight size={16} className="text-gray-500" />
-																		<span>Move</span>
+																		<FolderPlus size={16} className="text-gray-500" />
+																		<span>Move to folder...</span>
 																	</DropdownMenuItem>
 																	<DropdownMenuItem onSelect={() => handleFolderMenuAction('copy')}>
 																		<Copy size={16} className="text-gray-500" />
@@ -1084,7 +1120,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														setMoveOperation('copy');
 														setShowFolderSelectionModal(true);
 														break;
-													case 'delete': del(); break;
+													case 'delete': del([it.path]); break;
 													case 'download': download(); break;
 												}
 											};
@@ -1111,15 +1147,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													{/* Title Column */}
 													<TableCell className="px-3 py-2">
 														<div className="font-medium text-slate-800 flex items-center gap-2">
-															<div className="w-4 h-4 border-l-2 border-blue-200 mr-1"></div>
 															{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 														</div>
 														<div className="text-xs text-[#09090B] ml-5">
 															{it.type === 'file' 
 																? formatSize(it.size) 
-																: (folderItemCounts[it.path] !== undefined 
+																: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
 																	? `${folderItemCounts[it.path]} items`
-																	: 'Folder'
+																	: (it.type === 'directory' ? 'Folder' : '')
 																)
 															}
 														</div>
@@ -1155,7 +1190,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															</DropdownMenuTrigger>
 															<DropdownMenuContent align="end">
 																<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-																<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+																<DropdownMenuItem onSelect={() => handleMenuAction('move')}><FolderPlus className="w-4 h-4 mr-2"/>Move to folder...</DropdownMenuItem>
 																<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
 																<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
 																<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
@@ -1182,7 +1217,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										setMoveOperation('copy');
 										setShowFolderSelectionModal(true);
 										break;
-									case 'delete': del(); break;
+									case 'delete': del([it.path]); break;
 									case 'download': download(); break;
 								}
 									};
@@ -1192,6 +1227,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										<React.Fragment key={it.path}>
 											<TableRow className={`hover:bg-gray-50 transition cursor-pointer ${
 												it.type === 'directory' ? 'group' : ''
+											} ${
+												it.type === 'directory' && expandedFolders.has(it.path) ? 'bg-blue-50' : ''
 											}`} onClick={(e)=>onRowClick(idx, it, e)}>
 											{/* Type Column */}
 											<TableCell className="px-3 py-2 whitespace-nowrap">
@@ -1212,28 +1249,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											
 											{/* Title Column - Main content with more width */}
 											<TableCell className="px-3 py-2">
-												<div className={`flex items-center gap-2 ${it.type === 'directory' ? 'font-semibold text-blue-700' : 'font-medium text-slate-800'}`}>
-													{it.type === 'directory' && (
-														expandedFolders.has(it.path) ? (
-															<ArrowLeft
-																size={16}
-																className="text-blue-600"
-															/>
-														) : (
-															<ChevronRight
-																size={16}
-																className="text-blue-600"
-															/>
-														)
-													)}
+												<div className={`flex items-center gap-2 font-regular ${
+													it.type === 'directory' && expandedFolders.has(it.path) ? 'text-blue-900' : 'text-[#09090B]'
+												}`}>
 													{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}
 												</div>
 												<div className="text-xs text-slate-500">
 													{it.type === 'file' 
 														? formatSize(it.size) 
-														: (folderItemCounts[it.path] !== undefined 
+														: (it.type === 'directory' && expandedFolders.has(it.path) && folderItemCounts[it.path] !== undefined 
 															? `${folderItemCounts[it.path]} items`
-															: 'Folder'
+															: (it.type === 'directory' ? 'Folder' : '')
 														)
 													}
 												</div>
@@ -1293,7 +1319,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
 														<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-														<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+														<DropdownMenuItem onSelect={() => handleMenuAction('move')}><FilePlus className="w-4 h-4 mr-2"/>Move to folder...</DropdownMenuItem>
 														<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
 														<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
 														<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
@@ -1369,141 +1395,68 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			)}
 
 			{/* Folder Selection Modal for Move/Copy */}
-			{showFolderSelectionModal && moveOperation && (
-				<Dialog open={showFolderSelectionModal} onOpenChange={setShowFolderSelectionModal}>
-					<DialogContent className="sm:max-w-[500px]">
-						<DialogHeader>
-							<DialogTitle>
-								{moveOperation === 'move' ? 'Move to Folder' : 'Copy to Folder'}
-							</DialogTitle>
-							<DialogDescription>
-								Select a destination folder for the selected item{selected.size > 1 ? 's' : ''}
-							</DialogDescription>
-						</DialogHeader>
-						<div className="max-h-[400px] overflow-y-auto py-4">
-							{/* Root folder option */}
-							<button
-								onClick={() => {
-									if (moveOperation === 'move') {
-										moveToFolder('/');
-									} else {
-										// For copy operation, use doMoveCopy logic with selected folder
-										const copyToFolder = async () => {
-											if (selected.size === 0) return;
-											setBusy(true);
-											try {
-												for (const p of Array.from(selected)) {
-													const fileName = p.split('/').pop() || '';
-													const destinationPath = `/${fileName}`;
-													const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
-														method: 'POST',
-														headers: { 'Content-Type': 'application/json' },
-														credentials: 'same-origin',
-														body: JSON.stringify({ from: p, to: destinationPath })
-													});
-													if (!res.ok) throw new Error(await res.text());
-												}
-												clearSel();
-												await fetchList(currentPath);
-											} catch (e) {
-												alert('Copy failed');
-											} finally {
-												setBusy(false);
-											}
-										};
-										copyToFolder();
+			{showFolderSelectionModal && moveOperation && (() => {
+				// Create folder list with numeric IDs and path mapping
+				const foldersList = items.filter(item => item.type === 'directory');
+				const foldersForModal = foldersList.map((folder, idx) => ({
+					id: idx,
+					name: (() => { try { return decodeURIComponent(folder.name); } catch { return folder.name; } })(),
+					project_count: folderItemCounts[folder.path] || 0,
+					parent_id: null
+				}));
+				
+				// Create a map from ID to path
+				const idToPathMap: Record<number, string> = {};
+				foldersList.forEach((folder, idx) => {
+					idToPathMap[idx] = folder.path;
+				});
+				
+				return (
+					<FolderSelectionModal
+						isOpen={showFolderSelectionModal}
+						onClose={() => {
+							setShowFolderSelectionModal(false);
+							setMoveOperation(null);
+						}}
+					onSelectFolder={async (folderId) => {
+						// folderId null means root folder (/)
+						const targetPath = folderId === null ? '/' : idToPathMap[folderId] || '/';
+						
+						if (moveOperation === 'move') {
+							await moveToFolder(targetPath);
+						} else {
+								// For copy operation
+								if (selected.size === 0) return;
+								setBusy(true);
+								try {
+									for (const p of Array.from(selected)) {
+										const fileName = p.split('/').pop() || '';
+										const destinationPath = targetPath === '/' ? `/${fileName}` : (targetPath.endsWith('/') ? `${targetPath}${fileName}` : `${targetPath}/${fileName}`);
+										const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
+											method: 'POST',
+											headers: { 'Content-Type': 'application/json' },
+											credentials: 'same-origin',
+											body: JSON.stringify({ from: p, to: destinationPath })
+										});
+										if (!res.ok) throw new Error(await res.text());
 									}
-									setShowFolderSelectionModal(false);
-									setMoveOperation(null);
-								}}
-								className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors"
-								disabled={currentPath === '/'}
-							>
-								<Folder className="w-5 h-5 text-blue-500" />
-								<div>
-									<div className="font-medium">Root Folder</div>
-									<div className="text-xs text-gray-500">/</div>
-								</div>
-							</button>
-
-							{/* List all folders */}
-							{items.filter(item => item.type === 'directory').map((folder) => {
-								const isCurrentLocation = Array.from(selected).some(path => path.startsWith(folder.path + '/'));
-								return (
-									<button
-										key={folder.path}
-										onClick={() => {
-											if (moveOperation === 'move') {
-												moveToFolder(folder.path);
-											} else {
-												// For copy operation
-												const copyToFolder = async () => {
-													if (selected.size === 0) return;
-													setBusy(true);
-													try {
-														for (const p of Array.from(selected)) {
-															const fileName = p.split('/').pop() || '';
-															const destinationPath = folder.path.endsWith('/') ? `${folder.path}${fileName}` : `${folder.path}/${fileName}`;
-															const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/copy`, {
-																method: 'POST',
-																headers: { 'Content-Type': 'application/json' },
-																credentials: 'same-origin',
-																body: JSON.stringify({ from: p, to: destinationPath })
-															});
-															if (!res.ok) throw new Error(await res.text());
-														}
-														clearSel();
-														await fetchList(currentPath);
-													} catch (e) {
-														alert('Copy failed');
-													} finally {
-														setBusy(false);
-													}
-												};
-												copyToFolder();
-											}
-											setShowFolderSelectionModal(false);
-											setMoveOperation(null);
-										}}
-										className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-										disabled={isCurrentLocation}
-									>
-										<Folder className="w-5 h-5 text-blue-500" />
-										<div className="flex-1 min-w-0">
-											<div className="font-medium truncate">
-												{(() => { try { return decodeURIComponent(folder.name); } catch { return folder.name; } })()}
-											</div>
-											<div className="text-xs text-gray-500 truncate">{folder.path}</div>
-										</div>
-										{isCurrentLocation && (
-											<span className="text-xs text-gray-400">(Current location)</span>
-										)}
-									</button>
-								);
-							})}
-
-							{items.filter(item => item.type === 'directory').length === 0 && (
-								<div className="text-center py-8 text-gray-500">
-									<Folder className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-									<p>No folders available in current directory</p>
-									<p className="text-sm mt-1">Create a new folder first</p>
-								</div>
-							)}
-						</div>
-						<DialogFooter>
-							<Button
-								variant="outline"
-								onClick={() => {
-									setShowFolderSelectionModal(false);
-									setMoveOperation(null);
-								}}
-							>
-								Cancel
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
-			)}
+									clearSel();
+									await fetchList(currentPath);
+								} catch (e) {
+									alert('Copy failed');
+								} finally {
+									setBusy(false);
+								}
+							}
+							setShowFolderSelectionModal(false);
+							setMoveOperation(null);
+						}}
+						folders={foldersForModal}
+						currentFolderId={null}
+						title={moveOperation === 'move' ? 'Move to folder' : 'Copy to folder'}
+					/>
+				);
+			})()}
 		</div>
 	);
 };
