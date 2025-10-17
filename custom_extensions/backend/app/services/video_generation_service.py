@@ -17,23 +17,19 @@ class ElaiVideoGenerationService:
         self.api_token = "5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e"
         self.max_wait_time = 15 * 60  # 15 minutes
         self.poll_interval = 30  # 30 seconds
-        
-        # Initialize httpx client safely
-        self.client = None
-        self._init_client()
     
-    def _init_client(self):
-        """Initialize the HTTP client safely."""
+    def _get_client(self):
+        """Get or create HTTP client in the current event loop."""
         try:
             import httpx
-            self.client = httpx.AsyncClient(timeout=60.0)
-            logger.info("HTTP client initialized successfully")
+            # Create a new client for each request to avoid event loop issues
+            return httpx.AsyncClient(timeout=60.0)
         except ImportError:
             logger.error("httpx not available - video generation will not work")
-            self.client = None
+            return None
         except Exception as e:
-            logger.error(f"Failed to initialize HTTP client: {e}")
-            self.client = None
+            logger.error(f"Failed to create HTTP client: {e}")
+            return None
     
     @property
     def headers(self):
@@ -51,14 +47,15 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing avatar list or error
         """
-        if not self.client:
+        client = self._get_client()
+        if not client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await self.client.get(
+            response = await client.get(
                 f"{self.api_base}/avatars",
                 headers=self.headers
             )
@@ -77,6 +74,8 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
+        finally:
+            await client.aclose()
     
     async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
@@ -102,7 +101,9 @@ class ElaiVideoGenerationService:
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
-        if not self.client:
+        
+        client = self._get_client()
+        if not client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
@@ -315,7 +316,7 @@ class ElaiVideoGenerationService:
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
-            response = await self.client.post(
+            response = await client.post(
                 f"{self.api_base}/videos",
                 headers=self.headers,
                 json=video_request
@@ -354,6 +355,8 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Failed to create video: {str(e)}"
             }
+        finally:
+            await client.aclose()
 
     async def create_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any], voice_id: str = None, voice_provider: str = None) -> Dict[str, Any]:
         """
@@ -368,7 +371,8 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing video creation response
         """
-        if not self.client:
+        client = self._get_client()
+        if not client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
@@ -570,7 +574,7 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Format: {video_request['format']}")
             logger.info(f"  - Resolution: {video_request['resolution']}")
             
-            response = await self.client.post(
+            response = await client.post(
                 f"{self.api_base}/videos",
                 headers=self.headers,
                 json=video_request
@@ -593,6 +597,8 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Error creating video: {str(e)}")
             raise
+        finally:
+            await client.aclose()
     
     async def render_video(self, video_id: str) -> Dict[str, Any]:
         """
@@ -604,14 +610,15 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing render response
         """
-        if not self.client:
+        client = self._get_client()
+        if not client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await self.client.post(
+            response = await client.post(
                 f"{self.api_base}/videos/render/{video_id}",
                 headers=self.headers
             )
@@ -635,6 +642,8 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Failed to start video render: {str(e)}"
             }
+        finally:
+            await client.aclose()
     
     async def check_video_status(self, video_id: str) -> Dict[str, Any]:
         """
@@ -646,14 +655,15 @@ class ElaiVideoGenerationService:
         Returns:
             Dict containing video status information
         """
-        if not self.client:
+        client = self._get_client()
+        if not client:
             return {
                 "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
         try:
-            response = await self.client.get(
+            response = await client.get(
                 f"{self.api_base}/videos/{video_id}",
                 headers=self.headers
             )
@@ -716,6 +726,8 @@ class ElaiVideoGenerationService:
                 "success": False,
                 "error": f"Error checking video status: {str(e)}"
             }
+        finally:
+            await client.aclose()
     
     async def wait_for_completion(self, video_id: str) -> Optional[str]:
         """
@@ -806,12 +818,17 @@ class ElaiVideoGenerationService:
         Returns:
             True if download successful, False otherwise
         """
+        client = self._get_client()
+        if not client:
+            logger.error("HTTP client not available")
+            return False
+        
         try:
             logger.info(f"Downloading video from: {download_url}")
             logger.info(f"Downloading to: {output_path}")
             
             # Use httpx to download the video
-            response = await self.client.get(download_url, timeout=300)
+            response = await client.get(download_url, timeout=300)
             response.raise_for_status()
             
             # Get total size for progress tracking
@@ -866,6 +883,8 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Download failed: {str(e)}")
             return False
+        finally:
+            await client.aclose()
     
     async def _analyze_downloaded_video(self, video_path: str):
         """
@@ -998,9 +1017,8 @@ class ElaiVideoGenerationService:
             return {"success": False, "error": str(e)}
     
     async def close(self):
-        """Close the HTTP client."""
-        if self.client:
-            await self.client.aclose()
+        """Close the HTTP client. (No-op since clients are now closed immediately after use)"""
+        pass
 
 # Global instance
 video_generation_service = ElaiVideoGenerationService()
