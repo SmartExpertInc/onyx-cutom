@@ -2368,6 +2368,115 @@
                 ═══════════════════════════════════════════════════════════════════════════
                 -->
                 
+                <!-- JavaScript Position Logger for Impact Statements Slide -->
+                <script>
+                (function() {
+                    // Wait for page to fully render
+                    window.addEventListener('DOMContentLoaded', function() {
+                        setTimeout(function() {
+                            const container = document.querySelector('.impact-statements-slide .profile-gradient-container');
+                            
+                            if (container) {
+                                const rect = container.getBoundingClientRect();
+                                const computedStyle = window.getComputedStyle(container);
+                                
+                                // Create a GIANT visible debug overlay at the top-right
+                                const debugDiv = document.createElement('div');
+                                debugDiv.style.cssText = `
+                                    position: fixed;
+                                    top: 10px;
+                                    right: 10px;
+                                    background: rgba(255, 0, 0, 0.95);
+                                    color: #00ff00;
+                                    padding: 20px;
+                                    font-family: monospace;
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    z-index: 999999;
+                                    border: 5px solid yellow;
+                                    white-space: pre;
+                                    max-width: 600px;
+                                    box-shadow: 0 0 30px rgba(255, 255, 0, 0.8);
+                                `;
+                                
+                                debugDiv.textContent = `🎯 GRADIENT CONTAINER POSITION
+
+📍 MEASURED POSITION:
+  X: ${Math.round(rect.left)}px
+  Y: ${Math.round(rect.top)}px ← USE THIS!
+  Width: ${Math.round(rect.width)}px
+  Height: ${Math.round(rect.height)}px
+
+📐 EDGES:
+  Bottom: ${Math.round(rect.bottom)}px
+  Right: ${Math.round(rect.right)}px
+
+✅ AVATAR POSITION FOR registry.ts:
+  x: ${Math.round(rect.left)}
+  y: ${Math.round(rect.top)}
+  width: ${Math.round(rect.width)}
+  height: ${Math.round(rect.height)}`;
+                                
+                                document.body.appendChild(debugDiv);
+                                
+                                // Also create a CENTERED overlay for maximum visibility
+                                const centerOverlay = document.createElement('div');
+                                centerOverlay.style.cssText = `
+                                    position: fixed;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    background: rgba(0, 0, 0, 0.98);
+                                    color: #00ff00;
+                                    padding: 50px;
+                                    font-family: monospace;
+                                    font-size: 48px;
+                                    font-weight: bold;
+                                    z-index: 9999999;
+                                    border: 10px solid #00ff00;
+                                    text-align: left;
+                                    box-shadow: 0 0 50px rgba(0, 255, 0, 0.8);
+                                `;
+                                
+                                centerOverlay.innerHTML = `
+                                    <div style="font-size: 64px; color: yellow; margin-bottom: 30px;">🎯 CONTAINER POSITION</div>
+                                    <div>X: ${Math.round(rect.left)}px</div>
+                                    <div style="font-size: 72px; color: yellow; margin: 20px 0;">Y: ${Math.round(rect.top)}px</div>
+                                    <div style="color: #00ff00; font-size: 56px; margin-top: 30px;">👆 USE Y=${Math.round(rect.top)} IN REGISTRY!</div>
+                                    <div style="color: #888; font-size: 32px; margin-top: 20px;">Width: ${Math.round(rect.width)}px, Height: ${Math.round(rect.height)}px</div>
+                                `;
+                                
+                                document.body.appendChild(centerOverlay);
+                                
+                                // Log to console (visible in headless browser logs if captured)
+                                console.log('═══════════════════════════════════════');
+                                console.log('🎯 GRADIENT CONTAINER MEASURED POSITION');
+                                console.log('═══════════════════════════════════════');
+                                console.log('Actual rendered position:');
+                                console.log('  X:', Math.round(rect.left), 'px');
+                                console.log('  Y:', Math.round(rect.top), 'px ← USE THIS VALUE!');
+                                console.log('  Width:', Math.round(rect.width), 'px');
+                                console.log('  Height:', Math.round(rect.height), 'px');
+                                console.log('  Bottom edge:', Math.round(rect.bottom), 'px');
+                                console.log('  Right edge:', Math.round(rect.right), 'px');
+                                console.log('═══════════════════════════════════════');
+                                console.log('✅ Copy this to registry.ts:');
+                                console.log(JSON.stringify({
+                                    x: Math.round(rect.left),
+                                    y: Math.round(rect.top),
+                                    width: Math.round(rect.width),
+                                    height: Math.round(rect.height),
+                                    backgroundColor: '#ffffff'
+                                }, null, 2));
+                                console.log('═══════════════════════════════════════');
+                            } else {
+                                console.error('❌ Could not find .profile-gradient-container element');
+                            }
+                        }, 500); // Wait 500ms for layout to stabilize
+                    });
+                })();
+                </script>
+                
             {% elif templateId == 'hybrid-work-best-practices-slide' or templateId == 'hybrid-work' %}
                 <div class="hybrid-work-slide">
                     <!-- Logo header -->
