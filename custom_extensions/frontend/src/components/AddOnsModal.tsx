@@ -337,9 +337,8 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 px-6 py-5 overflow-hidden">
-            <ScrollArea className="h-[400px] w-full">
-              <TabsContent value="credits" className="mt-0 pr-4">
+          <ScrollArea className="overflow-y-auto flex-1 px-6 py-5">
+            <TabsContent value="credits" className="mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
                     {CREDITS_DATA_TRANSLATED.map((credit) => (
                       <AddOnCard
@@ -351,39 +350,38 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                       />
                     ))}
                   </div>
-              </TabsContent>
+            </TabsContent>
 
-              <TabsContent value="storage" className="mt-0 pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
-                  {STORAGE_DATA_TRANSLATED.map((storage) => (
-                    <AddOnCard
-                      key={storage.id}
-                      addOn={storage}
-                      icon={StorageIcon}
-                      quantity={quantities[storage.id]}
-                      onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
-                      showAmount={true}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
+            <TabsContent value="storage" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
+                {STORAGE_DATA_TRANSLATED.map((storage) => (
+                  <AddOnCard
+                    key={storage.id}
+                    addOn={storage}
+                    icon={StorageIcon}
+                    quantity={quantities[storage.id]}
+                    onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
+                    showAmount={true}
+                  />
+                ))}
+              </div>
+            </TabsContent>
 
-              <TabsContent value="connectors" className="mt-0 pr-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
-                  {CONNECTORS_DATA_TRANSLATED.map((connector) => (
-                    <AddOnCard
-                      key={connector.id}
-                      addOn={connector}
-                      icon={ConnectorsIcon}
-                      quantity={quantities[connector.id]}
-                      onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
-                      showAmount={true}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
-            </ScrollArea>
-          </div>
+            <TabsContent value="connectors" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
+                {CONNECTORS_DATA_TRANSLATED.map((connector) => (
+                  <AddOnCard
+                    key={connector.id}
+                    addOn={connector}
+                    icon={ConnectorsIcon}
+                    quantity={quantities[connector.id]}
+                    onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
+                    showAmount={true}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          </ScrollArea>
         </Tabs>
       </DialogContent>
     </Dialog>

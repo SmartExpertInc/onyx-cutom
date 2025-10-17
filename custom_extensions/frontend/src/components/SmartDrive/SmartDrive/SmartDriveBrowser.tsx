@@ -493,14 +493,29 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				credentials: 'same-origin',
 				body: JSON.stringify({ from: p, to })
 			});
-			if (!res.ok) throw new Error(await res.text());
+			
+			if (!res.ok) {
+				if (res.status === 409) {
+					alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.`);
+				} else if (res.status === 400) {
+					alert('Invalid folder name. Please use only letters, numbers, spaces, and common symbols.');
+				} else if (res.status === 403) {
+					alert('You do not have permission to rename this item.');
+				} else {
+					const errorText = await res.text();
+					alert(`Rename failed: ${errorText || 'Unknown error'}`);
+				}
+				return;
+			}
+			
 			clearSel();
 			await fetchList(currentPath);
 			setRenameModalOpen(false);
 			setItemToRename(null);
 			setNewItemName('');
 		} catch (e) {
-			alert('Rename failed');
+			console.error('Rename error:', e);
+			alert('Rename failed: Network error. Please try again.');
 		} finally {
 			setIsRenaming(false);
 		}
