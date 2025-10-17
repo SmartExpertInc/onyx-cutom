@@ -7,10 +7,17 @@ export interface TimelineStep {
   description: string;
 }
 
+export interface TimelineEvent {
+  date: string;
+  title: string;
+  description: string;
+}
+
 export interface TimelineTemplateProps {
   slideId: string;
   title: string;
-  steps: TimelineStep[];
+  steps?: TimelineStep[];
+  events?: TimelineEvent[];
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -20,12 +27,21 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   slideId,
   title,
   steps = [],
+  events = [],
   theme,
   onUpdate,
   isEditable = false
 }: TimelineTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
+  
+  // Convert events to steps format for backwards compatibility
+  const normalizedSteps: TimelineStep[] = events.length > 0 
+    ? events.map(event => ({
+        heading: event.date || event.title,
+        description: event.description
+      }))
+    : steps;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -145,13 +161,22 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   // Handle step heading editing
   const handleStepHeadingSave = (index: number, newHeading: string) => {
-    if (onUpdate && steps) {
-      const updatedSteps = [...steps];
-      if (!updatedSteps[index]) {
-        updatedSteps[index] = { heading: '', description: '' };
+    if (onUpdate) {
+      if (events.length > 0) {
+        const updatedEvents = [...events];
+        if (!updatedEvents[index]) {
+          updatedEvents[index] = { date: '', title: '', description: '' };
+        }
+        updatedEvents[index] = { ...updatedEvents[index], date: newHeading };
+        onUpdate({ events: updatedEvents });
+      } else {
+        const updatedSteps = [...normalizedSteps];
+        if (!updatedSteps[index]) {
+          updatedSteps[index] = { heading: '', description: '' };
+        }
+        updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
+        onUpdate({ steps: updatedSteps });
       }
-      updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
-      onUpdate({ steps: updatedSteps });
     }
     setEditingStepHeadings(editingStepHeadings.filter((i: number) => i !== index));
   };
@@ -162,13 +187,22 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   // Handle step description editing
   const handleStepDescriptionSave = (index: number, newDescription: string) => {
-    if (onUpdate && steps) {
-      const updatedSteps = [...steps];
-      if (!updatedSteps[index]) {
-        updatedSteps[index] = { heading: '', description: '' };
+    if (onUpdate) {
+      if (events.length > 0) {
+        const updatedEvents = [...events];
+        if (!updatedEvents[index]) {
+          updatedEvents[index] = { date: '', title: '', description: '' };
+        }
+        updatedEvents[index] = { ...updatedEvents[index], description: newDescription };
+        onUpdate({ events: updatedEvents });
+      } else {
+        const updatedSteps = [...normalizedSteps];
+        if (!updatedSteps[index]) {
+          updatedSteps[index] = { heading: '', description: '' };
+        }
+        updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+        onUpdate({ steps: updatedSteps });
       }
-      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
-      onUpdate({ steps: updatedSteps });
     }
     setEditingStepDescriptions(editingStepDescriptions.filter((i: number) => i !== index));
   };
@@ -193,7 +227,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     { heading: 'Milestone 4', description: 'Description of the fourth milestone' }
   ];
 
-  const displaySteps = steps.length >= 4 ? steps.slice(0, 4) : defaultSteps;
+  const displaySteps = normalizedSteps.length >= 4 ? normalizedSteps.slice(0, 4) : defaultSteps;
 
   return (
     <div className="timeline-template" style={slideStyles}>

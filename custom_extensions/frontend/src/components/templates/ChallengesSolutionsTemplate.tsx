@@ -448,7 +448,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           left: '50%',
           transform: 'translate(-50%, 160px)',
           display: 'flex',
-          gap: '90px',
+          gap: '70px',
           zIndex: 10,
           paddingLeft: '40px'
         }}>

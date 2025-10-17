@@ -162,7 +162,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     color: currentTheme.colors.subtitleColor,
     textAlign: 'center',
     marginBottom: '60px',
-    marginTop: '10px',
+    marginTop: '0px',
     lineHeight: 1.4,
     maxWidth: '500px',
     wordWrap: 'break-word',
@@ -213,7 +213,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         {/* Left Column */}
         <div style={columnStyles}>
           {/* Left Title */}
-          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%', minHeight: '140px', marginBottom: '10px' }}>
             {isEditable && editingLeftTitle ? (
               <WysiwygEditor
                 initialValue={leftTitle || 'Assess risks for the organization.'}
@@ -319,7 +319,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
         {/* Right Column */}
         <div style={columnStyles}>
           {/* Right Title */}
-          <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          <div data-draggable="true" style={{ display: 'inline-block', width: '100%', minHeight: '140px', marginBottom: '10px' }}>
             {isEditable && editingRightTitle ? (
               <WysiwygEditor
                 initialValue={rightTitle || 'Assess risks for the organization.'}
