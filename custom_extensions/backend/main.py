@@ -22194,31 +22194,8 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         is_video_lesson = payload.productType == "video_lesson_presentation"
         if is_video_lesson:
             json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM
-        else:
-            # Use multiple diverse examples to encourage template variety
-            import random
-            import os
-            
-            # Load additional example files
-            example_files = [
-                DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM,
-            ]
-            
-            # Try to load additional example files
-            try:
-                with open('NEW_SLIDE_DECK_JSON_EXAMPLE_2.json', 'r', encoding='utf-8') as f:
-                    example_files.append(f.read())
-            except:
-                pass
-                
-            try:
-                with open('NEW_SLIDE_DECK_JSON_EXAMPLE_3.json', 'r', encoding='utf-8') as f:
-                    example_files.append(f.read())
-            except:
-                pass
-            
-            # Randomly select one example to reduce over-reliance on a single pattern
-            json_example = random.choice(example_files)
+        else:            
+            json_example = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
         
 
         json_preview_instructions = ""  
