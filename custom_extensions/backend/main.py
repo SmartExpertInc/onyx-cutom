@@ -231,7 +231,7 @@ async def stream_openai_response(prompt: str, model: str = None):
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": SYSTEM_PROMPT_CACHE},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
@@ -250,7 +250,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    full_response = ''.join(response_parts)
                     logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
                     break
                     
@@ -2999,7 +2998,7 @@ async def stream_openai_response(prompt: str, model: str = None):
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": SYSTEM_PROMPT_CACHE},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
@@ -3018,7 +3017,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    full_response = ''.join(response_parts)
                     logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
                     break
                     
@@ -4171,7 +4169,7 @@ async def stream_openai_response(prompt: str, model: str = None):
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": SYSTEM_PROMPT_CACHE},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
@@ -4190,7 +4188,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    full_response = ''.join(response_parts)
                     logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
                     break
                     
@@ -5316,7 +5313,7 @@ async def stream_openai_response(prompt: str, model: str = None):
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": SYSTEM_PROMPT_CACHE},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
@@ -5335,7 +5332,6 @@ async def stream_openai_response(prompt: str, model: str = None):
                     
                 # Check for finish reason
                 if choice.finish_reason:
-                    full_response = ''.join(response_parts)
                     logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
                     break
                     
