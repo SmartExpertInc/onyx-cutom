@@ -564,11 +564,12 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
-                  maxWidth: '50px',
-                  padding: '16px 8px'
+                  maxWidth: '50px'
                 }}>
                     <button
                       onClick={addColumn}
@@ -678,10 +679,12 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     ...dataCellStyles, 
                     textAlign: 'center', 
                     position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
-                    maxWidth: '50px',
-                    padding: '16px 8px'
+                    maxWidth: '50px'
                   }}>
                       <button
                         onClick={() => removeRow(rowIndex)}
@@ -709,9 +712,11 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   ...firstColumnStyles, 
                   textAlign: 'center',
                   position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   borderBottomLeftRadius: '15px',
-                  borderBottomRightRadius: '15px',
-                  padding: '16px 8px'
+                  borderBottomRightRadius: '15px'
                 }}>
                     <button
                       onClick={addRow}

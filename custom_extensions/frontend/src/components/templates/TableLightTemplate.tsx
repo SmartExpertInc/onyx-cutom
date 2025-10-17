@@ -30,9 +30,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   tableData = {
     headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
     rows: [
-      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',
@@ -177,8 +177,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
-    width: 'fit-content',
-    maxWidth: '100%',
+    width: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -186,7 +185,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   // Table styles - perfectly aligned
   const tableStyles: React.CSSProperties = {
-    width: 'auto',
+    width: '100%',
     borderCollapse: 'collapse',
     backgroundColor: '#ffffff',
     tableLayout: 'auto' // Auto width for proper column sizing
@@ -398,11 +397,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
-                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
-                  maxWidth: '50px',
-                  padding: '16px 8px'
+                  maxWidth: '50px'
                 }}>
                   <button
                     onClick={addColumn}
@@ -490,10 +490,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     ...dataCellStyles, 
                     textAlign: 'center', 
                     position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
-                    maxWidth: '50px',
-                    padding: '16px 8px'
+                    maxWidth: '50px'
                   }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
@@ -522,7 +524,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   textAlign: 'center',
                   borderRight: '1px solid #E0E0E0',
                   position: 'relative',
-                  padding: '16px 8px'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
                   <button
                     onClick={addRow}

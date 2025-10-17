@@ -1337,9 +1337,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       tableData: {
         headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
         rows: [
-          ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+          ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
         ]
       },
       backgroundColor: '#f8fafc',
