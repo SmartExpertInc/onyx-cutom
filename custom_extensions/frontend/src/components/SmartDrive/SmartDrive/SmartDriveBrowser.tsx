@@ -1246,11 +1246,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												{/* Show the folder contents */}
 												{folderContentsMap[expandedFolder] && folderContentsMap[expandedFolder]
 													.filter(it => {
-														// Filter out any subfolders that have the same name as the expanded folder
+														// Filter out any items that have the same path as the expanded folder
 														// to prevent duplicate folder entries
-														const expandedFolderName = expandedFolder.split('/').pop() || '';
-														const itemName = it.name;
-														return !(it.type === 'directory' && itemName === expandedFolderName);
+														return it.path !== expandedFolder;
 													})
 													.map((it, idx) => {
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {

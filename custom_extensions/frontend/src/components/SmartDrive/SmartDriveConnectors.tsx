@@ -130,7 +130,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
   const contentTypeFilterKeys = Object.keys(contentTypeFilterLabels);
   const contentTypeFilterIcons: Record<string, React.ComponentType<any>> = {
-    all: Search,
+    all: FileText,
     documents: FileText,
     images: ImageIcon,
     videos: Video

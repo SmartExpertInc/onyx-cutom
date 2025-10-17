@@ -277,13 +277,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] blur-md bg-white/95 overflow-hidden flex flex-col p-0 rounded-xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-shadow"
-        >
-          <X size={16} className="text-gray-600" />
-        </button>
+      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/95 blur-md overflow-hidden flex flex-col p-0 rounded-xl">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl text-[#434343] sora-font-bold">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
           <DialogDescription className="text-[11px] text-[#949CA8]">
