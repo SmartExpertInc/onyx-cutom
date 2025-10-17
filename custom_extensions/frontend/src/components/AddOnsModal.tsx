@@ -337,7 +337,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 px-6 py-5">
+          <div className="overflow-y-auto flex-1 px-6 py-5">
           <ScrollArea className="h-full">
             <TabsContent value="credits" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
@@ -362,7 +362,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={StorageIcon}
                     quantity={quantities[storage.id]}
                     onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
-                    showAmount={false}
+                    showAmount={true}
                   />
                 ))}
               </div>
@@ -377,7 +377,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={ConnectorsIcon}
                     quantity={quantities[connector.id]}
                     onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
-                    showAmount={false}
+                    showAmount={true}
                   />
                 ))}
               </div>

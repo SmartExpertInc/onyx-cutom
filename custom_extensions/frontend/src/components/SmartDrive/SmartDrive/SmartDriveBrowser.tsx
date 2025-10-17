@@ -966,13 +966,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 														) : (() => {
 															// Show file preview based on mime type
 															if (folderItem.mime_type?.startsWith('image/')) {
-																// Image preview
+																// Image preview - try to load the actual file
 																return (
 																	<div className="w-full h-full relative">
 																		<img 
-																			src={`${CUSTOM_BACKEND_URL}/smartdrive/preview?path=${encodeURIComponent(folderItem.path)}`}
+																			src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(folderItem.path)}`}
 																			alt={folderItem.name}
-																			className="w-full h-full object-cover"
+																			className="w-full h-full object-cover rounded-t-lg"
 																			onError={(e) => {
 																				// Fallback to icon if image fails to load
 																				const target = e.target as HTMLImageElement;
@@ -981,7 +981,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																				if (fallback) fallback.style.display = 'flex';
 																			}}
 																		/>
-																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500" style={{display: 'none'}}>
+																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 bg-gradient-to-br from-blue-50 to-gray-50 rounded-t-lg" style={{display: 'none'}}>
 																			{(() => {
 																				const FileIcon = getFileIcon(folderItem.mime_type);
 																				return <FileIcon strokeWidth={1.5} className="w-10 h-10" />;
@@ -991,34 +991,28 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																	</div>
 																);
 															} else if (folderItem.mime_type === 'application/pdf') {
-																// PDF preview
+																// PDF preview - show PDF icon with enhanced styling
 																return (
-																	<div className="w-full h-full relative bg-white">
-																		<iframe 
-																			src={`${CUSTOM_BACKEND_URL}/smartdrive/preview?path=${encodeURIComponent(folderItem.path)}`}
-																			className="w-full h-full border-0"
-																			onError={(e) => {
-																				// Fallback to icon if PDF fails to load
-																				const target = e.target as HTMLIFrameElement;
-																				target.style.display = 'none';
-																				const fallback = target.nextElementSibling as HTMLElement;
-																				if (fallback) fallback.style.display = 'flex';
-																			}}
-																		/>
-																		<div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500" style={{display: 'none'}}>
-																			<FileText strokeWidth={1.5} className="w-10 h-10" />
-																			<span className="text-xs mt-1">PDF</span>
+																	<div className="w-full h-full relative bg-white rounded-t-lg flex items-center justify-center">
+																		<div className="flex flex-col items-center text-gray-500">
+																			<div className="w-16 h-16 bg-red-50 rounded-lg shadow-sm border border-red-200 flex items-center justify-center mb-2">
+																				<FileText strokeWidth={1.5} className="w-8 h-8 text-red-600" />
+																			</div>
+																			<span className="text-xs font-medium text-gray-600">PDF</span>
+																			<span className="text-xs text-gray-400 mt-1">Document</span>
 																		</div>
 																	</div>
 																);
 															} else if (folderItem.mime_type?.startsWith('text/')) {
 																// Text file preview
 																return (
-																	<div className="w-full h-full relative bg-white p-2">
-																		<div className="w-full h-full overflow-hidden text-xs text-gray-600 font-mono leading-tight">
-																			{/* This would need to be populated with actual text content */}
-																			<div className="text-gray-400">Text file preview</div>
-																			<div className="text-gray-500 mt-1">{folderItem.name}</div>
+																	<div className="w-full h-full relative bg-white rounded-t-lg flex items-center justify-center">
+																		<div className="flex flex-col items-center text-gray-500">
+																			<div className="w-16 h-16 bg-green-50 rounded-lg shadow-sm border border-green-200 flex items-center justify-center mb-2">
+																				<FileText strokeWidth={1.5} className="w-8 h-8 text-green-600" />
+																			</div>
+																			<span className="text-xs font-medium text-gray-600">TEXT</span>
+																			<span className="text-xs text-gray-400 mt-1">{folderItem.name.split('.').pop()?.toUpperCase()}</span>
 																		</div>
 																	</div>
 																);
@@ -1026,11 +1020,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																// Default file icon for other types
 																return (
 																	<div className="flex flex-col items-center text-gray-500">
-																		{(() => {
-																			const FileIcon = getFileIcon(folderItem.mime_type);
-																			return <FileIcon strokeWidth={1.5} className="w-10 h-10" />;
-																		})()}
-																		<span className="text-xs mt-1">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																		<div className="w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center mb-2">
+																			{(() => {
+																				const FileIcon = getFileIcon(folderItem.mime_type);
+																				return <FileIcon strokeWidth={1.5} className="w-8 h-8 text-[#0F58F9]" />;
+																			})()}
+																		</div>
+																		<span className="text-xs font-medium text-gray-600">{folderItem.mime_type?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+																		<span className="text-xs text-gray-400 mt-1">{folderItem.name.split('.').pop()?.toUpperCase()}</span>
 																	</div>
 																);
 															}
