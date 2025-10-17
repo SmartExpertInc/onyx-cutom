@@ -1293,6 +1293,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Critical Performance Metrics for Model Evaluation",
+        "subtitle": "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation, with regression evaluation methods and advanced metrics for imbalanced datasets and multi-class classification problems.",
         "steps": [
           {
             "value": "95%+",
@@ -1503,28 +1504,25 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_14_table_dark",
       "slideNumber": 14,
-      "slideTitle": "Security Controls (Dark Theme)",
+      "slideTitle": "Feature Availability Matrix",
       "templateId": "table-dark",
       "previewKeyPoints": [
-        "Core security measures across the platform",
-        "Ownership and audit frequency",
-        "Compliance mapping overview"
+        "Feature comparison across different product tiers and versions",
+        "Checkbox-based availability indicators for easy visualization",
+        "Clear comparison matrix for stakeholder decision-making"
       ],
       "props": {
-        "title": "Security Controls Overview",
+        "title": "Feature Availability by Product Version",
         "tableData": {
-          "headers": ["Control", "Owner", "Audit"],
+          "headers": ["Metric", "Free Tier", "Pro Tier", "Enterprise"],
           "rows": [
-            ["Access Control", "Security Team", "Quarterly"],
-            ["Encryption at Rest", "Infra Team", "Bi-annually"],
-            ["Network Segmentation", "Ops Team", "Annually"],
-            ["Secrets Management", "Platform Team", "Quarterly"]
+            ["Real-time Analytics", "", "✓", "✓"],
+            ["API Access", "", "✓", "✓"],
+            ["Custom Integrations", "", "", "✓"],
+            ["24/7 Support", "", "", "✓"],
+            ["Advanced Security", "", "✓", "✓"],
+            ["White Label", "", "", "✓"]
           ]
-        },
-        "showCheckmarks": true,
-        "colors": {
-          "headerBg": "#0f172a",
-          "rowAltBg": "#111827"
         }
       }
     },
@@ -22350,10 +22348,10 @@ Template Catalog with required props and usage:
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison for market distribution or category breakdown. CRITICAL: percentage values MUST represent actual percentages (0-100) that together sum to approximately 100%, or represent meaningful standalone metrics like "market share: 35%", "adoption rate: 67%". DO NOT use arbitrary numbers. The subtitle and description fields MUST clearly explain what the percentages represent (e.g., "Market share by vendor", "Customer segmentation by size", "Technology adoption rates").
 - [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
-- table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
-  • Usage: dense tabular data (dark theme); optional checkmarks.
-- table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme). Each row must have EXACTLY the same number of elements as headers[] (not headers.length + 1). Example: if headers has 3 items, each row must also have exactly 3 items.
+- table-dark: title, tableData: headers[],rows[][]
+  • Usage: comparison matrix with checkbox columns (like feature comparison tables). Structure: The FIRST column in each row is the row label (e.g., "Retention Rate", "Conversion Rate"). All subsequent columns are checkbox cells - use "✓" for checked, "" (empty string) or "✗" for unchecked. Headers should describe what each column represents (e.g., "Before Mapping", "After Mapping"). Example row: ["Customer Satisfaction", "✓", "", "✓"] where first cell is the label and others are checkboxes.
+- table-light: title, tableData: headers[],rows[][]
+  • Usage: dense tabular data (light theme) with consistent column structure. Each row must have EXACTLY the same number of elements as headers[] (not headers.length + 1). Example: if headers has 3 items, each row must also have exactly 3 items.
 - pie-chart-infographics: title, chartData.segments[] (label,value,color), monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown showing proportional parts of a whole. CRITICAL: segment values MUST sum to 100 (representing percentages) or represent actual quantities that are part of a total. Each segment needs label (category name), value (the number/percentage), and color (hex code like #2563eb). The title MUST clearly explain what distribution is being shown (e.g., "Budget Allocation by Department", "Customer Demographics by Age Group").
 

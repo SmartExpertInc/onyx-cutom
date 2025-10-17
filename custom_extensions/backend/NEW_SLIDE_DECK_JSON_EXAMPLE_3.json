@@ -284,6 +284,7 @@
       ],
       "props": {
         "title": "Performance Optimization Results",
+        "subtitle": "Performance benchmarking and optimization targets for different application components, including caching strategies, CDN implementation, and database optimization techniques for improved response times and user experience.",
         "steps": [
           {
             "value": "73%",
