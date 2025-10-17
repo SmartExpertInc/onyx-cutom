@@ -653,7 +653,7 @@ export default function CreateFromFilesNewPage() {
 
             {/* Tab content */}
             <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-              <div className="relative mt-8">
+              <div className="relative mt-8" style={{ borderBottom: '1px solid #EEEEF0' }}>
                 {/* Background SVG */}
                 <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clipPath="url(#clip0_867_16076)">
@@ -674,24 +674,23 @@ export default function CreateFromFilesNewPage() {
                 </svg>
 
                 {/* Small floating SVG icons */}
-                <div className="absolute" style={{ top: '100px', left: '260px' }}>
+                <div className="absolute" style={{ top: '100px', left: '265px' }}>
                   <XLSFileIcon />
                 </div>
 
-                
-                <div className="absolute" style={{ top: '185px', left: '303px' }}>
+                <div className="absolute" style={{ top: '185px', left: '310px' }}>
                   <PDFFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '142px', left: '382px' }}>
+                <div className="absolute" style={{ top: '138px', left: '395px' }}>
                   <DOCFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '100px', left: '505px' }}>
+                <div className="absolute" style={{ top: '100px', left: '520px' }}>
                   <ZIPFileIcon />
                 </div>
                 
-                <div className="absolute" style={{ top: '185px', left: '461px' }}>
+                <div className="absolute" style={{ top: '185px', left: '475px' }}>
                   <PNGFileIcon />
                 </div>
               </div>
