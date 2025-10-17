@@ -239,14 +239,30 @@ class SimpleVideoComposer:
             # Calculate total frames for progress tracking
             slide_frame_count = int(slide_cap.get(cv2.CAP_PROP_FRAME_COUNT))
             avatar_frame_count = int(avatar_cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            total_frames = max(slide_frame_count, avatar_frame_count)
+            
+            # OPTIMIZATION: Use minimum frame count to avoid processing unnecessary frames
+            # Previously used max() which caused processing of 1500 frames when avatar only had 140
+            total_frames = min(slide_frame_count, avatar_frame_count)
             
             logger.info(f"🎬 [SIMPLE_COMPOSER] Frame composition setup:")
             logger.info(f"  - Output dimensions: {output_width}x{output_height}")
             logger.info(f"  - Output FPS: {output_fps}")
             logger.info(f"  - Slide frames: {slide_frame_count}")
             logger.info(f"  - Avatar frames: {avatar_frame_count}")
-            logger.info(f"  - Total frames to process: {total_frames}")
+            logger.info(f"  - Total frames to process: {total_frames} (using min to optimize)")
+            
+            # Warn if frame counts differ significantly (more than 10% difference)
+            frame_diff = abs(slide_frame_count - avatar_frame_count)
+            frame_diff_percent = (frame_diff / max(slide_frame_count, avatar_frame_count)) * 100 if max(slide_frame_count, avatar_frame_count) > 0 else 0
+            
+            if frame_diff_percent > 10:
+                logger.warning(f"🎬 [SIMPLE_COMPOSER] ⚠️ Frame count mismatch detected!")
+                logger.warning(f"  - Slide frames: {slide_frame_count}")
+                logger.warning(f"  - Avatar frames: {avatar_frame_count}")
+                logger.warning(f"  - Difference: {frame_diff} frames ({frame_diff_percent:.1f}%)")
+                logger.warning(f"  - This may cause sync issues. Consider matching durations when creating videos.")
+            else:
+                logger.info(f"🎬 [SIMPLE_COMPOSER] ✅ Frame counts match well (difference: {frame_diff_percent:.1f}%)")
             
             # Define video codec and writer
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')

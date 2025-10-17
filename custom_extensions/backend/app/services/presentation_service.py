@@ -10,6 +10,7 @@ combining slide capture, avatar generation, and video composition.
 import asyncio
 import logging
 import os
+import subprocess
 import uuid
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -486,12 +487,60 @@ class ProfessionalPresentationService:
             # Import the clean video generation service
             from .clean_video_generation_service import clean_video_generation_service
             
-            # Generate clean slide video
-            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating clean slide video")
+            # Check if this is a slide-only video (no avatar needed)
+            if request.slide_only:
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                
+                # Generate slide video with requested duration
+                result = await clean_video_generation_service.generate_avatar_slide_video(
+                    slide_props=slide_data,
+                    theme=request.theme or "dark-purple",
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
+                
+                if not result["success"]:
+                    raise Exception(f"Slide video generation failed: {result['error']}")
+                
+                slide_video_path = result["video_path"]
+                output_filename = f"presentation_{job_id}.mp4"
+                output_path = self.output_dir / output_filename
+                
+                import shutil
+                shutil.copy2(slide_video_path, output_path)
+                final_video_path = str(output_path)
+                self._update_job_status(job_id, progress=90.0)
+                
+                # Cleanup temporary files
+                await self._cleanup_temp_files([slide_video_path])
+                
+                return final_video_path
+            
+            # OPTIMIZATION: Generate avatar video FIRST to get actual duration
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Step 1: Generating avatar video (to determine duration)")
+            avatar_video_path = await self._generate_avatar_video(
+                request.voiceover_texts,
+                request.avatar_code,
+                request.duration,
+                request.use_avatar_mask,
+                voice_id=request.voice_id,
+                voice_provider=request.voice_provider
+            )
+            self._update_job_status(job_id, progress=40.0)
+            
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
+            
+            # OPTIMIZATION: Extract actual duration from avatar video
+            avatar_duration = await self._get_video_duration_from_file(avatar_video_path)
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video duration: {avatar_duration:.2f} seconds")
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Frame optimization: Using avatar duration instead of requested {request.duration}s")
+            
+            # Generate slide video with MATCHING duration to avatar
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Step 2: Generating slide video with matching duration ({avatar_duration:.2f}s)")
             result = await clean_video_generation_service.generate_avatar_slide_video(
                 slide_props=slide_data,
                 theme=request.theme or "dark-purple",
-                slide_duration=request.duration,
+                slide_duration=avatar_duration,  # Use avatar duration instead of request.duration
                 quality=request.quality
             )
             
@@ -506,37 +555,7 @@ class ProfessionalPresentationService:
             if slide_image_paths and len(slide_image_paths) > 0:
                 job.slide_image_path = slide_image_paths[0]
             
-            self._update_job_status(job_id, progress=30.0)
-            
-            # Check if this is a slide-only video
-            if request.slide_only:
-                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] SLIDE-ONLY MODE: Using slide video directly")
-                output_filename = f"presentation_{job_id}.mp4"
-                output_path = self.output_dir / output_filename
-                
-                import shutil
-                shutil.copy2(slide_video_path, output_path)
-                final_video_path = str(output_path)
-                self._update_job_status(job_id, progress=90.0)
-                
-                # Cleanup temporary files
-                await self._cleanup_temp_files([slide_video_path])
-                
-                return final_video_path
-            
-            # Generate avatar video
-            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating avatar video")
-            avatar_video_path = await self._generate_avatar_video(
-                request.voiceover_texts,
-                request.avatar_code,
-                request.duration,
-                request.use_avatar_mask,
-                voice_id=request.voice_id,
-                voice_provider=request.voice_provider
-            )
-            self._update_job_status(job_id, progress=60.0)
-            
-            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
+            self._update_job_status(job_id, progress=70.0)
             
             # Compose final video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Composing final video")
@@ -617,30 +636,26 @@ class ProfessionalPresentationService:
                 
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} voiceover: {slide_voiceover_text[:100]}...")
                 
-                # Generate clean slide video for this slide
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating slide video for slide {slide_index + 1}")
-                slide_result = await clean_video_generation_service.generate_avatar_slide_video(
-                    slide_props=slide_data,
-                    theme=request.theme or "dark-purple",
-                    slide_duration=request.duration,
-                    quality=request.quality
-                )
-                
-                if not slide_result["success"]:
-                    raise Exception(f"Slide {slide_index + 1} video generation failed: {slide_result['error']}")
-                
-                slide_video_path = slide_result["video_path"]
-                temp_files_to_cleanup.append(slide_video_path)
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
-                
                 # Check if this is slide-only mode
                 if request.slide_only:
-                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] SLIDE-ONLY MODE: Using slide video directly")
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] SLIDE-ONLY MODE: Generating slide video with requested duration")
+                    slide_result = await clean_video_generation_service.generate_avatar_slide_video(
+                        slide_props=slide_data,
+                        theme=request.theme or "dark-purple",
+                        slide_duration=request.duration,
+                        quality=request.quality
+                    )
+                    
+                    if not slide_result["success"]:
+                        raise Exception(f"Slide {slide_index + 1} video generation failed: {slide_result['error']}")
+                    
+                    slide_video_path = slide_result["video_path"]
+                    temp_files_to_cleanup.append(slide_video_path)
                     individual_videos.append(slide_video_path)
                     continue
                 
-                # Generate avatar video for this slide with progress updates
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating avatar video for slide {slide_index + 1}")
+                # OPTIMIZATION: Generate avatar video FIRST for this slide
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Step 1: Generating avatar video for slide {slide_index + 1} (to determine duration)")
                 
                 # Update progress to show avatar generation started
                 avatar_start_progress = base_progress + 10
@@ -660,6 +675,27 @@ class ProfessionalPresentationService:
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
+                
+                # OPTIMIZATION: Extract actual duration from avatar video
+                avatar_duration = await self._get_video_duration_from_file(avatar_video_path)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} avatar duration: {avatar_duration:.2f} seconds")
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Frame optimization: Using avatar duration instead of requested {request.duration}s")
+                
+                # Generate slide video with MATCHING duration to avatar
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Step 2: Generating slide video for slide {slide_index + 1} with matching duration ({avatar_duration:.2f}s)")
+                slide_result = await clean_video_generation_service.generate_avatar_slide_video(
+                    slide_props=slide_data,
+                    theme=request.theme or "dark-purple",
+                    slide_duration=avatar_duration,  # Use avatar duration instead of request.duration
+                    quality=request.quality
+                )
+                
+                if not slide_result["success"]:
+                    raise Exception(f"Slide {slide_index + 1} video generation failed: {slide_result['error']}")
+                
+                slide_video_path = slide_result["video_path"]
+                temp_files_to_cleanup.append(slide_video_path)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
                 
                 # Compose individual slide + avatar video with progress updates
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Composing individual video for slide {slide_index + 1}")
@@ -848,6 +884,55 @@ class ProfessionalPresentationService:
                 {"text": "Avoid generic or cold responses", "isPositive": False}
             ]
         }
+    
+    async def _get_video_duration_from_file(self, video_path: str) -> float:
+        """
+        Extract video duration from file using ffprobe.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            Duration in seconds (float)
+        """
+        try:
+            if not os.path.exists(video_path):
+                logger.error(f"🎬 [DURATION_EXTRACT] Video file not found: {video_path}")
+                return 5.0  # Default fallback
+            
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-show_entries', 'format=duration',
+                '-of', 'json',
+                video_path
+            ]
+            
+            logger.info(f"🎬 [DURATION_EXTRACT] Extracting duration from: {video_path}")
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode != 0:
+                logger.warning(f"🎬 [DURATION_EXTRACT] ffprobe failed: {result.stderr}")
+                return 5.0  # Default fallback
+            
+            data = json.loads(result.stdout)
+            duration = float(data.get('format', {}).get('duration', 5.0))
+            
+            logger.info(f"🎬 [DURATION_EXTRACT] Extracted duration: {duration:.2f} seconds")
+            return duration
+            
+        except subprocess.TimeoutExpired:
+            logger.error(f"🎬 [DURATION_EXTRACT] ffprobe timeout")
+            return 5.0
+        except Exception as e:
+            logger.error(f"🎬 [DURATION_EXTRACT] Error extracting duration: {str(e)}")
+            return 5.0
     
     async def _get_available_avatar(self) -> str:
         """
