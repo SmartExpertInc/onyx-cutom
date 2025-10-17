@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import Image from 'next/image';
-import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, Upload, Settings, X, ArrowLeft, HardDrive, Link2, FolderPlus, Search, ArrowDownUp, Check, LayoutGrid, List, Workflow, Plus, FileText, Image as ImageIcon, Video, SlidersHorizontal, ListMinus } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ManageAddonsModal from '../AddOnsModal';
@@ -130,7 +130,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
   const contentTypeFilterKeys = Object.keys(contentTypeFilterLabels);
   const contentTypeFilterIcons: Record<string, React.ComponentType<any>> = {
-    all: SlidersHorizontal,
+    all: ListMinus,
     documents: FileText,
     images: ImageIcon,
     videos: Video

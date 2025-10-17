@@ -28,7 +28,8 @@ import {
 	ChevronLeft,
 	ChevronsLeft,
 	ChevronsRight,
-	ChevronDown
+	ChevronDown,
+	Files
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +60,7 @@ const getFileIcon = (mimeType: string | null | undefined) => {
 	if (type.startsWith('image/')) {
 		return Image;
 	} else if (type === 'application/pdf') {
-		return FileText;
+		return Files;
 	} else if (type.includes('document') || type.includes('text') || type.includes('word')) {
 		return FileText;
 	}
@@ -1084,8 +1085,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							
 							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] flex-1">
 								<Table className="min-w-full divide-y divide-[#E0E0E0]">
-									<TableHeader className="bg-white divide-y divide-[#E0E0E0]">
-										<TableRow className='divide-y divide-[#E0E0E0]'>
+									<TableHeader className="bg-white divide-y divide-[#E0E0E0] [&_tr]:border-b-0">
+										<TableRow className='divide-y divide-[#E0E0E0] border-b-0'>
 											<TableHead 
 												className="px-3 py-2 text-left text-xs font-normal text-[#71717A] tracking-wider"
 												style={{ width: '100px' }}
@@ -1134,7 +1135,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											</TableHead>
 										</TableRow>
 									</TableHeader>
-									<TableBody className="bg-white divide-y divide-[#E0E0E0]">
+									<TableBody className="bg-white divide-y divide-[#E0E0E0] [&_tr]:border-b-0">
 								{(() => {
 									// If any folder is expanded, show the folder with blue background and its contents
 									const expandedFolder = Array.from(expandedFolders)[0]; // Get first expanded folder
