@@ -22339,8 +22339,8 @@ Template Catalog with required props and usage:
   • Usage: 2×2 grid of highlights; four concise boxes.
 - timeline: title, events[] (date,title,description)
   • Usage: chronological milestones; left-to-right progression. Do not use event-list.
-- big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
-  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. Descriptions should be 2–3 concise sentences each in examples.
+- big-numbers: title, subtitle, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
+  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. The subtitle should provide context for the metrics (2-3 sentences). Each step's description should be 2–3 concise sentences.
 - pyramid: title, steps[] (EXACTLY: heading,number - NOT levels, NOT description)
   • Usage: hierarchical structure; 3-5 level pyramid visual. Each step must have "heading" (the text) and "number" (like "01", "02", etc). Do NOT include "levels" or "description" fields.
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
