@@ -1734,7 +1734,7 @@ export const en = {
     storage: "Storage",
     driveStorage: "Drive storage",
     contactSales: "Contact Sales",
-    buyNow: "Buy Now",
+    buyNow: "Buy now",
     packages: {
       credits: {
         small: {

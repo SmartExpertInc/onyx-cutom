@@ -1208,7 +1208,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															</TableCell>
 															
 															{/* Action Column */}
-															<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+															<TableCell className="px-3 py-2 text-right divide-y divide-gray-200" onClick={(e) => e.stopPropagation()}>
 															<div className="flex justify-end">
 																<DropdownMenu>
 																	<DropdownMenuTrigger asChild>
@@ -1323,7 +1323,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													</TableCell>
 													
 													{/* Action Column */}
-													<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+													<TableCell className="px-3 py-2 text-right divide-y divide-gray-200" onClick={(e) => e.stopPropagation()}>
 													<div className="flex justify-end">
 														<DropdownMenu>
 															<DropdownMenuTrigger asChild>

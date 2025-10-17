@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddOn {
@@ -112,50 +113,54 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
             <Icon className="text-white" size={24} />
           </div>
           <div className="flex-1">
-            <CardTitle className="text-base font-semibold text-[#434343]">{addOn.name}</CardTitle>
-            <CardDescription className="text-[#949CA8] font-light text-[10px]">{addOn.description}</CardDescription>
+            <CardTitle className="text-base -mt-1 font-semibold text-[#434343]">{addOn.name}</CardTitle>
+            <CardDescription className="text-[#949CA8] pt-1 leading-none font-light text-[10px]">{addOn.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 p-4">
-        {showAmount && (
-          <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
-            <span>{addOn.amount}</span>
-                  </div>
-        )}
-        <div className="text-3xl pb-2 font-bold text-gray-900">
-          {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
-          {addOn.priceNote === 'per month' && (
-            <span className="text-xs font-normal text-[#0D001B]">/month</span>
-          )}
-        </div>
-        {!addOn.isEnterprise && (
-          <div className="flex border border-[#E0E0E0] rounded-sm py-1 px-2 items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onQuantityChange(-1)}
-              className="h-7 w-7 bg-[#CCDBFC] rounded-xs text-[#0F58F9]"
-            >
-              -
-            </Button>
-            <div className="flex-1 text-center font-regular text-[#71717A]">{quantity}</div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onQuantityChange(1)}
-              className="h-7 w-7 bg-white rounded-xs bg-[#CCDBFC] text-[#0F58F9]"
-            >
-              +
+      <CardContent className="px-4 pb-3 pt-0">
+        <ScrollArea className="h-full">
+          <div className="space-y-2">
+            {showAmount && (
+              <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
+                <span>{addOn.amount}</span>
+                      </div>
+            )}
+            <div className="text-3xl pb-2 font-bold text-gray-900">
+              {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
+              {addOn.priceNote === 'per month' && (
+                <span className="text-xs font-normal text-[#0D001B]">/month</span>
+              )}
+            </div>
+            {!addOn.isEnterprise && (
+              <div className="flex border border-[#E0E0E0] rounded-sm py-1 px-2 items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onQuantityChange(-1)}
+                  className="h-5 w-5 bg-[#CCDBFC] rounded-xs text-sm text-[#0F58F9]"
+                >
+                  <span className='text-lg'>-</span>
+                </Button>
+                <div className="flex-1 text-center font-regular text-[#71717A]">{quantity}</div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onQuantityChange(1)}
+                  className="h-5 w-5 bg-white rounded-xs bg-[#CCDBFC] text-sm text-[#0F58F9]"
+                >
+                  <span className='text-lg'>+</span>
+                </Button>
+              </div>
+            )}
+            {addOn.isEnterprise && (
+              <div className="h-7"></div>
+            )}
+            <Button className={`w-full ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
+              {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy now')}
             </Button>
           </div>
-        )}
-        {addOn.isEnterprise && (
-          <div className="h-8"></div>
-        )}
-        <Button className={`w-full ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
-          {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy Now')}
-        </Button>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
@@ -277,7 +282,14 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/95 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
+      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
+        <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+            aria-label="Close modal"
+        >
+          <X className="w-5 h-5 xl:w-6 xl:h-6 text-[#71717A]" />
+        </button>
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl text-[#434343] sora-font-bold">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
           <DialogDescription className="text-[11px] text-[#949CA8]">
