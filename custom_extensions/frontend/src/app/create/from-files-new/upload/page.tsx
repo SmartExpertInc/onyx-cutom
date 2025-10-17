@@ -162,14 +162,26 @@ export default function UploadFilesPage() {
           {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
         </p>
 
-        {/* Add more files button */}
-        <button
-          onClick={handleAddMoreClick}
-          className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white border border-[#0F58F9] text-[#0F58F9] font-semibold hover:bg-blue-50 transition-colors duration-200"
-        >
-          <span className="text-xl">+</span>
-          <span>{t('interface.fromFiles.addMoreFiles', 'Add more files')}</span>
-        </button>
+        {/* Action buttons */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleAddMoreClick}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-[#0F58F9] text-[#0F58F9] font-semibold hover:bg-blue-50 transition-colors duration-200"
+          >
+            <span className="text-xl">+</span>
+            <span>{t('interface.fromFiles.addMoreFiles', 'Add more files')}</span>
+          </button>
+
+          <button
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity duration-200"
+            style={{ backgroundColor: '#0F58F9' }}
+          >
+            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.512 11.8603C12.0768 12.0267 11.8401 12.2646 11.6718 12.6991C11.505 12.2646 11.2667 12.0284 10.8316 11.8603C11.2667 11.6938 11.5034 11.4575 11.6718 11.0214C11.8385 11.4559 12.0768 11.6922 12.512 11.8603ZM11.7326 5.05915C12.1096 3.65697 12.6249 3.14142 14.031 2.76444C12.6265 2.38797 12.1101 1.87349 11.7326 0.469727C11.3555 1.87191 10.8402 2.38746 9.43415 2.76444C10.8386 3.14091 11.355 3.65539 11.7326 5.05915ZM12.143 7.95329C12.143 7.82118 12.0741 7.66168 11.8816 7.60798C10.3061 7.16814 9.31904 6.666 8.58206 5.93083C7.84513 5.19508 7.34112 4.20956 6.90222 2.63662C6.84843 2.44437 6.68867 2.37563 6.55635 2.37563C6.42403 2.37563 6.26427 2.44437 6.21048 2.63662C5.76994 4.20956 5.267 5.19503 4.53064 5.93083C3.79264 6.66765 2.8066 7.16978 1.23114 7.60798C1.03858 7.66168 0.969727 7.82118 0.969727 7.95329C0.969727 8.0854 1.03858 8.2449 1.23114 8.2986C2.8066 8.73844 3.79366 9.24057 4.53064 9.97575C5.26865 10.7126 5.77158 11.697 6.21048 13.27C6.26427 13.4622 6.42403 13.531 6.55635 13.531C6.68868 13.531 6.84843 13.4622 6.90222 13.27C7.34276 11.697 7.84571 10.7116 8.58206 9.97575C9.32006 9.23892 10.3061 8.7368 11.8816 8.2986C12.0741 8.2449 12.143 8.0854 12.143 7.95329Z" fill="white"/>
+            </svg>
+            <span>{t('interface.continue', 'Continue')}</span>
+          </button>
+        </div>
       </div>
 
       <FeedbackButton />
