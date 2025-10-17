@@ -398,12 +398,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  textAlign: 'center',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
-                  maxWidth: '50px'
+                  maxWidth: '50px',
+                  padding: '16px 8px'
                 }}>
                   <button
                     onClick={addColumn}
@@ -491,12 +490,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     ...dataCellStyles, 
                     textAlign: 'center', 
                     position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
-                    maxWidth: '50px'
+                    maxWidth: '50px',
+                    padding: '16px 8px'
                   }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
@@ -525,9 +522,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   textAlign: 'center',
                   borderRight: '1px solid #E0E0E0',
                   position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  padding: '16px 8px'
                 }}>
                   <button
                     onClick={addRow}

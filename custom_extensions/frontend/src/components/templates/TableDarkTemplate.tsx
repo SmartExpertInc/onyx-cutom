@@ -287,8 +287,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
-    width: 'fit-content',
-    maxWidth: '100%',
+    width: '100%',
     borderRadius: '15px',
     overflow: 'hidden',
     backgroundColor: '#ffffff',
@@ -298,7 +297,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Table styles - with spacing between cells
   const tableStyles: React.CSSProperties = {
-    width: 'auto',
+    width: '100%',
     borderCollapse: 'separate',
     borderSpacing: '8px 0px',
     backgroundColor: '#ffffff',
@@ -425,15 +424,15 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
             <tr>
               {/* First column header - from data */}
               {tableData.headers.length > 0 && (
-                <th style={{ 
-                  ...headerStyles, 
-                  backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
-                  color: '#000000',
-                  textAlign: 'left',
-                  borderTopLeftRadius: '15px',
-                  borderTopRightRadius: '15px'
-                }}>
-                  <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+              <th style={{ 
+                ...headerStyles, 
+                backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
+                color: '#000000',
+                textAlign: 'left',
+                borderTopLeftRadius: '15px',
+                borderTopRightRadius: '15px'
+              }}>
+                <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                     {editingHeader === -1 && isEditable ? (
                       <WysiwygEditor
                         initialValue={tableData.headers[0]}
@@ -472,7 +471,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         dangerouslySetInnerHTML={{ __html: tableData.headers[0] }}
                       />
                     )}
-                  </div>
+                </div>
                 </th>
               )}
               
@@ -565,12 +564,11 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <th style={{ 
                   ...headerStyles, 
                   backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  textAlign: 'center',
                   width: '50px', // Thin column for add button
                   minWidth: '50px',
-                  maxWidth: '50px'
+                  maxWidth: '50px',
+                  padding: '16px 8px'
                 }}>
                     <button
                       onClick={addColumn}
@@ -609,28 +607,28 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         {isFirstColumn ? (
                           // First column: text with inline editing
                           isEditingThisCell && isEditable ? (
-                            <WysiwygEditor
-                              initialValue={cell}
-                              onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
-                              onCancel={() => setEditingCell(null)}
-                              placeholder="Enter cell content..."
-                              className="inline-editor-cell"
-                              style={{
-                                  color: '#000000',
-                                  textAlign: 'left',
-                                  fontSize: '0.95rem',
-                                  fontWeight: 'bold',
-                                  padding: '8px',
-                                  border: '1px solid #e5e7eb',
-                                  borderRadius: '4px',
-                                  wordWrap: 'break-word',
-                                  whiteSpace: 'pre-wrap',
-                                  boxSizing: 'border-box',
-                                  display: 'block',
-                                  lineHeight: '1.2',
-                                  width: '100%'
-                                }}
-                              />
+                          <WysiwygEditor
+                            initialValue={cell}
+                            onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
+                            onCancel={() => setEditingCell(null)}
+                            placeholder="Enter cell content..."
+                            className="inline-editor-cell"
+                            style={{
+                                color: '#000000',
+                                textAlign: 'left',
+                                fontSize: '0.95rem',
+                                fontWeight: 'bold',
+                                padding: '8px',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '4px',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'pre-wrap',
+                                boxSizing: 'border-box',
+                                display: 'block',
+                                lineHeight: '1.2',
+                                width: '100%'
+                              }}
+                            />
                           ) : (
                             <span 
                               onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
@@ -661,13 +659,13 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                               </div>
                             </span>
                           )
-                        ) : (
+                          ) : (
                           // All other columns: checkbox only (no text allowed)
-                          <div 
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          >
-                            {renderCheckbox(cell, rowIndex, colIndex)}
-                          </div>
+                            <div 
+                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              {renderCheckbox(cell, rowIndex, colIndex)}
+                            </div>
                         )}
                       </div>
                       </td>
@@ -680,12 +678,10 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     ...dataCellStyles, 
                     textAlign: 'center', 
                     position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     width: '50px', // Thin column for delete button
                     minWidth: '50px',
-                    maxWidth: '50px'
+                    maxWidth: '50px',
+                    padding: '16px 8px'
                   }}>
                       <button
                         onClick={() => removeRow(rowIndex)}
@@ -713,11 +709,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   ...firstColumnStyles, 
                   textAlign: 'center',
                   position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   borderBottomLeftRadius: '15px',
-                  borderBottomRightRadius: '15px'
+                  borderBottomRightRadius: '15px',
+                  padding: '16px 8px'
                 }}>
                     <button
                       onClick={addRow}
