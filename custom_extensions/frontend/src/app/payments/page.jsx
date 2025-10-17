@@ -12,6 +12,38 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import useFeaturePermission from '@/hooks/useFeaturePermission';
 
+// Helper function to check if any modal is present in the DOM
+const isAnyModalPresent = () => {
+  if (typeof window === 'undefined') return false;
+
+  // Check for various modal selectors that might be present
+  const modalSelectors = [
+    '[data-modal-portal="true"]',
+    '.fixed.inset-0.z-\\[9999\\]', // FolderModal and FolderSettingsModal
+    '.fixed.inset-0.z-50', // Generic modals
+    '.fixed.inset-0.bg-neutral-950', // Modal component
+    '.fixed.inset-0.overflow-hidden.z-50', // SlideOverModal
+    '.fixed.inset-0.bg-black', // Various modal overlays
+    '[role="dialog"]',
+    '[aria-modal="true"]'
+  ];
+
+  return modalSelectors.some(selector => {
+    try {
+      return document.querySelector(selector) !== null;
+    } catch {
+      return false;
+    }
+  });
+};
+
+// Helper function to get modal state - combines window flag and DOM detection
+const getModalState = () => {
+  const windowFlag = (typeof window !== 'undefined') ? window.__modalOpen : false;
+  const domDetection = isAnyModalPresent();
+  return windowFlag || domDetection;
+};
+
 const Sidebar = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
   const { t } = useLanguage();
