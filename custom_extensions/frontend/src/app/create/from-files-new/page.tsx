@@ -600,7 +600,7 @@ export default function CreateFromFilesNewPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Title */}
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Select a file
             </h2>
 
@@ -610,7 +610,7 @@ export default function CreateFromFilesNewPage() {
                 onClick={() => setActiveTab('smartdrive')}
                 className="flex items-center gap-2 px-4 py-2 relative"
                 style={{
-                  borderBottom: activeTab === 'smartdrive' ? '3px solid #719AF5' : '1px solid #71717ACC',
+                  borderBottom: activeTab === 'smartdrive' ? '3px solid #719AF5' : '3px solid #71717ACC',
                 }}
               >
                 <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -632,7 +632,7 @@ export default function CreateFromFilesNewPage() {
                 onClick={() => setActiveTab('connectors')}
                 className="flex items-center gap-2 px-4 py-2 relative"
                 style={{
-                  borderBottom: activeTab === 'connectors' ? '3px solid #719AF5' : '1px solid #E5E5E5',
+                  borderBottom: activeTab === 'connectors' ? '3px solid #719AF5' : '3px solid #71717ACC',
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -694,6 +694,29 @@ export default function CreateFromFilesNewPage() {
                   <PNGFileIcon />
                 </div>
               </div>
+
+              {/* Title below SVG */}
+              <h3 className="text-sm text-gray-600 mt-4">
+                Your Smart Drive is empty
+              </h3>
+
+              {/* Description text */}
+              <div className="text-center mt-2 mb-4">
+                <p className="text-sm text-gray-600">
+                  You haven't added any materials yet.
+                </p>
+                <p className="text-sm text-gray-600">
+                  Go to your Knowledge Base to upload files and manage your content.
+                </p>
+              </div>
+
+              {/* Upload files button */}
+              <button
+                className="px-6 py-2 rounded-md text-sm font-medium text-white"
+                style={{ backgroundColor: '#0F58F9' }}
+              >
+                Upload files
+              </button>
               
               {activeTab === 'smartdrive' && (
                 <div>
