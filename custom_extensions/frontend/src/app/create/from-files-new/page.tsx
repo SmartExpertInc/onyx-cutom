@@ -254,7 +254,7 @@ export default function CreateFromFilesNewPage() {
           onClick={handleCancel}
         >
           <div 
-            className="rounded-lg p-6 w-full max-w-md"
+            className="rounded-lg p-6 w-full max-w-lg"
             style={{
               background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
               boxShadow: '4px 4px 8px 0px #0000000D',
@@ -263,7 +263,7 @@ export default function CreateFromFilesNewPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Title */}
-            <h2 className="text-sm font-semibold text-gray-900 mb-1">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
               Import from URL
             </h2>
 
@@ -273,7 +273,7 @@ export default function CreateFromFilesNewPage() {
             </p>
 
             {/* URL inputs */}
-            <div className="space-y-4 mb-4">
+            <div className="space-y-4 mb-2">
               {urls.map((url, index) => (
                 <div key={index}>
                   <label className="block text-sm font-semibolld text-[#09090B] mb-2">
@@ -331,7 +331,9 @@ export default function CreateFromFilesNewPage() {
         </div>
       )}
 
-      <FeedbackButton />
+      <div className="relative z-50">
+        <FeedbackButton />
+      </div>
     </main>
   );
 }
