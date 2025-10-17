@@ -959,6 +959,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BigNumbersTemplate,
     defaultProps: {
       title: 'Add title',
+      subtitle: 'Add slide description',
       steps: [
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
@@ -967,8 +968,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: 'Company name'
     },
     propSchema: {
-      title: { type: 'text', label: 'Title' },
-      steps: { type: 'array', label: 'Big Numbers' },
+      title: { type: 'text', label: 'Title', required: true },
+      subtitle: { type: 'text', label: 'Subtitle', required: true },
+      steps: { type: 'array', label: 'Big Numbers', required: true },
     },
   },
   'pyramid': {
@@ -1280,18 +1282,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'table-dark': {
     id: 'table-dark',
     name: 'Table Dark',
-    description: 'Comparison table template with features and versions',
+    description: 'Comparison table template with features and options',
     category: 'content',
     icon: '⬛',
     component: TableDarkTemplate,
     defaultProps: {
       title: 'Comparison table template',
       tableData: {
-        headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
+        headers: ['Feature', 'Option 1', 'Option 2', 'Option 3'],
         rows: [
-          ['version 1', '✓', '✓', '✗', '✗'],
-          ['version 2', '✗', '✓', '✓', '✗'],
-          ['version 3', '✗', '✗', '✓', '✓']
+          ['Feature A', '✓', '✓', '✗'],
+          ['Feature B', '✗', '✓', '✓'],
+          ['Feature C', '✗', '✗', '✓']
         ]
       },
       backgroundColor: '#f8fafc',

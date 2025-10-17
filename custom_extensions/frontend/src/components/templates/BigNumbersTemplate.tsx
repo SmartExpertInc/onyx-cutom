@@ -283,7 +283,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
         >
           {isEditable && editingSubtitle ? (
             <WysiwygEditor
-              initialValue={subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.'}
+              initialValue={subtitle || 'Add slide description'}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
               placeholder="Enter subtitle..."
@@ -315,7 +315,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              dangerouslySetInnerHTML={{ __html: subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}
+              dangerouslySetInnerHTML={{ __html: subtitle || 'Add slide description' }}
             />
           )}
         </div>

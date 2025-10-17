@@ -190,7 +190,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     width: '100%',
     borderCollapse: 'collapse',
     backgroundColor: '#ffffff',
-    tableLayout: 'fixed' // Ensures consistent column widths
+    tableLayout: 'auto' // Auto width for proper column sizing
   };
 
   // Header styles - using theme colors, with vertical borders only
@@ -401,7 +401,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  width: '50px', // Thin column for add button
+                  minWidth: '50px',
+                  maxWidth: '50px'
                 }}>
                   <button
                     onClick={addColumn}
@@ -491,7 +494,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    width: '50px', // Thin column for delete button
+                    minWidth: '50px',
+                    maxWidth: '50px'
                   }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
@@ -549,7 +555,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 {/* Empty cell for delete column */}
                 <td style={{ 
                   ...dataCellStyles, 
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  width: '50px', // Thin column for delete button
+                  minWidth: '50px',
+                  maxWidth: '50px'
                 }} />
               </tr>
             )}

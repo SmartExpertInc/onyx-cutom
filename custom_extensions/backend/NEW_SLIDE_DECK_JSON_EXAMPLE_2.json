@@ -237,6 +237,7 @@
       ],
       "props": {
         "title": "Personalization Impact Metrics",
+        "subtitle": "Leveraging AI-powered personalization across all touchpoints creates highly relevant customer experiences that drive measurable business outcomes.",
         "steps": [
           {
             "value": "73%",
@@ -318,6 +319,7 @@
       ],
       "props": {
         "title": "Marketing Performance Scorecard",
+        "subtitle": "Data-driven marketing optimization delivers significant improvements across key metrics, demonstrating clear ROI and business impact.",
         "steps": [
           {
             "value": "312%",
