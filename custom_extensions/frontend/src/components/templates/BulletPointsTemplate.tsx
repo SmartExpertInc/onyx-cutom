@@ -433,6 +433,7 @@ function UnifiedBulletEditor({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
+        //d
       }}>
         {bullets.map((bullet: string, index: number) => (
           <li key={index} style={{ 
