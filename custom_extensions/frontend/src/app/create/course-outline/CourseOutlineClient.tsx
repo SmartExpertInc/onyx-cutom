@@ -1457,7 +1457,7 @@ export default function CourseOutlineClient() {
                 className="px-10 py-4 rounded-t-[8px] text-white text-lg font-medium"
                 style={{ backgroundColor: '#0F58F999' }}
               >
-                {prompt || t('interface.courseOutline.courseTitle', 'Course Outline')}
+                {t('interface.courseOutline.course', 'Course')}
               </div>
               
               {/* Module cards container */}

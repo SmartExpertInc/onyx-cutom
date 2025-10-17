@@ -1340,12 +1340,23 @@ export default function LessonPresentationClient() {
               if (pkt.type === "delta") {
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
+              } else if (pkt.type === "done") {
+                // Set final content from done packet if available
+                if (pkt.content && typeof pkt.content === "string") {
+                  setContent(pkt.content);
+                } else if (accumulatedText) {
+                  setContent(accumulatedText);
+                }
               }
             } catch (e) {
               // If not JSON, treat as plain text
               accumulatedText += buffer;
               setContent(accumulatedText);
             }
+          }
+          // Ensure content is set even if buffer was empty
+          if (accumulatedText && !buffer.trim()) {
+            setContent(accumulatedText);
           }
           setStreamDone(true);
           break;
@@ -1371,6 +1382,12 @@ export default function LessonPresentationClient() {
               accumulatedText += pkt.text;
               setContent(accumulatedText);
             } else if (pkt.type === "done") {
+              // Set final content from done packet if available, otherwise use accumulated
+              if (pkt.content && typeof pkt.content === "string") {
+                setContent(pkt.content);
+              } else if (accumulatedText) {
+                setContent(accumulatedText);
+              }
               setStreamDone(true);
               break;
             } else if (pkt.type === "error") {
@@ -1903,7 +1920,10 @@ export default function LessonPresentationClient() {
                   className="px-10 py-4 rounded-t-[8px] text-white text-lg font-medium"
                   style={{ backgroundColor: '#0F58F999' }}
                 >
-                  {selectedLesson || currentPrompt || t('interface.generate.lesson', 'Lesson')}
+                  {productType === "video_lesson_presentation" 
+                    ? t('interface.generate.videoLessonPresentation', 'Video Lesson Presentation')
+                    : t('interface.generate.presentation', 'Presentation')
+                  }
                 </div>
                 
                 {/* Slides container */}
