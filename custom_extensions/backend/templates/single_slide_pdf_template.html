@@ -2449,93 +2449,74 @@
                 </div>
                 
             {% elif slide.templateId == 'big-image-top' %}
+                <!-- EXACT FRONTEND: height: 600px, background: #ffffff, display: flex, flexDirection: column, padding: 0 -->
                 <div style="height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; position: relative;">
-                    <!-- Top 50% - Image Container (300px) -->
+                    <!-- imageContainerStyles: width: 100%, height: 50%, flexShrink: 0 -->
                     <div style="width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; min-width: 0; margin-bottom: 0; flex-shrink: 0;">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="width: 100%; height: 100%; object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }}; margin: 0; padding: 0; display: block;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: #f8f9fa;">
-                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
-                            </div>
+                            <!-- EXACT: width: 100%, height: 100%, object-fit: contain -->
+                            <img src="{{ slide.props.imagePath }}" alt="Uploaded image" style="width: 100%; height: 100%; object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }}; margin: 0; padding: 0; display: block;" onerror="this.style.display='none';" />
                         {% else %}
-                            <div style="width: 100%; height: 100%; border: 2px dashed #e0e0e0; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
-                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
-                            </div>
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; color: #6c757d;">🖼️</div>
                         {% endif %}
                     </div>
                     
-                    <!-- Bottom 50% - Content Container (300px) -->
+                    <!-- contentContainerStyles: width: 100%, height: 50%, padding: 40px 40px, flexShrink: 0 -->
                     <div style="width: 100%; height: 50%; padding: 40px 40px; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; flex-shrink: 0; overflow: hidden;">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block;">
-                                <h1 style="font-size: 3rem; font-family: var(--title-font); color: #000000; margin-bottom: 24px; line-height: 1.2; word-wrap: break-word; font-weight: bold; text-align: left;">
-                                    {{ slide.props.title }}
-                                </h1>
-                            </div>
+                            <!-- titleStyles: fontSize: 3rem, color: #000000, marginBottom: 24px -->
+                            <h1 style="font-size: 3rem; font-family: var(--title-font); color: #000000; margin-bottom: 24px; line-height: 1.2; word-wrap: break-word; font-weight: bold; text-align: left;">
+                                {{ slide.props.title }}
+                            </h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            <div data-moveable-element="{{ slide.slideId }}-subtitle" data-draggable="true" style="display: inline-block;">
-                                <div style="font-size: 1.1rem; font-family: var(--content-font); color: #333333; line-height: 1.6; width: 75%; white-space: pre-wrap; word-wrap: break-word; text-align: left;">
-                                    {{ slide.props.subtitle }}
-                                </div>
+                            <!-- subtitleStyles: fontSize: 1.1rem, color: #333333, width: 75% -->
+                            <div style="font-size: 1.1rem; font-family: var(--content-font); color: #333333; line-height: 1.6; width: 75%; white-space: pre-wrap; word-wrap: break-word; text-align: left;">
+                                {{ slide.props.subtitle }}
                             </div>
                         {% endif %}
                     </div>
                 </div>
                 
                 {% elif slide.templateId == 'bullet-points' %}
-                <div class="bullet-points">
-                    <!-- LEFT section with IMAGE (white background) -->
-                    <div class="left-section">
+                <!-- EXACT FRONTEND MATCH: width: 100%, minHeight: 600px, background: #ffffff, display: flex, flexDirection: row -->
+                <div style="width: 100%; min-height: 600px; background: #ffffff; display: flex; flex-direction: row; position: relative; font-family: var(--content-font); overflow: hidden;">
+                    <!-- LEFT section with IMAGE: width: 100%, height: 600px, position: absolute, left: 0, top: 0, background: #ffffff, z-index: 1 -->
+                    <div style="width: 100%; height: 600px; position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; z-index: 1;">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: cover;
-                                    border-radius: 8px;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <img src="{{ slide.props.imagePath }}" alt="Uploaded image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none';" />
                         {% else %}
-                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
-                                🖼️ Add image
-                            </div>
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; color: #6c757d;">🖼️</div>
                         {% endif %}
                     </div>
                     
-                    <!-- RIGHT section with TITLE and BULLETS (dark blue background) -->
-                    <div class="right-section">
-                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                    <!-- RIGHT section with TITLE and BULLETS: width: 65%, height: 600px, position: absolute, right: 0, top: 0, z-index: 2 -->
+                    <div style="width: 65%; height: 600px; position: absolute; right: 0; top: 0; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%); padding: 35px; clip-path: polygon(0 0, 100% 0, 100% 100%, 15% 100%); z-index: 2;">
+                        <!-- Title: fontSize: 3.5rem, width: 100%, fontFamily: serif, color: #ffffff, textAlign: right, marginBottom: 40px -->
+                        <h1 style="font-size: 3.5rem; width: 100%; font-family: serif; color: #ffffff; font-weight: bold; text-align: right; margin-bottom: 40px; word-wrap: break-word; line-height: 1.1;">
+                            {{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}
+                        </h1>
                         
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
+                        <!-- Bullets Container -->
+                        <div style="width: 77%; font-size: 0.9rem; font-family: sans-serif; color: #ffffff; display: flex; flex-direction: column; align-items: flex-start;">
+                            <ul style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <!-- EXACT: gap: 12px, marginBottom: 35px -->
+                                            <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px;">
+                                                <!-- bulletIconStyles EXACT: color: #ffffff, fontWeight: bold, minWidth: 14px, fontSize: 0.8rem -->
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
+                                                <!-- bulletTextStyles EXACT: fontFamily: sans-serif, fontSize: 0.9rem, marginTop: -5px, opacity: 0.8 -->
                                                 <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
-                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
-                                        </li>
-                                    {% endfor %}
+                                    <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px;">
+                                        <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem; font-family: sans-serif;">▶</span>
+                                        <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8; line-height: 1.6;">Default bullet point</span>
+                                    </li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -2544,77 +2525,68 @@
                 
                 
             {% elif slide.templateId == 'bullet-points-right' %}
-                <div class="bullet-points-right">
-                    <!-- Left section with title and bullets (dark blue background) -->
-                    <div class="left-section">
-                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                <!-- EXACT FRONTEND MATCH: width: 100%, minHeight: 600px, background: #ffffff -->
+                <div style="width: 100%; min-height: 600px; background: #ffffff; display: flex; flex-direction: row; position: relative; font-family: var(--content-font); overflow: hidden;">
+                    <!-- LEFT section: width: 65%, height: 600px, position: absolute, left: 0, top: 0, z-index: 2 -->
+                    <div style="width: 65%; height: 600px; position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%); padding: 35px; clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%); z-index: 2;">
+                        <!-- Title: fontSize: 3.5rem, fontFamily: serif, color: #ffffff, textAlign: left, marginBottom: 40px -->
+                        <h1 style="font-size: 3.5rem; font-family: serif; color: #ffffff; font-weight: bold; text-align: left; margin-bottom: 40px; word-wrap: break-word; line-height: 1.1;">
+                            {{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}
+                        </h1>
                         
-                        <div class="bullets-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[bulletsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
+                        <!-- Bullets Container -->
+                        <div style="width: 77%; font-size: 0.9rem; font-family: sans-serif; color: #ffffff; display: flex; flex-direction: column; align-items: flex-start;">
+                            <ul style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <!-- gap: 12px, marginBottom: 35px, width: 70% -->
+                                            <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                                <!-- bulletIconStyles EXACT -->
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
+                                                <!-- bulletTextStyles EXACT -->
                                                 <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
-                                            <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
-                                            <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.</span>
-                                        </li>
-                                    {% endfor %}
+                                    <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                        <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem; font-family: sans-serif;">▶</span>
+                                        <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8; line-height: 1.6;">Default bullet point</span>
+                                    </li>
                                 {% endif %}
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Right section with image only -->
-                    <div class="right-section">
+                    <!-- RIGHT section with IMAGE: width: 100%, height: 600px, position: absolute, left: 0, top: 0, z-index: 1 -->
+                    <div style="width: 100%; height: 600px; position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; background: #ffffff; z-index: 1;">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <img src="{{ slide.props.imagePath }}" alt="Uploaded image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none';" />
                         {% else %}
-                            <div class="placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
-                                🖼️ Add image
-                            </div>
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; color: #6c757d;">🖼️</div>
                         {% endif %}
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'process-steps' %}
-                <div class="process-steps">
-                    <!-- Left Column - Title and Subtitle -->
-                    <div class="left-column">
-                        <!-- Title -->
-                        <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block; width: 100%;">
-                            <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em;">
-                                {{ slide.props.title or 'The Stages of Research' }}
-                            </h1>
-                        </div>
-
-                        <!-- Subtitle -->
-                        <div data-moveable-element="{{ slide.slideId }}-subtitle" data-draggable="true" style="display: inline-block; width: 100%;">
-                            <p style="font-size: 1.4rem; font-family: sans-serif; color: #09090B; font-weight: normal; text-align: left; opacity: 0.9; letter-spacing: 0.01em;">
-                                {{ slide.props.subtitle or 'Miss Jones Science Class' }}
-                            </p>
-                        </div>
+                <!-- EXACT FRONTEND: minHeight: 600px, background: #ffffff, display: flex, padding: 50px, alignItems: flex-start -->
+                <div style="min-height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; padding: 50px; align-items: flex-start;">
+                    <!-- Left Column: flex: 1 -->
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                        <!-- Title: width: 230px, fontSize: 3rem, fontFamily: serif, color: #000000, lineHeight: 0.85, letterSpacing: -0.04em -->
+                        <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em;">
+                            {{ slide.props.title or 'The Stages of Research' }}
+                        </h1>
+                        
+                        <!-- Subtitle: fontSize: 1.4rem, fontFamily: sans-serif, color: #09090B, letterSpacing: 0.01em -->
+                        <p style="font-size: 1.4rem; font-family: sans-serif; color: #09090B; font-weight: normal; text-align: left; opacity: 0.9; letter-spacing: 0.01em;">
+                            {{ slide.props.subtitle or 'Miss Jones Science Class' }}
+                        </p>
                     </div>
 
-                    <!-- Right Column - Process Steps (GUARANTEED 5 BLOCKS) -->
-                    <div class="right-column">
+                    <!-- Right Column: flex: 1.8, gap: 7px -->
+                    <div style="flex: 1.8; display: flex; flex-direction: column; gap: 7px;">
                         {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
                         {% set defaultSteps = [
                             {'title': 'PROBLEM', 'description': 'Identify a problem and form a thesis statement.'},
@@ -2630,18 +2602,21 @@
                             {% set stepTitle = step.title if step.title else ('Step ' + loop.index|string) %}
                             {% set stepDescription = step.description if step.description else 'Description' %}
                             
-                            <div data-moveable-element="{{ slide.slideId }}-step-{{ loop.index0 }}" data-draggable="true" 
-                                 style="display: flex; align-items: center; gap: 24px; padding: 25px 36px; border-radius: 2px; min-height: 110px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: {{ stepColor }}; width: 100%; position: relative;">
-                                <!-- Step Number Circle -->
+                            <!-- stepContainerStyles: gap: 24px, padding: 25px 36px, minHeight: 110px, background: color -->
+                            <div style="display: flex; align-items: center; gap: 24px; padding: 25px 36px; border-radius: 2px; min-height: 110px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: {{ stepColor }}; width: 100%; position: relative;">
+                                <!-- stepNumberStyles: width: 44px, border: 3px solid color, position: absolute, left: -21px -->
                                 <div style="width: 44px; height: 44px; border-radius: 50%; background-color: white; border: 3px solid {{ stepColor }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: absolute; left: -21px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <!-- stepNumberInnerStyles: width: 28px, color: color, fontSize: 18px -->
                                     <div style="width: 28px; height: 28px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; color: {{ stepColor }}; font-size: 18px; font-weight: bold;">
                                         {{ loop.index }}
                                     </div>
                                 </div>
 
-                                <!-- Step Content -->
+                                <!-- stepContentStyles: width: 80%, marginLeft: 25px, gap: 6px -->
                                 <div style="width: 80%; display: flex; align-items: center; justify-content: space-between; margin-left: 25px; gap: 6px;">
+                                    <!-- stepTitleStyles: fontSize: 1.6rem, color: white, letterSpacing: 0.02em -->
                                     <h3 style="font-size: 1.6rem; font-weight: bold; color: white; margin: 0; font-family: sans-serif; letter-spacing: 0.02em;">{{ stepTitle }}</h3>
+                                    <!-- stepDescriptionStyles: fontSize: 1.1rem, color: white, width: 210px, opacity: 0.95 -->
                                     <p style="font-size: 1.1rem; color: white; margin: 0; opacity: 0.95; line-height: 1.4; font-family: sans-serif; width: 210px;">{{ stepDescription }}</p>
                                 </div>
                             </div>
@@ -2773,23 +2748,24 @@
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
+                <!-- EXACT FRONTEND: width: 100%, minHeight: 600px, background: #ffffff, padding: 60px 80px -->
                 <div style="width: 100%; min-height: 600px; background: #ffffff; display: flex; flex-direction: column; align-items: flex-start; padding: 60px 80px; font-family: var(--content-font);">
-                    <!-- Title -->
-                    <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block;">
-                        <h1 style="font-size: 2.5rem; font-family: var(--title-font); color: #000000; text-align: left; margin-bottom: 40px; word-wrap: break-word; font-weight: bold;">
-                            {{ slide.props.title or 'Click to add title' }}
-                        </h1>
-                    </div>
+                    <!-- titleStyles: fontSize: 2.5rem, color: #000000, marginBottom: 40px -->
+                    <h1 style="font-size: 2.5rem; font-family: var(--title-font); color: #000000; text-align: left; margin-bottom: 40px; word-wrap: break-word; font-weight: bold;">
+                        {{ slide.props.title or 'Click to add title' }}
+                    </h1>
 
-                    <!-- Grid Container (2x2) -->
+                    <!-- gridStyles: grid-template-columns: 1fr 1fr, grid-template-rows: 1fr 1fr, gap: 24px -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 24px; width: 100%;">
                         {% if slide.props.boxes and slide.props.boxes|length >= 4 %}
                             {% for box in slide.props.boxes[:4] %}
-                                <div data-moveable-element="{{ slide.slideId }}-box-{{ loop.index0 }}" data-draggable="true" 
-                                     style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <!-- boxStyles: background: linear-gradient(90deg, #002D91 0%, #000C5B 100%), borderRadius: 8px, padding: 20px, minHeight: 200px -->
+                                <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                    <!-- headingStyles: fontSize: 1.5rem, color: #ffffff, marginBottom: 12px -->
                                     <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">
                                         {{ box.heading or 'Click to add heading' }}
                                     </div>
+                                    <!-- textStyles: fontSize: 1rem, color: #ffffff, opacity: 0.9 -->
                                     <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">
                                         {{ box.text or 'Click to add text' }}
                                     </div>
@@ -2797,20 +2773,20 @@
                             {% endfor %}
                         {% else %}
                             <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
-                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">Heading 1</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Text content here</div>
                             </div>
                             <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
-                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">Heading 2</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Text content here</div>
                             </div>
                             <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
-                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">The teamwork culture makes every project enjoyable and successful.</div>
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">Heading 3</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Text content here</div>
                             </div>
                             <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
-                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Our commitment to customer focus is evident in everything we do.</div>
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">Heading 4</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Text content here</div>
                             </div>
                         {% endif %}
                     </div>
