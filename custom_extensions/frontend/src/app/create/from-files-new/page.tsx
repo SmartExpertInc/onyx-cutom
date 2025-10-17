@@ -153,19 +153,19 @@ export default function CreateFromFilesNewPage() {
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-6xl flex flex-col gap-10 items-center relative z-10">
+      <div className="w-full flex flex-col gap-5 items-center relative z-10">
         {/* Headings */}
         <div className="text-center">
-          <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mb-4">
+          <h1 className="sora-font-semibold text-7xl text-center tracking-wide text-[#FFFFFF] mb-4 mt-8">
             {t('interface.fromFiles.importWithAI', 'Import with AI')}
           </h1>
-          <p className="text-lg sm:text-xl text-[#FAFAFA] max-w-2xl">
+          <p className="text-xl sm:text-xl text-[#FAFAFA] max-w-2xl">
             {t('interface.fromFiles.selectFile', 'Select the file you\'d like to transform')}
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16 w-full max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-20 w-full">
           <ImportCard
             icon={<UploadFileIcon />}
             title={t('interface.fromFiles.uploadFile', 'Upload a file')}

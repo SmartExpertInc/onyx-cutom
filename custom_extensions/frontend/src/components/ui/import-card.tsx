@@ -60,7 +60,7 @@ const ImportCard = React.forwardRef<HTMLDivElement, ImportCardProps>(
           "bg-white border-2 border-[#E0E0E0] shadow-md",
           "hover:bg-[#F2F8FF] hover:border-[#0F58F9] hover:shadow-xl",
           "active:bg-[#F2F8FF] active:border-[#0F58F9] active:shadow-xl",
-          "cursor-pointer hover:[transform:scale(1.025)] active:[transform:scale(1.025)]",
+          "cursor-pointer hover:[transform:scale(1.05)] active:[transform:scale(1.05)]",
           className
         )}
       >

@@ -1,12 +1,78 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 
+interface UploadedFile {
+  id: string;
+  name: string;
+  extension: string;
+  file: File;
+}
+
+// Delete icon component
+const DeleteIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button onClick={onClick} className="ml-2 hover:opacity-70 transition-opacity">
+    <svg width="31" height="18" viewBox="0 0 31 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path opacity="0.8" d="M8.5 4.2H22.5M20.9444 4.2V15.4C20.9444 16.2 20.1667 17 19.3889 17H11.6111C10.8333 17 10.0556 16.2 10.0556 15.4V4.2M12.3889 4.2V2.6C12.3889 1.8 13.1667 1 13.9444 1H17.0556C17.8333 1 18.6111 1.8 18.6111 2.6V4.2M13.9444 8.2V13M17.0556 8.2V13" stroke="#EF4444" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </button>
+);
+
 export default function UploadFilesPage() {
   const { t } = useLanguage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = Array.from(files).map((file) => {
+      const nameParts = file.name.split('.');
+      const extension = nameParts.length > 1 ? '.' + nameParts.pop() : '';
+      const name = nameParts.join('.');
+      
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        name,
+        extension,
+        file,
+      };
+    });
+
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+  };
+
+  const handleAddMoreClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDeleteFile = (id: string) => {
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== id));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleUploadAreaClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <main
@@ -40,29 +106,62 @@ export default function UploadFilesPage() {
         <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFileSelect(e.target.files)}
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+      />
+
       {/* Main content */}
       <div className="w-full max-w-2xl flex flex-col gap-8 items-center relative z-10 mt-20">
         {/* Title */}
-        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF]">
+        <p className="text-2xl text-center text-[#FAFAFA]">
           {t('interface.fromFiles.importWithAI', 'Import with AI')}
-        </h1>
+        </p>
 
         {/* Upload area */}
         <div 
-          className="w-full bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 flex items-center justify-center min-h-[300px]"
+          className={`w-full bg-white rounded-lg border-2 border-dashed p-6 flex flex-col gap-3 min-h-[60px] cursor-pointer transition-colors ${
+            isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
+          } ${uploadedFiles.length === 0 ? 'items-center justify-center' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={uploadedFiles.length === 0 ? handleUploadAreaClick : undefined}
         >
-          <p className="text-gray-400 text-lg">
-            {t('interface.fromFiles.addYourFiles', 'Add your files')}
-          </p>
+          {uploadedFiles.length === 0 ? (
+            <p className="text-gray-400 text-lg">
+              {t('interface.fromFiles.addYourFiles', 'Add your files')}
+            </p>
+          ) : (
+            uploadedFiles.map((file, index) => (
+              <div
+                key={file.id}
+                className={`flex items-center justify-between px-4 py-3 ${
+                  index < uploadedFiles.length - 1 ? 'border-b border-gray-300' : ''
+                }`}
+              >
+                <span className="text-gray-700 font-medium">
+                  {file.name}<span className="text-gray-500">{file.extension}</span>
+                </span>
+                <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Question text */}
-        <p className="text-lg text-center" style={{ color: '#FAFAFA' }}>
+        <p className="text-2xl text-center" style={{ color: '#FAFAFA' }}>
           {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
         </p>
 
         {/* Add more files button */}
         <button
+          onClick={handleAddMoreClick}
           className="flex items-center gap-2 px-6 py-3 rounded-lg bg-white border border-[#0F58F9] text-[#0F58F9] font-semibold hover:bg-blue-50 transition-colors duration-200"
         >
           <span className="text-xl">+</span>
