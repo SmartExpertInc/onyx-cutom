@@ -773,7 +773,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
           <SmartDriveFrame />
         ) : (
-          <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} />
+          <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} sortBy={sortBy} sortOrder={sortOrder} />
         )}
       </div>
     );
@@ -827,7 +827,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   </Button>
                 )}
                 <div className={`relative ${activeTab === 'connectors' ? 'w-45 pt-3' : 'w-70'} h-9`}>
-                  <Search className="absolute left-3 top-1/2 transform ${activeTab === 'connectors' ? 'mt-5' : 'mt-0'} -translate-y-1/2 text-[#71717A] z-10" size={16} />
+                  <Search className={`absolute left-3 top-1/2 transform ${activeTab === 'connectors' ? 'mt-3' : 'mt-0'} -translate-y-1/2 text-[#71717A] z-10`} size={16} />
                   <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="pl-10 placeholder:text-[#71717A] placeholder:text-sm" />
                 </div>
               </div>
@@ -836,9 +836,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               className="flex items-center px-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
+                // Toggle between newest first (desc) and oldest first (asc)
                 setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
               }}
-              title="Sort by creation date"
+              title={`Sort by creation date: ${sortOrder === 'desc' ? 'Newest first' : 'Oldest first'}`}
             >
               <ArrowDownUp size={16} className="text-[#71717A]" />
             </div>)}
@@ -976,7 +977,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         </div>
                         
                         {/* Buy more storage button */}
-                        <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
+                        <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
                           <Plus className="w-4 h-4 mr-2" />
                           Buy more storage
                         </Button>
@@ -1006,7 +1007,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
-              <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} />
+              <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} sortBy={sortBy} sortOrder={sortOrder} />
             )}
           </div>
         </div>
@@ -1037,7 +1038,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
                   <Button 
-                    className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-md" 
+                    className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-full" 
                     size="sm" 
                     onClick={() => setShowAddonsModal(true)}
                   >

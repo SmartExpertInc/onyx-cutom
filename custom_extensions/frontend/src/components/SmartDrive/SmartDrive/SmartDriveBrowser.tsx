@@ -86,6 +86,8 @@ interface SmartDriveBrowserProps {
 	viewMode?: 'grid' | 'list';
 	contentTypeFilter?: string;
 	searchQuery?: string;
+	sortBy?: string;
+	sortOrder?: 'asc' | 'desc';
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -107,6 +109,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	viewMode = 'grid',
 	contentTypeFilter = 'all',
 	searchQuery = '',
+	sortBy = 'name',
+	sortOrder = 'asc',
 }) => {
 	const { t } = useLanguage();
 	const [currentPath, setCurrentPath] = useState<string>(initialPath);
@@ -299,23 +303,24 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		};
 		const cmp = (a: SmartDriveItem, b: SmartDriveItem) => {
 			let base = 0;
-			if (sortKey === 'name') base = a.name.localeCompare(b.name);
-			else if (sortKey === 'size') base = (a.size ?? 0) - (b.size ?? 0);
-			else if (sortKey === 'modified') base = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime();
-			else if (sortKey === 'type') {
+			if (sortBy === 'name') base = a.name.localeCompare(b.name);
+			else if (sortBy === 'size') base = (a.size ?? 0) - (b.size ?? 0);
+			else if (sortBy === 'modified') base = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime();
+			else if (sortBy === 'created') base = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime(); // Use modified as created for now
+			else if (sortBy === 'type') {
 				const aType = a.type === 'directory' ? 'folder' : (a.mime_type?.split('/')[1] || 'file');
 				const bType = b.type === 'directory' ? 'folder' : (b.mime_type?.split('/')[1] || 'file');
 				base = aType.localeCompare(bType);
 			}
-			else if (sortKey === 'creator') {
+			else if (sortBy === 'creator') {
 				const aCreator = a.creator || 'Unknown';
 				const bCreator = b.creator || 'Unknown';
 				base = aCreator.localeCompare(bCreator);
 			}
-			return sortAsc ? base : -base;
+			return sortOrder === 'asc' ? base : -base;
 		};
 		return [...list].sort((a, b) => dirFirst(a, b) || cmp(a, b));
-	}, [items, searchQuery, sortKey, sortAsc, contentTypeFilter]);
+	}, [items, searchQuery, sortBy, sortOrder, contentTypeFilter]);
 
 	// Pagination calculations
 	const totalPages = Math.ceil(filtered.length / rowsPerPage);
@@ -811,10 +816,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												setCurrentPath(parentPath);
 											}
 										}}
-										className="flex items-center gap-2"
+										className="flex rounded-md items-center gap-2"
 									>
-										<ArrowLeft className="w-4 h-4" />
-										Back
+										{`< Back`}
 									</Button>
 								</div>
 							)}
@@ -924,7 +928,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<Folder className='w-8 h-8' strokeWidth={1.5} /> <span>{(() => { 
 													const folderName = selectedFolderForView.split('/').pop() || 'Folder';
 													try { return decodeURIComponent(folderName); } catch { return folderName; }
-												})()} ({filesToShow.length} {filesToShow.length === 1 ? 'item' : 'items'}) in this folder</span>
+												})()} ({filesToShow.length} {filesToShow.length === 1 ? 'item' : 'items'} in this folder)</span>
 											</div>
 										)}
 										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-5">
@@ -1068,13 +1072,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										}}
 										className="flex rounded-md items-center gap-2"
 									>
-										<ArrowLeft className="w-4 h-4" />
-										Back
+										{`< Back`}
 									</Button>
 								</div>
 							)}
 							
-							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] overflow-hidden flex-1">
+							<div className="bg-white rounded-md border shadow-sm border-[#E0E0E0] flex-1">
 								<Table className="min-w-full divide-y divide-[#E0E0E0]">
 									<TableHeader className="bg-white divide-y divide-[#E0E0E0]">
 										<TableRow className='divide-y divide-[#E0E0E0]'>
@@ -1120,7 +1123,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												</div>
 											</TableHead>
 											<TableHead 
-												className="px-3 py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
+												className="px-3 divide-y divide-[#E0E0E0] py-2 text-right text-xs font-normal text-[#71717A] tracking-wider"
 												style={{ width: '50px' }}
 											>
 											</TableHead>
@@ -1130,7 +1133,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								{(() => {
 									// If any folder is expanded, show the folder with blue background and its contents
 									const expandedFolder = Array.from(expandedFolders)[0]; // Get first expanded folder
-									if (expandedFolder && folderContentsMap[expandedFolder]) {
+									if (expandedFolder) {
 										// Find the expanded folder in the main items list
 										const expandedFolderItem = paginatedItems.find(item => item.path === expandedFolder);
 										
@@ -1230,7 +1233,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												)}
 												
 												{/* Show the folder contents */}
-												{folderContentsMap[expandedFolder].map((it, idx) => {
+												{folderContentsMap[expandedFolder] && folderContentsMap[expandedFolder].map((it, idx) => {
 											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
 												setSelected(new Set([it.path]));
 												switch(action) {
@@ -1464,13 +1467,13 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							
 							{/* Pagination Controls */}
 							{filtered.length > 0 && (
-								<div className="flex items-center justify-end px-4 py-3 bg-white border-t border-gray-200">
+								<div className="flex items-center justify-end px-4 gap-8 py-3 bg-white border-t border-gray-200">
 									<div className="flex items-center gap-4">
 									<span className="text-sm text-[var(--main-text)]">{t("interface.rowsPerPage", "Rows per page:")}</span>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button variant="outline" className="flex rounded-md bg-white items-center gap-2">
-													<span className="text-sm">{rowsPerPage} rows</span>
+													<span className="text-sm">{rowsPerPage}</span>
 													<ChevronDown size={16} />
 												</Button>
 											</DropdownMenuTrigger>
