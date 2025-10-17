@@ -30,9 +30,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   tableData = {
     headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
     rows: [
-      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['XX', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',
