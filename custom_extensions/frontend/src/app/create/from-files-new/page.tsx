@@ -610,7 +610,7 @@ export default function CreateFromFilesNewPage() {
                 onClick={() => setActiveTab('smartdrive')}
                 className="flex items-center gap-2 px-4 py-2 relative"
                 style={{
-                  borderBottom: activeTab === 'smartdrive' ? '3px solid #719AF5' : '1px solid #E5E5E5',
+                  borderBottom: activeTab === 'smartdrive' ? '3px solid #719AF5' : '1px solid #71717ACC',
                 }}
               >
                 <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
