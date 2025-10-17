@@ -2567,22 +2567,22 @@
                 </div>
                 
             {% elif slide.templateId == 'process-steps' %}
-                <!-- EXACT FRONTEND: minHeight: 600px, background: #ffffff, display: flex, padding: 50px, alignItems: flex-start -->
+                <!-- EXACT FRONTEND MATCH: slideStyles -->
                 <div style="min-height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; padding: 50px; align-items: flex-start;">
-                    <!-- Left Column: flex: 1 -->
+                    <!-- leftColumnStyles: flex: 1 -->
                     <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
-                        <!-- Title: width: 230px, fontSize: 3rem, fontFamily: serif, color: #000000, lineHeight: 0.85, letterSpacing: -0.04em -->
-                        <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em;">
+                        <!-- titleStyles: width: 230px, fontSize: 3rem, fontFamily: serif, color: #000000, fontWeight: bold, lineHeight: 0.85, marginBottom: 20px, textAlign: left, letterSpacing: -0.04em -->
+                        <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin: 0; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em; word-wrap: break-word;">
                             {{ slide.props.title or 'The Stages of Research' }}
                         </h1>
                         
-                        <!-- Subtitle: fontSize: 1.4rem, fontFamily: sans-serif, color: #09090B, letterSpacing: 0.01em -->
-                        <p style="font-size: 1.4rem; font-family: sans-serif; color: #09090B; font-weight: normal; text-align: left; opacity: 0.9; letter-spacing: 0.01em;">
+                        <!-- subtitleStyles: fontSize: 1.4rem, fontFamily: sans-serif, color: #09090B, fontWeight: normal, textAlign: left, opacity: 0.9, letterSpacing: 0.01em -->
+                        <p style="font-size: 1.4rem; font-family: sans-serif; color: #09090B; font-weight: normal; text-align: left; opacity: 0.9; letter-spacing: 0.01em; margin: 0;">
                             {{ slide.props.subtitle or 'Miss Jones Science Class' }}
                         </p>
                     </div>
 
-                    <!-- Right Column: flex: 1.8, gap: 7px -->
+                    <!-- rightColumnStyles: flex: 1.8, display: flex, flexDirection: column, gap: 7px -->
                     <div style="flex: 1.8; display: flex; flex-direction: column; gap: 7px;">
                         {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
                         {% set defaultSteps = [
@@ -2599,21 +2599,21 @@
                             {% set stepTitle = step.title if step.title else ('Step ' + loop.index|string) %}
                             {% set stepDescription = step.description if step.description else 'Description' %}
                             
-                            <!-- stepContainerStyles: gap: 24px, padding: 25px 36px, minHeight: 110px, background: color -->
+                            <!-- stepContainerStyles: display: flex, alignItems: center, gap: 24px, padding: 25px 36px, borderRadius: 2px, minHeight: 110px, boxShadow: 0 2px 8px rgba(0,0,0,0.1), background: color, width: 100% -->
                             <div style="display: flex; align-items: center; gap: 24px; padding: 25px 36px; border-radius: 2px; min-height: 110px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: {{ stepColor }}; width: 100%; position: relative;">
-                                <!-- stepNumberStyles: width: 44px, border: 3px solid color, position: absolute, left: -21px -->
+                                <!-- stepNumberStyles: width: 44px, height: 44px, borderRadius: 50%, backgroundColor: white, border: 3px solid color, position: absolute, left: -21px, boxShadow: 0 2px 4px rgba(0,0,0,0.1) -->
                                 <div style="width: 44px; height: 44px; border-radius: 50%; background-color: white; border: 3px solid {{ stepColor }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: absolute; left: -21px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    <!-- stepNumberInnerStyles: width: 28px, color: color, fontSize: 18px -->
+                                    <!-- stepNumberInnerStyles: width: 28px, height: 28px, borderRadius: 50%, backgroundColor: white, color: color, fontSize: 18px, fontWeight: bold -->
                                     <div style="width: 28px; height: 28px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; color: {{ stepColor }}; font-size: 18px; font-weight: bold;">
                                         {{ loop.index }}
                                     </div>
                                 </div>
 
-                                <!-- stepContentStyles: width: 80%, marginLeft: 25px, gap: 6px -->
+                                <!-- stepContentStyles: width: 80%, display: flex, alignItems: center, justifyContent: space-between, marginLeft: 25px, gap: 6px -->
                                 <div style="width: 80%; display: flex; align-items: center; justify-content: space-between; margin-left: 25px; gap: 6px;">
-                                    <!-- stepTitleStyles: fontSize: 1.6rem, color: white, letterSpacing: 0.02em -->
+                                    <!-- stepTitleStyles: fontSize: 1.6rem, fontWeight: bold, color: white, margin: 0, fontFamily: sans-serif, letterSpacing: 0.02em -->
                                     <h3 style="font-size: 1.6rem; font-weight: bold; color: white; margin: 0; font-family: sans-serif; letter-spacing: 0.02em;">{{ stepTitle }}</h3>
-                                    <!-- stepDescriptionStyles: fontSize: 1.1rem, color: white, width: 210px, opacity: 0.95 -->
+                                    <!-- stepDescriptionStyles: fontSize: 1.1rem, color: white, margin: 0, opacity: 0.95, lineHeight: 1.4, fontFamily: sans-serif, width: 210px -->
                                     <p style="font-size: 1.1rem; color: white; margin: 0; opacity: 0.95; line-height: 1.4; font-family: sans-serif; width: 210px;">{{ stepDescription }}</p>
                                 </div>
                             </div>
