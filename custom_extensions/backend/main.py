@@ -22329,7 +22329,7 @@ Template Catalog with required props and usage:
 - two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
   • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
 - process-steps: title, steps[]
-  • Usage: sequential workflow; 3–5 labeled steps in a row. The subtitle prop is NOT used; only include title and steps[].
+  • Usage: sequential workflow; 3–5 labeled steps in a row.
 - four-box-grid: title, boxes[] (heading,text or title,content)
   • Usage: 2×2 grid of highlights; four concise boxes.
 - timeline: title, events[] (date,title,description)
