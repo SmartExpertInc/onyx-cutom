@@ -96,15 +96,65 @@ export const AiAgent: React.FC<AiAgentProps> = ({
 }) => {
   const { t } = useLanguage();
   const [internalHasStartedChat, setInternalHasStartedChat] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
-  ]);
+  
+  // Initialize messages from sessionStorage or use default
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem('aiAgentMessages');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return parsed.length > 0 ? parsed : [
+            { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
+          ];
+        }
+      } catch (error) {
+        console.error('Error loading messages from sessionStorage:', error);
+      }
+    }
+    return [
+      { text: t('interface.aiAgent.question', 'Hey, what do you want to change?'), sender: 'ai' }
+    ];
+  });
+  
   const messagesContainerRef = React.useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = React.useRef(1);
+  const prevMessagesLengthRef = React.useRef(messages.length);
 
   // Use external state if provided, otherwise use internal state
   const hasStartedChat = externalHasStartedChat !== undefined ? externalHasStartedChat : internalHasStartedChat;
   const setHasStartedChat = externalSetHasStartedChat || setInternalHasStartedChat;
+
+  // Save messages to sessionStorage whenever they change
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('aiAgentMessages', JSON.stringify(messages));
+      } catch (error) {
+        console.error('Error saving messages to sessionStorage:', error);
+      }
+    }
+  }, [messages]);
+
+  // Restore chat state if there are stored messages with user messages
+  React.useEffect(() => {
+    const hasUserMessages = messages.some(m => m.sender === 'user');
+    if (hasUserMessages && !hasStartedChat) {
+      setHasStartedChat(true);
+    }
+  }, []);
+
+  // Clear messages when navigating away (component unmount)
+  React.useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.removeItem('aiAgentMessages');
+        } catch (error) {
+          console.error('Error clearing messages from sessionStorage:', error);
+        }
+      }
+    };
+  }, []);
 
   // Scroll to bottom only when a new message is added (not when status updates)
   React.useEffect(() => {
