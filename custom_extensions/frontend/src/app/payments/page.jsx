@@ -2,6 +2,7 @@
 
 import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X, Database, Coins, Workflow, Server } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AddOnsModal from '@/components/AddOnsModal';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
