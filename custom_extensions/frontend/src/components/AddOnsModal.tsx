@@ -107,7 +107,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
   const { t } = useLanguage();
   return (
     <Card className="border border-gray-200">
-      <CardHeader className='p-4'>
+      <CardHeader className='px-4 pt-4 pb-3'>
         <div className="flex items-start gap-4">
           <div className="border border-[#0F58F9] rounded-full p-2">
             <Icon className="text-white" size={24} />
@@ -119,7 +119,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-3 pt-0">
-          <div className="space-y-1">
+          <div>
             {showAmount && (
               <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
                 <span>{addOn.amount}</span>
@@ -288,7 +288,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] !bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
+      <DialogContent className="max-w-5xl max-h-[94vh] !bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
         <button
             onClick={onClose}
             className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
@@ -339,7 +339,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
           <ScrollArea className="overflow-y-auto flex-1 px-6 py-5">
             <TabsContent value="credits" className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-5">
                     {CREDITS_DATA_TRANSLATED.map((credit) => (
                       <AddOnCard
                         key={credit.id}
@@ -353,7 +353,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsContent>
 
             <TabsContent value="storage" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5">
                 {STORAGE_DATA_TRANSLATED.map((storage) => (
                   <AddOnCard
                     key={storage.id}
@@ -368,7 +368,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
             </TabsContent>
 
             <TabsContent value="connectors" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 gap-5">
                 {CONNECTORS_DATA_TRANSLATED.map((connector) => (
                   <AddOnCard
                     key={connector.id}

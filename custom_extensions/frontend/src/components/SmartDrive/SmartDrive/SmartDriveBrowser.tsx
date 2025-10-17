@@ -487,6 +487,30 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		setIsRenaming(true);
 		try {
 			const to = `${base}${base.endsWith('/') ? '' : '/'}${newItemName}`;
+			
+			// Debug logging
+			console.log('Rename attempt:', { from: p, to, base, newName: newItemName });
+			
+			// First, let's check if the target already exists by listing the directory
+			try {
+				const listRes = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(base)}`, { 
+					credentials: 'same-origin' 
+				});
+				if (listRes.ok) {
+					const listData = await listRes.json();
+					const existingItems = Array.isArray(listData.files) ? listData.files : [];
+					const existingNames = existingItems.map((item: SmartDriveItem) => item.name);
+					console.log('Existing items in directory:', existingNames);
+					
+					if (existingNames.includes(newItemName)) {
+						alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.`);
+						return;
+					}
+				}
+			} catch (listError) {
+				console.warn('Could not check existing files:', listError);
+			}
+			
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -495,14 +519,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			});
 			
 			if (!res.ok) {
+				const errorText = await res.text();
+				console.error('Rename error response:', { status: res.status, statusText: res.statusText, body: errorText });
+				
 				if (res.status === 409) {
-					alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.`);
+					alert(`A file or folder with the name "${newItemName}" already exists in this location. Please choose a different name.\n\nDebug info: ${errorText}`);
 				} else if (res.status === 400) {
 					alert('Invalid folder name. Please use only letters, numbers, spaces, and common symbols.');
 				} else if (res.status === 403) {
 					alert('You do not have permission to rename this item.');
 				} else {
-					const errorText = await res.text();
 					alert(`Rename failed: ${errorText || 'Unknown error'}`);
 				}
 				return;
