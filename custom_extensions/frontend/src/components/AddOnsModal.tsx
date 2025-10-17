@@ -119,8 +119,8 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
         </div>
       </CardHeader>
       <CardContent className="px-4 pb-3 pt-0">
-        <ScrollArea className="h-full">
-          <div className="space-y-2">
+        <ScrollArea className="h-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="space-y-1">
             {showAmount && (
               <div className="flex items-center gap-2 text-sm text-[#71717A] font-semibold">
                 <span>{addOn.amount}</span>
@@ -133,14 +133,14 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
               )}
             </div>
             {!addOn.isEnterprise && (
-              <div className="flex border border-[#E0E0E0] rounded-sm py-1 px-2 items-center gap-2">
+              <div className="flex border border-[#E0E0E0] rounded-sm py-0.5 px-1 items-center gap-2">
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={() => onQuantityChange(-1)}
                   className="h-5 w-5 bg-[#CCDBFC] rounded-xs text-sm text-[#0F58F9]"
                 >
-                  <span className='text-lg'>-</span>
+                  <span className='text-lg font-light'>-</span>
                 </Button>
                 <div className="flex-1 text-center font-regular text-[#71717A]">{quantity}</div>
                 <Button
@@ -149,14 +149,14 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
                   onClick={() => onQuantityChange(1)}
                   className="h-5 w-5 bg-white rounded-xs bg-[#CCDBFC] text-sm text-[#0F58F9]"
                 >
-                  <span className='text-lg'>+</span>
+                  <span className='text-lg font-light'>+</span>
                 </Button>
               </div>
             )}
             {addOn.isEnterprise && (
-              <div className="h-7"></div>
+              <div className="h-2"></div>
             )}
-            <Button className={`w-full ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
+            <Button className={`w-full pt-1 ${addOn.isEnterprise ? 'bg-[#CCDBFC] text-[#0F58F9] hover:bg-[#C2D1F0]' : 'bg-[#0F58F9] text-white'} cursor-pointer rounded-full`} variant="download">
               {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy now')}
             </Button>
           </div>
@@ -282,7 +282,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
+      <DialogContent className="max-w-5xl max-h-[90vh] !bg-white/90 bg-blur-md overflow-hidden flex flex-col p-0 rounded-xl">
         <button
             onClick={onClose}
             className="absolute top-4 right-4 z-50 w-7 h-7 xl:w-8 xl:h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
@@ -301,13 +301,13 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
           <TabsList className="ml-6 w-fit bg-transparent">
             <TabsTrigger 
               value="credits" 
-              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] px-4 py-2"
+              className="group flex flex-col items-center gap-2 bg-transparent text-[#8C8C94] data-[state=active]:text-[#719AF5] pr-4 py-2"
             >
               <div className="flex items-center gap-2">
                 <Coins size={16} />
                 <span className="font-semibold">{t('addOns.credits', 'Credits')}</span>
               </div>
-              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
@@ -317,7 +317,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                 <HardDrive size={16} />
                 <span className="font-semibold">{t('addOns.driveStorage', 'Drive storage')}</span>
               </div>
-              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
@@ -327,13 +327,13 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                 <Workflow size={16} />
                 <span className="font-semibold">{t('addOns.connectors', 'Connectors')}</span>
               </div>
-              <div className="border-b-2 data-[state=active]:border-[#719AF5] data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
+              <div className="border-b-2 -mt-1 group-data-[state=active]:border-[#719AF5] group-data-[state=active]:border-b-2 w-full border-[#B5B5B9] border-b" />
             </TabsTrigger>
           </TabsList>
 
           <div className="overflow-y-auto flex-1 p-6">
             <TabsContent value="credits" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-6 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 bg-white border border-[var(--border-light)] rounded-lg px-3 py-5 lg:grid-cols-3 gap-6">
                 {CREDITS_DATA_TRANSLATED.map((credit) => (
                   <AddOnCard
                     key={credit.id}
