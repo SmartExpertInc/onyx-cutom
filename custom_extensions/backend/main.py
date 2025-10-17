@@ -1689,7 +1689,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "subtitle": "This course introduces the main topic and learning objectives",
         "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
         "imageAlt": "Course overview illustration",
-        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "logoPath": "",
         "pageNumber": 1
       }
     },
@@ -1727,7 +1727,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
         "pageNumber": 3,
-        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
+        "logoPath": ""
       }
     },
     {
@@ -1744,7 +1744,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         ],
         "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
         "pageNumber": 4,
-        "logoPath": "https://via.placeholder.com/100x50?text=Logo",
+        "logoPath": "",
         "logoText": "Assessment Guide"
       }
     },
@@ -1759,7 +1759,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
         "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
         "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
         "pageNumber": 5,
-        "logoPath": "https://via.placeholder.com/100x50?text=Logo"
+        "logoPath": ""
       }
     }
   ],
@@ -2393,8 +2393,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['imagePath'] = 'https://via.placeholder.com/600x400?text=Course+Image'
                 if not normalized_props.get('imageAlt'):
                     normalized_props['imageAlt'] = 'Course overview illustration'
-                if not normalized_props.get('logoPath'):
-                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
                     
@@ -2426,8 +2425,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
-                if not normalized_props.get('logoNew'):
-                    normalized_props['logoNew'] = 'https://via.placeholder.com/100x50?text=Logo'
+                # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
                     
             elif template_id == 'phishing-definition-slide':
                 # Ensure definitions array exists and is properly formatted
@@ -2461,8 +2459,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['rightImagePath'] = 'https://via.placeholder.com/300x200?text=Definition+Image'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
-                if not normalized_props.get('logoPath'):
-                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
                     
             elif template_id == 'soft-skills-assessment-slide':
                 # Ensure tips array exists and is properly formatted
@@ -2491,8 +2488,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
-                if not normalized_props.get('logoPath'):
-                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
                 if not normalized_props.get('logoText'):
                     normalized_props['logoText'] = 'Assessment Guide'
                     
@@ -2506,8 +2502,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                     normalized_props['imagePath'] = 'https://via.placeholder.com/400x300?text=Conclusion+Image'
                 if not normalized_props.get('pageNumber'):
                     normalized_props['pageNumber'] = slide_index + 1
-                if not normalized_props.get('logoPath'):
-                    normalized_props['logoPath'] = 'https://via.placeholder.com/100x50?text=Logo'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
         
             normalized_slide['props'] = normalized_props
 

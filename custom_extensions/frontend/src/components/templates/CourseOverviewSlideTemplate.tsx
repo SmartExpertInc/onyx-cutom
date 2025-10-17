@@ -337,7 +337,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleSubtitleCancel}
               className="course-overview-subtitle-editor"
               style={{
-                fontSize: '5.26vw',
+                fontSize: '2.63vw',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -349,7 +349,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
             <div
               onClick={() => isEditable && setEditingSubtitle(true)}
               style={{
-                fontSize: '5.26vw',
+                fontSize: '2.63vw',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
