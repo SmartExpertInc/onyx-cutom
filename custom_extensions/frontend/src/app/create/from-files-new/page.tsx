@@ -125,23 +125,38 @@ export default function CreateFromFilesNewPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-6 bg-white relative overflow-hidden"
     >
+      {/* Decorative gradient background */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1100px',
+          height: '2100px',
+          left: '60%',
+          top: '60%',
+          borderRadius: '999px',
+          background: 'linear-gradient(360deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
+          transform: 'translate(-50%, -50%) rotate(120deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+      
       {/* Top-left back button */}
       <Link
         href="/create"
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+        style={{ 
+          color: '#000000',
+          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
+        }}
       >
-        <ArrowLeft size={16} />
-        {t('interface.generate.back', 'Back')}
+        <span>&lt;</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-4xl flex flex-col gap-12 items-center">
+      <div className="w-full max-w-4xl flex flex-col gap-12 items-center relative z-10">
         {/* Headings */}
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
@@ -196,4 +211,5 @@ export default function CreateFromFilesNewPage() {
     </main>
   );
 }
+
 
