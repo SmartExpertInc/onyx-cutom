@@ -287,7 +287,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: 'fit-content',
+    maxWidth: '100%',
     borderRadius: '15px',
     overflow: 'hidden',
     backgroundColor: '#ffffff',
@@ -297,7 +298,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Table styles - with spacing between cells
   const tableStyles: React.CSSProperties = {
-    width: '100%',
+    width: 'auto',
     borderCollapse: 'separate',
     borderSpacing: '8px 0px',
     backgroundColor: '#ffffff',

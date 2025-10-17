@@ -177,7 +177,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: 'fit-content',
+    maxWidth: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -185,7 +186,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   // Table styles - perfectly aligned
   const tableStyles: React.CSSProperties = {
-    width: '100%',
+    width: 'auto',
     borderCollapse: 'collapse',
     backgroundColor: '#ffffff',
     tableLayout: 'auto' // Auto width for proper column sizing
