@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -119,6 +119,31 @@ const StepCard: React.FC<StepCardProps> = ({
 
 export default function CreateFromFilesNewPage() {
   const { t } = useLanguage();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [urls, setUrls] = useState(['']);
+
+  const handleAddUrl = () => {
+    setUrls([...urls, '']);
+  };
+
+  const handleUrlChange = (index: number, value: string) => {
+    const newUrls = [...urls];
+    newUrls[index] = value;
+    setUrls(newUrls);
+  };
+
+  const handleImport = () => {
+    // Filter out empty URLs
+    const validUrls = urls.filter(url => url.trim() !== '');
+    console.log('Importing URLs:', validUrls);
+    // TODO: Add your import logic here
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setUrls(['']); // Reset URLs
+  };
 
   return (
     <main
@@ -165,7 +190,7 @@ export default function CreateFromFilesNewPage() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <ImportCard
             icon={<UploadFileIcon />}
             title={t('interface.fromFiles.uploadFile', 'Upload a file')}
@@ -194,7 +219,7 @@ export default function CreateFromFilesNewPage() {
               'Blog post & articles',
               'Notion docs'
             ]}
-            href="/create/generate"
+            onClick={() => setIsModalOpen(true)}
           />
         </div>
 
@@ -217,6 +242,85 @@ export default function CreateFromFilesNewPage() {
           />
         </div>
       </div>
+
+      {/* Import from URL Modal */}
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ 
+            backdropFilter: 'blur(14.699999809265137px)',
+          }}
+          onClick={handleCancel}
+        >
+          <div 
+            className="bg-white rounded-lg p-6 w-full max-w-md"
+            style={{
+              boxShadow: '4px 4px 8px 0px #0000000D',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Title */}
+            <h2 className="text-sm font-semibold text-gray-900 mb-2">
+              Import from URL
+            </h2>
+
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-6">
+              This will extract the text from the webpage you enter.
+            </p>
+
+            {/* URL inputs */}
+            <div className="space-y-4 mb-4">
+              {urls.map((url, index) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL
+                  </label>
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => handleUrlChange(index, e.target.value)}
+                    placeholder="https://example.com/"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Add another URL button */}
+            <button
+              onClick={handleAddUrl}
+              className="text-sm text-gray-700 mb-6"
+            >
+              + Add another URL
+            </button>
+
+            {/* Action buttons */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 rounded-md text-sm font-medium"
+                style={{
+                  color: '#0F58F9',
+                  backgroundColor: 'white',
+                  border: '1px solid #0F58F9',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleImport}
+                className="px-4 py-2 rounded-md text-sm font-medium text-white"
+                style={{
+                  backgroundColor: '#0F58F9',
+                }}
+              >
+                Import
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <FeedbackButton />
     </main>
