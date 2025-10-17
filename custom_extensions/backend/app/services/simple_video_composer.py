@@ -293,6 +293,11 @@ class SimpleVideoComposer:
                     
                     # Ensure avatar fits within bounds
                     if x + avatar_width <= output_width and y + avatar_height <= output_height:
+                        # Draw background color behind avatar if specified
+                        if 'backgroundColor' in avatar_config and avatar_config['backgroundColor']:
+                            bg_color = self._hex_to_bgr(avatar_config['backgroundColor'])
+                            cv2.rectangle(background, (x, y), (x + avatar_width, y + avatar_height), bg_color, -1)
+                        
                         # Simple overlay (replace method - could be enhanced with alpha blending)
                         background[y:y + avatar_height, 
                                  x:x + avatar_width] = avatar_cropped
@@ -398,6 +403,31 @@ class SimpleVideoComposer:
         except Exception as e:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge error: {str(e)}")
             return False
+    
+    def _hex_to_bgr(self, hex_color: str) -> tuple:
+        """
+        Convert hex color string to BGR tuple for OpenCV.
+        
+        Args:
+            hex_color: Hex color string (e.g., '#FFFFFF' or 'FFFFFF')
+            
+        Returns:
+            BGR tuple (e.g., (255, 255, 255))
+        """
+        try:
+            # Remove '#' if present
+            hex_color = hex_color.lstrip('#')
+            
+            # Convert hex to RGB
+            r = int(hex_color[0:2], 16)
+            g = int(hex_color[2:4], 16)
+            b = int(hex_color[4:6], 16)
+            
+            # OpenCV uses BGR format
+            return (b, g, r)
+        except Exception as e:
+            logger.warning(f"🎬 [SIMPLE_COMPOSER] Invalid hex color '{hex_color}': {e}. Using white as default.")
+            return (255, 255, 255)  # Default to white
     
     def _crop_avatar_to_template(self, avatar_frame: np.ndarray, avatar_config: dict = None) -> np.ndarray:
         """

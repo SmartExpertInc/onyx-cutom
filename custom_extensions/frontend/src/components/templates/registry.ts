@@ -1539,7 +1539,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 118,       // Vertically centered
       width: 935,
       height: 843,
-      backgroundColor: '#110c35'
+      backgroundColor: '#ffffff'  // ✅ White background for avatar video
     }
   },
 
@@ -1577,7 +1577,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 118,       // Vertically centered
       width: 935,
       height: 843,
-      backgroundColor: '#110c35'
+      backgroundColor: '#ffffff'  // ✅ White background for avatar video
     }
   },
 
@@ -1963,7 +1963,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       y: 480,       // ✅ MEASURED: Actual rendered position from JavaScript logging (padding 64px + title 386px + gap 30px)
       width: 784,   // ✅ Direct CSS container width (no scaling)
       height: 496,  // ✅ Direct CSS container height (no scaling) - Result: 480+496=976px < 1080px ✅
-      backgroundColor: '#ffffff'
+      backgroundColor: '#0F58F9'  // ✅ Blue gradient color (primary color from gradient)
     }
   },
 
