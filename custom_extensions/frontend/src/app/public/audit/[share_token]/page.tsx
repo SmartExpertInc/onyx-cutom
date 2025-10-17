@@ -425,8 +425,8 @@ export default function PublicAuditPage() {
                         {getLocalizedText(language, {
                           en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
                           es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ua: <>Зменшіть плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ru: <>Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
+                          ua: <>Зменшити плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ru: <>Сократить текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
                         })}
                       </h3>
                     </div>
@@ -459,7 +459,7 @@ export default function PublicAuditPage() {
                         {getLocalizedText(language, {
                           en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ua: <>Підвищіть продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ua: <>Підвищити продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           ru: <>Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
                         })}
                       </h3>
@@ -491,10 +491,10 @@ export default function PublicAuditPage() {
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(language, {
-                          en: 'AI Onboarding Implementation',
-                          es: 'Implementación de Incorporación IA',
-                          ua: 'Впровадження AI-онбордингу',
-                          ru: 'Внедрение AI-онбординг'
+                          en: 'Implement AI Onboarding',
+                          es: 'Implementar Incorporación IA',
+                          ua: 'Впровадити AI-онбординг',
+                          ru: 'Внедрить AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -529,7 +529,7 @@ export default function PublicAuditPage() {
                 {getLocalizedText(language, {
                   en: 'Open Positions in',
                   es: 'Posiciones Abiertas en',
-                  ua: 'Відкриті вакансії в',
+                  ua: 'Відкриті вакансії у',
                   ru: 'Открытые вакансии в'
                 })} <br className="xl:hidden"/> {companyName}
               </h2>
@@ -1117,7 +1117,7 @@ export default function PublicAuditPage() {
                       es: 'posición',
                       ua: 'посади',
                       ru: 'должности'
-                    })} {courseTemplates?.[0]?.title || 'HVAC Installer'}
+                    })} {`"${courseTemplates?.[0]?.title}"`|| '"HVAC Installer"'}
                   </h4>
                   
                   <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
@@ -2088,7 +2088,7 @@ export default function PublicAuditPage() {
                 <div 
                   className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
                   style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                    backgroundImage: `url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${language === 'ua' ? 'ua' : 'en'}.png)`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
@@ -2100,7 +2100,12 @@ export default function PublicAuditPage() {
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      AI capabilities:
+                      {getLocalizedText(language, {
+                        en: 'AI capabilities:',
+                        es: 'Capacidades de IA:',
+                        ua: 'Возможности ИИ:',
+                        ru: 'Можливості ШІ:'
+                      })}
                     </h4>
                     
                     {/* Capability 1 */}
@@ -2350,7 +2355,7 @@ export default function PublicAuditPage() {
                           })}<br className="xl:hidden"/> {getLocalizedText(language, {
                             en: 'them into',
                             es: 'en',
-                            ua: 'їх у',
+                            ua: 'їх в',
                             ru: 'их в'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(language, {
                             en: 'lessons,',
@@ -2521,7 +2526,7 @@ export default function PublicAuditPage() {
                     })}<br className="xl:hidden"/> {getLocalizedText(language, {
                       en: 'training',
                       es: 'departamentos',
-                      ua: 'департаментам',
+                      ua: 'департаментами',
                       ru: 'департаментам'
                     })}</span>
                     </span>
@@ -2624,7 +2629,7 @@ export default function PublicAuditPage() {
                       })}<br/>{getLocalizedText(language, {
                         en: 'training analytics',
                         es: 'análisis de entrenamiento',
-                        ua: 'аналітика з навчання',
+                        ua: 'аналітика навчання',
                         ru: 'аналитика по обучению'
                       })}</span>
                     </span>
