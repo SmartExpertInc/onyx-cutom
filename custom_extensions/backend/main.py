@@ -202,6 +202,7 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+# Global cache for system prompt
 SYSTEM_PROMPT_CACHE = None
 
 async def stream_openai_response(prompt: str, model: str = None):
@@ -209,23 +210,25 @@ async def stream_openai_response(prompt: str, model: str = None):
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
     """
+    global SYSTEM_PROMPT_CACHE
+    
     try:
-        global SYSTEM_PROMPT_CACHE
-
         client = get_openai_client()
         model = model or LLM_DEFAULT_MODEL
         
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        # Cache system prompt to avoid file I/O on every call
         if SYSTEM_PROMPT_CACHE is None:
             try:
-                with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                with open("custom_assistants/content_builder_ai.txt", 'r', encoding='utf-8') as f:
                     SYSTEM_PROMPT_CACHE = f.read()
             except FileNotFoundError:
                 SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Dynamic token limits based on prompt length
+        prompt_tokens = len(prompt.split()) * 1.3
+        max_tokens = min(4000, int(prompt_tokens * 2))
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with model {model}, max_tokens={max_tokens}")
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
@@ -235,51 +238,28 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=max_tokens,
             temperature=0.2
         )
         
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-                
-        async for chunk in stream:            
+        # Stream response without accumulating full response
+        async for chunk in stream:
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
                 if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    yield {"type": "delta", "text": content}
+                    yield {"type": "delta", "text": choice.delta.content}
                     
-                # Check for finish reason
                 if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Stream finished: {choice.finish_reason}")
                     break
                     
+    except httpx.TimeoutException:
+        yield {"type": "error", "text": "Request timeout"}
+    except httpx.HTTPStatusError as e:
+        yield {"type": "error", "text": f"HTTP error: {e.response.status_code}"}
     except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
-def should_use_openai_direct(payload) -> bool:
-    """
-    Determine if we should use OpenAI directly instead of Onyx.
-    Returns True when no file context is present.
-    """
-    # Check if files are explicitly provided
-    has_files = (
-        (hasattr(payload, 'fromFiles') and payload.fromFiles) or
-        (hasattr(payload, 'folderIds') and payload.folderIds) or
-        (hasattr(payload, 'fileIds') and payload.fileIds)
-    )
-    
-    # Check if text context is provided (this still uses file system in some cases)
-    has_text_context = (
-        hasattr(payload, 'fromText') and payload.fromText and 
-        hasattr(payload, 'userText') and payload.userText
-    )
-    
-    # Use OpenAI directly only when there's no file context and no text context
-    use_openai = not has_files and not has_text_context
-    
-    logger.info(f"[API_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_openai={use_openai}")
-    return use_openai
+        logger.error(f"[OPENAI_STREAM] Error: {e}")
+        yield {"type": "error", "text": "Streaming error"}
 
 def parse_id_list(id_string: str, context_name: str) -> List[int]:
     """
@@ -2969,6 +2949,7 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+# Global cache for system prompt
 SYSTEM_PROMPT_CACHE = None
 
 async def stream_openai_response(prompt: str, model: str = None):
@@ -2976,23 +2957,25 @@ async def stream_openai_response(prompt: str, model: str = None):
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
     """
+    global SYSTEM_PROMPT_CACHE
+    
     try:
-        global SYSTEM_PROMPT_CACHE
-
         client = get_openai_client()
         model = model or LLM_DEFAULT_MODEL
         
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        # Cache system prompt to avoid file I/O on every call
         if SYSTEM_PROMPT_CACHE is None:
             try:
-                with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                with open("custom_assistants/content_builder_ai.txt", 'r', encoding='utf-8') as f:
                     SYSTEM_PROMPT_CACHE = f.read()
             except FileNotFoundError:
                 SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Dynamic token limits based on prompt length
+        prompt_tokens = len(prompt.split()) * 1.3
+        max_tokens = min(4000, int(prompt_tokens * 2))
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with model {model}, max_tokens={max_tokens}")
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
@@ -3002,27 +2985,28 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=max_tokens,
             temperature=0.2
         )
         
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-                
-        async for chunk in stream:            
+        # Stream response without accumulating full response
+        async for chunk in stream:
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
                 if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    yield {"type": "delta", "text": content}
+                    yield {"type": "delta", "text": choice.delta.content}
                     
-                # Check for finish reason
                 if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Stream finished: {choice.finish_reason}")
                     break
                     
+    except httpx.TimeoutException:
+        yield {"type": "error", "text": "Request timeout"}
+    except httpx.HTTPStatusError as e:
+        yield {"type": "error", "text": f"HTTP error: {e.response.status_code}"}
     except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+        logger.error(f"[OPENAI_STREAM] Error: {e}")
+        yield {"type": "error", "text": "Streaming error"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -4140,6 +4124,7 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+# Global cache for system prompt
 SYSTEM_PROMPT_CACHE = None
 
 async def stream_openai_response(prompt: str, model: str = None):
@@ -4147,23 +4132,25 @@ async def stream_openai_response(prompt: str, model: str = None):
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
     """
+    global SYSTEM_PROMPT_CACHE
+    
     try:
-        global SYSTEM_PROMPT_CACHE
-
         client = get_openai_client()
         model = model or LLM_DEFAULT_MODEL
         
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        # Cache system prompt to avoid file I/O on every call
         if SYSTEM_PROMPT_CACHE is None:
             try:
-                with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                with open("custom_assistants/content_builder_ai.txt", 'r', encoding='utf-8') as f:
                     SYSTEM_PROMPT_CACHE = f.read()
             except FileNotFoundError:
                 SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Dynamic token limits based on prompt length
+        prompt_tokens = len(prompt.split()) * 1.3
+        max_tokens = min(4000, int(prompt_tokens * 2))
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with model {model}, max_tokens={max_tokens}")
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
@@ -4173,27 +4160,28 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=max_tokens,
             temperature=0.2
         )
         
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-                
-        async for chunk in stream:            
+        # Stream response without accumulating full response
+        async for chunk in stream:
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
                 if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    yield {"type": "delta", "text": content}
+                    yield {"type": "delta", "text": choice.delta.content}
                     
-                # Check for finish reason
                 if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
+                    logger.info(f"[OPENAI_STREAM] Stream finished: {choice.finish_reason}")
                     break
                     
+    except httpx.TimeoutException:
+        yield {"type": "error", "text": "Request timeout"}
+    except httpx.HTTPStatusError as e:
+        yield {"type": "error", "text": f"HTTP error: {e.response.status_code}"}
     except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+        logger.error(f"[OPENAI_STREAM] Error: {e}")
+        yield {"type": "error", "text": "Streaming error"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -5284,6 +5272,7 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
+# Global cache for system prompt
 SYSTEM_PROMPT_CACHE = None
 
 async def stream_openai_response(prompt: str, model: str = None):
@@ -5291,20 +5280,25 @@ async def stream_openai_response(prompt: str, model: str = None):
     Stream response directly from OpenAI API.
     Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
     """
+    global SYSTEM_PROMPT_CACHE
+    
     try:
-        global SYSTEM_PROMPT_CACHE
-
         client = get_openai_client()
         model = model or LLM_DEFAULT_MODEL
-
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        
+        # Cache system prompt to avoid file I/O on every call
         if SYSTEM_PROMPT_CACHE is None:
             try:
-                with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                with open("custom_assistants/content_builder_ai.txt", 'r', encoding='utf-8') as f:
                     SYSTEM_PROMPT_CACHE = f.read()
             except FileNotFoundError:
                 SYSTEM_PROMPT_CACHE = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Dynamic token limits based on prompt length
+        prompt_tokens = len(prompt.split()) * 1.3
+        max_tokens = min(4000, int(prompt_tokens * 2))
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with model {model}, max_tokens={max_tokens}")
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
@@ -5314,24 +5308,28 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=max_tokens,
             temperature=0.2
         )
-                        
-        async for chunk in stream:            
+        
+        # Stream response without accumulating full response
+        async for chunk in stream:
             if chunk.choices and len(chunk.choices) > 0:
                 choice = chunk.choices[0]
                 if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    yield {"type": "delta", "text": content}
+                    yield {"type": "delta", "text": choice.delta.content}
                     
-                # Check for finish reason
                 if choice.finish_reason:
+                    logger.info(f"[OPENAI_STREAM] Stream finished: {choice.finish_reason}")
                     break
                     
+    except httpx.TimeoutException:
+        yield {"type": "error", "text": "Request timeout"}
+    except httpx.HTTPStatusError as e:
+        yield {"type": "error", "text": f"HTTP error: {e.response.status_code}"}
     except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
+        logger.error(f"[OPENAI_STREAM] Error: {e}")
+        yield {"type": "error", "text": "Streaming error"}
 
 def should_use_openai_direct(payload) -> bool:
     """
