@@ -2449,40 +2449,39 @@
                 </div>
                 
             {% elif slide.templateId == 'big-image-top' %}
-                <div class="big-image-top">
-                    <!-- Top 50% - Image Container -->
-                    <div class="image-container">
+                <div style="height: 600px; background: #ffffff; font-family: var(--content-font); display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; position: relative;">
+                    <!-- Top 50% - Image Container (300px) -->
+                    <div style="width: 100%; height: 50%; display: flex; align-items: center; justify-content: center; background: #ffffff; min-width: 0; margin-bottom: 0; flex-shrink: 0;">
                         {% if slide.props.imagePath %}
                             <img src="{{ slide.props.imagePath }}" 
                                  alt="Uploaded image" 
-                                 style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }};
-                                    margin: 0;
-                                    padding: 0;
-                                    display: block;
-                                    border-radius: 0;
-                                 "
+                                 style="width: 100%; height: 100%; object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }}; margin: 0; padding: 0; display: block;"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                             <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: #f8f9fa;">
                                 <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% else %}
-                            <!-- Placeholder when no image -->
                             <div style="width: 100%; height: 100%; border: 2px dashed #e0e0e0; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
                                 <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% endif %}
                     </div>
                     
-                    <!-- Bottom 50% - Content Container -->
-                    <div class="content-container">
+                    <!-- Bottom 50% - Content Container (300px) -->
+                    <div style="width: 100%; height: 50%; padding: 40px 40px; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; flex-shrink: 0; overflow: hidden;">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            <h1 class="slide-title">{{ slide.props.title }}</h1>
+                            <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block;">
+                                <h1 style="font-size: 3rem; font-family: var(--title-font); color: #000000; margin-bottom: 24px; line-height: 1.2; word-wrap: break-word; font-weight: bold; text-align: left;">
+                                    {{ slide.props.title }}
+                                </h1>
+                            </div>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            <div class="content-text">{{ slide.props.subtitle }}</div>
+                            <div data-moveable-element="{{ slide.slideId }}-subtitle" data-draggable="true" style="display: inline-block;">
+                                <div style="font-size: 1.1rem; font-family: var(--content-font); color: #333333; line-height: 1.6; width: 75%; white-space: pre-wrap; word-wrap: break-word; text-align: left;">
+                                    {{ slide.props.subtitle }}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -2599,11 +2598,22 @@
                 <div class="process-steps">
                     <!-- Left Column - Title and Subtitle -->
                     <div class="left-column">
-                        <h1 class="slide-title">{{ slide.props.title or 'The Stages of Research' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Miss Jones Science Class' }}</p>
+                        <!-- Title -->
+                        <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block; width: 100%;">
+                            <h1 style="width: 230px; font-size: 3rem; font-family: serif; color: #000000; font-weight: bold; line-height: 0.85; margin-bottom: 20px; text-align: left; letter-spacing: -0.04em;">
+                                {{ slide.props.title or 'The Stages of Research' }}
+                            </h1>
+                        </div>
+
+                        <!-- Subtitle -->
+                        <div data-moveable-element="{{ slide.slideId }}-subtitle" data-draggable="true" style="display: inline-block; width: 100%;">
+                            <p style="font-size: 1.4rem; font-family: sans-serif; color: #09090B; font-weight: normal; text-align: left; opacity: 0.9; letter-spacing: 0.01em;">
+                                {{ slide.props.subtitle or 'Miss Jones Science Class' }}
+                            </p>
+                        </div>
                     </div>
 
-                    <!-- Right Column - Process Steps -->
+                    <!-- Right Column - Process Steps (GUARANTEED 5 BLOCKS) -->
                     <div class="right-column">
                         {% set stepColors = ['#0F58F9', '#2A7CFF', '#09ACD8', '#1B94E8', '#01298A'] %}
                         {% set defaultSteps = [
@@ -2620,18 +2630,19 @@
                             {% set stepTitle = step.title if step.title else ('Step ' + loop.index|string) %}
                             {% set stepDescription = step.description if step.description else 'Description' %}
                             
-                            <div class="process-step" style="background: {{ stepColor }};">
+                            <div data-moveable-element="{{ slide.slideId }}-step-{{ loop.index0 }}" data-draggable="true" 
+                                 style="display: flex; align-items: center; gap: 24px; padding: 25px 36px; border-radius: 2px; min-height: 110px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: {{ stepColor }}; width: 100%; position: relative;">
                                 <!-- Step Number Circle -->
-                                <div class="step-number-circle" style="border: 3px solid {{ stepColor }};">
-                                    <div class="step-number-inner" style="color: {{ stepColor }};">
+                                <div style="width: 44px; height: 44px; border-radius: 50%; background-color: white; border: 3px solid {{ stepColor }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: absolute; left: -21px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; color: {{ stepColor }}; font-size: 18px; font-weight: bold;">
                                         {{ loop.index }}
                                     </div>
                                 </div>
 
                                 <!-- Step Content -->
-                                <div class="step-content">
-                                    <h3 class="step-title">{{ stepTitle }}</h3>
-                                    <p class="step-description">{{ stepDescription }}</p>
+                                <div style="width: 80%; display: flex; align-items: center; justify-content: space-between; margin-left: 25px; gap: 6px;">
+                                    <h3 style="font-size: 1.6rem; font-weight: bold; color: white; margin: 0; font-family: sans-serif; letter-spacing: 0.02em;">{{ stepTitle }}</h3>
+                                    <p style="font-size: 1.1rem; color: white; margin: 0; opacity: 0.95; line-height: 1.4; font-family: sans-serif; width: 210px;">{{ stepDescription }}</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -2639,27 +2650,35 @@
                 </div>
                 
             {% elif slide.templateId == 'challenges-solutions' %}
-                <div class="challenges-solutions">
-                    <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solutions' }}</h1>
-                    <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
+                <div style="width: 100%; height: 100%; background: #ffffff; padding: 40px; display: flex; flex-direction: column; font-family: Georgia, serif; min-height: 600px; position: relative; overflow: hidden;">
+                    <!-- Title -->
+                    <h1 style="color: #000000; font-size: 2.5rem; font-family: Georgia, serif; margin-bottom: 10px; text-align: center; word-wrap: break-word; font-weight: bold; flex-shrink: 0;">
+                        {{ slide.props.title or 'Challenges & Solutions' }}
+                    </h1>
                     
-                    <div class="main-content">
+                    <!-- Subtitle -->
+                    <h2 style="color: #000000; font-size: 1.1rem; font-family: Arial, sans-serif; margin-bottom: 40px; text-align: center; word-wrap: break-word; font-weight: normal; flex-shrink: 0;">
+                        {{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}
+                    </h2>
+                    
+                    <!-- Main Content with Image -->
+                    <div style="display: flex; align-items: center; justify-content: center; flex-grow: 1; position: relative; height: 400px; width: 100%;">
                         <!-- Left side text items (Challenges) -->
                         <div style="position: absolute; left: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; cursor: pointer;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; cursor: pointer;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; cursor: pointer;">Title goes here</div>
                         </div>
 
                         <!-- Right side text items (Solutions) -->
                         <div style="position: absolute; right: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right; cursor: pointer;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right; cursor: pointer;">Title goes here</div>
+                            <div data-draggable="true" style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right; cursor: pointer;">Title goes here</div>
                         </div>
 
-                        <!-- Central Image -->
-                        <div class="image-container">
+                        <!-- Central Image (MAIN IMAGE!) -->
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
                             <img src="file:///app/static/group_img.png" alt="Group" style="width: 500px; height: 400px; object-fit: contain;" />
                         </div>
 
@@ -2720,20 +2739,33 @@
                 
                 {% elif slide.templateId == 'big-numbers' %}
                 <div class="big-numbers">
-                    <!-- Header Section - Dark Blue Background -->
+                    <!-- Header Section - Dark Blue Background (uses theme colors) -->
                     <div class="header-section">
-                        <h1 class="slide-title">{{ slide.props.title or 'Stress Management Made Simple' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}</p>
+                        <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block; width: 100%;">
+                            <h1 style="font-size: 2.5rem; font-family: var(--title-font); color: var(--title-color); text-align: left; margin-bottom: 24px; width: 100%; word-wrap: break-word; font-weight: bold; line-height: 1.2;">
+                                {{ slide.props.title or 'Stress Management Made Simple' }}
+                            </h1>
+                        </div>
+
+                        <div data-moveable-element="{{ slide.slideId }}-subtitle" data-draggable="true" style="display: inline-block; width: 100%;">
+                            <p style="font-size: 1.5rem; font-family: var(--content-font); color: var(--subtitle-color); text-align: left; width: 95%; word-wrap: break-word; line-height: 1.5; opacity: 0.9;">
+                                {{ slide.props.subtitle or 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Main Content Area - White Background -->
                     <div class="content-section">
                         <div class="numbers-grid">
                             <!-- Three identical blocks with "Increase Productivity" -->
-                            {% for idx in range(3) %}
-                                <div class="number-item">
-                                    <div class="number-label">Increase Productivity</div>
-                                    <div class="number-description">Gain the skills to be productive and successful in the workplace.</div>
+                            {% for idx in [1, 2, 3] %}
+                                <div class="number-item" data-moveable-element="{{ slide.slideId }}-item-{{ idx }}-label" data-draggable="true">
+                                    <div style="font-size: 1.5rem; color: #000000; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: 600;">
+                                        Increase Productivity
+                                    </div>
+                                    <div style="font-size: 1rem; color: #000000; font-family: var(--content-font); line-height: 1.5; word-wrap: break-word;">
+                                        Gain the skills to be productive and successful in the workplace.
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -2741,53 +2773,44 @@
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
-                <div class="four-box-grid">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="grid-container">
-                        {% for box in slide.props.boxes %}
-                            {% if (box.heading and box.heading != 'Click to add heading') or (box.text and box.text != 'Click to add text') %}
-                                <div class="box-item positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set boxId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
-                                        {% if slide.metadata.elementPositions[boxId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >
-                                    {% if box.heading and box.heading != 'Click to add heading' %}
-                                        <div class="box-heading">{{ box.heading }}</div>
-                                    {% endif %}
-                                    {% if box.text and box.text != 'Click to add text' %}
-                                        <div class="box-text">{{ box.text }}</div>
-                                    {% endif %}
+                <div style="width: 100%; min-height: 600px; background: #ffffff; display: flex; flex-direction: column; align-items: flex-start; padding: 60px 80px; font-family: var(--content-font);">
+                    <!-- Title -->
+                    <div data-moveable-element="{{ slide.slideId }}-title" data-draggable="true" style="display: inline-block;">
+                        <h1 style="font-size: 2.5rem; font-family: var(--title-font); color: #000000; text-align: left; margin-bottom: 40px; word-wrap: break-word; font-weight: bold;">
+                            {{ slide.props.title or 'Click to add title' }}
+                        </h1>
+                    </div>
+
+                    <!-- Grid Container (2x2) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 24px; width: 100%;">
+                        {% if slide.props.boxes and slide.props.boxes|length >= 4 %}
+                            {% for box in slide.props.boxes[:4] %}
+                                <div data-moveable-element="{{ slide.slideId }}-box-{{ loop.index0 }}" data-draggable="true" 
+                                     style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">
+                                        {{ box.heading or 'Click to add heading' }}
+                                    </div>
+                                    <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">
+                                        {{ box.text or 'Click to add text' }}
+                                    </div>
                                 </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
-                            <div class="box-item">
-                                <div class="box-heading">[Employee Name]</div>
-                                <div class="box-text">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Working here has been a transformative experience. The values resonate with my personal beliefs.</div>
                             </div>
-                            <div class="box-item">
-                                <div class="box-heading">[Employee Name]</div>
-                                <div class="box-text">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
+                            <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">I appreciate the emphasis on innovation. It inspires me to think outside the box.</div>
                             </div>
-                            <div class="box-item">
-                                <div class="box-heading">[Employee Name]</div>
-                                <div class="box-text">The teamwork culture makes every project enjoyable and successful.</div>
+                            <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">The teamwork culture makes every project enjoyable and successful.</div>
                             </div>
-                            <div class="box-item">
-                                <div class="box-heading">[Employee Name]</div>
-                                <div class="box-text">Our commitment to customer focus is evident in everything we do.</div>
+                            <div style="background: linear-gradient(90deg, #002D91 0%, #000C5B 100%); border-radius: 8px; padding: 20px; color: #ffffff; display: flex; flex-direction: column; justify-content: flex-start; min-height: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #ffffff; margin-bottom: 12px; font-family: var(--title-font); word-wrap: break-word; font-weight: bold;">[Employee Name]</div>
+                                <div style="font-size: 1rem; color: #ffffff; font-family: var(--content-font); word-wrap: break-word; opacity: 0.9;">Our commitment to customer focus is evident in everything we do.</div>
                             </div>
                         {% endif %}
                     </div>
@@ -2796,47 +2819,62 @@
             
                 
             {% elif slide.templateId == 'timeline' %}
-                <div class="timeline">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="timeline-container">
-                        <div class="timeline-line"></div>
+                <div style="min-height: 600px; height: 100%; background: #ffffff; display: flex; flex-direction: column; padding: 50px; font-family: Georgia, serif; text-align: left; overflow: hidden; position: relative;">
+                    <!-- Title -->
+                    <div style="display: inline-block; position: relative; z-index: 20;">
+                        <h1 style="font-size: 2.5rem; font-family: Arial, sans-serif; color: #000000; margin-bottom: 50px; text-align: left; word-wrap: break-word; font-weight: bold; flex-shrink: 0;">
+                            {{ slide.props.title or 'Timeline' }}
+                        </h1>
+                    </div>
+
+                    <!-- Timeline Container -->
+                    <div style="position: absolute; top: 150px; left: 50px; right: 50px; bottom: 50px; width: calc(100% - 100px); height: calc(100% - 200px);">
+                        <!-- Vertical Line -->
+                        <div style="position: absolute; top: 11px; left: calc(50% + 60px); width: 2px; height: 115%; background: #0F58F9;"></div>
                         
                         <!-- Item 1 - Left side -->
-                        <div class="timeline-circle positioned-element" style="top: 5%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
-                            <div class="step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
-                                        </div>
+                        <div style="position: absolute; top: 5%; left: calc(50% + 60px); transform: translate(-50%, -50%); width: 20px; height: 20px; background-color: #ffffff; border-radius: 50%; border: 4px solid #0F58F9; z-index: 10;"></div>
+                        <div style="position: absolute; top: 9%; left: calc(50% + 110px); width: calc(40% - 60px); transform: translateY(-50%); text-align: left;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 8px; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.4; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}
+                            </div>
+                        </div>
 
                         <!-- Item 2 - Right side -->
-                        <div class="timeline-circle positioned-element" style="top: 31%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
-                            <div class="step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
-                                        </div>
+                        <div style="position: absolute; top: 31%; left: calc(50% + 60px); transform: translate(-50%, -50%); width: 20px; height: 20px; background-color: #ffffff; border-radius: 50%; border: 4px solid #0F58F9; z-index: 10;"></div>
+                        <div style="position: absolute; top: 35%; right: calc(50% + 0px); width: calc(40% - 60px); transform: translateY(-50%); text-align: right;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 8px; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.4; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}
+                            </div>
+                        </div>
 
                         <!-- Item 3 - Left side -->
-                        <div class="timeline-circle positioned-element" style="top: 56%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
-                            <div class="step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
-                                    </div>
+                        <div style="position: absolute; top: 56%; left: calc(50% + 60px); transform: translate(-50%, -50%); width: 20px; height: 20px; background-color: #ffffff; border-radius: 50%; border: 4px solid #0F58F9; z-index: 10;"></div>
+                        <div style="position: absolute; top: 60%; left: calc(50% + 110px); width: calc(40% - 60px); transform: translateY(-50%); text-align: left;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 8px; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.4; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}
+                            </div>
+                        </div>
 
                         <!-- Item 4 - Right side -->
-                        <div class="timeline-circle positioned-element" style="top: 81%;"></div>
-                        <div class="timeline-text-block positioned-element" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
-                            <div class="step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
-                                </div>
+                        <div style="position: absolute; top: 81%; left: calc(50% + 60px); transform: translate(-50%, -50%); width: 20px; height: 20px; background-color: #ffffff; border-radius: 50%; border: 4px solid #0F58F9; z-index: 10;"></div>
+                        <div style="position: absolute; top: 85%; right: calc(50% + 0px); width: calc(40% - 60px); transform: translateY(-50%); text-align: right;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 8px; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.4; word-wrap: break-word;">
+                                {% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
