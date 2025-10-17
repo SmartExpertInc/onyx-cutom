@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { ImportCard, UploadFileIcon, KnowledgeBaseIcon, ImportURLIcon } from "@/components/ui/import-card";
+import { FeedbackButton } from "@/components/ui/feedback-button";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -173,7 +174,7 @@ export default function CreateFromFilesNewPage() {
               'Word docs',
               'PDFs'
             ]}
-            href="/create/from-files/specific"
+            href="/create/from-files-new/upload"
           />
 
           <ImportCard
@@ -216,6 +217,8 @@ export default function CreateFromFilesNewPage() {
           />
         </div>
       </div>
+
+      <FeedbackButton />
     </main>
   );
 }
