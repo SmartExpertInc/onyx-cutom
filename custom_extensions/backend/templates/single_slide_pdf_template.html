@@ -1326,7 +1326,7 @@
             width: 100%;
             height: 100%;
             min-height: 600px;
-            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
+            background: var(--bg-color);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -1334,7 +1334,6 @@
             padding: 60px 40px;
             position: relative;
             font-family: var(--content-font);
-            overflow: hidden;
         }
         
         .two-column .slide-title {
@@ -1350,7 +1349,10 @@
             display: flex;
             gap: 0px;
             width: 100%;
+            max-width: 1400px;
+            height: 100%;
             position: relative;
+            align-items: stretch;
         }
         
         .two-column-layout::before {
@@ -1366,18 +1368,18 @@
         }
         
         .column {
-            flex: 1;
+            flex: 1.2;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 40px 30px;
+            padding: 40px 30px 20px 30px;
             border-radius: 8px;
             position: relative;
         }
         
         .column-title {
-            font-size: 3.5rem;
+            font-size: 3.1rem;
             font-family: var(--title-font);
             color: #ffffff;
             text-align: center;
@@ -2577,8 +2579,16 @@
                         {% for step in displaySteps[:5] %}
                             {% set stepColor = stepColors[loop.index0] %}
                             {% if step is mapping %}
-                                {% set stepTitle = step.get('title', '') or ('Step ' + loop.index|string) %}
-                                {% set stepDescription = step.get('description', '') or 'Description' %}
+                                {% if 'title' in step and step['title'] %}
+                                    {% set stepTitle = step['title'] %}
+                                {% else %}
+                                    {% set stepTitle = 'Step ' + loop.index|string %}
+                                {% endif %}
+                                {% if 'description' in step and step['description'] %}
+                                    {% set stepDescription = step['description'] %}
+                                {% else %}
+                                    {% set stepDescription = 'Description' %}
+                                {% endif %}
                             {% else %}
                                 {% set stepTitle = 'Step ' + loop.index|string %}
                                 {% set stepDescription = 'Description' %}
