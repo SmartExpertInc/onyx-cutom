@@ -598,6 +598,7 @@ class ProfessionalPresentationService:
     async def _process_multi_slide_presentation(self, job_id: str, slides_data: List[Dict[str, Any]], request: PresentationRequest, job: PresentationJob) -> str:
         """
         Process a multi-slide presentation with individual avatar videos for each slide.
+        OPTIMIZED: Initiates all avatar videos in parallel first, then processes sequentially.
         
         Args:
             job_id: Job ID
@@ -618,7 +619,19 @@ class ProfessionalPresentationService:
             individual_videos = []
             temp_files_to_cleanup = []
             
-            # Process each slide individually
+            # OPTIMIZATION: If not slide-only mode, initiate ALL avatar videos in parallel at once
+            avatar_video_ids = []
+            if not request.slide_only:
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] 🚀 OPTIMIZATION: Initiating all {len(slides_data)} avatar videos in parallel")
+                avatar_video_ids = await self._initiate_all_avatar_videos(
+                    slides_data=slides_data,
+                    avatar_code=request.avatar_code,
+                    voice_id=request.voice_id,
+                    voice_provider=request.voice_provider
+                )
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] ✅ All avatar videos rendering in parallel")
+            
+            # Process each slide individually (avatar videos are already rendering in parallel)
             for slide_index, slide_data in enumerate(slides_data):
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing slide {slide_index + 1}/{len(slides_data)}")
                 
@@ -654,27 +667,24 @@ class ProfessionalPresentationService:
                     individual_videos.append(slide_video_path)
                     continue
                 
-                # OPTIMIZATION: Generate avatar video FIRST for this slide
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Step 1: Generating avatar video for slide {slide_index + 1} (to determine duration)")
+                # OPTIMIZATION: Wait for avatar video (already rendering in parallel)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Step 1: Waiting for avatar video {avatar_video_ids[slide_index]} (slide {slide_index + 1})")
                 
-                # Update progress to show avatar generation started
+                # Update progress to show avatar wait started
                 avatar_start_progress = base_progress + 10
                 self._update_job_status(job_id, progress=avatar_start_progress)
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar generation started for slide {slide_index + 1} - Progress: {avatar_start_progress}%")
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Waiting for avatar for slide {slide_index + 1} - Progress: {avatar_start_progress}%")
                 
-                avatar_video_path = await self._generate_avatar_video_with_progress(
-                    [slide_voiceover_text],  # Use slide-specific voiceover text
-                    request.avatar_code,
-                    request.duration,
-                    request.use_avatar_mask,
-                    job_id,
-                    base_progress + 10,  # Start progress
-                    base_progress + 30,  # End progress
-                    voice_id=request.voice_id,
-                    voice_provider=request.voice_provider
+                # Wait for the pre-initiated avatar video
+                avatar_video_path = await self._wait_for_avatar_video(
+                    video_id=avatar_video_ids[slide_index],
+                    job_id=job_id,
+                    slide_index=slide_index,
+                    start_progress=base_progress + 10,
+                    end_progress=base_progress + 30
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} ready: {avatar_video_path}")
                 
                 # OPTIMIZATION: Extract actual duration from avatar video
                 avatar_duration = await self._get_video_duration_from_file(avatar_video_path)
@@ -1058,6 +1068,145 @@ class ProfessionalPresentationService:
         except Exception as e:
             logger.error(f"Avatar video generation with progress failed: {e}")
             raise
+
+    async def _initiate_avatar_video(
+        self,
+        voiceover_text: str,
+        avatar_code: Optional[str],
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None,
+        slide_index: int = 0
+    ) -> str:
+        """
+        Initiate avatar video creation and start rendering WITHOUT waiting for completion.
+        Returns video_id immediately after rendering starts.
+        
+        Args:
+            voiceover_text: Voiceover text for this slide
+            avatar_code: Avatar code to use
+            voice_id: Optional voice ID
+            voice_provider: Optional voice provider
+            slide_index: Slide index for logging
+            
+        Returns:
+            video_id from Elai API
+        """
+        try:
+            logger.info(f"🎬 [BATCH_AVATAR_INIT] Initiating avatar video for slide {slide_index + 1}")
+            
+            # Get avatar code if not provided
+            if not avatar_code:
+                avatar_code = await self._get_available_avatar()
+                logger.info(f"🎬 [BATCH_AVATAR_INIT] Auto-selected avatar: {avatar_code}")
+            
+            # Create video with Elai API
+            result = await video_generation_service.create_video_from_texts(
+                project_name=f"Avatar Video - Slide {slide_index + 1}",
+                voiceover_texts=[voiceover_text],
+                avatar_code=avatar_code,
+                voice_id=voice_id,
+                voice_provider=voice_provider
+            )
+            
+            if not result["success"]:
+                raise Exception(f"Failed to create avatar video: {result['error']}")
+            
+            video_id = result["videoId"]
+            logger.info(f"🎬 [BATCH_AVATAR_INIT] Avatar video created with ID: {video_id} for slide {slide_index + 1}")
+            
+            # Start rendering (but don't wait)
+            render_result = await video_generation_service.render_video(video_id)
+            if not render_result["success"]:
+                raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
+            
+            logger.info(f"🎬 [BATCH_AVATAR_INIT] Rendering started for video {video_id} (slide {slide_index + 1})")
+            
+            return video_id
+            
+        except Exception as e:
+            logger.error(f"🎬 [BATCH_AVATAR_INIT] Failed to initiate avatar video for slide {slide_index + 1}: {e}")
+            raise
+
+    async def _initiate_all_avatar_videos(
+        self,
+        slides_data: List[Dict[str, Any]],
+        avatar_code: Optional[str],
+        voice_id: Optional[str] = None,
+        voice_provider: Optional[str] = None
+    ) -> List[str]:
+        """
+        Initiate all avatar videos in parallel at once.
+        
+        Args:
+            slides_data: List of all slide data
+            avatar_code: Avatar code to use
+            voice_id: Optional voice ID
+            voice_provider: Optional voice provider
+            
+        Returns:
+            List of video_ids in the same order as slides_data
+        """
+        logger.info(f"🎬 [BATCH_AVATAR] Starting parallel avatar video creation for {len(slides_data)} slides")
+        
+        # Create all tasks
+        tasks = []
+        for slide_index, slide_data in enumerate(slides_data):
+            # Extract voiceover text
+            slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
+            if not slide_voiceover_text:
+                slide_voiceover_text = f"Welcome to slide {slide_index + 1}. This presentation covers important topics."
+            
+            # Create task for this slide
+            task = self._initiate_avatar_video(
+                voiceover_text=slide_voiceover_text,
+                avatar_code=avatar_code,
+                voice_id=voice_id,
+                voice_provider=voice_provider,
+                slide_index=slide_index
+            )
+            tasks.append(task)
+        
+        # Execute all tasks in parallel
+        logger.info(f"🎬 [BATCH_AVATAR] Sending {len(tasks)} avatar creation requests in parallel...")
+        video_ids = await asyncio.gather(*tasks)
+        
+        logger.info(f"🎬 [BATCH_AVATAR] All {len(video_ids)} avatar videos initiated and rendering started")
+        for i, video_id in enumerate(video_ids):
+            logger.info(f"  - Slide {i + 1}: {video_id}")
+        
+        return video_ids
+
+    async def _wait_for_avatar_video(
+        self,
+        video_id: str,
+        job_id: str,
+        slide_index: int,
+        start_progress: float,
+        end_progress: float
+    ) -> str:
+        """
+        Wait for a specific avatar video to complete and download it.
+        
+        Args:
+            video_id: Elai video ID
+            job_id: Job ID for progress updates
+            slide_index: Slide index for logging
+            start_progress: Starting progress percentage
+            end_progress: Ending progress percentage
+            
+        Returns:
+            Path to downloaded avatar video
+        """
+        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Waiting for avatar video {video_id} (slide {slide_index + 1})")
+        
+        # Wait for completion with progress updates
+        avatar_video_path = await self._wait_for_avatar_completion_with_progress(
+            video_id, job_id, start_progress, end_progress
+        )
+        
+        logger.info(f"🎬 [BATCH_AVATAR_WAIT] Avatar video ready: {avatar_video_path} (slide {slide_index + 1})")
+        
+        return avatar_video_path
 
     async def _generate_avatar_video(
         self, 
