@@ -2589,9 +2589,19 @@
                                 {% else %}
                                     {% set stepDescription = 'Description' %}
                                 {% endif %}
+                            {% elif step is string %}
+                                {# Handle string format: "Step 1: Description text" #}
+                                {% if ':' in step %}
+                                    {% set parts = step.split(':', 1) %}
+                                    {% set stepTitle = parts[0].strip() %}
+                                    {% set stepDescription = parts[1].strip() %}
+                                {% else %}
+                                    {% set stepTitle = 'Step ' + loop.index|string %}
+                                    {% set stepDescription = step %}
+                                {% endif %}
                             {% else %}
                                 {% set stepTitle = 'Step ' + loop.index|string %}
-                                {% set stepDescription = 'Description' %}
+                                {% set stepDescription = step|string if step else 'Description' %}
                             {% endif %}
                             
                             <div class="process-step" style="background: {{ stepColor }};">
