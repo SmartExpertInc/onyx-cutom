@@ -109,6 +109,32 @@ jinja_env.filters['shuffle'] = shuffle_filter
 jinja_env.filters['cos'] = lambda x: math.cos(float(x))
 jinja_env.filters['sin'] = lambda x: math.sin(float(x))
 
+# Add static image to base64 filter
+def static_image_to_base64(filename: str) -> str:
+    """Convert a static image file to base64 data URL for PDF embedding."""
+    try:
+        current_dir = os.path.dirname(__file__)
+        root_dir = os.path.dirname(os.path.dirname(current_dir))
+        static_dir = os.path.join(root_dir, 'static')
+        image_path = os.path.join(static_dir, filename)
+        
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as image_file:
+                image_data = image_file.read()
+                image_base64 = base64.b64encode(image_data).decode('utf-8')
+                mime_type, _ = mimetypes.guess_type(image_path)
+                if not mime_type:
+                    mime_type = 'image/png'
+                return f"data:{mime_type};base64,{image_base64}"
+        else:
+            logger.warning(f"Static image not found: {image_path}")
+            return ""
+    except Exception as e:
+        logger.error(f"Failed to load static image {filename}: {e}")
+        return ""
+
+jinja_env.filters['static_image_base64'] = static_image_to_base64
+
 # Font embedding functions for PDF generation
 def get_font_as_base64(font_filename: str) -> str:
     """Convert a font file to base64 data URL for PDF embedding."""
