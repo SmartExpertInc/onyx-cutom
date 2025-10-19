@@ -853,7 +853,7 @@
         .big-image-left .content-text {
             font-family: var(--content-font);
             font-size: 18px; /* Exact frontend match */
-            color: var(--content-color);
+            color: #ffffff;
             line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -1196,7 +1196,7 @@
             opacity: 0.95;
             line-height: 1.4;
             font-family: sans-serif;
-            width: 210px;
+            width: 262px;
         }
         
         /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
@@ -2577,8 +2577,8 @@
                         {% for step in displaySteps[:5] %}
                             {% set stepColor = stepColors[loop.index0] %}
                             {% if step is mapping %}
-                                {% set stepTitle = step['title'] if step['title'] else ('Step ' + loop.index|string) %}
-                                {% set stepDescription = step['description'] if step['description'] else 'Description' %}
+                                {% set stepTitle = step.get('title', '') or ('Step ' + loop.index|string) %}
+                                {% set stepDescription = step.get('description', '') or 'Description' %}
                             {% else %}
                                 {% set stepTitle = 'Step ' + loop.index|string %}
                                 {% set stepDescription = 'Description' %}
@@ -2608,31 +2608,23 @@
                     <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
                     
                     <div class="main-content">
-                        <!-- Left side text items (Challenges) -->
-                        <div style="position: absolute; left: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            {% if slide.props.challenges and slide.props.challenges|length > 0 %}
-                                {% for challenge in slide.props.challenges[:3] %}
-                                    <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">{{ challenge }}</div>
-                                {% endfor %}
-                            {% else %}
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
-                            {% endif %}
-                        </div>
+                        <!-- Left side text items (Challenges) - positioned at 15%, 48%, 75% -->
+                        {% set leftPositions = ['15%', '48%', '75%'] %}
+                        {% set displayChallenges = slide.props.challenges if slide.props.challenges and slide.props.challenges|length > 0 else ['Add challenge', 'Add challenge', 'Add challenge'] %}
+                        {% for challenge in displayChallenges[:3] %}
+                            <div style="position: absolute; top: {{ leftPositions[loop.index0] }}; left: 20px; width: 280px; z-index: 10;">
+                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ challenge }}</div>
+                            </div>
+                        {% endfor %}
 
-                        <!-- Right side text items (Solutions) -->
-                        <div style="position: absolute; right: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            {% if slide.props.solutions and slide.props.solutions|length > 0 %}
-                                {% for solution in slide.props.solutions[:3] %}
-                                    <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">{{ solution }}</div>
-                                {% endfor %}
-                            {% else %}
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
-                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
-                            {% endif %}
-                        </div>
+                        <!-- Right side text items (Solutions) - positioned at 15%, 48%, 75% -->
+                        {% set rightPositions = ['15%', '48%', '75%'] %}
+                        {% set displaySolutions = slide.props.solutions if slide.props.solutions and slide.props.solutions|length > 0 else ['Add solution', 'Add solution', 'Add solution'] %}
+                        {% for solution in displaySolutions[:3] %}
+                            <div style="position: absolute; top: {{ rightPositions[loop.index0] }}; right: 10px; width: 280px; z-index: 10;">
+                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ solution }}</div>
+                            </div>
+                        {% endfor %}
 
                         <!-- Central Image -->
                         <div class="image-container">
@@ -2640,9 +2632,9 @@
                         </div>
 
                         <!-- Bottom Labels -->
-                        <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, 120px); display: flex; gap: 70px; z-index: 10; padding-right: 15px;">
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">{{ slide.props.challengesTitle or 'Challenges' }}</div>
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">{{ slide.props.solutionsTitle or 'Solutions' }}</div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, 160px); display: flex; gap: 70px; z-index: 10; padding-left: 40px;">
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.challengesTitle or 'Challenges' }}</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.solutionsTitle or 'Solutions' }}</div>
                         </div>
                     </div>
                 </div>
@@ -2654,42 +2646,44 @@
                         <div class="column">
                             <h2 class="column-title">{{ slide.props.leftTitle if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
                             <p class="column-content">{{ slide.props.leftContent if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
-                            {% if slide.props.leftImagePath %}
-                                <img src="{{ slide.props.leftImagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="
-                                        width: 100%;
-                                        height: 250px;
-                                        object-fit: cover;
-                                        border-radius: 4px;
-                                        margin-top: 20px;
-                                     " />
-                            {% else %}
-                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
-                                    🖼️ Add image
-                                </div>
-                            {% endif %}
+                            <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px;">
+                                {% if slide.props.leftImagePath %}
+                                    <img src="{{ slide.props.leftImagePath }}" 
+                                         alt="Uploaded image" 
+                                         style="
+                                            width: 100%;
+                                            height: 100%;
+                                            object-fit: cover;
+                                            border-radius: 4px;
+                                         " />
+                                {% else %}
+                                    <div class="placeholder" style="width: 100%; height: 100%; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                        🖼️ Add image
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <!-- Right Column -->
                         <div class="column">
                             <h2 class="column-title">{{ slide.props.rightTitle if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
                             <p class="column-content">{{ slide.props.rightContent if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
-                            {% if slide.props.rightImagePath %}
-                                <img src="{{ slide.props.rightImagePath }}" 
-                                     alt="Uploaded image" 
-                                     style="
-                                        width: 100%;
-                                        height: 250px;
-                                        object-fit: cover;
-                                        border-radius: 4px;
-                                        margin-top: 20px;
-                                     " />
-                            {% else %}
-                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
-                                    🖼️ Add image
-                                </div>
-                            {% endif %}
+                            <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px;">
+                                {% if slide.props.rightImagePath %}
+                                    <img src="{{ slide.props.rightImagePath }}" 
+                                         alt="Uploaded image" 
+                                         style="
+                                            width: 100%;
+                                            height: 100%;
+                                            object-fit: cover;
+                                            border-radius: 4px;
+                                         " />
+                                {% else %}
+                                    <div class="placeholder" style="width: 100%; height: 100%; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                        🖼️ Add image
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
