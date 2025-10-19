@@ -797,7 +797,7 @@
         .big-image-left {
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             font-family: var(--content-font);
             display: flex;
             align-items: stretch;
@@ -810,7 +810,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             position: relative;
             min-width: 0;
             overflow: visible; /* ALLOW images to move outside container bounds */
@@ -916,7 +916,7 @@
         }
         
         .bullet-points .bullets-container {
-            width: 77%;
+            width: 100%;
             font-size: 0.9rem;
             font-family: sans-serif;
             color: #ffffff;
@@ -1377,13 +1377,13 @@
         }
         
         .column-title {
-            font-size: 2.9rem;
+            font-size: 3.1rem;
             font-family: var(--title-font);
-            color: #ffffff;
+            color: var(--title-color);
             text-align: center;
             margin-bottom: 20px;
             line-height: 1.2;
-            max-width: 340px;
+            max-width: 375px;
             word-wrap: break-word;
             font-weight: bold;
             position: relative;
@@ -1392,13 +1392,13 @@
         }
         
         .column-content {
-            width: 325px;
+            width: 468px;
             font-size: 1.4rem;
             font-family: var(--content-font);
-            color: #ffffff;
+            color: var(--subtitle-color);
             text-align: center;
-            margin-bottom: 40px;
-            margin-top: 10px;
+            margin-bottom: 60px;
+            margin-top: 0;
             line-height: 1.4;
             max-width: 500px;
             word-wrap: break-word;
@@ -2022,11 +2022,22 @@
         .metrics-analytics-template {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             display: flex;
             flex-direction: column;
             padding: 40px;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: var(--content-font);
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .metrics-analytics-template .slide-title {
+            font-weight: 700;
+            font-size: var(--title-size);
+            color: var(--title-color);
+            text-align: center;
+            font-family: var(--title-font);
+            margin-bottom: 40px;
         }
         
         .metrics-grid {
@@ -2036,8 +2047,6 @@
             flex: 1;
             position: relative;
         }
-        
-
         
         .metric-item {
             display: flex;
@@ -2050,12 +2059,6 @@
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .metric-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
         }
         
         .metric-number {
@@ -2063,15 +2066,15 @@
             font-weight: 700;
             color: var(--accent-color);
             margin-bottom: 16px;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: var(--title-font);
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .metric-text {
-            font-size: 16px;
+            font-size: var(--content-size);
             color: var(--content-color);
             line-height: 1.5;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: var(--content-font);
             font-weight: 500;
         }
         
@@ -2506,7 +2509,7 @@
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
                                                 <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
                                             </li>
@@ -2514,7 +2517,7 @@
                                     {% endfor %}
                                 {% else %}
                                     {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                             <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
                                             <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
                                         </li>
@@ -2592,8 +2595,8 @@
                         
                         {% for step in displaySteps[:5] %}
                             {% set stepColor = stepColors[loop.index0] %}
-                            {% set stepTitle = step.title if step.title else ('Step ' + loop.index|string) %}
-                            {% set stepDescription = step.description if step.description else 'Description' %}
+                            {% set stepTitle = step['title'] if step.get('title') else ('Step ' + loop.index|string) %}
+                            {% set stepDescription = step['description'] if step.get('description') else 'Description' %}
                             
                             <div class="process-step" style="background: {{ stepColor }};">
                                 <!-- Step Number Circle -->
@@ -2621,16 +2624,28 @@
                     <div class="main-content">
                         <!-- Left side text items (Challenges) -->
                         <div style="position: absolute; left: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
+                            {% if slide.props.challenges and slide.props.challenges|length > 0 %}
+                                {% for challenge in slide.props.challenges[:3] %}
+                                    <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">{{ challenge }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Add challenge</div>
+                            {% endif %}
                         </div>
 
                         <!-- Right side text items (Solutions) -->
                         <div style="position: absolute; right: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
-                            <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Title goes here</div>
+                            {% if slide.props.solutions and slide.props.solutions|length > 0 %}
+                                {% for solution in slide.props.solutions[:3] %}
+                                    <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">{{ solution }}</div>
+                                {% endfor %}
+                            {% else %}
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
+                                <div style="font-size: 20px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: right;">Add solution</div>
+                            {% endif %}
                         </div>
 
                         <!-- Central Image -->
@@ -2640,8 +2655,8 @@
 
                         <!-- Bottom Labels -->
                         <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, 120px); display: flex; gap: 70px; z-index: 10; padding-right: 15px;">
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Challenges</div>
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Solutions</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">{{ slide.props.challengesTitle or 'Challenges' }}</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">{{ slide.props.solutionsTitle or 'Solutions' }}</div>
                         </div>
                     </div>
                 </div>
@@ -3332,11 +3347,8 @@
                                 <!-- Headers -->
                                 <thead>
                                 <tr>
-                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
-                                        Product version
-                                        </th>
                                         {% for header in slide.props.tableData.headers %}
-                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px; {% if loop.first %}border-top-left-radius: 15px;{% endif %} {% if loop.last %}border-top-right-radius: 15px;{% endif %}">
                                                 {{ header }}
                                             </th>
                                         {% endfor %}
@@ -3386,11 +3398,8 @@
                                 <!-- Headers -->
                                 <thead>
                                 <tr>
-                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
-                                            <!-- Empty corner cell -->
-                                        </th>
                                         {% for header in slide.props.tableData.headers %}
-                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
                                                 {{ header }}
                                             </th>
                                         {% endfor %}
