@@ -306,8 +306,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Header styles - no borders, with spacing
   const headerStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableFirstColumnColor,
-    color: '#000000',
+    backgroundColor: '#0F58F9',
+    color: '#ffffff',
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
@@ -341,8 +341,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-    color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
+    backgroundColor: '#0F58F9',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '50%',
     width: '24px',
@@ -425,9 +425,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {/* First column header - from data */}
               {tableData.headers.length > 0 && (
               <th style={{ 
-                ...headerStyles, 
-                backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
-                color: '#000000',
+                ...headerStyles,
                 textAlign: 'left',
                 borderTopLeftRadius: '15px',
                 borderTopRightRadius: '15px'
@@ -441,7 +439,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         placeholder="Enter header..."
                         className="inline-editor-header"
                         style={{
-                          color: '#000000',
+                          color: '#ffffff',
                           textAlign: 'left',
                           fontWeight: 'bold',
                           fontSize: '1rem',
@@ -457,7 +455,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                       />
                     ) : (
                       <span 
-                        style={{ fontWeight: 'bold', fontSize: '1rem' }}
+                        style={{ fontWeight: 'bold', fontSize: '1rem', color: '#ffffff' }}
                         onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                           const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                           if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
@@ -498,7 +496,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         placeholder="Enter header..."
                         className="inline-editor-header"
                         style={{
-                          color: headerColor,
+                          color: '#ffffff',
                           textAlign: 'center',
                           fontWeight: 'bold',
                           fontSize: '1rem',
@@ -519,7 +517,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           alignItems: 'center', 
                           justifyContent: 'center', 
                           gap: '8px',
-                          position: 'relative'
+                          position: 'relative',
+                          color: '#ffffff'
                         }}
                       >
                         <span 
@@ -562,8 +561,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {/* Add column button - always visible */}
                 {isEditable && (
                 <th style={{ 
-                  ...headerStyles, 
-                  backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
+                  ...headerStyles,
                   textAlign: 'center',
                   verticalAlign: 'middle',
                   width: '50px', // Thin column for add button
