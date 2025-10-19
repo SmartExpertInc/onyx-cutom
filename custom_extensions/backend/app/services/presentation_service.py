@@ -642,10 +642,14 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Starting processing for slide {slide_index + 1} - Progress: {base_progress}%")
                 
                 # Extract voiceover text for this specific slide
-                slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
+                # Check both slide level and props level (frontend can send in either location)
+                slide_voiceover_text = slide_data.get('voiceoverText', '') or slide_data.get('props', {}).get('voiceoverText', '')
                 if not slide_voiceover_text:
                     # Fallback to generic text if no voiceover text found
+                    logger.warning(f"🎬 [MULTI_SLIDE_PROCESSING] ⚠️ No voiceover text found for slide {slide_index + 1}, using placeholder")
                     slide_voiceover_text = f"Welcome to slide {slide_index + 1}. This presentation covers important topics."
+                else:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] ✅ Found voiceover text for slide {slide_index + 1}: '{slide_voiceover_text[:100]}...'")
                 
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} voiceover: {slide_voiceover_text[:100]}...")
                 
@@ -1151,10 +1155,13 @@ class ProfessionalPresentationService:
         # Create all tasks
         tasks = []
         for slide_index, slide_data in enumerate(slides_data):
-            # Extract voiceover text
-            slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
+            # Extract voiceover text - check both slide level and props level
+            slide_voiceover_text = slide_data.get('voiceoverText', '') or slide_data.get('props', {}).get('voiceoverText', '')
             if not slide_voiceover_text:
+                logger.warning(f"🎬 [BATCH_AVATAR] ⚠️ No voiceover text found for slide {slide_index + 1}, using placeholder")
                 slide_voiceover_text = f"Welcome to slide {slide_index + 1}. This presentation covers important topics."
+            else:
+                logger.info(f"🎬 [BATCH_AVATAR] ✅ Found voiceover text for slide {slide_index + 1}: '{slide_voiceover_text[:100]}...'")
             
             # Create task for this slide
             task = self._initiate_avatar_video(

@@ -372,12 +372,23 @@ export default function Projects2ViewPage() {
         if (response.ok) {
           const instanceData = await response.json();
           
-          // Check if this is a Video Lesson project
+          // Check if this is a generated Video Product (different from editable Video Lesson)
+          const isVideoProduct = instanceData.component_name === 'VideoProductDisplay';
+          
+          // Check if this is a Video Lesson project (editable)
           const isVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay' ||
                                instanceData.component_name === 'VideoLesson' ||
                                instanceData.component_name === 'video_lesson_presentation';
           
           const isComponentBasedVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay';
+          
+          if (isVideoProduct) {
+            // Redirect to proper video product view (not the editor)
+            console.log('🎬 [VIDEO_PRODUCT] Detected VideoProductDisplay, redirecting to video player view');
+            // For now, just navigate to the old projects view which handles VideoProductDisplay
+            window.location.href = `/projects/view/${projectId}`;
+            return;
+          }
           
           if (isVideoLesson) {
             setIsVideoLessonMode(true);
