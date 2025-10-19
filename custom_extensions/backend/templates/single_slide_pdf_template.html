@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* Mont Font Family - Embedded Base64 Fonts for PDF Rendering */
@@ -85,15 +85,15 @@
             position: relative; /* Enable absolute positioning for children */
         }
         
-        /* Theme color definitions - EXACT FRONTEND MATCH */
+        /* Theme color definitions - V2 FRONTEND MATCH */
         .theme-dark-purple {
-            --bg-color: #110c35;
+            --bg-color: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
             --title-color: #ffffff;
-            --subtitle-color: #d9e1ff;
-            --content-color: #d9e1ff;
+            --subtitle-color: #ffffff;
+            --content-color: #09090B;
             --accent-color: #f35657;
-            --title-font: 'Kanit', sans-serif;
-            --content-font: 'Martel Sans', sans-serif;
+            --title-font: 'Lora', serif;
+            --content-font: 'Lora', serif;
             --title-size: 45px;
             --content-size: 18px;
         }
@@ -1512,13 +1512,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: start;
+            text-align: center;
             padding: 32px 24px;
+        }
+        
+        .big-numbers .number-value {
+            font-size: 3rem;
+            color: var(--content-color);
+            margin-bottom: 16px;
+            font-family: var(--title-font);
+            word-wrap: break-word;
+            font-weight: bold;
         }
         
         .big-numbers .number-label {
             font-size: 1.5rem;
-            color: #000000; /* черный на белом фоне */
+            color: var(--content-color);
             margin-bottom: 12px;
             font-family: var(--title-font);
             word-wrap: break-word;
@@ -1527,7 +1536,7 @@
         
         .big-numbers .number-description {
             font-size: 1rem;
-            color: #000000; /* черный на белом фоне */
+            color: var(--content-color);
             font-family: var(--content-font);
             line-height: 1.5;
             word-wrap: break-word;
@@ -2689,19 +2698,38 @@
                     <!-- Header Section - Dark Blue Background -->
                     <div class="header-section">
                         <h1 class="slide-title">{{ slide.props.title or 'Stress Management Made Simple' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}</p>
+                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Add slide description' }}</p>
                     </div>
 
                     <!-- Main Content Area - White Background -->
                     <div class="content-section">
                         <div class="numbers-grid">
-                            <!-- Three identical blocks with "Increase Productivity" -->
-                            {% for idx in range(3) %}
+                            {% if slide.props.steps and slide.props.steps|length >= 3 %}
+                                {% for step in slide.props.steps[:3] %}
+                                    <div class="number-item">
+                                        <div class="number-value">{{ step.value or '85%' }}</div>
+                                        <div class="number-label">{{ step.label or 'Increase Productivity' }}</div>
+                                        <div class="number-description">{{ step.description or 'Gain the skills to be productive and successful in the workplace.' }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default 3 items if no steps provided -->
                                 <div class="number-item">
+                                    <div class="number-value">85%</div>
                                     <div class="number-label">Increase Productivity</div>
                                     <div class="number-description">Gain the skills to be productive and successful in the workplace.</div>
                                 </div>
-                            {% endfor %}
+                                <div class="number-item">
+                                    <div class="number-value">90%</div>
+                                    <div class="number-label">Reduce Stress</div>
+                                    <div class="number-description">Learn effective stress management techniques.</div>
+                                </div>
+                                <div class="number-item">
+                                    <div class="number-value">95%</div>
+                                    <div class="number-label">Improve Balance</div>
+                                    <div class="number-description">Achieve better work-life balance.</div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -3304,11 +3332,11 @@
                                 <!-- Headers -->
                                 <thead>
                                 <tr>
-                                    <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
                                         Product version
                                         </th>
                                         {% for header in slide.props.tableData.headers %}
-                                        <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
                                                 {{ header }}
                                             </th>
                                         {% endfor %}
