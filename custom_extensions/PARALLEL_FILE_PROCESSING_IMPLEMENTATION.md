@@ -195,9 +195,10 @@ Potential improvements for future iterations:
 ## Files Modified
 
 - `custom_extensions/backend/main.py`:
-  - Added `process_file_batch_with_progress()` function
-  - Updated `extract_file_context_from_onyx()` file processing
-  - Updated `extract_file_context_from_onyx()` folder processing
+  - **Line 7**: Added `Callable` and `Awaitable` to typing imports (required for progress callback)
+  - **Lines 10633-10691**: Added `process_file_batch_with_progress()` function
+  - **Lines 10723-10747**: Updated `extract_file_context_from_onyx()` file processing
+  - **Lines 10749-10766**: Updated `extract_file_context_from_onyx()` folder processing
 
 ## Related Documentation
 

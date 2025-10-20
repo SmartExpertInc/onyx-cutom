@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -984,7 +984,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -2927,7 +2927,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -3565,7 +3565,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -4104,7 +4104,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -4742,7 +4742,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5254,7 +5254,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5892,7 +5892,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Tuple
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable, Tuple
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
