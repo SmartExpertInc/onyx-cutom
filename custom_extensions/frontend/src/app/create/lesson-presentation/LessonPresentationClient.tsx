@@ -1356,6 +1356,8 @@ export default function LessonPresentationClient() {
     // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
     setStreamDone(false);
+    jsonConvertedRef.current = false; // Reset JSON conversion tracking for new edit
+    setOriginalJsonResponse(null); // Clear previous JSON
     // Don't clear content - keep sections visible
 
     try {
