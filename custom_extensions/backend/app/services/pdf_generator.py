@@ -1571,7 +1571,7 @@ async def generate_pdf_from_html_template(
 
 
 
-async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None) -> int:
+async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None, deck_template_version: Optional[str] = None) -> int:
     """
     Calculate the exact height needed for a single slide.
     
@@ -1579,6 +1579,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         slide_data: The slide data dictionary
         theme: The theme name
         browser: Optional browser instance to reuse
+        deck_template_version: Optional deck template version (e.g., 'v2')
     
     Returns:
         int: The calculated height in pixels
@@ -1659,7 +1660,16 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
                 logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")
                 logger.info(f"=== END BIG NUMBERS TEMPLATE DEBUG ===")
             
-            template = jinja_env.get_template("single_slide_pdf_template.html")
+            # Select template based on deck version
+            # Use old template for legacy decks (no version or version < 'v2')
+            if not deck_template_version or deck_template_version < 'v2':
+                template_file = "single_slide_pdf_template_old.html"
+                logger.info(f"Using legacy PDF template for version: {deck_template_version}")
+            else:
+                template_file = "single_slide_pdf_template.html"
+                logger.info(f"Using v2 PDF template for version: {deck_template_version}")
+            
+            template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
         except Exception as template_error:
             logger.error(f"Template rendering error for {template_id}: {template_error}", exc_info=True)
@@ -1780,7 +1790,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         if should_close_browser and browser:
             await browser.close()
 
-async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None) -> bool:
+async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: int, output_path: str, browser=None, slide_index: int = None, template_id: str = None, deck_template_version: Optional[str] = None) -> bool:
     """
     Generate a PDF for a single slide with exact dimensions.
     
@@ -1792,6 +1802,7 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         browser: Optional browser instance to reuse
         slide_index: Optional slide index for logging (1-based)
         template_id: Optional template ID for logging
+        deck_template_version: Optional deck template version (e.g., 'v2')
     
     Returns:
         bool: True if successful, False otherwise
@@ -2149,7 +2160,16 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
                 logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
             
-            template = jinja_env.get_template("single_slide_pdf_template.html")
+            # Select template based on deck version
+            # Use old template for legacy decks (no version or version < 'v2')
+            if not deck_template_version or deck_template_version < 'v2':
+                template_file = "single_slide_pdf_template_old.html"
+                logger.info(f"Using legacy PDF template for version: {deck_template_version}")
+            else:
+                template_file = "single_slide_pdf_template.html"
+                logger.info(f"Using v2 PDF template for version: {deck_template_version}")
+            
+            template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
             
@@ -2343,7 +2363,7 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck
             logger.info(f"✅ PDF RENDERING - Slide {slide_index}: Using base template {original_template_id}")
         except Exception as e:
             logger.error(f"❌ PDF VERSION CHECK ERROR - Slide {slide_index}: {e}", exc_info=True)
-        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id)
+        task = generate_single_slide_pdf(slide_data, theme, slide_height, output_path, browser, slide_index, template_id, deck_template_version)
         tasks.append(task)
     
     results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -2403,12 +2423,14 @@ async def generate_slide_deck_pdf_with_progress(
         browser = await pyppeteer.launch(**get_browser_launch_options())
         
         slide_heights = []
+        # Note: generate_slide_deck_pdf_with_progress doesn't have deck_template_version parameter
+        # This is acceptable as it's a legacy function; the main flow uses generate_slide_deck_pdf_with_dynamic_height
         for i, slide_data in enumerate(slides_data):
             template_id = slide_data.get('templateId', 'unknown')
             yield {'type': 'progress', 'message': f'Calculating dimensions for slide {i + 1}: {template_id}', 'current': i, 'total': len(slides_data)}
             
             try:
-                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version=None)
                 slide_heights.append(height)
             except Exception as e:
                 logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
@@ -2445,7 +2467,7 @@ async def generate_slide_deck_pdf_with_progress(
                     yield {'type': 'progress', 'message': f'Generating slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
                     
                     success = await generate_single_slide_pdf(
-                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
+                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id, deck_template_version=None
                     )
                     
                     if success:
@@ -2555,7 +2577,7 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             template_id = slide_data.get('templateId', 'unknown')
             logger.info(f"Calculating height for slide {i + 1}/{len(slides_data)} (templateId: {template_id})")
             try:
-                height = await calculate_slide_dimensions(slide_data, theme, browser)
+                height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version)
                 slide_heights.append(height)
                 logger.info(f"✓ Slide {i + 1} ({template_id}) height calculated: {height}px")
             except Exception as e:
@@ -2714,7 +2736,7 @@ async def test_single_slide_generation(slide_data: dict, theme: str, slide_index
         logger.info(f"  📏 Testing height calculation for {slide_info} ({template_id})...")
         try:
             browser = await pyppeteer.launch(**get_browser_launch_options())
-            height = await calculate_slide_dimensions(slide_data, theme, browser)
+            height = await calculate_slide_dimensions(slide_data, theme, browser, deck_template_version=None)
             result['height_calculation_success'] = True
             result['calculated_height'] = height
             logger.info(f"  ✅ Height calculation successful: {height}px")
@@ -2732,7 +2754,7 @@ async def test_single_slide_generation(slide_data: dict, theme: str, slide_index
         try:
             temp_pdf_path = f"/tmp/test_slide_{slide_index}_{uuid.uuid4().hex[:8]}.pdf"
             browser = await pyppeteer.launch(**get_browser_launch_options())
-            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id)
+            success = await generate_single_slide_pdf(slide_data, theme, result['calculated_height'], temp_pdf_path, browser, slide_index, template_id, deck_template_version=None)
             
             if success:
                 result['pdf_generation_success'] = True
