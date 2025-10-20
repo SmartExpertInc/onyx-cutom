@@ -789,17 +789,39 @@ export default function DynamicAuditLandingPage() {
           const parts = field.split('_')
           const moduleIndex = parseInt(parts[1])
           const lessonIndex = parseInt(parts[2])
-          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessonAssessments) {
-            updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue
-            console.log('✅ [TEXT SAVE] Successfully updated assessment type', moduleIndex, lessonIndex);
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
+            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
+              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
+              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                type: 'test',
+                duration: '5 min'
+              }));
+            }
+            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue
+              console.log('✅ [TEXT SAVE] Successfully updated assessment type', moduleIndex, lessonIndex);
+            }
           }
         } else if (field.startsWith('assessmentDuration_')) {
           const parts = field.split('_')
           const moduleIndex = parseInt(parts[1])
           const lessonIndex = parseInt(parts[2])
-          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessonAssessments) {
-            updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue
-            console.log('✅ [TEXT SAVE] Successfully updated assessment duration', moduleIndex, lessonIndex);
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
+            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
+              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
+              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                type: 'test',
+                duration: '5 min'
+              }));
+            }
+            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue
+              console.log('✅ [TEXT SAVE] Successfully updated assessment duration', moduleIndex, lessonIndex);
+            }
           }
         }
         break
@@ -1060,15 +1082,35 @@ export default function DynamicAuditLandingPage() {
                 const parts = field.split('_');
                 const moduleIndex = parseInt(parts[1]);
                 const lessonIndex = parseInt(parts[2]);
-                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessonAssessments) {
-                  recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue;
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
+                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
+                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                      type: 'test',
+                      duration: '5 min'
+                    }));
+                  }
+                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue;
+                  }
                 }
               } else if (field.startsWith('assessmentDuration_')) {
                 const parts = field.split('_');
                 const moduleIndex = parseInt(parts[1]);
                 const lessonIndex = parseInt(parts[2]);
-                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessonAssessments) {
-                  recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue;
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
+                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
+                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                      type: 'test',
+                      duration: '5 min'
+                    }));
+                  }
+                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue;
+                  }
                 }
               }
               break;
@@ -1143,6 +1185,17 @@ export default function DynamicAuditLandingPage() {
       console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
     }
     
+    // 🔍 CRITICAL LOGGING: Verify assessment data is in the payload
+    if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
+      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Saving assessment field:', field);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] New value:', newValue);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] courseOutlineModules in updatedData:', updatedData.courseOutlineModules);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Full courseOutlineModules:', JSON.stringify(updatedData.courseOutlineModules, null, 2));
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Will be included in API payload: YES');
+      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
+    }
+    
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
@@ -1161,6 +1214,19 @@ export default function DynamicAuditLandingPage() {
       // 🔍 EXTRA LOGGING: Table headers in payload
       if (field.startsWith('tableHeader')) {
         console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
+      }
+      
+      // 🔍 EXTRA LOGGING: Assessment data in payload
+      if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
+        console.log('🎯 [ASSESSMENT API] ==========================================');
+        console.log('🎯 [ASSESSMENT API] Field being saved:', field);
+        console.log('🎯 [ASSESSMENT API] courseOutlineModules in payload:', requestPayload.microProductContent.courseOutlineModules);
+        if (requestPayload.microProductContent.courseOutlineModules) {
+          requestPayload.microProductContent.courseOutlineModules.forEach((module: any, idx: number) => {
+            console.log(`🎯 [ASSESSMENT API] Module ${idx} lessonAssessments:`, module.lessonAssessments);
+          });
+        }
+        console.log('🎯 [ASSESSMENT API] ==========================================');
       }
       
       console.log('📤 [SENDING TO BACKEND] ==========================================');
