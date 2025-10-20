@@ -253,10 +253,12 @@ export default function UploadFilesPage() {
           )}
         </div>
 
-        {/* Question text */}
-        <p className="text-2xl text-center" style={{ color: '#FAFAFA' }}>
-          {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
-        </p>
+        {/* Question text - only show when Add more files and Continue buttons are visible */}
+        {!showImportOptions && (
+          <p className="text-2xl text-center" style={{ color: '#FAFAFA' }}>
+            {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
+          </p>
+        )}
 
         {/* Action buttons */}
         {!showImportOptions ? (

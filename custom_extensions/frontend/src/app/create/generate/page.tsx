@@ -1365,7 +1365,7 @@ function GenerateProductPicker() {
         {/* Uploaded Files Display */}
         {uploadedFiles.length > 0 && (
           <>
-            <h3 className="w-full max-w-2xl text-lg font-medium mb-2 text-center" style={{ color: '#71717A' }}>
+            <h3 className="w-full max-w-2xl text-md font-medium mb-2 text-center" style={{ color: '#71717A' }}>
               {t('interface.generate.yourSelectedMaterials', 'Your selected materials')}
             </h3>
             <div 
