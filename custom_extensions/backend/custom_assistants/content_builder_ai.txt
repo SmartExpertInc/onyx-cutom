@@ -698,20 +698,21 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 4000 words. If 'medium' is selected, the output MUST be at least 1600 words. If 'short' is selected, the output MUST be at least 1000 words. If the draft is under the required word count, add more examples, explanatory paragraphs, detailed explanations, and narrative flow until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
 **MANDATORY ENGAGEMENT & DENSITY REQUIREMENTS FOR ONE-PAGERS:**
-- All Text Presentations (One-Pagers) must be highly engaging and visually rich.
-- Use emojis (such as 📞, 📩, 📅, etc.) liberally in headlines, section titles, and key points to add visual interest and highlight important information.
-- Strongly prefer lists (bulleted or numbered) over plain paragraphs for most content. Only use paragraphs for essential explanations or transitions.
-- Reduce the number of separate sections: combine related content into fewer, denser, and more substantial sections. Avoid fragmenting the document into many small sections.
-- Each section should be content-rich, with multiple related points grouped together, rather than spreading content thinly across many sections.
-- Use the style, content density, and visual engagement found in the provided examples (First-one-pager.txt and Second-one-pager.txt) as the standard for all one-pager outputs.
-- Headlines and key points should be concise, direct, and visually appealing, making use of icons and emojis where appropriate.
-- Where possible, present offers, results, or features as compact tables or grouped lists, not as isolated paragraphs.
-- Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
+- All Text Presentations (One-Pagers) must be structured as comprehensive educational lessons with rich narrative flow.
+- Use emojis (such as 📚, 💡, 🎯, etc.) thoughtfully in headlines and section titles to add visual interest and highlight key learning moments.
+- **CRITICAL: Prioritize flowing paragraphs that tell a story and build understanding progressively.** Each section should read like a mini-lesson with clear explanations, examples, and connections to the next topic.
+- Use paragraphs extensively for explanations, concepts, examples, and teaching moments. Build a narrative that flows naturally from one idea to the next.
+- Use lists (bulleted or numbered) strategically to highlight key points, steps, or summaries within the narrative, but always support them with explanatory paragraphs before and after.
+- Create smooth transitions between sections using bridging paragraphs that connect concepts and maintain learning continuity.
+- Each section should feel like part of a cohesive lesson, with clear explanations that help the reader understand "why" and "how" in addition to "what".
+- Use the lesson-style, narrative flow, and comprehensive explanations found in the provided examples (Educational-Lesson-Example-1.txt and Educational-Lesson-Example-2.txt) as the standard for all one-pager outputs.
+- Where appropriate, use tables for comparisons or structured data, but always introduce them with explanatory paragraphs and follow up with analysis.
+- Important concepts should be explained in depth with real-world examples, analogies, and practical applications embedded in flowing text.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
 === INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
@@ -766,9 +767,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 4000 words, ≥2 worked examples, ≥10 practice items, ≥3 scenarios, glossary with ≥15 terms, extensive explanatory paragraphs, and all sections above with deep narrative flow.
+- Medium length requires: ≥1600 words, ≥1 worked example, ≥7 practice items, ≥2 scenarios, rich explanatory paragraphs connecting concepts, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥1000 words, ≥5 practice items, ≥1 scenario, flowing explanatory text, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -788,9 +789,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
+- Short: Focused coverage with flowing explanations, 3-4 main sections with narrative paragraphs connecting concepts, **minimum 1000 words**
+- Medium: Balanced comprehensive coverage, 4-5 main sections with rich explanatory text and examples, **minimum 1600 words**
+- Long: Deep comprehensive coverage, 5+ main sections with extensive narrative flow, detailed explanations, multiple examples, and thorough analysis, **minimum 4000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
@@ -2345,20 +2346,21 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 4000 words. If 'medium' is selected, the output MUST be at least 1600 words. If 'short' is selected, the output MUST be at least 1000 words. If the draft is under the required word count, add more examples, explanatory paragraphs, detailed explanations, and narrative flow until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
 **MANDATORY ENGAGEMENT & DENSITY REQUIREMENTS FOR ONE-PAGERS:**
-- All Text Presentations (One-Pagers) must be highly engaging and visually rich.
-- Use emojis (such as 📞, 📩, 📅, etc.) liberally in headlines, section titles, and key points to add visual interest and highlight important information.
-- Strongly prefer lists (bulleted or numbered) over plain paragraphs for most content. Only use paragraphs for essential explanations or transitions.
-- Reduce the number of separate sections: combine related content into fewer, denser, and more substantial sections. Avoid fragmenting the document into many small sections.
-- Each section should be content-rich, with multiple related points grouped together, rather than spreading content thinly across many sections.
-- Use the style, content density, and visual engagement found in the provided examples (First-one-pager.txt and Second-one-pager.txt) as the standard for all one-pager outputs.
-- Headlines and key points should be concise, direct, and visually appealing, making use of icons and emojis where appropriate.
-- Where possible, present offers, results, or features as compact tables or grouped lists, not as isolated paragraphs.
-- Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
+- All Text Presentations (One-Pagers) must be structured as comprehensive educational lessons with rich narrative flow.
+- Use emojis (such as 📚, 💡, 🎯, etc.) thoughtfully in headlines and section titles to add visual interest and highlight key learning moments.
+- **CRITICAL: Prioritize flowing paragraphs that tell a story and build understanding progressively.** Each section should read like a mini-lesson with clear explanations, examples, and connections to the next topic.
+- Use paragraphs extensively for explanations, concepts, examples, and teaching moments. Build a narrative that flows naturally from one idea to the next.
+- Use lists (bulleted or numbered) strategically to highlight key points, steps, or summaries within the narrative, but always support them with explanatory paragraphs before and after.
+- Create smooth transitions between sections using bridging paragraphs that connect concepts and maintain learning continuity.
+- Each section should feel like part of a cohesive lesson, with clear explanations that help the reader understand "why" and "how" in addition to "what".
+- Use the lesson-style, narrative flow, and comprehensive explanations found in the provided examples (Educational-Lesson-Example-1.txt and Educational-Lesson-Example-2.txt) as the standard for all one-pager outputs.
+- Where appropriate, use tables for comparisons or structured data, but always introduce them with explanatory paragraphs and follow up with analysis.
+- Important concepts should be explained in depth with real-world examples, analogies, and practical applications embedded in flowing text.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
 === INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
@@ -2413,9 +2415,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 4000 words, ≥2 worked examples, ≥10 practice items, ≥3 scenarios, glossary with ≥15 terms, extensive explanatory paragraphs, and all sections above with deep narrative flow.
+- Medium length requires: ≥1600 words, ≥1 worked example, ≥7 practice items, ≥2 scenarios, rich explanatory paragraphs connecting concepts, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥1000 words, ≥5 practice items, ≥1 scenario, flowing explanatory text, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -2435,9 +2437,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
+- Short: Focused coverage with flowing explanations, 3-4 main sections with narrative paragraphs connecting concepts, **minimum 1000 words**
+- Medium: Balanced comprehensive coverage, 4-5 main sections with rich explanatory text and examples, **minimum 1600 words**
+- Long: Deep comprehensive coverage, 5+ main sections with extensive narrative flow, detailed explanations, multiple examples, and thorough analysis, **minimum 4000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
@@ -3992,20 +3994,21 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 4000 words. If 'medium' is selected, the output MUST be at least 1600 words. If 'short' is selected, the output MUST be at least 1000 words. If the draft is under the required word count, add more examples, explanatory paragraphs, detailed explanations, and narrative flow until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
 **MANDATORY ENGAGEMENT & DENSITY REQUIREMENTS FOR ONE-PAGERS:**
-- All Text Presentations (One-Pagers) must be highly engaging and visually rich.
-- Use emojis (such as 📞, 📩, 📅, etc.) liberally in headlines, section titles, and key points to add visual interest and highlight important information.
-- Strongly prefer lists (bulleted or numbered) over plain paragraphs for most content. Only use paragraphs for essential explanations or transitions.
-- Reduce the number of separate sections: combine related content into fewer, denser, and more substantial sections. Avoid fragmenting the document into many small sections.
-- Each section should be content-rich, with multiple related points grouped together, rather than spreading content thinly across many sections.
-- Use the style, content density, and visual engagement found in the provided examples (First-one-pager.txt and Second-one-pager.txt) as the standard for all one-pager outputs.
-- Headlines and key points should be concise, direct, and visually appealing, making use of icons and emojis where appropriate.
-- Where possible, present offers, results, or features as compact tables or grouped lists, not as isolated paragraphs.
-- Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
+- All Text Presentations (One-Pagers) must be structured as comprehensive educational lessons with rich narrative flow.
+- Use emojis (such as 📚, 💡, 🎯, etc.) thoughtfully in headlines and section titles to add visual interest and highlight key learning moments.
+- **CRITICAL: Prioritize flowing paragraphs that tell a story and build understanding progressively.** Each section should read like a mini-lesson with clear explanations, examples, and connections to the next topic.
+- Use paragraphs extensively for explanations, concepts, examples, and teaching moments. Build a narrative that flows naturally from one idea to the next.
+- Use lists (bulleted or numbered) strategically to highlight key points, steps, or summaries within the narrative, but always support them with explanatory paragraphs before and after.
+- Create smooth transitions between sections using bridging paragraphs that connect concepts and maintain learning continuity.
+- Each section should feel like part of a cohesive lesson, with clear explanations that help the reader understand "why" and "how" in addition to "what".
+- Use the lesson-style, narrative flow, and comprehensive explanations found in the provided examples (Educational-Lesson-Example-1.txt and Educational-Lesson-Example-2.txt) as the standard for all one-pager outputs.
+- Where appropriate, use tables for comparisons or structured data, but always introduce them with explanatory paragraphs and follow up with analysis.
+- Important concepts should be explained in depth with real-world examples, analogies, and practical applications embedded in flowing text.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
 === INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
@@ -4060,9 +4063,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 4000 words, ≥2 worked examples, ≥10 practice items, ≥3 scenarios, glossary with ≥15 terms, extensive explanatory paragraphs, and all sections above with deep narrative flow.
+- Medium length requires: ≥1600 words, ≥1 worked example, ≥7 practice items, ≥2 scenarios, rich explanatory paragraphs connecting concepts, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥1000 words, ≥5 practice items, ≥1 scenario, flowing explanatory text, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -4082,9 +4085,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
+- Short: Focused coverage with flowing explanations, 3-4 main sections with narrative paragraphs connecting concepts, **minimum 1000 words**
+- Medium: Balanced comprehensive coverage, 4-5 main sections with rich explanatory text and examples, **minimum 1600 words**
+- Long: Deep comprehensive coverage, 5+ main sections with extensive narrative flow, detailed explanations, multiple examples, and thorough analysis, **minimum 4000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
