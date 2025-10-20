@@ -1660,14 +1660,15 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None,
                 logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")
                 logger.info(f"=== END BIG NUMBERS TEMPLATE DEBUG ===")
             
-            # Select template based on deck version
+            # Select template based on deck version (matching frontend logic)
+            # Frontend: if (!effectiveVersion || effectiveVersion < 'v2') -> use old
             # Use old template for legacy decks (no version or version < 'v2')
             if not deck_template_version or deck_template_version < 'v2':
                 template_file = "single_slide_pdf_template_old.html"
-                logger.info(f"Using legacy PDF template for version: {deck_template_version}")
+                logger.info(f"📄 TEMPLATE SELECTION (calculate_slide_dimensions): Using LEGACY template for version: {deck_template_version}")
             else:
                 template_file = "single_slide_pdf_template.html"
-                logger.info(f"Using v2 PDF template for version: {deck_template_version}")
+                logger.info(f"📄 TEMPLATE SELECTION (calculate_slide_dimensions): Using V2 template for version: {deck_template_version}")
             
             template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
@@ -2160,14 +2161,15 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
                 logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
                 logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
             
-            # Select template based on deck version
+            # Select template based on deck version (matching frontend logic)
+            # Frontend: if (!effectiveVersion || effectiveVersion < 'v2') -> use old
             # Use old template for legacy decks (no version or version < 'v2')
             if not deck_template_version or deck_template_version < 'v2':
                 template_file = "single_slide_pdf_template_old.html"
-                logger.info(f"Using legacy PDF template for version: {deck_template_version}")
+                logger.info(f"📄 TEMPLATE SELECTION (generate_single_slide_pdf): Using LEGACY template for version: {deck_template_version}")
             else:
                 template_file = "single_slide_pdf_template.html"
-                logger.info(f"Using v2 PDF template for version: {deck_template_version}")
+                logger.info(f"📄 TEMPLATE SELECTION (generate_single_slide_pdf): Using V2 template for version: {deck_template_version}")
             
             template = jinja_env.get_template(template_file)
             html_content = template.render(**context_data)
@@ -2992,30 +2994,41 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         theme_value = "dark-purple"
 
     # Extract deck templateVersion for version-aware rendering
+    # Frontend logic: if (!effectiveVersion || effectiveVersion < 'v2') -> use old template
+    # Default to None (which means "no version" = use old template for backward compatibility)
     deck_template_version = None
     try:
-        if isinstance(raw_content, dict):
-            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content keys: {raw_content.keys()}")
-            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.templateVersion: {raw_content.get('templateVersion')}")
-            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.details: {raw_content.get('details')}")
-            if raw_content.get('details'):
-                _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.details.templateVersion: {raw_content.get('details', {}).get('templateVersion')}")
+        # Use content_obj (the parsed version) instead of raw_content for extraction
+        _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj type: {type(content_obj)}")
+        if isinstance(content_obj, dict):
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {list(content_obj.keys())[:15]}")
+            
+            # Try multiple extraction paths (matching frontend's ComponentBasedSlideDeck structure)
             deck_template_version = (
-                raw_content.get("templateVersion")
-                or (raw_content.get("details") or {}).get("templateVersion")
+                content_obj.get("templateVersion")           # Direct field (frontend: slideDeck.templateVersion)
+                or content_obj.get("template_version")       # Snake case variant
+                or (content_obj.get("details") or {}).get("templateVersion")  # In details
+                or (content_obj.get("details") or {}).get("template_version") # In details snake case
             )
-        elif isinstance(content_obj, dict):
-            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {content_obj.keys()}")
+            
+            # Log what we found at top level
             _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.templateVersion: {content_obj.get('templateVersion')}")
-            deck_template_version = (
-                content_obj.get("templateVersion")
-                or (content_obj.get("details") or {}).get("templateVersion")
-            )
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.template_version: {content_obj.get('template_version')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.lessonTitle: {content_obj.get('lessonTitle')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.slides count: {len(content_obj.get('slides', []))}")
+            
+            # Also check if it's nested in details
+            if content_obj.get('details') and isinstance(content_obj.get('details'), dict):
+                details = content_obj.get('details')
+                _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details keys: {list(details.keys())[:15]}")
+                _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details.templateVersion: {details.get('templateVersion')}")
+                
+        _log.info(f"🔍 PDF VERSION EXTRACTION - EXTRACTED VERSION: {deck_template_version}")
     except Exception as e:
-        _log.error(f"🔍 PDF VERSION EXTRACTION ERROR: {e}")
+        _log.error(f"🔍 PDF VERSION EXTRACTION ERROR: {e}", exc_info=True)
         pass
     
-    _log.info(f"🔍 PDF DECK VERSION - product_id={product_data['id']}, templateVersion={deck_template_version}, raw_content_type={type(raw_content).__name__}")
+    _log.info(f"🔍 PDF DECK VERSION FINAL - product_id={product_data['id']}, templateVersion={deck_template_version}, will_use_template={'v2 (single_slide_pdf_template.html)' if deck_template_version and deck_template_version >= 'v2' else 'v1 (single_slide_pdf_template_old.html)'}")
     
     # Apply version-aware theme mapping (matching frontend logic)
     # Legacy decks (no version or < v2) should use v1 theme variants with old colors
