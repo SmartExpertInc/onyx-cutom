@@ -351,7 +351,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                       >
                         <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
-                          <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                          <div 
+                            className="opacity-70 group-hover:opacity-100 transition-opacity" 
+                            dangerouslySetInnerHTML={{ __html: template.icon }}
+                          />
                         </div>
                         <div className="px-3 py-3">
                           <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
@@ -375,7 +378,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                     >
                       <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
-                        <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                        <div 
+                          className="opacity-70 group-hover:opacity-100 transition-opacity" 
+                          dangerouslySetInnerHTML={{ __html: template.icon }}
+                        />
                       </div>
                       <div className="px-3 py-3">
                         <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
@@ -583,7 +589,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                   className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                 >
                                   <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
-                                    <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                                    <div 
+                                      className="opacity-70 group-hover:opacity-100 transition-opacity" 
+                                      dangerouslySetInnerHTML={{ __html: template.icon }}
+                                    />
                                   </div>
                                   <div className="px-3 py-3">
                                     <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
@@ -607,7 +616,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                               >
                                 <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
-                                  <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                                  <div 
+                                    className="opacity-70 group-hover:opacity-100 transition-opacity" 
+                                    dangerouslySetInnerHTML={{ __html: template.icon }}
+                                  />
                                 </div>
                                 <div className="px-3 py-3">
                                   <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>

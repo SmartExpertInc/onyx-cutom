@@ -38,15 +38,10 @@
 .slide-mini-preview {
   width: 100%;
   height: auto;
-  transform-origin: center;
+  transform-origin: top left;
   pointer-events: none;
   user-select: none;
   background: white;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .slide-mini-preview > * {
