@@ -10879,10 +10879,24 @@ async def process_file_batch_with_progress(
     
     return all_results
 
-async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+async def extract_file_context_from_onyx_with_progress(
+    file_ids: List[int], 
+    folder_ids: List[int], 
+    cookies: Dict[str, str],
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+):
     """
-    Extract relevant context from files and folders using Onyx's capabilities.
-    Returns structured context that can be used with OpenAI.
+    Extract relevant context from files and folders using Onyx's capabilities with progress updates.
+    Yields progress messages during extraction to keep connections alive.
+    
+    Args:
+        file_ids: List of file IDs to extract
+        folder_ids: List of folder IDs to extract
+        cookies: Authentication cookies
+        progress_callback: Optional callback for progress updates
+        
+    Yields:
+        Dict with type 'progress' (progress update) or 'complete' (final context)
     """
     try:
         # Create cache key
@@ -10893,9 +10907,12 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             cached_data = FILE_CONTEXT_CACHE[cache_key]
             if time.time() - cached_data["timestamp"] < FILE_CONTEXT_CACHE_TTL:
                 logger.info(f"[FILE_CONTEXT] Using cached context for key: {cache_key[:16]}...")
-                return cached_data["context"]
+                yield {"type": "progress", "message": "Using cached file context..."}
+                yield {"type": "complete", "context": cached_data["context"]}
+                return
         
         logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
+        yield {"type": "progress", "message": f"Extracting context from {len(file_ids)} files and {len(folder_ids)} folders..."}
         
         extracted_context = {
             "file_summaries": [],
@@ -10915,8 +10932,44 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         if file_ids:
             logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
             
-            # Process all files in parallel batches
-            file_results = await process_file_batch_with_progress(file_ids, cookies, batch_size=8)
+            # Process files in batches and yield progress for each batch
+            batch_size = 8
+            all_file_results = []
+            total_files = len(file_ids)
+            
+            for i in range(0, len(file_ids), batch_size):
+                batch = file_ids[i:i + batch_size]
+                batch_num = i//batch_size + 1
+                total_batches = (total_files + batch_size - 1) // batch_size
+                
+                progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+                logger.info(f"[FILE_CONTEXT] {progress_msg}")
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Create tasks for this batch
+                tasks = [extract_single_file_context(file_id, cookies) for file_id in batch]
+                
+                # Execute batch in parallel
+                batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+                
+                # Process results
+                for file_id, result in zip(batch, batch_results):
+                    if isinstance(result, Exception):
+                        logger.error(f"[FILE_CONTEXT] Error processing file {file_id}: {result}")
+                        all_file_results.append(None)
+                    else:
+                        all_file_results.append(result)
+                
+                # Yield progress after batch completion
+                completed = min(i + batch_size, total_files)
+                progress_msg = f"Completed {completed}/{total_files} files"
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Brief pause between batches
+                if i + batch_size < len(file_ids):
+                    await asyncio.sleep(0.5)
+            
+            file_results = all_file_results
             
             # Process results
             for file_id, file_context in zip(file_ids, file_results):
@@ -10938,6 +10991,7 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         # Extract folder contexts with batch parallel processing
         if folder_ids:
             logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(folder_ids)} folders")
+            yield {"type": "progress", "message": f"Processing {len(folder_ids)} folders..."}
             
             # Process folders in parallel
             folder_tasks = [extract_folder_context(folder_id, cookies) for folder_id in folder_ids]
@@ -10953,6 +11007,8 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
                     logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
+            
+            yield {"type": "progress", "message": f"Completed processing {len(folder_ids)} folders"}
         
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
@@ -10972,17 +11028,39 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         
         logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
         
-        return extracted_context
+        # Yield final complete result
+        yield {"type": "complete", "context": extracted_context}
         
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
-        return {
+        yield {"type": "error", "message": f"Error extracting file context: {str(e)}"}
+        yield {"type": "complete", "context": {
             "file_summaries": [],
             "file_contents": [],
             "folder_contexts": [],
             "key_topics": [],
             "metadata": {"error": str(e)}
-        }
+        }}
+
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract relevant context from files and folders using Onyx's capabilities.
+    Returns structured context that can be used with OpenAI.
+    This is a backward-compatible wrapper around the progress-enabled version.
+    """
+    file_context = None
+    async for update in extract_file_context_from_onyx_with_progress(file_ids, folder_ids, cookies):
+        if update["type"] == "complete":
+            file_context = update["context"]
+            break
+    
+    return file_context or {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {"error": "No context extracted"}
+    }
 
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -16816,9 +16894,26 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -22922,9 +23017,26 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         file_ids_list.append(wizard_dict["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -28021,8 +28133,21 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -28048,9 +28173,26 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -29224,9 +29366,26 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
