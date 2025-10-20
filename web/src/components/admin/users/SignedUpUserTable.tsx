@@ -18,7 +18,6 @@ import { TableHeader } from "@/components/ui/table";
 import UserRoleDropdown from "./buttons/UserRoleDropdown";
 import DeleteUserButton from "./buttons/DeleteUserButton";
 import DeactivateUserButton from "./buttons/DeactivateUserButton";
-import VerifyEmailButton from "./buttons/VerifyEmailButton";
 import usePaginatedFetch from "@/hooks/usePaginatedFetch";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
@@ -41,7 +40,6 @@ import {
   UserMinus,
   UserX,
   KeyRound,
-  CheckCircle,
 } from "lucide-react";
 import {
   Popover,
@@ -296,17 +294,6 @@ const SignedUpUserTable = ({
                 <span>Reset Password</span>
               </Button>
             )}
-            {!user.is_verified && (
-              <VerifyEmailButton
-                user={user}
-                setPopup={setPopup}
-                mutate={refresh}
-                className={buttonClassName}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                <span>Verify Email</span>
-              </VerifyEmailButton>
-            )}
           </div>
         </PopoverContent>
       </Popover>
@@ -375,16 +362,7 @@ const SignedUpUserTable = ({
             ) : (
               pageOfUsers.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {user.email}
-                      {!user.is_verified && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                          Unverified
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
+                  <TableCell>{user.email}</TableCell>
                   <TableCell className="w-[180px]">
                     {renderUserRoleDropdown(user)}
                   </TableCell>

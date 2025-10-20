@@ -10630,6 +10630,66 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
+async def process_file_batch_with_progress(
+    file_ids: List[int],
+    cookies: Dict[str, str],
+    batch_size: int = 8,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+) -> List[Optional[Dict[str, Any]]]:
+    """
+    Process files in batches to avoid overwhelming the system.
+    Sends progress updates to keep frontend connection alive.
+    
+    Args:
+        file_ids: List of file IDs to process
+        cookies: Authentication cookies
+        batch_size: Number of files to process concurrently
+        progress_callback: Optional async callback for progress updates
+        
+    Returns:
+        List of file contexts in same order as input file_ids.
+    """
+    all_results = []
+    total_files = len(file_ids)
+    
+    for i in range(0, len(file_ids), batch_size):
+        batch = file_ids[i:i + batch_size]
+        batch_num = i//batch_size + 1
+        total_batches = (total_files + batch_size - 1) // batch_size
+        
+        logger.info(f"[FILE_CONTEXT] Processing batch {batch_num}/{total_batches}: files {i+1} to {i+len(batch)}")
+        
+        # Send progress update to keep connection alive
+        if progress_callback:
+            progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+            await progress_callback(progress_msg)
+        
+        # Create tasks for this batch
+        tasks = [extract_single_file_context(file_id, cookies) for file_id in batch]
+        
+        # Execute batch in parallel
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Process results
+        for file_id, result in zip(batch, batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"[FILE_CONTEXT] Error processing file {file_id}: {result}")
+                all_results.append(None)
+            else:
+                all_results.append(result)
+        
+        # Send progress update after batch completion
+        if progress_callback:
+            completed = min(i + batch_size, total_files)
+            progress_msg = f"Completed {completed}/{total_files} files"
+            await progress_callback(progress_msg)
+        
+        # Brief pause between batches to be gentle on the system
+        if i + batch_size < len(file_ids):
+            await asyncio.sleep(0.5)
+    
+    return all_results
+
 async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract relevant context from files and folders using Onyx's capabilities.
@@ -10660,54 +10720,50 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             }
         }
         
-        # Extract file contexts with enhanced retry mechanism
+        # Extract file contexts with batch parallel processing
         successful_extractions = 0
-        for file_id in file_ids:
-            file_context = None
-            for retry_attempt in range(3):  # Up to 3 attempts per file
-                try:
-                    file_context = await extract_single_file_context(file_id, cookies)
-                    if file_context and (file_context.get("summary") or file_context.get("content")):
-                        # Check if this was a successful extraction (not a generic response or error)
-                        content = file_context.get("content", "")
-                        if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
-                            logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues (attempt {retry_attempt + 1})")
-                            if retry_attempt < 2:  # Don't sleep on the last attempt
-                                await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                                continue
-                        
+        
+        if file_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
+            
+            # Process all files in parallel batches
+            file_results = await process_file_batch_with_progress(file_ids, cookies, batch_size=8)
+            
+            # Process results
+            for file_id, file_context in zip(file_ids, file_results):
+                if file_context and (file_context.get("summary") or file_context.get("content")):
+                    # Check if this was a successful extraction
+                    content = file_context.get("content", "")
+                    if not any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
                         # Success - add to context
                         extracted_context["file_summaries"].append(file_context["summary"])
                         extracted_context["file_contents"].append(file_context["content"])
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
-                        break  # Success, no need for more retries
+                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
                     else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
-                        if retry_attempt < 2:  # Don't sleep on the last attempt
-                            await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id} (attempt {retry_attempt + 1}): {e}")
-                    if retry_attempt < 2:  # Don't sleep on the last attempt
-                        await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-            
-            if not file_context or not (file_context.get("summary") or file_context.get("content")):
-                logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
+                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues")
+                else:
+                    logger.error(f"[FILE_CONTEXT] Failed to extract context from file {file_id}")
         
-        # Extract folder contexts
-        for folder_id in folder_ids:
-            try:
-                folder_context = await extract_folder_context(folder_id, cookies)
-                if folder_context and folder_context.get("summary"):
+        # Extract folder contexts with batch parallel processing
+        if folder_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(folder_ids)} folders")
+            
+            # Process folders in parallel
+            folder_tasks = [extract_folder_context(folder_id, cookies) for folder_id in folder_ids]
+            folder_results = await asyncio.gather(*folder_tasks, return_exceptions=True)
+            
+            for folder_id, folder_context in zip(folder_ids, folder_results):
+                if isinstance(folder_context, Exception):
+                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {folder_context}")
+                elif folder_context and folder_context.get("summary"):
                     extracted_context["folder_contexts"].append(folder_context)
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
                     successful_extractions += 1
                     logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
         
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
