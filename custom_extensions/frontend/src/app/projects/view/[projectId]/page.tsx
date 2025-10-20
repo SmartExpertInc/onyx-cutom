@@ -35,6 +35,7 @@ import workspaceService, {
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
+import PresentationLayout from '@/components/PresentationLayout';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
@@ -1657,22 +1658,15 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-        // For slide decks, use the new SmartSlideDeckViewer with component-based templates
+        // For slide decks, use the new PresentationLayout with sidebar thumbnails
         return (
-          <div style={{
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
-            <SmartSlideDeckViewer
-              deck={slideDeckData}
-              isEditable={true}
-              onSave={(updatedDeck) => {
-                // Update the editableData state with the new deck and trigger save
-                console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
-                setEditableData(updatedDeck);
+          <PresentationLayout
+            deck={slideDeckData}
+            isEditable={true}
+            onSave={(updatedDeck) => {
+              // Update the editableData state with the new deck and trigger save
+              console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
+              setEditableData(updatedDeck);
 
                 // Use the updated deck directly for immediate save
                 console.log('🔍 page.tsx: Triggering auto-save with updated data');
@@ -1711,36 +1705,26 @@ export default function ProjectInstanceViewPage() {
                   }
                 };
 
-                tempAutoSave();
-              }}
-              // onAutoSave removed to prevent duplicate save requests
-              showFormatInfo={true}
-              theme={currentTheme}
-              projectId={projectId}
-            />
-          </div>
+              tempAutoSave();
+            }}
+            theme={currentTheme}
+            projectId={projectId}
+          />
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
         const videoLessonPresentationData = editableData as ComponentBasedSlideDeck | null;
         if (!videoLessonPresentationData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noVideoLessonData', 'No video lesson data available')}</div>;
         }
-        // For video lesson presentations, use the same SmartSlideDeckViewer but with voiceover support
+        // For video lesson presentations, use the same PresentationLayout but with voiceover support
         return (
-          <div style={{
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
-            <SmartSlideDeckViewer
-              deck={videoLessonPresentationData}
-              isEditable={true}
-              onSave={(updatedDeck) => {
-                // Update the editableData state with the new deck and trigger save
-                console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
-                setEditableData(updatedDeck);
+          <PresentationLayout
+            deck={videoLessonPresentationData}
+            isEditable={true}
+            onSave={(updatedDeck) => {
+              // Update the editableData state with the new deck and trigger save
+              console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
+              setEditableData(updatedDeck);
 
                 // Use the updated deck directly for immediate save
                 console.log('🔍 page.tsx: Triggering auto-save with updated video lesson data');
@@ -1779,15 +1763,11 @@ export default function ProjectInstanceViewPage() {
                   }
                 };
 
-                tempAutoSave();
-              }}
-              // onAutoSave removed to prevent duplicate save requests
-              showFormatInfo={true}
-              theme="dark-purple"
-              hasVoiceover={true} // Enable voiceover features
-              projectId={projectId}
-            />
-          </div>
+              tempAutoSave();
+            }}
+            theme="dark-purple"
+            projectId={projectId}
+          />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
@@ -1853,10 +1833,7 @@ export default function ProjectInstanceViewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
-      style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-      }}
+      className="p-4 md:p-8 min-h-screen font-inter bg-white"
     >
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
