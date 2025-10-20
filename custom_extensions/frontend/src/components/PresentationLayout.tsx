@@ -294,7 +294,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-85 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
+      <div className="w-85 h-full bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
           {/* Add New Slide Button */}
           <div className="p-4">
             <button 
@@ -316,7 +316,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               ref={dropdownRef}
               className="absolute -right-100 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
-                width: 'calc(100% + 45px)',
+                width: 'calc(100% + 50px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -448,12 +448,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-10xl flex justify-center">
-                      <div className="main-slide-container rounded-lg relative" style={{ 
-                        width: 'min(1200px, 90vw)', 
-                        height: 'min(675px, 50.625vw)',
-                        aspectRatio: '16/9'
-                      }}>
+                    <div className="w-full max-w-10xl">
+                      <div className="main-slide-container rounded-lg relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -462,7 +458,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 e.stopPropagation();
                                 setShowSlideMenu(showMenu ? null : slide.slideId);
                               }}
-                              className="w-8 h-5 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#E0E0E0] transition-all duration-200"
+                              className="w-5 h-8 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#E0E0E0] transition-all duration-200"
                             >
                               <MoreVertical size={16} className="text-[#E0E0E0]" />
                             </button>
@@ -473,14 +469,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[140px]"
+                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[60px]"
                           >
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 duplicateSlide(slide.slideId);
                               }}
-                              className="w-full px-3 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
                               <Copy size={14} />
                             </button>
@@ -490,7 +486,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 setShowAIModal(true);
                                 setShowSlideMenu(null);
                               }}
-                              className="w-full px-3 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full px-1 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
                               <Sparkles size={14} />
                             </button>
@@ -499,49 +495,46 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 e.stopPropagation();
                                 deleteSlide(slide.slideId);
                               }}
-                              className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              className="w-full px-1 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                             >
                               <Trash2 size={14} className="text-red-500" />
                             </button>
                           </div>
                         )}
-
-                        <div className="w-full h-full" style={{ aspectRatio: '16/9' }}>
-                  <ComponentBasedSlideRenderer
+                          <ComponentBasedSlideRenderer
                             slide={slide}
-                    isEditable={isEditable}
-                    onSlideUpdate={handleSlideUpdate}
-                    theme={theme}
-                  />
-                        </div>
+                            isEditable={isEditable}
+                            onSlideUpdate={handleSlideUpdate}
+                            theme={theme}
+                          />
                       </div>
                     </div>
               </div>
               
                   {/* Between-slides action bar */}
-                  <div className="flex justify-center mt-4">
-                    <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm">
+                  <div className="flex bg-white justify-center mt-4">
+                    <div className="flex items-center bg-white rounded-md shadow-sm">
                 <button
                   onClick={() => {
                           setBetweenSlidesDropdownIndex(index);
                           setShowBetweenSlidesDropdown(!showBetweenSlidesDropdown);
                   }}
                         title="Add new slide"
-                        className="w-8 h-8 rounded-l-md flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                        className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                 >
                         <Plus size={16} />
                 </button>
                     <button
                         onClick={() => setShowAIModal(true)}
                         title="Generate with AI"
-                        className="w-8 h-8 flex items-center justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
+                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
                       >
                         <Sparkles size={16} />
                       </button>
                 <button
                         onClick={() => {}}
                         title="More"
-                        className="w-8 h-8 rounded-r-md flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                        className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                       >
                         <ArrowDown size={16} />
                 </button>
