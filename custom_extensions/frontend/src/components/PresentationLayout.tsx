@@ -2,9 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
-import { ChevronLeft, ChevronRight, Plus, FileText, Clipboard, ChevronDown, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, FileText, Clipboard, ChevronDown, X, Sparkles, ChevronDown as ArrowDown } from 'lucide-react';
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
 import { getAllTemplates, getTemplate } from './templates/registry';
+import AIImageGenerationModal from './AIImageGenerationModal';
 import './PresentationLayout.css';
 
 interface PresentationLayoutProps {
@@ -29,6 +30,12 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // Inline dropdown per slide
+  const [inlineDropdownOpenFor, setInlineDropdownOpenFor] = useState<number | null>(null);
+  const inlineDropdownRef = useRef<HTMLDivElement>(null);
+
+  // AI generation modal
+  const [showAIModal, setShowAIModal] = useState(false);
   
   // Get available templates
   const availableTemplates = (() => {
@@ -167,6 +174,20 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     }
   }, [showTemplateDropdown]);
 
+  // Close inline dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (inlineDropdownRef.current && !inlineDropdownRef.current.contains(event.target as Node)) {
+        setInlineDropdownOpenFor(null);
+      }
+    };
+
+    if (inlineDropdownOpenFor !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [inlineDropdownOpenFor]);
+
   if (!deck || !deck.slides || deck.slides.length === 0) {
     return (
       <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
@@ -176,6 +197,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   }
 
   return (
+    <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
       <div className="w-90 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
@@ -195,9 +217,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-70 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-100 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
-                width: 'calc(100% - 25px)',
+                width: 'calc(100% + 35px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -265,7 +287,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
             </div>
           )}
         {/* Slide Thumbnails */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 p-4 space-y-4">
           {deck.slides.map((slide, index) => {
             const isActive = slide.slideId === selectedSlideId;
             
@@ -278,7 +300,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 onClick={() => handleSlideSelect(slide.slideId, index)}
               >
                 {/* Slide Number Badge */}
-                <div className="absolute bottom-2 left-2 text-[#71717A] border-2 border-[#E5E0DF] text-[27px] font-semibold w-10 h-10 rounded-[8px] flex items-center justify-center z-10 slide-number-badge">
+                <div className="absolute bottom-2 left-2 text-[#71717A] border-2 border-[#E5E0DF] text-[27px] font-semibold w-10 h-10 rounded-[8px] flex items-center justify-center z-30 slide-number-badge">
                   {index + 1}
                 </div>
                 
@@ -311,27 +333,94 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         >
           <div className="space-y-8 px-6">
             {deck.slides.map((slide, index) => (
-              <div
-                key={slide.slideId}
-                className="flex items-center justify-center"
-                data-slide-index={index}
-              >
-                <div className="w-full max-w-10xl">
-                  <div className="main-slide-container rounded-lg" style={{ aspectRatio: '16/9' }}>
-                    <ComponentBasedSlideRenderer
-                      slide={slide}
-                      isEditable={isEditable}
-                      onSlideUpdate={handleSlideUpdate}
-                      theme={theme}
-                    />
+              <div key={slide.slideId}>
+                <div
+                  className="flex items-center justify-center"
+                  data-slide-index={index}
+                >
+                  <div className="w-full max-w-10xl">
+                    <div className="main-slide-container rounded-lg" style={{ aspectRatio: '16/9' }}>
+                      <ComponentBasedSlideRenderer
+                        slide={slide}
+                        isEditable={isEditable}
+                        onSlideUpdate={handleSlideUpdate}
+                        theme={theme}
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {/* Between-slides action bar */}
+                <div className="flex justify-center mt-4">
+                  <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl shadow-sm px-1 py-1">
+                    <button
+                      onClick={() => setInlineDropdownOpenFor(inlineDropdownOpenFor === index ? null : index)}
+                      title="Add new slide"
+                      className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-gray-700"
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      onClick={() => setShowAIModal(true)}
+                      title="Generate with AI"
+                      className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-blue-600"
+                    >
+                      <Sparkles size={16} />
+                    </button>
+                    <button
+                      onClick={() => {}}
+                      title="More"
+                      className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-gray-700"
+                    >
+                      <ArrowDown size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {inlineDropdownOpenFor === index && (
+                  <div className="relative">
+                    <div
+                      ref={inlineDropdownRef}
+                      className="mx-auto mt-2 bg-white border border-gray-200 rounded-xl shadow-xl"
+                      style={{ maxWidth: 860 }}
+                    >
+                      <div className="p-3">
+                        <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Templates</div>
+                        <div className="grid grid-cols-3 gap-3">
+                          {availableTemplates.map((template) => (
+                            <button
+                              key={`inline-${index}-${template.id}`}
+                              onClick={() => { addSlide(template.id); setInlineDropdownOpenFor(null); }}
+                              className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                            >
+                              <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                              </div>
+                              <div className="px-3 py-3">
+                                <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       </div>
     </div>
+    <AIImageGenerationModal
+      isOpen={showAIModal}
+      onClose={() => setShowAIModal(false)}
+      onImageGenerated={() => {}}
+      onGenerationStarted={() => {}}
+      title="Generate with AI"
+    />
+    </>
   );
 };
 
