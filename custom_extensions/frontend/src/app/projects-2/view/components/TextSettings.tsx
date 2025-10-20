@@ -44,24 +44,28 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
   // Sync formatting state with active editor
   useEffect(() => {
-    if (activeEditor) {
-      // Update button states based on current selection
-      setIsBold(activeEditor.isActive('bold'));
-      setIsItalic(activeEditor.isActive('italic'));
-      setIsUnderline(activeEditor.isActive('underline'));
-      setIsStrikethrough(activeEditor.isActive('strike'));
-      
-      // Get current text color
-      const currentColor = activeEditor.getAttributes('textStyle').color || '#000000';
-      setFontColor(currentColor);
-      
-      console.log('✏️ TextSettings synced with editor:', {
-        bold: activeEditor.isActive('bold'),
-        italic: activeEditor.isActive('italic'),
-        underline: activeEditor.isActive('underline'),
-        strike: activeEditor.isActive('strike'),
-        color: currentColor
-      });
+    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+      try {
+        // Update button states based on current selection
+        setIsBold(activeEditor.isActive('bold'));
+        setIsItalic(activeEditor.isActive('italic'));
+        setIsUnderline(activeEditor.isActive('underline'));
+        setIsStrikethrough(activeEditor.isActive('strike'));
+        
+        // Get current text color
+        const currentColor = activeEditor.getAttributes('textStyle').color || '#000000';
+        setFontColor(currentColor);
+        
+        console.log('✏️ TextSettings synced with editor:', {
+          bold: activeEditor.isActive('bold'),
+          italic: activeEditor.isActive('italic'),
+          underline: activeEditor.isActive('underline'),
+          strike: activeEditor.isActive('strike'),
+          color: currentColor
+        });
+      } catch (error) {
+        console.warn('Editor sync failed:', error);
+      }
     }
   }, [activeEditor]);
 
@@ -264,14 +268,18 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
               <div className="flex space-x-2">
                 <button
                   onClick={() => {
-                    if (activeEditor) {
-                      activeEditor.chain().focus().toggleBold().run();
-                      setIsBold(activeEditor.isActive('bold'));
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().toggleBold().run();
+                        setIsBold(activeEditor.isActive('bold'));
+                      } catch (error) {
+                        console.warn('Bold toggle failed:', error);
+                      }
                     }
                   }}
                   disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive('bold') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    activeEditor?.isActive?.('bold') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Bold"
                 >
@@ -283,14 +291,18 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                 </button>
                 <button
                   onClick={() => {
-                    if (activeEditor) {
-                      activeEditor.chain().focus().toggleItalic().run();
-                      setIsItalic(activeEditor.isActive('italic'));
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().toggleItalic().run();
+                        setIsItalic(activeEditor.isActive('italic'));
+                      } catch (error) {
+                        console.warn('Italic toggle failed:', error);
+                      }
                     }
                   }}
                   disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive('italic') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    activeEditor?.isActive?.('italic') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Italic"
                 >
@@ -302,14 +314,18 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                 </button>
                 <button
                   onClick={() => {
-                    if (activeEditor) {
-                      activeEditor.chain().focus().toggleUnderline().run();
-                      setIsUnderline(activeEditor.isActive('underline'));
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().toggleUnderline().run();
+                        setIsUnderline(activeEditor.isActive('underline'));
+                      } catch (error) {
+                        console.warn('Underline toggle failed:', error);
+                      }
                     }
                   }}
                   disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive('underline') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    activeEditor?.isActive?.('underline') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Underline"
                 >
@@ -321,14 +337,18 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                 </button>
                 <button
                   onClick={() => {
-                    if (activeEditor) {
-                      activeEditor.chain().focus().toggleStrike().run();
-                      setIsStrikethrough(activeEditor.isActive('strike'));
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().toggleStrike().run();
+                        setIsStrikethrough(activeEditor.isActive('strike'));
+                      } catch (error) {
+                        console.warn('Strike toggle failed:', error);
+                      }
                     }
                   }}
                   disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    activeEditor?.isActive('strike') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    activeEditor?.isActive?.('strike') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Strikethrough"
                 >
@@ -589,8 +609,12 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
       onClose={() => setShowFontColorPicker(false)}
       onColorChange={(color) => {
         setFontColor(color);
-        if (activeEditor) {
-          activeEditor.chain().focus().setColor(color).run();
+        if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+          try {
+            activeEditor.chain().focus().setColor(color).run();
+          } catch (error) {
+            console.warn('Color change failed:', error);
+          }
         }
       }}
       selectedColor={fontColor}
