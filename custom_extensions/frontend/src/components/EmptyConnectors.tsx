@@ -498,16 +498,16 @@ export const EmptyConnectors = () => (
 
     {/* Title below SVG */}
     <h3 className="text-xl font-semibold text-[#0D001B] mt-4">
-      Your Connectors are empty
+      No connectors yet
     </h3>
 
     {/* Description text */}
     <div className="text-center mt-2 mb-4">
       <p className="text-sm" style={{ color: '#353537CC' }}>
-        You haven't connected any external sources yet.
+        You haven’t connected any integrations yet.
       </p>
       <p className="text-sm" style={{ color: '#353537CC' }}>
-        Connect your favorite apps to import content directly.
+        Explore available connectors and manage them in your Knowledge Base.
       </p>
     </div>
 
@@ -516,7 +516,7 @@ export const EmptyConnectors = () => (
       className="px-4 py-2 rounded-md text-sm font-medium text-white"
       style={{ backgroundColor: '#0F58F9' }}
     >
-      Connect apps
+      Connect now
     </button>
   </div>
 );
