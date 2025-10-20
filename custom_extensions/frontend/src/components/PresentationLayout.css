@@ -47,6 +47,15 @@
   pointer-events: none;
   user-select: none;
   background: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.slide-mini-preview > * {
+  transform: scale(0.25);
+  transform-origin: top left;
+  width: 400%;
+  height: 400%;
 }
 
 .slide-mini-preview * {
@@ -56,14 +65,7 @@
 
 .main-slide-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-  width: min(1200px, 90vw);
-  height: min(675px, 50.625vw);
   aspect-ratio: 16/9;
-  object-fit: contain;
-  overflow: hidden;
 }
 
 .navigation-button {

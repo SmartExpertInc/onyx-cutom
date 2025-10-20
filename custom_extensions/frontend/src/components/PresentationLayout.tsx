@@ -294,7 +294,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-85 h-full bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
+      <div className="w-85 h-full bg-[#EEEEEE] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="p-4">
             <button 
@@ -314,7 +314,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-100 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-95 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
                 width: 'calc(100% + 50px)',
                 maxHeight: '400px',
@@ -384,7 +384,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
             </div>
           )}
         {/* Slide Thumbnails */}
-        <div className="flex-1 p-4 space-y-4">
+        <div className="flex-1 p-4 space-y-4 bg-[#EEEEEE] rounded-md">
           {deck.slides.map((slide, index) => {
             const isActive = slide.slideId === selectedSlideId;
             const isHovered = hoveredSlideId === slide.slideId;
@@ -469,7 +469,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[60px]"
+                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-sm shadow-xl min-w-[60px]"
                           >
                             <button
                               onClick={(e) => {
