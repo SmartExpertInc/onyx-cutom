@@ -2995,16 +2995,24 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
     deck_template_version = None
     try:
         if isinstance(raw_content, dict):
+            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content keys: {raw_content.keys()}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.templateVersion: {raw_content.get('templateVersion')}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.details: {raw_content.get('details')}")
+            if raw_content.get('details'):
+                _log.info(f"🔍 PDF VERSION EXTRACTION - raw_content.details.templateVersion: {raw_content.get('details', {}).get('templateVersion')}")
             deck_template_version = (
                 raw_content.get("templateVersion")
                 or (raw_content.get("details") or {}).get("templateVersion")
             )
         elif isinstance(content_obj, dict):
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {content_obj.keys()}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.templateVersion: {content_obj.get('templateVersion')}")
             deck_template_version = (
                 content_obj.get("templateVersion")
                 or (content_obj.get("details") or {}).get("templateVersion")
             )
-    except Exception:
+    except Exception as e:
+        _log.error(f"🔍 PDF VERSION EXTRACTION ERROR: {e}")
         pass
     
     _log.info(f"🔍 PDF DECK VERSION - product_id={product_data['id']}, templateVersion={deck_template_version}, raw_content_type={type(raw_content).__name__}")

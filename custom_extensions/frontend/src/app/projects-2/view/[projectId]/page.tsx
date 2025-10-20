@@ -414,7 +414,8 @@ export default function Projects2ViewPage() {
                   lessonTitle: instanceData.name || 'Untitled Video Lesson',
                   slides: [],
                   detectedLanguage: instanceData.detectedLanguage || 'en',
-                  hasVoiceover: true
+                  hasVoiceover: true,
+                  templateVersion: 'v2' // Set v2 for new presentations
                 };
                 setComponentBasedSlideDeck(emptyComponentData);
               } else {
@@ -433,6 +434,7 @@ export default function Projects2ViewPage() {
             setIsComponentBasedVideoLesson(true);
             const testComponentData: ComponentBasedSlideDeck = {
               lessonTitle: 'Test Video Lesson',
+              templateVersion: 'v2', // Set v2 for new presentations
               slides: [
                 {
                   slideId: 'slide-1',

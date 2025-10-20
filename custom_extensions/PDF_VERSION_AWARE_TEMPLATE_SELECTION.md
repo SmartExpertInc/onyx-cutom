@@ -177,11 +177,51 @@ Both template files support the same 23 slide templates:
 3. **Logging**: All version decisions are logged with 🔍 emoji prefix for easy debugging
 4. **Default Behavior**: When version is missing or undefined, system defaults to v1 template (safe backward compatibility)
 
+## Implementation Complete ✅
+
+All components have been updated:
+
+1. **Frontend Changes**:
+   - `page.tsx`: New presentations now set `templateVersion: 'v2'` when created
+   - Save function already persists the entire ComponentBasedSlideDeck including templateVersion
+   
+2. **Backend Changes**:
+   - `pdf_generator.py`: Added template selection logic based on deck version
+   - Extracts `templateVersion` from presentation metadata
+   - Uses `single_slide_pdf_template_old.html` for v1 or missing version
+   - Uses `single_slide_pdf_template.html` for v2
+
+3. **Debugging**:
+   - Added extensive logging to track version extraction and template selection
+   - Look for logs with 🔍 emoji prefix to debug version issues
+
+## Important Notes for Existing Presentations
+
+**Existing presentations** created before this implementation will NOT have `templateVersion` field and will therefore use the old PDF template (v1). This is intentional for backward compatibility.
+
+To update an existing presentation to use v2 templates:
+1. Open the presentation in the frontend
+2. The system will load it without templateVersion
+3. Make any edit (add/edit a slide)
+4. Save the presentation
+5. The frontend will add `templateVersion: 'v2'` on next save (update the code to do this automatically)
+
+OR manually update the database:
+```sql
+UPDATE products 
+SET micro_product_content = jsonb_set(
+  micro_product_content::jsonb,
+  '{templateVersion}',
+  '"v2"'
+)
+WHERE design_template_id IN ('lesson_presentation', 'video_lesson');
+```
+
 ## Future Improvements
 
+- [ ] Add automatic templateVersion migration for existing presentations when opened
 - [ ] Add version to cache key to allow version-specific caching
 - [ ] Add metrics to track v1 vs v2 PDF exports
-- [ ] Consider automatic migration prompt for legacy presentations
 - [ ] Add version indicator in PDF metadata
 
 ## Success Criteria
