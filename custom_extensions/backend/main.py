@@ -18557,6 +18557,7 @@ COURSE REQUIREMENTS:
 - DO NOT add module numbers in titles (e.g., 'Module 1:', 'Module 2:', etc.)
 - Use only descriptive module names without prefixes
 - Generate ALL content EXCLUSIVELY in English
+- CRITICAL: Do NOT use Russian, Spanish, or Ukrainian words
 
 RESPONSE FORMAT (JSON only):
 [
@@ -18588,6 +18589,7 @@ REQUISITOS DEL CURSO:
 - NO agregues números de módulos en los títulos (ej., 'Módulo 1:', 'Módulo 2:', etc.)
 - Usa solo nombres descriptivos de módulos sin prefijos
 - Genera TODO el contenido EXCLUSIVAMENTE en español
+- CRÍTICO: NO uses palabras en ruso, inglés o ucraniano
 
 FORMATO DE RESPUESTA (solo JSON):
 [
@@ -18619,6 +18621,7 @@ RESPUESTA (solo JSON):"""
 - НЕ додавайте номери модулів у назви (наприклад, 'Модуль 1:', 'Модуль 2:' тощо)
 - Використовуйте лише описові назви модулів без префіксів
 - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+- КРИТИЧНО: НЕ використовуйте російські, іспанські або англійські слова
 
 ФОРМАТ ВІДПОВІДІ (тільки JSON):
 [
@@ -18629,32 +18632,38 @@ RESPUESTA (solo JSON):"""
 ]
 
 ВІДПОВІДЬ (тільки JSON):"""
-        else:
-            wizard_request = {
-                "product": "Course Outline",
-                "prompt": (
-                    f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
-                    f"КОНТЕКСТ КОМПАНИИ:\n"
-                    f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
-                    f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
-                    f"- Должность: {position_title}\n"
-                    f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
-                    f"ТРЕБОВАНИЯ К КУРСУ:\n"
-                    f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
-                    f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
-                    f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
-                    f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
-                    f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
-                    f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
-                    f"- Избегай повторяющихся формулировок\n"
-                    f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
-                    f"- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)\n"
-                    f"- Используй только описательные названия модулей без префиксов\n"
-                ),
-                "modules": 4,
-                "lessonsPerModule": "5-7",
-                "language": language
-            }
+        else:  # Russian
+            prompt = f"""Создай детальный план курса 'Онбординг для должности {position_title}' для новых сотрудников на этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'.
+
+КОНТЕКСТ КОМПАНИИ:
+- Название компании: {getattr(payload, 'companyName', 'Company Name')}
+- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+- Должность: {position_title}
+- Дополнительная информация о компании: {duckduckgo_summary}
+
+ТРЕБОВАНИЯ К КУРСУ:
+- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}
+- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании
+- Учитывай специфику отрасли и корпоративную культуру
+- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями
+- В каждом модуле должно быть ОТ 5 ДО 7 уроков
+- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ
+- Избегай повторяющихся формулировок
+- Каждый урок должен быть конкретным и практичным для данной должности
+- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)
+- Используй только описательные названия модулей без префиксов
+- Генерируй ВЕСЬ контент ИСКЛЮЧИТЕЛЬНО на русском языке
+- КРИТИЧНО: НЕ используй английские, испанские или украинские слова
+
+ФОРМАТ ОТВЕТА (только JSON):
+[
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+]
+
+ОТВЕТ (только JSON):"""
         
         # Generate the course outline
         outline_text = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
@@ -18684,8 +18693,18 @@ RESPUESTA (solo JSON):"""
         course_modules = []
         for i, module in enumerate(parsed_outline):
             if i < 4:  # Limit to 4 modules as per UI design
+                # Generate language-appropriate default title
+                if language == "en":
+                    default_title = f'Module {i+1}'
+                elif language == "es":
+                    default_title = f'Módulo {i+1}'
+                elif language == "ua":
+                    default_title = f'Модуль {i+1}'
+                else:  # Russian
+                    default_title = f'Модуль {i+1}'
+                
                 module_data = {
-                    "title": module.get('title', f'Модуль {i+1}'),
+                    "title": module.get('title', default_title),
                     "lessons": module.get('lessons', [])
                 }
                 course_modules.append(module_data)
@@ -18716,14 +18735,40 @@ RESPUESTA (solo JSON):"""
                     "lessons": []
                 })
         
-        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons for landing page")
+        # Generate assessment data for each lesson based on language
+        logger.info(f"[COURSE OUTLINE] Generating assessment data for lessons")
+        for module_idx, module in enumerate(course_modules):
+            module['lessonAssessments'] = []
+            for lesson_idx, lesson in enumerate(module.get('lessons', [])):
+                # Generate random assessment type and duration based on language
+                if language == "en":
+                    assessment_types = ['none', 'test', 'practice']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "es":
+                    assessment_types = ['ninguno', 'prueba', 'práctica']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "ua":
+                    assessment_types = ['немає', 'тест', 'практика']
+                    durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+                else:  # Russian
+                    assessment_types = ['нет', 'тест', 'практика']
+                    durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+                
+                assessment = {
+                    'type': random.choice(assessment_types),
+                    'duration': random.choice(durations)
+                }
+                module['lessonAssessments'].append(assessment)
+                logger.info(f"[COURSE OUTLINE] - Assessment for '{lesson}': {assessment['type']}, {assessment['duration']}")
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons and assessments for landing page")
         return course_modules
         
     except Exception as e:
         logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
         # Return default modules as fallback
         if language == "en":
-            return [
+            fallback_modules = [
                 {
                     "title": "Company Introduction and Corporate Culture",
                     "lessons": ["Company Overview", "Corporate Values and Standards", "Organizational Structure", "Policies and Procedures", "Communication Systems"]
@@ -18741,8 +18786,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['none', 'test', 'practice']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "es":
-            return [
+            fallback_modules = [
                 {
                     "title": "Introducción a la Empresa y Cultura Corporativa",
                     "lessons": ["Visión General de la Empresa", "Valores y Estándares Corporativos", "Estructura Organizacional", "Políticas y Procedimientos", "Sistemas de Comunicación"]
@@ -18760,8 +18814,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Establecimiento de Objetivos", "Planificación del Desarrollo", "Evaluación del Rendimiento", "Oportunidades de Crecimiento", "Aprendizaje Continuo"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['ninguno', 'prueba', 'práctica']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "ua":
-            return [
+            fallback_modules = [
                 {
                     "title": "Введення в компанію та корпоративну культуру",
                     "lessons": ["Огляд компанії", "Корпоративні цінності та стандарти", "Організаційна структура", "Політики та процедури", "Системи комунікації"]
@@ -18779,8 +18842,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка цілей", "Планування розвитку", "Оцінка продуктивності", "Можливості зростання", "Безперервне навчання"]
                 }
             ]
-        else:
-            return [
+            # Add assessment data to fallback modules
+            assessment_types = ['немає', 'тест', 'практика']
+            durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
+        else:  # Russian
+            fallback_modules = [
                 {
                     "title": "Введение в компанию и корпоративную культуру",
                     "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
@@ -18798,6 +18870,15 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['нет', 'тест', 'практика']
+            durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
 
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None, language: str = "ru") -> list:
