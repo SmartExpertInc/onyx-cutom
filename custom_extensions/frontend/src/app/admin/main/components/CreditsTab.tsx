@@ -225,30 +225,6 @@ const CreditsTab: React.FC = () => {
     setShowTransactionModal(true);
   };
 
-  const handleVerifyEmail = async (user: UserCredits) => {
-    try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/verify-user-email?user_email=${encodeURIComponent(user.email || user.onyx_user_id)}`, {
-        method: 'PATCH',
-        credentials: 'same-origin',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Failed to verify email: ${response.status}`);
-      }
-
-      const result = await response.json();
-      alert(result.message || 'Email verified successfully');
-      
-      // Refresh the users list
-      await fetchUsers();
-    } catch (err) {
-      console.error('Error verifying email:', err);
-      alert(err instanceof Error ? err.message : 'Failed to verify email');
-      throw err; // Re-throw so the button can handle loading state
-    }
-  };
-
   if (loading) {
     return (
       <div className="p-6">
@@ -371,7 +347,6 @@ const CreditsTab: React.FC = () => {
           onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
           onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}
           onRemoveCredits={(user: UserCredits) => openTransactionModal(user, 'remove')}
-          onVerifyEmail={handleVerifyEmail}
         />
       </div>
 
