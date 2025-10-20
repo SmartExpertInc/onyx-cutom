@@ -55,7 +55,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Title Slide',
     description: 'Opening slide with title, subtitle, and optional author/date information',
     category: 'title',
-    icon: '🎯',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="4" y="8" width="24" height="2" fill="#D1D5DB"/>
+      <rect x="4" y="12" width="16" height="1.5" fill="#D1D5DB"/>
+    </svg>`,
     component: TitleSlideTemplate,
     defaultProps: {
       title: 'Add title',
@@ -121,7 +125,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Content Slide',
     description: 'Standard content slide with title and body text',
     category: 'content',
-    icon: '📝',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="4" y="4" width="24" height="2" fill="#D1D5DB"/>
+      <rect x="4" y="8" width="28" height="1.5" fill="#D1D5DB"/>
+      <rect x="4" y="11" width="20" height="1.5" fill="#D1D5DB"/>
+      <rect x="4" y="14" width="24" height="1.5" fill="#D1D5DB"/>
+    </svg>`,
     component: ContentSlideTemplate,
     defaultProps: {
       title: 'Add title',
@@ -184,7 +194,14 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Big Image Left',
     description: 'Large image on the left with content on the right',
     category: 'media',
-    icon: '🖼️',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="2" y="4" width="12" height="16" fill="#E5E7EB" stroke="#D1D5DB" stroke-width="1"/>
+      <path d="M4 6 L14 6 L12 10 L8 8 L4 10 Z" fill="#9CA3AF"/>
+      <rect x="16" y="4" width="14" height="2" fill="#D1D5DB"/>
+      <rect x="16" y="8" width="14" height="1.5" fill="#D1D5DB"/>
+      <rect x="16" y="11" width="10" height="1.5" fill="#D1D5DB"/>
+    </svg>`,
     component: BigImageLeftTemplate,
     defaultProps: {
       title: 'Add title',
@@ -264,7 +281,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Bullet Points',
     description: 'Title with formatted bullet points in customizable columns',
     category: 'content',
-    icon: '📝',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="4" y="4" width="24" height="2" fill="#D1D5DB"/>
+      <circle cx="6" cy="10" r="1" fill="#D1D5DB"/>
+      <rect x="9" y="9.5" width="18" height="1" fill="#D1D5DB"/>
+      <circle cx="6" cy="13" r="1" fill="#D1D5DB"/>
+      <rect x="9" y="12.5" width="15" height="1" fill="#D1D5DB"/>
+      <circle cx="6" cy="16" r="1" fill="#D1D5DB"/>
+      <rect x="9" y="15.5" width="20" height="1" fill="#D1D5DB"/>
+    </svg>`,
     component: BulletPointsTemplate,
     defaultProps: {
       title: 'Add title',
@@ -390,7 +416,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Two Column',
     description: 'Split layout with two content areas and customizable ratios',
     category: 'layout',
-    icon: '📑',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="2" y="4" width="13" height="2" fill="#D1D5DB"/>
+      <rect x="2" y="8" width="13" height="1.5" fill="#D1D5DB"/>
+      <rect x="2" y="11" width="10" height="1.5" fill="#D1D5DB"/>
+      <rect x="17" y="4" width="13" height="2" fill="#D1D5DB"/>
+      <rect x="17" y="8" width="13" height="1.5" fill="#D1D5DB"/>
+      <rect x="17" y="11" width="10" height="1.5" fill="#D1D5DB"/>
+    </svg>`,
     component: TwoColumnTemplate,
     defaultProps: {
       title: 'Add title',
@@ -747,7 +781,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Big Image Top',
     description: 'Large image on top, title and content below',
     category: 'media',
-    icon: '🖼️',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="2" y="2" width="28" height="10" fill="#E5E7EB" stroke="#D1D5DB" stroke-width="1"/>
+      <path d="M4 4 L30 4 L28 8 L24 6 L20 8 L16 6 L12 8 L8 6 L4 8 Z" fill="#9CA3AF"/>
+      <rect x="4" y="14" width="24" height="2" fill="#D1D5DB"/>
+      <rect x="4" y="18" width="20" height="1.5" fill="#D1D5DB"/>
+    </svg>`,
     component: BigImageTopTemplate,
     defaultProps: {
       title: 'Add title',
@@ -1125,7 +1165,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Comparison Slide',
     description: 'Side-by-side comparison table for contrasting concepts',
     category: 'content',
-    icon: '⚖️',
+    icon: `<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="24" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="2" y="4" width="12" height="2" fill="#D1D5DB"/>
+      <rect x="2" y="8" width="12" height="1.5" fill="#D1D5DB"/>
+      <rect x="2" y="11" width="8" height="1.5" fill="#D1D5DB"/>
+      <rect x="18" y="4" width="12" height="2" fill="#D1D5DB"/>
+      <rect x="18" y="8" width="12" height="1.5" fill="#D1D5DB"/>
+      <rect x="18" y="11" width="8" height="1.5" fill="#D1D5DB"/>
+      <line x1="16" y1="6" x2="16" y2="18" stroke="#D1D5DB" stroke-width="1"/>
+    </svg>`,
     component: ComparisonSlideTemplate,
     defaultProps: {
       title: 'Comparison',

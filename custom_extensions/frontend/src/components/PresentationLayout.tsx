@@ -302,12 +302,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 setInsertAfterIndex(null); // Reset to add at end
                 setShowTemplateDropdown(!showTemplateDropdown);
               }}
-              className="w-full flex items-center justify-center gap-2 bg-white text-[#71717A] text-sm px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center bg-white text-[#71717A] text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
             >
-            <Plus size={16} />
-            <span>Add new card</span>
-            <ChevronDown size={16} />
-          </button>
+              <div className="flex items-center gap-2 px-4 py-2 flex-1">
+                <Plus size={16} />
+                <span>Add new card</span>
+              </div>
+              <div className="flex items-center justify-center px-3 py-2 border-l border-gray-200">
+                <ChevronDown size={16} />
+              </div>
+            </button>
           </div>
 
           {/* Template Dropdown */}
