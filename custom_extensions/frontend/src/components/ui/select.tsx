@@ -68,8 +68,8 @@ const selectTriggerVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 border shadow-xs",
-        filter: "bg-white text-gray-700 data-[placeholder]:text-gray-700 [&_svg:not([class*='text-'])]:text-gray-700 shadow-sm hover:shadow-md focus-visible:ring-gray-300/50",
+        default: "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 border shadow-none hover:shadow-lg active:shadow-lg",
+        filter: "bg-white text-gray-700 data-[placeholder]:text-gray-700 [&_svg:not([class*='text-'])]:text-gray-700 shadow-none hover:shadow-lg active:shadow-lg focus-visible:ring-gray-300/50",
       },
     },
     defaultVariants: {
@@ -110,7 +110,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 flex w-fit items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "border-input bg-white text-gray-900 data-[placeholder]:text-gray-500 [&_svg:not([class*='text-'])]:text-gray-500 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-gray-300 dark:bg-white dark:hover:bg-gray-50 flex w-fit items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm whitespace-nowrap shadow-none hover:shadow-lg active:shadow-lg transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}
@@ -271,15 +271,15 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
           className
         )}
       >
-        <div className="flex items-center justify-start w-full">
-          <span className="text-[#0D001B] text-sm font-medium">{value}</span>
+        <div className="flex items-center justify-start w-full overflow-hidden">
+          <span className="text-[#0D001B] text-sm font-medium truncate">{value}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value} className="rounded-full ml-1 mr-1">
             {option.label}
@@ -331,15 +331,15 @@ function CustomMultiSelector({
     <Select open={isOpen} onOpenChange={setIsOpen}>
       <SelectTrigger 
         className={cn(
-          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-gray-300 focus:ring-0 focus-visible:ring-0 shadow-sm hover:shadow-lg focus:shadow-lg transition-all",
+          "min-w-[150px] w-[180px] h-10 px-4 rounded-full bg-white border border-[#E0E0E0] focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg focus:shadow-lg transition-all cursor-pointer",
           className
         )}
       >
-        <div className="flex items-center justify-start w-full">
-          <span className="text-[#0D001B] text-sm font-medium">{displayText}</span>
+        <div className="flex items-center justify-start w-full overflow-hidden">
+          <span className="text-[#0D001B] text-sm font-medium truncate">{displayText}</span>
         </div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 max-h-[200px] rounded-xl" sideOffset={15}>
+      <SelectContent className="border border-[#E0E0E0] max-h-[200px] rounded-xl" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}

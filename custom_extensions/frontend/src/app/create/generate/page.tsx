@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { FeedbackButton } from "@/components/ui/feedback-button";
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Inline SVG icon components
@@ -1174,7 +1175,7 @@ function GenerateProductPicker() {
         }}
       >
         <span>&lt;</span>
-        <span>Back</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">
@@ -1287,7 +1288,7 @@ function GenerateProductPicker() {
           <div className="flex flex-wrap justify-center gap-4">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
-            pillLabel="Popular"
+            pillLabel={t('interface.popular', 'Popular')}
             svg={
               <svg width="35" height="35" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path opacity={activeProduct === "Course" ? "1" : "0.5"} d="M37.2307 9.11511H35.0879V4.97055C35.0879 4.28592 34.817 3.62934 34.3347 3.14523C33.8525 2.66113 33.1984 2.38916 32.5165 2.38916H30.0307C30.0906 2.12521 30.0748 1.84965 29.9852 1.59432C29.8956 1.339 29.7359 1.11435 29.5244 0.94634C29.313 0.778333 29.0585 0.673833 28.7904 0.644922C28.5223 0.616011 28.2515 0.66387 28.0093 0.782965L20.0879 4.4471L12.1665 0.782965C11.9243 0.66387 11.6535 0.616011 11.3854 0.644922C11.1173 0.673833 10.8628 0.778333 10.6513 0.94634C10.4399 1.11435 10.2802 1.339 10.1906 1.59432C10.101 1.84965 10.0852 2.12521 10.145 2.38916H7.65932C6.97733 2.38916 6.32328 2.66113 5.84104 3.14523C5.35881 3.62934 5.08789 4.28592 5.08789 4.97055V9.11511H2.94503C2.18727 9.11511 1.46055 9.41729 0.924728 9.95519C0.38891 10.4931 0.0878906 11.2226 0.0878906 11.9833V32.5699C0.0878906 33.3306 0.38891 34.0601 0.924728 34.598C1.46055 35.1359 2.18727 35.4381 2.94503 35.4381H11.7165L10.3522 37.1447C10.1006 37.4615 9.94328 37.8431 9.89829 38.2458C9.85331 38.6484 9.92249 39.0556 10.0979 39.4204C10.2733 39.7853 10.5477 40.0931 10.8897 40.3082C11.2316 40.5234 11.6272 40.6373 12.0307 40.6367H28.145C28.5486 40.6373 28.9441 40.5234 29.2861 40.3082C29.628 40.0931 29.9025 39.7853 30.0779 39.4204C30.2533 39.0556 30.3225 38.6484 30.2775 38.2458C30.2325 37.8431 30.0752 37.4615 29.8236 37.1447L28.4593 35.4166H37.2307C37.9885 35.4166 38.7152 35.1144 39.2511 34.5765C39.7869 34.0386 40.0879 33.3091 40.0879 32.5484V11.9833C40.0879 11.2226 39.7869 10.4931 39.2511 9.95519C38.7152 9.41729 37.9885 9.11511 37.2307 9.11511ZM28.6022 2.088V18.91C28.6025 19.0223 28.5711 19.1324 28.5117 19.2276C28.4523 19.3228 28.3673 19.3991 28.2665 19.4478L20.8022 22.8968V5.6876L28.6022 2.088ZM11.5736 2.088L19.3736 5.67326V22.8825L11.9093 19.4478C11.8085 19.3991 11.7235 19.3228 11.6641 19.2276C11.6047 19.1324 11.5733 19.0223 11.5736 18.91V2.088ZM2.94503 10.5492H5.08789V22.1511C5.08789 22.8357 5.35881 23.4923 5.84104 23.9764C6.32328 24.4605 6.97733 24.7325 7.65932 24.7325H32.5165C33.1984 24.7325 33.8525 24.4605 34.3347 23.9764C34.817 23.4923 35.0879 22.8357 35.0879 22.1511V10.5492H37.2307C37.6096 10.5492 37.973 10.7003 38.2409 10.9693C38.5088 11.2382 38.6593 11.603 38.6593 11.9833V28.6333H1.51646V11.9833C1.51646 11.603 1.66697 11.2382 1.93488 10.9693C2.20279 10.7003 2.56615 10.5492 2.94503 10.5492ZM22.2307 32.7778H17.945C17.7556 32.7778 17.5739 32.7023 17.44 32.5678C17.306 32.4333 17.2307 32.2509 17.2307 32.0608C17.2307 31.8706 17.306 31.6882 17.44 31.5537C17.5739 31.4193 17.7556 31.3437 17.945 31.3437H22.2307C22.3922 31.3766 22.5374 31.4646 22.6417 31.5926C22.7459 31.7207 22.8029 31.881 22.8029 32.0464C22.8029 32.2118 22.7459 32.3722 22.6417 32.5002C22.5374 32.6283 22.3922 32.7162 22.2307 32.7491V32.7778ZM28.7022 38.084C28.7852 38.1895 28.837 38.3163 28.8517 38.4499C28.8664 38.5835 28.8434 38.7185 28.7853 38.8397C28.7272 38.9608 28.6364 39.0631 28.5232 39.1348C28.41 39.2066 28.2789 39.245 28.145 39.2456H12.0307C11.8968 39.245 11.7658 39.2066 11.6526 39.1348C11.5394 39.0631 11.4485 38.9608 11.3905 38.8397C11.3324 38.7185 11.3094 38.5835 11.3241 38.4499C11.3388 38.3163 11.3906 38.1895 11.4736 38.084L13.545 35.4668H26.6307L28.7022 38.084Z" fill="#0F58F9"/>
@@ -1377,62 +1378,65 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && useExistingOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = outlines.find(o => o.name === value);
-                        setSelectedOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedModuleIndex(null);
-                        setLessonsForModule([]);
-                        setSelectedLesson("");
-                      }}
-                      options={outlines.map((o) => ({
-                        value: o.name,
-                        label: o.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
+                        value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = modulesForOutline.findIndex(m => m.name === value);
-                          setSelectedModuleIndex(idx !== -1 ? idx : null);
-                          setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
+                          const outline = outlines.find(o => o.name === value);
+                          setSelectedOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedModuleIndex(null);
+                          setLessonsForModule([]);
                           setSelectedLesson("");
                         }}
-                        options={modulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={outlines.map((o) => ({
+                          value: o.name,
+                          label: o.name
                         }))}
-                        label={t('interface.generate.modules', 'Modules')}
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedLesson}
-                        onValueChange={setSelectedLesson}
-                        options={lessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedOutlineId && (
+                        <CustomPillSelector
+                          value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = modulesForOutline.findIndex(m => m.name === value);
+                            setSelectedModuleIndex(idx !== -1 ? idx : null);
+                            setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
+                            setSelectedLesson("");
+                          }}
+                          options={modulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label={t('interface.generate.modules', 'Modules')}
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedLesson}
+                          onValueChange={setSelectedLesson}
+                          options={lessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={language}
                           onValueChange={setLanguage}
@@ -1453,14 +1457,14 @@ function GenerateProductPicker() {
                           }))}
                           label={t('interface.generate.slides', 'Slides')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={language}
                       onValueChange={setLanguage}
@@ -1481,69 +1485,72 @@ function GenerateProductPicker() {
                       }))}
                       label={t('interface.generate.slides', 'Slides')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = quizOutlines.find(o => o.name === value);
-                        setSelectedQuizOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedQuizModuleIndex(null);
-                        setQuizLessonsForModule([]);
-                        setSelectedQuizLesson("");
-                      }}
-                      options={quizOutlines.map((outline) => ({
-                        value: outline.name,
-                        label: outline.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedQuizOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
+                        value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = quizModulesForOutline.findIndex(m => m.name === value);
-                          setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
-                          setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
+                          const outline = quizOutlines.find(o => o.name === value);
+                          setSelectedQuizOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedQuizModuleIndex(null);
+                          setQuizLessonsForModule([]);
                           setSelectedQuizLesson("");
                         }}
-                        options={quizModulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={quizOutlines.map((outline) => ({
+                          value: outline.name,
+                          label: outline.name
                         }))}
-                        label="Module"
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedQuizModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedQuizLesson}
-                        onValueChange={setSelectedQuizLesson}
-                        options={quizLessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedQuizOutlineId && (
+                        <CustomPillSelector
+                          value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = quizModulesForOutline.findIndex(m => m.name === value);
+                            setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
+                            setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
+                            setSelectedQuizLesson("");
+                          }}
+                          options={quizModulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label="Module"
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedQuizModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedQuizLesson}
+                          onValueChange={setSelectedQuizLesson}
+                          options={quizLessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedQuizLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={quizLanguage}
                           onValueChange={setQuizLanguage}
@@ -1577,14 +1584,14 @@ function GenerateProductPicker() {
                           }))}
                           label={t('interface.generate.questions', 'Questions')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
@@ -1618,69 +1625,72 @@ function GenerateProductPicker() {
                       }))}
                       label={t('interface.generate.questions', 'Questions')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
-          <div className="flex flex-wrap justify-center gap-4">
+          <>
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <CustomPillSelector
-                      value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
-                      onValueChange={(value) => {
-                        const outline = textOutlines.find(o => o.name === value);
-                        setSelectedTextOutlineId(outline ? outline.id : null);
-                        // clear module & lesson selections when outline changes
-                        setSelectedTextModuleIndex(null);
-                        setTextLessonsForModule([]);
-                        setSelectedTextLesson("");
-                      }}
-                      options={textOutlines.map((o) => ({
-                        value: o.name,
-                        label: o.name
-                      }))}
-                      label="Outline"
-                    />
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedTextOutlineId && (
+                    {/* Row 1: Course/Outline Selection Dropdowns */}
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {/* Outline dropdown */}
                       <CustomPillSelector
-                        value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
+                        value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = textModulesForOutline.findIndex(m => m.name === value);
-                          setSelectedTextModuleIndex(idx !== -1 ? idx : null);
-                          setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
+                          const outline = textOutlines.find(o => o.name === value);
+                          setSelectedTextOutlineId(outline ? outline.id : null);
+                          // clear module & lesson selections when outline changes
+                          setSelectedTextModuleIndex(null);
+                          setTextLessonsForModule([]);
                           setSelectedTextLesson("");
                         }}
-                        options={textModulesForOutline.map((m, idx) => ({
-                          value: m.name,
-                          label: m.name
+                        options={textOutlines.map((o) => ({
+                          value: o.name,
+                          label: o.name
                         }))}
-                        label="Module"
+                        label="Outline"
                       />
-                    )}
 
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedTextModuleIndex !== null && (
-                      <CustomPillSelector
-                        value={selectedTextLesson}
-                        onValueChange={setSelectedTextLesson}
-                        options={textLessonsForModule.map((l) => ({
-                          value: l,
-                          label: l
-                        }))}
-                        label="Lesson"
-                      />
-                    )}
+                      {/* Module dropdown – appears once outline is selected */}
+                      {selectedTextOutlineId && (
+                        <CustomPillSelector
+                          value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
+                          onValueChange={(value) => {
+                            const idx = textModulesForOutline.findIndex(m => m.name === value);
+                            setSelectedTextModuleIndex(idx !== -1 ? idx : null);
+                            setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
+                            setSelectedTextLesson("");
+                          }}
+                          options={textModulesForOutline.map((m, idx) => ({
+                            value: m.name,
+                            label: m.name
+                          }))}
+                          label="Module"
+                        />
+                      )}
 
-                    {/* Show final dropdowns when lesson is selected */}
+                      {/* Lesson dropdown – appears when module chosen */}
+                      {selectedTextModuleIndex !== null && (
+                        <CustomPillSelector
+                          value={selectedTextLesson}
+                          onValueChange={setSelectedTextLesson}
+                          options={textLessonsForModule.map((l) => ({
+                            value: l,
+                            label: l
+                          }))}
+                          label="Lesson"
+                        />
+                      )}
+                    </div>
+
+                    {/* Row 2: Configuration Dropdowns */}
                     {selectedTextLesson && (
-                      <>
+                      <div className="flex flex-wrap justify-center gap-4">
                         <CustomPillSelector
                           value={textLanguage}
                           onValueChange={setTextLanguage}
@@ -1719,14 +1729,14 @@ function GenerateProductPicker() {
                           label={t('interface.generate.selectStyles', 'Styles')}
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
-                  <>
+                  <div className="flex flex-wrap justify-center gap-4">
                     <CustomPillSelector
                       value={textLanguage}
                       onValueChange={setTextLanguage}
@@ -1765,9 +1775,9 @@ function GenerateProductPicker() {
                       label={t('interface.generate.selectStyles', 'Styles')}
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
-                  </>
+                  </div>
                 )}
-              </div>
+              </>
         )}
 
         {/* Video Lesson Configuration */}
@@ -1831,7 +1841,7 @@ function GenerateProductPicker() {
                       <path fillRule="evenodd" clipRule="evenodd" d="M19.1663 9.99992C19.1663 4.93742 15.0622 0.833252 9.99967 0.833252C4.93717 0.833252 0.833008 4.93742 0.833008 9.99992C0.833008 15.0624 4.93717 19.1666 9.99967 19.1666C15.0622 19.1666 19.1663 15.0624 19.1663 9.99992ZM8.92217 5.58908C9.07397 5.43192 9.15797 5.22141 9.15607 5.00292C9.15417 4.78442 9.06653 4.57541 8.91202 4.4209C8.75752 4.2664 8.54851 4.17876 8.33001 4.17686C8.11151 4.17496 7.90101 4.25895 7.74384 4.41075L6.07717 6.07742C5.92095 6.23369 5.83319 6.44561 5.83319 6.66658C5.83319 6.88755 5.92095 7.09948 6.07717 7.25575L7.74384 8.92242C7.90101 9.07422 8.11151 9.15821 8.33001 9.15631C8.54851 9.15441 8.75752 9.06677 8.91202 8.91227C9.06653 8.75776 9.15417 8.54875 9.15607 8.33025C9.15797 8.11175 9.07397 7.90125 8.92217 7.74408L8.67801 7.49992H11.6663C11.8874 7.49992 12.0993 7.58772 12.2556 7.744C12.4119 7.90028 12.4997 8.11224 12.4997 8.33325V9.16658C12.4997 9.3876 12.5875 9.59956 12.7438 9.75584C12.9 9.91212 13.112 9.99992 13.333 9.99992C13.554 9.99992 13.766 9.91212 13.9223 9.75584C14.0785 9.59956 14.1663 9.3876 14.1663 9.16658V8.33325C14.1663 7.67021 13.9029 7.03433 13.4341 6.56548C12.9653 6.09664 12.3294 5.83325 11.6663 5.83325H8.67801L8.92217 5.58908ZM7.49967 10.8333C7.49967 10.6122 7.41188 10.4003 7.2556 10.244C7.09932 10.0877 6.88735 9.99992 6.66634 9.99992C6.44533 9.99992 6.23337 10.0877 6.07709 10.244C5.9208 10.4003 5.83301 10.6122 5.83301 10.8333V11.6666C5.83301 12.3296 6.0964 12.9655 6.56524 13.4344C7.03408 13.9032 7.66997 14.1666 8.33301 14.1666H11.3213L11.0772 14.4108C10.9254 14.5679 10.8414 14.7784 10.8433 14.9969C10.8452 15.2154 10.9328 15.4244 11.0873 15.5789C11.2418 15.7334 11.4508 15.8211 11.6693 15.823C11.8878 15.8249 12.0983 15.7409 12.2555 15.5891L13.9222 13.9224C14.0784 13.7661 14.1662 13.5542 14.1662 13.3333C14.1662 13.1123 14.0784 12.9004 13.9222 12.7441L12.2555 11.0774C12.0983 10.9256 11.8878 10.8416 11.6693 10.8435C11.4508 10.8454 11.2418 10.9331 11.0873 11.0876C10.9328 11.2421 10.8452 11.4511 10.8433 11.6696C10.8414 11.8881 10.9254 12.0986 11.0772 12.2558L11.3213 12.4999H8.33301C8.11199 12.4999 7.90003 12.4121 7.74375 12.2558C7.58747 12.0996 7.49967 11.8876 7.49967 11.6666V10.8333Z" fill="#FDFDFD"/>
                     </g>
                   </svg>
-                  <span className="text-sm font-medium">Shuffle</span>
+                  <span className="text-sm font-medium">{t('interface.generate.shuffleExamples', 'Shuffle')}</span>
                 </button>
               </div>
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-4">
@@ -1888,10 +1898,12 @@ function GenerateProductPicker() {
                 }
               }}
               size="lg"
-              className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors"
+              className="flex items-center gap-2 px-10 py-4 rounded-full bg-[#0F58F9] text-white text-lg font-semibold shadow transition-colors cursor-pointer"
               style={{ minWidth: 240 }}
             >
-              <Sparkles size={20} />
+              <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.5423 11.8603C11.1071 12.0267 10.8704 12.2646 10.702 12.6991C10.5353 12.2646 10.297 12.0284 9.86183 11.8603C10.297 11.6938 10.5337 11.4575 10.702 11.0214C10.8688 11.4559 11.1071 11.6922 11.5423 11.8603ZM10.7628 5.05915C11.1399 3.65697 11.6552 3.14142 13.0612 2.76444C11.6568 2.38797 11.1404 1.87349 10.7628 0.469727C10.3858 1.87191 9.87044 2.38746 8.46442 2.76444C9.86886 3.14091 10.3852 3.65539 10.7628 5.05915ZM11.1732 7.95329C11.1732 7.82118 11.1044 7.66168 10.9118 7.60798C9.33637 7.16814 8.34932 6.666 7.61233 5.93083C6.8754 5.19508 6.37139 4.20956 5.93249 2.63662C5.8787 2.44437 5.71894 2.37563 5.58662 2.37563C5.4543 2.37563 5.29454 2.44437 5.24076 2.63662C4.80022 4.20956 4.29727 5.19503 3.56092 5.93083C2.82291 6.66765 1.83688 7.16978 0.261415 7.60798C0.0688515 7.66168 0 7.82118 0 7.95329C0 8.0854 0.0688515 8.2449 0.261415 8.2986C1.83688 8.73844 2.82393 9.24057 3.56092 9.97575C4.29892 10.7126 4.80186 11.697 5.24076 13.27C5.29455 13.4622 5.45431 13.531 5.58662 13.531C5.71895 13.531 5.87871 13.4622 5.93249 13.27C6.37303 11.697 6.87598 10.7116 7.61233 9.97575C8.35034 9.23892 9.33637 8.7368 10.9118 8.2986C11.1044 8.2449 11.1732 8.0854 11.1732 7.95329Z" fill="white"/>
+              </svg>
               {activeProduct === "Course" && t('interface.generate.generateCourseOutline', 'Generate Course')}
               {activeProduct === "Video Lesson" && t('interface.generate.generateVideoLesson', 'Generate Video Lesson')}
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
@@ -1902,30 +1914,7 @@ function GenerateProductPicker() {
         )}
         </div> {/* close inner flex container */}
 
-      {/* Feedback button */}
-      <button
-        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
-        style={{
-          width: '38px',
-          height: '98px',
-        }}
-        onClick={() => {
-          // Add your feedback handler here
-          console.log('Feedback clicked');
-        }}
-      >
-        <span
-          className="font-medium opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
-          style={{
-            fontSize: '14px',
-            color: '#0F58F9',
-            transform: 'rotate(-90deg)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Feedback
-        </span>
-      </button>
+      <FeedbackButton />
     </main>
   );
 }

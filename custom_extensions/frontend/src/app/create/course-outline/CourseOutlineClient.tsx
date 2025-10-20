@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -14,7 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
+import { FeedbackButton } from "@/components/ui/feedback-button";
+import { AiAgent } from "@/components/ui/ai-agent";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 
@@ -374,34 +376,35 @@ export default function CourseOutlineClient() {
   // Build dynamic fake-thought list based on current params
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing request for "${prompt.slice(0, 40) || "Untitled"}"...`);
-    list.push(`Detected language: ${language.toUpperCase()}`);
-    list.push(`Planning ${modules} module${modules > 1 ? "s" : ""} with ${lessonsPerModule} lessons each...`);
-    // shuffle little filler line
-    list.push("Consulting training knowledge base...");
+    const promptPreview = prompt.slice(0, 40) || t('interface.courseOutline.untitled', 'Untitled');
+    list.push(`${t('interface.courseOutline.thoughts.analyzingRequest', 'Analyzing request for')} "${promptPreview}"...`);
+    list.push(`${t('interface.courseOutline.thoughts.detectedLanguage', 'Detected language')}: ${language.toUpperCase()}`);
+    const modulePlural = modules > 1 ? "s" : "";
+    list.push(`${t('interface.courseOutline.thoughts.planning', 'Planning')} ${modules} ${t('interface.courseOutline.thoughts.module', 'module')}${modulePlural} ${t('interface.courseOutline.thoughts.with', 'with')} ${lessonsPerModule} ${t('interface.courseOutline.thoughts.lessonsEach', 'lessons each')}...`);
+    list.push(t('interface.courseOutline.thoughts.consultingKnowledgeBase', 'Consulting training knowledge base...'));
 
     // Add a diverse set of informative yet playful status lines (20 new ones)
     const extra = [
-      "Refining learning objectives...",
-      "Mapping Bloom's taxonomy levels...",
-      "Selecting engaging examples...",
-      "Integrating industry insights...",
-      "Balancing difficulty curve...",
-      "Cross-checking domain prerequisites...",
-      "Curating knowledge checkpoints...",
-      "Weaving narrative flow...",
-      "Injecting practical exercises...",
-      "Sequencing content logically...",
-      "Optimizing cognitive load...",
-      "Aligning verbs with outcomes...",
-      "Ensuring inclusive language...",
-      "Connecting theory and practice...",
-      "Drafting assessment prompts...",
-      "Incorporating spaced repetition...",
-      "Adding real-world case studies...",
-      "Scanning latest research papers...",
-      "Validating terminology consistency...",
-      "Polishing section transitions...",
+      t('interface.courseOutline.thoughts.refiningObjectives', 'Refining learning objectives...'),
+      t('interface.courseOutline.thoughts.mappingTaxonomy', "Mapping Bloom's taxonomy levels..."),
+      t('interface.courseOutline.thoughts.selectingExamples', 'Selecting engaging examples...'),
+      t('interface.courseOutline.thoughts.integratingInsights', 'Integrating industry insights...'),
+      t('interface.courseOutline.thoughts.balancingDifficulty', 'Balancing difficulty curve...'),
+      t('interface.courseOutline.thoughts.checkingPrerequisites', 'Cross-checking domain prerequisites...'),
+      t('interface.courseOutline.thoughts.curatingCheckpoints', 'Curating knowledge checkpoints...'),
+      t('interface.courseOutline.thoughts.weavingNarrative', 'Weaving narrative flow...'),
+      t('interface.courseOutline.thoughts.injectingExercises', 'Injecting practical exercises...'),
+      t('interface.courseOutline.thoughts.sequencingContent', 'Sequencing content logically...'),
+      t('interface.courseOutline.thoughts.optimizingLoad', 'Optimizing cognitive load...'),
+      t('interface.courseOutline.thoughts.aligningVerbs', 'Aligning verbs with outcomes...'),
+      t('interface.courseOutline.thoughts.ensuringInclusive', 'Ensuring inclusive language...'),
+      t('interface.courseOutline.thoughts.connectingTheory', 'Connecting theory and practice...'),
+      t('interface.courseOutline.thoughts.draftingAssessments', 'Drafting assessment prompts...'),
+      t('interface.courseOutline.thoughts.incorporatingRepetition', 'Incorporating spaced repetition...'),
+      t('interface.courseOutline.thoughts.addingCaseStudies', 'Adding real-world case studies...'),
+      t('interface.courseOutline.thoughts.scanningPapers', 'Scanning latest research papers...'),
+      t('interface.courseOutline.thoughts.validatingTerminology', 'Validating terminology consistency...'),
+      t('interface.courseOutline.thoughts.polishingTransitions', 'Polishing section transitions...'),
     ];
     list.push(...extra);
     return list;
@@ -1212,6 +1215,7 @@ export default function CourseOutlineClient() {
             setEditPrompt("");
             setLoadingPreview(false);
             setIsAdvancedEditInProgress(false);
+            setLastEditFromAiAgent(true); // Mark that last edit was from AI Agent
           }
         }
       }
@@ -1230,6 +1234,29 @@ export default function CourseOutlineClient() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [lastEditFromAiAgent, setLastEditFromAiAgent] = useState(false);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
+  
+  // Reset AI Agent flag when user manually edits the prompt
+  const prevPromptRef = useRef(prompt);
+  useEffect(() => {
+    if (prevPromptRef.current !== prompt) {
+      setLastEditFromAiAgent(false);
+      prevPromptRef.current = prompt;
+    }
+  }, [prompt]);
+  
+  // Auto-scroll to advanced section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
       setAdvancedModeState("Clicked");
@@ -1290,113 +1317,95 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
-      style={{
-        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
-      }}
+      className="min-h-screen py-24 pb-24 px-4 flex flex-col items-center bg-white relative overflow-hidden"
     >
+      {/* Decorative gradient backgrounds */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '980px',
+          height: '1100px',
+          top: '-500px',
+          left: '-350px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
+          transform: 'rotate(-300deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1260px',
+          height: '1800px',
+          top: '358px',
+          left: '433px',
+          borderRadius: '450px',
+          background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
+          transform: 'rotate(-120deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+
       {/* Back button */}
       <Link
         href="/create/generate"
-          className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
-        style={{
-          color: '#0F58F9',
-          fontSize: '14px',
-          fontWeight: '600',
-          lineHeight: '140%',
-          letterSpacing: '0.05em'
+        className="absolute top-6 left-6 flex items-center gap-1 text-sm rounded-lg px-3 py-1 backdrop-blur-sm transition-all duration-200 border border-white/60 shadow-md hover:shadow-xl active:shadow-xl transition-shadow cursor-pointer z-10"
+        style={{ 
+          color: '#000000',
+          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.5))'
         }}
       >
-        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        {t('interface.generate.back', 'Back')}
+        <span>&lt;</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
-      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+      <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
         {/* Page title */}
-        <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-center text-[58px] sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
-        <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
-          <div className="flex items-center">
-            {/* Modules dropdown */}
-            <div className="flex-1 flex items-center justify-center">
-              <Select
-                value={modules.toString()}
-                onValueChange={(value: string) => setModules(Number(value))}
-              >
-                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                  <div className="flex items-center gap-2">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                    </svg>
-                    <span className="text-[#09090B] opacity-50">{t('interface.generate.modules', 'Modules')}:</span>
-                    <span className="text-[#09090B]">{modules}</span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
-                  {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Divider */}
-            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-            
-            {/* Lessons per module dropdown */}
-            <div className="flex-1 flex items-center justify-center">
-              <Select
-                value={lessonsPerModule}
-                onValueChange={setLessonsPerModule}
-              >
-                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                  <div className="flex items-center gap-2">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
-                    </svg>
-                    <span className="text-[#09090B] opacity-50">{t('interface.generate.lessonsPerModule', 'Lessons per module')}:</span>
-                    <span className="text-[#09090B]">{lessonsPerModule}</span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
-                  {["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => (
-                    <SelectItem key={rng} value={rng}>{rng}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Divider */}
-            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-            
-            {/* Language dropdown */}
-            <div className="flex-1 flex items-center justify-center">
-              <Select
-                value={language}
-                onValueChange={setLanguage}
-              >
-                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                  <div className="flex items-center gap-2">
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
-                    </svg>
-                    <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                    <span className="text-[#09090B]">{language === 'en' ? `${t('interface.english', 'English')}` : language === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : language === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="border-white" sideOffset={15}>
-                  <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                  <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                  <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                  <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <CustomPillSelector
+            value={`${modules} ${t('interface.generate.modules', 'Modules')}`}
+            onValueChange={(value) => setModules(Number(value.split(' ')[0]))}
+            options={Array.from({ length: 10 }, (_, i) => ({
+              value: `${i + 1} ${t('interface.generate.modules', 'Modules')}`,
+              label: `${i + 1} ${t('interface.generate.modules', 'Modules')}`
+            }))}
+            label={t('interface.generate.modules', 'Modules')}
+          />
+          <CustomPillSelector
+            value={`${lessonsPerModule} ${t('interface.generate.perModule', 'per module')}`}
+            onValueChange={(value) => {
+              // Extract "1 - 2" from "1 - 2 per module"
+              const perModuleText = t('interface.generate.perModule', 'per module');
+              const range = value.replace(` ${perModuleText}`, '').trim();
+              setLessonsPerModule(range);
+            }}
+            options={["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => ({
+              value: `${rng} ${t('interface.generate.perModule', 'per module')}`,
+              label: `${rng} ${t('interface.generate.perModule', 'per module')}`
+            }))}
+            label={t('interface.generate.lessons', 'Lessons')}
+          />
+          <CustomPillSelector
+            value={language === 'en' ? t('interface.english', 'English') : language === 'uk' ? t('interface.ukrainian', 'Ukrainian') : language === 'es' ? t('interface.spanish', 'Spanish') : t('interface.russian', 'Russian')}
+            onValueChange={(value) => {
+              if (value === t('interface.english', 'English')) setLanguage('en');
+              else if (value === t('interface.ukrainian', 'Ukrainian')) setLanguage('uk');
+              else if (value === t('interface.spanish', 'Spanish')) setLanguage('es');
+              else if (value === t('interface.russian', 'Russian')) setLanguage('ru');
+            }}
+            options={[
+              { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+              { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+              { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+              { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
+            ]}
+            label={t('interface.language', 'Language')}
+          />
         </div>
 
         {/* Prompt textarea with regenerate button */}
@@ -1408,84 +1417,77 @@ export default function CourseOutlineClient() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
               rows={1}
-              className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-              style={{ background: "rgba(255,255,255,0.95)" }}
-            />
-            <Edit 
-              size={16} 
-              className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+              style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #E0E0E0" }}
             />
           </div>
-          {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
+          {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && !lastEditFromAiAgent && (
             <Button
               type="button"
               onClick={() => {
                 // Force regeneration by clearing lastPreviewParamsRef
                 lastPreviewParamsRef.current = null;
+                setLastEditFromAiAgent(false);
               }}
               variant="secondary"
-              className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
+              className="px-6 py-5 rounded-lg bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap shadow-lg"
             >
-              <Sparkles size={16} />
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+              </svg>
               <span>{t('interface.courseOutline.regenerate', 'Regenerate')}</span>
             </Button>
           )}
         </div>
 
         <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-[#20355D]">{t('interface.courseOutline.modulesAndLessons', 'Modules & Lessons')}</h2>
-            {hasUserEdits && (
-              <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                <span>✓</span>
-                <span>{t('interface.courseOutline.editsProtected', 'Edits protected')}</span>
-              </div>
-            )}
-          </div>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
-              className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
-              style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+              className="rounded-[8px] flex flex-col relative"
+              style={{ 
+                animation: 'fadeInDown 0.25s ease-out both',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
+                border: '1px solid #E0E0E0'
+              }}
             >
-              {loadingPreview && (
-                <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
-                  <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
-                </div>
-              )}
-              {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
-                  {/* Left blue square with number */}
-                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
-                    {modIdx + 1}
+              {/* Header with course title */}
+              <div 
+                className="px-10 py-4 rounded-t-[8px] text-white text-lg font-medium"
+                style={{ backgroundColor: '#0F58F999' }}
+              >
+                {t('interface.courseOutline.course', 'Course')}
+              </div>
+              
+              {/* Module cards container */}
+              <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
+                {loadingPreview && (
+                  <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                    <LoadingAnimation message={t('interface.courseOutline.applyingEdit', 'Applying edit...')} />
+                  </div>
+                )}
+                {preview.map((mod: ModulePreview, modIdx: number) => (
+                <div key={mod.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                  {/* Module header with number and title */}
+                  <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+                    <span className="text-[#0D001B] font-semibold text-lg">{modIdx + 1}.</span>
+                    <div className="relative group flex-1">
+                      <Input
+                        type="text"
+                        value={mod.title}
+                        onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                        data-modtitle={modIdx}
+                        className="text-[#0D001B] font-semibold text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                        placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                        disabled={loading || loadingPreview || isGenerating}
+                      />
+                    </div>
                   </div>
 
-                  {/* Main content section */}
-                  <div className="flex-1">
-                    {/* Module title */}
-                    <div className="mb-2">
-                      <div className="relative group">
-                        <Input
-                          type="text"
-                          value={mod.title}
-                          onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                          data-modtitle={modIdx}
-                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
-                          placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
-                          disabled={loading || loadingPreview || isGenerating}
-                        />
-                        {mod.title && (
-                          <Edit 
-                            size={16} 
-                            className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Lessons list */}
-                    <ul className="flex flex-col gap-1 text-gray-900">
+                  {/* Lessons list */}
+                  <div>
+                    <ul className="flex flex-col">
                       {mod.lessons.map((les: string, lessonIdx: number) => {
                          const lines = les.split(/\r?\n/);
                          // Preserve user-typed spacing by avoiding automatic trim.
@@ -1497,9 +1499,16 @@ export default function CourseOutlineClient() {
                            // Remove only the leading bullet + space if present, keep trailing spaces intact.
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
+                         const isLastLesson = lessonIdx === mod.lessons.length - 1;
                          return (
-                           <li key={lessonIdx} className="flex items-center gap-2 py-0.5">
-                             <div className="w-2 h-2 bg-[#0F58F9] rounded-full flex-shrink-0"></div>
+                           <li 
+                             key={lessonIdx} 
+                             className="flex items-center gap-2 py-3 px-5"
+                             style={{ borderBottom: isLastLesson ? 'none' : '1px solid #E0E0E0' }}
+                           >
+                             <span className="text-[#949CA8] text-xs flex-shrink-0">
+                               {t('interface.courseOutline.lessonTitle', 'Lesson')} {lessonIdx + 1}:
+                             </span>
                              <div className="relative group flex-grow">
                                <Input
                                  type="text"
@@ -1508,16 +1517,10 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#434343] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6 px-0"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                  disabled={loading || loadingPreview || isGenerating}
                                />
-                               {titleLine && (
-                                 <Edit 
-                                   size={16} 
-                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
-                                 />
-                               )}
                              </div>
                            </li>
                          );
@@ -1530,24 +1533,21 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
+                className="w-full flex items-center justify-center gap-2 rounded-lg text-[#498FFF] py-[19px] font-medium bg-[#FFFFFF] hover:bg-gray-50"
+                style={{ border: '1px solid #E0E0E0' }}
                 disabled={loading || loadingPreview || isGenerating}
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </Button>
               {/* Status row – identical style mock */}
-              <div className="mt-[30px] flex items-center justify-between text-sm text-[#858587]">
+              <div className="flex items-center justify-between text-sm text-[#858587] mb-2">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
-                <div className="flex-1 flex justify-center">
-                  <span className="flex items-center gap-1 select-none">
-                    {t('interface.courseOutline.pressEnterToSplit', 'Press')} <span className="border px-2 py-0.5 rounded bg-gray-100 text-xs font-mono">⏎</span> {t('interface.courseOutline.toSplitLessons', 'to split lessons')}
-                  </span>
-                </div>
                 <span className="flex items-center gap-1">
                   <RadialProgress progress={charCount / 50000} theme={selectedTheme} />
                   {charCount}/50000
                 </span>
+              </div>
               </div>
             </div>
           )}
@@ -1560,73 +1560,28 @@ export default function CourseOutlineClient() {
         </section>
 
         {/* Inline Advanced section & button */}
-        {!loading && preview.length > 0 && (
-          <>
-            {showAdvanced && (
-              <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <Textarea
-                  value={editPrompt}
-                  onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
-                  style={{ background: "rgba(255,255,255,0.95)" }}
-                />
-
-                {/* Example prompts */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                  {outlineExamples.map((ex) => (
-                    <button
-                      key={ex.short}
-                      type="button"
-                      onClick={() => toggleExample(ex)}
-                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${
-                        selectedExamples.includes(ex.short)
-                          ? 'bg-[#B8D4F0]'
-                          : 'bg-[#D9ECFF] hover:shadow-lg'
-                      }`}
-                    >
-                      {ex.short}
-                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-                    </button>
-                  ))}
-                </div>
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    disabled={loadingPreview || !editPrompt.trim()}
-                    onClick={() => {
-                      handleApplyEdit();
-                      setAdvancedModeState("Used");
-                    }}
-                    className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
-                    style={{
-                      background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                      fontWeight: 500
-                    }}
-                  >
-                    {loadingPreview ? <LoadingAnimation message="Applying..." /> : 'Edit'}
-                  </Button>
-                </div>
-              </div>
-            )}
-            <div className="w-full flex justify-center mt-2 mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAdvanced((prev) => !prev);
-                    handleAdvancedModeClick();
-                  }}
-                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
-                  style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
-                  }}
-                >
-                  <Sparkles size={16} />
-                  {t('actions.smartEdit', 'Smart Edit')}
-                </button>
-            </div>
-          </>
+        {!loading && preview.length > 0 && showAdvanced && (
+          <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <AiAgent
+              editPrompt={editPrompt}
+              setEditPrompt={setEditPrompt}
+              examples={outlineExamples}
+              selectedExamples={selectedExamples}
+              toggleExample={toggleExample}
+              loadingEdit={loadingPreview}
+              onApplyEdit={() => {
+                handleApplyEdit();
+                setAdvancedModeState("Used");
+              }}
+              advancedSectionRef={advancedSectionRef}
+              placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+              buttonText={t('interface.courseOutline.edit', 'Edit')}
+              hasStartedChat={aiAgentChatStarted}
+              setHasStartedChat={setAiAgentChatStarted}
+              lastUserMessage={aiAgentLastMessage}
+              setLastUserMessage={setAiAgentLastMessage}
+            />
+          </div>
         )}
 
         {!loading && preview.length > 0 && (
@@ -1702,10 +1657,10 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                       <Select value={imageSource} onValueChange={setImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg h-9">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
+                        <SelectContent className="border-[#E0E0E0]" side="top">
                           <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
                           <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
                           <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
@@ -1716,10 +1671,10 @@ export default function CourseOutlineClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
                       <Select value={aiModel} onValueChange={setAiModel}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none hover:shadow-lg active:shadow-lg h-9">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
+                        <SelectContent className="border-[#E0E0E0]" side="top">
                           <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
                           <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
                           <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
@@ -1736,45 +1691,49 @@ export default function CourseOutlineClient() {
 
       {/* Full-width generate footer bar */}
       {!loading && preview.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
           {/* Credits required */}
-          <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-            {/* custom stacked-coins svg */}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+            {/* custom credits svg */}
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_476_6531)">
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#434343" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_476_6531">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
             </svg>
             <span>{creditsRequired} {t('interface.courseOutline.credits', 'credits')}</span>
           </div>
 
-          {/* Lessons total + generate */}
-          <div className="flex items-center gap-[7.5rem]">
-            <span className="text-lg text-gray-700 font-medium select-none">
-              {lessonsTotal} {t('interface.courseOutline.lessonsTotal', 'lessons total')}
-            </span>
+          {/* AI Agent + generate */}
+          <div className="flex items-center gap-[10px]">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
+            </button>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleGenerateFinal}
-                className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
+                className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading || isGenerating}
               >
-                <Sparkles size={18} />
-                <span className="select-none font-semibold">{t('interface.courseOutline.generate', 'Generate')}</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
+                </svg>
+                <span className="select-none font-semibold">{t('interface.courseOutline.generateCourse', 'Generate Course')}</span>
               </button>
             </div>
           </div>
-
-          {/* Help button (disabled) */}
-          <Button
-            type="button"
-            disabled
-            variant="outline"
-            size="sm"
-            className="w-9 h-9 bg-white rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
-            aria-label={t('interface.courseOutline.helpComingSoon', 'Help (coming soon)')}
-          >
-            ?
-          </Button>
         </div>
       )}
     </main>
@@ -1799,6 +1758,8 @@ export default function CourseOutlineClient() {
         <LoadingAnimation message={t('interface.courseOutline.finalizingProduct', 'Finalizing product...')} />
       </div>
     )}
+    
+    <FeedbackButton />
     </>
   );
 } 

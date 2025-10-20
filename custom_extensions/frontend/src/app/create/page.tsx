@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { CustomCard } from "@/components/ui/custom-card";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { FeedbackButton } from "@/components/ui/feedback-button";
 import { trackCreateProduct } from "../../lib/mixpanelClient"
 
 // ---------------------------------------------------------------------------
@@ -377,7 +378,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         }}
       >
         <span>&lt;</span>
-        <span>Back</span>
+        <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
       {/* Main content */}
@@ -395,7 +396,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
-            href="/create/paste-text"
+            href="/create/paste-text-new"
             gradientFrom="from-blue-300"
             gradientTo="to-purple-200"
             iconColor="text-blue-600"
@@ -416,7 +417,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
             Icon={ImportIcon}
             title={t('interface.importFileOrUrl', 'Create from files')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
-            href="/create/from-files"
+            href="/create/from-files-new"
             gradientFrom="from-purple-300"
             gradientTo="to-pink-200"
             iconColor="text-purple-600"
@@ -426,30 +427,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
 
       </div>
 
-      {/* Feedback button */}
-      <button
-        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg cursor-pointer group"
-        style={{
-          width: '38px',
-          height: '98px',
-        }}
-        onClick={() => {
-          // Add your feedback handler here
-          console.log('Feedback clicked');
-        }}
-      >
-        <span
-          className="font-medium opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
-          style={{
-            fontSize: '14px',
-            color: '#0F58F9',
-            transform: 'rotate(-90deg)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Feedback
-        </span>
-      </button>
+      <FeedbackButton />
     </main>
   );
 } 
