@@ -1842,6 +1842,11 @@ export default function ProjectInstanceViewPage() {
         setShowSmartEditor={setShowSmartEditor}
         scormEnabled={scormEnabled}
         componentName={COMPONENT_NAME_TRAINING_PLAN}
+        allowedComponentNames={[
+          COMPONENT_NAME_TRAINING_PLAN,
+          COMPONENT_NAME_SLIDE_DECK,
+          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+        ]}
         t={t}
       />
       
@@ -2156,7 +2161,11 @@ export default function ProjectInstanceViewPage() {
         }
 
         {/* Smart Prompt Editor - render outside the white content container */}
-        {showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+        {showSmartEditor && projectInstanceData && (
+          projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN ||
+          projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
+          projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+        ) && (
           <SmartPromptEditor
             projectId={projectInstanceData.project_id}
             onContentUpdate={handleSmartEditContentUpdate}

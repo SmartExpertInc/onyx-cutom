@@ -15,6 +15,7 @@ interface ProductViewHeaderProps {
   setShowSmartEditor: (show: boolean) => void;
   scormEnabled: boolean;
   componentName: string;
+  allowedComponentNames?: string[];
   t: (key: string, fallback: string) => string;
 }
 
@@ -26,11 +27,19 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   setShowSmartEditor,
   scormEnabled,
   componentName,
+  allowedComponentNames,
   t
 }) => {
+  // Check if current component should show AI Improve and Export buttons
+  const shouldShowButtons = projectData && productId && (
+    allowedComponentNames 
+      ? allowedComponentNames.includes(projectData.component_name)
+      : projectData.component_name === componentName
+  );
+
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
-      <div className="max-w-7xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
+      <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex items-center gap-x-4">
           <button
             onClick={() => { if (typeof window !== 'undefined') window.location.href = '/projects'; }}
@@ -70,8 +79,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
-          {/* AI Improve button for Course Outline */}
-          {projectData && projectData.component_name === componentName && productId && (
+          {/* AI Improve button for Course Outline and Presentations */}
+          {shouldShowButtons && (
           <button
               onClick={() => setShowSmartEditor(!showSmartEditor)}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -93,7 +102,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           </button>
           )}
 
-          {projectData && projectData.component_name === componentName && productId && scormEnabled && (
+          {shouldShowButtons && scormEnabled && (
             <ToastProvider>
               <ScormDownloadButton
                 courseOutlineId={Number(productId)}
