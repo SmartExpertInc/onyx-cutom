@@ -16,7 +16,7 @@ from datetime import datetime
 import base64
 import mimetypes
 import math
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 
 # Import pie chart generators
 try:
@@ -2329,8 +2329,6 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             await page.close()
         if should_close_browser and browser:
             await browser.close()
-
-from typing import Optional
 
 async def process_slide_batch(slides_batch: list, theme: str, browser=None, deck_template_version: Optional[str] = None) -> list:
     """
