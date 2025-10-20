@@ -31,6 +31,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [insertAfterIndex, setInsertAfterIndex] = useState<number | null>(null);
+  
+  // Between-slides template dropdown state
+  const [showBetweenSlidesDropdown, setShowBetweenSlidesDropdown] = useState(false);
+  const betweenSlidesDropdownRef = useRef<HTMLDivElement>(null);
+  const [betweenSlidesDropdownIndex, setBetweenSlidesDropdownIndex] = useState<number | null>(null);
 
   // AI generation modal
   const [showAIModal, setShowAIModal] = useState(false);
@@ -262,16 +267,19 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowTemplateDropdown(false);
       }
+      if (betweenSlidesDropdownRef.current && !betweenSlidesDropdownRef.current.contains(event.target as Node)) {
+        setShowBetweenSlidesDropdown(false);
+      }
       if (slideMenuRef.current && !slideMenuRef.current.contains(event.target as Node)) {
         setShowSlideMenu(null);
       }
     };
 
-    if (showTemplateDropdown || showSlideMenu) {
+    if (showTemplateDropdown || showBetweenSlidesDropdown || showSlideMenu) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showTemplateDropdown, showSlideMenu]);
+  }, [showTemplateDropdown, showBetweenSlidesDropdown, showSlideMenu]);
 
 
   if (!deck || !deck.slides || deck.slides.length === 0) {
@@ -286,7 +294,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-90 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
+      <div className="w-85 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
           {/* Add New Slide Button */}
           <div className="p-4">
             <button 
@@ -306,7 +314,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-95 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-100 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
                 width: 'calc(100% + 45px)',
                 maxHeight: '400px',
@@ -440,8 +448,12 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-10xl">
-                      <div className="main-slide-container rounded-lg relative" style={{ aspectRatio: '16/9' }}>
+                    <div className="w-full max-w-10xl flex justify-center">
+                      <div className="main-slide-container rounded-lg relative" style={{ 
+                        width: 'min(1200px, 90vw)', 
+                        height: 'min(675px, 50.625vw)',
+                        aspectRatio: '16/9'
+                      }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -450,9 +462,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 e.stopPropagation();
                                 setShowSlideMenu(showMenu ? null : slide.slideId);
                               }}
-                              className="w-8 h-8 bg-white/90 hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200 transition-all duration-200"
+                              className="w-8 h-5 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#E0E0E0] transition-all duration-200"
                             >
-                              <MoreVertical size={16} className="text-gray-600" />
+                              <MoreVertical size={16} className="text-[#E0E0E0]" />
                             </button>
                           </div>
                         )}
@@ -461,17 +473,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         {showMenu && (
                           <div
                             ref={slideMenuRef}
-                            className="absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[140px]"
+                            className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl py-1 min-w-[140px]"
                           >
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 duplicateSlide(slide.slideId);
                               }}
-                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
-                              <Copy size={14} className="text-gray-500" />
-                              Copy
+                              <Copy size={14} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -479,10 +490,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 setShowAIModal(true);
                                 setShowSlideMenu(null);
                               }}
-                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-[#3C3838] hover:bg-gray-50 flex items-center gap-2"
                             >
-                              <Sparkles size={14} className="text-blue-500" />
-                              AI Improve
+                              <Sparkles size={14} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -492,50 +502,127 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                               className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                             >
                               <Trash2 size={14} className="text-red-500" />
-                              Delete
                             </button>
                           </div>
                         )}
 
-                        <ComponentBasedSlideRenderer
-                          slide={slide}
-                          isEditable={isEditable}
-                          onSlideUpdate={handleSlideUpdate}
-                          theme={theme}
-                        />
+                        <div className="w-full h-full" style={{ aspectRatio: '16/9' }}>
+                  <ComponentBasedSlideRenderer
+                            slide={slide}
+                    isEditable={isEditable}
+                    onSlideUpdate={handleSlideUpdate}
+                    theme={theme}
+                  />
+                        </div>
                       </div>
                     </div>
-                  </div>
+              </div>
               
                   {/* Between-slides action bar */}
                   <div className="flex justify-center mt-4">
-                    <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl shadow-sm px-1 py-1">
-                      <button
-                        onClick={() => {
-                          setInsertAfterIndex(index);
-                          setShowTemplateDropdown(!showTemplateDropdown);
-                        }}
+                    <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm">
+                <button
+                  onClick={() => {
+                          setBetweenSlidesDropdownIndex(index);
+                          setShowBetweenSlidesDropdown(!showBetweenSlidesDropdown);
+                  }}
                         title="Add new slide"
-                        className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-gray-700"
-                      >
+                        className="w-8 h-8 rounded-l-md flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                >
                         <Plus size={16} />
-                      </button>
-                      <button
+                </button>
+                    <button
                         onClick={() => setShowAIModal(true)}
                         title="Generate with AI"
-                        className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-blue-600"
+                        className="w-8 h-8 flex items-center justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
                       >
                         <Sparkles size={16} />
                       </button>
-                      <button
+                <button
                         onClick={() => {}}
                         title="More"
-                        className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-gray-100 text-gray-700"
+                        className="w-8 h-8 rounded-r-md flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                       >
                         <ArrowDown size={16} />
-                      </button>
+                </button>
                     </div>
                   </div>
+
+                  {/* Between-slides template dropdown */}
+                  {showBetweenSlidesDropdown && betweenSlidesDropdownIndex === index && (
+                    <div className="relative flex justify-center mt-2">
+                      <div
+                        ref={betweenSlidesDropdownRef}
+                        className="bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                        style={{
+                          width: '860px',
+                          maxHeight: '400px',
+                          overflowY: 'auto'
+                        }}
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-3 border-b border-gray-100">
+                          <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
+                          <button
+                            onClick={() => setShowBetweenSlidesDropdown(false)}
+                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                          >
+                            <X size={16} className="text-gray-500" />
+                          </button>
+                        </div>
+
+                        {/* Popular Templates */}
+                        <div className="p-3">
+                          <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            Popular
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {availableTemplates
+                              .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                              .map((template) => (
+                                <button
+                                  key={template.id}
+                                  onClick={() => { addSlide(template.id, index); setShowBetweenSlidesDropdown(false); }}
+                                  className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                                >
+                                  <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                    <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                                  </div>
+                                  <div className="px-3 py-3">
+                                    <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                    <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
+                                  </div>
+                                </button>
+                              ))}
+                          </div>
+                        </div>
+
+                        {/* All Templates */}
+                        <div className="p-3 border-t border-gray-100">
+                          <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            Basic
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {availableTemplates.map((template) => (
+                              <button
+                                key={template.id}
+                                onClick={() => { addSlide(template.id, index); setShowBetweenSlidesDropdown(false); }}
+                                className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                              >
+                                <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                  <span className="text-2xl opacity-70 group-hover:opacity-100 transition-opacity">{template.icon}</span>
+                                </div>
+                                <div className="px-3 py-3">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                  <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

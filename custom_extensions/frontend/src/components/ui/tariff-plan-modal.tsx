@@ -323,7 +323,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-xl p-0 max-h-[93vh] min-w-[830px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-md" hideCloseIcon>
+      <DialogContent className="sm:max-w-[1180px] max-w-[1080px] xl:max-w-[1280px] xl:w-[90vw] w-[85vw] rounded-xl p-0 max-h-[93vh] min-w-[830px] bg-gradient-to-b from-white/80 to-white/70 backdrop-blur-sm" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
