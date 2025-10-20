@@ -100,6 +100,14 @@ async for update in extract_file_context_from_onyx_with_progress(file_ids_list, 
 - Two places updated: SmartDrive file extraction and regular file extraction
 - Same implementation pattern as Course Outline
 
+**E. SmartDrive File Extraction** (multiple endpoints):
+- Course Outline SmartDrive + connector files (line ~16790)
+- Lesson Presentation SmartDrive + connector files (line ~22923)
+- Lesson Presentation SmartDrive standalone (line ~22994)
+- Text Presentation SmartDrive standalone (line ~29343)
+- Quiz SmartDrive standalone (line ~28139)
+- All SmartDrive extractions now send progress updates
+
 ### Impact
 
 **Before:**
@@ -125,20 +133,29 @@ async for update in extract_file_context_from_onyx_with_progress(file_ids_list, 
 1. **`custom_extensions/backend/main.py`**
    - Added `extract_file_context_from_onyx_with_progress` generator function (lines 10882-11043)
    - Added `extract_file_context_from_onyx` backward-compatible wrapper (lines 11045-11063)
-   - Updated Course Outline generation endpoint (line ~16897)
-   - Updated Lesson/Video Presentation generation endpoint (line ~23020)
-   - Updated Text Presentation generation endpoint (line ~29339)
-   - Updated Quiz generation endpoint - SmartDrive files (line ~28139)
-   - Updated Quiz generation endpoint - regular files (line ~28177)
+   - Updated Course Outline generation endpoint - regular files (line ~16897)
+   - Updated Course Outline SmartDrive extraction (line ~16790)
+   - Updated Lesson/Video Presentation generation - regular files (line ~23020)
+   - Updated Lesson Presentation SmartDrive extraction (lines ~22923 & ~22994)
+   - Updated Text Presentation generation - regular files (line ~29339)
+   - Updated Text Presentation SmartDrive extraction (line ~29343)
+   - Updated Quiz generation - regular files (line ~28177)
+   - Updated Quiz generation - SmartDrive files (line ~28139)
+   - **Total: 10 file extraction paths now have progress updates**
 
 ## Testing Recommendations
 
-Test with different file counts to verify keep-alive packets are sent:
+Test with different file counts and sources to verify keep-alive packets are sent:
 
+### Regular File Uploads
 1. **1 file** - Should complete quickly, minimal progress updates
 2. **5 files** - Single batch, ~2-3 progress updates
 3. **10 files** - Two batches, ~4-5 progress updates
 4. **20+ files** - Multiple batches, progress updates every 10-15 seconds
+
+### SmartDrive Files
+1. **13 SmartDrive files** (as in user's logs) - Two batches, ~4-5 progress updates
+2. **Combined: Connectors + SmartDrive files** - Progress from both extraction phases
 
 Monitor the frontend console for progress packets:
 ```javascript

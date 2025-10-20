@@ -16786,8 +16786,21 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -22919,8 +22932,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -22990,8 +23016,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -29339,8 +29378,21 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
