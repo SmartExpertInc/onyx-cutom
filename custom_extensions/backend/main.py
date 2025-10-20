@@ -10933,8 +10933,8 @@ async def extract_file_context_from_onyx_with_progress(
             logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
             
             # Process files in batches and yield progress for each batch
-            # Reduced batch size to prevent overwhelming the Onyx API server
-            batch_size = 3
+            # Batch size balances speed vs API stability
+            batch_size = 5
             all_file_results = []
             total_files = len(file_ids)
             
@@ -10978,7 +10978,7 @@ async def extract_file_context_from_onyx_with_progress(
                     # If there are still pending tasks, send a keep-alive heartbeat
                     if tasks_set:
                         elapsed = int(time.time() - start_time)
-                        heartbeat_msg = f"Processing batch {batch_num}/{total_batches}... ({elapsed}s elapsed, {len(task_results)}/{len(batch)} files done)"
+                        heartbeat_msg = f"Processing batch {batch_num}/{total_batches}... ({elapsed}s elapsed, {len(task_results)}/{len(batch)} files analyzed)"
                         logger.info(f"[FILE_CONTEXT_HEARTBEAT] {heartbeat_msg}")
                         yield {"type": "progress", "message": heartbeat_msg}
                         heartbeat_count += 1
@@ -10994,7 +10994,7 @@ async def extract_file_context_from_onyx_with_progress(
                 
                 # Yield progress after batch completion
                 completed = min(i + batch_size, total_files)
-                progress_msg = f"Completed {completed}/{total_files} files"
+                progress_msg = f"Analyzed {completed}/{total_files} files"
                 yield {"type": "progress", "message": progress_msg}
                 
                 # Brief pause between batches
@@ -11772,33 +11772,24 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most educational/relevant information]
         """
         
-        # Step 4: Multiple retry attempts with different strategies
-        for attempt in range(3):
-            try:
-                result = await attempt_file_analysis_with_retry(
-                    temp_chat_id, file_id, analysis_prompt, cookies, attempt
-                )
-                if result and not is_generic_response(result):
-                    return parse_analysis_result(file_id, result)
-                elif attempt < 2:
-                    logger.warning(f"[FILE_CONTEXT] Attempt {attempt + 1} failed for file {file_id}, retrying...")
-                    await asyncio.sleep(1)  # Brief delay before retry
-                else:
-                    logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
-                    break
-            except Exception as e:
-                logger.error(f"[FILE_CONTEXT] Attempt {attempt + 1} error for file {file_id}: {e}")
-                if attempt < 2:
-                    await asyncio.sleep(1)
-                else:
-                    raise
+        # Step 4: Single attempt - skip file if it fails (no retries)
+        try:
+            result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, analysis_prompt, cookies, 0
+            )
+            if result and not is_generic_response(result):
+                return parse_analysis_result(file_id, result)
+            else:
+                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+        except Exception as e:
+            logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
-        # Step 5: Fallback response if all attempts fail
+        # Step 5: Fallback response if attempt fails (file will be skipped)
         return {
             "file_id": file_id,
-            "summary": f"File analysis failed after multiple attempts (ID: {file_id})",
+            "summary": f"File analysis failed, skipped (ID: {file_id})",
             "topics": ["analysis error", "file processing"],
-            "key_info": "File may need manual review or re-upload",
+            "key_info": "File skipped due to processing error",
             "content": f"Analysis failed for file {file_id} ({file_info.get('name', 'Unknown')})"
         }
             
