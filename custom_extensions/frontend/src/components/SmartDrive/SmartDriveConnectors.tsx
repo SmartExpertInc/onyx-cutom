@@ -60,6 +60,8 @@ interface SmartDriveConnectorsProps {
   className?: string;
   mode?: 'full' | 'select'; // 'select' mode hides upload/folder creation buttons
   onFileSelect?: (files: any[]) => void; // Callback when files are selected
+  onTabChange?: (tab: 'smart-drive' | 'connectors') => void; // Callback when tab changes
+  hideStatsBar?: boolean; // Hide the "Available files/connectors" bar
 }
 
 // Helper function to determine actual connector status (based on Onyx's logic)
@@ -76,7 +78,7 @@ const getActualConnectorStatus = (connectorStatus: any): string => {
   }
 };
 
-const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '', mode = 'full', onFileSelect }) => {
+const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '', mode = 'full', onFileSelect, onTabChange, hideStatsBar = false }) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
   const { t } = useLanguage();
@@ -97,6 +99,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+
+  // Notify parent when tab changes
+  useEffect(() => {
+    onTabChange?.(activeTab);
+  }, [activeTab, onTabChange]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     if (typeof window === 'undefined') return 'grid';
     const saved = localStorage.getItem('smartDriveViewMode');
@@ -933,9 +940,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       )}
       {/* Smart Drive Tab Content */}
       {activeTab === 'smart-drive' && (
-        <>
+        <div className={isSelectMode ? 'px-6' : ''}>
           {/* Usage Progress Bars */}
-          {entitlements && (
+          {entitlements && !hideStatsBar && (
             <div className="bg-white py-5 mb-3">
               <div className="space-y-4">
                 {/* Storage Progress */}
@@ -1024,14 +1031,14 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             )}
           </div>
         </div>
-        </>
+        </div>
       )}
 
       {/* Connectors Tab Content */}
       {activeTab === 'connectors' && (
-        <>
+        <div className={isSelectMode ? 'px-6' : ''}>
           {/* Usage Stats Header */}
-          {entitlements && (
+          {entitlements && !hideStatsBar && (
             <div className="bg-white py-4 mb-3">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Available connectors</h3>
@@ -1321,7 +1328,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           )}
         </div>
       )}
-        </>
+        </div>
       )}
 
       {/* Connector Creation Modal */}

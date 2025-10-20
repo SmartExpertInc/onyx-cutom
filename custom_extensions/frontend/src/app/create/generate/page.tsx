@@ -135,6 +135,7 @@ function GenerateProductPicker() {
 
   // NEW: Load files from upload flow
   const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, name: string, extension: string}>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
@@ -147,6 +148,30 @@ function GenerateProductPicker() {
       console.error('Failed to parse uploaded files from localStorage', error);
     }
   }, []);
+
+  const handleAddMaterial = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files).map(file => ({
+        id: `${Date.now()}-${file.name}`,
+        name: file.name,
+        extension: file.name.split('.').pop()?.toUpperCase() || 'FILE'
+      }));
+      
+      const updatedFiles = [...uploadedFiles, ...newFiles];
+      setUploadedFiles(updatedFiles);
+      localStorage.setItem('generatedFromFiles', JSON.stringify(updatedFiles));
+      
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   // Clear uploaded files from localStorage when leaving the generate page
   useEffect(() => {
@@ -1214,14 +1239,18 @@ function GenerateProductPicker() {
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">
 
-        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
-        <p className="text-center text-[#FAFAFA] text-lg -mt-1">
-          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
-           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
-           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
-           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
-           t('interface.generate.subtitle', 'What would you like to create today?')}
-        </p>
+        {!isFromUploadedFiles && (
+          <>
+            <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+            <p className="text-center text-[#FAFAFA] text-lg -mt-1">
+              {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+               isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+               isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+               isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
+               t('interface.generate.subtitle', 'What would you like to create today?')}
+            </p>
+          </>
+        )}
 
         {/* File context indicator */}
         {isFromFiles && (
@@ -1310,36 +1339,29 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Uploaded Files context indicator */}
-        {isFromUploadedFiles && uploadedFiles.length > 0 && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                <FileText className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-purple-900">
-                  {t('interface.generate.creatingFromUploadedFiles', 'Creating from Uploaded Files')}
-                </h3>
-                <p className="text-sm text-purple-700 mt-1">
-                  {t('interface.generate.aiWillUseUploadedFiles', 'The AI will use the content from your uploaded files to create educational content.')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx"
+        />
 
         {/* Uploaded Files Display */}
         {uploadedFiles.length > 0 && (
-          <div 
-            className="w-full max-w-2xl mb-6 bg-white rounded-lg shadow-lg border border-[#E0E0E0] flex flex-col min-h-[45px]"
-          >
+          <>
+            <h3 className="w-full max-w-2xl text-sm font-medium mb-2" style={{ color: '#71717A' }}>
+              {t('interface.generate.yourSelectedMaterials', 'Your selected materials')}
+            </h3>
+            <div 
+              className="w-full max-w-2xl mb-6 bg-white rounded-md shadow-lg border border-[#E0E0E0] flex flex-col min-h-[45px]"
+            >
             {uploadedFiles.map((file, index) => (
               <div
                 key={file.id}
-                className={`flex items-center justify-between px-8 py-3 ${
-                  index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
-                }`}
+                className="flex items-center justify-between px-8 py-3 border-b-2 border-[#E0E0E0]"
               >
                 <span className="text-gray-700 font-medium">
                   {file.name}
@@ -1347,7 +1369,28 @@ function GenerateProductPicker() {
                 <span className="text-gray-500 font-medium">{file.extension}</span>
               </div>
             ))}
-          </div>
+            
+            {/* Add Material Row */}
+            {isFromUploadedFiles && (
+              <div
+                className="flex items-center gap-2 px-8 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={handleAddMaterial}
+              >
+                <Plus className="h-5 w-5" style={{ color: '#498FFF' }} />
+                <span className="font-medium" style={{ color: '#498FFF' }}>
+                  Add material
+                </span>
+              </div>
+            )}
+            </div>
+          </>
+        )}
+
+        {/* Title for uploaded files */}
+        {isFromUploadedFiles && uploadedFiles.length > 0 && (
+          <h3 className="text-lg text-[#FAFAFA] mb-4">
+            {t('interface.generate.selectWhatToGenerate', 'Select what you\'d like to generate')}
+          </h3>
         )}
 
         {/* Tab selector */}
