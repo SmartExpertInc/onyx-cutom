@@ -17844,9 +17844,10 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content}")
             
             if 'courseOutlineTableHeaders' in content:
+                headers_value = content['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ✅ courseOutlineTableHeaders EXISTS in database!")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {content['courseOutlineTableHeaders']}")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(content['courseOutlineTableHeaders'])}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {headers_value}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(headers_value)}")
             else:
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ courseOutlineTableHeaders NOT in database")
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Available keys: {list(content.keys())}")
@@ -26040,11 +26041,15 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             logger.info(f"🎯 [TABLE HEADER BACKEND] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content_to_store_for_db}")
             
             if 'courseOutlineTableHeaders' in content_to_store_for_db:
+                headers_value = content_to_store_for_db['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ✅ courseOutlineTableHeaders FOUND in payload!")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(content_to_store_for_db['courseOutlineTableHeaders'], indent=2)}")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{content_to_store_for_db['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{content_to_store_for_db['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{content_to_store_for_db['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(headers_value, indent=2)}")
+                if headers_value and isinstance(headers_value, dict):
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{headers_value.get('lessons', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{headers_value.get('assessment', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{headers_value.get('duration', 'NOT SET')}'")
+                else:
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Value is None or not a dict")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] This data WILL BE stored in database")
             else:
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ❌ courseOutlineTableHeaders NOT FOUND in payload")
