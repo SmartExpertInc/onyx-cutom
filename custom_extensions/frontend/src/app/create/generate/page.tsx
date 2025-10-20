@@ -49,7 +49,14 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 12H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
-
+// Delete icon component
+const DeleteIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button onClick={onClick} className="ml-2 hover:opacity-70 transition-opacity">
+    <svg width="31" height="18" viewBox="0 0 31 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path opacity="0.8" d="M8.5 4.2H22.5M20.9444 4.2V15.4C20.9444 16.2 20.1667 17 19.3889 17H11.6111C10.8333 17 10.0556 16.2 10.0556 15.4V4.2M12.3889 4.2V2.6C12.3889 1.8 13.1667 1 13.9444 1H17.0556C17.8333 1 18.6111 1.8 18.6111 2.6V4.2M13.9444 8.2V13M17.0556 8.2V13" stroke="#EF4444" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </button>
+);
 
 function GenerateProductPicker() {
   const { t } = useLanguage();
@@ -171,6 +178,12 @@ function GenerateProductPicker() {
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleDeleteFile = (id: string) => {
+    const updatedFiles = uploadedFiles.filter((file) => file.id !== id);
+    setUploadedFiles(updatedFiles);
+    localStorage.setItem('generatedFromFiles', JSON.stringify(updatedFiles));
   };
 
   // Clear uploaded files from localStorage when leaving the generate page
@@ -1352,7 +1365,7 @@ function GenerateProductPicker() {
         {/* Uploaded Files Display */}
         {uploadedFiles.length > 0 && (
           <>
-            <h3 className="w-full max-w-2xl text-sm font-medium mb-2" style={{ color: '#71717A' }}>
+            <h3 className="w-full max-w-2xl text-lg font-medium mb-2 text-center" style={{ color: '#71717A' }}>
               {t('interface.generate.yourSelectedMaterials', 'Your selected materials')}
             </h3>
             <div 
@@ -1366,14 +1379,17 @@ function GenerateProductPicker() {
                 <span className="text-gray-700 font-medium">
                   {file.name}
                 </span>
-                <span className="text-gray-500 font-medium">{file.extension}</span>
+                <div className="flex items-center gap-6">
+                  <span className="text-gray-500 font-medium">{file.extension}</span>
+                  <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+                </div>
               </div>
             ))}
             
             {/* Add Material Row */}
             {isFromUploadedFiles && (
               <div
-                className="flex items-center gap-2 px-8 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-8 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={handleAddMaterial}
               >
                 <Plus className="h-5 w-5" style={{ color: '#498FFF' }} />
@@ -1388,7 +1404,7 @@ function GenerateProductPicker() {
 
         {/* Title for uploaded files */}
         {isFromUploadedFiles && uploadedFiles.length > 0 && (
-          <h3 className="text-lg text-[#FAFAFA] mb-4">
+          <h3 className="text-xl font-semibold text-[#FAFAFA]">
             {t('interface.generate.selectWhatToGenerate', 'Select what you\'d like to generate')}
           </h3>
         )}
