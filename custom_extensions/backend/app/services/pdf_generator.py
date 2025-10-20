@@ -351,7 +351,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Big Image Left Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default')}px")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default')}px")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -362,7 +367,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Big Image Top Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 100%')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 240px')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -372,7 +382,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
         elif template_id == 'bullet-points':
             logger.info(f"PDF GEN: Bullet Points Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 50%')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 50%')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -394,7 +409,12 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"PDF GEN: Bullet Points Right Template Analysis:")
             logger.info(f"PDF GEN:   Title: {props.get('title', 'No title')}")
             logger.info(f"PDF GEN:   Subtitle: {props.get('subtitle', 'No subtitle')}")
-            logger.info(f"PDF GEN:   Image Path: {props.get('imagePath', 'No image')}")
+            # Truncate base64 image data for logging
+            img_path = props.get('imagePath', 'No image')
+            if isinstance(img_path, str) and img_path.startswith('data:'):
+                logger.info(f"PDF GEN:   Image Path: [BASE64 DATA URL - {len(img_path)} chars]")
+            else:
+                logger.info(f"PDF GEN:   Image Path: {img_path}")
             logger.info(f"PDF GEN:   Width: {props.get('widthPx', 'Default 320px')}")
             logger.info(f"PDF GEN:   Height: {props.get('heightPx', 'Default 320px')}")
             logger.info(f"PDF GEN:   Object Fit: {props.get('objectFit', 'Default cover')}")
@@ -2994,41 +3014,57 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         theme_value = "dark-purple"
 
     # Extract deck templateVersion for version-aware rendering
-    # Frontend logic: if (!effectiveVersion || effectiveVersion < 'v2') -> use old template
-    # Default to None (which means "no version" = use old template for backward compatibility)
-    deck_template_version = None
+    # Frontend logic: const effectiveVersion = deckTemplateVersion || defaultVersion || 'v1'
+    #                if (!effectiveVersion || effectiveVersion < 'v2') -> use old template
+    # Default to 'v1' to match frontend behavior (None would also trigger old template, but explicit is better)
+    deck_template_version = 'v1'  # Default to v1 for backward compatibility
     try:
         # Use content_obj (the parsed version) instead of raw_content for extraction
-        _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj type: {type(content_obj)}")
+        _log.info(f"🔍 PDF VERSION EXTRACTION START - content_obj type: {type(content_obj)}")
+        
         if isinstance(content_obj, dict):
-            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {list(content_obj.keys())[:15]}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj has {len(content_obj.keys())} keys")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj keys: {list(content_obj.keys())}")
             
             # Try multiple extraction paths (matching frontend's ComponentBasedSlideDeck structure)
-            deck_template_version = (
+            extracted = (
                 content_obj.get("templateVersion")           # Direct field (frontend: slideDeck.templateVersion)
                 or content_obj.get("template_version")       # Snake case variant
                 or (content_obj.get("details") or {}).get("templateVersion")  # In details
                 or (content_obj.get("details") or {}).get("template_version") # In details snake case
             )
             
-            # Log what we found at top level
+            if extracted:
+                deck_template_version = extracted
+                _log.info(f"✅ PDF VERSION EXTRACTION SUCCESS - Found version: {deck_template_version}")
+            else:
+                _log.warning(f"⚠️ PDF VERSION EXTRACTION - No templateVersion found, using default: {deck_template_version}")
+            
+            # Log what we checked
             _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.templateVersion: {content_obj.get('templateVersion')}")
             _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.template_version: {content_obj.get('template_version')}")
             _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.lessonTitle: {content_obj.get('lessonTitle')}")
-            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.slides count: {len(content_obj.get('slides', []))}")
+            _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.slides: {len(content_obj.get('slides', []))} slides")
             
             # Also check if it's nested in details
-            if content_obj.get('details') and isinstance(content_obj.get('details'), dict):
+            if content_obj.get('details'):
                 details = content_obj.get('details')
-                _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details keys: {list(details.keys())[:15]}")
-                _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details.templateVersion: {details.get('templateVersion')}")
+                if isinstance(details, dict):
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details keys: {list(details.keys())}")
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details.templateVersion: {details.get('templateVersion')}")
+                else:
+                    _log.info(f"🔍 PDF VERSION EXTRACTION - content_obj.details is not a dict: {type(details)}")
+        else:
+            _log.warning(f"⚠️ PDF VERSION EXTRACTION - content_obj is not a dict: {type(content_obj)}")
                 
-        _log.info(f"🔍 PDF VERSION EXTRACTION - EXTRACTED VERSION: {deck_template_version}")
+        _log.info(f"🔍 PDF VERSION EXTRACTION COMPLETE - FINAL VERSION: '{deck_template_version}'")
     except Exception as e:
-        _log.error(f"🔍 PDF VERSION EXTRACTION ERROR: {e}", exc_info=True)
-        pass
+        _log.error(f"❌ PDF VERSION EXTRACTION ERROR: {e}", exc_info=True)
+        deck_template_version = 'v1'  # Fallback to v1 on error
     
-    _log.info(f"🔍 PDF DECK VERSION FINAL - product_id={product_data['id']}, templateVersion={deck_template_version}, will_use_template={'v2 (single_slide_pdf_template.html)' if deck_template_version and deck_template_version >= 'v2' else 'v1 (single_slide_pdf_template_old.html)'}")
+    # Frontend matching logic: if (!effectiveVersion || effectiveVersion < 'v2') -> old template
+    will_use_v2 = deck_template_version and deck_template_version >= 'v2'
+    _log.info(f"🎯 PDF TEMPLATE DECISION - product_id={product_data['id']}, version='{deck_template_version}', using={'V2 NEW' if will_use_v2 else 'V1 LEGACY'} template")
     
     # Apply version-aware theme mapping (matching frontend logic)
     # Legacy decks (no version or < v2) should use v1 theme variants with old colors
