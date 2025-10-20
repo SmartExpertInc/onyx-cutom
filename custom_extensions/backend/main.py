@@ -10946,16 +10946,47 @@ async def extract_file_context_from_onyx_with_progress(
                 logger.info(f"[FILE_CONTEXT] {progress_msg}")
                 yield {"type": "progress", "message": progress_msg}
                 
-                # Create tasks for this batch
-                tasks = [extract_single_file_context(file_id, cookies) for file_id in batch]
+                # Create tasks for this batch, maintaining file_id -> task mapping
+                task_to_file_id = {}
+                for file_id in batch:
+                    task = asyncio.create_task(extract_single_file_context(file_id, cookies))
+                    task_to_file_id[task] = file_id
                 
-                # Execute batch in parallel
-                batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+                tasks_set = set(task_to_file_id.keys())
                 
-                # Process results
-                for file_id, result in zip(batch, batch_results):
+                # Execute batch in parallel with periodic keep-alive heartbeats
+                task_results = {}  # Map task to result
+                heartbeat_count = 1
+                start_time = time.time()
+                
+                while tasks_set:
+                    # Wait for tasks with a 10-second timeout
+                    done, tasks_set = await asyncio.wait(
+                        tasks_set, 
+                        timeout=10.0,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+                    
+                    # Collect completed results
+                    for task in done:
+                        try:
+                            task_results[task] = task.result()
+                        except Exception as e:
+                            task_results[task] = e
+                    
+                    # If there are still pending tasks, send a keep-alive heartbeat
+                    if tasks_set:
+                        elapsed = int(time.time() - start_time)
+                        heartbeat_msg = f"Processing batch {batch_num}/{total_batches}... ({elapsed}s elapsed, {len(task_results)}/{len(batch)} files done)"
+                        logger.info(f"[FILE_CONTEXT_HEARTBEAT] {heartbeat_msg}")
+                        yield {"type": "progress", "message": heartbeat_msg}
+                        heartbeat_count += 1
+                
+                # Reorder results to match original file_id order
+                for file_id in batch:
+                    task = [t for t, fid in task_to_file_id.items() if fid == file_id][0]
+                    result = task_results.get(task)
                     if isinstance(result, Exception):
-                        logger.error(f"[FILE_CONTEXT] Error processing file {file_id}: {result}")
                         all_file_results.append(None)
                     else:
                         all_file_results.append(result)

@@ -31,18 +31,33 @@ Implemented a **generator-based file extraction** that yields progress updates d
 - Yields `{"type": "complete", "context": {...}}` when extraction is complete
 - Yields `{"type": "error", "message": "..."}` if extraction fails
 - Processes files in batches of 8 (configurable)
+- **NEW: Sends keep-alive heartbeat every 10 seconds during batch processing**
 - Sends progress updates before and after each batch
 
-**Example yield sequence:**
+**Heartbeat Mechanism:**
+
+Uses `asyncio.wait()` with a 10-second timeout to monitor task completion and send periodic keep-alive packets:
+- Checks for completed file tasks every 10 seconds
+- Sends heartbeat message if tasks are still pending (e.g., "10s elapsed, 3/8 files done")
+- Prevents connection timeouts during long-running batch processing
+- Maintains task ordering to preserve file_id -> result mapping
+
+**Example yield sequence (17 files in 3 batches):**
 ```python
-{"type": "progress", "message": "Extracting context from 10 files and 0 folders..."}
-{"type": "progress", "message": "Processing files batch 1/2 (1-8 of 10)..."}
-{"type": "progress", "message": "Completed 8/10 files"}
-{"type": "progress", "message": "Processing files batch 2/2 (9-10 of 10)..."}
-{"type": "progress", "message": "Completed 10/10 files"}
-{"type": "progress", "message": "Processing 0 folders..."}  # if folders present
+{"type": "progress", "message": "Extracting context from 17 files and 0 folders..."}
+{"type": "progress", "message": "Processing files batch 1/3 (1-8 of 17)..."}
+{"type": "progress", "message": "Processing batch 1/3... (10s elapsed, 3/8 files done)"}
+{"type": "progress", "message": "Processing batch 1/3... (20s elapsed, 6/8 files done)"}
+{"type": "progress", "message": "Completed 8/17 files"}
+{"type": "progress", "message": "Processing files batch 2/3 (9-16 of 17)..."}
+{"type": "progress", "message": "Processing batch 2/3... (10s elapsed, 4/8 files done)"}
+{"type": "progress", "message": "Completed 16/17 files"}
+{"type": "progress", "message": "Processing files batch 3/3 (17-17 of 17)..."}
+{"type": "progress", "message": "Completed 17/17 files"}
 {"type": "complete", "context": {extracted_context}}
 ```
+
+**Note:** Heartbeat messages only appear if batch processing takes longer than 10 seconds.
 
 #### 2. Backward-Compatible Wrapper: `extract_file_context_from_onyx`
 
@@ -117,16 +132,23 @@ async for update in extract_file_context_from_onyx_with_progress(file_ids_list, 
 - Could only process 1 batch before timeout
 
 **After:**
-- File extraction: 30-60 seconds WITH progress updates every 10-15 seconds
+- File extraction: 30-90 seconds WITH progress updates **every ~10 seconds maximum**
 - Frontend receives regular keep-alive packets with meaningful progress messages
-- No timeout issues
+- **Guaranteed heartbeat within 10-second intervals** prevents timeouts
+- No timeout issues even with 60-second limits
 - All batches complete successfully
 
 **Progress packet frequency:**
+- Initial extraction message
 - Before each batch starts
+- **Every 10 seconds during batch processing** (heartbeat with progress counter)
 - After each batch completes
-- For 10 files in batches of 8: ~4 progress updates over ~45 seconds
-- Keeps connection alive throughout the entire process
+- For 17 files in 3 batches: **10-15 progress updates** over ~60-90 seconds
+  - 1 initial message
+  - 3 batch start messages
+  - 3-6 heartbeat messages (depending on file processing speed)
+  - 3 batch completion messages
+- **Maximum gap between packets: 10 seconds** (ensures connection stays alive)
 
 ## Files Modified
 
@@ -149,27 +171,40 @@ Test with different file counts and sources to verify keep-alive packets are sen
 
 ### Regular File Uploads
 1. **1 file** - Should complete quickly, minimal progress updates
-2. **5 files** - Single batch, ~2-3 progress updates
-3. **10 files** - Two batches, ~4-5 progress updates
-4. **20+ files** - Multiple batches, progress updates every 10-15 seconds
+2. **5 files** - Single batch, 2-4 progress updates (batch start, possibly 1 heartbeat, batch complete)
+3. **10 files** - Two batches, 6-10 progress updates (includes heartbeats)
+4. **20+ files** - Multiple batches, progress updates every ~10 seconds maximum
 
-### SmartDrive Files
-1. **13 SmartDrive files** (as in user's logs) - Two batches, ~4-5 progress updates
+### SmartDrive Files  
+1. **17 SmartDrive files** (as in user's logs) - Three batches, 10-15 progress updates including heartbeats
 2. **Combined: Connectors + SmartDrive files** - Progress from both extraction phases
+
+### Expected Behavior
+- If batch completes in <10 seconds: Only batch start/complete messages
+- If batch takes 10-30 seconds: 1-2 heartbeat messages during processing
+- If batch takes 30-60 seconds: 3-5 heartbeat messages during processing
 
 Monitor the frontend console for progress packets:
 ```javascript
-{"type": "info", "message": "Processing files batch 1/3 (1-8 of 20)..."}
-{"type": "info", "message": "Completed 8/20 files"}
+{"type": "info", "message": "Extracting context from 17 files and 0 folders..."}
+{"type": "info", "message": "Processing files batch 1/3 (1-8 of 17)..."}
+{"type": "info", "message": "Processing batch 1/3... (10s elapsed, 3/8 files done)"}
+{"type": "info", "message": "Processing batch 1/3... (20s elapsed, 6/8 files done)"}
+{"type": "info", "message": "Completed 8/17 files"}
+{"type": "info", "message": "Processing files batch 2/3 (9-16 of 17)..."}
 // ... more progress updates
 ```
 
 Monitor backend logs for:
 ```
-[FILE_EXTRACTION_PROGRESS] Processing files batch 1/3 (1-8 of 20)...
-[FILE_EXTRACTION_PROGRESS] Completed 8/20 files
+[FILE_EXTRACTION_PROGRESS] Processing files batch 1/3 (1-8 of 17)...
+[FILE_CONTEXT_HEARTBEAT] Processing batch 1/3... (10s elapsed, 3/8 files done)
+[FILE_CONTEXT_HEARTBEAT] Processing batch 1/3... (20s elapsed, 6/8 files done)
+[FILE_EXTRACTION_PROGRESS] Completed 8/17 files
 [FILE_EXTRACTION_COMPLETE] Extracted context from files
 ```
+
+**Key verification:** No gap between log messages should exceed 10 seconds.
 
 ## Notes
 
