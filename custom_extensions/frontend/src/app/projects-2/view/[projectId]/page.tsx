@@ -71,6 +71,9 @@ export default function Projects2ViewPage() {
   
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
+  
+  // NEW: Track active text editor for TextSettings control
+  const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -619,7 +622,7 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -635,7 +638,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings />;
+          return <TextSettings activeEditor={activeTextEditor} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -839,6 +842,11 @@ export default function Projects2ViewPage() {
                           // Save to backend
                           saveVideoLessonData(updatedDeck);
                         }
+                      }}
+                      onEditorActive={(editor, field) => {
+                        console.log('✏️ Editor active:', { field, hasEditor: !!editor });
+                        setActiveTextEditor(editor);
+                        setActiveSettingsPanel('text');
                       }}
                       theme="default"
                       isVideoMode={true}

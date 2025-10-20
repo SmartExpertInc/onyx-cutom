@@ -3,7 +3,11 @@ import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
 
-export default function TextSettings() {
+interface TextSettingsProps {
+  activeEditor?: any | null; // TipTap Editor instance
+}
+
+export default function TextSettings({ activeEditor }: TextSettingsProps) {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [animationType, setAnimationType] = useState<'none' | 'fade' | 'slide' | 'grow'>('fade');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -37,6 +41,29 @@ export default function TextSettings() {
   const [positionY, setPositionY] = useState(0);
   const [width, setWidth] = useState(100);
   const [height, setHeight] = useState(100);
+
+  // Sync formatting state with active editor
+  useEffect(() => {
+    if (activeEditor) {
+      // Update button states based on current selection
+      setIsBold(activeEditor.isActive('bold'));
+      setIsItalic(activeEditor.isActive('italic'));
+      setIsUnderline(activeEditor.isActive('underline'));
+      setIsStrikethrough(activeEditor.isActive('strike'));
+      
+      // Get current text color
+      const currentColor = activeEditor.getAttributes('textStyle').color || '#000000';
+      setFontColor(currentColor);
+      
+      console.log('✏️ TextSettings synced with editor:', {
+        bold: activeEditor.isActive('bold'),
+        italic: activeEditor.isActive('italic'),
+        underline: activeEditor.isActive('underline'),
+        strike: activeEditor.isActive('strike'),
+        color: currentColor
+      });
+    }
+  }, [activeEditor]);
 
   // Refs for dropdowns
   const fontFamilyDropdownRef = useRef<HTMLDivElement>(null);
@@ -150,13 +177,17 @@ export default function TextSettings() {
             </svg>
           </div>
           {/* Text name */}
-          <span className="text-sm font-medium text-gray-700">Text</span>
+          <span className="text-sm font-medium text-gray-700">
+            {activeEditor ? 'Text Formatting' : 'Text (Select text to edit)'}
+          </span>
         </div>
         
-        {/* Remove button */}
-        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
-          Remove
-        </button>
+        {/* Status indicator */}
+        {activeEditor && (
+          <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+            Active
+          </div>
+        )}
       </div>
       
       {/* Tab buttons */}
@@ -232,10 +263,16 @@ export default function TextSettings() {
               <span className="text-sm font-medium text-gray-700">Font style</span>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setIsBold(!isBold)}
+                  onClick={() => {
+                    if (activeEditor) {
+                      activeEditor.chain().focus().toggleBold().run();
+                      setIsBold(activeEditor.isActive('bold'));
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    isBold ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  }`}
+                    activeEditor?.isActive('bold') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Bold"
                 >
                   <span className="font-bold text-sm">B</span>
@@ -245,10 +282,16 @@ export default function TextSettings() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setIsItalic(!isItalic)}
+                  onClick={() => {
+                    if (activeEditor) {
+                      activeEditor.chain().focus().toggleItalic().run();
+                      setIsItalic(activeEditor.isActive('italic'));
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    isItalic ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  }`}
+                    activeEditor?.isActive('italic') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Italic"
                 >
                   <span className="italic text-sm">I</span>
@@ -258,10 +301,16 @@ export default function TextSettings() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setIsUnderline(!isUnderline)}
+                  onClick={() => {
+                    if (activeEditor) {
+                      activeEditor.chain().focus().toggleUnderline().run();
+                      setIsUnderline(activeEditor.isActive('underline'));
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    isUnderline ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  }`}
+                    activeEditor?.isActive('underline') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Underline"
                 >
                   <span className="underline text-sm">U</span>
@@ -271,10 +320,16 @@ export default function TextSettings() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setIsStrikethrough(!isStrikethrough)}
+                  onClick={() => {
+                    if (activeEditor) {
+                      activeEditor.chain().focus().toggleStrike().run();
+                      setIsStrikethrough(activeEditor.isActive('strike'));
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-md border flex items-center justify-center transition-colors group relative ${
-                    isStrikethrough ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  }`}
+                    activeEditor?.isActive('strike') ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Strikethrough"
                 >
                   <span className="line-through text-sm">S</span>
@@ -532,7 +587,12 @@ export default function TextSettings() {
     <ColorPalettePopup
       isOpen={showFontColorPicker}
       onClose={() => setShowFontColorPicker(false)}
-      onColorChange={setFontColor}
+      onColorChange={(color) => {
+        setFontColor(color);
+        if (activeEditor) {
+          activeEditor.chain().focus().setColor(color).run();
+        }
+      }}
       selectedColor={fontColor}
       position={fontColorPickerPosition}
       recentColors={recentColors}
@@ -543,7 +603,11 @@ export default function TextSettings() {
     <ColorPalettePopup
       isOpen={showBackgroundColorPicker}
       onClose={() => setShowBackgroundColorPicker(false)}
-      onColorChange={setBackgroundColor}
+      onColorChange={(color) => {
+        setBackgroundColor(color);
+        // Background color for text is typically highlight, but TipTap doesn't have built-in highlight in our setup
+        // For now, we'll just track it in state
+      }}
       selectedColor={backgroundColor}
       position={backgroundColorPickerPosition}
       recentColors={recentColors}

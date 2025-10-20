@@ -120,3 +120,4 @@ The avatar position for the **impact-statements-slide** template has been update
 
 **Next Step:** Test video generation with an Impact Statements slide to verify the avatar alignment! 🎯
 
+

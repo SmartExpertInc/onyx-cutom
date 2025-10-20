@@ -5,6 +5,7 @@ import { AvatarSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -130,6 +131,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
+  onEditorActive?: (editor: any, field: string) => void;
 }> = ({
   title,
   subtitle,
@@ -139,7 +141,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   slideId,
   onUpdate,
   theme,
-  isEditable = false
+  isEditable = false,
+  onEditorActive
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -150,6 +153,11 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Editor refs for controlled editing
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const subtitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const contentEditorRef = useRef<ControlledWysiwygEditorRef>(null);
   
   useEffect(() => {
     return () => {
@@ -300,28 +308,27 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
           {/* Title - wrapped in draggable div */}
           <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
             {isEditable && editingTitle ? (
-              <InlineEditor
+              <ControlledWysiwygEditor
+                ref={titleEditorRef}
                 initialValue={title || ''}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
-                multiline={true}
                 placeholder="Enter slide title..."
                 className="inline-editor-title"
                 style={{
                   ...titleStyles,
                   margin: '0',
                   padding: '8px 12px',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '4px'
+                  lineHeight: '1.2'
                 }}
+                onEditorReady={(editor) => onEditorActive?.(editor, 'title')}
               />
             ) : (
               <h1 
@@ -338,9 +345,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {title || 'Клиентский сервис -'}
-              </h1>
+                dangerouslySetInnerHTML={{ __html: title || 'Клиентский сервис -' }}
+              />
             )}
           </div>
 
@@ -348,28 +354,27 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
           {subtitle && (
             <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
               {isEditable && editingSubtitle ? (
-                <InlineEditor
+                <ControlledWysiwygEditor
+                  ref={subtitleEditorRef}
                   initialValue={subtitle}
                   onSave={handleSubtitleSave}
                   onCancel={handleSubtitleCancel}
-                  multiline={true}
                   placeholder="Enter subtitle..."
                   className="inline-editor-subtitle"
                   style={{
                     ...subtitleStyles,
                     margin: '0',
                     padding: '8px 12px',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
                     wordWrap: 'break-word',
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
                     display: 'block',
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '4px'
+                    lineHeight: '1.6'
                   }}
+                  onEditorReady={(editor) => onEditorActive?.(editor, 'subtitle')}
                 />
               ) : (
                 <h2 
@@ -386,9 +391,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                     }
                   }}
                   className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {subtitle}
-                </h2>
+                  dangerouslySetInnerHTML={{ __html: subtitle }}
+                />
               )}
             </div>
           )}
@@ -397,31 +401,30 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
           {content && (
             <div data-draggable="true" style={{ display: 'block', width: '100%' }}>
               {isEditable && editingContent ? (
-                <InlineEditor
+                <ControlledWysiwygEditor
+                  ref={contentEditorRef}
                   initialValue={content}
                   onSave={handleContentSave}
                   onCancel={handleContentCancel}
-                  multiline={true}
                   placeholder="Enter content..."
                   className="inline-editor-content"
                   style={{
                     ...contentStyles,
                     margin: '0',
                     padding: '8px 12px',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
                     wordWrap: 'break-word',
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
                     display: 'block',
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '4px'
+                    lineHeight: '1.6'
                   }}
+                  onEditorReady={(editor) => onEditorActive?.(editor, 'content')}
                 />
               ) : (
-                <p 
+                <div 
                   style={contentStyles}
                   onClick={(e) => {
                     const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
@@ -435,9 +438,8 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                     }
                   }}
                   className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {content}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: content }}
+                />
               )}
             </div>
           )}
