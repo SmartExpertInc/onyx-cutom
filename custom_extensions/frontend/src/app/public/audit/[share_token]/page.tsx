@@ -73,6 +73,7 @@ interface LandingPageData {
   courseOutlineModules: Array<{
     title: string
     lessons: string[]
+    lessonAssessments?: Array<{ type: string; duration: string }>
   }>
   courseTemplates: Array<{
     title: string
