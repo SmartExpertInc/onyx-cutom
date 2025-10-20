@@ -806,38 +806,9 @@ const BackgroundSVG = () => (
 
 export const EmptyConnectors = () => (
   <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-    <div className="relative mt-8" style={{ borderBottom: '1px solid #EEEEF0' }}>
+    <div className="relative mt-8">
       {/* Background SVG */}
       <BackgroundSVG />
-
-      {/* Connector icons - TEMPORARILY COMMENTED OUT */}
-      {/* <div className="absolute" style={{ top: '65px', left: '210px' }}>
-        <GoogleDriveIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '270px', left: '370px' }}>
-        <NotionIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '180px', left: '530px' }}>
-        <SlackIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '140px', left: '640px' }}>
-        <GitHubIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '190px', left: '760px' }}>
-        <SalesforceIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '65px', left: '520px' }}>
-        <HubSpotIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '230px', left: '880px' }}>
-        <ZendeskIcon />
-      </div> */}
     </div>
 
     {/* Title below SVG */}

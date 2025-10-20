@@ -11,8 +11,7 @@ import Link from "next/link";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { ImportCard, UploadFileIcon, KnowledgeBaseIcon, ImportURLIcon } from "@/components/ui/import-card";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import { EmptySmartDrive } from "@/components/EmptySmartDrive";
-import { EmptyConnectors } from "@/components/EmptyConnectors";
+import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -123,7 +122,6 @@ export default function FromFilesNew() {
   const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'smartdrive' | 'connectors'>('smartdrive');
   const [urls, setUrls] = useState(['']);
 
   const handleAddUrl = () => {
@@ -361,55 +359,10 @@ export default function FromFilesNew() {
               Select a file
             </h2>
 
-            {/* Tab buttons */}
-            <div className="flex mb-6">
-              <button 
-                onClick={() => setActiveTab('smartdrive')}
-                className="flex items-center gap-2 px-4 py-2 relative"
-                style={{
-                  borderBottom: activeTab === 'smartdrive' ? '3px solid #719AF5' : '3px solid #71717ACC',
-                }}
-              >
-                <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14.3333 5.99935H1M14.3333 5.99935V9.99935C14.3333 10.353 14.1929 10.6921 13.9428 10.9422C13.6928 11.1922 13.3536 11.3327 13 11.3327H2.33333C1.97971 11.3327 1.64057 11.1922 1.39052 10.9422C1.14048 10.6921 1 10.353 1 9.99935V5.99935M14.3333 5.99935L12.0333 1.40602C11.9229 1.18387 11.7528 0.99693 11.542 0.866202C11.3312 0.735474 11.0881 0.666147 10.84 0.666016H4.49333C4.24528 0.666147 4.00218 0.735474 3.79136 0.866202C3.58055 0.99693 3.41038 1.18387 3.3 1.40602L1 5.99935M3.66667 8.66602H3.67333M6.33333 8.66602H6.34" 
-                    stroke={activeTab === 'smartdrive' ? '#719AF5' : '#71717ACC'} 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span 
-                  className="text-sm"
-                  style={{ color: activeTab === 'smartdrive' ? '#719AF5' : '#71717ACC' }}
-                >
-                  Smart Drive
-                </span>
-              </button>
-
-              <button 
-                onClick={() => setActiveTab('connectors')}
-                className="flex items-center gap-2 px-4 py-2 relative"
-                style={{
-                  borderBottom: activeTab === 'connectors' ? '3px solid #719AF5' : '3px solid #71717ACC',
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3.66667 6.33333V9C3.66667 9.35362 3.80714 9.69276 4.05719 9.94281C4.30724 10.1929 4.64638 10.3333 5 10.3333H7.66667M2.33333 1H5C5.73638 1 6.33333 1.59695 6.33333 2.33333V5C6.33333 5.73638 5.73638 6.33333 5 6.33333H2.33333C1.59695 6.33333 1 5.73638 1 5V2.33333C1 1.59695 1.59695 1 2.33333 1ZM9 7.66667H11.6667C12.403 7.66667 13 8.26362 13 9V11.6667C13 12.403 12.403 13 11.6667 13H9C8.26362 13 7.66667 12.403 7.66667 11.6667V9C7.66667 8.26362 8.26362 7.66667 9 7.66667Z" 
-                    stroke={activeTab === 'connectors' ? '#719AF5' : '#71717ACC'} 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span 
-                  className="text-sm"
-                  style={{ color: activeTab === 'connectors' ? '#719AF5' : '#71717ACC' }}
-                >
-                  Connectors
-                </span>
-              </button>
+            {/* SmartDrive Connectors Component */}
+            <div className="flex-1 overflow-hidden">
+              <SmartDriveConnectors mode="select" />
             </div>
-
-            {/* Tab content */}
-            {activeTab === 'smartdrive' ? <EmptySmartDrive /> : <EmptyConnectors />}
 
             {/* Action buttons */}
             <div className="flex justify-end gap-3 mt-6">

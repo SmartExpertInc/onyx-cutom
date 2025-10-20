@@ -56,6 +56,8 @@ interface UserConnector {
 
 interface SmartDriveConnectorsProps {
   className?: string;
+  mode?: 'full' | 'select'; // 'select' mode hides upload/folder creation buttons
+  onFileSelect?: (files: any[]) => void; // Callback when files are selected
 }
 
 // Helper function to determine actual connector status (based on Onyx's logic)
@@ -72,10 +74,11 @@ const getActualConnectorStatus = (connectorStatus: any): string => {
   }
 };
 
-const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '' }) => {
+const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className = '', mode = 'full', onFileSelect }) => {
   console.log('[POPUP_DEBUG] SmartDriveConnectors component rendering');
   
   const { t } = useLanguage();
+  const isSelectMode = mode === 'select';
   const [showFrame, setShowFrame] = useState(false);
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
@@ -816,12 +819,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           <div className="flex gap-2">
             
               <div className="flex items-center gap-2">
-                {activeTab === 'smart-drive' && (
+                {activeTab === 'smart-drive' && !isSelectMode && (
                   <Button variant="outline" onClick={onUploadClick} disabled={busy} className="rounded-md text-[#0D001B] bg-white border border-[#0D001B] hover:border-gray-900 cursor-pointer hover:bg-gray-50">
                     <Upload className="w-4 h-4 mr-2"/>Upload
                   </Button>)}
                   <input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
-                {activeTab === 'smart-drive' && ( 
+                {activeTab === 'smart-drive' && !isSelectMode && ( 
                   <Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="rounded-md bg-white border text-[#0D001B] border-[#0D001B] cursor-pointer hover:border-gray-900 hover:bg-gray-50">
                     <FolderPlus className="w-4 h-4 mr-2"/>Add Folder
                   </Button>
@@ -977,10 +980,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                         </div>
                         
                         {/* Buy more storage button */}
-                        <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Buy more storage
-                        </Button>
+                        {!isSelectMode && (
+                          <Button className="bg-[#719AF5] hover:bg-[#5a8ae8] cursor-pointer text-white flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium" onClick={() => setShowAddonsModal(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Buy more storage
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1037,14 +1042,16 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   <span className="text-[#797979] pr-4 text-xs">
                     {entitlements.connectors_used}/{entitlements.connectors_limit} used
                   </span>
-                  <Button 
-                    className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-full" 
-                    size="sm" 
-                    onClick={() => setShowAddonsModal(true)}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Buy more connectors
-                  </Button>
+                  {!isSelectMode && (
+                    <Button 
+                      className="bg-[#719AF5] px-4 py-3 cursor-pointer text-white rounded-full" 
+                      size="sm" 
+                      onClick={() => setShowAddonsModal(true)}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Buy more connectors
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
