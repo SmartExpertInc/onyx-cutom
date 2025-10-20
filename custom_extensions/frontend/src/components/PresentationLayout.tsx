@@ -64,34 +64,6 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     onSave(updatedDeck);
   };
 
-  const getSlidePreviewContent = (slide: ComponentBasedSlide) => {
-    // For component-based slides, extract title and content from props
-    const title = slide.props?.title || slide.props?.headline || `Slide ${slide.slideNumber}`;
-    
-    // Extract content from props (look for common content fields)
-    const contentFields = ['content', 'description', 'subtitle', 'text'];
-    let content = '';
-    
-    for (const field of contentFields) {
-      if (slide.props?.[field]) {
-        const fieldContent = slide.props[field];
-        if (typeof fieldContent === 'string') {
-          content = fieldContent.substring(0, 100) + '...';
-          break;
-        } else if (Array.isArray(fieldContent)) {
-          content = fieldContent.slice(0, 2).join(' • ') + '...';
-          break;
-        }
-      }
-    }
-    
-    if (!content) {
-      content = 'Slide content...';
-    }
-
-    return { title, content };
-  };
-
   if (!deck || !deck.slides || deck.slides.length === 0) {
     return (
       <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
@@ -105,16 +77,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       {/* Left Sidebar - Slide Thumbnails */}
       <div className="w-80 bg-[#EEEEEE] border-r border-gray-200 flex flex-col">
           {/* Add New Slide Button */}
-          <button className="w-full flex items-center justify-center gap-2 bg-white text-[#71717A] text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus size={16} />
-            <span>Add new card</span>
-            <ChevronDown size={16} />
-          </button>
-
+          <div className="p-4">
+            <button className="w-full flex items-center justify-center gap-2 bg-white text-[#71717A] text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <Plus size={16} />
+                <span>Add new card</span>
+                <ChevronDown size={16} />
+            </button>
+          </div>
         {/* Slide Thumbnails */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 sidebar-scroll">
           {deck.slides.map((slide, index) => {
-            const previewContent = getSlidePreviewContent(slide);
             const isActive = slide.slideId === selectedSlideId;
             
             return (
@@ -126,35 +98,22 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 onClick={() => handleSlideSelect(slide.slideId, index)}
               >
                 {/* Slide Number Badge */}
-                <div className="absolute bottom-2 left-2 text-[#71717A] text-2xl font-bold w-10 h-10 rounded-[10px] flex items-center justify-center z-10 slide-number-badge">
+                <div className="absolute bottom-2 left-2 text-[#71717A] text-xl font-bold w-8 h-8 rounded-[8px] flex items-center justify-center z-10 slide-number-badge">
                   {index + 1}
                 </div>
                 
-                {/* Slide Preview Card */}
+                {/* Slide Preview Card with actual slide rendering */}
                 <div className={`slide-preview-card rounded-sm overflow-hidden transition-all duration-200 ${
                   isActive ? 'active' : ''
                 }`}>
-                  
-                  {/* Slide content preview */}
-                  <div className="p-4 bg-gradient-to-br from-gray-50 to-white">
-                    <div className="space-y-2">
-                      <div className="text-sm font-bold text-gray-800 line-clamp-2 leading-tight">
-                        {previewContent.title}
-                      </div>
-                      <div className="text-xs text-gray-600 line-clamp-3 leading-relaxed">
-                        {previewContent.content}
-                      </div>
-                    </div>
-                    
-                    {/* Template indicator */}
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs text-gray-400 font-medium">
-                        {slide.templateId?.replace('-slide', '') || 'Template'}
-                      </span>
-                      {isActive && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      )}
-                    </div>
+                  {/* Mini slide rendering */}
+                  <div className="slide-mini-preview" style={{ aspectRatio: '16/9' }}>
+                    <ComponentBasedSlideRenderer
+                      slide={slide}
+                      isEditable={false}
+                      onSlideUpdate={() => {}}
+                      theme={theme}
+                    />
                   </div>
                 </div>
               </div>
@@ -167,7 +126,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Scrollable Slides Container */}
         <div 
-          className="flex-1 overflow-x-auto overflow-y-hidden snap-x snap-mandatory slides-horizontal-scroll"
+          className="flex-1 overflow-y-auto overflow-x-hidden snap-x snap-mandatory slides-horizontal-scroll"
           ref={scrollContainerRef}
           onScroll={(e) => {
             const container = e.currentTarget;
@@ -198,15 +157,6 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-        
-        {/* Slide Counter */}
-        <div className="flex items-center justify-center py-4 bg-gray-50">
-          <div className="slide-counter px-4 py-2 rounded-full">
-            <span className="text-sm font-medium text-gray-600">
-              Slide {activeSlideIndex + 1} of {deck.slides.length}
-            </span>
           </div>
         </div>
       </div>

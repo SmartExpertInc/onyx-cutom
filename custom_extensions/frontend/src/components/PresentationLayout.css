@@ -28,6 +28,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 2px solid transparent;
   background-clip: padding-box;
+  overflow: hidden;
 }
 
 .slide-preview-card.active {
@@ -37,6 +38,20 @@
 
 .slide-preview-card:hover {
   border-color: #93c5fd;
+}
+
+.slide-mini-preview {
+  width: 100%;
+  height: auto;
+  transform-origin: top left;
+  pointer-events: none;
+  user-select: none;
+  background: white;
+}
+
+.slide-mini-preview * {
+  pointer-events: none;
+  user-select: none;
 }
 
 .main-slide-container {
