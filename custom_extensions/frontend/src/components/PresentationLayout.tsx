@@ -126,7 +126,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Scrollable Slides Container */}
         <div 
-          className="flex-1 overflow-y-auto overflow-x-hidden snap-x snap-mandatory slides-horizontal-scroll"
+          className="flex-1 overflow-y-auto overflow-x-hidden snap-x slides-horizontal-scroll"
           ref={scrollContainerRef}
           onScroll={(e) => {
             const container = e.currentTarget;
@@ -142,7 +142,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
             {deck.slides.map((slide, index) => (
               <div
                 key={slide.slideId}
-                className="snap-center flex items-center justify-center p-6"
+                className="flex items-center justify-center p-6"
                 style={{ width: `${100 / deck.slides.length}%` }}
               >
                 <div className="w-full max-w-7xl">

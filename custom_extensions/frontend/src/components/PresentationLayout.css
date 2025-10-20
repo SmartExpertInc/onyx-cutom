@@ -254,7 +254,6 @@
 /* Horizontal Scrollable Slides Viewer */
 .slides-horizontal-scroll {
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
 }
 
 .slides-horizontal-scroll::-webkit-scrollbar {
