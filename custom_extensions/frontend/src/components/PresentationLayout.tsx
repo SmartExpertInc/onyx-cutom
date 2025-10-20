@@ -38,6 +38,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const handleSlideSelect = (slideId: string, index: number) => {
     setSelectedSlideId(slideId);
     setActiveSlideIndex(index);
+    
+    // Auto-scroll the selected slide into view in both horizontal scroll containers
+    const scrollContainers = document.querySelectorAll('.slide-scroll-container');
+    scrollContainers.forEach((container) => {
+      const slideElements = container.querySelectorAll('.slide-scroll-item');
+      const selectedElement = slideElements[index] as HTMLElement;
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    });
   };
 
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
@@ -94,28 +104,13 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   return (
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Slides</h3>
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <FileText size={16} className="text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Clipboard size={16} className="text-gray-600" />
-              </button>
-            </div>
-          </div>
-          
+      <div className="w-80 bg-[#EEEEEE] border-r border-gray-200 flex flex-col">
           {/* Add New Slide Button */}
-          <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          <button className="w-full flex items-center justify-center gap-2 bg-white text-[#71717A] text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             <Plus size={16} />
             <span>Add new card</span>
             <ChevronDown size={16} />
           </button>
-        </div>
 
         {/* Slide Thumbnails */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 sidebar-scroll">
@@ -132,16 +127,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 onClick={() => handleSlideSelect(slide.slideId, index)}
               >
                 {/* Slide Number Badge */}
-                <div className="absolute -top-2 -left-2 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center z-10 slide-number-badge">
+                <div className="absolute bottom-2 left-2 text-[#71717A] text-2xl font-bold w-10 h-10 rounded-[10px] flex items-center justify-center z-10 slide-number-badge">
                   {index + 1}
                 </div>
                 
                 {/* Slide Preview Card */}
-                <div className={`slide-preview-card rounded-xl overflow-hidden transition-all duration-200 ${
+                <div className={`slide-preview-card rounded-sm overflow-hidden transition-all duration-200 ${
                   isActive ? 'active' : ''
                 }`}>
-                  {/* Card Header with gradient */}
-                  <div className="h-2 gradient-header"></div>
                   
                   {/* Slide content preview */}
                   <div className="p-4 bg-gradient-to-br from-gray-50 to-white">
@@ -173,33 +166,35 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Top Navigation Bar */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                {deck.lessonTitle || 'Presentation'}
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <span>16:9</span>
-                <span>•</span>
-                <span>{deck.slides.length} slides</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                <span>AI Improve</span>
-              </button>
-              <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                <span>Export</span>
-              </button>
+        {/* Top Scrollable Slide Strip */}
+        <div className="px-6 pt-6">
+          <div className="slide-scroll-container">
+            <div className="slide-scroll-content">
+              {deck.slides.map((slide, index) => {
+                const previewContent = getSlidePreviewContent(slide);
+                const isActive = index === activeSlideIndex;
+                
+                return (
+                  <button
+                    key={`top-${slide.slideId}`}
+                    onClick={() => handleSlideSelect(slide.slideId, index)}
+                    className={`slide-scroll-item ${isActive ? 'active' : ''}`}
+                  >
+                    <div className="slide-scroll-number">{index + 1}</div>
+                    <div className="slide-scroll-preview">
+                      <div className="slide-scroll-title">{previewContent.title}</div>
+                      <div className="slide-scroll-subtitle">{slide.templateId?.replace('-slide', '') || 'Template'}</div>
+                    </div>
+                    {isActive && <div className="slide-scroll-indicator"></div>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Main Slide Display */}
-        <div className="flex-1 p-6 bg-gray-100 flex items-center justify-center">
+        <div className="flex-1 p-6 flex items-center justify-center">
           <div className="w-full max-w-7xl">
             {/* Slide Container with Professional Styling */}
             <div className="relative">
@@ -214,57 +209,39 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 )}
               </div>
               
-              {/* Slide Navigation Controls */}
-              <div className="flex items-center justify-center mt-8 gap-6">
-                <button
-                  onClick={() => {
-                    const prevIndex = (activeSlideIndex - 1 + deck.slides.length) % deck.slides.length;
-                    const prevSlide = deck.slides[prevIndex];
-                    handleSlideSelect(prevSlide.slideId, prevIndex);
-                  }}
-                  disabled={deck.slides.length <= 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl navigation-button disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft size={18} className="text-gray-700" />
-                  <span className="text-sm font-medium text-gray-700">Previous</span>
-                </button>
-                
-                {/* Slide Dots Indicator */}
-                <div className="flex items-center gap-3 px-6 py-3 rounded-full slide-dots-container">
-                  {deck.slides.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        const slide = deck.slides[index];
-                        handleSlideSelect(slide.slideId, index);
-                      }}
-                      className={`w-3 h-3 rounded-full slide-dot ${
-                        index === activeSlideIndex ? 'active bg-blue-600' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
+              {/* Scrollable Slide Thumbnails Strip */}
+              <div className="mt-8">
+                <div className="slide-scroll-container" ref={scrollContainerRef}>
+                  <div className="slide-scroll-content">
+                    {deck.slides.map((slide, index) => {
+                      const previewContent = getSlidePreviewContent(slide);
+                      const isActive = index === activeSlideIndex;
+                      
+                      return (
+                        <button
+                          key={slide.slideId}
+                          onClick={() => handleSlideSelect(slide.slideId, index)}
+                          className={`slide-scroll-item ${isActive ? 'active' : ''}`}
+                        >
+                          <div className="slide-scroll-number">{index + 1}</div>
+                          <div className="slide-scroll-preview">
+                            <div className="slide-scroll-title">{previewContent.title}</div>
+                            <div className="slide-scroll-subtitle">{slide.templateId?.replace('-slide', '') || 'Template'}</div>
+                          </div>
+                          {isActive && <div className="slide-scroll-indicator"></div>}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 
-                <button
-                  onClick={() => {
-                    const nextIndex = (activeSlideIndex + 1) % deck.slides.length;
-                    const nextSlide = deck.slides[nextIndex];
-                    handleSlideSelect(nextSlide.slideId, nextIndex);
-                  }}
-                  disabled={deck.slides.length <= 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl navigation-button disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="text-sm font-medium text-gray-700">Next</span>
-                  <ChevronRight size={18} className="text-gray-700" />
-                </button>
-              </div>
-              
-              {/* Slide Counter */}
-              <div className="flex items-center justify-center mt-4">
-                <div className="slide-counter px-4 py-2 rounded-full">
-                  <span className="text-sm font-medium text-gray-600">
-                    Slide {activeSlideIndex + 1} of {deck.slides.length}
-                  </span>
+                {/* Slide Counter */}
+                <div className="flex items-center justify-center mt-4">
+                  <div className="slide-counter px-4 py-2 rounded-full">
+                    <span className="text-sm font-medium text-gray-600">
+                      Slide {activeSlideIndex + 1} of {deck.slides.length}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
