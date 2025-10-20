@@ -14145,6 +14145,10 @@ async def stream_slide_deck_pdf_generation(
                 yield f"data: {json.dumps({'error': 'Invalid slide deck content'})}\n\n"
                 return
 
+            # Extract templateVersion from content for version-aware PDF rendering
+            deck_template_version = content_json.get('templateVersion') or content_json.get('template_version') or 'v1'
+            logger.info(f"🎯 STREAMING PDF - Extracted templateVersion from content: {deck_template_version}")
+            
             # Prepare slide deck data
             slide_deck_data = {
                 'slides': content_json.get('slides', []),
@@ -14167,11 +14171,13 @@ async def stream_slide_deck_pdf_generation(
             import asyncio
             
             # Start PDF generation in background and send periodic updates
+            # CRITICAL FIX: Pass deck_template_version for version-aware rendering
             pdf_task = asyncio.create_task(generate_slide_deck_pdf_with_dynamic_height(
                 slides_data=slide_deck_data['slides'],
                 theme=theme,
                 output_filename=unique_output_filename,
-                use_cache=True
+                use_cache=True,
+                deck_template_version=deck_template_version  # ← Pass version for v1/v2 template selection
             ))
             
             # Send progress updates while PDF is generating
