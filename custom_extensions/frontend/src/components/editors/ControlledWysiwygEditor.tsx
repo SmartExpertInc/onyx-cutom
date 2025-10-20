@@ -4,7 +4,6 @@
 import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 
@@ -53,7 +52,6 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           codeBlock: false,
           horizontalRule: false,
         }),
-        Underline,
         TextStyle,
         Color,
       ],
@@ -102,7 +100,20 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       };
     }, [editor, onCancel]);
 
-    const handleBlur = () => {
+    const handleBlur = (e: React.FocusEvent) => {
+      // Don't save if focus is moving to a button or control element
+      const relatedTarget = e.relatedTarget as HTMLElement;
+      
+      // Check if we're focusing a formatting button or control
+      if (relatedTarget && (
+        relatedTarget.closest('[data-textsettings-panel]') ||
+        relatedTarget.tagName === 'BUTTON' ||
+        relatedTarget.closest('button')
+      )) {
+        console.log('⚠️ Blur prevented - focusing control element');
+        return; // Don't save, keep editor open
+      }
+      
       if (editor) {
         const html = editor.getHTML();
         const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');

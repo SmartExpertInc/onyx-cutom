@@ -170,7 +170,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
   return (
     <>
-      <div className={`bg-white rounded-lg border border-gray-200 h-fit flex flex-col`}>
+      <div className={`bg-white rounded-lg border border-gray-200 h-fit flex flex-col`} data-textsettings-panel="true">
       {/* Header with grey background */}
       <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 flex-shrink-0`}>
         <div className="flex items-center space-x-2">
@@ -267,6 +267,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
               <span className="text-sm font-medium text-gray-700">Font style</span>
               <div className="flex space-x-2">
                 <button
+                  onMouseDown={(e) => e.preventDefault()} 
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
@@ -290,6 +291,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   </div>
                 </button>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
@@ -313,6 +315,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   </div>
                 </button>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
@@ -336,6 +339,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   </div>
                 </button>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                       try {
