@@ -38,6 +38,7 @@ export default function UploadFilesPage() {
   React.useEffect(() => {
     const storedFiles = localStorage.getItem('uploadedFiles');
     const pendingFiles = (window as any).pendingUploadFiles;
+    const persistedFiles = localStorage.getItem('currentUploadedFiles');
 
     if (storedFiles && pendingFiles) {
       const filesMetadata = JSON.parse(storedFiles);
@@ -81,8 +82,36 @@ export default function UploadFilesPage() {
       // Clear the temporary storage
       localStorage.removeItem('uploadedFiles');
       delete (window as any).pendingUploadFiles;
+    } else if (persistedFiles) {
+      // Restore files from page reload
+      try {
+        const parsedFiles = JSON.parse(persistedFiles);
+        const restoredFiles: UploadedFile[] = parsedFiles.map((fileData: any) => ({
+          id: fileData.id,
+          name: fileData.name,
+          extension: fileData.extension,
+          file: new File([], fileData.name + fileData.extension),
+        }));
+        setUploadedFiles(restoredFiles);
+      } catch (error) {
+        console.error('Failed to restore files:', error);
+      }
     }
   }, []);
+
+  // Persist files to localStorage whenever they change
+  React.useEffect(() => {
+    if (uploadedFiles.length > 0) {
+      const filesMetadata = uploadedFiles.map(file => ({
+        id: file.id,
+        name: file.name,
+        extension: file.extension,
+      }));
+      localStorage.setItem('currentUploadedFiles', JSON.stringify(filesMetadata));
+    } else {
+      localStorage.removeItem('currentUploadedFiles');
+    }
+  }, [uploadedFiles]);
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
@@ -129,6 +158,9 @@ export default function UploadFilesPage() {
     if (typeof window !== 'undefined') {
       (window as any).generatedFiles = uploadedFiles;
     }
+    
+    // Clean up persisted files since we're navigating away
+    localStorage.removeItem('currentUploadedFiles');
     
     // Navigate to generate page with fromUploadedFiles parameter
     router.push('/create/generate?fromUploadedFiles=true');
