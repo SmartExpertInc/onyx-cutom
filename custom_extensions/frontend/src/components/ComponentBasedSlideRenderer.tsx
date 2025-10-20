@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
-import { getTemplate } from './templates/registry';
+import { getTemplateResolved } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import HybridTemplateBase from './templates/base/HybridTemplateBase';
 
@@ -12,7 +12,9 @@ interface ComponentBasedSlideRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -21,10 +23,24 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   onSlideUpdate,
   onTemplateChange,
   theme,
-  getPlaceholderGenerationState
+  deckTemplateVersion,
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
-  const template = getTemplate(slide.templateId);
-  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
+  const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
+  const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
+
+  // Debug logging for version resolution (enable with window.__DEBUG_SLIDE_VERSIONS__ = true)
+  if (typeof window !== 'undefined' && (window as any).__DEBUG_SLIDE_VERSIONS__) {
+    console.log('🔍 Slide Version Debug:', {
+      slideId: slide.slideId,
+      originalTemplateId: slide.templateId,
+      deckTemplateVersion,
+      resolvedTemplateId: template?.id,
+      templateFound: !!template,
+      templateName: template?.name
+    });
+  }
 
   // Handle template prop updates
   const handlePropsUpdate = (newProps: any) => {
@@ -131,6 +147,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           isEditable={isEditable}
           onUpdate={handlePropsUpdate}
           onSlideUpdate={onSlideUpdate}
+          isVideoMode={isVideoMode}
         >
           <TemplateComponent {...templateProps} />
         </HybridTemplateBase>
@@ -164,7 +181,9 @@ interface ComponentBasedSlideDeckRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
+  isVideoMode?: boolean; // Flag for video editor mode
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -174,7 +193,9 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   onSlideUpdate,
   onTemplateChange,
   theme,
-  getPlaceholderGenerationState
+  deckTemplateVersion,
+  getPlaceholderGenerationState,
+  isVideoMode = false
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -204,7 +225,9 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
             theme={theme}
+            deckTemplateVersion={deckTemplateVersion}
             getPlaceholderGenerationState={getPlaceholderGenerationState}
+            isVideoMode={isVideoMode}
           />
         </div>
       ))}

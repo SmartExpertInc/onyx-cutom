@@ -675,10 +675,10 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 **MANDATORY LENGTH & CONTENT DENSITY FOR ONE-PAGERS:**
 - The assistant MUST always follow the user's selected length (short, medium, long) for the one-pager.
 - Each length corresponds to a minimum word count:
-    - Short: at least 250 words
-    - Medium: at least 400 words
-    - Long: at least 1000 words
-- **WARNING:** Any long one-pager under 1000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
+    - Short: at least 500 words
+    - Medium: at least 800 words
+    - Long: at least 2000 words
+- **WARNING:** Any long one-pager under 2000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
 - The assistant should use the full expected word count for the chosen length and err on the side of providing more content, not less.
 - Overly brief or sparse one-pagers are non-compliant. Each section should be well-developed and detailed.
 - If in doubt, make the one-pager longer and more comprehensive, not shorter.
@@ -698,7 +698,7 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 1000 words. If the draft is under 1000 words, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
@@ -766,9 +766,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -788,9 +788,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 250 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 400 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 1000 words**
+- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
+- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
+- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
@@ -2322,10 +2322,10 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 **MANDATORY LENGTH & CONTENT DENSITY FOR ONE-PAGERS:**
 - The assistant MUST always follow the user's selected length (short, medium, long) for the one-pager.
 - Each length corresponds to a minimum word count:
-    - Short: at least 250 words
-    - Medium: at least 400 words
-    - Long: at least 1000 words
-- **WARNING:** Any long one-pager under 1000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
+    - Short: at least 500 words
+    - Medium: at least 800 words
+    - Long: at least 2000 words
+- **WARNING:** Any long one-pager under 2000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
 - The assistant should use the full expected word count for the chosen length and err on the side of providing more content, not less.
 - Overly brief or sparse one-pagers are non-compliant. Each section should be well-developed and detailed.
 - If in doubt, make the one-pager longer and more comprehensive, not shorter.
@@ -2345,7 +2345,7 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 1000 words. If the draft is under 1000 words, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
@@ -2413,9 +2413,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -2435,9 +2435,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 250 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 400 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 1000 words**
+- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
+- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
+- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
@@ -3969,10 +3969,10 @@ C. If the User Wants to Create a TEXT PRESENTATION:
 **MANDATORY LENGTH & CONTENT DENSITY FOR ONE-PAGERS:**
 - The assistant MUST always follow the user's selected length (short, medium, long) for the one-pager.
 - Each length corresponds to a minimum word count:
-    - Short: at least 250 words
-    - Medium: at least 400 words
-    - Long: at least 1000 words
-- **WARNING:** Any long one-pager under 1000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
+    - Short: at least 500 words
+    - Medium: at least 800 words
+    - Long: at least 2000 words
+- **WARNING:** Any long one-pager under 2000 words is non-compliant and will be rejected. The assistant must check the word count before output and add more examples, details, and grouped points as needed to reach the required length.
 - The assistant should use the full expected word count for the chosen length and err on the side of providing more content, not less.
 - Overly brief or sparse one-pagers are non-compliant. Each section should be well-developed and detailed.
 - If in doubt, make the one-pager longer and more comprehensive, not shorter.
@@ -3992,7 +3992,7 @@ Determine Language:
 - Only if no specific language is provided, use the current interaction language. This becomes the "active language".
 - The language field in wizard requests takes absolute precedence over any language detected in the prompt text.
 
-Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 1000 words. If the draft is under 1000 words, add more examples, details, and grouped points until the requirement is met.**
+Determine Length: Use the "length" parameter if provided (short, medium, long), otherwise default to "medium". **If 'long' is selected, the output MUST be at least 2000 words. If 'medium' is selected, the output MUST be at least 800 words. If 'short' is selected, the output MUST be at least 500 words. If the draft is under the required word count, add more examples, details, and grouped points until the requirement is met.**
 
 Determine Allowed Styles: Use the "styles" parameter if provided (comma-separated list of: headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections), otherwise use all available styles.
 
@@ -4060,9 +4060,9 @@ Required Section Order (adapt as appropriate to topic and length):
 - Reflection Prompts
 
 Compliance Rules:
-- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
-- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
-- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Long length requires: at least 2000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥800 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥500 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
 - Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
 
 Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
@@ -4082,9 +4082,9 @@ Text Presentation & Readability:
 - Do NOT represent tables as lists or paragraphs if the 'tables' style is selected.
 
 Length Guidelines:
-- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 250 words**
-- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 400 words**
-- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 1000 words**
+- Short: Focus on key points only, 2-3 main sections, concise content, **minimum 500 words**
+- Medium: Balanced coverage, 3-4 main sections, moderate detail, **minimum 800 words**
+- Long: Comprehensive coverage, 4+ main sections, detailed explanations, **minimum 2000 words**
 
 Style Usage Guidelines:
 - Only use the styles specified in the "styles" parameter
@@ -4345,11 +4345,6 @@ For Ukrainian:
 
 Blank Lines Between Lessons: Ensure EXACTLY one blank line after all details of one lesson before starting the next lesson title (or before a new module separator --- if it's the last lesson of a module).
 
-For LESSON PRESENTATION (SLIDE DECK):
-Universal Product Header: **[Project Name]** : **Lesson Presentation** : **[Lesson Title]**
-(Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
-(IMMEDIATELY FOLLOWED BY EXACTLY TWO BLANK LINES)
-
 For VIDEO LESSON SLIDES DECK (with voiceover):
 Universal Product Header: **[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**
 (Note: The [Lesson Title] here must exactly match the name of the lesson as defined in the Course Outline or by the user.)
@@ -4375,13 +4370,6 @@ You are creating high-quality educational presentations designed to teach, engag
 - **Practical Application**: Include real-world examples, use cases, and actionable insights
 - **Visual Learning**: Use strategic image placeholders to enhance comprehension
 - **Engagement**: Create compelling content that maintains learner interest throughout
-
-**BULLET-POINTS EDUCATIONAL STANDARDS:**
-- **COMPREHENSIVE LEARNING**: Every `bullet-points` slide must cover multiple aspects of the topic
-- **DETAILED EXPLANATIONS**: Each bullet point must provide thorough understanding, not just surface-level information
-- **PRACTICAL VALUE**: Every point must include actionable insights learners can implement immediately
-- **EDUCATIONAL DEPTH**: Aim for 6-7 list items to ensure comprehensive topic coverage
-- **QUALITY OVER QUANTITY**: Better to have 5 detailed points than 7 shallow ones, but NEVER fewer than 5
 
 Content Structure:
 

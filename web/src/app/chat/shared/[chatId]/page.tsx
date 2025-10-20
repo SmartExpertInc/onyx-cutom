@@ -50,9 +50,7 @@ export default async function Page(props: {
     return redirect("/auth/login");
   }
 
-  if (user && !user.is_verified && authTypeMetadata?.requiresVerification) {
-    return redirect("/auth/waiting-on-verification");
-  }
+  /* allow unverified users to view shared chat */
 
   const persona: Persona = constructMiniFiedPersona(
     chatSession?.persona_icon_color ?? null,

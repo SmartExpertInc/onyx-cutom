@@ -2,11 +2,10 @@ import React, { useState, useRef } from 'react';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import { SlideAddButton } from '@/components/SlideAddButton';
 
 interface Scene {
   id: string;
-  name: string;
+  name: string | {};
   order: number;
 }
 
@@ -22,6 +21,7 @@ interface SceneTimelineProps {
   onSlideSelect?: (slideId: string) => void;
   currentSlideId?: string;
   onAddSlide?: (newSlide: ComponentBasedSlide) => void;
+  onOpenTemplateSelector?: () => void;
 }
 
 export default function SceneTimeline({ 
@@ -34,7 +34,8 @@ export default function SceneTimeline({
   componentBasedSlideDeck,
   onSlideSelect,
   currentSlideId,
-  onAddSlide
+  onAddSlide,
+  onOpenTemplateSelector
 }: SceneTimelineProps) {
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>('');
@@ -69,7 +70,7 @@ export default function SceneTimeline({
 
   const handleRenameClick = (scene: Scene) => {
     setEditingSceneId(scene.id);
-    setEditingName(scene.name);
+    setEditingName((typeof scene.name === 'string' ? scene.name : '') || '');
   };
 
   const handleRenameSave = () => {
@@ -116,8 +117,8 @@ export default function SceneTimeline({
   })();
 
   return (
-    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 60px)' }}>
-      <div className="flex items-end gap-4 overflow-x-auto">
+    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'auto', minHeight: '120px' }}>
+      <div className="flex items-end gap-4 overflow-x-auto pb-2">
           {/* Play Button with Time */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="relative flex items-center justify-center h-16">
@@ -184,8 +185,8 @@ export default function SceneTimeline({
                     />
                   ) : (
                     <>
-                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={scene.name || 'Untitled'}>
-                        {scene.name || 'Untitled'}
+                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}>
+                        {(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}
                       </span>
                       <svg 
                         className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer flex-shrink-0" 
@@ -236,57 +237,33 @@ export default function SceneTimeline({
             </React.Fragment>
           ))}
 
-          {/* Add Slide Button - positioned at the end */}
-          {(videoLessonData || componentBasedSlideDeck) && onAddSlide ? (
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="h-16 flex items-center justify-center">
-                <SlideAddButton
-                  currentSlideCount={(componentBasedSlideDeck?.slides.length || videoLessonData?.slides.length || 0)}
-                  onAddSlide={onAddSlide}
-                  isVisible={true}
-                  position="relative"
-                  left="auto"
-                  top="auto"
-                  transform="none"
-                  containerStyle={{
-                    width: '64px',
-                    height: '64px'
-                  }}
-                />
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">Add Slide</span>
-              </div>
-            </div>
-          ) : (
-            // Debug: Show which condition is failing
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div className="h-16 flex items-center justify-center">
-                <div 
-                  className="bg-red-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors"
-                  style={getSceneRectangleStyles()}
-                  onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'componentBasedSlideDeck:', !!componentBasedSlideDeck, 'onAddSlide:', !!onAddSlide)}
+          {/* Add Slide Button - Opens Templates Panel - ALWAYS SHOW */}
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className="h-16 flex items-center justify-center">
+                <button
+                  onClick={onOpenTemplateSelector}
+                  className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
+                  title="Add new slide"
                 >
-                  <svg 
-                    className="w-8 h-8 text-red-600" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">Debug</span>
-              </div>
+                <svg 
+                  className="w-8 h-8 text-white" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                  />
+                </svg>
+              </button>
             </div>
-          )}
+            <div className="h-8 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-700">Add Slide</span>
+            </div>
+          </div>
         </div>
       </div>
     );

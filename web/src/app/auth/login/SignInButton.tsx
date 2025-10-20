@@ -1,5 +1,5 @@
 import { AuthType } from "@/lib/constants";
-import { FaGoogle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 export function SignInButton({
   authorizeUrl,
@@ -13,15 +13,15 @@ export function SignInButton({
     button = (
       <div className="mx-auto flex">
         <div className="my-auto mr-2">
-          <FaGoogle />
+          <FcGoogle />
         </div>
-        <p className="text-sm font-medium select-none">Continue with Google</p>
+        <p className="text-sm font-medium select-none text-gray-900">Continue with Google</p>
       </div>
     );
   } else if (authType === "oidc") {
     button = (
       <div className="mx-auto flex">
-        <p className="text-sm font-medium select-none">
+        <p className="text-sm font-medium select-none text-gray-900">
           Continue with OIDC SSO
         </p>
       </div>
@@ -29,7 +29,7 @@ export function SignInButton({
   } else if (authType === "saml") {
     button = (
       <div className="mx-auto flex">
-        <p className="text-sm font-medium select-none">
+        <p className="text-sm font-medium select-none text-gray-900">
           Continue with SAML SSO
         </p>
       </div>
@@ -45,10 +45,10 @@ export function SignInButton({
   }
 
   return (
-    <a
-      className="mx-auto mb-4 mt-6 py-3 w-full dark:text-neutral-300 text-neutral-600 border border-neutral-300 flex rounded cursor-pointer hover:border-neutral-400 transition-colors"
-      href={finalAuthorizeUrl}
-    >
+      <a
+        className="mx-auto mb-4 mt-6 py-3 px-4 w-full flex rounded-full cursor-pointer shadow-md hover:shadow-xl transition-all bg-[#ffffff] text-gray-900 border-[#d4d4d4]"
+        href={finalAuthorizeUrl}
+      >
       {button}
     </a>
   );

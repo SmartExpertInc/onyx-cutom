@@ -3,132 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
+import { YourLogo } from '@/components/YourLogo';
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
@@ -138,12 +17,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   author,
   date,
   backgroundImage,
+  logoPath,
   onUpdate,
   theme,
   isEditable = false
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  // Use theme colors instead of props - ensure we always have a valid theme
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
 
 
@@ -156,6 +37,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   const [editingAuthor, setEditingAuthor] = useState(false);
   const [editingDate, setEditingDate] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -170,34 +52,62 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+    backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
     padding: '60px 80px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: currentTheme.fonts.contentFont
+  };
+
+  const logoStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '40px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    cursor: isEditable ? 'pointer' : 'default'
+  };
+
+  const logoIconStyles: React.CSSProperties = {
+    width: '30px',
+    height: '30px',
+    border: `2px solid ${titleColor}`,
+    borderRadius: '50%',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const logoTextStyles: React.CSSProperties = {
+    fontSize: '17px',
+    fontWeight: '300',
+    color: titleColor
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: 'center',
+    marginTop: '130px',
     marginBottom: '24px',
     lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: `${parseInt(currentTheme.fonts.contentSize) + 8}px`,
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: subtitleColor,
     textAlign: 'center',
@@ -205,7 +115,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     lineHeight: 1.4,
     maxWidth: '700px',
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    opacity: 0.9
   };
 
   const metadataStyles: React.CSSProperties = {
@@ -268,30 +179,50 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     setEditingDate(false);
   };
 
+  // Handle logo upload
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ logoPath: newLogoPath });
+    }
+  };
+
   return (
     <div className="title-slide-template" style={slideStyles}>
+      {/* Logo at the top */}
+      <div 
+        ref={logoRef}
+        data-moveable-element={`${slideId}-logo`}
+        data-draggable="true" 
+        style={logoStyles}
+      >
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={handleLogoUploaded}
+          isEditable={isEditable}
+          color={titleColor}
+          text="Your Logo"
+        />
+      </div>
+
       {/* Main Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -309,83 +240,73 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
+            dangerouslySetInnerHTML={{ __html: title || 'Your title here' }}
+          />
         )}
       </div>
 
       {/* Subtitle */}
-      {subtitle && (
-        <div data-draggable="true" style={{ display: 'inline-block' }}>
-          {isEditable && editingSubtitle ? (
-            <InlineEditor
-              initialValue={subtitle || ''}
-              onSave={handleSubtitleSave}
-              onCancel={handleSubtitleCancel}
-              multiline={true}
-              placeholder="Enter subtitle..."
-              className="inline-editor-subtitle"
-              style={{
-                ...subtitleStyles,
-                // Ensure subtitle behaves exactly like h2 element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <h2 
-              style={subtitleStyles}
-              onClick={(e) => {
-                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  return;
-                }
-                if (isEditable) {
-                  setEditingSubtitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {subtitle}
-            </h2>
-          )}
-        </div>
-      )}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingSubtitle ? (
+          <WysiwygEditor
+            initialValue={subtitle || 'Add a short description.'}
+            onSave={handleSubtitleSave}
+            onCancel={handleSubtitleCancel}
+            placeholder="Enter subtitle..."
+            className="inline-editor-subtitle"
+            style={{
+              ...subtitleStyles,
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.4'
+            }}
+          />
+        ) : (
+          <h2 
+            style={subtitleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingSubtitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            dangerouslySetInnerHTML={{ __html: subtitle || 'Add a short description.' }}
+          />
+        )}
+      </div>
 
       {/* Metadata */}
       {(author || date) && (
         <div style={metadataStyles} data-draggable="true">
           {author && (
             isEditable && editingAuthor ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={author || ''}
                 onSave={handleAuthorSave}
                 onCancel={handleAuthorCancel}
-                multiline={false}
                 placeholder="Enter author name..."
                 className="inline-editor-author"
                 style={{
                   ...metadataItemStyles,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -397,31 +318,28 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {author}
-              </div>
+                dangerouslySetInnerHTML={{ __html: author }}
+              />
             )
           )}
           {date && (
             isEditable && editingDate ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={date || ''}
                 onSave={handleDateSave}
                 onCancel={handleDateCancel}
-                multiline={false}
                 placeholder="Enter date..."
                 className="inline-editor-date"
                 style={{
                   ...metadataItemStyles,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none',
-                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -433,9 +351,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {date}
-              </div>
+                dangerouslySetInnerHTML={{ __html: date }}
+              />
             )
           )}
         </div>

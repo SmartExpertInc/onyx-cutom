@@ -167,20 +167,8 @@ function UnifiedBulletEditor({
   };
 
   const getBulletIcon = (style: string, index: number) => {
-    switch (style) {
-      case 'dot':
-        return '•';
-      case 'arrow':
-        return '→';
-      case 'check':
-        return '✓';
-      case 'star':
-        return '★';
-      case 'number':
-        return `${index + 1}.`;
-      default:
-        return '•';
-    }
+    // Always use triangular arrows for bullet-points-right template
+    return '▶';
   };
 
   const startEditing = () => {
@@ -265,17 +253,26 @@ function UnifiedBulletEditor({
   }, [isEditing]);
 
   const bulletIconStyles: React.CSSProperties = {
-    color: theme.colors.accentColor,
-    fontWeight: 600,
-    minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.6rem' : '1.8rem',
-    fontFamily: theme.fonts.titleFont
+    color: '#ffffff', // White triangular arrows
+    fontWeight: 'bold',
+    minWidth: '14px',
+    minHeight: '14px',
+    width: '14px',
+    height: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.8rem',
+    fontFamily: 'sans-serif',
+    flexShrink: 0
   };
 
   const bulletTextStyles: React.CSSProperties = {
-    fontFamily: theme.fonts.contentFont,
-    fontSize: theme.fonts.contentSize,
-    color: theme.colors.contentColor,
+    fontFamily: 'sans-serif',
+    fontSize: '0.9rem',
+    marginTop: '-5px',
+    opacity:'0.8',
+    color: '#ffffff', // White text on dark background
     lineHeight: '1.6'
   };
 
@@ -316,7 +313,7 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '16px',
+                marginBottom: '30px',
                 minHeight: '1.6em',
                 width: '100%'
               }}>
@@ -467,14 +464,17 @@ function UnifiedBulletEditor({
         listStyle: 'none',
         padding: 0,
         margin: 0,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
       }}>
         {bullets.map((bullet: string, index: number) => (
           <li key={index} style={{ 
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px',
+            marginBottom: '35px',
             width: '100%'
           }}>
             <span style={bulletIconStyles}>
@@ -490,7 +490,7 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px',
+            marginBottom: '35px',
             width: '100%'
           }}>
             <span style={bulletIconStyles}>•</span>
@@ -542,58 +542,64 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    padding: '60px',
-    position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
-  };
-
-  const contentRowStyles: React.CSSProperties = {
+    background: '#ffffff', // White background as in photo
     display: 'flex',
     flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: '48px'
+    position: 'relative',
+    fontFamily: currentTheme.fonts.contentFont,
+    overflow: 'hidden'
   };
 
-  const leftColStyles: React.CSSProperties = {
-    flex: '1 1 60%',
+  // Left side with title and bullets (dark blue background with diagonal cut)
+  const leftSectionStyles: React.CSSProperties = {
+    width: '65%',
+    height: '600px',
+    position: 'absolute',
+    left: '0',
+    top: '0',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    minWidth: 0
+    justifyContent: 'flex-start',
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
+    padding: '35px',
+    clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
+    zIndex: 2
   };
 
-  const rightColStyles: React.CSSProperties = {
-    flex: '0 0 40%',
+  // Right side with image only (white background with diagonal cut)
+  const rightSectionStyles: React.CSSProperties = {
+    width: '100%',
+    height: '600px',
+    position: 'absolute',
+    left: '0',
+    top: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 0,
-    paddingRight: '20px'
+    background: '#ffffff',
+    zIndex: 1
   };
 
+
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: currentTheme.colors.titleColor,
+    fontSize: '3.5rem',
+    fontFamily: 'serif',
+    color: '#ffffff',
+    fontWeight: 'bold',
     textAlign: 'left',
-    marginBottom: '24px',
+    marginBottom: '40px',
     wordWrap: 'break-word',
-    lineHeight: '1.2'
+    lineHeight: '1.1'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    color: currentTheme.colors.contentColor,
-    marginBottom: '28px',
+    fontSize: '1.2rem',
+    color: currentTheme.colors.subtitleColor,
+    marginBottom: '32px',
     fontFamily: currentTheme.fonts.contentFont,
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    lineHeight: '1.4'
   };
 
   // Handle title editing
@@ -668,140 +674,93 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   const placeholderStyles: React.CSSProperties = {
     // Only apply default dimensions if no saved size exists
     ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'relative',
+    zIndex: 29
   };
 
   return (
     <div ref={slideContainerRef} className="bullet-points-right-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block',
-            lineHeight: '1.2'
-          }}
+      {/* Left section with title and bullets (dark blue background) */}
+      <div style={leftSectionStyles}>
+        {/* Title */}
+        <div data-draggable="true">
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || 'Problem'}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Problem'}
+            </h1>
+          )}
+        </div>
+
+        {/* Bullets */}
+        <div data-draggable="true">
+          <UnifiedBulletEditor
+            bullets={bullets || []}
+            bulletStyle="arrow"
+            onUpdate={handleBulletsUpdate}
+            theme={currentTheme}
+            isEditable={isEditable}
+          />
+        </div>
+      </div>
+
+      {/* Right section with image only */}
+      <div style={rightSectionStyles}>
+        <ClickableImagePlaceholder
+          imagePath={imagePath}
+          onImageUploaded={handleImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Click to upload image"
+          prompt={displayPrompt}
+          isEditable={isEditable}
+          style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode={objectFit || 'contain'}
+          slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          templateId="bullet-points-right"
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
         />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={(e) => {
-            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          data-draggable="true"
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
-
-      <div style={contentRowStyles}>
-        {/* Left: Subtitle + Bullets */}
-        <div style={leftColStyles}>
-          {/* Subtitle */}
-          
-          <div data-draggable="true">
-            {subtitle && (
-              isEditable && editingSubtitle ? (
-                <InlineEditor
-                  initialValue={subtitle || ''}
-                  onSave={handleSubtitleSave}
-                  onCancel={handleSubtitleCancel}
-                  multiline={true}
-                  placeholder="Enter subtitle..."
-                  className="inline-editor-subtitle"
-                  style={{
-                    ...subtitleStyles,
-                    // Ensure subtitle behaves exactly like div element
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={subtitleStyles}
-                  onClick={(e) => {
-                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      setEditingSubtitle(true);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {subtitle || 'Click to add subtitle'}
-                </div>
-              )
-            )}
-          </div>
-
-          {/* Unified bullet points editor */}
-          <div data-draggable="true">
-            <UnifiedBulletEditor
-              bullets={bullets || []}
-              bulletStyle={bulletStyle}
-              onUpdate={handleBulletsUpdate}
-              theme={currentTheme}
-              isEditable={isEditable}
-            />
-          </div>
-        </div>
-        {/* Right: Clickable Image Placeholder */}
-        <div style={rightColStyles} >
-            <ClickableImagePlaceholder
-              imagePath={imagePath}
-              onImageUploaded={handleImageUploaded}
-              size="LARGE"
-              position="CENTER"
-              description="Click to upload image"
-              prompt={displayPrompt}
-              isEditable={isEditable}
-              style={placeholderStyles}
-              onSizeTransformChange={handleSizeTransformChange}
-              elementId={`${slideId}-image`}
-              elementRef={imageRef}
-              cropMode={objectFit || 'contain'}
-              slideContainerRef={slideContainerRef}
-              savedImagePosition={imageOffset}
-              savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
-              templateId="bullet-points-right"
-              aiGeneratedPrompt={imagePrompt}
-              isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
-              onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
-            />
-        </div>
       </div>
     </div>
   );

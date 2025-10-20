@@ -1678,6 +1678,8 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
               slide={currentSlide}
               isEditable={false}
               theme="default"
+              // @ts-ignore forward deck version when available
+              deckTemplateVersion={(deck as any)?.templateVersion}
             />
         </div>
       </div>

@@ -4,6 +4,7 @@ export const en = {
     lesson: "LESSON",
     save: "Save",
     saving: "Saving...",
+    close: "Close",
     confirmCancelEdit:
       "Are you sure you want to cancel? Any unsaved changes will be lost.",
     errorDetails: "Details:",
@@ -14,6 +15,12 @@ export const en = {
     downloadPdf: "Download PDF",
     saveErrorTitle: "Save Error:",
     rendering: "Rendering content...",
+  },
+  insufficientCredits: {
+    title: "Insufficient Credits",
+    message:
+      "You cannot create new products right now due to insufficient credits for this operation. Please purchase more credits to continue.",
+    buyMore: "Buy More"
   },
   qualityTiers: {
     basic: "Basic",
@@ -1544,6 +1551,238 @@ export const en = {
       backToProjects: "Back to Projects", 
       eventPosterTitle: "Event Poster",
       posterGeneratedSuccessfully: "Your event poster has been generated successfully"
+    },
+    
+    // Billing
+    billing: "Billing",
+    billingAndSubscription: "Billing and subscription"
+  },
+  survey: {
+    step1: {
+      title: "What do you plan to use ContentBuilder for?"
+    },
+    step2Work: {
+      title: "What best describes your role"
+    },
+    step3: {
+      title: "What is the size of your company?"
+    },
+    step4: {
+      title: "What's your primary use case?"
+    },
+    step2Personal: {
+      title: "What will you mainly use the platform for?"
+    },
+    description: "This helps us recommend the best features for you",
+    category: {
+      work: "Work",
+      workDescription: "Professional use for business, marketing, or team collaboration",
+      personal: "Personal",
+      personalDescription: "Personal projects, learning, or creative endeavors"
+    },
+    role: {
+      marketer: "Marketer",
+      hrLd: "HR / L&D",
+      businessOwner: "Business Owner",
+      contentCreator: "Content Creator",
+      developer: "Developer",
+      other: "Other"
+    },
+    industry: {
+      videoProduction: "Video Production",
+      digitalMarketing: "Digital Marketing",
+      learningDevelopment: "Learning & Development",
+      internalCommunications: "Internal Communications",
+      creativeBranding: "Creative / Branding",
+      other: "Other"
+    },
+    personalUse: {
+      personalProjects: "Personal projects",
+      learningSkills: "Learning new skills",
+      portfolioCreation: "Portfolio creation",
+      socialMedia: "Social media content"
+    },
+    navigation: {
+      previous: "Previous",
+      continue: "Continue",
+      completeSetup: "Complete Setup",
+      step: "Step",
+      of: "of"
     }
   },
+  tariffPlan: {
+    backToPlans: "Back to plans",
+    completeYourPurchase: "Complete Your Purchase",
+    subscribeTo: "Subscribe to",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    subscription: "subscription",
+    month: "month",
+    year: "year",
+    whatsIncluded: "What's included:",
+    paymentInformation: "Payment Information",
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailAddress: "Email Address",
+    cardNumber: "Card Number",
+    expiryDate: "Expiry Date",
+    cvv: "CVV",
+    sslEncrypted: "SSL Encrypted",
+    instantAccess: "Instant Access",
+    cancelAnytime: "Cancel Anytime",
+    processingPayment: "Processing Payment...",
+    contactSales: "Contact Sales",
+    subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
+    chooseYourPlan: "Choose your plan",
+    billMonthly: "Bill Monthly",
+    billYearly: "Bill Yearly",
+    mostPopular: "Most Popular",
+    credits: "Credits",
+    storage: "Storage",
+    support: "Support",
+    connectors: "Connectors",
+    collaboration: "Collaboration",
+    current: "Current",
+    purchasePlan: "Purchase Plan",
+    plans: {
+      starter: {
+        name: "Starter (Free)",
+        credits: "200 (one-time on registration)",
+        support: "Email up to 48 hours",
+        storage: "1 GB",
+        lmsExport: "Only SmartExpert",
+        slides: "max 20",
+        features: {
+          0: "200 credits on registration",
+          1: "1 GB storage",
+          2: "Basic email support",
+          3: "No connectors",
+          4: "No collaboration"
+        }
+      },
+      pro: {
+        name: "Pro",
+        credits: "600 / month",
+        support: "Email up to 24 hours",
+        storage: "5 GB",
+        collaboration: "1 (up to 3 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "600 credits per month",
+          1: "5 GB storage",
+          2: "Priority email support (24h)",
+          3: "2 platform connectors",
+          4: "Team collaboration (up to 3)"
+        }
+      },
+      business: {
+        name: "Business",
+        credits: "2,000 / month",
+        support: "Priority support",
+        storage: "10 GB",
+        collaboration: "3 (up to 10 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "2,000 credits per month",
+          1: "10 GB storage",
+          2: "Priority support",
+          3: "5 platform connectors",
+          4: "Team collaboration (up to 10)"
+        }
+      },
+      enterprise: {
+        name: "Enterprise",
+        credits: "10,000+ / month (flexible)",
+        support: "Dedicated manager",
+        storage: "50 GB + pay-as-you-go",
+        connectors: "All",
+        collaboration: "Unlimited",
+        lmsExport: "SmartExpert + custom",
+        features: {
+          0: "Custom credit allocation",
+          1: "Unlimited storage",
+          2: "Dedicated account manager",
+          3: "All platform connectors",
+          4: "Unlimited team collaboration",
+          5: "Custom features & integrations"
+        }
+      }
+    }
+  },
+  addOns: {
+    title: "Manage Add-ons",
+    description: "Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.",
+    credits: "Credits",
+    connectors: "Connectors",
+    storage: "Storage",
+    contactSales: "Contact Sales",
+    buyNow: "Buy Now",
+    packages: {
+      credits: {
+        small: {
+          name: "Small",
+          description: "Perfect for individual users getting started with basic credit needs.",
+          amount: "100 credits",
+          priceNote: "$0.20 per credit"
+        },
+        medium: {
+          name: "Medium",
+          description: "Great for growing teams with moderate usage requirements.",
+          amount: "300 credits",
+          priceNote: "$0.17 per credit"
+        },
+        large: {
+          name: "Large",
+          description: "Ideal for businesses with high-volume processing demands.",
+          amount: "1,000 credits",
+          priceNote: "$0.15 per credit"
+        },
+        enterprise: {
+          name: "Enterprise",
+          description: "Tailored solutions for large organizations with unique needs.",
+          amount: "Custom credits",
+          price: "Custom"
+        }
+      },
+      connectors: {
+        single: {
+          name: "Single Connector",
+          description: "Perfect for connecting one data source to your platform.",
+          amount: "1 connector"
+        },
+        five: {
+          name: "5 Connectors",
+          description: "Great for teams managing multiple data sources.",
+          amount: "5 connectors"
+        },
+        ten: {
+          name: "10 Connectors",
+          description: "Ideal for businesses with extensive integration needs.",
+          amount: "10 connectors"
+        },
+        all: {
+          name: "All Connectors",
+          description: "Unlimited access to all available connectors.",
+          amount: "Unlimited connectors"
+        }
+      },
+      storage: {
+        oneGb: {
+          name: "1 GB Storage",
+          description: "Perfect for small projects with minimal storage needs.",
+          amount: "1 GB storage"
+        },
+        fiveGb: {
+          name: "5 GB Storage",
+          description: "Great for growing teams with moderate storage requirements.",
+          amount: "5 GB storage"
+        },
+        tenGb: {
+          name: "10 GB Storage",
+          description: "Ideal for businesses with extensive data storage needs.",
+          amount: "10 GB storage"
+        }
+      }
+    }
+  }
 };

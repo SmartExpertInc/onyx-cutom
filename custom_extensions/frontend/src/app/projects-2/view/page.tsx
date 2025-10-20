@@ -23,10 +23,11 @@ import ImageSettings from './components/ImageSettings';
 import AvatarSettings from './components/AvatarSettings';
 import ShapeSettings from './components/ShapeSettings';
 import OptionPopup from './components/OptionPopup';
-// NEW: Import SlideAddButton and types
-import { SlideAddButton } from '@/components/SlideAddButton';
+import TemplateSelector from './components/TemplateSelector';
+// NEW: Import types
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
+import AvatarDataProvider from './components/AvatarDataService';
 
 interface Scene {
   id: string;
@@ -67,8 +68,12 @@ export default function Projects2ViewPage() {
   const [isOptionPopupOpen, setIsOptionPopupOpen] = useState<boolean>(false);
   const [optionPopupPosition, setOptionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // NEW: Video Lesson slide management state
-  const [videoLessonData, setVideoLessonData] = useState<VideoLessonData | undefined>(undefined);
+  // NEW: Video Lesson slide management state - Initialize with empty slides
+  const [videoLessonData, setVideoLessonData] = useState<VideoLessonData>({
+    mainPresentationTitle: 'Video Lesson',
+    slides: [],
+    detectedLanguage: 'en'
+  });
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const [isVideoLessonMode, setIsVideoLessonMode] = useState<boolean>(false);
 
@@ -85,16 +90,14 @@ export default function Projects2ViewPage() {
   //   setScenes(prevScenes => [...prevScenes, newScene]);
   // };
 
-  // NEW: Function to add new slide (called by SlideAddButton)
+  // NEW: Function to add new slide (called by TemplateSelector)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
-    if (!videoLessonData) return;
-
     // Convert ComponentBasedSlide to VideoLessonSlideData
     const videoLessonSlide: VideoLessonSlideData = {
       slideId: newSlide.slideId,
       slideNumber: videoLessonData.slides.length + 1,
-      slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
-      displayedText: newSlide.props?.content || '',
+      slideTitle: (typeof newSlide.props?.title === 'string' ? newSlide.props.title : '') || `Slide ${videoLessonData.slides.length + 1}`,
+      displayedText: (typeof newSlide.props?.content === 'string' ? newSlide.props.content : '') || '',
       displayedPictureDescription: '',
       displayedVideoDescription: '',
       voiceoverText: ''
@@ -110,6 +113,9 @@ export default function Projects2ViewPage() {
     
     // Save to backend
     saveVideoLessonData(updatedData);
+    
+    // Switch back to script view after adding slide
+    setActiveComponent('script');
   };
 
   // NEW: Function to save Video Lesson data
@@ -133,11 +139,14 @@ export default function Projects2ViewPage() {
   // NEW: Function to handle slide selection
   const handleSlideSelect = (slideId: string) => {
     setCurrentSlideId(slideId);
-    if (videoLessonData) {
-      const updatedData = { ...videoLessonData, currentSlideId: slideId };
-      setVideoLessonData(updatedData);
-      saveVideoLessonData(updatedData);
-    }
+    const updatedData = { ...videoLessonData, currentSlideId: slideId };
+    setVideoLessonData(updatedData);
+    saveVideoLessonData(updatedData);
+  };
+
+  // Function to open template selector panel
+  const handleOpenTemplateSelector = () => {
+    setActiveComponent('templates');
   };
 
 
@@ -296,6 +305,11 @@ export default function Projects2ViewPage() {
           videoLessonData={videoLessonData}
           currentSlideId={currentSlideId}
         />;
+      case 'templates':
+        return <TemplateSelector 
+          currentSlideCount={videoLessonData?.slides?.length || 0}
+          onAddSlide={handleAddSlide}
+        />;
       case 'background':
         return <Background />;
       case 'music':
@@ -314,13 +328,16 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
-      closeMenu();
-    }}>
+    <AvatarDataProvider>
+      <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
+        closeMenu();
+      }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
+        videoLessonData={videoLessonData}
+        currentSlideId={currentSlideId}
       />
 
       {/* Toolbar */}
@@ -365,6 +382,7 @@ export default function Projects2ViewPage() {
             onSlideSelect={handleSlideSelect}
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
+            onOpenTemplateSelector={handleOpenTemplateSelector}
           />
         </div>
       </div>
@@ -484,6 +502,7 @@ export default function Projects2ViewPage() {
         position={optionPopupPosition}
       />
       
-    </div>
+      </div>
+    </AvatarDataProvider>
   );
 }

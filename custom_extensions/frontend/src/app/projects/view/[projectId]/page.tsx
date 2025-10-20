@@ -19,6 +19,7 @@ import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
+import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
@@ -103,6 +104,7 @@ const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
+const COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
@@ -655,6 +657,11 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const instanceApiUrl = `${CUSTOM_BACKEND_URL}/projects/view/${currentProjectIdStr}`;
+      console.log('🎬 [CRITICAL DEBUG] Frontend requesting project data:', {
+        currentProjectIdStr,
+        instanceApiUrl,
+        timestamp: new Date().toISOString()
+      });
       const instanceResPromise = fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders });
       const listApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
       const listResPromise = fetch(listApiUrl, { cache: 'no-store', headers: commonHeaders });
@@ -694,6 +701,33 @@ export default function ProjectInstanceViewPage() {
         componentName: instanceData.component_name,
         hasDetails: !!instanceData.details
       });
+      
+      // 🔍 CRITICAL DEBUG: Verify project ID match
+      console.log('🎬 [CRITICAL DEBUG] Project ID verification:', {
+        requestedProjectId: currentProjectIdStr,
+        receivedProjectId: instanceData.project_id,
+        projectIdMatch: currentProjectIdStr === instanceData.project_id?.toString(),
+        componentName: instanceData.component_name,
+        hasDetails: !!instanceData.details
+      });
+      
+      // 🔍 CRITICAL DEBUG: For video products, log the exact data structure
+      if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+        const videoDetails = instanceData.details as any;
+        console.log('🎬 [CRITICAL DEBUG] Video product data analysis:', {
+          componentName: instanceData.component_name,
+          hasDetails: !!instanceData.details,
+          detailsType: typeof instanceData.details,
+          detailsKeys: instanceData.details ? Object.keys(instanceData.details) : 'no details',
+          detailsContent: instanceData.details,
+          hasVideoUrl: videoDetails?.videoUrl ? 'YES' : 'NO',
+          hasVideoJobId: videoDetails?.videoJobId ? 'YES' : 'NO',
+          hasThumbnailUrl: videoDetails?.thumbnailUrl ? 'YES' : 'NO',
+          videoUrlValue: videoDetails?.videoUrl,
+          videoJobIdValue: videoDetails?.videoJobId,
+          thumbnailUrlValue: videoDetails?.thumbnailUrl
+        });
+      }
 
       setProjectInstanceData(instanceData);
 
@@ -757,6 +791,65 @@ export default function ProjectInstanceViewPage() {
               : 'No content blocks or not array'
           });
           setEditableData(copiedDetails as TextPresentationData);
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+          console.log('🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details:', {
+            copiedDetails,
+            copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
+            videoJobId: copiedDetails?.videoJobId,
+            videoUrl: copiedDetails?.videoUrl,
+            thumbnailUrl: copiedDetails?.thumbnailUrl,
+            component_name: copiedDetails?.component_name
+          });
+          
+          // 🔍 CRITICAL DEBUG: Log the exact data being set
+          console.log('🎬 [VIDEO_PRODUCT_DATA] About to set editableData with:', {
+            type: typeof copiedDetails,
+            keys: Object.keys(copiedDetails || {}),
+            hasVideoUrl: 'videoUrl' in (copiedDetails || {}),
+            hasThumbnailUrl: 'thumbnailUrl' in (copiedDetails || {}),
+            hasVideoJobId: 'videoJobId' in (copiedDetails || {}),
+            videoUrlValue: copiedDetails?.videoUrl,
+            thumbnailUrlValue: copiedDetails?.thumbnailUrl,
+            videoJobIdValue: copiedDetails?.videoJobId
+          });
+          
+          // 🔧 FIX: Check if we have video data, if not, check for nested data or use fallback
+          if (copiedDetails?.videoUrl && copiedDetails?.videoJobId) {
+            // We have proper video data
+            setEditableData(copiedDetails as any);
+          } else {
+            // 🔍 DEBUG: Check if video data is nested somewhere else
+            console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found in copiedDetails, checking for nested data...');
+            console.log('🎬 [VIDEO_PRODUCT_DATA] Full copiedDetails structure:', JSON.stringify(copiedDetails, null, 2));
+            
+            // Check if video data is in a nested property
+            let videoData = null;
+            if (copiedDetails && typeof copiedDetails === 'object') {
+              // Look for video data in any nested object
+              for (const [key, value] of Object.entries(copiedDetails)) {
+                if (value && typeof value === 'object' && ('videoUrl' in value || 'videoJobId' in value)) {
+                  console.log(`🎬 [VIDEO_PRODUCT_DATA] ⚠️ FOUND VIDEO DATA IN NESTED PROPERTY '${key}':`, value);
+                  videoData = value;
+                  break;
+                }
+              }
+            }
+            
+            if (videoData) {
+              setEditableData(videoData as any);
+            } else {
+              // Fallback: create default video product data
+              console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found anywhere, using fallback');
+              setEditableData({
+                videoJobId: 'unknown',
+                videoUrl: '',
+                thumbnailUrl: '',
+                generatedAt: new Date().toISOString(),
+                sourceSlides: [],
+                component_name: 'VideoProductDisplay'
+              } as any);
+            }
+          }
         } else {
           setEditableData(copiedDetails);
         }
@@ -774,6 +867,16 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
           setEditableData({ textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+          console.log('🎬 [VIDEO_PRODUCT_DATA] No details data, setting default video product data');
+          setEditableData({ 
+            videoJobId: 'unknown',
+            videoUrl: '',
+            thumbnailUrl: '',
+            generatedAt: new Date().toISOString(),
+            sourceSlides: [],
+            component_name: 'VideoProductDisplay'
+          } as any);
         } else {
           setEditableData(null);
         }
@@ -1836,6 +1939,19 @@ export default function ProjectInstanceViewPage() {
             lessonPlanData={lessonPlanData}
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
+          />
+        );
+      case COMPONENT_NAME_VIDEO_PRODUCT:
+        const videoProductData = editableData as any; // Video product data is stored as a dictionary
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData:', editableData);
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type:', typeof editableData);
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys:', editableData ? Object.keys(editableData) : 'null');
+        return (
+          <VideoProductDisplay
+            dataToDisplay={videoProductData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
           />
         );
       default:

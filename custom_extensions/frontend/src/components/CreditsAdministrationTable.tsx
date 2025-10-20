@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, User, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -16,10 +16,22 @@ import {
   Typography
 } from '@mui/material';
 
+interface QuestionnaireAnswer {
+  question: string;
+  answer: string;
+}
+
+interface UserQuestionnaire {
+  onyx_user_id: string;
+  answers: QuestionnaireAnswer[];
+}
+
 interface UserCredits {
   id: number;
   onyx_user_id: string;
   name: string;
+  email?: string;
+  display_identity?: string;
   credits_balance: number;
   total_credits_used: number;
   credits_purchased: number;
@@ -33,17 +45,20 @@ type Order = 'asc' | 'desc';
 
 interface TableProps {
   users: UserCredits[];
+  questionnaires: UserQuestionnaire[];
   selectedUser: UserCredits | null;
   onUserSelect: (user: UserCredits | null) => void;
   onAddCredits: (user: UserCredits) => void;
   onRemoveCredits: (user: UserCredits) => void;
 }
 
-const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser, onUserSelect, onAddCredits, onRemoveCredits }) => {
+const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaires, selectedUser, onUserSelect, onAddCredits, onRemoveCredits }) => {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof UserCredits>('name');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedUserProfile, setSelectedUserProfile] = useState<UserQuestionnaire | null>(null);
 
   const handleRequestSort = (property: keyof UserCredits) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -64,6 +79,23 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
     const user = users.find(u => u.id === userId);
     const isCurrentlySelected = selectedUser?.id === userId;
     onUserSelect(isCurrentlySelected ? null : user || null);
+  };
+
+  const openProfileModal = (userId: string) => {
+    const userQuestionnaire = questionnaires.find(q => q.onyx_user_id === userId);
+    if (userQuestionnaire) {
+      setSelectedUserProfile(userQuestionnaire);
+      setShowProfileModal(true);
+    }
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedUserProfile(null);
+  };
+
+  const hasQuestionnaire = (userId: string) => {
+    return questionnaires.some(q => q.onyx_user_id === userId && q.answers.length > 0);
   };
 
   const sortedUsers = React.useMemo(() => {
@@ -144,6 +176,7 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
               <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Purchased</TableCell>
               <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Tier</TableCell>
               <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Last Purchase</TableCell>
+              <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Profile</TableCell>
               <TableCell sx={{ backgroundColor: '#f9fafb', color: '#6b7280' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -159,8 +192,13 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
                 <TableCell>
                   <Box>
                     <Typography variant="body2" fontWeight="medium">
-                      {user.name}
+                      {user.display_identity || user.email || (user.name && user.name !== 'User' ? user.name : user.onyx_user_id)}
                     </Typography>
+                    {user.email && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        {user.email}
+                      </Typography>
+                    )}
                   </Box>
                 </TableCell>
                 <TableCell>
@@ -186,6 +224,22 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
                     ? new Date(user.last_purchase_date).toLocaleDateString()
                     : 'Never'
                   }
+                </TableCell>
+                <TableCell>
+                  {hasQuestionnaire(user.onyx_user_id) ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openProfileModal(user.onyx_user_id);
+                      }}
+                      className="flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 border border-blue-300 rounded hover:bg-blue-200"
+                    >
+                      <User className="w-3 h-3 mr-1" />
+                      View Profile
+                    </button>
+                  ) : (
+                    <span className="text-xs text-gray-500">No data</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
@@ -232,6 +286,75 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, selectedUser,
           }
         }}
       />
+
+      {/* Profile Modal */}
+      {showProfileModal && selectedUserProfile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-10 flex items-center justify-center p-4 z-50"
+          onClick={closeProfileModal}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-medium text-black">
+                  User Profile
+                </h3>
+                {(() => {
+                  const profileUser = users.find(u => u.onyx_user_id === selectedUserProfile.onyx_user_id);
+                  return profileUser?.email ? (
+                    <p className="text-sm text-gray-600 mt-1">{profileUser.email}</p>
+                  ) : (
+                    <p className="text-sm text-gray-600 mt-1">{selectedUserProfile.onyx_user_id}</p>
+                  );
+                })()}
+              </div>
+              <button
+                onClick={closeProfileModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-6 py-4">
+              <div className="space-y-4">
+                {selectedUserProfile.answers.map((qa, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <div className="mb-2">
+                      <h4 className="text-sm font-semibold text-gray-800 capitalize">
+                        {qa.question.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </h4>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {qa.answer.replace(/-/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedUserProfile.answers.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No questionnaire data available for this user.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <button
+                onClick={closeProfileModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Paper>
   );
 };

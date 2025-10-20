@@ -177,7 +177,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -246,7 +246,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <div style={{
         width: '100%',
         height: '100%',
-        backgroundColor: themeBg,
+        background: themeBg,
         display: 'flex',
         padding: '40px 60px',
         paddingRight: '0px'

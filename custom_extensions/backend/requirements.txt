@@ -37,6 +37,7 @@ pytest-asyncio
 black
 flake8
 gunicorn
+stripe
 
 # Video processing dependencies (cleaned up duplicates) - installed separately in Dockerfile
 opencv-python==4.8.0.76

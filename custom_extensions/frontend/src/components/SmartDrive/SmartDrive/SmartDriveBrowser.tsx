@@ -49,7 +49,15 @@ type UploadProgress = {
 	progress: number; // 0-100
 };
 
-type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string; startedAtMs?: number; durationMs?: number }>;
+type IndexingState = Record<string, { 
+	status: 'not_started' | 'in_progress' | 'success' | 'failed' | 'pending' | 'done' | 'unknown'; 
+	etaPct: number; 
+	onyxFileId?: number | string; 
+	timeStarted?: number;
+	timeUpdated?: number;
+	estimatedTokens?: number;
+	estimatedDuration?: number;
+}>;
 
 const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	mode = 'manage',
@@ -71,6 +79,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [indexing, setIndexing] = useState<IndexingState>({});
 	const [mkdirOpen, setMkdirOpen] = useState(false);
 	const [mkdirName, setMkdirName] = useState('');
+	// Rename modal state
+	const [renameOpen, setRenameOpen] = useState(false);
+	const [renameFromPath, setRenameFromPath] = useState<string | null>(null);
+	const [renameNewName, setRenameNewName] = useState('');
+	const [renameSaving, setRenameSaving] = useState(false);
+	// Folder picker modal state for move/copy
+	const [pickerOpen, setPickerOpen] = useState(false);
+	const [pickerOp, setPickerOp] = useState<'move' | 'copy'>('move');
+	const [pickerPath, setPickerPath] = useState<string>('/');
+	const [pickerDirs, setPickerDirs] = useState<SmartDriveItem[]>([]);
+	const [pickerLoading, setPickerLoading] = useState(false);
+	const [pickerSelected, setPickerSelected] = useState<string[]>([]);
+	const [dragOverPath, setDragOverPath] = useState<string | null>(null);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -82,7 +103,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
 			if (!res.ok) throw new Error(`List failed: ${res.status}`);
 			const data = await res.json();
-			setItems(Array.isArray(data.files) ? data.files : []);
+			// Filter out the current folder itself if backend includes it in listing
+			const listingPath = (data.path || path || '/');
+			const norm = (p: string) => {
+				if (!p) return '/';
+				// collapse multiple slashes and unify trailing slash for directories
+				let out = p.replace(/\\+/g, '/');
+				if (!out.startsWith('/')) out = '/' + out;
+				// don't force trailing slash; compare both forms later
+				return out;
+			};
+			const selfA = norm(listingPath);
+			const selfB = selfA.endsWith('/') ? selfA.slice(0, -1) : selfA + '/';
+			const files = Array.isArray(data.files) ? data.files.filter((i: SmartDriveItem) => {
+				const p = norm(i?.path || '');
+				return p !== selfA && p !== selfB;
+			}) : [];
+			setItems(files);
 		} catch (e: any) {
 			setError(e?.message || 'Failed to load');
 			setItems([]);
@@ -132,6 +169,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	};
 
 	const onRowClick = (idx: number, it: SmartDriveItem, e: React.MouseEvent) => {
+		// Ignore clicks originating from interactive controls inside the row
+		const target = e.target as HTMLElement;
+		if (target && target.closest('[data-sd-interactive]')) return;
 		if (it.type === 'directory') {
 			setCurrentPath(it.path.endsWith('/') ? it.path : `${it.path}/`);
 			return;
@@ -187,51 +227,153 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const doMoveCopy = async (op: 'move' | 'copy') => {
-		if (selected.size === 0) return;
-		const toPath = prompt(`Destination path for ${op}`);
-		if (!toPath) return;
+	// Delete specific paths (bypass selection)
+	const delPaths = async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		if (!confirm(`Delete ${paths.length} item(s)?`)) return;
 		setBusy(true);
 		try {
-			for (const p of Array.from(selected)) {
-				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${op}`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					credentials: 'same-origin',
-					body: JSON.stringify({ from: p, to: toPath.endsWith('/') ? `${toPath}${p.split('/').pop()}` : toPath })
-				});
-				if (!res.ok) throw new Error(await res.text());
-			}
-			clearSel();
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/delete`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				credentials: 'same-origin',
+				body: JSON.stringify({ paths })
+			});
+			if (!res.ok && res.status !== 207) throw new Error(await res.text());
 			await fetchList(currentPath);
 		} catch (e) {
-			alert(`${op} failed`);
+			alert('Delete failed');
 		} finally {
 			setBusy(false);
 		}
 	};
 
-	const rename = async () => {
+	const doMoveCopy = (op: 'move' | 'copy') => {
+		if (selected.size === 0) return;
+		setPickerOp(op);
+		setPickerPath(currentPath || '/');
+		setPickerSelected(Array.from(selected));
+		setPickerOpen(true);
+		void loadPickerDirs(currentPath || '/');
+	};
+
+	// Start move/copy for explicit paths
+	const doMoveCopyForPaths = (op: 'move' | 'copy', paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		setPickerOp(op);
+		setPickerPath(currentPath || '/');
+		setPickerSelected(paths);
+		setPickerOpen(true);
+		void loadPickerDirs(currentPath || '/');
+	};
+
+	const openRename = () => {
 		if (selected.size !== 1) return;
 		const p = Array.from(selected)[0];
-		const base = p.split('/').slice(0, -1).join('/') || '/';
-		const old = p.split('/').pop() || '';
-		const name = prompt('Rename to', old);
-		if (!name || name === old) return;
-		setBusy(true);
+		setRenameFromPath(p);
+		setRenameNewName(p.split('/').pop() || '');
+		setRenameOpen(true);
+	};
+
+	// Open rename for a specific path (without relying on selection)
+	const openRenameForPath = (p: string) => {
+		if (!p) return;
+		setRenameFromPath(p);
+		setRenameNewName(p.split('/').pop() || '');
+		setRenameOpen(true);
+	};
+
+	const submitRename = async () => {
+		if (!renameFromPath) return;
+		const base = renameFromPath.split('/').slice(0, -1).join('/') || '/';
+		const old = renameFromPath.split('/').pop() || '';
+		const name = renameNewName.trim();
+		if (!name || name === old) { setRenameOpen(false); return; }
+		setRenameSaving(true);
 		try {
 			const to = `${base}${base.endsWith('/') ? '' : '/'}${name}`;
 			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				credentials: 'same-origin',
-				body: JSON.stringify({ from: p, to })
+				body: JSON.stringify({ from: renameFromPath, to })
 			});
 			if (!res.ok) throw new Error(await res.text());
+			setRenameOpen(false);
+			setRenameSaving(false);
 			clearSel();
 			await fetchList(currentPath);
 		} catch (e) {
+			setRenameSaving(false);
 			alert('Rename failed');
+		}
+	};
+
+	const loadPickerDirs = async (path: string) => {
+		setPickerLoading(true);
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/list?path=${encodeURIComponent(path)}`, { credentials: 'same-origin' });
+			if (!res.ok) throw new Error('Failed to load');
+			const data = await res.json();
+			const listingPath = (data.path || path || '/');
+			const norm = (p: string) => {
+				if (!p) return '/';
+				let out = p.replace(/\\+/g, '/');
+				if (!out.startsWith('/')) out = '/' + out;
+				return out;
+			};
+			const selfA = norm(listingPath);
+			const selfB = selfA.endsWith('/') ? selfA.slice(0, -1) : selfA + '/';
+			const dirs = (data.files || [])
+				.filter((i: SmartDriveItem) => i.type === 'directory')
+				.filter((i: SmartDriveItem) => {
+					const p = norm(i?.path || '');
+					return p !== selfA && p !== selfB; // hide the folder from within itself
+				});
+			setPickerDirs(dirs);
+			setPickerPath(listingPath);
+		} catch {
+			setPickerDirs([]);
+		} finally {
+			setPickerLoading(false);
+		}
+	};
+
+	const submitPicker = async (targetFolder: string) => {
+		if (!targetFolder) return;
+		setBusy(true);
+		try {
+			for (const p of pickerSelected) {
+				const destBase = targetFolder.endsWith('/') ? targetFolder : `${targetFolder}/`;
+				const baseName = p.split('/').pop() || '';
+				let to = `${destBase}${baseName}`.replace(/\/+?/g, '/');
+				// Normalize trailing slash: files must not end with '/', folders must end with '/'
+				const srcItem = items.find(i => i.path === p);
+				if (srcItem && srcItem.type === 'file') {
+					to = to.replace(/\/$/, '');
+				} else if (srcItem && srcItem.type === 'directory') {
+					to = to.endsWith('/') ? to : `${to}/`;
+				}
+				console.log(`[SmartDrive] ${pickerOp}: from=${p} to=${to}, URL=${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`);
+				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/${pickerOp}`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					credentials: 'same-origin',
+					body: JSON.stringify({ from: p, to })
+				});
+				if (!res.ok) {
+					const errorText = await res.text();
+					console.error(`[SmartDrive] ${pickerOp} failed:`, errorText);
+					throw new Error(errorText);
+				}
+				console.log(`[SmartDrive] ${pickerOp} succeeded for ${p}`);
+			}
+			setPickerOpen(false);
+			clearSel();
+			await fetchList(currentPath);
+		} catch (e) {
+			console.error(`[SmartDrive] ${pickerOp} error:`, e);
+			alert(`${pickerOp} failed: ${e}`);
 		} finally {
 			setBusy(false);
 		}
@@ -245,63 +387,33 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (uploadInput.current) uploadInput.current.value = '';
 	};
 
-	const INDEX_TOKENS_PER_SEC = 75000 / 30; // ~2500 tokens/s (OpenAI small model ~75k in 30s)
+	const INDEX_TOKENS_PER_SEC = 2500; // ~2500 tokens/s for duration estimation
 
-	const startIndexingEstimates = useCallback(async (paths: string[]) => {
-		if (!paths || paths.length === 0) return;
-		try {
-			const results = await Promise.all(paths.map(async (p) => {
-				const url = `${CUSTOM_BACKEND_URL}/smartdrive/token-estimate?path=${encodeURIComponent(p)}`;
-				console.log('[SmartDrive] token-estimate request:', url);
-				const res = await fetch(url, { credentials: 'same-origin' });
-				if (!res.ok) throw new Error(`token-estimate failed: ${res.status}`);
-				const data = await res.json();
-				const tokens = Number(data?.tokens ?? 0);
-				const baseDurationSec = Math.max(3, Math.ceil(tokens / INDEX_TOKENS_PER_SEC));
-				// Speed up PDFs ~4x by reducing the estimated duration
-				const isPdf = p.toLowerCase().endsWith('.pdf');
-				const durationSec = isPdf ? Math.max(1, Math.ceil(baseDurationSec / 4)) : baseDurationSec;
-				console.log('[SmartDrive] token-estimate response:', { path: p, tokens, durationSec, source: data?.source, isPdf });
-				return { path: p, tokens, durationMs: durationSec * 1000 };
-			}));
-			const now = Date.now();
-			setIndexing(prev => {
-				const out: IndexingState = { ...prev };
-				for (const r of results) {
-					if (!r) continue;
-					const prevEntry = out[r.path] || { status: 'pending', etaPct: 5 };
-					out[r.path] = { ...prevEntry, status: 'pending', startedAtMs: now, durationMs: r.durationMs, etaPct: Math.max(prevEntry.etaPct ?? 5, 5) };
-				}
-				return out;
-			});
-		} catch (e) {
-			console.error('[SmartDrive] token-estimate error:', e);
+	// Calculate progress based on status and time interpolation
+	const calculateProgress = useCallback((status: string, timeStarted?: number, estimatedTokens?: number, currentProgress?: number): number => {
+		if (status === 'not_started') {
+			return 5;
+		} else if (status === 'in_progress') {
+			if (timeStarted && estimatedTokens) {
+				// Use time-based interpolation if we have start time
+				const elapsed = Date.now() - timeStarted;
+				const estimatedDuration = (estimatedTokens / INDEX_TOKENS_PER_SEC) * 1000;
+				const ratio = Math.min(elapsed / estimatedDuration, 1);
+				return Math.min(95, 5 + (90 * ratio)); // 5% to 95%
+			} else {
+				// Fallback: gradually increase progress for in_progress without time data
+				const baseProgress = currentProgress || 5;
+				// Increment by 5-15% each time, but cap at 85%
+				const increment = Math.random() * 10 + 5; // 5-15%
+				return Math.min(85, baseProgress + increment);
+			}
+		} else if (status === 'success' || status === 'done') {
+			return 100;
+		} else if (status === 'failed') {
+			return 0; // Show error state
 		}
+		return 5; // Default for pending/unknown
 	}, [INDEX_TOKENS_PER_SEC]);
-
-	// Drive time-based progress updates for all pending items with a known duration
-	const hasPendingTimed = useMemo(() => Object.values(indexing).some(v => v.status === 'pending' && v.startedAtMs && v.durationMs), [indexing]);
-	useEffect(() => {
-		if (!hasPendingTimed) return;
-		const interval = setInterval(() => {
-			setIndexing(prev => {
-				const now = Date.now();
-				const out: IndexingState = { ...prev };
-				for (const [path, st] of Object.entries(out)) {
-					if (st.status !== 'pending' || !st.startedAtMs || !st.durationMs) continue;
-					const elapsed = now - st.startedAtMs;
-					const pct = Math.min(100, Math.max(5, Math.round((elapsed / st.durationMs) * 100)));
-					if (pct >= 100) {
-						out[path] = { ...st, status: 'done', etaPct: 100 };
-					} else {
-						out[path] = { ...st, etaPct: pct };
-					}
-				}
-				return out;
-			});
-		}, 500);
-		return () => clearInterval(interval);
-	}, [hasPendingTimed]);
 
 	const uploadFiles = async (files: File[]) => {
 		if (files.length === 0) return;
@@ -351,7 +463,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					console.log(`[SmartDrive] Creating path: ${p} from currentPath=${currentPath}, filename=${filename}`);
 					
 					if (r.onyx_file_id) {
-						next[p] = { status: 'pending', etaPct: 5, onyxFileId: r.onyx_file_id };
+						next[p] = { 
+							status: 'not_started', 
+							etaPct: 5, 
+							onyxFileId: r.onyx_file_id,
+							timeStarted: undefined,
+							timeUpdated: undefined,
+							estimatedTokens: undefined,
+							estimatedDuration: undefined
+						};
 						pathsToTrack.push(p);
 						console.log(`[SmartDrive] Added to indexing tracking:`, { path: p, onyxFileId: r.onyx_file_id });
 					} else {
@@ -364,9 +484,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				
 				setIndexing(next);
 				
-				// Start time-based indexing progress based on token estimates (no polling)
+				// Start polling for real progress data
 				if (pathsToTrack.length > 0) {
-					await startIndexingEstimates(pathsToTrack);
+					await pollIndexingProgress(pathsToTrack);
 				}
 			} else {
 				console.warn('[SmartDrive] No results array in upload response:', data);
@@ -382,13 +502,120 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const pollIndexingStatus = async (paths: string[]) => {
+	const pollIndexingProgress = async (paths: string[], startTime?: number) => {
 		if (!paths || paths.length === 0) {
-			console.log('[SmartDrive] pollIndexingStatus: no paths provided');
+			console.log('[SmartDrive] pollIndexingProgress: no paths provided');
 			return;
 		}
 		
-		console.log('[SmartDrive] pollIndexingStatus: starting poll for paths:', paths);
+		const pollStartTime = startTime || Date.now();
+		const MAX_POLL_TIME = 5 * 60 * 1000; // 5 minutes max polling
+		
+		console.log('[SmartDrive] pollIndexingProgress: starting poll for paths:', paths);
+		
+		try {
+			const params = new URLSearchParams();
+			for (const p of paths) {
+				params.append('paths', p);
+			}
+			
+			const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-progress?${params.toString()}`;
+			console.log('[SmartDrive] pollIndexingProgress: fetching URL:', url);
+			
+			const res = await fetch(url, { credentials: 'same-origin' });
+			console.log('[SmartDrive] pollIndexingProgress: response status:', res.status);
+			
+			if (!res.ok) {
+				console.error('[SmartDrive] pollIndexingProgress: request failed:', { status: res.status, statusText: res.statusText });
+				// Fallback to old endpoint
+				return pollIndexingStatusFallback(paths);
+			}
+			
+			const data = await res.json();
+			console.log('[SmartDrive] pollIndexingProgress: response data:', data);
+			
+			const progressData = data?.progress || {};
+			console.log('[SmartDrive] pollIndexingProgress: extracted progress data:', progressData);
+			
+			let nextRemaining = 0;
+			setIndexing(prev => {
+				console.log('[SmartDrive] pollIndexingProgress: current indexing state:', prev);
+				const out: IndexingState = { ...prev };
+				
+				// Track which paths we're actually polling for
+				const pathsBeingPolled = new Set(paths);
+				
+				for (const p of Object.keys(out)) {
+					// Only update paths that we're currently polling for
+					if (!pathsBeingPolled.has(p)) {
+						continue;
+					}
+					
+					const progress = progressData[p];
+					if (!progress) {
+						console.log(`[SmartDrive] pollIndexingProgress: no progress data for path '${p}'`);
+						// If we're polling for this path but have no data, keep it in pending state
+						if (!out[p] || out[p].status === 'pending' || out[p].status === 'not_started') {
+							nextRemaining += 1;
+						}
+						continue;
+					}
+					
+					const oldState = out[p] || { status: 'unknown', etaPct: 0 };
+					
+					// Parse timestamps
+					const timeStarted = progress.time_started ? new Date(progress.time_started).getTime() : undefined;
+					const timeUpdated = progress.time_updated ? new Date(progress.time_updated).getTime() : undefined;
+					
+					// Calculate progress percentage, using current progress for gradual increase
+					const etaPct = calculateProgress(
+						progress.status, 
+						timeStarted, 
+						progress.estimated_tokens,
+						oldState.etaPct
+					);
+					
+					out[p] = { 
+						...oldState, 
+						status: progress.status,
+						etaPct,
+						timeStarted,
+						timeUpdated,
+						estimatedTokens: progress.estimated_tokens,
+						estimatedDuration: progress.estimated_tokens ? (progress.estimated_tokens / INDEX_TOKENS_PER_SEC) * 1000 : undefined
+					};
+					
+					console.log(`[SmartDrive] pollIndexingProgress: updated state for '${p}':`, { 
+						old: oldState, 
+						new: out[p],
+						progressData: progress
+					});
+					
+					// Continue polling if not complete
+					if (!progress.is_complete) {
+						nextRemaining += 1;
+					}
+				}
+				
+				console.log('[SmartDrive] pollIndexingProgress: final indexing state:', out);
+				console.log('[SmartDrive] pollIndexingProgress: remaining files:', nextRemaining);
+				return out;
+			});
+			
+			// No direct scheduling here; periodic polling is driven by a component-level interval
+			// which watches for any paths still in progress.
+		} catch (error) {
+			console.error('[SmartDrive] pollIndexingProgress: error:', error);
+			// Fallback to old endpoint
+			return pollIndexingStatusFallback(paths);
+		}
+	};
+
+	// Fallback to old binary status check
+	const pollIndexingStatusFallback = async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		
+		console.log('[SmartDrive] pollIndexingStatusFallback: using fallback for paths:', paths);
 		
 		try {
 			const params = new URLSearchParams();
@@ -397,63 +624,38 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			}
 			
 			const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-status?${params.toString()}`;
-			console.log('[SmartDrive] pollIndexingStatus: fetching URL:', url);
-			
 			const res = await fetch(url, { credentials: 'same-origin' });
-			console.log('[SmartDrive] pollIndexingStatus: response status:', res.status);
 			
-			if (!res.ok) {
-				console.error('[SmartDrive] pollIndexingStatus: request failed:', { status: res.status, statusText: res.statusText });
-				return;
-			}
+			if (!res.ok) return;
 			
 			const data = await res.json();
-			console.log('[SmartDrive] pollIndexingStatus: response data:', data);
-			
 			const statuses = data?.statuses || {};
-			console.log('[SmartDrive] pollIndexingStatus: extracted statuses:', statuses);
 			
 			let nextRemaining = 0;
 			setIndexing(prev => {
-				console.log('[SmartDrive] pollIndexingStatus: current indexing state:', prev);
 				const out: IndexingState = { ...prev };
 				
 				for (const p of Object.keys(out)) {
-					// Support encoded/decoded mapping
 					const done = statuses[p] === true || statuses[encodeURI(p)] === true || statuses[decodeURIComponent(p)] === true;
-					console.log(`[SmartDrive] pollIndexingStatus: checking path '${p}':`, {
-						statusForPath: statuses[p],
-						statusForEncoded: statuses[encodeURI(p)],
-						statusForDecoded: statuses[decodeURIComponent(p)],
-						finalDone: done
-					});
-					
 					const oldState = out[p] || { status: 'unknown', etaPct: 0 };
+					
 					out[p] = { 
 						...oldState, 
 						status: done ? 'done' : 'pending', 
 						etaPct: done ? 100 : Math.min(95, (oldState.etaPct ?? 5) + 10) 
 					};
 					
-					console.log(`[SmartDrive] pollIndexingStatus: updated state for '${p}':`, { old: oldState, new: out[p] });
-					
 					if (!done) nextRemaining += 1;
 				}
 				
-				console.log('[SmartDrive] pollIndexingStatus: final indexing state:', out);
-				console.log('[SmartDrive] pollIndexingStatus: remaining files:', nextRemaining);
 				return out;
 			});
 			
-			// Continue polling until all done
 			if (nextRemaining > 0) {
-				console.log('[SmartDrive] pollIndexingStatus: continuing polling in 1.5s, remaining:', nextRemaining);
-				setTimeout(() => pollIndexingStatus(paths), 1500);
-			} else {
-				console.log('[SmartDrive] pollIndexingStatus: all files indexed, stopping polling');
+				setTimeout(() => pollIndexingStatusFallback(paths), 1500);
 			}
 		} catch (error) {
-			console.error('[SmartDrive] pollIndexingStatus: error:', error);
+			console.error('[SmartDrive] pollIndexingStatusFallback: error:', error);
 		}
 	};
 
@@ -463,6 +665,43 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		await uploadFiles(Array.from(e.dataTransfer.files));
 	};
 
+	// Periodic polling driver: while there are any items not complete, poll every 1.5s
+	useEffect(() => {
+		const pathsNeedingPolling = Object.entries(indexing)
+			.filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done' && st.status !== 'failed')
+			.map(([path]) => path);
+
+		if (pathsNeedingPolling.length === 0) return;
+
+		const interval = setInterval(() => {
+			pollIndexingProgress(pathsNeedingPolling);
+		}, 1500);
+
+		return () => clearInterval(interval);
+	}, [indexing]);
+
+	// Cleanup completed indexing entries after a delay to prevent memory buildup
+	useEffect(() => {
+		const completedPaths = Object.entries(indexing)
+			.filter(([_, st]) => st && (st.status === 'success' || st.status === 'done'))
+			.map(([path]) => path);
+
+		if (completedPaths.length === 0) return;
+
+		// Remove completed entries after 3 seconds to allow users to see the completion
+		const timeout = setTimeout(() => {
+			setIndexing(prev => {
+				const next = { ...prev };
+				completedPaths.forEach(path => {
+					delete next[path];
+				});
+				return next;
+			});
+		}, 3000);
+
+		return () => clearTimeout(timeout);
+	}, [indexing]);
+
 	const onDragOver = (e: React.DragEvent) => {
 		e.preventDefault();
 	};
@@ -470,8 +709,36 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const download = async () => {
 		const filesOnly = Array.from(selected).filter(p => items.find(i => i.path === p && i.type === 'file'));
 		for (const p of filesOnly) {
-			const url = `${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`;
-			window.open(url, '_blank');
+			try {
+				const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`, { 
+					credentials: 'same-origin' 
+				});
+				if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+				const data = await res.json();
+				if (data.downloadUrl) {
+					window.open(data.downloadUrl, '_blank');
+				}
+			} catch (e) {
+				console.error('[SmartDrive] Download error:', e);
+				alert('Download failed');
+			}
+		}
+	};
+
+	// Download single path (bypass selection)
+	const downloadPath = async (p: string) => {
+		try {
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(p)}`, { 
+				credentials: 'same-origin' 
+			});
+			if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+			const data = await res.json();
+			if (data.downloadUrl) {
+				window.open(data.downloadUrl, '_blank');
+			}
+		} catch (e) {
+			console.error('[SmartDrive] Download error:', e);
+			alert('Download failed');
 		}
 	};
 
@@ -479,6 +746,27 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const canDelete = selected.size > 0;
 	const canMoveCopy = selected.size > 0;
 	const canDownload = Array.from(selected).some(p => items.find(i => i.path === p && i.type === 'file'));
+	
+	// Check if picker destination is valid (not current path, not a selected item)
+	const isValidPickerDestination = useMemo(() => {
+		// Normalize paths for comparison
+		const normPickerPath = pickerPath.endsWith('/') ? pickerPath : `${pickerPath}/`;
+		const normCurrentPath = currentPath.endsWith('/') ? currentPath : `${currentPath}/`;
+		
+		// Can't move to the same folder
+		if (normPickerPath === normCurrentPath) return false;
+		
+		// Can't move a folder into itself or its children
+		for (const selPath of pickerSelected) {
+			const normSelPath = selPath.endsWith('/') ? selPath : `${selPath}/`;
+			// If picker path is the selected item or a child of it
+			if (normPickerPath === normSelPath || normPickerPath.startsWith(normSelPath)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}, [pickerPath, currentPath, pickerSelected]);
 
 	// In select mode, notify parent on every selection change to enable downstream buttons immediately
 	useEffect(() => {
@@ -566,30 +854,100 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
 							{filtered.map((it, idx) => {
 								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-									setSelected(new Set([it.path]));
 									switch(action) {
-										case 'rename': rename(); break;
-										case 'move': doMoveCopy('move'); break;
-										case 'copy': doMoveCopy('copy'); break;
-										case 'delete': del(); break;
-										case 'download': download(); break;
+										case 'rename': openRenameForPath(it.path); break;
+										case 'move': doMoveCopyForPaths('move', [it.path]); break;
+										case 'copy': doMoveCopyForPaths('copy', [it.path]); break;
+										case 'delete': delPaths([it.path]); break;
+										case 'download': if (it.type === 'file') void downloadPath(it.path); break;
 									}
 								};
 								
 								return (
-									<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
-										<div className="w-8">
+						<div
+							key={it.path}
+							className={`flex items-center gap-3 px-3 py-2 cursor-pointer ${dragOverPath===it.path ? 'bg-blue-100/60' : 'hover:bg-blue-50/50'}`}
+							onClick={(e)=>onRowClick(idx, it, e)}
+							// Drag a row (file or folder)
+							draggable
+							onDragStart={(e)=>{
+								try {
+									// Determine which paths are being dragged
+									const hasItSelected = selected.has(it.path);
+									const paths = hasItSelected && selected.size>0 ? Array.from(selected) : [it.path];
+									e.dataTransfer.setData('application/x-sd-paths', JSON.stringify(paths));
+									e.dataTransfer.effectAllowed = 'move';
+								} catch {}
+							}}
+							onDragEnd={()=> setDragOverPath(null)}
+							// Accept drop if this row is a folder target
+							onDragOver={(e)=>{
+								if (it.type !== 'directory') return;
+								e.preventDefault();
+								setDragOverPath(it.path);
+							}}
+							onDragLeave={(e)=>{
+								if ((e.target as HTMLElement).closest('[data-sd-row]')) return;
+								setDragOverPath(prev => prev===it.path ? null : prev);
+							}}
+							onDrop={async (e)=>{
+								if (it.type !== 'directory') return;
+								e.preventDefault();
+								setDragOverPath(null);
+								try {
+									const raw = e.dataTransfer.getData('application/x-sd-paths');
+									const paths: string[] = raw ? JSON.parse(raw) : [];
+									if (!paths || paths.length===0) return;
+									setBusy(true);
+									const destFolder = it.path.endsWith('/') ? it.path : `${it.path}/`;
+									for (const p of paths) {
+										// Prevent moving a folder into itself or descendant
+										const normDest = destFolder;
+										const normSrc = p.endsWith('/') ? p : `${p}`;
+										if (normDest === normSrc || normDest.startsWith(normSrc)) {
+											continue;
+										}
+
+										const baseName = p.split('/').pop() || '';
+										let to = `${destFolder}${baseName}`.replace(/\/+?/g, '/');
+										const srcItem = items.find(i => i.path === p);
+										if (srcItem && srcItem.type === 'file') {
+											to = to.replace(/\/$/, '');
+										} else if (srcItem && srcItem.type === 'directory') {
+											to = to.endsWith('/') ? to : `${to}/`;
+										}
+										console.log(`[SmartDrive] dnd move: from=${p} to=${to}`);
+										const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/move`, {
+											method: 'POST',
+											headers: { 'Content-Type': 'application/json' },
+											credentials: 'same-origin',
+											body: JSON.stringify({ from: p, to })
+										});
+										if (!res.ok) {
+											console.error('[SmartDrive] dnd move failed:', await res.text());
+										}
+									}
+									await fetchList(currentPath);
+								} catch (err) {
+									console.error('[SmartDrive] dnd error:', err);
+								} finally {
+									setBusy(false);
+								}
+							}}
+							data-sd-row
+						>
+							<div className="w-8" data-sd-interactive onMouseDown={(e)=>e.stopPropagation()} onClick={(e)=>e.stopPropagation()}>
 											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
 										</div>
 										<div className="w-5 h-5">
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 										</div>
 										<div className="flex-1">
-											<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
-											<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+									<div className="font-medium text-slate-800">{it.name}</div>
+						<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${formatDate(it.modified)}` : ''}</div>
 											{it.type === 'file' && (() => { 
-												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-												const shouldShow = s && s.status !== 'done';
+											const s = indexing[it.path]; 
+												const shouldShow = s && s.status !== 'done' && s.status !== 'success';
 												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
 													indexingState: s,
 													shouldShow,
@@ -599,7 +957,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											})() && (
 												<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
 													{(() => { 
-														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+												const s = indexing[it.path]; 
 														const pct = s?.etaPct ?? 10; 
 														return (
 															<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
@@ -611,20 +969,20 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											)}
 										</div>
 										<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-										<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+						<div className="w-44 text-right text-sm text-slate-700">{it.modified ? formatDate(it.modified) : ''}</div>
 										<div className="w-8 flex justify-end">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+										<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()} onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
 														<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
 													</Button>
 												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-													<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-													<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+									<DropdownMenuContent align="end" data-sd-interactive onMouseDown={(e: React.MouseEvent)=>e.stopPropagation()}>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('rename');}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+										<DropdownMenuItem onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('delete');}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+										<DropdownMenuItem disabled={it.type !== 'file'} onSelect={(e: Event)=>{e.preventDefault(); handleMenuAction('download');}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</div>
@@ -637,6 +995,65 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			</div>
 
 			{/* Footer buttons removed in select mode; selection is communicated live via onFilesSelected */}
+			
+			{/* Rename Modal */}
+			<Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+				<DialogContent onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+					<DialogHeader>
+						<DialogTitle>Rename item</DialogTitle>
+						<DialogDescription>Enter a new name for the selected item.</DialogDescription>
+					</DialogHeader>
+					<div className="mt-2">
+						<UiInput value={renameNewName} onChange={(e: React.ChangeEvent<HTMLInputElement>)=>setRenameNewName(e.target.value)} placeholder="New name" autoFocus />
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={()=>setRenameOpen(false)}>Cancel</Button>
+						<Button onClick={submitRename} disabled={renameSaving || !renameNewName.trim()}>{renameSaving ? 'Renaming…' : 'Rename'}</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Folder Picker Modal */}
+			<Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+				<DialogContent onClick={(e: React.MouseEvent)=>e.stopPropagation()} className="max-w-xl">
+					<DialogHeader>
+						<DialogTitle>{pickerOp === 'move' ? 'Move to folder' : 'Copy to folder'}</DialogTitle>
+						<DialogDescription>Select a destination folder.</DialogDescription>
+					</DialogHeader>
+					<div className="space-y-2">
+						<div className="flex items-center gap-2 text-sm text-slate-600">
+							<Button variant="link" className="px-0" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>Up one level</Button>
+							<span className="truncate">{pickerPath}</span>
+						</div>
+						<div className="border border-gray-200 rounded-md max-h-64 overflow-y-auto">
+							{pickerLoading ? (
+								<div className="p-4 text-center text-slate-600">Loading…</div>
+							) : (
+								<div className="divide-y divide-gray-200">
+									{pickerPath !== '/' && (
+										<div className="px-3 py-2 hover:bg-blue-50 cursor-pointer" onClick={()=>{ const parent = pickerPath.split('/').slice(0,-1).join('/') || '/'; loadPickerDirs(parent); }}>..</div>
+									)}
+									{pickerDirs.map(d => (
+										<div key={d.path} className="px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center gap-2" onClick={()=>loadPickerDirs(d.path)}>
+											<Folder className="w-4 h-4 text-blue-500" />
+											<span className="truncate">{d.name}</span>
+										</div>
+									))}
+									{pickerDirs.length === 0 && (
+										<div className="p-4 text-center text-slate-500">No subfolders</div>
+									)}
+								</div>
+							)}
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={()=>setPickerOpen(false)}>Cancel</Button>
+					<Button onClick={() => { console.log('[SmartDrive] Select folder clicked', { op: pickerOp, pickerPath, selected: Array.from(selected) }); submitPicker(pickerPath); }} disabled={pickerLoading || !isValidPickerDestination}>
+						Select folder
+					</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };
@@ -649,3 +1066,13 @@ function formatSize(bytes?: number | null): string {
 }
 
 export default SmartDriveBrowser; 
+ 
+function formatDate(val?: string | null): string {
+	if (!val) return '';
+	try {
+		const d = new Date(val);
+		return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+	} catch {
+		return '';
+	}
+}

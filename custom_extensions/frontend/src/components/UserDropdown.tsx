@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, User, Settings, Bell } from "lucide-react";
+import { LogOut, User, Settings, Bell, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { UserRole } from "../lib/types"; 
 import { checkUserIsNoAuthUser, logout } from "../lib/user"; 
 import { LOGOUT_DISABLED } from "../lib/constants";
 import { resetUserIdentity } from "../lib/mixpanelClient"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface DropdownOptionProps {
   href?: string;
@@ -92,6 +93,7 @@ export function UserDropdown({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   // Helper function to redirect to main app's auth endpoint (copied from projects page logic)
   const redirectToMainAuth = (path: string) => {
@@ -155,6 +157,11 @@ export function UserDropdown({
                   </>
                 )}
                 
+                <DropdownOption
+                  href="/payments"
+                  icon={<CreditCard size={16} className="my-auto" />}
+                  label={t('interface.billing', 'Billing')}
+                />
                 {showAdminPanel && (
                   <DropdownOption
                     href="/admin/main"
