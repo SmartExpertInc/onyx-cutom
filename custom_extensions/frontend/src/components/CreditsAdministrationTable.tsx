@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Minus, User, X } from 'lucide-react';
+import { Plus, Minus, User, X, CheckCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -50,15 +50,17 @@ interface TableProps {
   onUserSelect: (user: UserCredits | null) => void;
   onAddCredits: (user: UserCredits) => void;
   onRemoveCredits: (user: UserCredits) => void;
+  onVerifyEmail: (user: UserCredits) => void;
 }
 
-const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaires, selectedUser, onUserSelect, onAddCredits, onRemoveCredits }) => {
+const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaires, selectedUser, onUserSelect, onAddCredits, onRemoveCredits, onVerifyEmail }) => {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof UserCredits>('name');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [selectedUserProfile, setSelectedUserProfile] = useState<UserQuestionnaire | null>(null);
+  const [verifyingUsers, setVerifyingUsers] = useState<Set<number>>(new Set());
 
   const handleRequestSort = (property: keyof UserCredits) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -96,6 +98,33 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
 
   const hasQuestionnaire = (userId: string) => {
     return questionnaires.some(q => q.onyx_user_id === userId && q.answers.length > 0);
+  };
+
+  const handleVerifyEmail = async (user: UserCredits, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!user.email) {
+      alert('User does not have an email address');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to manually verify the email for ${user.email}? This will allow the user to access the system without email verification.`)) {
+      return;
+    }
+
+    setVerifyingUsers(prev => new Set(prev).add(user.id));
+    
+    try {
+      await onVerifyEmail(user);
+    } catch (error) {
+      console.error('Error verifying email:', error);
+    } finally {
+      setVerifyingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(user.id);
+        return newSet;
+      });
+    }
   };
 
   const sortedUsers = React.useMemo(() => {
@@ -242,7 +271,7 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
                   )}
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -263,6 +292,17 @@ const CreditsAdministrationTable: React.FC<TableProps> = ({ users, questionnaire
                       <Minus className="w-3 h-3 mr-1" />
                       Remove
                     </button>
+                    {user.email && (
+                      <button
+                        onClick={(e) => handleVerifyEmail(user, e)}
+                        disabled={verifyingUsers.has(user.id)}
+                        className="flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 border border-blue-300 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Manually verify user's email"
+                      >
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {verifyingUsers.has(user.id) ? 'Verifying...' : 'Verify Email'}
+                      </button>
+                    )}
                   </Box>
                 </TableCell>
               </TableRow>

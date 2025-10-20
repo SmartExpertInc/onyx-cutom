@@ -32541,6 +32541,45 @@ async def get_user_credits_by_email(
         logger.error(f"Error getting user credits by email: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
 
+@app.patch("/api/custom/admin/verify-user-email")
+async def verify_user_email_admin(
+    request: Request,
+    user_email: str = Query(...)
+):
+    """Admin endpoint to manually verify a user's email address"""
+    await verify_admin_user(request)
+    
+    try:
+        # Get the session cookie to forward to Onyx backend
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        
+        # Forward request to Onyx backend
+        async with httpx.AsyncClient() as client:
+            response = await client.patch(
+                f"{ONYX_API_SERVER_URL}/manage/admin/verify-user-email",
+                json={"user_email": user_email},
+                cookies={ONYX_SESSION_COOKIE_NAME: session_cookie},
+                timeout=30.0
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="User not found")
+            elif response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to verify user email: {response.text}"
+                )
+            
+            return {"success": True, "message": f"Successfully verified email for {user_email}"}
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error verifying user email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to verify user email")
+
 # NEW: User transaction history (purchases + product generations)
 @app.get("/api/custom/admin/credits/user/{user_id}/transactions", response_model=UserTransactionHistoryResponse)
 async def get_user_transactions(

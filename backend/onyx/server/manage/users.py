@@ -478,6 +478,27 @@ def activate_user(
     db_session.commit()
 
 
+@router.patch("/manage/admin/verify-user-email")
+def verify_user_email(
+    user_email: UserByEmail,
+    _: User | None = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    """Admin endpoint to manually verify a user's email address"""
+    user_to_verify = get_user_by_email(
+        email=user_email.user_email, db_session=db_session
+    )
+    if not user_to_verify:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user_to_verify.is_verified is True:
+        logger.warning("{} is already verified".format(user_to_verify.email))
+
+    user_to_verify.is_verified = True
+    db_session.add(user_to_verify)
+    db_session.commit()
+
+
 @router.get("/manage/admin/valid-domains")
 def get_valid_domains(
     _: User | None = Depends(current_admin_user),
