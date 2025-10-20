@@ -237,6 +237,7 @@
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
         .big-image-top {
+            width: 100%;
             height: 600px;
             background: #ffffff;
             font-family: var(--content-font);
@@ -994,7 +995,7 @@
         }
         
         .bullet-points-right .bullets-container {
-            width: 77%;
+            width: 100%;
             font-size: 0.9rem;
             font-family: sans-serif;
             color: #ffffff;
@@ -2521,7 +2522,7 @@
                                 {% if slide.props.bullets and slide.props.bullets|length > 0 %}
                                     {% for bullet in slide.props.bullets %}
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
-                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                            <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
                                                 <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
                                             </li>
@@ -2529,7 +2530,7 @@
                                     {% endfor %}
                                 {% else %}
                                     {% for i in range(3) %}
-                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 70%;">
+                                        <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                             <span style="color: #ffffff; font-weight: bold; min-width: 14px; font-size: 0.8rem;">▶</span>
                                             <span style="font-family: sans-serif; font-size: 0.9rem; color: #ffffff; opacity: 0.8;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
                                         </li>
