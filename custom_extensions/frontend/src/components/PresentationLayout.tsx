@@ -178,7 +178,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   return (
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-80 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
+      <div className="w-100 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
           {/* Add New Slide Button */}
           <div className="p-4">
             <button 
@@ -195,7 +195,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute left-4 top-20 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-20 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
                 width: 'calc(100% - 32px)',
                 maxHeight: '420px',
@@ -295,10 +295,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col bg-white">
         {/* Scrollable Slides Container - Vertical scroll for big slides */}
         <div 
-          className="flex-1 overflow-y-auto overflow-x-hidden slides-vertical-scroll"
+          className="flex-1 bg-white"
           ref={scrollContainerRef}
         >
           <div className="space-y-8 p-6">
@@ -308,8 +308,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 className="flex items-center justify-center"
                 data-slide-index={index}
               >
-                <div className="w-full max-w-8xl">
-                  <div className="main-slide-container rounded-2xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                <div className="w-full max-w-10xl">
+                  <div className="main-slide-container rounded-lg" style={{ aspectRatio: '16/9' }}>
                     <ComponentBasedSlideRenderer
                       slide={slide}
                       isEditable={isEditable}
