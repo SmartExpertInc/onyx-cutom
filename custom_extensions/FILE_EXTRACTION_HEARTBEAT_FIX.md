@@ -69,25 +69,28 @@ while tasks_set:
 
 ## Expected Behavior
 
-### Progress Update Timeline (17 files in 3 batches)
+**Note:** Batch size was reduced from 8 to 3 after discovering that larger batches (32 parallel HTTP requests) overwhelm the Onyx API server. See `API_OVERLOAD_FIX.md` for details.
+
+### Progress Update Timeline (17 files in 6 batches of 3)
 
 | Time (s) | Update Type | Message |
 |----------|-------------|---------|
 | 0 | Initial | "Extracting context from 17 files..." |
-| 1 | Batch Start | "Processing files batch 1/3 (1-8 of 17)..." |
-| 11 | Heartbeat | "Processing batch 1/3... (10s elapsed, 3/8 files done)" |
-| 21 | Heartbeat | "Processing batch 1/3... (20s elapsed, 6/8 files done)" |
-| 30 | Batch Complete | "Completed 8/17 files" |
-| 31 | Batch Start | "Processing files batch 2/3 (9-16 of 17)..." |
-| 41 | Heartbeat | "Processing batch 2/3... (10s elapsed, 4/8 files done)" |
-| 50 | Batch Complete | "Completed 16/17 files" |
-| 51 | Batch Start | "Processing files batch 3/3 (17-17 of 17)..." |
-| 56 | Batch Complete | "Completed 17/17 files" |
-| 57 | Final | "Complete with context" |
+| 1 | Batch Start | "Processing files batch 1/6 (1-3 of 17)..." |
+| 11 | Heartbeat | "Processing batch 1/6... (10s elapsed, 1/3 files done)" |
+| 21 | Heartbeat | "Processing batch 1/6... (20s elapsed, 2/3 files done)" |
+| 30 | Batch Complete | "Completed 3/17 files" |
+| 31 | Batch Start | "Processing files batch 2/6 (4-6 of 17)..." |
+| 41 | Heartbeat | "Processing batch 2/6... (10s elapsed, 1/3 files done)" |
+| 50 | Batch Complete | "Completed 6/17 files" |
+| ... | ... | ... (4 more batches) |
+| ~180 | Final | "Completed 17/17 files" |
 
-**Total Updates:** 10-12 packets  
+**Total Updates:** 18-24 packets (more batches = more updates)  
 **Maximum Gap:** 10 seconds  
-**Timeout Risk:** **ELIMINATED ✅**
+**Processing Time:** ~3 minutes for 17 files  
+**Timeout Risk:** **ELIMINATED ✅**  
+**API Stability:** **ENSURED ✅** (batch_size=3 prevents overload)
 
 ### Frontend Console Output
 

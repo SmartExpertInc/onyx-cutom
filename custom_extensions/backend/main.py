@@ -10933,7 +10933,8 @@ async def extract_file_context_from_onyx_with_progress(
             logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
             
             # Process files in batches and yield progress for each batch
-            batch_size = 8
+            # Reduced batch size to prevent overwhelming the Onyx API server
+            batch_size = 3
             all_file_results = []
             total_files = len(file_ids)
             
