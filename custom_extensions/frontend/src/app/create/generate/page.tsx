@@ -51,7 +51,7 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
 
 // Delete icon component
 const DeleteIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <button onClick={onClick} className="ml-2 hover:opacity-70 transition-opacity">
+  <button onClick={onClick} className="ml-2 hover:opacity-70 transition-opacity cursor-pointer">
     <svg width="31" height="18" viewBox="0 0 31 18" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path opacity="0.8" d="M8.5 4.2H22.5M20.9444 4.2V15.4C20.9444 16.2 20.1667 17 19.3889 17H11.6111C10.8333 17 10.0556 16.2 10.0556 15.4V4.2M12.3889 4.2V2.6C12.3889 1.8 13.1667 1 13.9444 1H17.0556C17.8333 1 18.6111 1.8 18.6111 2.6V4.2M13.9444 8.2V13M17.0556 8.2V13" stroke="#EF4444" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
