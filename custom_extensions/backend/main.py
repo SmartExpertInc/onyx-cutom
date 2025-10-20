@@ -17855,6 +17855,23 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         
         logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ==========================================")
         
+        # 🎯 CRITICAL INSTRUMENTATION: Check assessment data in database
+        if content and isinstance(content, dict) and 'courseOutlineModules' in content:
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Project {project_id} - courseOutlineModules EXISTS in database!")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Number of modules: {len(content['courseOutlineModules'])}")
+            for idx, module in enumerate(content.get('courseOutlineModules', [])):
+                if isinstance(module, dict):
+                    has_assessments = 'lessonAssessments' in module
+                    logger.info(f"🎯 [ASSESSMENT DB READ] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                    logger.info(f"🎯 [ASSESSMENT DB READ] - Has lessonAssessments: {has_assessments}")
+                    if has_assessments:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                    else:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - ❌ NO lessonAssessments in database for module {idx}")
+            logger.info(f"🎯 [ASSESSMENT DB READ] This data WILL BE sent to frontend")
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+        
         # 📊 DETAILED LOGGING: Language preference in retrieved data
         language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
         logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: '{language_from_db}'")
@@ -26033,6 +26050,23 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ❌ courseOutlineTableHeaders NOT FOUND in payload")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] Payload contains: {list(content_to_store_for_db.keys())}")
             logger.info(f"🎯 [TABLE HEADER BACKEND] ==========================================")
+            
+            # 🎯 CRITICAL INSTRUMENTATION: Assessment data in courseOutlineModules
+            if 'courseOutlineModules' in content_to_store_for_db:
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Project {project_id} - courseOutlineModules FOUND in payload!")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Number of modules: {len(content_to_store_for_db['courseOutlineModules'])}")
+                for idx, module in enumerate(content_to_store_for_db.get('courseOutlineModules', [])):
+                    if isinstance(module, dict):
+                        has_assessments = 'lessonAssessments' in module
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] - Has lessonAssessments: {has_assessments}")
+                        if has_assessments:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                        else:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - ❌ NO lessonAssessments found in module {idx}")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] This data WILL BE stored in database")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
         
         # 🚨 CRITICAL: Validate that the data structure matches the component type
         if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
