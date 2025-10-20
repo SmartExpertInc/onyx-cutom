@@ -10624,6 +10624,195 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
+# --- OpenAI Streaming Functions ---
+
+async def stream_openai_response(message: str, temperature: float = 0.7):
+    """
+    Stream response from OpenAI directly without file context.
+    
+    Args:
+        message: The message to send to OpenAI
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[OPENAI_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{"role": "user", "content": message}],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[OPENAI_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
+async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
+    """
+    Stream response from OpenAI using extracted file context as PRIMARY knowledge source.
+    
+    This function intelligently handles large files:
+    - Counts tokens to stay within limits (100k tokens max for context)
+    - Uses full content when possible
+    - Falls back to enhanced summaries for large files
+    - Prioritizes file data over general internet knowledge
+    
+    Args:
+        message: The base wizard message/request
+        file_context: Extracted context from Onyx files (dict with summaries, contents, topics)
+        product_type: Type of product being generated
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[HYBRID_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        # Token limits for GPT-4 Turbo (128k total, reserve 28k for response)
+        MAX_CONTEXT_TOKENS = 100000  # Conservative limit for context
+        TOKENS_PER_CHAR_ESTIMATE = 0.25  # Rough estimate: 1 token ≈ 4 characters
+        
+        # Build enhanced prompt that prioritizes file content
+        file_content_section = ""
+        
+        if isinstance(file_context, dict):
+            # Extract file contents and summaries
+            file_contents = file_context.get("file_contents", [])
+            file_summaries = file_context.get("file_summaries", [])
+            key_topics = file_context.get("key_topics", [])
+            
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_contents)} contents, {len(file_summaries)} summaries, {len(key_topics)} topics")
+            
+            if file_contents or file_summaries:
+                file_content_section = "\n\n" + "="*80 + "\n"
+                file_content_section += "📚 SOURCE DOCUMENT CONTENT (PRIMARY KNOWLEDGE BASE)\n"
+                file_content_section += "="*80 + "\n\n"
+                file_content_section += "**CRITICAL INSTRUCTION**: The following content is extracted from the user's uploaded documents. "
+                file_content_section += "This is your PRIMARY and MOST IMPORTANT source of information. You MUST:\n"
+                file_content_section += "1. Base ALL your content generation on this document content\n"
+                file_content_section += "2. Use facts, concepts, and information DIRECTLY from these documents\n"
+                file_content_section += "3. Reference and teach the specific topics found in these documents\n"
+                file_content_section += "4. DO NOT rely on general internet knowledge unless the documents lack specific information\n"
+                file_content_section += "5. If documents contain specific examples, data, or case studies, USE THEM in your content\n"
+                file_content_section += "6. Your goal is to teach what's IN these documents, not general knowledge about the topic\n\n"
+                
+                # Add key topics if available
+                if key_topics:
+                    file_content_section += f"**Key Topics from Documents**: {', '.join(key_topics[:20])}\n\n"
+                
+                # Calculate total content size
+                total_content_chars = sum(len(content) for content in file_contents if content)
+                estimated_tokens = total_content_chars * TOKENS_PER_CHAR_ESTIMATE
+                
+                logger.info(f"[HYBRID_STREAM] Total content size: {total_content_chars} chars, estimated {int(estimated_tokens)} tokens")
+                
+                # Decide whether to use full content or enhanced summaries
+                if estimated_tokens < MAX_CONTEXT_TOKENS:
+                    # Use FULL CONTENT - files are small enough
+                    logger.info(f"[HYBRID_STREAM] Using FULL CONTENT (within token limit)")
+                    file_content_section += "---\n**FULL DOCUMENT CONTENT**:\n---\n\n"
+                    
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"### Document {i}:\n\n{content}\n\n"
+                            file_content_section += "---\n\n"
+                else:
+                    # Use ENHANCED SUMMARIES - files are too large
+                    logger.info(f"[HYBRID_STREAM] Using ENHANCED SUMMARIES (content exceeds token limit)")
+                    
+                    # Calculate how much content we can include per file
+                    max_chars_per_file = int((MAX_CONTEXT_TOKENS / TOKENS_PER_CHAR_ESTIMATE) / len(file_contents))
+                    
+                    file_content_section += "---\n**DOCUMENT CONTENT** (Enhanced excerpts from large documents):\n---\n\n"
+                    file_content_section += f"**Note**: Documents were too large to include in full. Below are key excerpts and summaries.\n\n"
+                    
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"### Document {i}:\n\n"
+                            
+                            # Include summary if available
+                            if i <= len(file_summaries) and file_summaries[i-1]:
+                                file_content_section += f"**Summary**: {file_summaries[i-1]}\n\n"
+                            
+                            # Include beginning excerpt
+                            if len(content) > max_chars_per_file:
+                                excerpt = content[:max_chars_per_file]
+                                # Try to cut at sentence boundary
+                                last_period = excerpt.rfind('.')
+                                if last_period > max_chars_per_file * 0.8:  # If we can find a period in last 20%
+                                    excerpt = excerpt[:last_period + 1]
+                                file_content_section += f"**Key Content Excerpt** (first ~{len(excerpt)} chars of {len(content)}):\n{excerpt}\n\n"
+                                file_content_section += f"*[Document continues with {len(content) - len(excerpt)} more characters]*\n\n"
+                            else:
+                                file_content_section += f"**Full Content**:\n{content}\n\n"
+                            
+                            file_content_section += "---\n\n"
+                
+                # Add summaries if we only have those (no content)
+                if not file_contents and file_summaries:
+                    file_content_section += "**Document Summaries**:\n\n"
+                    for i, summary in enumerate(file_summaries, 1):
+                        if summary and len(summary.strip()) > 0:
+                            file_content_section += f"{i}. {summary}\n\n"
+                
+                file_content_section += "="*80 + "\n"
+                file_content_section += "END OF SOURCE DOCUMENTS - USE THIS AS YOUR PRIMARY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+        elif isinstance(file_context, str):
+            # Handle string context (fallback case)
+            file_content_section = f"\n\n**SOURCE DOCUMENT CONTENT**:\n{file_context}\n\n"
+            file_content_section += "**Note**: Base your content on the above document content.\n\n"
+        
+        # Combine with original message
+        enhanced_message = file_content_section + message
+        
+        logger.info(f"[HYBRID_STREAM] Enhanced message length: {len(enhanced_message)} (original: {len(message)}, file context: {len(file_content_section)})")
+        logger.info(f"[HYBRID_STREAM] Starting streaming for product type: {product_type}")
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{
+                "role": "system",
+                "content": "You are an educational content creator. When provided with source documents, you MUST use them as your primary knowledge source. Base all your content on what's actually in the documents, not on general knowledge. Reference specific information, examples, and data from the provided documents."
+            }, {
+                "role": "user",
+                "content": enhanced_message
+            }],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[HYBRID_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
 # --- Enhanced Hybrid Approach Functions ---
 
 # Cache for file contexts to avoid repeated extraction
