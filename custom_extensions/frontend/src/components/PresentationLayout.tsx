@@ -39,15 +39,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     setSelectedSlideId(slideId);
     setActiveSlideIndex(index);
     
-    // Auto-scroll the selected slide into view in both horizontal scroll containers
-    const scrollContainers = document.querySelectorAll('.slide-scroll-container');
-    scrollContainers.forEach((container) => {
-      const slideElements = container.querySelectorAll('.slide-scroll-item');
-      const selectedElement = slideElements[index] as HTMLElement;
-      if (selectedElement) {
-        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    });
+    // Scroll to the selected slide in the main container
+    if (scrollContainerRef.current) {
+      const slideWidth = scrollContainerRef.current.scrollWidth / deck.slides.length;
+      scrollContainerRef.current.scrollTo({
+        left: slideWidth * index,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
@@ -165,86 +164,49 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Scrollable Slide Strip */}
-        <div className="px-6 pt-6">
-          <div className="slide-scroll-container">
-            <div className="slide-scroll-content">
-              {deck.slides.map((slide, index) => {
-                const previewContent = getSlidePreviewContent(slide);
-                const isActive = index === activeSlideIndex;
-                
-                return (
-                  <button
-                    key={`top-${slide.slideId}`}
-                    onClick={() => handleSlideSelect(slide.slideId, index)}
-                    className={`slide-scroll-item ${isActive ? 'active' : ''}`}
-                  >
-                    <div className="slide-scroll-number">{index + 1}</div>
-                    <div className="slide-scroll-preview">
-                      <div className="slide-scroll-title">{previewContent.title}</div>
-                      <div className="slide-scroll-subtitle">{slide.templateId?.replace('-slide', '') || 'Template'}</div>
-                    </div>
-                    {isActive && <div className="slide-scroll-indicator"></div>}
-                  </button>
-                );
-              })}
-            </div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Scrollable Slides Container */}
+        <div 
+          className="flex-1 overflow-x-auto overflow-y-hidden snap-x snap-mandatory slides-horizontal-scroll"
+          ref={scrollContainerRef}
+          onScroll={(e) => {
+            const container = e.currentTarget;
+            const slideWidth = container.scrollWidth / deck.slides.length;
+            const newIndex = Math.round(container.scrollLeft / slideWidth);
+            if (newIndex !== activeSlideIndex) {
+              setActiveSlideIndex(newIndex);
+              setSelectedSlideId(deck.slides[newIndex].slideId);
+            }
+          }}
+        >
+          <div className="flex h-full" style={{ width: `${deck.slides.length * 100}%` }}>
+            {deck.slides.map((slide, index) => (
+              <div
+                key={slide.slideId}
+                className="snap-center flex items-center justify-center p-6"
+                style={{ width: `${100 / deck.slides.length}%` }}
+              >
+                <div className="w-full max-w-7xl">
+                  <div className="main-slide-container rounded-2xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                    <ComponentBasedSlideRenderer
+                      slide={slide}
+                      isEditable={isEditable}
+                      onSlideUpdate={handleSlideUpdate}
+                      theme={theme}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Main Slide Display */}
-        <div className="flex-1 p-6 flex items-center justify-center">
-          <div className="w-full max-w-7xl">
-            {/* Slide Container with Professional Styling */}
-            <div className="relative">
-              <div className="main-slide-container rounded-2xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                {currentSlide && (
-                  <ComponentBasedSlideRenderer
-                    slide={currentSlide}
-                    isEditable={isEditable}
-                    onSlideUpdate={handleSlideUpdate}
-                    theme={theme}
-                  />
-                )}
-              </div>
-              
-              {/* Scrollable Slide Thumbnails Strip */}
-              <div className="mt-8">
-                <div className="slide-scroll-container" ref={scrollContainerRef}>
-                  <div className="slide-scroll-content">
-                    {deck.slides.map((slide, index) => {
-                      const previewContent = getSlidePreviewContent(slide);
-                      const isActive = index === activeSlideIndex;
-                      
-                      return (
-                        <button
-                          key={slide.slideId}
-                          onClick={() => handleSlideSelect(slide.slideId, index)}
-                          className={`slide-scroll-item ${isActive ? 'active' : ''}`}
-                        >
-                          <div className="slide-scroll-number">{index + 1}</div>
-                          <div className="slide-scroll-preview">
-                            <div className="slide-scroll-title">{previewContent.title}</div>
-                            <div className="slide-scroll-subtitle">{slide.templateId?.replace('-slide', '') || 'Template'}</div>
-                          </div>
-                          {isActive && <div className="slide-scroll-indicator"></div>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                {/* Slide Counter */}
-                <div className="flex items-center justify-center mt-4">
-                  <div className="slide-counter px-4 py-2 rounded-full">
-                    <span className="text-sm font-medium text-gray-600">
-                      Slide {activeSlideIndex + 1} of {deck.slides.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        
+        {/* Slide Counter */}
+        <div className="flex items-center justify-center py-4 bg-gray-50">
+          <div className="slide-counter px-4 py-2 rounded-full">
+            <span className="text-sm font-medium text-gray-600">
+              Slide {activeSlideIndex + 1} of {deck.slides.length}
+            </span>
           </div>
         </div>
       </div>
