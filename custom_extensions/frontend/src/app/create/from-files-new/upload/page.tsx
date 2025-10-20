@@ -274,7 +274,7 @@ export default function UploadFilesPage() {
 
         {/* Upload area */}
         <div 
-          className={`w-full mb-4 bg-white rounded-sm shadow-lg border-[#E0E0E0] flex flex-col min-h-[45px] transition-colors ${
+          className={`w-full bg-white rounded-sm shadow-lg border-[#E0E0E0] flex flex-col min-h-[45px] transition-colors ${
             isDragging ? 'border-[#0F58F9] bg-blue-50' : 'border-gray-300'
           } ${uploadedFiles.length === 0 ? 'items-center justify-center cursor-pointer' : ''}`}
           onDragOver={handleDragOver}
@@ -308,7 +308,7 @@ export default function UploadFilesPage() {
 
         {/* Question text - only show when Add more files and Continue buttons are visible */}
         {!showImportOptions && (
-          <p className="text-2xl text-center" style={{ color: '#FAFAFA' }}>
+          <p className="text-2xl text-center mt-4" style={{ color: '#FAFAFA' }}>
             {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
           </p>
         )}

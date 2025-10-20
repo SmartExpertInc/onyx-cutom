@@ -232,9 +232,10 @@ export default function FromFilesNew() {
 
           <ImportCard
             icon={<KnowledgeBaseIcon />}
-            title={t('interface.fromFiles.importFromSmartDrive', 'Import from SmartDrive')}
+            title={t('interface.fromFiles.importFromKnowledgeBase', 'Import from Knowledge base')}
             features={[
-              'Any file from your drive',
+              'Any file from smartdrive',
+              'All files from connectors'
             ]}
             onClick={() => setIsSmartDriveModalOpen(true)}
           />
@@ -248,25 +249,6 @@ export default function FromFilesNew() {
               'Notion docs'
             ]}
             onClick={() => setIsModalOpen(true)}
-          />
-        </div>
-
-        {/* Old step-based interface - smaller cards */}
-        <div className="w-full space-y-4 mt-8">
-          <StepCard
-            Icon={Search}
-            title={t('interface.fromFiles.createFromKnowledgeBase', 'Create from Knowledge Base')}
-            description={t('interface.fromFiles.knowledgeBaseDescription', 'Generate content by searching your entire Knowledge Base for relevant information. Perfect for comprehensive content creation.')}
-            href="/create/generate?fromKnowledgeBase=true"
-            isActive={true}
-          />
-          
-          <StepCard
-            Icon={FileText}
-            title={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
-            description={t('interface.fromFiles.specificFilesDescription', 'Select specific files and folders to use as source material. Ideal for targeted content creation.')}
-            href="/create/from-files/specific"
-            isActive={true}
           />
         </div>
       </div>
