@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 
@@ -21,11 +21,13 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [localSelectedFiles, setLocalSelectedFiles] = useState<any[]>([]);
 
-  if (!isOpen) return null;
-
-  const handleFileSelection = (files: any[]) => {
+  const handleFileSelection = useCallback((files: any[]) => {
     setLocalSelectedFiles(files);
-  };
+  }, []);
+
+  const handleTabChange = useCallback((tab: 'smart-drive' | 'connectors') => {
+    setActiveTab(tab);
+  }, []);
 
   const handleImport = () => {
     // Call the optional onImport callback if provided
@@ -78,9 +80,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     router.push('/create/from-files-new/upload');
   };
 
-  const handleTabChange = (tab: 'smart-drive' | 'connectors') => {
-    setActiveTab(tab);
-  };
+  if (!isOpen) return null;
 
   return (
     <div 
@@ -109,7 +109,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
         </h2>
 
         {/* SmartDrive Connectors Component */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <SmartDriveConnectors 
             mode="select" 
             onTabChange={handleTabChange} 

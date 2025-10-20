@@ -815,7 +815,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   }
 
   return (
-    <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
+    <div className={`space-y-8 ${isSelectMode ? 'pt-4' : ''} ${className}`} onClick={() => setOpenDropdownId(null)}>
       {/* Tabs */}
       <div className="flex justify-between gap-4 mb-2">
           <div className="flex">
@@ -868,7 +868,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               </div>
             
             {activeTab === 'smart-drive' && (<div 
-              className="flex items-center px-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="flex items-center px-3 bg-white border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
               onClick={() => {
                 setSortBy('created');
                 // Toggle between newest first (desc) and oldest first (asc)
@@ -884,7 +884,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   <Button 
                     type="button"
                     variant="sort" 
-                    className="flex border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
+                    className="flex bg-white border border-gray-200 items-center gap-2 px-5 text-sm font-semibold"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10.1328 9.03369C11.1811 9.03369 12.0569 9.77835 12.2568 10.7681L12.3438 11.1997L12.2568 11.6313C12.0569 12.6211 11.1812 13.3667 10.1328 13.3667C9.08455 13.3666 8.20964 12.621 8.00977 11.6313L7.92188 11.1997L8.00977 10.7681C8.20972 9.77847 9.08462 9.03382 10.1328 9.03369ZM10.1328 9.1001C8.97322 9.10024 8.03334 10.0401 8.0332 11.1997C8.0332 12.3594 8.97312 13.3002 10.1328 13.3003C11.2926 13.3003 12.2334 12.3595 12.2334 11.1997C12.2333 10.04 11.2925 9.1001 10.1328 9.1001ZM1.59961 11.1665H7.4707L7.80566 11.1997L7.4707 11.2329H1.59961C1.58129 11.2328 1.56641 11.2181 1.56641 11.1997C1.56655 11.1815 1.58138 11.1666 1.59961 11.1665ZM12.7959 11.1665H14.3994C14.4177 11.1665 14.4325 11.1815 14.4326 11.1997C14.4326 11.2181 14.4178 11.2329 14.3994 11.2329H12.7959L12.46 11.1997L12.7959 11.1665ZM5.86621 2.6333C6.91458 2.6333 7.79034 3.37885 7.99023 4.36865L8.07617 4.79932L7.99023 5.23193C7.79027 6.22164 6.91452 6.96631 5.86621 6.96631C4.81796 6.96622 3.94211 6.22162 3.74219 5.23193L3.65527 4.79932L3.74219 4.36865C3.94207 3.37891 4.81792 2.63339 5.86621 2.6333ZM5.86621 2.69971C4.7065 2.69981 3.7666 3.64056 3.7666 4.80029C3.76678 5.95988 4.70661 6.8998 5.86621 6.8999C7.0259 6.8999 7.96662 5.95994 7.9668 4.80029C7.9668 3.64049 7.02601 2.69971 5.86621 2.69971ZM1.59961 4.76709H3.2041L3.53906 4.79932L3.2041 4.8335H1.59961C1.58137 4.83343 1.56658 4.81851 1.56641 4.80029C1.56641 4.78193 1.58126 4.76716 1.59961 4.76709ZM8.5293 4.76709H14.3994C14.4178 4.76709 14.4326 4.78191 14.4326 4.80029C14.4324 4.81852 14.4177 4.8335 14.3994 4.8335H8.5293L8.19238 4.79932L8.5293 4.76709Z" fill="#09090B" stroke="#18181B"/>
@@ -1040,7 +1040,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
           {/* Smart Drive Browser Section */}
           <div className="mb-8">
-          <div className="bg-white mb-6" onDrop={onDrop} onDragOver={onDragOver}>
+          <div className={`bg-white mb-6 ${isSelectMode ? 'p-4' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
             {smartDriveLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
