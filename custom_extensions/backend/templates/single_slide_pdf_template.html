@@ -1333,7 +1333,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 60px 40px;
+            padding: 30px 40px 40px 40px;
             position: relative;
             font-family: var(--content-font);
         }
@@ -2436,7 +2436,7 @@
                                  style="
                                     width: 100%;
                                     height: 100%;
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'contain' }};
+                                    object-fit: cover;
                                     margin: 0;
                                     padding: 0;
                                     display: block;
@@ -2823,31 +2823,99 @@
                         <div class="timeline-line"></div>
                         
                         <!-- Item 1 - Left side -->
+                        {% set step0 = slide.props.steps[0] if slide.props.steps and slide.props.steps|length > 0 else none %}
                         <div class="timeline-circle" style="top: 5%;"></div>
                         <div class="timeline-text-block" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
-                            <div class="timeline-step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
+                            <div class="timeline-step-heading">
+                                {% if step0 %}
+                                    {% if step0 is mapping %}
+                                        {{ step0.heading if step0.heading else 'Milestone 1' }}
+                                    {% else %}
+                                        {{ step0 }}
+                                    {% endif %}
+                                {% else %}
+                                    Milestone 1
+                                {% endif %}
+                            </div>
+                            <div class="timeline-step-description">
+                                {% if step0 and step0 is mapping and step0.description %}
+                                    {{ step0.description }}
+                                {% else %}
+                                    Description of the first milestone
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Item 2 - Right side -->
+                        {% set step1 = slide.props.steps[1] if slide.props.steps and slide.props.steps|length > 1 else none %}
                         <div class="timeline-circle" style="top: 31%;"></div>
                         <div class="timeline-text-block" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
-                            <div class="timeline-step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
+                            <div class="timeline-step-heading">
+                                {% if step1 %}
+                                    {% if step1 is mapping %}
+                                        {{ step1.heading if step1.heading else 'Milestone 2' }}
+                                    {% else %}
+                                        {{ step1 }}
+                                    {% endif %}
+                                {% else %}
+                                    Milestone 2
+                                {% endif %}
+                            </div>
+                            <div class="timeline-step-description">
+                                {% if step1 and step1 is mapping and step1.description %}
+                                    {{ step1.description }}
+                                {% else %}
+                                    Description of the second milestone
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Item 3 - Left side -->
+                        {% set step2 = slide.props.steps[2] if slide.props.steps and slide.props.steps|length > 2 else none %}
                         <div class="timeline-circle" style="top: 56%;"></div>
                         <div class="timeline-text-block" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
-                            <div class="timeline-step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
+                            <div class="timeline-step-heading">
+                                {% if step2 %}
+                                    {% if step2 is mapping %}
+                                        {{ step2.heading if step2.heading else 'Milestone 3' }}
+                                    {% else %}
+                                        {{ step2 }}
+                                    {% endif %}
+                                {% else %}
+                                    Milestone 3
+                                {% endif %}
+                            </div>
+                            <div class="timeline-step-description">
+                                {% if step2 and step2 is mapping and step2.description %}
+                                    {{ step2.description }}
+                                {% else %}
+                                    Description of the third milestone
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Item 4 - Right side -->
+                        {% set step3 = slide.props.steps[3] if slide.props.steps and slide.props.steps|length > 3 else none %}
                         <div class="timeline-circle" style="top: 81%;"></div>
                         <div class="timeline-text-block" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
-                            <div class="timeline-step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
-                            <div class="timeline-step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
+                            <div class="timeline-step-heading">
+                                {% if step3 %}
+                                    {% if step3 is mapping %}
+                                        {{ step3.heading if step3.heading else 'Milestone 4' }}
+                                    {% else %}
+                                        {{ step3 }}
+                                    {% endif %}
+                                {% else %}
+                                    Milestone 4
+                                {% endif %}
+                            </div>
+                            <div class="timeline-step-description">
+                                {% if step3 and step3 is mapping and step3.description %}
+                                    {{ step3.description }}
+                                {% else %}
+                                    Description of the fourth milestone
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
