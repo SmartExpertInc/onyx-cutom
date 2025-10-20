@@ -18137,8 +18137,15 @@ async def get_public_audit(
         course_templates = content.get("courseTemplates", [])
         course_outline_table_headers = content.get("courseOutlineTableHeaders", None)  # 🔧 CRITICAL FIX: Extract table headers
         
-        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        # 🎯 INSTRUMENTATION: Log table headers and assessment data for public audits
         logger.info(f"🎯 [PUBLIC AUDIT TABLE HEADERS] Project {audit['id']} - courseOutlineTableHeaders: {course_outline_table_headers}")
+        logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Project {audit['id']} - Number of modules: {len(course_outline_modules)}")
+        for idx, module in enumerate(course_outline_modules):
+            if isinstance(module, dict):
+                has_assessments = 'lessonAssessments' in module
+                logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: Has lessonAssessments: {has_assessments}")
+                if has_assessments:
+                    logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: lessonAssessments count: {len(module.get('lessonAssessments', []))}")
         
         # Return the same structure as the private endpoint but without sensitive info
         response_data = {
