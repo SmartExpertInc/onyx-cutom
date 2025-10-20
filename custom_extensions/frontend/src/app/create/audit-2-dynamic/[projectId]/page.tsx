@@ -264,6 +264,7 @@ interface CourseTemplate {
 interface CourseModule {
   title: string
   lessons: string[]
+  lessonAssessments?: { type: string; duration: string }[]
 }
 
 interface LandingPageData {
