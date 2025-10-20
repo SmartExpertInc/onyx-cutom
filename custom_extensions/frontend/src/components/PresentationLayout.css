@@ -251,27 +251,27 @@
   background: #94a3b8;
 }
 
-/* Horizontal Scrollable Slides Viewer */
-.slides-horizontal-scroll {
+/* Vertical Scrollable Slides Viewer */
+.slides-vertical-scroll {
   scroll-behavior: smooth;
 }
 
-.slides-horizontal-scroll::-webkit-scrollbar {
-  height: 12px;
+.slides-vertical-scroll::-webkit-scrollbar {
+  width: 10px;
 }
 
-.slides-horizontal-scroll::-webkit-scrollbar-track {
+.slides-vertical-scroll::-webkit-scrollbar-track {
   background: #f1f5f9;
-  border-radius: 6px;
-  margin: 0 20px;
+  border-radius: 5px;
+  margin: 10px 0;
 }
 
-.slides-horizontal-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 6px;
+.slides-vertical-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 5px;
   border: 2px solid #f1f5f9;
 }
 
-.slides-horizontal-scroll::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+.slides-vertical-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
 }
