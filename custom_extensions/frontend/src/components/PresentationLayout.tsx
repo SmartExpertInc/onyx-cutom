@@ -178,7 +178,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   return (
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-100 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
+      <div className="w-90 bg-[#EEEEEE] border-r border-gray-200 flex flex-col relative">
           {/* Add New Slide Button */}
           <div className="p-4">
             <button 
@@ -195,7 +195,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-20 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-40 top-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
                 width: 'calc(100% - 32px)',
                 maxHeight: '420px',
@@ -301,14 +301,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           className="flex-1 bg-white"
           ref={scrollContainerRef}
         >
-          <div className="space-y-8 p-6">
+          <div className="space-y-8 px-6">
             {deck.slides.map((slide, index) => (
               <div
                 key={slide.slideId}
                 className="flex items-center justify-center"
                 data-slide-index={index}
               >
-                <div className="w-full max-w-10xl">
+                <div className="w-full max-w-12xl">
                   <div className="main-slide-container rounded-lg" style={{ aspectRatio: '16/9' }}>
                     <ComponentBasedSlideRenderer
                       slide={slide}

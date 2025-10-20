@@ -1846,9 +1846,17 @@ export default function ProjectInstanceViewPage() {
       />
       
       <main 
-        className="p-4 md:p-8 min-h-screen font-inter bg-white"
+        className={`min-h-screen font-inter bg-white ${
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+            ? 'p-0'
+            : 'p-4 md:p-8'
+        }`}
       >
-        <div className="max-w-7xl mx-auto">
+        <div className={`mx-auto ${
+          projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+            ? 'max-w-[1920px]'
+            : 'max-w-7xl'
+        }`}>
           {/* Role Access Modal - kept for functionality */}
           {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && roleAccess && createPortal(
                   <div
