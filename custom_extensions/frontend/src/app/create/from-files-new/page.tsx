@@ -11,7 +11,8 @@ import Link from "next/link";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { ImportCard, UploadFileIcon, KnowledgeBaseIcon, ImportURLIcon } from "@/components/ui/import-card";
 import { FeedbackButton } from "@/components/ui/feedback-button";
-import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
+import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
+import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -120,31 +121,46 @@ const StepCard: React.FC<StepCardProps> = ({
 
 export default function FromFilesNew() {
   const { t } = useLanguage();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSmartDriveModalOpen, setIsSmartDriveModalOpen] = useState(false);
-  const [urls, setUrls] = useState(['']);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleAddUrl = () => {
-    setUrls([...urls, '']);
-  };
-
-  const handleUrlChange = (index: number, value: string) => {
-    const newUrls = [...urls];
-    newUrls[index] = value;
-    setUrls(newUrls);
-  };
-
-  const handleImport = () => {
-    // Filter out empty URLs
-    const validUrls = urls.filter(url => url.trim() !== '');
-    console.log('Importing URLs:', validUrls);
+  const handleUrlImport = (urls: string[]) => {
+    console.log('Importing URLs:', urls);
     // TODO: Add your import logic here
-    setIsModalOpen(false);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setUrls(['']); // Reset URLs
+  const handleSmartDriveImport = () => {
+    // TODO: Add import logic here
+    console.log('Importing from Smart Drive');
+  };
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    // Convert FileList to array and store in localStorage
+    const filesArray = Array.from(files).map((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
+    }));
+
+    // Store file metadata in localStorage
+    localStorage.setItem('uploadedFiles', JSON.stringify(filesArray));
+
+    // Store actual files in a temporary location (we'll use a global variable)
+    if (typeof window !== 'undefined') {
+      (window as any).pendingUploadFiles = Array.from(files);
+    }
+
+    // Navigate to upload page
+    router.push('/create/from-files-new/upload');
+  };
+
+  const handleUploadFileClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -179,6 +195,16 @@ export default function FromFilesNew() {
         <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFileSelect(e.target.files)}
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+      />
+
       {/* Main content */}
       <div className="w-full flex flex-col gap-5 items-center relative z-10">
         {/* Headings */}
@@ -201,7 +227,7 @@ export default function FromFilesNew() {
               'Word docs',
               'PDFs'
             ]}
-            href="/create/from-files-new/upload"
+            onClick={handleUploadFileClick}
           />
 
           <ImportCard
@@ -246,154 +272,18 @@ export default function FromFilesNew() {
       </div>
 
       {/* Import from URL Modal */}
-      {isModalOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ 
-            backdropFilter: 'blur(14.699999809265137px)',
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          }}
-          onClick={handleCancel}
-        >
-          <div 
-            className="rounded-xl p-6 w-full max-w-lg"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
-              boxShadow: '4px 4px 8px 0px #0000000D',
-              border: '1px solid #E0E0E0',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Title */}
-            <h2 className="text-lg font-semibold text-[#09090B] mb-1">
-              Import from URL
-            </h2>
-
-            {/* Description */}
-            <p className="text-sm text-[#71717A] mb-6">
-              This will extract the text from the webpage you enter.
-            </p>
-
-            {/* URL inputs */}
-            <div className="space-y-3 mb-6">
-              {urls.map((url, index) => (
-                <div key={index}>
-                  <label className="block text-md font-semibolld text-[#09090B] mb-2">
-                    URL
-                  </label>
-                  <input
-                    type="text"
-                    value={url}
-                    onChange={(e) => handleUrlChange(index, e.target.value)}
-                    placeholder="https://example.com/"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-[#5D5D7980] text-[#09090B]"
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Add another URL button */}
-            <button
-              onClick={handleAddUrl}
-              className="text-xs text-[#498FFF] mb-6 flex items-center gap-2 tracking-tight"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M6.99961 2.09961C7.38621 2.09961 7.69961 2.41301 7.69961 2.79961V6.29961H11.1996C11.5862 6.29961 11.8996 6.61301 11.8996 6.99961C11.8996 7.38621 11.5862 7.69961 11.1996 7.69961H7.69961V11.1996C7.69961 11.5862 7.38621 11.8996 6.99961 11.8996C6.61301 11.8996 6.29961 11.5862 6.29961 11.1996V7.69961H2.79961C2.41301 7.69961 2.09961 7.38621 2.09961 6.99961C2.09961 6.61301 2.41301 6.29961 2.79961 6.29961L6.29961 6.29961V2.79961C6.29961 2.41301 6.61301 2.09961 6.99961 2.09961Z" fill="#498FFF"/>
-              </svg>
-              Add another URL
-            </button>
-
-            {/* Action buttons */}
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 rounded-md text-sm font-medium"
-                style={{
-                  color: '#0F58F9',
-                  backgroundColor: 'white',
-                  border: '1px solid #0F58F9',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleImport}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white"
-                style={{
-                  backgroundColor: '#0F58F9',
-                }}
-              >
-                Import
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImportFromUrlModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onImport={handleUrlImport}
+      />
 
       {/* Import from SmartDrive Modal */}
-      {isSmartDriveModalOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ 
-            backdropFilter: 'blur(14.699999809265137px)',
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          }}
-          onClick={() => setIsSmartDriveModalOpen(false)}
-        >
-          <div 
-            className="rounded-lg p-6"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.7) 100%)',
-              boxShadow: '4px 4px 8px 0px #0000000D',
-              border: '1px solid #E0E0E0',
-              width: '95vw',
-              height: '95vh',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Title */}
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Select a file
-            </h2>
-
-            {/* SmartDrive Connectors Component */}
-            <div className="flex-1 overflow-hidden">
-              <SmartDriveConnectors mode="select" />
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setIsSmartDriveModalOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium"
-                style={{
-                  color: '#0F58F9',
-                  backgroundColor: 'white',
-                  border: '1px solid #0F58F9',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  // TODO: Add import logic here
-                  console.log('Importing from Smart Drive');
-                  setIsSmartDriveModalOpen(false);
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white"
-                style={{
-                  backgroundColor: '#0F58F9',
-                }}
-              >
-                Import
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImportFromSmartDriveModal
+        isOpen={isSmartDriveModalOpen}
+        onClose={() => setIsSmartDriveModalOpen(false)}
+        onImport={handleSmartDriveImport}
+      />
 
       <div className="relative z-[60]">
         <FeedbackButton />

@@ -17,6 +17,8 @@ import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 import { Progress } from '../ui/progress';
+import { EmptySmartDrive } from '../EmptySmartDrive';
+import { EmptyConnectors } from '../EmptyConnectors';
 
 interface ConnectorConfig {
   id: string;
@@ -1009,7 +1011,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           {/* Smart Drive Browser Section */}
           <div className="mb-8">
           <div className="bg-white mb-6" onDrop={onDrop} onDragOver={onDragOver}>
-            {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+            {smartDriveLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : items.length === 0 && !error ? (
+              <EmptySmartDrive />
+            ) : process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
               <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} sortBy={sortBy} sortOrder={sortOrder} />
@@ -1057,13 +1065,22 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             </div>
           )}
 
-          {/* My Connectors Section - Only show connectors that are connected */}
-          {(() => {
-            const allConnectors = Object.values(connectorCategories).flat();
-            const connectedConnectors = allConnectors.filter(connector => {
-              const userConnectorsForSource = getConnectorsBySource(connector.id);
-              return userConnectorsForSource.length > 0;
-            });
+          {/* Show loading or empty state */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : userConnectors.length === 0 ? (
+            <EmptyConnectors />
+          ) : (
+            <>
+              {/* My Connectors Section - Only show connectors that are connected */}
+              {(() => {
+                const allConnectors = Object.values(connectorCategories).flat();
+                const connectedConnectors = allConnectors.filter(connector => {
+                  const userConnectorsForSource = getConnectorsBySource(connector.id);
+                  return userConnectorsForSource.length > 0;
+                });
 
             // Filter connected connectors by search query
             const filteredConnectedConnectors = connectedConnectors.filter(connector => {
@@ -1283,6 +1300,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
               );
             })}
           </div>
+            </>
+          )}
 
       {/* Debug info - remove this in production */}
       {process.env.NODE_ENV === 'development' && (

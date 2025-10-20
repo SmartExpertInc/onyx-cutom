@@ -57,6 +57,7 @@ function GenerateProductPicker() {
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
+  const isFromUploadedFiles = searchParams?.get('fromUploadedFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
@@ -131,6 +132,34 @@ function GenerateProductPicker() {
       console.error('Error retrieving folder context:', error);
     }
   }, []);
+
+  // NEW: Load files from upload flow
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, name: string, extension: string}>>([]);
+
+  useEffect(() => {
+    try {
+      const storedFiles = localStorage.getItem('generatedFromFiles');
+      if (storedFiles) {
+        const files = JSON.parse(storedFiles);
+        setUploadedFiles(files);
+      }
+    } catch (error) {
+      console.error('Failed to parse uploaded files from localStorage', error);
+    }
+  }, []);
+
+  // Clear uploaded files from localStorage when leaving the generate page
+  useEffect(() => {
+    return () => {
+      // Cleanup function runs when component unmounts
+      if (uploadedFiles.length > 0) {
+        localStorage.removeItem('generatedFromFiles');
+        if (typeof window !== 'undefined') {
+          delete (window as any).generatedFiles;
+        }
+      }
+    };
+  }, [uploadedFiles.length]);
   
   // Retrieve user text from sessionStorage
   const [userText, setUserText] = useState('');
@@ -257,6 +286,11 @@ function GenerateProductPicker() {
     // Add Knowledge Base context if coming from Knowledge Base
     if (isFromKnowledgeBase) {
       params.set("fromKnowledgeBase", "true");
+    }
+    
+    // Add uploaded files context if coming from uploaded files
+    if (isFromUploadedFiles) {
+      params.set("fromUploadedFiles", "true");
     }
     
     // Add text context if coming from text
@@ -1276,7 +1310,45 @@ function GenerateProductPicker() {
           </div>
         )}
 
+        {/* Uploaded Files context indicator */}
+        {isFromUploadedFiles && uploadedFiles.length > 0 && (
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+                <FileText className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-purple-900">
+                  {t('interface.generate.creatingFromUploadedFiles', 'Creating from Uploaded Files')}
+                </h3>
+                <p className="text-sm text-purple-700 mt-1">
+                  {t('interface.generate.aiWillUseUploadedFiles', 'The AI will use the content from your uploaded files to create educational content.')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
+        {/* Uploaded Files Display */}
+        {uploadedFiles.length > 0 && (
+          <div 
+            className="w-full max-w-2xl mb-6 bg-white rounded-lg shadow-lg border border-[#E0E0E0] flex flex-col min-h-[45px]"
+          >
+            {uploadedFiles.map((file, index) => (
+              <div
+                key={file.id}
+                className={`flex items-center justify-between px-8 py-3 ${
+                  index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
+                }`}
+              >
+                <span className="text-gray-700 font-medium">
+                  {file.name}
+                </span>
+                <span className="text-gray-500 font-medium">{file.extension}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Tab selector */}
         <div 
