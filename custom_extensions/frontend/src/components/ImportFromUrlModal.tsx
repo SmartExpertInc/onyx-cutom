@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface ImportFromUrlModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (urls: string[]) => void;
+  onImport?: (urls: string[]) => void;
 }
 
 export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
@@ -13,6 +14,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
   onClose,
   onImport,
 }) => {
+  const router = useRouter();
   const [urls, setUrls] = useState(['']);
 
   // Reset URLs when modal is opened
@@ -35,8 +37,58 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
   const handleImport = () => {
     // Filter out empty URLs
     const validUrls = urls.filter(url => url.trim() !== '');
-    onImport(validUrls);
+    
+    if (validUrls.length === 0) {
+      onClose();
+      return;
+    }
+    
+    // Call the optional onImport callback if provided
+    if (onImport) {
+      onImport(validUrls);
+    }
+    
+    // Create placeholder files for URLs
+    const urlFiles = validUrls.map((url) => {
+      try {
+        const urlObj = new URL(url);
+        const fileName = urlObj.hostname + urlObj.pathname;
+        
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          name: fileName,
+          extension: '.url',
+          url: url, // Store the actual URL
+        };
+      } catch (error) {
+        // Fallback if URL is invalid
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          name: url,
+          extension: '.url',
+          url: url,
+        };
+      }
+    });
+    
+    // Store URL files metadata in localStorage
+    localStorage.setItem('uploadedFiles', JSON.stringify(urlFiles));
+    
+    // Store the actual URLs data in a temporary location
+    if (typeof window !== 'undefined') {
+      (window as any).pendingUploadFiles = urlFiles.map(file => ({
+        name: file.name + file.extension,
+        size: 0,
+        type: 'text/uri-list',
+        lastModified: Date.now(),
+        url: file.url,
+      }));
+    }
+    
     onClose();
+    
+    // Navigate to upload page
+    router.push('/create/from-files-new/upload');
   };
 
   const handleCancel = () => {

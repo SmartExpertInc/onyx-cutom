@@ -99,11 +99,26 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   const [entitlements, setEntitlements] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   // Notify parent when tab changes
   useEffect(() => {
     onTabChange?.(activeTab);
   }, [activeTab, onTabChange]);
+  
+  // Handle file selection from SmartDriveBrowser
+  const handleFilesSelected = useCallback((filePaths: string[]) => {
+    setSelectedFiles(filePaths);
+    if (onFileSelect) {
+      // Convert paths to file objects with necessary info
+      const fileObjects = filePaths.map(path => ({
+        path,
+        name: path.split('/').pop() || path,
+        id: path,
+      }));
+      onFileSelect(fileObjects);
+    }
+  }, [onFileSelect]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     if (typeof window === 'undefined') return 'grid';
     const saved = localStorage.getItem('smartDriveViewMode');
@@ -785,7 +800,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
           <SmartDriveFrame />
         ) : (
-          <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} sortBy={sortBy} sortOrder={sortOrder} />
+          <SmartDriveBrowser 
+            mode={isSelectMode ? "select" : "manage"} 
+            viewMode={viewMode} 
+            contentTypeFilter={contentTypeFilter} 
+            searchQuery={search} 
+            sortBy={sortBy} 
+            sortOrder={sortOrder}
+            onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+          />
         )}
       </div>
     );
@@ -1027,7 +1050,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
             ) : process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
               <SmartDriveFrame />
             ) : (
-              <SmartDriveBrowser mode="manage" viewMode={viewMode} contentTypeFilter={contentTypeFilter} searchQuery={search} sortBy={sortBy} sortOrder={sortOrder} />
+              <SmartDriveBrowser 
+                mode={isSelectMode ? "select" : "manage"} 
+                viewMode={viewMode} 
+                contentTypeFilter={contentTypeFilter} 
+                searchQuery={search} 
+                sortBy={sortBy} 
+                sortOrder={sortOrder}
+                onFilesSelected={isSelectMode ? handleFilesSelected : undefined}
+              />
             )}
           </div>
         </div>

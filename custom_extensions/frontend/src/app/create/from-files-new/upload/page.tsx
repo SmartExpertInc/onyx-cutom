@@ -42,8 +42,29 @@ export default function UploadFilesPage() {
     if (storedFiles && pendingFiles) {
       const filesMetadata = JSON.parse(storedFiles);
       
-      const loadedFiles: UploadedFile[] = pendingFiles.map((file: File, index: number) => {
-        const nameParts = file.name.split('.');
+      const loadedFiles: UploadedFile[] = pendingFiles.map((fileData: any, index: number) => {
+        // Handle URL imports
+        if (fileData.url) {
+          return {
+            id: filesMetadata[index]?.id || Math.random().toString(36).substr(2, 9),
+            name: filesMetadata[index]?.name || fileData.name.split('.')[0],
+            extension: '.url',
+            file: new File([], fileData.name, { type: 'text/uri-list' }),
+          };
+        }
+        
+        // Handle SmartDrive imports
+        if (fileData.smartDriveFile) {
+          return {
+            id: filesMetadata[index]?.id || Math.random().toString(36).substr(2, 9),
+            name: filesMetadata[index]?.name || fileData.name.split('.')[0],
+            extension: filesMetadata[index]?.extension || '.smartdrive',
+            file: new File([], fileData.name, { type: fileData.type }),
+          };
+        }
+        
+        // Handle regular file uploads
+        const nameParts = fileData.name ? fileData.name.split('.') : ['file'];
         const extension = nameParts.length > 1 ? '.' + nameParts.pop() : '';
         const name = nameParts.join('.');
         
@@ -51,7 +72,7 @@ export default function UploadFilesPage() {
           id: Math.random().toString(36).substr(2, 9),
           name,
           extension,
-          file,
+          file: fileData instanceof File ? fileData : new File([], fileData.name),
         };
       });
 
@@ -241,10 +262,10 @@ export default function UploadFilesPage() {
                   index < uploadedFiles.length - 1 ? 'border-b-2 border-[#E0E0E0]' : ''
                 }`}
               >
-                <span className="text-gray-700 font-medium">
+                <span className="text-gray-700 font-medium truncate overflow-hidden max-w-[400px]" title={file.name}>
                   {file.name}
                 </span>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 flex-shrink-0">
                   <span className="text-gray-500 font-medium">{file.extension}</span>
                   <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
                 </div>

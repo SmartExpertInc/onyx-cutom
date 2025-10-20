@@ -1,26 +1,81 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 
 interface ImportFromSmartDriveModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: () => void;
+  onImport?: () => void;
+  selectedFiles?: any[]; // Files selected from SmartDrive
 }
 
 export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps> = ({
   isOpen,
   onClose,
   onImport,
+  selectedFiles,
 }) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
+  const [localSelectedFiles, setLocalSelectedFiles] = useState<any[]>([]);
 
   if (!isOpen) return null;
 
+  const handleFileSelection = (files: any[]) => {
+    setLocalSelectedFiles(files);
+  };
+
   const handleImport = () => {
-    onImport();
+    // Call the optional onImport callback if provided
+    if (onImport) {
+      onImport();
+    }
+    
+    // Get selected files from SmartDrive
+    const filesToImport = selectedFiles || localSelectedFiles;
+    
+    if (filesToImport.length === 0) {
+      console.log('No files selected from Smart Drive');
+      onClose();
+      return;
+    }
+    
+    // Create placeholder files for SmartDrive files
+    const smartDriveFiles = filesToImport.map((file) => {
+      const nameParts = file.name ? file.name.split('.') : ['SmartDrive File'];
+      const extension = nameParts.length > 1 ? '.' + nameParts.pop() : '.smartdrive';
+      const name = nameParts.join('.');
+      
+      return {
+        id: file.id || Math.random().toString(36).substr(2, 9),
+        name: name,
+        extension: extension,
+        smartDriveFile: true,
+        originalFile: file,
+      };
+    });
+    
+    // Store SmartDrive files metadata in localStorage
+    localStorage.setItem('uploadedFiles', JSON.stringify(smartDriveFiles));
+    
+    // Store the actual SmartDrive file data in a temporary location
+    if (typeof window !== 'undefined') {
+      (window as any).pendingUploadFiles = smartDriveFiles.map(file => ({
+        name: file.name + file.extension,
+        size: file.originalFile?.size || 0,
+        type: file.originalFile?.type || 'application/octet-stream',
+        lastModified: Date.now(),
+        smartDriveFile: true,
+        originalFile: file.originalFile,
+      }));
+    }
+    
     onClose();
+    
+    // Navigate to upload page
+    router.push('/create/from-files-new/upload');
   };
 
   const handleTabChange = (tab: 'smart-drive' | 'connectors') => {
@@ -55,7 +110,12 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
 
         {/* SmartDrive Connectors Component */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-          <SmartDriveConnectors mode="select" onTabChange={handleTabChange} hideStatsBar={true} />
+          <SmartDriveConnectors 
+            mode="select" 
+            onTabChange={handleTabChange} 
+            hideStatsBar={true}
+            onFileSelect={handleFileSelection}
+          />
         </div>
 
         {/* Action buttons */}

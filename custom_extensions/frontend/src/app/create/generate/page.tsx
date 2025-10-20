@@ -1376,10 +1376,10 @@ function GenerateProductPicker() {
                 key={file.id}
                 className="flex items-center justify-between px-8 py-3 border-b-2 border-[#E0E0E0]"
               >
-                <span className="text-gray-700 font-medium">
+                <span className="text-gray-700 font-medium truncate overflow-hidden max-w-[400px]" title={file.name}>
                   {file.name}
                 </span>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 flex-shrink-0">
                   <span className="text-gray-500 font-medium">{file.extension}</span>
                   <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
                 </div>

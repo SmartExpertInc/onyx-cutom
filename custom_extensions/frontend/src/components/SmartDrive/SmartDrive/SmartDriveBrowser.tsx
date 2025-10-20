@@ -1000,10 +1000,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												}
 											};
 											
+											const isSelected = selected.has(folderItem.path);
+											
 											return (
 												<div
 													key={folderItem.path}
-													className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													className={`bg-white border rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group ${
+														isSelected && mode === 'select' ? 'border-blue-500 border-2' : 'border-gray-200'
+													}`}
 													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
 												>
 													{/* Content Preview Area */}
@@ -1035,6 +1039,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																);
 															})()}
 														</div>
+														
+													{/* Selection indicator - blue circle with checkmark in top-right (only in select mode) */}
+													{mode === 'select' && (
+														<div className="absolute top-2 right-2">
+															<div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
+																isSelected 
+																	? 'bg-blue-500 border-2 border-blue-500' 
+																	: 'bg-white border-2 border-gray-300 hover:border-gray-400'
+															}`}>
+																{isSelected && (
+																	<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+																		<path d="M11.6654 3.5L5.24873 9.91667L2.33203 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+																	</svg>
+																)}
+															</div>
+														</div>
+													)}
 													</div>
 													
 													{/* Bottom Section - Title, Date, Actions */}
