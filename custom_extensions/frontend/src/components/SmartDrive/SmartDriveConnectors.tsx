@@ -963,7 +963,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       )}
       {/* Smart Drive Tab Content */}
       {activeTab === 'smart-drive' && (
-        <div className={isSelectMode ? 'px-6' : ''}>
+        <div className={isSelectMode ? 'mt-6' : ''}>
           {/* Usage Progress Bars */}
           {entitlements && !hideStatsBar && (
             <div className="bg-white py-5 mb-3">
@@ -1067,7 +1067,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
       {/* Connectors Tab Content */}
       {activeTab === 'connectors' && (
-        <div className={isSelectMode ? 'px-6' : ''}>
+        <div className={isSelectMode ? 'mt-6' : ''}>
           {/* Usage Stats Header */}
           {entitlements && !hideStatsBar && (
             <div className="bg-white py-4 mb-3">
