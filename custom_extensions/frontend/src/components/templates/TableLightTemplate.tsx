@@ -28,11 +28,11 @@ export interface TableLightTemplateProps extends BaseTemplateProps {
 export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   title = 'This is table',
   tableData = {
-    headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
+    headers: ['Planet', 'Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
     rows: [
-      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',
@@ -113,7 +113,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
 
   const addRow = () => {
     const newRows = [...tableData.rows];
-    const newRow = new Array(tableData.headers.length + 1).fill('XX');
+    const newRow = new Array(tableData.headers.length).fill('XX');
     newRow[0] = `Planet ${newRows.length + 1}`;
     newRows.push(newRow);
     const newData = { 
@@ -124,7 +124,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `Team ${String.fromCharCode(65 + tableData.headers.length)}`];
+    const newHeaders = [...tableData.headers, `Team ${String.fromCharCode(65 + tableData.headers.length - 1)}`];
     const newRows = tableData.rows.map(row => [...row, 'XX']);
     const newData = { 
       title, 
@@ -143,8 +143,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   };
 
   const removeColumn = (colIndex: number) => {
+    // Prevent removing the first column (row names)
+    if (colIndex === 0) return;
+    
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
+    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
@@ -358,7 +361,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           {/* Headers */}
           <thead>
             <tr>
-              {/* Team headers */}
+              {/* Team headers - all from tableData.headers */}
               {tableData.headers.map((header, index) => (
                 <th 
                   key={index} 

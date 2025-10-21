@@ -129,7 +129,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `Column ${tableData.headers.length + 1}`];
+    const newHeaders = [...tableData.headers, `Option ${tableData.headers.length}`];
     const newRows = tableData.rows.map(row => [...row, '✓']);
     const newData = { 
       title, 
@@ -148,6 +148,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const removeColumn = (colIndex: number) => {
+    // Prevent removing the first column (feature names)
+    if (colIndex === 0) return;
+    
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
     const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex));
     const newData = { 
