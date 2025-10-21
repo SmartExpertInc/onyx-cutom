@@ -132,6 +132,25 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       return null;
     }
 
+    // Add global styles for formatting tags to inherit font
+    useEffect(() => {
+      const styleId = 'controlled-wysiwyg-formatting-styles';
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          .controlled-wysiwyg-editor strong,
+          .controlled-wysiwyg-editor em,
+          .controlled-wysiwyg-editor u,
+          .controlled-wysiwyg-editor s,
+          .controlled-wysiwyg-editor span {
+            font-family: inherit !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }, []);
+
     return (
       <div 
         style={{ 

@@ -268,17 +268,6 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     wordWrap: 'break-word',
     fontWeight: 'bold'
   };
-  
-  // Styles for rendering static HTML (without font-weight/font-style to avoid conflicts with HTML tags)
-  const titleRenderStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '16px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word'
-    // No fontWeight or fontStyle - let HTML tags control this
-  };
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: '1.5rem',
@@ -289,15 +278,6 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     wordWrap: 'break-word',
     fontWeight: 'bold'
   };
-  
-  const subtitleRenderStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    marginBottom: '16px',
-    lineHeight: '1.6',
-    wordWrap: 'break-word'
-  };
 
   const contentStyles: React.CSSProperties = {
     fontSize: '1.2rem',
@@ -307,8 +287,6 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word'
   };
-  
-  // Content render styles are the same (no font-weight to remove)
 
   const placeholderStyles: React.CSSProperties = {
     width: '623px',
@@ -354,7 +332,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
               />
             ) : (
               <h1 
-                style={titleRenderStyles}
+                style={titleStyles}
                 onClick={(e) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
@@ -400,7 +378,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                 />
               ) : (
                 <h2 
-                  style={subtitleRenderStyles}
+                  style={subtitleStyles}
                   onClick={(e) => {
                     const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                     if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
