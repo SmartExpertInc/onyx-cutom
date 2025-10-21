@@ -720,9 +720,9 @@ export default function Projects2ViewPage() {
           >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div style={{
-                zoom: 0.6,
-                width: '900px',
-                height: '506px',
+                zoom: 0.45,
+                width: '1200px',
+                height: '675px',
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
