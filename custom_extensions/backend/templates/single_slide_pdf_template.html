@@ -2421,13 +2421,13 @@
                             <h1 class="slide-title positioned-element"
                                 {% set titleId = 'draggable-' + slide.slideId + '-0' %}
                                 style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}"
-                            >{{ slide.props.title }}</h1>
+                            >{{ slide.props.title|safe }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
                             <div class="content-text positioned-element"
                                 {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
                                 style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subtitleId] %}transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);{% endif %}"
-                            >{{ slide.props.subtitle }}</div>
+                            >{{ slide.props.subtitle|safe }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -2454,10 +2454,10 @@
                     <!-- Bottom 50% - Content Container -->
                     <div class="content-container">
                         {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                            <h1 class="slide-title">{{ slide.props.title }}</h1>
+                            <h1 class="slide-title">{{ slide.props.title|safe }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                            <div class="content-text">{{ slide.props.subtitle }}</div>
+                            <div class="content-text">{{ slide.props.subtitle|safe }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -2484,7 +2484,7 @@
                     
                     <!-- RIGHT section with TITLE and BULLETS (dark blue background) -->
                     <div class="right-section">
-                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                        <h1 class="slide-title">{{ slide.props.title|safe if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
                         
                         <div class="bullets-container">
                             <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-end;">
@@ -2493,7 +2493,7 @@
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
                                             <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
-                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
+                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet|safe }}</span>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
@@ -2515,7 +2515,7 @@
                 <div class="bullet-points-right">
                     <!-- Left section with title and bullets (dark blue background) -->
                     <div class="left-section">
-                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
+                        <h1 class="slide-title">{{ slide.props.title|safe if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Problem' }}</h1>
                         
                         <div class="bullets-container">
                             <ul class="bullet-list" style="list-style: none; padding: 0; margin: 0; width: 100%; display: flex; flex-direction: column; align-items: flex-start;">
@@ -2524,7 +2524,7 @@
                                         {% if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] %}
                                             <li class="bullet-item" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 35px; width: 90%;">
                                                 <span style="color: #ffffff; font-weight: bold; min-width: 14px; min-height: 14px; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-family: sans-serif; flex-shrink: 0;">▶</span>
-                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet }}</span>
+                                                <span style="font-family: sans-serif; font-size: 0.9rem; margin-top: -5px; opacity: 0.8; color: #ffffff; line-height: 1.6; flex: 1; min-width: 0;">{{ bullet|safe }}</span>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
@@ -2559,8 +2559,8 @@
                 <div class="process-steps">
                     <!-- Left Column - Title and Subtitle -->
                     <div class="left-column">
-                        <h1 class="slide-title">{{ slide.props.title or 'The Stages of Research' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Miss Jones Science Class' }}</p>
+                        <h1 class="slide-title">{{ slide.props.title|safe or 'The Stages of Research' }}</h1>
+                        <p class="slide-subtitle">{{ slide.props.subtitle|safe or 'Miss Jones Science Class' }}</p>
                     </div>
 
                     <!-- Right Column - Process Steps -->
@@ -2613,8 +2613,8 @@
 
                                 <!-- Step Content -->
                                 <div class="step-content">
-                                    <h3 class="step-title">{{ stepTitle }}</h3>
-                                    <p class="step-description">{{ stepDescription }}</p>
+                                    <h3 class="step-title">{{ stepTitle|safe }}</h3>
+                                    <p class="step-description">{{ stepDescription|safe }}</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -2623,8 +2623,8 @@
                 
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
-                    <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solutions' }}</h1>
-                    <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
+                    <h1 class="slide-title">{{ slide.props.title|safe or 'Challenges & Solutions' }}</h1>
+                    <h2 class="slide-subtitle">{{ slide.props.subtitle|safe or 'Type The Subtitle Of Your Great Here' }}</h2>
                     
                     <div class="main-content">
                         <!-- Left side text items (Challenges) - positioned at 15%, 48%, 75% -->
@@ -2632,7 +2632,7 @@
                         {% set displayChallenges = slide.props.challenges if slide.props.challenges and slide.props.challenges|length > 0 else ['Add challenge', 'Add challenge', 'Add challenge'] %}
                         {% for challenge in displayChallenges[:3] %}
                             <div style="position: absolute; top: {{ leftPositions[loop.index0] }}; left: 20px; width: 280px; z-index: 10;">
-                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ challenge }}</div>
+                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ challenge|safe }}</div>
                         </div>
                         {% endfor %}
 
@@ -2641,7 +2641,7 @@
                         {% set displaySolutions = slide.props.solutions if slide.props.solutions and slide.props.solutions|length > 0 else ['Add solution', 'Add solution', 'Add solution'] %}
                         {% for solution in displaySolutions[:3] %}
                             <div style="position: absolute; top: {{ rightPositions[loop.index0] }}; right: 10px; width: 280px; z-index: 10;">
-                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ solution }}</div>
+                                <div style="font-size: 17px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: left; word-wrap: break-word;">{{ solution|safe }}</div>
                         </div>
                         {% endfor %}
 
@@ -2652,8 +2652,8 @@
 
                         <!-- Bottom Labels -->
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, 160px); display: flex; gap: 70px; z-index: 10; padding-left: 40px;">
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.challengesTitle or 'Challenges' }}</div>
-                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.solutionsTitle or 'Solutions' }}</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.challengesTitle|safe or 'Challenges' }}</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: 500; text-align: center;">{{ slide.props.solutionsTitle|safe or 'Solutions' }}</div>
                         </div>
                     </div>
                 </div>
@@ -2664,10 +2664,10 @@
                         <!-- Left Column -->
                         <div class="column">
                             <div style="width: 100%; min-height: 140px; margin-bottom: 10px;">
-                            <h2 class="column-title">{{ slide.props.leftTitle if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <h2 class="column-title">{{ slide.props.leftTitle|safe if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
                             </div>
                             <div style="width: 100%;">
-                            <p class="column-content">{{ slide.props.leftContent if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
+                            <p class="column-content">{{ slide.props.leftContent|safe if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             </div>
                             <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px; position: relative; left: 50%; transform: translateX(-50%);">
                             {% if slide.props.leftImagePath %}
@@ -2690,10 +2690,10 @@
                         <!-- Right Column -->
                         <div class="column">
                             <div style="width: 100%; min-height: 140px; margin-bottom: 10px;">
-                            <h2 class="column-title">{{ slide.props.rightTitle if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <h2 class="column-title">{{ slide.props.rightTitle|safe if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
                             </div>
                             <div style="width: 100%;">
-                            <p class="column-content">{{ slide.props.rightContent if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
+                            <p class="column-content">{{ slide.props.rightContent|safe if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             </div>
                             <div style="width: 497px; height: 290px; display: flex; margin-top: auto; margin-bottom: 8px; justify-content: center; align-items: center; border-radius: 8px; position: relative; left: 50%; transform: translateX(-50%);">
                             {% if slide.props.rightImagePath %}
@@ -2719,8 +2719,8 @@
                 <div class="big-numbers">
                     <!-- Header Section - Dark Blue Background -->
                     <div class="header-section">
-                        <h1 class="slide-title">{{ slide.props.title or 'Stress Management Made Simple' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Add slide description' }}</p>
+                        <h1 class="slide-title">{{ slide.props.title|safe or 'Stress Management Made Simple' }}</h1>
+                        <p class="slide-subtitle">{{ slide.props.subtitle|safe or 'Add slide description' }}</p>
                     </div>
 
                     <!-- Main Content Area - White Background -->
@@ -2729,9 +2729,9 @@
                             {% if slide.props.steps and slide.props.steps|length >= 3 %}
                                 {% for step in slide.props.steps[:3] %}
                                 <div class="number-item">
-                                        <div class="number-value">{{ step.value or '85%' }}</div>
-                                        <div class="number-label">{{ step.label or 'Increase Productivity' }}</div>
-                                        <div class="number-description">{{ step.description or 'Gain the skills to be productive and successful in the workplace.' }}</div>
+                                        <div class="number-value">{{ step.value|safe or '85%' }}</div>
+                                        <div class="number-label">{{ step.label|safe or 'Increase Productivity' }}</div>
+                                        <div class="number-description">{{ step.description|safe or 'Gain the skills to be productive and successful in the workplace.' }}</div>
                                     </div>
                                 {% endfor %}
                             {% else %}
@@ -2766,7 +2766,7 @@
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
+                        >{{ slide.props.title|safe }}</h1>
                     {% endif %}
                     <div class="grid-container">
                         {% for box in slide.props.boxes %}
@@ -2780,10 +2780,10 @@
                                     {% endif %}
                                 >
                                     {% if box.heading and box.heading != 'Click to add heading' %}
-                                        <div class="box-heading">{{ box.heading }}</div>
+                                        <div class="box-heading">{{ box.heading|safe }}</div>
                                     {% endif %}
                                     {% if box.text and box.text != 'Click to add text' %}
-                                        <div class="box-text">{{ box.text }}</div>
+                                        <div class="box-text">{{ box.text|safe }}</div>
                                     {% endif %}
                                 </div>
                             {% endif %}
@@ -2813,7 +2813,7 @@
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="timeline">
-                    <h1 class="slide-title">{{ slide.props.title or 'Timeline' }}</h1>
+                    <h1 class="slide-title">{{ slide.props.title|safe or 'Timeline' }}</h1>
                     
                     <div class="timeline-container">
                         <!-- Vertical Line -->
@@ -2838,16 +2838,16 @@
                         <div class="timeline-text-block" style="top: 9%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="timeline-step-heading">
                                 {% if step0 and step0 is mapping and step0.heading %}
-                                    {{ step0.heading }}
+                                    {{ step0.heading|safe }}
                                 {% elif step0 and not (step0 is mapping) %}
-                                    {{ step0 }}
+                                    {{ step0|safe }}
                                 {% else %}
                                     Milestone 1
                                 {% endif %}
                             </div>
                             <div class="timeline-step-description">
                                 {% if step0 and step0 is mapping and step0.description %}
-                                    {{ step0.description }}
+                                    {{ step0.description|safe }}
                                 {% else %}
                                     Description of the first milestone
                                 {% endif %}
@@ -2860,16 +2860,16 @@
                         <div class="timeline-text-block" style="top: 35%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="timeline-step-heading">
                                 {% if step1 and step1 is mapping and step1.heading %}
-                                    {{ step1.heading }}
+                                    {{ step1.heading|safe }}
                                 {% elif step1 and not (step1 is mapping) %}
-                                    {{ step1 }}
+                                    {{ step1|safe }}
                                 {% else %}
                                     Milestone 2
                                 {% endif %}
                             </div>
                             <div class="timeline-step-description">
                                 {% if step1 and step1 is mapping and step1.description %}
-                                    {{ step1.description }}
+                                    {{ step1.description|safe }}
                                 {% else %}
                                     Description of the second milestone
                                 {% endif %}
@@ -2882,16 +2882,16 @@
                         <div class="timeline-text-block" style="top: 60%; left: calc(50% + 110px); text-align: left; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="timeline-step-heading">
                                 {% if step2 and step2 is mapping and step2.heading %}
-                                    {{ step2.heading }}
+                                    {{ step2.heading|safe }}
                                 {% elif step2 and not (step2 is mapping) %}
-                                    {{ step2 }}
+                                    {{ step2|safe }}
                                 {% else %}
                                     Milestone 3
                                 {% endif %}
                             </div>
                             <div class="timeline-step-description">
                                 {% if step2 and step2 is mapping and step2.description %}
-                                    {{ step2.description }}
+                                    {{ step2.description|safe }}
                                 {% else %}
                                     Description of the third milestone
                                 {% endif %}
@@ -2904,16 +2904,16 @@
                         <div class="timeline-text-block" style="top: 85%; right: calc(50% + 0px); text-align: right; width: calc(40% - 60px); transform: translateY(-50%);">
                             <div class="timeline-step-heading">
                                 {% if step3 and step3 is mapping and step3.heading %}
-                                    {{ step3.heading }}
+                                    {{ step3.heading|safe }}
                                 {% elif step3 and not (step3 is mapping) %}
-                                    {{ step3 }}
+                                    {{ step3|safe }}
                                 {% else %}
                                     Milestone 4
                                 {% endif %}
                             </div>
                             <div class="timeline-step-description">
                                 {% if step3 and step3 is mapping and step3.description %}
-                                    {{ step3.description }}
+                                    {{ step3.description|safe }}
                                 {% else %}
                                     Description of the fourth milestone
                                 {% endif %}
@@ -2934,23 +2934,23 @@
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
+                        >{{ slide.props.title|safe }}</h1>
                     {% endif %}
                     <div class="two-column-layout">
                         <div class="column">
                             {% if slide.props.leftTitle and slide.props.leftTitle != 'Left Side' %}
-                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle }}</h2>
+                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle|safe }}</h2>
                             {% endif %}
                             {% if slide.props.leftContent and slide.props.leftContent != 'Left content' %}
-                                <div class="content-text">{{ slide.props.leftContent }}</div>
+                                <div class="content-text">{{ slide.props.leftContent|safe }}</div>
                             {% endif %}
                         </div>
                         <div class="column">
                             {% if slide.props.rightTitle and slide.props.rightTitle != 'Right Side' %}
-                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle }}</h2>
+                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle|safe }}</h2>
                             {% endif %}
                             {% if slide.props.rightContent and slide.props.rightContent != 'Right content' %}
-                                <div class="content-text">{{ slide.props.rightContent }}</div>
+                                <div class="content-text">{{ slide.props.rightContent|safe }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -2965,7 +2965,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Spring picnic meetup'] else 'Add title' }}</h1>
+                    >{{ slide.props.title|safe if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Spring picnic meetup'] else 'Add title' }}</h1>
                     
                     <div class="content-text positioned-element"
                         {% if slide.metadata and slide.metadata.elementPositions %}
@@ -2974,7 +2974,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.content if slide.props.content and slide.props.content not in ['Click to add content', 'Add text', 'Join us for an afternoon of fun!'] else 'Add text' }}</div>
+                    >{{ slide.props.content|safe if slide.props.content and slide.props.content not in ['Click to add content', 'Add text', 'Join us for an afternoon of fun!'] else 'Add text' }}</div>
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
@@ -2998,7 +2998,7 @@
                                         transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);
                                     {% endif %}
                                 {% endif %}
-                            ">{{ slide.props.title }}</h1>
+                            ">{{ slide.props.title|safe }}</h1>
                         {% endif %}
                         {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
                             <div class="slide-subtitle positioned-element" style="
@@ -3010,7 +3010,7 @@
                                         transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);
                                     {% endif %}
                                 {% endif %}
-                            ">{{ slide.props.subtitle }}</div>
+                            ">{{ slide.props.subtitle|safe }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -3027,7 +3027,7 @@
                                     style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                                 {% endif %}
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
+                        >{{ slide.props.title|safe }}</h1>
                     {% endif %}
                     <div class="main-content">
                         <!-- Pyramid Levels -->
@@ -3065,14 +3065,14 @@
                             >
                                 <div class="pyramid-text-heading">
                                     {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
-                                        {{ slide.props.steps[i].heading }}
+                                        {{ slide.props.steps[i].heading|safe }}
                                     {% else %}
                                         Headline
                                             {% endif %}
                                         </div>
                                 <div class="pyramid-text-description">
                                     {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description and slide.props.steps[i].description != 'Click to add description' %}
-                                        {{ slide.props.steps[i].description }}
+                                        {{ slide.props.steps[i].description|safe }}
                             {% else %}
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
                                     {% endif %}
@@ -3098,15 +3098,15 @@
                 <!-- DEBUG: org-chart template -->
                 <!-- DEBUG: slide.props.chartData = {{ slide.props.chartData }} -->
                 <div class="org-chart-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Космическая галактика команд' }}</h1>
+                    <h1 class="slide-title">{{ slide.props.title|safe or 'Космическая галактика команд' }}</h1>
                     <div class="org-chart-container">
                         {% if slide.props.chartData %}
                             {% for node in slide.props.chartData %}
                                 {% if not node.parentId %}
                                     <div class="chart-node root-node">
                                         <div class="planet-node ceo">
-                                            <div class="planet-content">{{ node.title or 'CEO' }}</div>
-                                            <div class="planet-role">{{ node.role or 'Галактический лидер' }}</div>
+                                            <div class="planet-content">{{ node.title|safe or 'CEO' }}</div>
+                                            <div class="planet-role">{{ node.role|safe or 'Галактический лидер' }}</div>
                                         </div>
                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', node.id) | list | length > 0 %}
                                             <div class="children-container">
@@ -3114,8 +3114,8 @@
                                                     {% for child in slide.props.chartData | selectattr('parentId', 'equalto', node.id) %}
                                                         <div class="chart-node child-node">
                                                             <div class="planet-node c-level">
-                                                                <div class="planet-content">{{ child.title or 'CTO' }}</div>
-                                                                <div class="planet-role">{{ child.role or 'Технологический визионер' }}</div>
+                                                                <div class="planet-content">{{ child.title|safe or 'CTO' }}</div>
+                                                                <div class="planet-role">{{ child.role|safe or 'Технологический визионер' }}</div>
                                                             </div>
                                                                                                         {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
                                                 <div class="children-container">
@@ -3123,8 +3123,8 @@
                                                                         {% for grandchild in slide.props.chartData | selectattr('parentId', 'equalto', child.id) %}
                                                                             <div class="chart-node grandchild-node">
                                                                                 <div class="planet-node manager">
-                                                                                    <div class="planet-content">{{ grandchild.title or 'Dev Lead' }}</div>
-                                                                                    <div class="planet-role">{{ grandchild.role or 'Архитектор кода' }}</div>
+                                                                                    <div class="planet-content">{{ grandchild.title|safe or 'Dev Lead' }}</div>
+                                                                                    <div class="planet-role">{{ grandchild.role|safe or 'Архитектор кода' }}</div>
                                                                                 </div>
                                                                                                                                 {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
                                                     <div class="children-container">
@@ -3132,8 +3132,8 @@
                                                                                             {% for employee in slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) %}
                                                                                                 <div class="chart-node employee-node">
                                                                                                     <div class="planet-node employee">
-                                                                                                        <div class="planet-content">{{ employee.title or 'Senior Dev' }}</div>
-                                                                                                        <div class="planet-role">{{ employee.role or 'Ветеран кодинга' }}</div>
+                                                                                                        <div class="planet-content">{{ employee.title|safe or 'Senior Dev' }}</div>
+                                                                                                        <div class="planet-role">{{ employee.role|safe or 'Ветеран кодинга' }}</div>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             {% endfor %}
@@ -3278,13 +3278,13 @@
                 <!-- DEBUG: metrics-analytics template -->
                 <!-- DEBUG: slide.props.metrics = {{ slide.props.metrics }} -->
                 <div class="metrics-analytics-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Metrics and analytics' }}</h1>
+                    <h1 class="slide-title">{{ slide.props.title|safe or 'Metrics and analytics' }}</h1>
                     <div class="metrics-grid">
                         {% if slide.props.metrics %}
                             {% for metric in slide.props.metrics %}
                                 <div class="metric-item">
-                                    <div class="metric-number">{{ metric.number or '01' }}</div>
-                                    <div class="metric-text">{{ metric.text or 'Click to add text' }}</div>
+                                    <div class="metric-number">{{ metric.number|safe or '01' }}</div>
+                                    <div class="metric-text">{{ metric.text|safe or 'Click to add text' }}</div>
                                 </div>
                             {% endfor %}
                         {% else %}
@@ -3306,8 +3306,8 @@
                         {% if slide.props.events %}
                             {% for event in slide.props.events %}
                                 <div class="event-item">
-                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
-                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
+                                    <div class="event-date">{{ event.date|safe or 'Click to add date' }}</div>
+                                    <div class="event-description">{{ event.description|safe or 'Click to add description' }}</div>
                                 </div>
                             {% endfor %}
                         {% else %}
@@ -3327,7 +3327,7 @@
                     <div style="width: 40%; height: 100%; position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; background: linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%); padding: 35px; z-index: 2;">
                         <!-- Title -->
                         <div style="margin-bottom: 20px;">
-                            <h1 style="color: #ffffff; font-size: 2.4rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'The new os solution' }}</h1>
+                            <h1 style="color: #ffffff; font-size: 2.4rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title|safe or 'The new os solution' }}</h1>
                         </div>
 
                         <!-- Subtitle -->
@@ -3342,7 +3342,7 @@
                                     <div style="width: 28px; height: 28px; background-color: {{ item.color }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 2px;">
                                         <span style="color: #ffffff; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; line-height: 1;">{{ loop.index }}</span>
                                     </div>
-                                    <span style="flex: 1;">{{ item.description or 'Lorem ipsum dolor sit amet' }}</span>
+                                    <span style="flex: 1;">{{ item.description|safe or 'Lorem ipsum dolor sit amet' }}</span>
                                 </div>
                             {% endfor %}
                         </div>
@@ -3401,9 +3401,9 @@
                                         <div style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: {{ item.color }}; flex-shrink: 0;"></div>
                                         <div>
                                             <!-- Label -->
-                                            <h3 style="color: var(--title-color); font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; line-height: 1.2;">{{ item.label }}</h3>
+                                            <h3 style="color: var(--title-color); font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; line-height: 1.2;">{{ item.label|safe }}</h3>
                                             <!-- Description -->
-                                            <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.5; max-width: 20rem; margin-bottom: 0.5rem;">{{ item.description }}</p>
+                                            <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.5; max-width: 20rem; margin-bottom: 0.5rem;">{{ item.description|safe }}</p>
                                             <!-- Percentage -->
                                             <p style="color: {{ item.color }}; font-size: 1.5rem; font-weight: bold; margin-top: 0.5rem;">{{ item.percentage }}%</p>
                                         </div>
@@ -3418,7 +3418,7 @@
                 <div class="slide" style="background-color: #F8F8FF; padding: 50px; font-family: Georgia, serif;">
                         <!-- Title -->
                     <div style="margin-bottom: 30px;">
-                        <h1 style="color: #09090B; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'Comparison table template' }}</h1>
+                        <h1 style="color: #09090B; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title|safe or 'Comparison table template' }}</h1>
                         </div>
                         
                         <!-- Table Container -->
@@ -3429,7 +3429,7 @@
                                 <tr>
                                         {% for header in slide.props.tableData.headers %}
                                         <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px; {% if loop.first %}border-top-left-radius: 15px;{% endif %} {% if loop.last %}border-top-right-radius: 15px;{% endif %}">
-                                                {{ header }}
+                                                {{ header|safe }}
                                             </th>
                                         {% endfor %}
                                     </tr>
@@ -3445,7 +3445,7 @@
                                                     {% if isFirstColumn %}
                                                     <div style="display: flex; align-items: center; gap: 8px;">
                                                         <div style="width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0F58F9; font-weight: bold;">►</div>
-                                                        <span>{{ cell }}</span>
+                                                        <span>{{ cell|safe }}</span>
                                                     </div>
                                                     {% else %}
                                                     <div style="display: flex; justify-content: center; align-items: center;">
@@ -3469,7 +3469,7 @@
                 <div class="slide" style="background: transparent; padding: 50px; font-family: Georgia, serif;">
                         <!-- Title -->
                     <div style="margin-bottom: 30px;">
-                        <h1 style="color: #000000; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'This is table' }}</h1>
+                        <h1 style="color: #000000; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title|safe or 'This is table' }}</h1>
                         </div>
                         
                         <!-- Table Container -->
@@ -3480,7 +3480,7 @@
                                 <tr>
                                         {% for header in slide.props.tableData.headers %}
                                         <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; {% if loop.first %}text-align: left;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
-                                                {{ header }}
+                                                {{ header|safe }}
                                             </th>
                                         {% endfor %}
                                     </tr>
@@ -3493,7 +3493,7 @@
                                             {% for cell in row %}
                                                 {% set isFirstColumn = loop.index == 1 %}
                                             <td style="{% if isFirstColumn %}background-color: #F2F8FE; color: #000000; font-weight: bold; text-align: left;{% else %}background-color: #ffffff; color: #000000; text-align: center;{% endif %} font-size: 0.95rem; padding: 16px 12px; height: 60px;">
-                                                    {{ cell }}
+                                                    {{ cell|safe }}
                                                 </td>
                                             {% endfor %}
                                         </tr>
@@ -3509,9 +3509,9 @@
                         <div style="width: 100%; max-width: 80rem; margin: 0 auto; padding: 2rem;">
                             <!-- Title -->
                             <div style="text-align: center; margin-bottom: 3rem;">
-                                <h1 style="color: #000000; font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie chart' }}</h1>
+                                <h1 style="color: #000000; font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title|safe or 'Pie chart' }}</h1>
                                 <p style="color: #4B5563; font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
-                                    {{ slide.props.descriptionText or 'Editable infographic' }}
+                                    {{ slide.props.descriptionText|safe or 'Editable infographic' }}
                                 </p>
                             </div>
                             
@@ -3523,10 +3523,10 @@
                                         <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
                                             <!-- Headline with segment color -->
                                             <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
-                                                {{ item.month }}
+                                                {{ item.month|safe }}
                                             </div>
                                             <!-- Description -->
-                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
+                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description|safe }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
@@ -3551,10 +3551,10 @@
                                         <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 20rem;">
                                             <!-- Headline with segment color -->
                                             <div style="color: {{ item.color }}; font-weight: bold; font-size: 1.125rem;">
-                                                {{ item.month }}
+                                                {{ item.month|safe }}
                                             </div>
                                             <!-- Description -->
-                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description }}</p>
+                                            <p style="color: #6B7280; font-size: 0.875rem; line-height: 1.6;">{{ item.description|safe }}</p>
                                         </div>
                                     {% endfor %}
                                 </div>
@@ -3568,9 +3568,9 @@
                     <div style="width: 100%; max-width: 80rem; margin: 0 auto;">
                         <!-- Title -->
                         <div style="text-align: center; margin-bottom: 3rem;">
-                            <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Bar Chart Infographics' }}</h1>
+                            <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title|safe or 'Bar Chart Infographics' }}</h1>
                             <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
-                                {{ slide.props.descriptionText or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
+                                {{ slide.props.descriptionText|safe or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
                             </p>
                         </div>
                         
@@ -3581,9 +3581,9 @@
                                 {% for item in slide.props.monthlyData[:3] %}
                                     <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
                                         <div style="background-color: {{ item.color or '#0ea5e9' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem;">
-                                            {{ item.month }}
+                                            {{ item.month|safe }}
                                         </div>
-                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description }}</p>
+                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description|safe }}</p>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -3598,7 +3598,7 @@
                                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                                     <!-- Category Label -->
                                                     <div style="width: 6rem; text-align: right; font-size: 0.875rem; font-weight: 500; color: var(--content-color);">
-                                                        {{ category.label }}
+                                                        {{ category.label|safe }}
                                                     </div>
                                                     
                                                     <!-- Bar -->
@@ -3615,7 +3615,7 @@
                                                     
                                                     <!-- Description -->
                                                     <div style="width: 12rem; font-size: 0.875rem; color: var(--content-color); line-height: 1.4;">
-                                                        {{ category.description }}
+                                                        {{ category.description|safe }}
                                                     </div>
                                                 </div>
                                             {% endfor %}
@@ -3629,9 +3629,9 @@
                                 {% for item in slide.props.monthlyData[3:6] %}
                                     <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
                                         <div style="background-color: {{ item.color or '#f97316' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem;">
-                                            {{ item.month }}
+                                            {{ item.month|safe }}
                                         </div>
-                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description }}</p>
+                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description|safe }}</p>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -3641,8 +3641,8 @@
                 
             {% else %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="content-text">{{ slide.props.content or 'Click to add content' }}</div>
+                    <h1 class="slide-title">{{ slide.props.title|safe or 'Click to add title' }}</h1>
+                    <div class="content-text">{{ slide.props.content|safe or 'Click to add content' }}</div>
                 </div>
             {% endif %}
         </div>
