@@ -6,7 +6,7 @@ import { ProjectInstanceDetail, TrainingPlanData } from '@/types/projectSpecific
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { UserDropdown } from '@/components/UserDropdown';
-import { Type, User, Shapes, FileImage, Music, Layers } from 'lucide-react';
+import { Type, User, Shapes, FileImage, Music, Layers, MessageSquareText } from 'lucide-react';
 
 interface ProductViewHeaderProps {
   projectData: ProjectInstanceDetail | null;
@@ -23,6 +23,16 @@ interface ProductViewHeaderProps {
   showVideoEditorTools?: boolean;
   activeSettingsPanel?: string | null;
   onSettingsButtonClick?: (settingsType: string) => void;
+  onTextButtonClick?: (position: { x: number; y: number }) => void;
+  onShapesButtonClick?: (position: { x: number; y: number }) => void;
+  onLanguageVariantModalOpen?: () => void;
+  hideAiImproveButton?: boolean;
+  // Video Editor Actions (optional - only for Projects2ViewPage)
+  showVideoEditorActions?: boolean;
+  aspectRatio?: string;
+  onAspectRatioChange?: (ratio: string) => void;
+  onPreviewClick?: () => void;
+  onGenerateClick?: () => void;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -38,8 +48,54 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   onPdfExport,
   showVideoEditorTools = false,
   activeSettingsPanel = null,
-  onSettingsButtonClick
+  onSettingsButtonClick,
+  onTextButtonClick,
+  onShapesButtonClick,
+  onLanguageVariantModalOpen,
+  hideAiImproveButton = false,
+  showVideoEditorActions = false,
+  aspectRatio,
+  onAspectRatioChange,
+  onPreviewClick,
+  onGenerateClick
 }) => {
+  const [isResizePopupOpen, setIsResizePopupOpen] = React.useState(false);
+  const resizeButtonRef = React.useRef<HTMLButtonElement>(null);
+  
+  // Close resize popup when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isResizePopupOpen) {
+        const isClickInButton = resizeButtonRef.current?.contains(event.target as Node);
+        const resizePopupElement = document.querySelector('[data-resize-popup]');
+        const isClickInPopup = resizePopupElement?.contains(event.target as Node);
+        
+        if (!isClickInButton && !isClickInPopup) {
+          setIsResizePopupOpen(false);
+        }
+      }
+    };
+
+    if (isResizePopupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isResizePopupOpen]);
+
+  const handleResizeClick = () => {
+    setIsResizePopupOpen(!isResizePopupOpen);
+  };
+
+  const handleResizeOptionClick = (ratio: string) => {
+    if (ratio !== 'Custom' && onAspectRatioChange) {
+      onAspectRatioChange(ratio);
+    }
+    setIsResizePopupOpen(false);
+  };
+  
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
     allowedComponentNames 
@@ -54,8 +110,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const renderBackgroundIcon = () => (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      width="16" 
-      height="16" 
+      width="14" 
+      height="14" 
       viewBox="0 0 24 24"
       className="text-current"
     >
@@ -113,103 +169,116 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
         {/* Video Editor Tools - Only visible in Projects2ViewPage */}
         {showVideoEditorTools && (
-          <div className="flex items-center gap-2">
-            {/* Text Button */}
+          <div className="flex items-center gap-1">
+            {/* Script Button */}
             <button
-              onClick={() => onSettingsButtonClick?.('text')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                activeSettingsPanel === 'text'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              onClick={() => onSettingsButtonClick?.('script')}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+                activeSettingsPanel === 'script'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <Type size={16} />
-              <span>Text</span>
+              <MessageSquareText size={14} />
+              <span className="text-[10px] mt-0.5">Script</span>
+            </button>
+
+            {/* Text Button */}
+            <button
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onTextButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
+              }}
+              className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors text-gray-600 hover:bg-gray-50"
+            >
+              <Type size={14} />
+              <span className="text-[10px] mt-0.5">Text</span>
             </button>
 
             {/* Avatar Button */}
             <button
               onClick={() => onSettingsButtonClick?.('avatar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'avatar'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <User size={16} />
-              <span>Avatar</span>
+              <User size={14} />
+              <span className="text-[10px] mt-0.5">Avatar</span>
             </button>
 
             {/* Shape Button */}
             <button
-              onClick={() => onSettingsButtonClick?.('shape')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                activeSettingsPanel === 'shape'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-              }`}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onShapesButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
+              }}
+              className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors text-gray-600 hover:bg-gray-50"
             >
-              <Shapes size={16} />
-              <span>Shape</span>
+              <Shapes size={14} />
+              <span className="text-[10px] mt-0.5">Shape</span>
             </button>
 
             {/* Media Button */}
             <button
               onClick={() => onSettingsButtonClick?.('media')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'media'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <FileImage size={16} />
-              <span>Media</span>
+              <FileImage size={14} />
+              <span className="text-[10px] mt-0.5">Media</span>
             </button>
 
             {/* Music Button */}
             <button
               onClick={() => onSettingsButtonClick?.('music')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'music'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <Music size={16} />
-              <span>Music</span>
+              <Music size={14} />
+              <span className="text-[10px] mt-0.5">Music</span>
             </button>
 
             {/* Background Button */}
             <button
               onClick={() => onSettingsButtonClick?.('background')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'background'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {renderBackgroundIcon()}
-              <span>Background</span>
+              <div className="w-[14px] h-[14px] flex items-center justify-center">
+                {renderBackgroundIcon()}
+              </div>
+              <span className="text-[10px] mt-0.5">Background</span>
             </button>
 
             {/* Transition Button */}
             <button
               onClick={() => onSettingsButtonClick?.('transition')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'transition'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <Layers size={16} />
-              <span>Transition</span>
+              <Layers size={14} />
+              <span className="text-[10px] mt-0.5">Transition</span>
             </button>
           </div>
         )}
 
         <div className="flex items-center space-x-3">
           {/* AI Improve button for Course Outline and Presentations */}
-          {shouldShowButtons && (
+          {shouldShowButtons && !hideAiImproveButton && (
           <button
               onClick={() => setShowSmartEditor(!showSmartEditor)}
               className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -269,6 +338,71 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
               />
             </ToastProvider>
+          )}
+
+          {/* Video Editor Actions - Only visible in Projects2ViewPage */}
+          {showVideoEditorActions && (
+            <>
+              {/* Resize Button */}
+              <div className="relative flex items-center">
+                <button
+                  ref={resizeButtonRef}
+                  onClick={handleResizeClick}
+                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
+                  </svg>
+                  <span className="text-black text-sm font-normal">Resize</span>
+                </button>
+
+                {/* Resize Popup */}
+                {isResizePopupOpen && (
+                  <div data-resize-popup className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]">
+                    <div className="py-2">
+                      {[
+                        { ratio: '16:9', label: 'Landscape (16:9)', icon: '16:9' },
+                        { ratio: '9:16', label: 'Portrait (9:16)', icon: '9:16' },
+                        { ratio: '1:1', label: 'Square (1:1)', icon: '1:1' },
+                        { ratio: 'Custom', label: 'Custom', icon: 'Custom' }
+                      ].map((option) => (
+                        <button
+                          key={option.ratio}
+                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
+                            option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
+                          } ${option.ratio === aspectRatio ? 'bg-blue-50' : ''}`}
+                          onClick={() => handleResizeOptionClick(option.ratio)}
+                          disabled={option.ratio === 'Custom'}
+                        >
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{option.label}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Preview Button */}
+              <button
+                onClick={onPreviewClick}
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-700">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span className="text-black text-sm font-normal">Preview</span>
+              </button>
+
+              {/* Generate Button */}
+              <button
+                onClick={onGenerateClick}
+                className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
+              >
+                <span className="text-sm font-normal">Generate</span>
+              </button>
+            </>
           )}
 
           {/* User Dropdown */}

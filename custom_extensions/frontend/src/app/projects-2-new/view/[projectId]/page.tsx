@@ -4,18 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
-import VideoEditorHeader from '../../../projects-2/view/components/VideoEditorHeader';
-import Toolbar from '../../../projects-2/view/components/Toolbar';
 import Script from '../../../projects-2/view/components/Script';
 import Background from '../../../projects-2/view/components/Background';
 import Music from '../../../projects-2/view/components/Music';
 import Transition from '../../../projects-2/view/components/Transition';
-import Comments from '../../../projects-2/view/components/Comments';
 import Media from '../../../projects-2/view/components/Media';
 import TextPopup from '../../../projects-2/view/components/TextPopup';
 import ShapesPopup from '../../../projects-2/view/components/ShapesPopup';
-import InteractionPopup from '../../../projects-2/view/components/InteractionPopup';
-import InteractionModal from '../../../projects-2/view/components/InteractionModal';
 import AiPopup from '../../../projects-2/view/components/AiPopup';
 import LanguageVariantModal from '../../../projects-2/view/components/LanguageVariantModal';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
@@ -38,17 +33,13 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 export default function Projects2ViewPage() {
   const params = useParams();
   const projectId = params?.projectId as string;
-  const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
-  const [isInteractionPopupOpen, setIsInteractionPopupOpen] = useState<boolean>(false);
-  const [isInteractionModalOpen, setIsInteractionModalOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
@@ -75,7 +66,7 @@ export default function Projects2ViewPage() {
   const [isComponentBasedVideoLesson, setIsComponentBasedVideoLesson] = useState<boolean>(false);
   
   // NEW: Settings panel state for video lesson buttons
-  const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
+  const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>('script');
   
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
@@ -121,7 +112,7 @@ export default function Projects2ViewPage() {
       saveVideoLessonData(updatedDeck);
       
       // Switch back to script view after adding slide
-      setActiveComponent('script');
+      setActiveSettingsPanel('script');
     } else if (videoLessonData) {
       // Handle old video lesson structure (legacy)
       const videoLessonSlide: VideoLessonSlideData = {
@@ -152,7 +143,7 @@ export default function Projects2ViewPage() {
       saveVideoLessonData(updatedData);
       
       // Switch back to script view after adding slide
-      setActiveComponent('script');
+      setActiveSettingsPanel('script');
     } else {
       console.error('❌ handleAddSlide: No valid data structure found!', {
         isComponentBasedVideoLesson,
@@ -218,7 +209,7 @@ export default function Projects2ViewPage() {
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
-    setActiveComponent('templates');
+    setActiveSettingsPanel('templates');
   };
 
   // NEW: Function to handle text changes (for Script component)
@@ -539,71 +530,7 @@ export default function Projects2ViewPage() {
     setIsOptionPopupOpen(true);
   };
 
-  const handleActiveToolChange = (toolId: string) => {
-    if (toolId === 'media') {
-      setIsMediaPopupOpen(true);
-    } else {
-      setActiveComponent(toolId);
-      setIsMediaPopupOpen(false);
-    }
-    // Close text, shapes, interaction, and AI popups when switching tools
-    setIsTextPopupOpen(false);
-    setIsShapesPopupOpen(false);
-    setIsInteractionPopupOpen(false);
-    setIsAiPopupOpen(false);
-    // Clear selected element when switching tools
-    setSelectedElement(null);
-  };
 
-
-
-  const handleTextButtonClick = (position: { x: number; y: number }) => {
-    setTextPopupPosition(position);
-    setIsTextPopupOpen(true);
-    // Close other popups if open
-    setIsMediaPopupOpen(false);
-    setIsShapesPopupOpen(false);
-    setIsInteractionPopupOpen(false);
-    setIsAiPopupOpen(false);
-  };
-
-  const handleShapesButtonClick = (position: { x: number; y: number }) => {
-    setShapesPopupPosition(position);
-    setIsShapesPopupOpen(true);
-    // Close other popups if open
-    setIsMediaPopupOpen(false);
-    setIsTextPopupOpen(false);
-    setIsInteractionPopupOpen(false);
-    setIsAiPopupOpen(false);
-  };
-
-  const handleInteractionButtonClick = (position: { x: number; y: number }) => {
-    setInteractionPopupPosition(position);
-    setIsInteractionPopupOpen(true);
-    // Close other popups if open
-    setIsMediaPopupOpen(false);
-    setIsTextPopupOpen(false);
-    setIsShapesPopupOpen(false);
-    setIsAiPopupOpen(false);
-  };
-
-  const handleInteractionModalOpen = () => {
-    setIsInteractionModalOpen(true);
-    setIsInteractionPopupOpen(false);
-  };
-
-  const handleInteractionModalClose = () => {
-    setIsInteractionModalOpen(false);
-  };
-
-  const handleLanguageVariantModalOpen = () => {
-    setIsLanguageVariantModalOpen(true);
-    // Note: We don't need to close any popup here since this is triggered from the toolbar
-  };
-
-  const handleLanguageVariantModalClose = () => {
-    setIsLanguageVariantModalOpen(false);
-  };
 
   // NEW: Handler for video lesson settings buttons
   const handleSettingsButtonClick = (settingsType: string) => {
@@ -618,6 +545,32 @@ export default function Projects2ViewPage() {
   // Simple translation function for ProductViewHeader
   const t = (key: string, fallback: string) => fallback;
 
+  const handleTextButtonClick = (position: { x: number; y: number }) => {
+    setTextPopupPosition(position);
+    setIsTextPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsShapesPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
+  const handleShapesButtonClick = (position: { x: number; y: number }) => {
+    setShapesPopupPosition(position);
+    setIsShapesPopupOpen(true);
+    // Close other popups if open
+    setIsMediaPopupOpen(false);
+    setIsTextPopupOpen(false);
+    setIsAiPopupOpen(false);
+  };
+
+  const handleLanguageVariantModalOpen = () => {
+    setIsLanguageVariantModalOpen(true);
+  };
+
+  const handleLanguageVariantModalClose = () => {
+    setIsLanguageVariantModalOpen(false);
+  };
+
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
     setIsAiPopupOpen(true);
@@ -625,13 +578,20 @@ export default function Projects2ViewPage() {
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
     setIsShapesPopupOpen(false);
-    setIsInteractionPopupOpen(false);
   };
 
   const renderSidebarComponent = () => {
     // If video lesson settings panel is active, show the corresponding settings
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
+        case 'script':
+          return <Script 
+            onAiButtonClick={handleAiButtonClick} 
+            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
+            currentSlideId={currentSlideId}
+            onTextChange={handleTextChange}
+          />;
         case 'text':
           return <TextSettings activeEditor={activeTextEditor} />;
         case 'image':
@@ -653,6 +613,11 @@ export default function Projects2ViewPage() {
           return <Background />;
         case 'transition':
           return <Transition />;
+        case 'templates':
+          return <TemplateSelector 
+            currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
+            onAddSlide={handleAddSlide}
+          />;
         default:
           break;
       }
@@ -670,48 +635,18 @@ export default function Projects2ViewPage() {
         case 'shape':
           return <ShapeSettings />;
         default:
-          return <Script 
-            onAiButtonClick={handleAiButtonClick} 
-            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-            currentSlideId={currentSlideId}
-            onTextChange={handleTextChange}
-          />;
+          break;
       }
     }
 
-    // Otherwise show the active component
-    switch (activeComponent) {
-      case 'script':
-        return <Script 
-          onAiButtonClick={handleAiButtonClick} 
-          videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-          componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-          currentSlideId={currentSlideId}
-          onTextChange={handleTextChange}
-        />;
-      case 'templates':
-        return <TemplateSelector 
-          currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
-          onAddSlide={handleAddSlide}
-        />;
-      case 'background':
-        return <Background />;
-      case 'music':
-        return <Music />;
-      case 'transition':
-        return <Transition />;
-      case 'comments':
-        return <Comments />;
-      default:
-        return <Script 
-          onAiButtonClick={handleAiButtonClick} 
-          videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-          componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-          currentSlideId={currentSlideId}
-          onTextChange={handleTextChange}
-        />;
-    }
+    // Default to script panel
+    return <Script 
+      onAiButtonClick={handleAiButtonClick} 
+      videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+      componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
+      currentSlideId={currentSlideId}
+      onTextChange={handleTextChange}
+    />;
   };
 
   return (
@@ -733,32 +668,21 @@ export default function Projects2ViewPage() {
         showVideoEditorTools={true}
         activeSettingsPanel={activeSettingsPanel}
         onSettingsButtonClick={handleSettingsButtonClick}
+        onTextButtonClick={handleTextButtonClick}
+        onShapesButtonClick={handleShapesButtonClick}
+        onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
+        hideAiImproveButton={true}
+        showVideoEditorActions={true}
+        aspectRatio={aspectRatio}
+        onAspectRatioChange={setAspectRatio}
+        onPreviewClick={() => {}}
+        onGenerateClick={() => {}}
       />
       
       <div className="p-2">
-      {/* Header */}
-      <VideoEditorHeader 
-        aspectRatio={aspectRatio}
-        onAspectRatioChange={setAspectRatio}
-        videoLessonData={videoLessonData}
-        componentBasedSlideDeck={componentBasedSlideDeck}
-        currentSlideId={currentSlideId}
-      />
-
-      {/* Toolbar */}
-      <div className="-mt-1">
-        <Toolbar 
-          onActiveToolChange={handleActiveToolChange} 
-          onTextButtonClick={handleTextButtonClick}
-          onShapesButtonClick={handleShapesButtonClick}
-          onInteractionButtonClick={handleInteractionButtonClick}
-          onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
-        />
-      </div>
-      
-      {/* Main Content Area - Horizontal layout under toolbar */}
-      {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
-      <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 145px)' }}>
+      {/* Main Content Area - Horizontal layout */}
+      {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
+      <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 85px)' }}>
         {/* Sidebar - 30% width, full height of available space */}
         <div className="w-[30%] h-full overflow-y-auto overflow-x-hidden">
           {renderSidebarComponent()}
@@ -897,20 +821,6 @@ export default function Projects2ViewPage() {
         isOpen={isShapesPopupOpen} 
         onClose={() => setIsShapesPopupOpen(false)} 
         position={shapesPopupPosition}
-      />
-
-      {/* Interaction Popup */}
-      <InteractionPopup 
-        isOpen={isInteractionPopupOpen} 
-        onClose={() => setIsInteractionPopupOpen(false)} 
-        position={interactionPopupPosition}
-        onModalOpen={handleInteractionModalOpen}
-      />
-
-      {/* Interaction Modal */}
-      <InteractionModal 
-        isOpen={isInteractionModalOpen} 
-        onClose={handleInteractionModalClose}
       />
 
       {/* AI Popup */}
