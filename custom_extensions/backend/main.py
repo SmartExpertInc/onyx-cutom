@@ -29717,6 +29717,56 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
 ✅ GOOD (paragraph with depth):
 "Implement Agile methodology with 2-week sprints to accelerate development cycles. Agile's iterative approach allows teams to gather user feedback early and adjust course, reducing the risk of building unwanted features. In practice, teams hold daily standups, sprint planning, and retrospectives to maintain alignment. This approach typically reduces time-to-market by 30-40% while improving product-market fit because you're validating assumptions continuously rather than at project end. The key trade-off is that Agile requires more frequent communication and can feel chaotic to teams accustomed to traditional waterfall methods."
 
+**HEADING HIERARCHY RULES (CRITICAL FOR READABILITY):**
+
+⚠️ PROBLEM: Too many large section headers with small content makes content look fragmented and unprofessional.
+
+✅ SOLUTION: Use hierarchical structure properly:
+
+**Level 2 Headers (## or "level": 2)** - ONLY for MAJOR sections:
+- Use for 4-6 main sections that organize the entire document
+- Each level 2 section should contain 300-500+ words of content
+- Examples: "Introduction", "Core Concepts", "Application Strategies", "Common Mistakes", "Conclusion"
+- Should have emoji icons for visual appeal
+
+**Level 3 Headers (### or "level": 3)** - For subsections within major sections:
+- Use to organize content WITHIN a level 2 section
+- Group related paragraphs and examples
+- Should contain 150-300 words of content
+- Examples: "Cost-Plus Pricing", "Value-Based Pricing" (under a "Pricing Models" level 2 section)
+
+❌ BAD Structure (too many top-level headers):
+- ## Introduction (1 paragraph)
+- ## Cost-Plus Pricing (1 paragraph)
+- ## Value-Based Pricing (1 paragraph)
+- ## Competition-Based Pricing (1 paragraph)
+- ## Psychological Pricing (1 paragraph)
+[Result: Looks like a disconnected list, no flow]
+
+✅ GOOD Structure (proper hierarchy):
+- ## 📊 Core Pricing Models (level 2)
+  - Paragraph introducing the three main models
+  - ### Cost-Plus Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Value-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Competition-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+[Result: Organized, flows well, looks professional]
+
+**CONTENT GROUPING RULES:**
+1. Combine related concepts under ONE level 2 header, use level 3 for specifics
+2. A level 2 section should feel like a "chapter" with multiple subsections
+3. If a header only has 1-2 paragraphs under it, it should probably be level 3, not level 2
+4. Aim for 4-6 level 2 sections in a complete one-pager
+5. Each level 2 section can have 2-5 level 3 subsections
+
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
@@ -29742,6 +29792,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
+✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
+✅ Content grouping: Related concepts grouped under ONE level 2 header?
 ✅ Mental models: 2-3 frameworks with HOW to apply them?
 ✅ Worked examples: 2-3 complete scenarios (Background → Analysis → Decision → Outcome → Lessons)?
 ✅ Common mistakes: 3-5 deep analyses (WHY → Consequence → Recognition → Correction)?
