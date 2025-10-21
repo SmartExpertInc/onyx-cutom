@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Plus, FileText, Clipboard, ChevronDown, X, S
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
 import { getAllTemplates, getTemplate } from './templates/registry';
 import AIImageGenerationModal from './AIImageGenerationModal';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import './PresentationLayout.css';
 
 interface PresentationLayoutProps {
@@ -31,11 +32,6 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [insertAfterIndex, setInsertAfterIndex] = useState<number | null>(null);
-  
-  // Between-slides template dropdown state
-  const [showBetweenSlidesDropdown, setShowBetweenSlidesDropdown] = useState(false);
-  const betweenSlidesDropdownRef = useRef<HTMLDivElement>(null);
-  const [betweenSlidesDropdownIndex, setBetweenSlidesDropdownIndex] = useState<number | null>(null);
 
   // AI generation modal
   const [showAIModal, setShowAIModal] = useState(false);
@@ -267,19 +263,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowTemplateDropdown(false);
       }
-      if (betweenSlidesDropdownRef.current && !betweenSlidesDropdownRef.current.contains(event.target as Node)) {
-        setShowBetweenSlidesDropdown(false);
-      }
       if (slideMenuRef.current && !slideMenuRef.current.contains(event.target as Node)) {
         setShowSlideMenu(null);
       }
     };
 
-    if (showTemplateDropdown || showBetweenSlidesDropdown || showSlideMenu) {
+    if (showTemplateDropdown || showSlideMenu) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showTemplateDropdown, showBetweenSlidesDropdown, showSlideMenu]);
+  }, [showTemplateDropdown, showSlideMenu]);
 
 
   if (!deck || !deck.slides || deck.slides.length === 0) {
@@ -358,7 +351,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         </div>
                         <div className="px-3 py-3">
                           <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
-                          <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
+                          {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                         </div>
                       </button>
                     ))}
@@ -385,7 +378,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       </div>
                       <div className="px-3 py-3">
                         <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
-                        <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
+                        {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                       </div>
                     </button>
                   ))}
@@ -524,68 +517,63 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                   {/* Between-slides action bar */}
                   <div className="flex bg-white justify-center mt-4">
                     <div className="flex items-center bg-white rounded-md shadow-sm">
-                <button
-                  onClick={() => {
-                          setBetweenSlidesDropdownIndex(index);
-                          setShowBetweenSlidesDropdown(!showBetweenSlidesDropdown);
-                  }}
-                        title="Add new slide"
-                        className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
-                >
-                        <Plus size={16} />
-                </button>
-                    <button
-                        onClick={() => setShowAIModal(true)}
-                        title="Generate with AI"
-                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
-                      >
-                        <Sparkles size={16} />
-                      </button>
-                <button
-                        onClick={() => {}}
-                        title="More"
-                        className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
-                      >
-                        <ArrowDown size={16} />
-                </button>
-                    </div>
-                  </div>
-
-                  {/* Between-slides template dropdown */}
-                  {showBetweenSlidesDropdown && betweenSlidesDropdownIndex === index && (
-                    <div className="relative flex justify-center mt-2">
-                      <div
-                        ref={betweenSlidesDropdownRef}
-                        className="bg-white border border-gray-200 rounded-lg shadow-xl z-50"
-                        style={{
-                          width: '860px',
-                          maxHeight: '400px',
-                          overflowY: 'auto'
-                        }}
-                      >
-                        {/* Header */}
-                        <div className="flex items-center justify-between p-3 border-b border-gray-100">
-                          <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button
-                            onClick={() => setShowBetweenSlidesDropdown(false)}
-                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                            title="Add new slide"
+                            className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                           >
-                            <X size={16} className="text-gray-500" />
+                            <Plus size={16} />
                           </button>
-                        </div>
-
-                        {/* Popular Templates */}
-                        <div className="p-3">
-                          <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                            Popular
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          className="w-[860px] max-h-[400px] overflow-y-auto p-0"
+                          align="center"
+                          sideOffset={8}
+                        >
+                          {/* Header */}
+                          <div className="flex items-center justify-between p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+                            <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
                           </div>
-                          <div className="grid grid-cols-3 gap-3">
-                            {availableTemplates
-                              .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
-                              .map((template) => (
+
+                          {/* Popular Templates */}
+                          <div className="p-3">
+                            <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Popular
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              {availableTemplates
+                                .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                                .map((template) => (
+                                  <button
+                                    key={template.id}
+                                    onClick={() => addSlide(template.id, index)}
+                                    className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                                  >
+                                    <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                      <div 
+                                        className="opacity-70 group-hover:opacity-100 transition-opacity" 
+                                        dangerouslySetInnerHTML={{ __html: template.icon }}
+                                      />
+                                    </div>
+                                    <div className="px-3 py-3">
+                                      <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                    </div>
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+
+                          {/* All Templates */}
+                          <div className="p-3 border-t border-gray-100">
+                            <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Basic
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              {availableTemplates.map((template) => (
                                 <button
                                   key={template.id}
-                                  onClick={() => { addSlide(template.id, index); setShowBetweenSlidesDropdown(false); }}
+                                  onClick={() => addSlide(template.id, index)}
                                   className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                 >
                                   <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
@@ -596,42 +584,29 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                   </div>
                                   <div className="px-3 py-3">
                                     <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
-                                    <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
                                   </div>
                                 </button>
                               ))}
+                            </div>
                           </div>
-                        </div>
-
-                        {/* All Templates */}
-                        <div className="p-3 border-t border-gray-100">
-                          <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                            Basic
-                          </div>
-                          <div className="grid grid-cols-3 gap-3">
-                            {availableTemplates.map((template) => (
-                              <button
-                                key={template.id}
-                                onClick={() => { addSlide(template.id, index); setShowBetweenSlidesDropdown(false); }}
-                                className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
-                              >
-                                <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
-                                  <div 
-                                    className="opacity-70 group-hover:opacity-100 transition-opacity" 
-                                    dangerouslySetInnerHTML={{ __html: template.icon }}
-                                  />
-                                </div>
-                                <div className="px-3 py-3">
-                                  <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
-                                  <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                        </PopoverContent>
+                      </Popover>
+                      <button
+                        onClick={() => setShowAIModal(true)}
+                        title="Generate with AI"
+                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
+                      >
+                        <Sparkles size={16} />
+                      </button>
+                      <button
+                        onClick={() => {}}
+                        title="More"
+                        className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                      >
+                        <ArrowDown size={16} />
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

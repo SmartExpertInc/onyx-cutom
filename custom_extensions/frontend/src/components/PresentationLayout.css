@@ -38,6 +38,7 @@
 .slide-mini-preview {
   width: 100%;
   height: auto;
+  position: relative;
   transform-origin: top left;
   pointer-events: none;
   user-select: none;
