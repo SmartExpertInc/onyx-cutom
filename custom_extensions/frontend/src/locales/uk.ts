@@ -1240,6 +1240,15 @@ export const uk = {
         importFromURL: "Імпорт з URL",
       },
     },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "Поки немає коннекторів",
+      noIntegrationsYet: "Ви ще не підключили жодної інтеграції.",
+      exploreConnectors: "Досліджуйте доступні коннектори та керуйте ними у вашій базі знань.",
+      connectNow: "Підключити зараз",
+    },
+
     // Course Outline Page
     courseOutline: {
       loading: "Завантаження...",

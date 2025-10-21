@@ -1248,6 +1248,15 @@ export const ru = {
         importFromURL: "Импорт из URL",
       },
     },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "Пока нет коннекторов",
+      noIntegrationsYet: "Вы еще не подключили никаких интеграций.",
+      exploreConnectors: "Исследуйте доступные коннекторы и управляйте ими в вашей базе знаний.",
+      connectNow: "Подключить сейчас",
+    },
+
     // Course Outline Page
     courseOutline: {
       loading: "Загрузка...",

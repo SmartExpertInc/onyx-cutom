@@ -1563,6 +1563,14 @@ export const en = {
       },
     },
 
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "No connectors yet",
+      noIntegrationsYet: "You haven't connected any integrations yet.",
+      exploreConnectors: "Explore available connectors and manage them in your Knowledge Base.",
+      connectNow: "Connect now",
+    },
+
     // View New Page (Course Outline View)
     viewNew: {
       back: "Back",

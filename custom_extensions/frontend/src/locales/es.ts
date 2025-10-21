@@ -1230,6 +1230,15 @@ export const es = {
         importFromURL: "Importar desde URL",
       },
     },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "Aún no hay conectores",
+      noIntegrationsYet: "Aún no has conectado ninguna integración.",
+      exploreConnectors: "Explora los conectores disponibles y adminístralos en tu Base de Conocimientos.",
+      connectNow: "Conectar ahora",
+    },
+
     // Course Outline Page
     courseOutline: {
       loading: "Cargando...",
