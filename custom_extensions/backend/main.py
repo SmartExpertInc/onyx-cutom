@@ -10650,6 +10650,67 @@ Think of yourself as a precise text editor, not a content improver.
         return wizard_message + preservation_instruction
     return wizard_message
 
+def validate_edit_preservation(original_content: str, edited_content: str, edit_instructions: str) -> tuple[bool, str]:
+    """
+    Validates that only requested changes were made during editing.
+    Returns (is_valid, error_message)
+    """
+    try:
+        # Extract what should have changed from instructions
+        instructions_lower = edit_instructions.lower()
+        
+        # Check for preservation instructions
+        preservation_phrases = ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]
+        is_preservation_mode = any(phrase in instructions_lower for phrase in preservation_phrases)
+        
+        if not is_preservation_mode:
+            # Not in preservation mode, allow normal editing
+            return True, ""
+        
+        # Calculate similarity ratio
+        from difflib import SequenceMatcher
+        similarity_ratio = SequenceMatcher(None, original_content, edited_content).ratio()
+        
+        # In preservation mode, content should be very similar (90%+ identical)
+        if similarity_ratio < 0.9:
+            return False, f"Content changed too much (similarity: {similarity_ratio:.2f}). In preservation mode, only specific requested changes should be made."
+        
+        # Check for specific preservation violations
+        violations = []
+        
+        # Check for Ukrainian text preservation
+        ukrainian_headers = ["Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань"]
+        for header in ukrainian_headers:
+            if header in original_content and header not in edited_content:
+                violations.append(f"Ukrainian header '{header}' was removed or modified")
+        
+        # Check for module ID preservation
+        import re
+        original_module_ids = re.findall(r'## (?:Module|#)\s*\d+', original_content)
+        edited_module_ids = re.findall(r'## (?:Module|#)\s*\d+', edited_content)
+        
+        if len(original_module_ids) != len(edited_module_ids):
+            violations.append("Module IDs were added or removed")
+        
+        # Check for table header preservation
+        if "table" in original_content.lower() and "table" in edited_content.lower():
+            # Extract table headers and check if they changed
+            original_headers = re.findall(r'\|([^|]+)\|', original_content)
+            edited_headers = re.findall(r'\|([^|]+)\|', edited_content)
+            
+            if original_headers and edited_headers:
+                if len(original_headers) != len(edited_headers):
+                    violations.append("Table structure was modified")
+        
+        if violations:
+            return False, f"Preservation violations detected: {'; '.join(violations)}"
+        
+        return True, ""
+        
+    except Exception as e:
+        logger.error(f"[VALIDATION_ERROR] Error validating edit preservation: {e}")
+        return True, ""  # Don't block on validation errors
+
 # --- OpenAI Streaming Functions ---
 
 async def stream_openai_response(message: str, temperature: float = 0.7):
@@ -10674,9 +10735,62 @@ async def stream_openai_response(message: str, temperature: float = 0.7):
         
         logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
         
+        # Check for preservation mode instructions
+        enhanced_message = add_preservation_mode_if_needed(message, {"prompt": message})
+        
+        # Add educational depth requirements for non-file generation
+        educational_enhancement = """
+
+**EDUCATIONAL CONTENT REQUIREMENTS:**
+
+Your content must provide deep educational value suitable for corporate training:
+
+**BLOOM'S TAXONOMY PROGRESSION:**
+• REMEMBER: Define key terms with precise definitions
+• UNDERSTAND: Explain WHY concepts work and provide mental models
+• APPLY: Show HOW to use concepts with step-by-step procedures
+• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
+
+**CORPORATE TRAINING STANDARDS:**
+• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
+• Include realistic scenarios with decision points
+• Provide mental models and frameworks learners can remember
+• Add "what would you do?" reflection prompts
+• Show both correct and incorrect examples with analysis
+
+**ANTI-HALLUCINATION PROTOCOL:**
+• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
+• NEVER present made-up examples as if they were real case studies
+• NEVER invent statistics, company names, or specific details
+• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
+
+**BULLET POINT DEPTH (for presentations):**
+Each bullet point MUST contain 60-100 words structured as:
+1. Core concept statement (15-20 words)
+2. Explanation of WHY/HOW it matters (20-30 words)  
+3. Practical application or example (20-30 words)
+4. Key takeaway or implication (10-20 words)
+
+**ONE-PAGER PEDAGOGICAL ELEMENTS:**
+1. MENTAL MODELS: Provide 2-3 frameworks learners can use
+2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
+4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
+5. SKILL PRACTICE: Include 3-5 scenario-based practice items
+
+"""
+        
+        enhanced_message += educational_enhancement
+        
         stream = await client.chat.completions.create(
             model="gpt-4-turbo-preview",
-            messages=[{"role": "user", "content": message}],
+            messages=[{
+                "role": "system", 
+                "content": """You are an EDUCATIONAL CONTENT CREATOR specializing in corporate training materials. Generate deep, comprehensive educational content that teaches concepts through multiple cognitive levels. Focus on practical application, real-world scenarios, and actionable insights that learners can immediately implement."""
+            }, {
+                "role": "user", 
+                "content": enhanced_message
+            }],
             temperature=temperature,
             stream=True
         )
