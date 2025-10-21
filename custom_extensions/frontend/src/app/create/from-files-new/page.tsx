@@ -223,9 +223,9 @@ export default function FromFilesNew() {
             icon={<UploadFileIcon />}
             title={t('interface.fromFiles.uploadFile', 'Upload a file')}
             features={[
-              'Powerpoint PPTX',
-              'Word docs',
-              'PDFs'
+              t('interface.fromFiles.powerpointPPTX', 'Powerpoint PPTX'),
+              t('interface.fromFiles.wordDocs', 'Word docs'),
+              t('interface.fromFiles.pdfs', 'PDFs')
             ]}
             onClick={handleUploadFileClick}
           />
@@ -234,8 +234,8 @@ export default function FromFilesNew() {
             icon={<KnowledgeBaseIcon />}
             title={t('interface.fromFiles.importFromKnowledgeBase', 'Import from Knowledge base')}
             features={[
-              'Any file from smartdrive',
-              'All files from connectors'
+              t('interface.fromFiles.anyFileFromSmartdrive', 'Any file from smartdrive'),
+              t('interface.fromFiles.allFilesFromConnectors', 'All files from connectors')
             ]}
             onClick={() => setIsSmartDriveModalOpen(true)}
           />
@@ -244,9 +244,9 @@ export default function FromFilesNew() {
             icon={<ImportURLIcon />}
             title={t('interface.fromFiles.importFromURL', 'Import from URL')}
             features={[
-              'Webpages',
-              'Blog post & articles',
-              'Notion docs'
+              t('interface.fromFiles.webpages', 'Webpages'),
+              t('interface.fromFiles.blogPostsArticles', 'Blog post & articles'),
+              t('interface.fromFiles.notionDocs', 'Notion docs')
             ]}
             onClick={() => setIsModalOpen(true)}
           />
