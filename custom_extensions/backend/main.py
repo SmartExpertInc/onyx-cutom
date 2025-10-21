@@ -22884,12 +22884,13 @@ async def _fetch_lesson_product_content(
         async with pool.acquire() as conn:
             products = await conn.fetch(
                 """
-                SELECT microproduct_content, microproduct_type, component_name
-                FROM projects
-                WHERE course_id = $1
-                  AND onyx_user_id = $2
-                  AND LOWER(project_name) LIKE '%' || $3 || '%'
-                ORDER BY created_at DESC
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                ORDER BY p.created_at DESC
                 """,
                 outline_id, onyx_user_id, lesson_title.lower()
             )
