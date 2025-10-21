@@ -509,20 +509,21 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 })}
                 {/* Delete row button - positioned absolutely outside table */}
                 {isEditable && (
-                  <td style={{ position: 'absolute', right: '-40px', top: '50%', transform: 'translateY(-50%)' }}>
-                    <button
-                      onClick={() => removeRow(rowIndex)}
-                      style={{
-                        ...deleteButtonStyles,
-                        opacity: hoveredRow === rowIndex ? 1 : 0,
-                        transition: 'opacity 0.2s ease',
-                        position: 'relative'
-                      }}
-                      title="Remove Row"
-                    >
-                      ✗
-                    </button>
-                  </td>
+                  <button
+                    onClick={() => removeRow(rowIndex)}
+                    style={{
+                      ...deleteButtonStyles,
+                      opacity: hoveredRow === rowIndex ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                      position: 'absolute',
+                      right: '-40px',
+                      top: '50%',
+                      transform: 'translateY(-50%)'
+                    }}
+                    title="Remove Row"
+                  >
+                    ✗
+                  </button>
                 )}
               </tr>
             ))}
