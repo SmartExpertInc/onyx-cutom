@@ -10624,6 +10624,32 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
+# --- Helper Functions ---
+
+def add_preservation_mode_if_needed(wizard_message: str, wiz_payload: dict) -> str:
+    """Add preservation mode instructions if user requests text preservation."""
+    prompt_text = wiz_payload.get("prompt", "").lower()
+    if any(phrase in prompt_text for phrase in ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]):
+        preservation_instruction = """
+
+🔒 PRESERVATION MODE ACTIVATED 🔒
+
+The user has explicitly instructed you NOT to modify their text.
+You are in READ-ONLY mode except for the specific changes they request.
+
+STRICT RULES:
+• Make ONLY the changes explicitly requested
+• Do NOT fix grammar, spelling, or phrasing
+• Do NOT improve or enhance language
+• Do NOT restructure or reorganize
+• Do NOT translate anything
+• Preserve exact wording, even if it seems improvable
+
+Think of yourself as a precise text editor, not a content improver.
+"""
+        return wizard_message + preservation_instruction
+    return wizard_message
+
 # --- OpenAI Streaming Functions ---
 
 async def stream_openai_response(message: str, temperature: float = 0.7):
@@ -10708,16 +10734,17 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
             
             if file_contents or file_summaries:
                 file_content_section = "\n\n" + "="*80 + "\n"
-                file_content_section += "📚 SOURCE DOCUMENT CONTENT (PRIMARY KNOWLEDGE BASE)\n"
+                file_content_section += "📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE\n"
                 file_content_section += "="*80 + "\n\n"
-                file_content_section += "**CRITICAL INSTRUCTION**: The following content is extracted from the user's uploaded documents. "
-                file_content_section += "This is your PRIMARY and MOST IMPORTANT source of information. You MUST:\n"
-                file_content_section += "1. Base ALL your content generation on this document content\n"
-                file_content_section += "2. Use facts, concepts, and information DIRECTLY from these documents\n"
-                file_content_section += "3. Reference and teach the specific topics found in these documents\n"
-                file_content_section += "4. DO NOT rely on general internet knowledge unless the documents lack specific information\n"
-                file_content_section += "5. If documents contain specific examples, data, or case studies, USE THEM in your content\n"
-                file_content_section += "6. Your goal is to teach what's IN these documents, not general knowledge about the topic\n\n"
+                file_content_section += "⚠️ CRITICAL INSTRUCTION ⚠️\n"
+                file_content_section += "The documents below are YOUR COMPLETE KNOWLEDGE BASE.\n"
+                file_content_section += "You MUST:\n"
+                file_content_section += "  ✓ Use ONLY information from these documents\n"
+                file_content_section += "  ✓ Quote specific passages and reference document sections\n"
+                file_content_section += "  ✓ Use examples, data, and cases ONLY from these documents\n"
+                file_content_section += "  ✓ State 'not provided in source materials' if information is missing\n"
+                file_content_section += "  ✗ NEVER use general knowledge or make assumptions\n"
+                file_content_section += "  ✗ NEVER hallucinate examples not in the documents\n\n"
                 
                 # Add key topics if available
                 if key_topics:
@@ -10733,12 +10760,17 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
                 if estimated_tokens < MAX_CONTEXT_TOKENS:
                     # Use FULL CONTENT - files are small enough
                     logger.info(f"[HYBRID_STREAM] Using FULL CONTENT (within token limit)")
-                    file_content_section += "---\n**FULL DOCUMENT CONTENT**:\n---\n\n"
                     
+                    # Add document structure with clear markers
                     for i, content in enumerate(file_contents, 1):
                         if content and len(content.strip()) > 0:
-                            file_content_section += f"### Document {i}:\n\n{content}\n\n"
-                            file_content_section += "---\n\n"
+                            file_content_section += f"\n{'='*80}\n"
+                            file_content_section += f"📄 SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                            file_content_section += f"{content}\n\n"
+                            file_content_section += f"{'='*80}\n"
+                            file_content_section += f"END OF SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
                 else:
                     # Use ENHANCED SUMMARIES - files are too large
                     logger.info(f"[HYBRID_STREAM] Using ENHANCED SUMMARIES (content exceeds token limit)")
@@ -10781,6 +10813,13 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
                 file_content_section += "="*80 + "\n"
                 file_content_section += "END OF SOURCE DOCUMENTS - USE THIS AS YOUR PRIMARY KNOWLEDGE BASE\n"
                 file_content_section += "="*80 + "\n\n"
+                
+                # Add validation checkpoint reminder
+                file_content_section += "⚠️ FINAL REMINDER ⚠️\n"
+                file_content_section += "Before generating your response, confirm:\n"
+                file_content_section += "• Have I used ONLY the source documents above?\n"
+                file_content_section += "• Have I quoted or referenced specific document content?\n"
+                file_content_section += "• Have I avoided general knowledge and assumptions?\n\n"
         elif isinstance(file_context, str):
             # Handle string context (fallback case)
             file_content_section = f"\n\n**SOURCE DOCUMENT CONTENT**:\n{file_context}\n\n"
@@ -10796,7 +10835,17 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
             model="gpt-4-turbo-preview",
             messages=[{
                 "role": "system",
-                "content": "You are an educational content creator. When provided with source documents, you MUST use them as your primary knowledge source. Base all your content on what's actually in the documents, not on general knowledge. Reference specific information, examples, and data from the provided documents."
+                "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
+
+ABSOLUTE RULES:
+1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
+2. NEVER use general internet knowledge, common knowledge, or assumptions
+3. If information is not in the source documents, state "This information is not provided in the source materials"
+4. DIRECTLY QUOTE and reference specific sections from source documents
+5. Every claim, example, statistic, or case study MUST come from the source documents
+6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
+
+VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
             }, {
                 "role": "user",
                 "content": enhanced_message
@@ -16738,6 +16787,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     
     logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
     # Force JSON-ONLY preview output for Course Outline to enable immediate parsed preview
     try:
         json_preview_instructions = f"""
@@ -22012,6 +22062,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["userText"] = payload.userText
 
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
         logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
         logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
 
@@ -22690,6 +22741,7 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Continue with original text if decompression fails
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
     try:
@@ -25009,6 +25061,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             }
 
             wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+            wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
             assistant_reply: str = ""
             last_send = asyncio.get_event_loop().time()
@@ -28217,7 +28270,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
 
     # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
     try:
@@ -28514,6 +28568,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         wiz_payload["textMode"] = payload.textMode
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -29425,6 +29480,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             # Continue with original text if decompression fails
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # Force JSON-ONLY preview output for Text Presentation to enable immediate parsed preview (like Course Outline)
     try:
@@ -29696,6 +29752,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
