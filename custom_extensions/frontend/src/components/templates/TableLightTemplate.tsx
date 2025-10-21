@@ -28,11 +28,11 @@ export interface TableLightTemplateProps extends BaseTemplateProps {
 export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   title = 'This is table',
   tableData = {
-    headers: ['Planet', 'Team A', 'Team B', 'Team C', 'Team D'],
+    headers: ['Planet', 'Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
     rows: [
-      ['Mercury', 'XX', 'XX', 'XX', 'XX'],
-      ['Mars', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX']
+      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',

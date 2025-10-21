@@ -91,13 +91,13 @@ export const TableLightTemplate_old: React.FC<TableLightTemplateProps> = ({
   tableData = {
     headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
     rows: [
-      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX'],
+      ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#f8fafc',
@@ -202,7 +202,7 @@ export const TableLightTemplate_old: React.FC<TableLightTemplateProps> = ({
 
   const addRow = () => {
     const newRows = [...tableData.rows];
-    const newRow = new Array(tableData.headers.length + 1).fill('XX');
+    const newRow = new Array(tableData.headers.length).fill('XX');
     newRow[0] = `Planet ${newRows.length + 1}`;
     newRows.push(newRow);
     const newData = { 
@@ -233,7 +233,7 @@ export const TableLightTemplate_old: React.FC<TableLightTemplateProps> = ({
 
   const removeColumn = (colIndex: number) => {
     const newHeaders = tableData.headers.filter((_, index) => index !== colIndex);
-    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex + 1));
+    const newRows = tableData.rows.map(row => row.filter((_, index) => index !== colIndex));
     const newData = { 
       title, 
       tableData: { headers: newHeaders, rows: newRows } 
