@@ -311,7 +311,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-125 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-105 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
                 width: 'calc(100% + 80px)',
                 maxHeight: '400px',

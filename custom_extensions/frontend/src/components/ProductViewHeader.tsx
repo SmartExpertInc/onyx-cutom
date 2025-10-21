@@ -17,6 +17,7 @@ interface ProductViewHeaderProps {
   componentName: string;
   allowedComponentNames?: string[];
   t: (key: string, fallback: string) => string;
+  onPdfExport?: () => void;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -28,7 +29,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   scormEnabled,
   componentName,
   allowedComponentNames,
-  t
+  t,
+  onPdfExport
 }) => {
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
@@ -36,6 +38,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
       ? allowedComponentNames.includes(projectData.component_name)
       : projectData.component_name === componentName
   );
+
+  // Check if current component is a slide deck (presentation) to show Export button
+  const isSlideDeck = projectData?.component_name === 'SlideDeckDisplay';
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
@@ -100,6 +105,35 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               </svg>
               {t('actions.aiAgent', 'AI Improve')}
           </button>
+          )}
+
+          {/* Export button for slide deck presentations */}
+          {isSlideDeck && (
+            <button
+              onClick={() => {
+                if (onPdfExport) {
+                  onPdfExport();
+                } else {
+                  console.log('PDF export function not provided');
+                }
+              }}
+              className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+              style={{
+                backgroundColor: '#0F58F9',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em',
+                border: '1px solid #0F58F9'
+              }}
+              title="Export to PDF"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1V9M7 9L4 6M7 9L10 6M2 12V13H12V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Export
+            </button>
           )}
 
           {shouldShowButtons && scormEnabled && (

@@ -1848,6 +1848,7 @@ export default function ProjectInstanceViewPage() {
           COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
         ]}
         t={t}
+        onPdfExport={handlePdfDownload}
       />
       
       <main 
