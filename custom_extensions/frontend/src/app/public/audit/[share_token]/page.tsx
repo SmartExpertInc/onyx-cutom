@@ -1132,11 +1132,21 @@ export default function PublicAuditPage() {
                         </svg>
                         
                         <span className="font-medium text-[12px] text-white">
-                          {language === 'en' ? `Modules (${getTotalModulesAndLessons().modules})` : `Модулей (${getTotalModulesAndLessons().modules})`}
+                          {getLocalizedText(language, {
+                            en: `Modules (${getTotalModulesAndLessons().modules})`,
+                            es: `Módulos (${getTotalModulesAndLessons().modules})`,
+                            ua: `Модулі (${getTotalModulesAndLessons().modules})`,
+                            ru: `Модулей (${getTotalModulesAndLessons().modules})`,
+                          })}
                         </span>
-                        
+
                         <span className="font-medium text-[12px] text-white">
-                          {language === 'en' ? `Lessons (${getTotalModulesAndLessons().lessons})` : `Уроков (${getTotalModulesAndLessons().lessons})`}
+                          {getLocalizedText(language, {
+                            en: `Lessons (${getTotalModulesAndLessons().lessons})`,
+                            es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
+                            ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
+                            ru: `Уроков (${getTotalModulesAndLessons().lessons})`,
+                          })}
                         </span>
                       </div>
                       
@@ -2103,8 +2113,8 @@ export default function PublicAuditPage() {
                       {getLocalizedText(language, {
                         en: 'AI capabilities:',
                         es: 'Capacidades de IA:',
-                        ua: 'Возможности ИИ:',
-                        ru: 'Можливості ШІ:'
+                        ua: 'Можливості ШІ:',
+                        ru: 'Возможности ИИ:'
                       })}
                     </h4>
                     

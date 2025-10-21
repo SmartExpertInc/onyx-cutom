@@ -1967,7 +1967,7 @@ export default function DynamicAuditLandingPage() {
                         {getLocalizedText(landingPageData?.language, {
                           en: 'Implement AI Onboarding',
                           es: 'Implementar Incorporación IA',
-                          ua: 'Впровадити AI-онбординг за 7 днів',
+                          ua: 'Впровадити AI-онбординг',
                           ru: 'Внедрить AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
@@ -3136,11 +3136,21 @@ export default function DynamicAuditLandingPage() {
                         </svg>
                         
                         <span className="font-medium text-[12px] text-white">
-                          {landingPageData?.language === 'en' ? `Modules (${getTotalModulesAndLessons().modules})` : `Модулей (${getTotalModulesAndLessons().modules})`}
+                          {getLocalizedText(landingPageData?.language, {
+                            en: `Modules (${getTotalModulesAndLessons().modules})`,
+                            es: `Módulos (${getTotalModulesAndLessons().modules})`,
+                            ua: `Модулі (${getTotalModulesAndLessons().modules})`,
+                            ru: `Модулей (${getTotalModulesAndLessons().modules})`
+                          })}
                         </span>
-                        
+
                         <span className="font-medium text-[12px] text-white">
-                          {landingPageData?.language === 'en' ? `Lessons (${getTotalModulesAndLessons().lessons})` : `Уроков (${getTotalModulesAndLessons().lessons})`}
+                          {getLocalizedText(landingPageData?.language, {
+                            en: `Lessons (${getTotalModulesAndLessons().lessons})`,
+                            es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
+                            ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
+                            ru: `Уроков (${getTotalModulesAndLessons().lessons})`
+                          })}
                         </span>
                       </div>
                       
