@@ -3,7 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 // Background SVG constant - Replace this with your own background design
 const BackgroundSVG = () => (
-  <svg width="100%" height="auto" viewBox="0 0 826 297" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxWidth: '826px' }}>
+  <svg width="826" height="297" viewBox="0 0 826 297" fill="none" xmlns="http://www.w3.org/2000/svg">
   <mask id="mask0_867_15959" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="0" y="0" width="826" height="297">
   <rect width="825.528" height="296.674" fill="url(#paint0_radial_867_15959)"/>
   </mask>
