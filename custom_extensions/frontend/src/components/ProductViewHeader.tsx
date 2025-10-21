@@ -193,6 +193,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
             </svg>
 
+            {/* Divider - Only visible when Resize button is shown */}
+            {showVideoEditorActions && (
+              <div className="h-6 w-px bg-gray-300 mx-2"></div>
+            )}
+
             {/* Resize Button - Only visible in Projects2ViewPage */}
             {showVideoEditorActions && (
               <div className="relative flex items-center">

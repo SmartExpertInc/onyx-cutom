@@ -691,17 +691,17 @@ export default function Projects2ViewPage() {
         onGenerateClick={handleGenerateClick}
       />
       
-      <div className="p-2">
+      <div className="p-2 bg-gray-200">
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
       <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 85px)' }}>
-        {/* Sidebar - 30% width, full height of available space */}
-        <div className="w-[30%] h-full overflow-y-auto overflow-x-hidden">
+        {/* Sidebar - 20% width, full height of available space */}
+        <div className="w-[20%] h-full overflow-y-auto overflow-x-hidden">
           {renderSidebarComponent()}
         </div>
 
-        {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
+        {/* Main Container - 80% width, full height of available space */}
+        <div className="w-[80%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Click handler to close settings panel */}
@@ -711,25 +711,16 @@ export default function Projects2ViewPage() {
             />
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
-              <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden flex items-center justify-center"
+              <div
                 style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  margin: 'auto'
+                  position: 'relative',
+                  pointerEvents: 'auto',
+                  userSelect: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                {/* Slide Container - Keeps original size */}
-                <div
-                  style={{
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                    userSelect: 'auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
                 <div
                   className="professional-slide relative bg-white overflow-hidden"
                   style={{
@@ -785,7 +776,6 @@ export default function Projects2ViewPage() {
                     </div>
                   </div>
                 </div>
-              </div>
             ) : (
               <VideoLessonDisplay 
                 dataToDisplay={videoLessonData || null}
