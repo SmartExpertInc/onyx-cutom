@@ -29678,8 +29678,13 @@ If you're generating procedural content (steps, processes, frameworks), DO NOT c
 2. Write 2-3 paragraph blocks explaining the step deeply
 3. Include WHY it matters, HOW to do it, common pitfalls, decision criteria
 
-CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
-You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
+⚠️⚠️⚠️ CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY) ⚠️⚠️⚠️
+
+YOU MUST OUTPUT **ONLY** A VALID JSON OBJECT. NO MARKDOWN. NO EXPLANATIONS. NO CODE FENCES.
+
+Your response must START with { and END with }
+
+FOLLOW THIS EXACT EXAMPLE STRUCTURE:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
 The example above demonstrates 90+ quality score with:
@@ -29698,7 +29703,12 @@ If your topic involves steps/procedures (like "Steps to...", "How to...", "Proce
 - Each step gets 2-3 paragraph blocks
 - Structure each step: What + Why + How + Pitfalls + Decision criteria
 
-Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+⚠️ OUTPUT FORMAT REMINDER ⚠️
+- Start your response with: {
+- End your response with: }
+- Do NOT include ```json or ``` code fences
+- Do NOT include any text before { or after }
+- Output pure JSON only
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
@@ -29707,6 +29717,29 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Use bullet_list ONLY when listing related points, and make each item 60-100 words
 - Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
 - Preserve original language across all text
+
+🔴🔴🔴 FINAL REMINDER - OUTPUT FORMAT 🔴🔴🔴
+
+Your ENTIRE response must be a single valid JSON object:
+{
+  "textTitle": "Your Title Here",
+  "contentBlocks": [
+    { "type": "headline", "level": 2, "text": "..." },
+    { "type": "paragraph", "text": "..." },
+    ...
+  ],
+  "detectedLanguage": "en"
+}
+
+DO NOT write:
+❌ "Here is the one-pager: {...}"
+❌ "```json {...} ```"
+❌ Any text before { or after }
+
+ONLY write:
+✅ { "textTitle": "...", "contentBlocks": [...], "detectedLanguage": "..." }
+
+Your response must be parseable as JSON immediately.
 """
         wizard_message = wizard_message + json_preview_instructions_text
         logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
