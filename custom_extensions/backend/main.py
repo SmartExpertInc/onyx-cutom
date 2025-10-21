@@ -29320,14 +29320,40 @@ CRITICAL REQUIREMENTS:
 - The "question_type" field is MANDATORY for every question
 """
 
-# Default text presentation JSON example for LLM parsing
+# Perfect educational one-pager example demonstrating 90+ quality score
+# This example shows proper structure with:
+# - Paragraphs (60%): For explanations, context, narrative flow
+# - Bullet lists (20%): For key points structured as 60-100 words each
+# - Worked examples (10%): Complete scenarios with analysis
+# - Recommendations (5%): Action plans
+# - Alerts (5%): Warnings and critical points
+# Bloom's Taxonomy: Remember → Understand → Apply → Analyze
+# Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Organizing Neighbor Support During Crisis Situations",
+  "textTitle": "How to Choose the Right Pricing Strategy",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "Introduction" },
-    { "type": "paragraph", "text": "In times of crisis, community support can be a vital lifeline that makes the difference between struggle and survival. Organizing neighbor support not only helps those in immediate need but also strengthens community bonds and creates lasting relationships that extend far beyond the emergency situation. This presentation will outline effective strategies for mobilizing neighbors during emergencies, ensuring everyone is prepared, supported, and connected to resources they may need in challenging times." },
-    { "type": "headline", "level": 2, "text": "📋 Importance of Community Support", "iconName": "info" },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION" },
+    { "type": "paragraph", "text": "Pricing strategy is one of the most critical decisions your business will make—it directly impacts profitability, market positioning, and customer perception. Many companies struggle with pricing because they treat it as a simple calculation when it's actually a strategic tool that requires deep understanding of your costs, customers, and competitive landscape. This guide will help you navigate the complexities of pricing strategy by exploring three core approaches and providing practical frameworks to determine which approach fits your business situation." },
+    { "type": "paragraph", "text": "The fundamental question every business faces: Should you price based on what it costs to make (Cost-Plus), what customers perceive as value (Value-Based), or what competitors are charging (Competition-Based)? The answer isn't one-size-fits-all—it depends on your market position, product differentiation, and customer insights. By the end of this lesson, you'll have a clear framework for making this decision." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
+    { "type": "paragraph", "text": "Before diving into strategies, let's establish a common vocabulary. Understanding these terms is essential because pricing decisions involve multiple stakeholders (finance, marketing, sales) who need to speak the same language. Pricing Strategy is the decision-making process for setting product prices that considers costs, competition, customer value perception, and market demand. It's not just about covering costs—it's about positioning your product in the market and maximizing long-term profitability." },
+    
+    { "type": "headline", "level": 3, "text": "Cost-Plus Pricing" },
+    { "type": "paragraph", "text": "This strategy adds a fixed percentage markup to your production costs. For example, if your product costs $50 to produce and you apply a 40% markup, your selling price is $70. While straightforward, this approach has a critical limitation: it ignores customer willingness to pay. You might be leaving money on the table if customers would happily pay $100, or pricing yourself out of the market if $70 is too high." },
+    
+    { "type": "headline", "level": 3, "text": "Value-Based Pricing" },
+    { "type": "paragraph", "text": "This strategy prices based on the perceived value your product delivers to customers rather than your costs. If your software saves a company $10,000 per month in labor costs, you could potentially charge $3,000/month—far more than your costs might justify, but still a compelling value proposition for the customer. This approach requires deep customer insights and strong differentiation." },
+    
+    { "type": "headline", "level": 2, "text": "💡 UNDERSTANDING PRICING STRATEGIES" },
+    { "type": "paragraph", "text": "Now that you know the three approaches, let's explore the practical implications of each. The key insight here is that each strategy has trade-offs—there's no universally 'best' approach, only the right approach for your specific situation." },
+    
+    { "type": "headline", "level": 3, "text": "Why Cost-Plus Pricing Feels Safe But Can Be Dangerous" },
+    { "type": "paragraph", "text": "Cost-Plus Pricing is popular because it's simple and guarantees a profit margin. You know your costs, add your desired markup, done. However, this approach has a fundamental flaw: it's internally focused rather than market-focused. You're making decisions based on what it costs you to produce, not on what customers value or what the market will bear." },
+    { "type": "paragraph", "text": "Real-world implication: Imagine you develop a revolutionary software tool that costs you $5/month per user to host and maintain. Using Cost-Plus with a 200% markup, you'd charge $15/month. But if that tool saves each customer $500/month in productivity, customers would gladly pay $150/month—and you'd be underpricing by 10x simply because you didn't consider customer value." },
+    
+    { "type": "headline", "level": 2, "text": "🎬 APPLYING PRICING STRATEGIES" },
     {
       "type": "bullet_list",
       "items": [
@@ -29596,22 +29622,72 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
-    # Force JSON-ONLY preview output for Text Presentation to enable immediate parsed preview (like Course Outline)
+    # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
     try:
         json_preview_instructions_text = f"""
+
+🎓 EDUCATIONAL CONTENT QUALITY REQUIREMENTS (TARGET: 90+/100 SCORE):
+
+**CONTENT STRUCTURE DISTRIBUTION (CRITICAL):**
+- Paragraphs: 60% - Use for explanations, context, WHY/HOW, narrative flow
+- Bullet Lists: 20% - Each item MUST be 60-100 words with: concept + explanation + example + takeaway
+- Worked Examples: 10% - Complete scenarios with situation → analysis → decision → outcome → lesson
+- Recommendations/Alerts: 10% - Action plans, warnings, decision frameworks
+
+**BLOOM'S TAXONOMY PROGRESSION (MANDATORY):**
+1. REMEMBER: Define key terms with clear definitions (use paragraphs)
+2. UNDERSTAND: Explain WHY concepts work, mechanisms, relationships (use paragraphs with examples)
+3. APPLY: Show HOW to use with step-by-step procedures, decision criteria (use numbered lists or paragraphs)
+4. ANALYZE: Compare approaches, identify trade-offs, common mistakes (use paragraphs or specialized blocks)
+
+**PEDAGOGICAL ELEMENTS (MUST INCLUDE):**
+- Mental Models: 2-3 frameworks learners can remember and apply
+- Worked Examples: 2-3 complete scenarios showing reasoning process
+- Common Mistakes: 3-5 errors with WHY they happen + HOW to avoid them
+- Decision Frameworks: "Use X when..., Use Y when..." criteria
+- Skill Practice: Scenarios with expert analysis
+
+**CONTENT DEPTH REQUIREMENTS:**
+- Target 3,000-5,000 words for comprehensive learning
+- Each major concept needs: Definition → Explanation → Application → Common Pitfalls
+- Use real-world implications, not just facts
+- Provide actionable insights learners can immediately implement
+
+**ANTI-HALLUCINATION PROTOCOL:**
+- If creating illustrative examples: Use generic language ("a manufacturing company", "imagine a scenario")
+- NEVER invent specific company names, statistics, or present made-up examples as real
+- Label clearly: "For example, consider a situation where..." or "[ILLUSTRATIVE EXAMPLE]"
+
+**STRUCTURE EXAMPLES:**
+❌ BAD (list-only, shallow):
+- "Use agile methodology for faster development"
+
+✅ GOOD (paragraph with depth):
+"Implement Agile methodology with 2-week sprints to accelerate development cycles. Agile's iterative approach allows teams to gather user feedback early and adjust course, reducing the risk of building unwanted features. In practice, teams hold daily standups, sprint planning, and retrospectives to maintain alignment. This approach typically reduces time-to-market by 30-40% while improving product-market fit because you're validating assumptions continuously rather than at project end. The key trade-off is that Agile requires more frequent communication and can feel chaotic to teams accustomed to traditional waterfall methods."
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+
+The example above demonstrates 90+ quality score with:
+- Proper paragraph-heavy structure (not list-heavy)
+- Bloom's Taxonomy progression
+- Worked examples with complete reasoning
+- Decision frameworks
+- 60-100 word bullet points when used
+
 Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- Include exact fields: textTitle, contentBlocks[], detectedLanguage.
-- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, etc.).
-- Preserve original language across all text.
+- Include exact fields: textTitle, contentBlocks[], detectedLanguage
+- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
+- Use "paragraph" type liberally (60% of content) - this is where deep learning happens
+- Use bullet_list ONLY when listing related points, and make each item 60-100 words
+- Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
+- Preserve original language across all text
 """
         wizard_message = wizard_message + json_preview_instructions_text
-        logger.info("[TEXT_PRESENTATION_PREVIEW] Added JSON-only preview instructions")
+        logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
     except Exception as e:
         logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
