@@ -37,12 +37,15 @@
 
 .slide-mini-preview {
   width: 100%;
-  height: auto;
+  height: 100%;
   position: relative;
-  transform-origin: top left;
+  overflow: hidden;
   pointer-events: none;
   user-select: none;
   background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .slide-mini-preview > * {
@@ -55,9 +58,6 @@
   left: 50%;
   margin-top: -200%;
   margin-left: -200%;
-}
-
-.slide-mini-preview * {
   pointer-events: none;
   user-select: none;
 }

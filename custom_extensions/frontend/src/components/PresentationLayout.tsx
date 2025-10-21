@@ -311,24 +311,13 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-95 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-85 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
-                width: 'calc(100% + 50px)',
+                width: 'calc(100% + 60px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between p-3 border-b border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
-                <button
-                  onClick={() => setShowTemplateDropdown(false)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <X size={16} className="text-gray-500" />
-                </button>
-              </div>
-
               {/* Popular Templates */}
               <div className="p-3">
                 <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -350,7 +339,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                           />
                         </div>
                         <div className="px-3 py-3">
-                          <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                           {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                         </div>
                       </button>
@@ -377,7 +366,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         />
                       </div>
                       <div className="px-3 py-3">
-                        <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                        <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                         {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                       </div>
                     </button>
@@ -414,7 +403,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                   isActive ? 'active' : ''
                 }`}>
                   {/* Mini slide rendering */}
-                  <div className="slide-mini-preview" style={{ aspectRatio: '16/9' }}>
+                  <div className="slide-mini-preview" style={{ aspectRatio: '16/9', minHeight: '120px' }}>
                     <ComponentBasedSlideRenderer
                       slide={slide}
                       isEditable={false}
@@ -527,15 +516,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                           </button>
                         </PopoverTrigger>
                         <PopoverContent 
-                          className="w-[860px] max-h-[400px] overflow-y-auto p-0"
+                          className="w-[860px] max-h-[400px] bg-white overflow-y-auto p-0"
                           align="center"
                           sideOffset={8}
                         >
-                          {/* Header */}
-                          <div className="flex items-center justify-between p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
-                            <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
-                          </div>
-
                           {/* Popular Templates */}
                           <div className="p-3">
                             <div className="px-1 pb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -550,14 +534,13 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                     onClick={() => addSlide(template.id, index)}
                                     className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                   >
-                                    <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                    <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                                       <div 
-                                        className="opacity-70 group-hover:opacity-100 transition-opacity" 
                                         dangerouslySetInnerHTML={{ __html: template.icon }}
                                       />
                                     </div>
                                     <div className="px-3 py-3">
-                                      <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                      <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                                     </div>
                                   </button>
                                 ))}
@@ -583,7 +566,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                     />
                                   </div>
                                   <div className="px-3 py-3">
-                                    <div className="text-sm font-medium text-gray-900 truncate">{template.name}</div>
+                                    <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                                   </div>
                                 </button>
                               ))}
