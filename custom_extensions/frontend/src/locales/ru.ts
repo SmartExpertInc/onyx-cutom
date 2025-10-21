@@ -1239,6 +1239,14 @@ export const ru = {
       webpages: "Веб-страницы",
       blogPostsArticles: "Статьи и блоги",
       notionDocs: "Документы Notion",
+      upload: {
+        addYourFiles: "Добавьте ваши файлы",
+        addMoreOrContinue: "Хотите добавить больше файлов или продолжить?",
+        addMoreFiles: "Добавить больше файлов",
+        uploadFile: "Загрузить файл",
+        importFromSmartDrive: "Импорт из SmartDrive",
+        importFromURL: "Импорт из URL",
+      },
     },
     // Course Outline Page
     courseOutline: {

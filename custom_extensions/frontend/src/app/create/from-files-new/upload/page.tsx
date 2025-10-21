@@ -284,7 +284,7 @@ export default function UploadFilesPage() {
         >
           {uploadedFiles.length === 0 ? (
             <p className="text-gray-400 text-lg">
-              {t('interface.fromFiles.addYourFiles', 'Add your files')}
+              {t('interface.fromFiles.upload.addYourFiles', 'Add your files')}
             </p>
           ) : (
             uploadedFiles.map((file, index) => (
@@ -309,7 +309,7 @@ export default function UploadFilesPage() {
         {/* Question text - only show when Add more files and Continue buttons are visible */}
         {!showImportOptions && (
           <p className="text-2xl text-center mt-4" style={{ color: '#FAFAFA' }}>
-            {t('interface.fromFiles.addMoreOrContinue', 'Would you like to add more files or continue?')}
+            {t('interface.fromFiles.upload.addMoreOrContinue', 'Would you like to add more files or continue?')}
           </p>
         )}
 
@@ -321,7 +321,7 @@ export default function UploadFilesPage() {
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-[#0F58F9] text-[#0F58F9] font-semibold hover:bg-blue-50 transition-colors duration-200 cursor-pointer"
             >
               <span className="text-xl">+</span>
-              <span>{t('interface.fromFiles.addMoreFiles', 'Add more files')}</span>
+              <span>{t('interface.fromFiles.upload.addMoreFiles', 'Add more files')}</span>
             </button>
 
             <button
@@ -350,7 +350,7 @@ export default function UploadFilesPage() {
                 <rect x="2.05469" y="11.625" width="3.5625" height="0.9375" rx="0.46875" fill="white"/>
                 <rect x="2.05469" y="13.4375" width="3.5625" height="0.9375" rx="0.46875" fill="white"/>
               </svg>
-              <span>Upload a file</span>
+              <span>{t('interface.fromFiles.upload.uploadFile', 'Upload a file')}</span>
             </button>
 
             {/* Import from SmartDrive button */}
@@ -371,7 +371,7 @@ export default function UploadFilesPage() {
                   </clipPath>
                 </defs>
               </svg>
-              <span>Import from SmartDrive</span>
+              <span>{t('interface.fromFiles.upload.importFromSmartDrive', 'Import from SmartDrive')}</span>
             </button>
 
             {/* Import from URL button */}
@@ -387,7 +387,7 @@ export default function UploadFilesPage() {
                 <circle cx="4.7599" cy="2.23939" r="0.533333" fill="white"/>
                 <circle cx="6.62708" cy="2.23939" r="0.533333" fill="white"/>
               </svg>
-              <span>Import from URL</span>
+              <span>{t('interface.fromFiles.upload.importFromURL', 'Import from URL')}</span>
             </button>
           </div>
         )}

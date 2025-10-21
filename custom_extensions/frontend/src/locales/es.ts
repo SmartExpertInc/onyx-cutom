@@ -1221,6 +1221,14 @@ export const es = {
       webpages: "Páginas web",
       blogPostsArticles: "Artículos y blogs",
       notionDocs: "Documentos Notion",
+      upload: {
+        addYourFiles: "Añade tus archivos",
+        addMoreOrContinue: "¿Quieres añadir más archivos o continuar?",
+        addMoreFiles: "Añadir más archivos",
+        uploadFile: "Subir un archivo",
+        importFromSmartDrive: "Importar desde SmartDrive",
+        importFromURL: "Importar desde URL",
+      },
     },
     // Course Outline Page
     courseOutline: {

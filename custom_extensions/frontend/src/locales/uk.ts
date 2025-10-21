@@ -1231,6 +1231,14 @@ export const uk = {
       webpages: "Веб-сторінки",
       blogPostsArticles: "Статті та блоги",
       notionDocs: "Документи Notion",
+      upload: {
+        addYourFiles: "Додайте ваші файли",
+        addMoreOrContinue: "Хочете додати більше файлів чи продовжити?",
+        addMoreFiles: "Додати більше файлів",
+        uploadFile: "Завантажити файл",
+        importFromSmartDrive: "Імпорт зі SmartDrive",
+        importFromURL: "Імпорт з URL",
+      },
     },
     // Course Outline Page
     courseOutline: {

@@ -1553,6 +1553,14 @@ export const en = {
       webpages: "Webpages",
       blogPostsArticles: "Blog post & articles",
       notionDocs: "Notion docs",
+      upload: {
+        addYourFiles: "Add your files",
+        addMoreOrContinue: "Would you like to add more files or continue?",
+        addMoreFiles: "Add more files",
+        uploadFile: "Upload a file",
+        importFromSmartDrive: "Import from SmartDrive",
+        importFromURL: "Import from URL",
+      },
     },
 
     // View New Page (Course Outline View)
