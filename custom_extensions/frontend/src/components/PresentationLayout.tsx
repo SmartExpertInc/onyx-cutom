@@ -289,7 +289,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       {/* Left Sidebar - Slide Thumbnails */}
       <div className="w-85 h-full bg-[#EEEEEE] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
-          <div className="p-4">
+          <div className="pt-4 px-4">
             <button 
               onClick={() => {
                 setInsertAfterIndex(null); // Reset to add at end
@@ -297,7 +297,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               }}
               className="w-full flex items-center bg-white text-[#71717A] text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
             >
-              <div className="flex items-center gap-2 pl-15 py-2 flex-1">
+              <div className="flex items-center gap-2 pl-18 py-2 flex-1">
                 <Plus size={16} />
                 <span>Add new card</span>
               </div>
@@ -311,7 +311,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-105 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-103 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50 template-popover-scroll"
               style={{
                 width: 'calc(100% + 80px)',
                 maxHeight: '400px',
@@ -337,7 +337,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             dangerouslySetInnerHTML={{ __html: template.icon }}
                           />
                         </div>
-                        <div className="px-3 text-center pb-3 pt-1">
+                        <div className="px-3 text-center pb-5 pt-1">
                           <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                           {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                         </div>
@@ -363,7 +363,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                           dangerouslySetInnerHTML={{ __html: template.icon }}
                         />
                       </div>
-                      <div className="px-3 text-center pb-3 pt-1">
+                      <div className="px-3 text-center pb-5 pt-1">
                         <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                         {/* <div className="text-xs text-gray-500 line-clamp-2">{template.description}</div> */}
                       </div>
@@ -449,7 +449,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseEnter={() => setHoveredSlideId(slide.slideId)}
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
-                    <div className="w-full max-w-9xl">
+                    <div className="w-full max-w-7xl">
                       <div className="main-slide-container rounded-lg relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
@@ -520,14 +520,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         title="Add new slide"
                         className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                       >
-                        <Plus size={16} />
+                        <Plus size={15} />
                       </button>
                       <button
                         onClick={() => setShowAIModal(true)}
                         title="Generate with AI"
-                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
+                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
                       >
-                        <Sparkles size={16} />
+                        <Sparkles size={15} />
                       </button>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -535,11 +535,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             title="More"
                             className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
                           >
-                            <ArrowDown size={16} />
+                            <ArrowDown size={15} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent 
-                          className="w-[860px] max-h-[400px] bg-white overflow-y-auto p-0"
+                          className="w-[860px] max-h-[400px] bg-white overflow-y-auto p-0 template-popover-scroll"
                           align="center"
                           sideOffset={8}
                         >
@@ -562,7 +562,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                         dangerouslySetInnerHTML={{ __html: template.icon }}
                                       />
                                     </div>
-                                    <div className="px-3 text-center pb-3 pt-1">
+                                    <div className="px-3 text-center pb-5 pt-1">
                                       <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                                     </div>
                                   </button>
@@ -587,7 +587,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                       dangerouslySetInnerHTML={{ __html: template.icon }}
                                     />
                                   </div>
-                                  <div className="px-3 text-center pb-3 pt-1">
+                                  <div className="px-3 text-center pb-5 pt-1">
                                     <div className="text-[10px] font-semibold text-gray-900 truncate">{template.name}</div>
                                   </div>
                                 </button>
