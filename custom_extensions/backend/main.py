@@ -10951,6 +10951,12 @@ async def stream_hybrid_response(message: str, file_context: Any, product_type: 
                 "role": "system",
                 "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
 
+🚨 CRITICAL OUTPUT FORMAT REQUIREMENT 🚨
+YOU MUST OUTPUT VALID JSON ONLY. NO MARKDOWN. NO PLAIN TEXT.
+Your response MUST start with { and end with }
+DO NOT use markdown headings (# ## ###). DO NOT use plain text format.
+Output ONLY a valid JSON object with textTitle, contentBlocks array, and detectedLanguage fields.
+
 ABSOLUTE RULES:
 1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
 2. NEVER use general internet knowledge, common knowledge, or assumptions
@@ -10959,7 +10965,9 @@ ABSOLUTE RULES:
 5. Every claim, example, statistic, or case study MUST come from the source documents
 6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
 
-VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
+VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents.
+
+REPEAT: Output format is JSON ONLY. Start with { and end with }. No markdown."""
             }, {
                 "role": "user",
                 "content": enhanced_message
