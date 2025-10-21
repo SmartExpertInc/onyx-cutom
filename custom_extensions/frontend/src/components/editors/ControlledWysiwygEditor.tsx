@@ -121,17 +121,6 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       }
     };
 
-    // Expose editor instance to parent via ref
-    useImperativeHandle(ref, () => ({
-      getEditor: () => editor,
-      focus: () => editor?.commands.focus(),
-      blur: () => editor?.commands.blur(),
-    }));
-
-    if (!editor) {
-      return null;
-    }
-
     // Add global styles for formatting tags to inherit font
     useEffect(() => {
       const styleId = 'controlled-wysiwyg-formatting-styles';
@@ -150,6 +139,17 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
         document.head.appendChild(style);
       }
     }, []);
+
+    // Expose editor instance to parent via ref
+    useImperativeHandle(ref, () => ({
+      getEditor: () => editor,
+      focus: () => editor?.commands.focus(),
+      blur: () => editor?.commands.blur(),
+    }));
+
+    if (!editor) {
+      return null;
+    }
 
     return (
       <div 
