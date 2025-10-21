@@ -250,7 +250,7 @@ export const EmptySmartDrive = () => {
   
   return (
     <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-      <div className="relative mt-8" style={{ borderBottom: '1px solid #EEEEF0' }}>
+      <div className="relative" style={{ borderBottom: '1px solid #EEEEF0' }}>
         {/* Background SVG */}
         <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clipPath="url(#clip0_867_16076)">

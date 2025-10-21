@@ -366,7 +366,7 @@ export const EmptyConnectors = () => {
   
   return (
     <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-      <div className="relative mt-8">
+      <div className="relative">
         {/* Background SVG */}
         <BackgroundSVG />
       </div>
