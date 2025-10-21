@@ -603,13 +603,17 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'script':
-          return <Script 
-            onAiButtonClick={handleAiButtonClick} 
-            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-            currentSlideId={currentSlideId}
-            onTextChange={handleTextChange}
-          />;
+          return (
+            <div className="border border-[#E0E0E0] rounded-lg p-3">
+              <Script 
+                onAiButtonClick={handleAiButtonClick} 
+                videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+                componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
+                currentSlideId={currentSlideId}
+                onTextChange={handleTextChange}
+              />
+            </div>
+          );
         case 'text':
           return <TextSettings activeEditor={activeTextEditor} />;
         case 'image':
@@ -621,11 +625,23 @@ export default function Projects2ViewPage() {
         case 'media':
           return <ImageSettings />;
         case 'music':
-          return <Music />;
+          return (
+            <div className="border border-[#E0E0E0] rounded-lg p-3">
+              <Music />
+            </div>
+          );
         case 'background':
-          return <Background />;
+          return (
+            <div className="border border-[#E0E0E0] rounded-lg p-3">
+              <Background />
+            </div>
+          );
         case 'transition':
-          return <Transition />;
+          return (
+            <div className="border border-[#E0E0E0] rounded-lg p-3">
+              <Transition />
+            </div>
+          );
         case 'templates':
           return <TemplateSelector 
             currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
@@ -695,13 +711,13 @@ export default function Projects2ViewPage() {
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
       <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 85px)' }}>
-        {/* Sidebar - 20% width, full height of available space */}
-        <div className="w-[20%] h-full overflow-y-auto overflow-x-hidden">
+        {/* Sidebar - 30% width, full height of available space */}
+        <div className="w-[30%] h-full overflow-y-auto overflow-x-hidden">
           {renderSidebarComponent()}
         </div>
 
-        {/* Main Container - 80% width, full height of available space */}
-        <div className="w-[80%] h-full flex flex-col gap-2 overflow-visible">
+        {/* Main Container - 70% width, full height of available space */}
+        <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Click handler to close settings panel */}
