@@ -29925,6 +29925,65 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # DEBUG: Print full generated JSON for quality analysis
+                logger.info("="*100)
+                logger.info("[TEXT_PRESENTATION_DEBUG] 📋 FULL GENERATED PREVIEW JSON:")
+                logger.info("="*100)
+                logger.info(assistant_reply)
+                logger.info("="*100)
+                logger.info(f"[TEXT_PRESENTATION_DEBUG] JSON Length: {len(assistant_reply)} characters")
+                logger.info(f"[TEXT_PRESENTATION_DEBUG] Word Count (approximate): {len(assistant_reply.split())} words")
+                
+                # Try to parse and analyze JSON structure
+                try:
+                    parsed_json = json.loads(assistant_reply)
+                    logger.info(f"[TEXT_PRESENTATION_DEBUG] ✅ JSON is valid")
+                    logger.info(f"[TEXT_PRESENTATION_DEBUG] Title: {parsed_json.get('textTitle', 'N/A')}")
+                    logger.info(f"[TEXT_PRESENTATION_DEBUG] Language: {parsed_json.get('detectedLanguage', 'N/A')}")
+                    
+                    if 'contentBlocks' in parsed_json:
+                        blocks = parsed_json['contentBlocks']
+                        logger.info(f"[TEXT_PRESENTATION_DEBUG] Total Content Blocks: {len(blocks)}")
+                        
+                        # Count block types
+                        block_types = {}
+                        for block in blocks:
+                            block_type = block.get('type', 'unknown')
+                            block_types[block_type] = block_types.get(block_type, 0) + 1
+                        
+                        logger.info(f"[TEXT_PRESENTATION_DEBUG] Block Type Distribution:")
+                        for block_type, count in sorted(block_types.items()):
+                            percentage = (count / len(blocks)) * 100
+                            logger.info(f"[TEXT_PRESENTATION_DEBUG]   - {block_type}: {count} blocks ({percentage:.1f}%)")
+                        
+                        # Calculate approximate word count per block type
+                        words_per_type = {}
+                        for block in blocks:
+                            block_type = block.get('type', 'unknown')
+                            if block_type == 'paragraph':
+                                words = len(block.get('text', '').split())
+                                words_per_type[block_type] = words_per_type.get(block_type, 0) + words
+                            elif block_type == 'bullet_list':
+                                for item in block.get('items', []):
+                                    words = len(item.split()) if isinstance(item, str) else len(str(item).split())
+                                    words_per_type[block_type] = words_per_type.get(block_type, 0) + words
+                        
+                        if words_per_type:
+                            logger.info(f"[TEXT_PRESENTATION_DEBUG] Word Count by Block Type:")
+                            total_words = sum(words_per_type.values())
+                            for block_type, word_count in sorted(words_per_type.items()):
+                                percentage = (word_count / total_words) * 100 if total_words > 0 else 0
+                                logger.info(f"[TEXT_PRESENTATION_DEBUG]   - {block_type}: {word_count} words ({percentage:.1f}%)")
+                            logger.info(f"[TEXT_PRESENTATION_DEBUG] Total Content Words: {total_words}")
+                        
+                except json.JSONDecodeError as e:
+                    logger.error(f"[TEXT_PRESENTATION_DEBUG] ❌ JSON parsing failed: {e}")
+                except Exception as e:
+                    logger.error(f"[TEXT_PRESENTATION_DEBUG] ❌ Error analyzing JSON: {e}")
+                
+                logger.info("="*100)
+                
                 yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
                 return
                     
