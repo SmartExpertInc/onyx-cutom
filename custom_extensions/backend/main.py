@@ -29613,6 +29613,11 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     try:
         json_preview_instructions_text = f"""
 
+🚨 OUTPUT FORMAT: YOU MUST GENERATE VALID JSON ONLY 🚨
+Your entire response must be a single JSON object. Do NOT use markdown format.
+Start with {{ "textTitle": ... and end with }}
+NO markdown headings (# ## ###). NO plain text. ONLY JSON.
+
 🎓 EDUCATIONAL CONTENT QUALITY REQUIREMENTS (TARGET: 90+/100 SCORE):
 
 **CONTENT STRUCTURE DISTRIBUTION (CRITICAL):**
@@ -29700,9 +29705,28 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
 { "type": "paragraph", "text": "How to recognize: If you find yourself saying 'the research shows there's demand' without having talked to 20+ potential customers yourself, you're making this mistake. Another signal: your pitch deck has lots of market size slides but no direct customer quotes or insights." }
 { "type": "paragraph", "text": "How to correct: Follow the 70/30 rule—70% primary research (interviews, surveys, observation) and 30% secondary data. Start with 20-30 customer interviews before analyzing industry reports. Use secondary data to size the market you've already validated through primary research, not to validate the market itself." }"
 
-CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
-You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
+═══════════════════════════════════════════════════════════════════════
+🚨 CRITICAL PREVIEW OUTPUT FORMAT - JSON ONLY (MANDATORY) 🚨
+═══════════════════════════════════════════════════════════════════════
+
+YOU MUST OUTPUT VALID JSON ONLY. NO MARKDOWN. NO TEXT. ONLY JSON.
+
+Your response MUST start with {{ and end with }}
+Your response MUST be parseable JSON matching this EXACT structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+
+❌ DO NOT OUTPUT:
+- Markdown headings (# ## ###)
+- Plain text explanations
+- Code fences (```)
+- Any text before the JSON object
+- Any text after the JSON object
+
+✅ YOU MUST OUTPUT:
+- Valid JSON starting with {{ "textTitle": ...
+- contentBlocks array with type, text, and other required fields
+- Proper JSON escaping for quotes and special characters
+- detectedLanguage field at the end
 
 The example above demonstrates 90+ quality score with:
 - Proper paragraph-heavy structure (not list-heavy)
@@ -29711,7 +29735,7 @@ The example above demonstrates 90+ quality score with:
 - Decision frameworks
 - 60-100 word bullet points when used
 
-Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+REPEAT: Output ONLY valid JSON. Start with {{ and end with }}. No markdown. No explanatory text.
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
