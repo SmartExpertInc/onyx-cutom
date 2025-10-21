@@ -22658,6 +22658,332 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
 
 
+# -------- Course Context Helper Functions ---------
+
+async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool: asyncpg.Pool) -> Optional[Dict[str, Any]]:
+    """
+    Fetch and parse course outline structure for providing context to lesson product generation.
+    
+    Returns a dictionary containing:
+    - courseTitle: The main title of the course
+    - modules: List of modules with their lessons
+    - detectedLanguage: Language of the course
+    """
+    try:
+        logger.info(f"[COURSE_CONTEXT] Fetching outline structure | outline_id={outline_id}")
+        
+        async with pool.acquire() as conn:
+            outline_row = await conn.fetchrow(
+                "SELECT project_name, microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                outline_id, onyx_user_id
+            )
+        
+        if not outline_row:
+            logger.warning(f"[COURSE_CONTEXT] Outline not found | outline_id={outline_id}")
+            return None
+        
+        course_title = outline_row['project_name']
+        content = outline_row['microproduct_content']
+        
+        # Parse the outline content
+        if isinstance(content, str):
+            import json
+            content = json.loads(content)
+        
+        if not isinstance(content, dict):
+            logger.warning(f"[COURSE_CONTEXT] Outline content is not a dictionary | outline_id={outline_id}")
+            return None
+        
+        # Extract structure
+        sections = content.get('sections', [])
+        detected_language = content.get('detectedLanguage', 'en')
+        
+        modules = []
+        total_lesson_count = 0
+        
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            
+            module_title = section.get('title', 'Untitled Module')
+            lessons = section.get('lessons', [])
+            
+            lesson_list = []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    lesson_title = lesson.get('title', 'Untitled Lesson')
+                elif isinstance(lesson, str):
+                    lesson_title = lesson
+                else:
+                    lesson_title = str(lesson)
+                
+                lesson_list.append(lesson_title)
+                total_lesson_count += 1
+            
+            modules.append({
+                'moduleTitle': module_title,
+                'lessons': lesson_list
+            })
+        
+        logger.info(f"[COURSE_CONTEXT] Outline fetched: \"{course_title}\" | {len(modules)} modules | {total_lesson_count} lessons")
+        
+        return {
+            'courseTitle': course_title,
+            'modules': modules,
+            'detectedLanguage': detected_language
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching outline structure | outline_id={outline_id} | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
+async def get_adjacent_lesson_content(
+    outline_id: int,
+    current_lesson_title: str,
+    current_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> Dict[str, Any]:
+    """
+    Find previous and next lessons relative to the current lesson, and fetch their content.
+    
+    Product Type Priority (when multiple products exist for a lesson):
+    1. Same product type as current (e.g., presentation for presentation)
+    2. Fallback hierarchy: Presentation > Onepager > Quiz
+    
+    Args:
+        outline_id: The course outline ID
+        current_lesson_title: Title of the lesson being generated
+        current_product_type: Type of product being generated (presentation, quiz, onepager)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        Dict containing previousLesson, nextLesson, and lessonPosition
+    """
+    try:
+        logger.info(f"[COURSE_CONTEXT] Finding adjacent lessons | lesson=\"{current_lesson_title}\" | product_type={current_product_type}")
+        
+        # First, get the outline structure
+        outline_structure = await get_course_outline_structure(outline_id, onyx_user_id, pool)
+        if not outline_structure:
+            logger.warning(f"[COURSE_CONTEXT] Could not fetch outline structure for adjacent lesson lookup")
+            return {}
+        
+        # Find current lesson position
+        modules = outline_structure.get('modules', [])
+        current_module_idx = None
+        current_lesson_idx = None
+        total_modules = len(modules)
+        
+        for mod_idx, module in enumerate(modules):
+            lessons = module.get('lessons', [])
+            for les_idx, lesson_title in enumerate(lessons):
+                if lesson_title.strip().lower() == current_lesson_title.strip().lower():
+                    current_module_idx = mod_idx
+                    current_lesson_idx = les_idx
+                    break
+            if current_module_idx is not None:
+                break
+        
+        if current_module_idx is None:
+            logger.warning(f"[COURSE_CONTEXT] Current lesson not found in outline structure | lesson=\"{current_lesson_title}\"")
+            return {}
+        
+        # Calculate position
+        current_module = modules[current_module_idx]
+        lessons_in_current_module = current_module.get('lessons', [])
+        total_lessons_in_module = len(lessons_in_current_module)
+        lesson_position_str = f"Lesson {current_lesson_idx + 1} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+        
+        logger.info(f"[COURSE_CONTEXT] Position: {lesson_position_str}")
+        
+        # Find previous lesson
+        previous_lesson = None
+        if current_lesson_idx > 0:
+            # Previous lesson is in same module
+            prev_lesson_title = lessons_in_current_module[current_lesson_idx - 1]
+            previous_lesson = await _fetch_lesson_product_content(
+                outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx > 0:
+            # Previous lesson is last lesson of previous module
+            prev_module = modules[current_module_idx - 1]
+            prev_module_lessons = prev_module.get('lessons', [])
+            if prev_module_lessons:
+                prev_lesson_title = prev_module_lessons[-1]
+                previous_lesson = await _fetch_lesson_product_content(
+                    outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson {len(prev_module_lessons)} of {len(prev_module_lessons)} in Module {current_module_idx} of {total_modules}"
+                )
+        
+        # Find next lesson
+        next_lesson = None
+        if current_lesson_idx < total_lessons_in_module - 1:
+            # Next lesson is in same module
+            next_lesson_title = lessons_in_current_module[current_lesson_idx + 1]
+            next_lesson = await _fetch_lesson_product_content(
+                outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx + 2} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx < total_modules - 1:
+            # Next lesson is first lesson of next module
+            next_module = modules[current_module_idx + 1]
+            next_module_lessons = next_module.get('lessons', [])
+            if next_module_lessons:
+                next_lesson_title = next_module_lessons[0]
+                next_lesson = await _fetch_lesson_product_content(
+                    outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson 1 of {len(next_module_lessons)} in Module {current_module_idx + 2} of {total_modules}"
+                )
+        
+        result = {
+            'lessonPosition': lesson_position_str
+        }
+        
+        if previous_lesson:
+            result['previousLesson'] = previous_lesson
+            logger.info(f"[COURSE_CONTEXT] Previous lesson context added | title=\"{previous_lesson.get('title')}\" | type={previous_lesson.get('productType')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No previous lesson available")
+        
+        if next_lesson:
+            result['nextLesson'] = next_lesson
+            logger.info(f"[COURSE_CONTEXT] Next lesson context added | title=\"{next_lesson.get('title')}\" | type={next_lesson.get('productType', 'not generated')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No next lesson available")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error finding adjacent lessons | error={e}", exc_info=not IS_PRODUCTION)
+        return {}
+
+
+async def _fetch_lesson_product_content(
+    outline_id: int,
+    lesson_title: str,
+    preferred_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool,
+    position_str: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Fetch content for a specific lesson, applying product type priority logic.
+    
+    Priority:
+    1. Same product type as currently being generated
+    2. Presentation (rich narrative content)
+    3. Onepager (rich narrative content)
+    4. Quiz (question-focused, less preferred for context)
+    """
+    try:
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT microproduct_content, microproduct_type, component_name
+                FROM projects
+                WHERE course_id = $1
+                  AND onyx_user_id = $2
+                  AND LOWER(project_name) LIKE '%' || $3 || '%'
+                ORDER BY created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[COURSE_CONTEXT] No products found for lesson | title=\"{lesson_title}\"")
+            return None
+        
+        # Map product types
+        product_type_map = {
+            'presentation': [],
+            'onepager': [],
+            'quiz': []
+        }
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            
+            # Classify product type
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type_map['presentation'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type_map['onepager'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type_map['quiz'].append(content)
+        
+        available_types = [ptype for ptype, prods in product_type_map.items() if prods]
+        logger.info(f"[COURSE_CONTEXT] Products found for \"{lesson_title}\" | {position_str}: {available_types}")
+        
+        # Apply priority logic
+        selected_content = None
+        selected_type = None
+        
+        # Normalize preferred type
+        preferred_normalized = preferred_product_type.lower()
+        if 'presentation' in preferred_normalized or 'slide' in preferred_normalized:
+            preferred_normalized = 'presentation'
+        elif 'onepager' in preferred_normalized or 'text' in preferred_normalized:
+            preferred_normalized = 'onepager'
+        elif 'quiz' in preferred_normalized:
+            preferred_normalized = 'quiz'
+        
+        # Priority 1: Same type
+        if preferred_normalized in product_type_map and product_type_map[preferred_normalized]:
+            selected_content = product_type_map[preferred_normalized][0]
+            selected_type = preferred_normalized
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (same type match)")
+        # Priority 2: Presentation
+        elif product_type_map['presentation']:
+            selected_content = product_type_map['presentation'][0]
+            selected_type = 'presentation'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 3: Onepager
+        elif product_type_map['onepager']:
+            selected_content = product_type_map['onepager'][0]
+            selected_type = 'onepager'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 4: Quiz
+        elif product_type_map['quiz']:
+            selected_content = product_type_map['quiz'][0]
+            selected_type = 'quiz'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        
+        if not selected_content:
+            return None
+        
+        # Parse and extract content
+        if isinstance(selected_content, str):
+            import json
+            selected_content = json.loads(selected_content)
+        
+        content_str = json.dumps(selected_content, ensure_ascii=False)
+        content_size = len(content_str)
+        
+        logger.info(f"[COURSE_CONTEXT] Content extracted | size={content_size} chars")
+        
+        return {
+            'title': lesson_title,
+            'position': position_str,
+            'productType': selected_type,
+            'content': selected_content,
+            'contentSize': content_size
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching lesson product | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
 class LessonWizardPreview(BaseModel):
@@ -22750,7 +23076,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
         
-        # Fetch outline name to include in wizard request
+        # Fetch outline name and course context to include in wizard request
         try:
             # Get current user ID to fetch the outline
             onyx_user_id = await get_current_onyx_user_id(request)
@@ -22763,9 +23089,66 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 )
                 if outline_row:
                     wizard_dict["outlineName"] = outline_row["project_name"]
+            
+            # Add course context for better lesson progression
+            if payload.lessonTitle:
+                logger.info(f"[COURSE_CONTEXT] Fetching course context | outline_id={payload.outlineProjectId} | lesson=\"{payload.lessonTitle}\"")
+                
+                # Get full course structure
+                course_structure = await get_course_outline_structure(payload.outlineProjectId, onyx_user_id, pool)
+                if course_structure:
+                    wizard_dict["courseStructure"] = course_structure
+                    logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
+                
+                # Get adjacent lesson content with product type priority
+                product_type = "presentation"  # This is a presentation/slide deck
+                adjacent_context = await get_adjacent_lesson_content(
+                    payload.outlineProjectId,
+                    payload.lessonTitle,
+                    product_type,
+                    onyx_user_id,
+                    pool
+                )
+                
+                if adjacent_context:
+                    # Add lesson position
+                    if 'lessonPosition' in adjacent_context:
+                        wizard_dict["lessonPosition"] = adjacent_context['lessonPosition']
+                        logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                    
+                    # Add previous lesson context
+                    if 'previousLesson' in adjacent_context:
+                        wizard_dict["previousLesson"] = adjacent_context['previousLesson']
+                        prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    
+                    # Add next lesson context (without full content, just structure)
+                    if 'nextLesson' in adjacent_context:
+                        next_lesson = adjacent_context['nextLesson']
+                        # Include only title and position, not full content
+                        wizard_dict["nextLesson"] = {
+                            'title': next_lesson.get('title'),
+                            'position': next_lesson.get('position')
+                        }
+                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    
+                    context_summary = []
+                    if 'courseStructure' in wizard_dict:
+                        context_summary.append('courseStructure✓')
+                    if 'lessonPosition' in wizard_dict:
+                        context_summary.append('lessonPosition✓')
+                    if 'previousLesson' in wizard_dict:
+                        context_summary.append('previousLesson✓')
+                    if 'nextLesson' in wizard_dict:
+                        context_summary.append('nextLesson✓')
+                    else:
+                        context_summary.append('nextLesson✗')
+                    
+                    logger.info(f"[COURSE_CONTEXT] Context added to wizard: {' | '.join(context_summary)}")
+                
         except Exception as e:
-            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
-            # Continue without outline name - not critical for preview
+            logger.warning(f"Failed to fetch course context for project {payload.outlineProjectId}: {e}")
+            # Continue without course context - not critical for preview
             
     if payload.lessonTitle:
         wizard_dict["lessonTitle"] = payload.lessonTitle
@@ -22854,7 +23237,21 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             logger.error(f"Failed to decompress lesson text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    course_context_instructions = ""
+    if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
+        course_context_instructions = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, explanations, or scenarios already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
+3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
+4. **Maintain Consistency**: Use the same terminology as previous lessons
+5. **Create Progression**: Prepare groundwork for nextLesson topics when provided
+6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
     wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
@@ -28273,6 +28670,70 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for quiz | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "quiz"  # This is a quiz
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                
+                # Add next lesson context (without full content, just structure)
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to quiz wizard: {' | '.join(context_summary)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for quiz | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -28384,7 +28845,21 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
+    # Add course context instructions if context is present
+    course_context_instructions_quiz = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+        course_context_instructions_quiz = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
+2. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
+3. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
+4. **Maintain Consistency**: Use the same terminology as previous lessons in your questions
+5. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+6. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
 
     # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
@@ -29560,6 +30035,70 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for onepager | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "onepager"  # This is a text presentation/onepager
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                
+                # Add next lesson context (without full content, just structure)
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to onepager wizard: {' | '.join(context_summary)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for onepager | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -29641,7 +30180,21 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    course_context_instructions_onepager = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+        course_context_instructions_onepager = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, case studies, or explanations already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
+3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
+4. **Maintain Consistency**: Use the same terminology, frameworks, and mental models as previous lessons
+5. **Create Progression**: Prepare groundwork for nextLesson topics when provided - introduce terms that will be explored later
+6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
