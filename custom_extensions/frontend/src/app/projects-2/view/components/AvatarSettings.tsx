@@ -65,13 +65,13 @@ export default function AvatarSettings() {
             </svg>
           </div>
           {/* Avatar name */}
-          <span className="text-sm font-medium text-gray-700">Name of avatar</span>
+          <span className="text-xs font-medium text-gray-700">Name of avatar</span>
         </div>
         
         {/* Change button */}
         <button 
           onClick={() => setIsAvatarPopupOpen(true)}
-          className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors"
+          className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors"
         >
           Change
         </button>
@@ -87,7 +87,7 @@ export default function AvatarSettings() {
       {/* Appearance section */}
       <div className="px-4 py-3 border-b border-gray-200">
         <div className="mb-3">
-          <span className="text-sm font-medium text-gray-700">Appearance</span>
+          <span className="text-xs font-medium text-gray-700">Appearance</span>
         </div>
         <div className="bg-gray-100 rounded-full p-1 flex">
           <button 
@@ -128,11 +128,11 @@ export default function AvatarSettings() {
         <div className="space-y-4">
           {/* View */}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">View</span>
+            <span className="text-xs font-medium text-gray-700">View</span>
             <div className="relative" ref={viewDropdownRef}>
               <button 
                 onClick={() => setShowViewDropdown(!showViewDropdown)}
-                className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
               >
                 <span className="text-gray-700">Select view...</span>
                 <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ export default function AvatarSettings() {
                       onClick={() => {
                         setShowViewDropdown(false);
                       }}
-                      className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                      className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                     >
                       <span className="text-gray-700">{view}</span>
                     </button>
@@ -160,7 +160,7 @@ export default function AvatarSettings() {
 
           {/* Position */}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Position</span>
+            <span className="text-xs font-medium text-gray-700">Position</span>
             <div className="flex space-x-2">
               <button
                 className="w-8 h-8 bg-white border border-gray-300 rounded-md flex items-center justify-center hover:border-gray-400 transition-colors group relative"
@@ -169,7 +169,7 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   Align left
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                 </div>
@@ -181,7 +181,7 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H5a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   Align center
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                 </div>
@@ -193,7 +193,7 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   Align right
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                 </div>
@@ -203,7 +203,7 @@ export default function AvatarSettings() {
 
           {/* Order */}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Order</span>
+            <span className="text-xs font-medium text-gray-700">Order</span>
             <div className="flex space-x-2">
               <Tooltip content="Send avatar to back">
                 <button

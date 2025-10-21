@@ -181,14 +181,14 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
             </svg>
           </div>
           {/* Text name */}
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-xs font-medium text-gray-700">
             {activeEditor ? 'Text Formatting' : 'Text (Select text to edit)'}
           </span>
         </div>
         
         {/* Status indicator */}
         {activeEditor && (
-          <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+          <div className="bg-green-500 text-white px-2 py-1 rounded-full text-[10px] font-medium">
             Active
           </div>
         )}
@@ -198,7 +198,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
       <div className={`flex border-b border-gray-200 flex-shrink-0`}>
         <button
           onClick={() => setActiveTab('format')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'format'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
@@ -208,7 +208,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
         </button>
         <button
           onClick={() => setActiveTab('animate')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'animate'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
@@ -224,11 +224,11 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           <div className="space-y-4">
             {/* Font Family */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Font family</span>
+              <span className="text-xs font-medium text-gray-700">Font family</span>
               <div className="relative" ref={fontFamilyDropdownRef}>
                 <button
                   onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span className="text-gray-700">{fontFamily}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                           setFontFamily(option.value);
                           setShowFontFamilyDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
                         {fontFamily === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -264,7 +264,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Font Style */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Font style</span>
+              <span className="text-xs font-medium text-gray-700">Font style</span>
               <div className="flex space-x-2">
                 <button
                   onMouseDown={(e) => e.preventDefault()} 
@@ -284,8 +284,8 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Bold"
                 >
-                  <span className="font-bold text-sm">B</span>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="font-bold text-xs">B</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Bold
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -308,8 +308,8 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Italic"
                 >
-                  <span className="italic text-sm">I</span>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="italic text-xs">I</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Italic
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -332,8 +332,8 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Underline"
                 >
-                  <span className="underline text-sm">U</span>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="underline text-xs">U</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Underline
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -356,8 +356,8 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Strikethrough"
                 >
-                  <span className="line-through text-sm">S</span>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="line-through text-xs">S</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Strikethrough
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -369,8 +369,8 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   }`}
                   title="Paragraph"
                 >
-                  <span className="text-sm">P</span>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="text-xs">P</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Paragraph
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -380,11 +380,11 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Font Size */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Font size</span>
+              <span className="text-xs font-medium text-gray-700">Font size</span>
               <div className="relative" ref={fontSizeDropdownRef}>
                 <button
                   onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span className="text-gray-700">{fontSize}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +401,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                           setFontSize(option.value);
                           setShowFontSizeDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
                         {fontSize === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -420,7 +420,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Text Align */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Text align</span>
+              <span className="text-xs font-medium text-gray-700">Text align</span>
               <div className="bg-gray-100 rounded-full p-1 flex space-x-1">
                 <button
                   onClick={() => setTextAlign('left')}
@@ -432,7 +432,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M3 7h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm0 4h14c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 2H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm-4 4H3c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Align left
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -447,7 +447,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M17 19H7c-.6 0-1 .4-1 1s.4 1 1 1h10c.6 0 1-.4 1-1s-.4-1-1-1zM3 5h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 10H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0-4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0-4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Align center
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -462,7 +462,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M3 7h18c.6 0 1-.4 1-1s-.4-1-1-1H3c-.6 0-1 .4-1 1s.4 1 1 1zm18 2H7c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1zm0 4H3c-.6 0-1 .4-1 1s.4 1 1 1h18c.6 0 1-.4 1-1s-.4-1-1-1zm0 4H7c-.6 0-1 .4-1 1s.4 1 1 1h14c.6 0 1-.4 1-1s-.4-1-1-1z"/>
                   </svg>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     Align right
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -472,7 +472,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Font Color */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Font color</span>
+              <span className="text-xs font-medium text-gray-700">Font color</span>
               <button
                 onClick={handleFontColorClick}
                 className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
@@ -486,7 +486,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Background Color */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Background color</span>
+              <span className="text-xs font-medium text-gray-700">Background color</span>
               <button
                 onClick={handleBackgroundColorClick}
                 className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
@@ -500,7 +500,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
             {/* Order */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Order</span>
+              <span className="text-xs font-medium text-gray-700">Order</span>
               <div className="flex space-x-2">
                 <Tooltip content="Send text to back">
                   <button
@@ -565,11 +565,11 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           <div className="space-y-4">
             {/* Animate content */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Animation type</span>
+              <span className="text-xs font-medium text-gray-700">Animation type</span>
               <div className="relative" ref={animationDropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                   <span className="text-gray-700">{animationOptions.find(opt => opt.value === animationType)?.label}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -586,7 +586,7 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                           setAnimationType(option.value as 'none' | 'fade' | 'slide' | 'grow');
                           setShowDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
                         {animationType === option.value ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">

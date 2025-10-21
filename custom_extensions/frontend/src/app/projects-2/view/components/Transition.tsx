@@ -27,7 +27,7 @@ export default function Transition({}: TransitionProps) {
               
               {/* Transition name */}
               <div className="flex flex-col">
-                <span className="text-gray-700 text-sm font-medium">{selectedTransition}</span>
+                <span className="text-gray-700 text-xs font-medium">{selectedTransition}</span>
               </div>
             </div>
             
@@ -46,7 +46,7 @@ export default function Transition({}: TransitionProps) {
             <div className="p-4 rounded-lg">
               {/* Apply between all scenes row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-sm">Apply between all scenes</span>
+                <span className="text-gray-700 text-xs">Apply between all scenes</span>
                 {/* Switch/Slider */}
                 <div 
                   className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
@@ -64,7 +64,7 @@ export default function Transition({}: TransitionProps) {
 
               {/* Duration row */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-700 text-sm">Duration (sec)</span>
+                <span className="text-gray-700 text-xs">Duration (sec)</span>
                 <div className="flex items-center gap-2">
                   {/* Duration range slider */}
                   <div className="relative w-32 flex items-center">
@@ -118,13 +118,13 @@ export default function Transition({}: TransitionProps) {
                       }
                     `}</style>
                   </div>
-                  <span className="text-gray-600 text-sm w-8 text-right">{duration.toFixed(1)}</span>
+                  <span className="text-gray-600 text-xs w-8 text-right">{duration.toFixed(1)}</span>
                 </div>
               </div>
 
               {/* Variant row */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 text-sm">Variant</span>
+                <span className="text-gray-700 text-xs">Variant</span>
                 <div className="flex gap-2">
                   {/* Circle button */}
                   <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
@@ -190,7 +190,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Fade</span>
+              <span className="text-xs text-gray-700 text-center">Fade</span>
             </div>
 
             {/* Close */}
@@ -202,7 +202,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Close</span>
+              <span className="text-xs text-gray-700 text-center">Close</span>
             </div>
 
             {/* Crop */}
@@ -214,7 +214,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Crop</span>
+              <span className="text-xs text-gray-700 text-center">Crop</span>
             </div>
 
             {/* Blur */}
@@ -226,7 +226,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Blur</span>
+              <span className="text-xs text-gray-700 text-center">Blur</span>
             </div>
 
             {/* Open */}
@@ -238,7 +238,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Open</span>
+              <span className="text-xs text-gray-700 text-center">Open</span>
             </div>
 
             {/* Slide */}
@@ -250,7 +250,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Slide</span>
+              <span className="text-xs text-gray-700 text-center">Slide</span>
             </div>
 
             {/* Wipe */}
@@ -262,7 +262,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Wipe</span>
+              <span className="text-xs text-gray-700 text-center">Wipe</span>
             </div>
 
             {/* Smooth wipe */}
@@ -274,7 +274,7 @@ export default function Transition({}: TransitionProps) {
               }}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-              <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
+              <span className="text-xs text-gray-700 text-center">Smooth wipe</span>
             </div>
           </div>
         </>

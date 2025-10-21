@@ -120,11 +120,11 @@ export default function ShapeSettings() {
             </svg>
           </div>
           {/* Shape name */}
-          <span className="text-sm font-medium text-gray-700">Shape name</span>
+          <span className="text-xs font-medium text-gray-700">Shape name</span>
         </div>
         
         {/* Remove button */}
-        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+        <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
           Remove
         </button>
       </div>
@@ -133,7 +133,7 @@ export default function ShapeSettings() {
       <div className="flex border-b border-gray-200">
         <button
           onClick={() => setActiveTab('format')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'format'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
@@ -143,7 +143,7 @@ export default function ShapeSettings() {
         </button>
         <button
           onClick={() => setActiveTab('animate')}
-          className={`flex-1 py-3 px-4 text-sm font-medium transition-all ${
+          className={`flex-1 py-3 px-4 text-xs font-medium transition-all ${
             activeTab === 'animate'
               ? 'text-black border-b-2 border-black'
               : 'text-gray-500 hover:text-gray-700'
@@ -161,15 +161,15 @@ export default function ShapeSettings() {
             <div className="space-y-3">
               {/* Fill header with Remove button */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 pl-2">Fill</span>
-                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+                <span className="text-xs font-medium text-gray-700 pl-2">Fill</span>
+                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
                   Remove
                 </button>
               </div>
               
               {/* Fill Color */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Color</span>
+                <span className="text-xs text-gray-600">Color</span>
                 <button
                   className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: fillColor }}
@@ -186,15 +186,15 @@ export default function ShapeSettings() {
             <div className="space-y-3">
               {/* Stroke header with Remove button */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Stroke</span>
-                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-sm font-medium border border-gray-300 hover:border-gray-400 transition-colors">
+                <span className="text-xs font-medium text-gray-700">Stroke</span>
+                <button className="bg-white text-gray-600 hover:text-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-300 hover:border-gray-400 transition-colors">
                   Remove
                 </button>
               </div>
               
               {/* Stroke Color */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Stroke color</span>
+                <span className="text-xs text-gray-600">Stroke color</span>
                 <button
                   className="w-8 h-8 rounded-md border-2 border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
                   style={{ backgroundColor: strokeColor }}
@@ -208,9 +208,9 @@ export default function ShapeSettings() {
 
               {/* Stroke Width with Range Slider */}
               <div className="flex items-center justify-between pl-4">
-                <span className="text-sm text-gray-600">Stroke width</span>
+                <span className="text-xs text-gray-600">Stroke width</span>
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs text-gray-500 min-w-[2rem]">{strokeWidth}</span>
+                  <span className="text-[10px] text-gray-500 min-w-[2rem]">{strokeWidth}</span>
                   <div className="relative w-32 flex items-center">
                     <input
                       type="range"
@@ -268,7 +268,7 @@ export default function ShapeSettings() {
 
             {/* Order */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Order</span>
+              <span className="text-xs font-medium text-gray-700">Order</span>
               <div className="flex space-x-2">
                 <Tooltip content="Send shape to back">
                   <button
@@ -333,11 +333,11 @@ export default function ShapeSettings() {
           <div className="space-y-4">
             {/* Animation type */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Animation type</span>
+              <span className="text-xs font-medium text-gray-700">Animation type</span>
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
                 >
                                           <span className="text-gray-700">None</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +353,7 @@ export default function ShapeSettings() {
                         onClick={() => {
                           setShowDropdown(false);
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-xs text-left hover:bg-gray-50 flex items-center"
                       >
                         {option === 'None' ? (
                           <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">

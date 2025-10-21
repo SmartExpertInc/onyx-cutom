@@ -245,7 +245,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   {/* Row 2: Lisa - Office 4 */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <User size={16} className="text-gray-700" />
-                    <span className="text-sm text-gray-700">Lisa - Office 4</span>
+                    <span className="text-xs text-gray-700">Lisa - Office 4</span>
                   </button>
                   
                   {/* Row 3: Narration only */}
@@ -253,7 +253,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
                       <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
                     </svg>
-                    <span className="text-sm text-gray-700">Narration only</span>
+                    <span className="text-xs text-gray-700">Narration only</span>
                   </button>
                   
                   {/* Row 4: Horizontal line */}
@@ -264,13 +264,13 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   {/* Row 5: Remove avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserMinus size={16} className="text-gray-500" />
-                    <span className="text-sm text-gray-500">Remove avatar</span>
+                    <span className="text-xs text-gray-500">Remove avatar</span>
                   </button>
                   
                   {/* Row 6: Add new avatar */}
                   <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                     <UserPlus size={16} className="text-gray-700" />
-                    <span className="text-sm text-gray-700">Add new avatar</span>
+                    <span className="text-xs text-gray-700">Add new avatar</span>
                   </button>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
                 <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
               </svg>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs font-medium text-gray-700">
                 {selectedVoice 
                   ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
                   : 'Select Voice'
@@ -309,7 +309,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             ref={textAreaRef}
             contentEditable
             suppressContentEditableWarning
-            className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
+            className="w-full text-[#5F5F5F] text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
             style={{ whiteSpace: 'pre-wrap', height: '200px' }}
             onInput={(e) => handleScriptContentChange(e.currentTarget.textContent || '')}
           />
@@ -357,7 +357,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           </button>
           
           {/* Tooltip */}
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Use the AI assistant
           </div>
         </div>
@@ -392,7 +392,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">0.5s pause</span>
+                  <span className="text-xs text-gray-700">0.5s pause</span>
                 </button>
                 
                 {/* 1s pause */}
@@ -403,7 +403,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">1s pause</span>
+                  <span className="text-xs text-gray-700">1s pause</span>
                 </button>
                 
                 {/* 2s pause */}
@@ -414,7 +414,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">2s pause</span>
+                  <span className="text-xs text-gray-700">2s pause</span>
                 </button>
                 
                 {/* 5s pause */}
@@ -425,7 +425,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" className="text-gray-500">
                     <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0Z"/>
                   </svg>
-                  <span className="text-sm text-gray-700">5s pause</span>
+                  <span className="text-xs text-gray-700">5s pause</span>
                 </button>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           
           {/* Tooltip (only show when popup is closed) */}
           {!isPausePopupOpen && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Add a pause to the script
           </div>
           )}
@@ -459,7 +459,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <line x1="3" y1="18" x2="9" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Add animation marker to the script
           </div>
         </div>
@@ -471,7 +471,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <path fill="currentColor" d="M18.634 2.322a.75.75 0 0 1 1.044-.188c.808.561 1.478 1.544 1.898 2.627c.424 1.094.63 2.384.413 3.618a.75.75 0 1 1-1.478-.258c.16-.913.013-1.924-.334-2.818c-.35-.906-.869-1.6-1.355-1.937a.75.75 0 0 1-.188-1.044Zm-9.046.551a2.048 2.048 0 0 0-3.721 1.13a2.015 2.015 0 0 0-1.929 2.649l1.96 5.921a4.794 4.794 0 0 0-1.788.2a3.906 3.906 0 0 0-1.764 1.154a1.41 1.41 0 0 0-.271 1.42c.153.433.494.78.911.97c1.415.642 4.274 2.118 6.752 4.487c1.025.98 2.521 1.473 3.963 1.042l2.587-.775a2.665 2.665 0 0 0 1.892-2.183c.144-1.051.32-2.641.32-4.138c0-1.764-.456-3.708-1-5.41a37.425 37.425 0 0 0-1.625-4.151a2.051 2.051 0 0 0-2.277-1.142c-.29.058-.551.171-.778.326l-.155-.486a2 2 0 0 0-3.077-1.014Zm-1.156 1l.404 1.176c.01.033.02.066.032.1l1.673 4.846a.75.75 0 0 0 1.166.35l.016-.013a.75.75 0 0 0 .236-.827L10.272 4.61a.5.5 0 0 1 .964-.265l.724 2.267c.012.05.026.1.042.151l.87 2.703l.163.513a.75.75 0 1 0 1.43-.457l-.165-.513l-.89-2.786a.61.61 0 0 1 .482-.704a.552.552 0 0 1 .62.299c.41.889 1.037 2.346 1.559 3.98c.525 1.643.93 3.416.93 4.953c0 1.396-.166 2.91-.307 3.935c-.06.44-.381.813-.836.949l-2.588.774c-.844.253-1.796-.02-2.495-.688c-2.65-2.535-5.681-4.094-7.169-4.77a.279.279 0 0 1-.098-.072c.232-.255.572-.52 1.059-.676c.51-.163 1.233-.224 2.244.038a.75.75 0 0 0 .9-.962L5.362 6.181a.515.515 0 0 1 .979-.324l1.438 4.346l.258.785a.75.75 0 1 0 1.426-.474l-.259-.781l-1.81-5.51a.547.547 0 0 1 1.038-.35Zm9.867.366A.75.75 0 0 0 17.2 5.26c.418.449.799.99.799 1.99a.75.75 0 0 0 1.5 0c0-1.502-.623-2.391-1.201-3.012Z"/>
             </svg>
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             No avatar selected
           </div>
         </div>
@@ -493,7 +493,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <path fill="currentColor" d="m239.15 212.42l-56-112a8 8 0 0 0-14.31 0l-21.71 43.43A88 88 0 0 1 100 126.93A103.65 103.65 0 0 0 127.69 64H152a8 8 0 0 0 0-16H96V32a8 8 0 0 0-16 0v16H24a8 8 0 0 0 0 16h87.63A87.76 87.76 0 0 1 88 116.35a87.74 87.74 0 0 1-19-31a8 8 0 1 0-15.08 5.34A103.63 103.63 0 0 0 76 127a87.55 87.55 0 0 1-52 17a8 8 0 0 0 0 16a103.46 103.46 0 0 0 64-22.08a104.18 104.18 0 0 0 51.44 21.31l-26.6 53.19a8 8 0 0 0 14.31 7.16L140.94 192h70.11l13.79 27.58A8 8 0 0 0 232 224a8 8 0 0 0 7.15-11.58ZM148.94 176L176 121.89L203.05 176Z"/>
             </svg>
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Pronounciations
           </div>
         </div>
@@ -511,7 +511,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               <path fill="currentColor" d="M4.608 3.063C4.345 2.895 4 3.089 4 3.418v9.167c0 .329.345.523.608.356l7.2-4.584a.426.426 0 0 0 0-.711zm.538-.844l7.2 4.583a1.426 1.426 0 0 1 0 2.399l-7.2 4.583C4.21 14.38 3 13.696 3 12.585V3.418C3 2.307 4.21 1.624 5.146 2.22"/>
             </svg>
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             Play audio
           </div>
         </div>
@@ -520,7 +520,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           // Playing state toolbar with timer and stop button
           <>
             {/* Timer Display */}
-            <div className="text-sm text-gray-700 font-mono px-2">
+            <div className="text-xs text-gray-700 font-mono px-2">
               {formatTime(playTime)}
             </div>
             

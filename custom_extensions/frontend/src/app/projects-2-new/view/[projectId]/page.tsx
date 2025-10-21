@@ -604,7 +604,7 @@ export default function Projects2ViewPage() {
       switch (activeSettingsPanel) {
         case 'script':
           return (
-            <div className="border border-[#E0E0E0] rounded-lg p-3">
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
               <Script 
                 onAiButtonClick={handleAiButtonClick} 
                 videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
@@ -626,19 +626,19 @@ export default function Projects2ViewPage() {
           return <ImageSettings />;
         case 'music':
           return (
-            <div className="border border-[#E0E0E0] rounded-lg p-3">
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
               <Music />
             </div>
           );
         case 'background':
           return (
-            <div className="border border-[#E0E0E0] rounded-lg p-3">
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
               <Background />
             </div>
           );
         case 'transition':
           return (
-            <div className="border border-[#E0E0E0] rounded-lg p-3">
+            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
               <Transition />
             </div>
           );
@@ -711,13 +711,13 @@ export default function Projects2ViewPage() {
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
       <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 85px)' }}>
-        {/* Sidebar - 30% width, full height of available space */}
-        <div className="w-[30%] h-full overflow-y-auto overflow-x-hidden">
+        {/* Sidebar - 25% width, full height of available space */}
+        <div className="w-[25%] h-full overflow-y-auto overflow-x-hidden">
           {renderSidebarComponent()}
         </div>
 
-        {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
+        {/* Main Container - 75% width, full height of available space */}
+        <div className="w-[75%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 80% of main container height (increased from 75%) */}
           <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Click handler to close settings panel */}

@@ -85,7 +85,7 @@ export default function Background() {
                       <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
                         <span className="text-4xl text-gray-400 font-light">+</span>
                       </div>
-                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                      <span className="text-xs text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2].name}
                       </span>
                     </>
@@ -100,7 +100,7 @@ export default function Background() {
                         }}
                         onClick={() => setSelectedColor(rectangleData[rowIndex * 2].color)}
                       ></div>
-                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                      <span className="text-xs text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2].name}
                       </span>
                     </>
@@ -117,7 +117,7 @@ export default function Background() {
                       <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center cursor-not-allowed opacity-50 mb-2">
                         <span className="text-4xl text-gray-400 font-light">+</span>
                       </div>
-                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                      <span className="text-xs text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2 + 1].name}
                       </span>
                     </>
@@ -132,7 +132,7 @@ export default function Background() {
                         }}
                         onClick={() => setSelectedColor(rectangleData[rowIndex * 2 + 1].color)}
                       ></div>
-                      <span className="text-sm text-center" style={{ color: '#616161' }}>
+                      <span className="text-xs text-center" style={{ color: '#616161' }}>
                         {rectangleData[rowIndex * 2 + 1].name}
                       </span>
                     </>
