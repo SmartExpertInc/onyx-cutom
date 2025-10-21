@@ -22669,6 +22669,8 @@ async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool:
     - modules: List of modules with their lessons
     - detectedLanguage: Language of the course
     """
+    import json
+    
     try:
         logger.info(f"[COURSE_CONTEXT] Fetching outline structure | outline_id={outline_id}")
         
@@ -22687,7 +22689,6 @@ async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool:
         
         # Parse the outline content
         if isinstance(content, str):
-            import json
             content = json.loads(content)
         
         if not isinstance(content, dict):
@@ -22879,6 +22880,8 @@ async def _fetch_lesson_product_content(
     3. Onepager (rich narrative content)
     4. Quiz (question-focused, less preferred for context)
     """
+    import json
+    
     try:
         # Query all products for this lesson
         async with pool.acquire() as conn:
@@ -22964,7 +22967,6 @@ async def _fetch_lesson_product_content(
         
         # Parse and extract content
         if isinstance(selected_content, str):
-            import json
             selected_content = json.loads(selected_content)
         
         content_str = json.dumps(selected_content, ensure_ascii=False)
