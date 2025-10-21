@@ -11,7 +11,7 @@ interface Scene {
 
 interface SceneTimelineProps {
   scenes: Scene[];
-  aspectRatio: string;
+  aspectRatio?: string;
   onAddScene: () => void;
   onMenuClick: (sceneId: string, event: React.MouseEvent) => void;
   onSceneRename?: (sceneId: string, newName: string) => void;
@@ -26,7 +26,7 @@ interface SceneTimelineProps {
 
 export default function SceneTimeline({ 
   scenes, 
-  aspectRatio, 
+  aspectRatio = '16:9', 
   onAddScene, 
   onMenuClick,
   onSceneRename,

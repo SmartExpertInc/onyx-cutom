@@ -51,9 +51,6 @@ export default function Projects2ViewPage() {
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
-
-  // Aspect ratio state
-  const [aspectRatio, setAspectRatio] = useState<string>('16:9');
   
   // Selected element state for presentation
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
@@ -701,8 +698,6 @@ export default function Projects2ViewPage() {
         onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         hideAiImproveButton={true}
         showVideoEditorActions={true}
-        aspectRatio={aspectRatio}
-        onAspectRatioChange={setAspectRatio}
         onPreviewClick={handlePreviewClick}
         onGenerateClick={handleGenerateClick}
       />
@@ -718,58 +713,46 @@ export default function Projects2ViewPage() {
 
         {/* Main Container - 75% width, full height of available space */}
         <div className="w-[75%] h-full flex flex-col gap-2 overflow-visible">
-          {/* Top Container - Takes 80% of main container height (increased from 75%) */}
-          <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
-            {/* Click handler to close settings panel */}
-            <div 
-              className="absolute inset-0 z-0"
-              onClick={handleCloseSettingsPanel}
-            />
-
+          {/* Slide Container - Takes 80% of main container height */}
+          <div 
+            className="h-[80%] bg-gray-200 rounded-md flex items-center justify-center relative overflow-visible"
+            onClick={handleCloseSettingsPanel}
+          >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
-              <div
-                className="professional-slide relative bg-white overflow-hidden"
-                style={{
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                  width: aspectRatio === '16:9' ? '900px' 
-                    : aspectRatio === '9:16' ? '400px'
-                    : '800px',
-                  height: aspectRatio === '16:9' ? '506px' 
-                    : aspectRatio === '9:16' ? '711px'
-                    : '800px',
-                }}
-              >
-                <div style={{
-                  zoom: 0.6,
-                  width: '100%',
-                  height: '100%',
-                }}>
-                  <ComponentBasedSlideDeckRenderer
-                    slides={componentBasedSlideDeck.slides}
-                    selectedSlideId={currentSlideId}
-                    isEditable={true}
-                    onSlideUpdate={(updatedSlide) => {
-                      // Handle slide updates for component-based slides
-                      if (componentBasedSlideDeck) {
-                        const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                          slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                        );
-                        const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                        setComponentBasedSlideDeck(updatedDeck);
-                        // Save to backend
-                        saveVideoLessonData(updatedDeck);
-                      }
-                    }}
-                    onEditorActive={(editor, field) => {
-                      console.log('✏️ Editor active:', { field, hasEditor: !!editor });
-                      setActiveTextEditor(editor);
-                      setActiveSettingsPanel('text');
-                    }}
-                    theme="default"
-                    isVideoMode={true}
-                  />
-                </div>
+              <div style={{
+                zoom: 0.6,
+                width: '900px',
+                height: '506px',
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                overflow: 'hidden',
+                position: 'relative',
+              }}>
+                <ComponentBasedSlideDeckRenderer
+                  slides={componentBasedSlideDeck.slides}
+                  selectedSlideId={currentSlideId}
+                  isEditable={true}
+                  onSlideUpdate={(updatedSlide) => {
+                    // Handle slide updates for component-based slides
+                    if (componentBasedSlideDeck) {
+                      const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                      );
+                      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                      setComponentBasedSlideDeck(updatedDeck);
+                      // Save to backend
+                      saveVideoLessonData(updatedDeck);
+                    }
+                  }}
+                  onEditorActive={(editor, field) => {
+                    console.log('✏️ Editor active:', { field, hasEditor: !!editor });
+                    setActiveTextEditor(editor);
+                    setActiveSettingsPanel('text');
+                  }}
+                  theme="default"
+                  isVideoMode={true}
+                />
               </div>
             ) : (
               <VideoLessonDisplay 
@@ -784,7 +767,6 @@ export default function Projects2ViewPage() {
           {/* Bottom Container - Takes 20% of main container height (reduced from 30% due to top container increase) */}
           <SceneTimeline 
             scenes={[]} // Commented out regular scenes for now
-            aspectRatio={aspectRatio}
             onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
