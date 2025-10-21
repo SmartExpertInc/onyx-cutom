@@ -43,23 +43,6 @@
   pointer-events: none;
   user-select: none;
   background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slide-mini-preview > * {
-  transform: scale(0.25);
-  transform-origin: center;
-  width: 400%;
-  height: 400%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -200%;
-  margin-left: -200%;
-  pointer-events: none;
-  user-select: none;
 }
 
 .main-slide-container {

@@ -55,7 +55,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Title Slide',
     description: 'Opening slide with title, subtitle, and optional author/date information',
     category: 'title',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="15" y="16" width="64" height="9" fill="#E0E0E0"/>
       <rect x="27" y="31" width="41" height="3" fill="#E0E0E0"/>
@@ -126,7 +126,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Content Slide',
     description: 'Standard content slide with title and body text',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="8" y="8" width="41" height="5" fill="#E0E0E0"/>
       <rect x="8" y="19" width="71" height="2" fill="#E0E0E0"/>
@@ -196,7 +196,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Big Image Left',
     description: 'Large image on the left with content on the right',
     category: 'media',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M2 0.25H92C92.9665 0.25 93.75 1.0335 93.75 2V51C93.75 51.9665 92.9665 52.75 92 52.75H2C1.0335 52.75 0.25 51.9665 0.25 51V2L0.258789 1.82129C0.348296 0.938726 1.09383 0.25 2 0.25Z" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <path d="M54 15H88V21H54V15Z" fill="#E0E0E0"/>
       <rect x="54" y="24" width="32" height="2" fill="#E0E0E0"/>
@@ -331,7 +331,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Bullet Points',
     description: 'Title with formatted bullet points in customizable columns',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="8" y="6" width="33" height="6" fill="#E0E0E0"/>
       <rect x="54" y="21" width="30" height="3" fill="#E0E0E0"/>
@@ -452,7 +452,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Bullet Points Right',
     description: 'Title, subtitle, bullet points (зліва), placeholder (справа)',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="8" y="6" width="33" height="6" fill="#E0E0E0"/>
       <rect x="13" y="20" width="30" height="3" fill="#E0E0E0"/>
@@ -573,7 +573,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Two Column',
     description: 'Split layout with two content areas and customizable ratios',
     category: 'layout',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="7" y="5" width="33" height="5" fill="#E0E0E0"/>
       <rect x="8" y="37" width="30" height="3" fill="#E0E0E0"/>
@@ -722,7 +722,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Process Steps',
     description: 'Numbered process or workflow steps with customizable layouts',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="27" y="7" width="37" height="7" fill="#E0E0E0"/>
       <rect x="9" y="27" width="22" height="2" fill="#E0E0E0"/>
@@ -813,7 +813,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Challenges Solutions',
     description: 'Порівняння проблем і рішень з візуальними іконками',
     category: 'layout',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <circle cx="52" cy="34" r="1" fill="#D9D9D9"/>
       <rect x="27" y="7" width="37" height="7" fill="#E0E0E0"/>
@@ -942,7 +942,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Hero Title Slide',
     description: 'Потужний заголовковий слайд з акцентним елементом та детальним описом',
     category: 'title',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="15" y="16" width="64" height="9" fill="#E0E0E0"/>
       <rect x="27" y="31" width="41" height="3" fill="#E0E0E0"/>
@@ -1190,7 +1190,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Four Box Grid',
     description: 'Title and 4 boxes in a 2x2 grid',
     category: 'layout',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="6" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="6" y="18" width="39" height="12" fill="#E0E0E0"/>
@@ -1229,7 +1229,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Timeline',
     description: 'Horizontal timeline with 4 steps and alternating text blocks',
     category: 'layout',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="6" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="6" y="35" width="18" height="2" fill="#E0E0E0"/>
@@ -1275,7 +1275,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Big Numbers',
     description: 'Three-column layout for highlighting key metrics or statistics with big numbers, labels, and descriptions.',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="6" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="6" y="35" width="18" height="2" fill="#E0E0E0"/>
@@ -1309,7 +1309,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Pyramid',
     description: 'Pyramid diagram with 3 levels and descriptions.',
     category: 'layout',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="6" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="6" y="13" width="18" height="2" fill="#E0E0E0"/>
@@ -1344,7 +1344,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Event Dates',
     description: 'List of event dates with descriptions, visually separated.',
     category: 'special',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="30" y="7" width="34" height="5" fill="#E0E0E0"/>
       <rect x="36" y="15" width="21" height="2" fill="#E0E0E0"/>
@@ -1531,7 +1531,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Contraindications & Indications',
     description: 'Two-column medical template with contraindications and indications',
     category: 'special',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="31" y="4" width="34" height="5" fill="#E0E0E0"/>
       <rect x="13" y="26" width="24" height="1" fill="#E0E0E0"/>
@@ -1602,7 +1602,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Metrics & Analytics',
     description: 'Six metrics with connecting timeline and numbered layout',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="31" y="4" width="34" height="5" fill="#E0E0E0"/>
       <rect x="8" y="21" width="20" height="1" fill="#E0E0E0"/>
@@ -1702,7 +1702,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Market Share',
     description: 'Market share chart with bar comparison and legend',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="31" y="4" width="34" height="5" fill="#E0E0E0"/>
       <rect x="19.2005" y="19" width="20" height="6.20053" transform="rotate(89.7427 19.2005 19)" fill="#E0E0E0"/>
@@ -1753,7 +1753,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Comparison Slide',
     description: 'Side-by-side comparison table for contrasting concepts',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="32" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="20" y="18" width="56" height="4" fill="#E0E0E0"/>
@@ -1794,7 +1794,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Table Dark',
     description: 'Dynamic table with dark theme and checkmarks',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="32" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="20" y="18" width="56" height="4" fill="#E0E0E0"/>
@@ -1857,7 +1857,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Table Light',
     description: 'Dynamic table with light theme',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="32" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="20" y="18" width="56" height="4" fill="#E0E0E0"/>
@@ -1919,7 +1919,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Pie Chart Infographics',
     description: 'Pie chart with detailed monthly infographics',
     category: 'content',
-    icon: `<svg width="94" height="53" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
       <rect x="31" y="5" width="34" height="5" fill="#E0E0E0"/>
       <rect x="6" y="21" width="22" height="2" fill="#E0E0E0"/>

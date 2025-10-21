@@ -311,9 +311,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           {showTemplateDropdown && (
             <div
               ref={dropdownRef}
-              className="absolute -right-85 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              className="absolute -right-125 top-4 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
               style={{
-                width: 'calc(100% + 60px)',
+                width: 'calc(100% + 80px)',
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
@@ -332,9 +332,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         onClick={() => addSlide(template.id, insertAfterIndex || undefined)}
                         className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                       >
-                        <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                        <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                           <div 
-                            className="opacity-70 group-hover:opacity-100 transition-opacity" 
                             dangerouslySetInnerHTML={{ __html: template.icon }}
                           />
                         </div>
@@ -359,9 +358,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       onClick={() => addSlide(template.id, insertAfterIndex || undefined)}
                       className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                     >
-                      <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                      <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                         <div 
-                          className="opacity-70 group-hover:opacity-100 transition-opacity" 
                           dangerouslySetInnerHTML={{ __html: template.icon }}
                         />
                       </div>
@@ -404,12 +402,23 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 }`}>
                   {/* Mini slide rendering */}
                   <div className="slide-mini-preview" style={{ aspectRatio: '16/9', minHeight: '120px' }}>
-                    <ComponentBasedSlideRenderer
-                      slide={slide}
-                      isEditable={false}
-                      onSlideUpdate={() => {}}
-                      theme={theme}
-                    />
+                    <div style={{ 
+                      width: '400%', 
+                      height: '400%', 
+                      transform: 'scale(0.25)', 
+                      transformOrigin: 'top left',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      backgroundColor: '#f0f0f0'
+                    }}>
+                      <ComponentBasedSlideRenderer
+                        slide={slide}
+                        isEditable={false}
+                        onSlideUpdate={() => {}}
+                        theme={theme}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -559,9 +568,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                   onClick={() => addSlide(template.id, index)}
                                   className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                 >
-                                  <div className="aspect-[4/3] w-full rounded-t-xl bg-gray-50 flex items-center justify-center">
+                                  <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                                     <div 
-                                      className="opacity-70 group-hover:opacity-100 transition-opacity" 
                                       dangerouslySetInnerHTML={{ __html: template.icon }}
                                     />
                                   </div>
