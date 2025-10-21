@@ -2360,31 +2360,31 @@
     <div class="slide-page">
         <div class="slide-content theme-{{ theme or 'dark-purple' }}">
             {% if slide.templateId == 'title-slide' %}
-                <div class="title-slide">
-                    <!-- Logo at the top -->
-                    <div class="logo">
-                        <div class="logo-icon"></div>
-                        <span>Your Logo</span>
-                    </div>
-                    
-                    <h1 class="slide-title positioned-element" 
-                        {% if slide.metadata and slide.metadata.elementPositions %}
-                            {% set titleId = slide.slideId + '-title' %}
-                            {% if slide.metadata.elementPositions[titleId] %}
-                                style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                            {% endif %}
-                        {% endif %}
-                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Your title here'] else 'Add title' }}</h1>
-                    
-                    <h2 class="slide-subtitle positioned-element"
-                        {% if slide.metadata and slide.metadata.elementPositions %}
-                            {% set subtitleId = slide.slideId + '-subtitle' %}
-                            {% if slide.metadata.elementPositions[subtitleId] %}
-                                style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                            {% endif %}
-                        {% endif %}
-                    >{{ slide.props.subtitle if slide.props.subtitle and slide.props.subtitle not in ['Click to add content', 'Add subtitle', 'Add a short description.'] else 'Add subtitle' }}</h2>
+            <div class="title-slide">
+                <!-- Logo at the top -->
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <span>Your Logo</span>
                 </div>
+                
+                <h1 class="slide-title positioned-element" 
+                    {% if slide.metadata and slide.metadata.elementPositions %}
+                        {% set titleId = slide.slideId + '-title' %}
+                        {% if slide.metadata.elementPositions[titleId] %}
+                            style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                        {% endif %}
+                    {% endif %}
+                >{{ slide.props.title|safe if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Your title here'] else 'Add title' }}</h1>
+                
+                <h2 class="slide-subtitle positioned-element"
+                    {% if slide.metadata and slide.metadata.elementPositions %}
+                        {% set subtitleId = slide.slideId + '-subtitle' %}
+                        {% if slide.metadata.elementPositions[subtitleId] %}
+                            style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
+                        {% endif %}
+                    {% endif %}
+                >{{ slide.props.subtitle|safe if slide.props.subtitle and slide.props.subtitle not in ['Click to add content', 'Add subtitle', 'Add a short description.'] else 'Add subtitle' }}</h2>
+            </div>
                 
                 {% elif slide.templateId == 'big-image-left' %}
                 <div class="big-image-left">
