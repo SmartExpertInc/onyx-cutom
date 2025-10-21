@@ -1309,17 +1309,18 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Pyramid',
     description: 'Pyramid diagram with 3 levels and descriptions.',
     category: 'layout',
-    icon: `<svg width="100" height="63" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
-      <rect x="6" y="5" width="34" height="5" fill="#E0E0E0"/>
-      <rect x="6" y="13" width="18" height="2" fill="#E0E0E0"/>
-      <rect x="6" y="17" width="13" height="2" fill="#E0E0E0"/>
-      <rect x="48" y="21" width="18" height="1" fill="#E0E0E0"/>
-      <rect x="48" y="23" width="13" height="1" fill="#E0E0E0"/>
-      <rect x="56" y="29" width="18" height="1" fill="#E0E0E0"/>
-      <rect x="56" y="31" width="13" height="1" fill="#E0E0E0"/>
-      <rect x="60" y="40" width="18" height="1" fill="#E0E0E0"/>
-      <rect x="60" y="42" width="13" height="1" fill="#E0E0E0"/>
+    icon: `<svg width="100" height="63" viewBox="0 0 100 63" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M97.8723 3.57446H2.12766C1.09947 3.57446 0.265961 4.40798 0.265961 5.43616V57.5638C0.265961 58.592 1.09947 59.4255 2.12766 59.4255H97.8723C98.9005 59.4255 99.734 58.592 99.734 57.5638V5.43616C99.734 4.40798 98.9005 3.57446 97.8723 3.57446Z" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.531915"/>
+      <path d="M42.5532 8.62769H6.38297V13.9468H42.5532V8.62769Z" fill="#E0E0E0"/>
+      <path d="M25.5319 17.1382H6.38297V19.2658H25.5319V17.1382Z" fill="#E0E0E0"/>
+      <path d="M20.2128 21.3936H6.38297V23.5212H20.2128V21.3936Z" fill="#E0E0E0"/>
+      <path d="M70.2128 25.6489H51.0638V26.7128H70.2128V25.6489Z" fill="#E0E0E0"/>
+      <path d="M64.8936 27.7766H51.0638V28.8404H64.8936V27.7766Z" fill="#E0E0E0"/>
+      <path d="M78.7234 34.1597H59.5745V35.2235H78.7234V34.1597Z" fill="#E0E0E0"/>
+      <path d="M73.4043 36.2874H59.5745V37.3512H73.4043V36.2874Z" fill="#E0E0E0"/>
+      <path d="M82.9787 45.8618H63.8298V46.9256H82.9787V45.8618Z" fill="#E0E0E0"/>
+      <path d="M77.6596 47.9893H63.8298V49.0531H77.6596V47.9893Z" fill="#E0E0E0"/>
+      <path d="M42.5 24L57.6554 50.25H27.3446L42.5 24Z" fill="#D9D9D9"/>
       </svg>
       `,
     component: PyramidTemplate,
