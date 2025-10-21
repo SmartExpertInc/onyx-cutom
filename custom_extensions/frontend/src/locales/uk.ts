@@ -373,6 +373,7 @@ export const uk = {
     getUnlimitedAI: "Отримати Необмежений ШІ",
     credits: "кредитів",
     loading: "Завантаження...",
+    continue: "Продовжити",
     knowledgeBase: "База знань",
     myProducts: "Мої продукти",
 
@@ -1247,6 +1248,35 @@ export const uk = {
       noIntegrationsYet: "Ви ще не підключили жодної інтеграції.",
       exploreConnectors: "Досліджуйте доступні коннектори та керуйте ними у вашій базі знань.",
       connectNow: "Підключити зараз",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Виберіть коннектор",
+      selectFile: "Виберіть файл",
+      cancel: "Скасувати",
+      import: "Імпортувати",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Імпорт з URL",
+      description: "Це витягне текст з веб-сторінки, яку ви введете.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Додати інший URL",
+      cancel: "Скасувати",
+      import: "Імпортувати",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Ваш Smart Drive порожній",
+        noMaterials: "Ви ще не додали жодних матеріалів.",
+        goToKnowledgeBase: "Перейдіть до вашої бази знань, щоб завантажити файли та керувати контентом.",
+        uploadFiles: "Завантажити файли",
+      },
     },
 
     // Course Outline Page

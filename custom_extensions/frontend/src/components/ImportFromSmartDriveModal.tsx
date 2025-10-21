@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../contexts/LanguageContext";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
 
 interface ImportFromSmartDriveModalProps {
@@ -17,6 +18,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
   onImport,
   selectedFiles,
 }) => {
+  const { t } = useLanguage();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'smart-drive' | 'connectors'>('smart-drive');
   const [localSelectedFiles, setLocalSelectedFiles] = useState<any[]>([]);
@@ -105,7 +107,9 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">
-          {activeTab === 'connectors' ? 'Select a connector' : 'Select a file'}
+          {activeTab === 'connectors' 
+            ? t('interface.importFromSmartDrive.selectConnector', 'Select a connector') 
+            : t('interface.importFromSmartDrive.selectFile', 'Select a file')}
         </h2>
 
         {/* SmartDrive Connectors Component */}
@@ -129,7 +133,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
               border: '1px solid #0F58F9',
             }}
           >
-            Cancel
+            {t('interface.importFromSmartDrive.cancel', 'Cancel')}
           </button>
           <button
             onClick={handleImport}
@@ -138,7 +142,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
               backgroundColor: '#0F58F9',
             }}
           >
-            Import
+            {t('interface.importFromSmartDrive.import', 'Import')}
           </button>
         </div>
       </div>

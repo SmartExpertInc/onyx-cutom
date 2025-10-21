@@ -358,8 +358,10 @@ export const es = {
     getUnlimitedAI: "Obtener IA Ilimitada",
     credits: "créditos",
     loading: "Cargando...",
+    continue: "Continuar",
     knowledgeBase: "Base de conocimientos",
     myProducts: "Mis productos",
+
     // Sidebar
     jumpTo: "Ir a",
     keyboardShortcut: "⌘+K",
@@ -1237,6 +1239,35 @@ export const es = {
       noIntegrationsYet: "Aún no has conectado ninguna integración.",
       exploreConnectors: "Explora los conectores disponibles y adminístralos en tu Base de Conocimientos.",
       connectNow: "Conectar ahora",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Selecciona un conector",
+      selectFile: "Selecciona un archivo",
+      cancel: "Cancelar",
+      import: "Importar",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Importar desde URL",
+      description: "Esto extraerá el texto de la página web que ingreses.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Añadir otra URL",
+      cancel: "Cancelar",
+      import: "Importar",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Tu Smart Drive está vacío",
+        noMaterials: "Aún no has añadido ningún material.",
+        goToKnowledgeBase: "Ve a tu Base de Conocimientos para subir archivos y gestionar tu contenido.",
+        uploadFiles: "Subir archivos",
+      },
     },
 
     // Course Outline Page

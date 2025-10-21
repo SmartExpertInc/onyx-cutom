@@ -387,8 +387,10 @@ export const ru = {
     getUnlimitedAI: "Получить Неограниченный ИИ",
     credits: "кредитов",
     loading: "Загрузка...",
+    continue: "Продолжить",
     knowledgeBase: "База знаний",
     myProducts: "Мои продукты",
+
     // Sidebar
     jumpTo: "Перейти к",
     keyboardShortcut: "⌘+K",
@@ -1255,6 +1257,35 @@ export const ru = {
       noIntegrationsYet: "Вы еще не подключили никаких интеграций.",
       exploreConnectors: "Исследуйте доступные коннекторы и управляйте ими в вашей базе знаний.",
       connectNow: "Подключить сейчас",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Выберите коннектор",
+      selectFile: "Выберите файл",
+      cancel: "Отмена",
+      import: "Импортировать",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Импорт из URL",
+      description: "Это извлечет текст с веб-страницы, которую вы введете.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Добавить другой URL",
+      cancel: "Отмена",
+      import: "Импортировать",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Ваш Smart Drive пуст",
+        noMaterials: "Вы еще не добавили никаких материалов.",
+        goToKnowledgeBase: "Перейдите в вашу базу знаний, чтобы загрузить файлы и управлять контентом.",
+        uploadFiles: "Загрузить файлы",
+      },
     },
 
     // Course Outline Page

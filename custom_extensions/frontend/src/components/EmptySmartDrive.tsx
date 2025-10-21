@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const XLSFileIcon = () => (
   <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -244,74 +245,76 @@ const PNGFileIcon = () => (
   </svg>
 );
 
+export const EmptySmartDrive = () => {
+  const { t } = useLanguage();
+  
+  return (
+    <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
+      <div className="relative mt-8" style={{ borderBottom: '1px solid #EEEEF0' }}>
+        {/* Background SVG */}
+        <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clipPath="url(#clip0_867_16076)">
+            <rect opacity="0.5" x="393.963" y="226.807" width="38.0738" height="38.0517" rx="19.0258" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="368.151" y="201.01" width="89.6988" height="89.6472" rx="44.8236" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="342.338" y="175.213" width="141.324" height="141.243" rx="70.6213" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="316.526" y="149.414" width="192.949" height="192.838" rx="96.4191" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="290.713" y="123.617" width="244.574" height="244.434" rx="122.217" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="264.901" y="97.8186" width="296.199" height="296.029" rx="148.015" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="239.088" y="72.0217" width="347.824" height="347.625" rx="173.812" stroke="#C7D2FE" strokeWidth="0.644944"/>
+            <rect opacity="0.5" x="213.276" y="46.2229" width="399.449" height="399.22" rx="199.61" stroke="#C7D2FE" strokeWidth="0.644944"/>
+          </g>
+          <defs>
+            <clipPath id="clip0_867_16076">
+              <rect width="826" height="241" fill="white"/>
+            </clipPath>
+          </defs>
+        </svg>
 
+        {/* Small floating SVG icons */}
+        <div className="absolute" style={{ top: '100px', left: '265px' }}>
+          <XLSFileIcon />
+        </div>
 
-export const EmptySmartDrive = () => (
-  <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-    <div className="relative mt-8" style={{ borderBottom: '1px solid #EEEEF0' }}>
-      {/* Background SVG */}
-      <svg width="826" height="241" viewBox="0 0 826 241" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clipPath="url(#clip0_867_16076)">
-          <rect opacity="0.5" x="393.963" y="226.807" width="38.0738" height="38.0517" rx="19.0258" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="368.151" y="201.01" width="89.6988" height="89.6472" rx="44.8236" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="342.338" y="175.213" width="141.324" height="141.243" rx="70.6213" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="316.526" y="149.414" width="192.949" height="192.838" rx="96.4191" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="290.713" y="123.617" width="244.574" height="244.434" rx="122.217" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="264.901" y="97.8186" width="296.199" height="296.029" rx="148.015" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="239.088" y="72.0217" width="347.824" height="347.625" rx="173.812" stroke="#C7D2FE" strokeWidth="0.644944"/>
-          <rect opacity="0.5" x="213.276" y="46.2229" width="399.449" height="399.22" rx="199.61" stroke="#C7D2FE" strokeWidth="0.644944"/>
-        </g>
-        <defs>
-          <clipPath id="clip0_867_16076">
-            <rect width="826" height="241" fill="white"/>
-          </clipPath>
-        </defs>
-      </svg>
-
-      {/* Small floating SVG icons */}
-      <div className="absolute" style={{ top: '100px', left: '265px' }}>
-        <XLSFileIcon />
+        <div className="absolute" style={{ top: '185px', left: '310px' }}>
+          <PDFFileIcon />
+        </div>
+        
+        <div className="absolute" style={{ top: '138px', left: '395px' }}>
+          <DOCFileIcon />
+        </div>
+        
+        <div className="absolute" style={{ top: '100px', left: '520px' }}>
+          <ZIPFileIcon />
+        </div>
+        
+        <div className="absolute" style={{ top: '185px', left: '475px' }}>
+          <PNGFileIcon />
+        </div>
       </div>
 
-      <div className="absolute" style={{ top: '185px', left: '310px' }}>
-        <PDFFileIcon />
+      {/* Title below SVG */}
+      <h3 className="text-xl font-semibold text-[#0D001B] mt-4">
+        {t('interface.smartDrivePage.empty.title', 'Your Smart Drive is empty')}
+      </h3>
+
+      {/* Description text */}
+      <div className="text-center mt-2 mb-4">
+        <p className="text-sm" style={{ color: '#353537CC' }}>
+          {t('interface.smartDrivePage.empty.noMaterials', "You haven't added any materials yet.")}
+        </p>
+        <p className="text-sm" style={{ color: '#353537CC' }}>
+          {t('interface.smartDrivePage.empty.goToKnowledgeBase', 'Go to your Knowledge Base to upload files and manage your content.')}
+        </p>
       </div>
-      
-      <div className="absolute" style={{ top: '138px', left: '395px' }}>
-        <DOCFileIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '100px', left: '520px' }}>
-        <ZIPFileIcon />
-      </div>
-      
-      <div className="absolute" style={{ top: '185px', left: '475px' }}>
-        <PNGFileIcon />
-      </div>
+
+      {/* Upload files button */}
+      <button
+        className="px-4 py-2 rounded-md text-sm font-medium text-white"
+        style={{ backgroundColor: '#0F58F9' }}
+      >
+        {t('interface.smartDrivePage.empty.uploadFiles', 'Upload files')}
+      </button>
     </div>
-
-    {/* Title below SVG */}
-    <h3 className="text-xl font-semibold text-[#0D001B] mt-4">
-      Your Smart Drive is empty
-    </h3>
-
-    {/* Description text */}
-    <div className="text-center mt-2 mb-4">
-      <p className="text-sm" style={{ color: '#353537CC' }}>
-        You haven't added any materials yet.
-      </p>
-      <p className="text-sm" style={{ color: '#353537CC' }}>
-        Go to your Knowledge Base to upload files and manage your content.
-      </p>
-    </div>
-
-    {/* Upload files button */}
-    <button
-      className="px-4 py-2 rounded-md text-sm font-medium text-white"
-      style={{ backgroundColor: '#0F58F9' }}
-    >
-      Upload files
-    </button>
-  </div>
-);
+  );
+};
 

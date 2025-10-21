@@ -407,6 +407,7 @@ export const en = {
     getUnlimitedAI: "Get Unlimited AI",
     credits: "credits",
     loading: "Loading...",
+    continue: "Continue",
     knowledgeBase: "Knowledge base",
     myProducts: "My products",
 
@@ -1569,6 +1570,35 @@ export const en = {
       noIntegrationsYet: "You haven't connected any integrations yet.",
       exploreConnectors: "Explore available connectors and manage them in your Knowledge Base.",
       connectNow: "Connect now",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Select a connector",
+      selectFile: "Select a file",
+      cancel: "Cancel",
+      import: "Import",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Import from URL",
+      description: "This will extract the text from the webpage you enter.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Add another URL",
+      cancel: "Cancel",
+      import: "Import",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Your Smart Drive is empty",
+        noMaterials: "You haven't added any materials yet.",
+        goToKnowledgeBase: "Go to your Knowledge Base to upload files and manage your content.",
+        uploadFiles: "Upload files",
+      },
     },
 
     // View New Page (Course Outline View)

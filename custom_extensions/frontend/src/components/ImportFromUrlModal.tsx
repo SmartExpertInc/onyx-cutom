@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface ImportFromUrlModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
   onClose,
   onImport,
 }) => {
+  const { t } = useLanguage();
   const router = useRouter();
   const [urls, setUrls] = useState(['']);
 
@@ -118,12 +120,12 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
       >
         {/* Title */}
         <h2 className="text-lg font-semibold text-[#09090B] mb-1">
-          Import from URL
+          {t('interface.importFromUrl.title', 'Import from URL')}
         </h2>
 
         {/* Description */}
         <p className="text-sm text-[#71717A] mb-6">
-          This will extract the text from the webpage you enter.
+          {t('interface.importFromUrl.description', 'This will extract the text from the webpage you enter.')}
         </p>
 
         {/* URL inputs */}
@@ -131,13 +133,13 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           {urls.map((url, index) => (
             <div key={index}>
               <label className="block text-md font-semibolld text-[#09090B] mb-2">
-                URL
+                {t('interface.importFromUrl.urlLabel', 'URL')}
               </label>
               <input
                 type="text"
                 value={url}
                 onChange={(e) => handleUrlChange(index, e.target.value)}
-                placeholder="https://example.com/"
+                placeholder={t('interface.importFromUrl.urlPlaceholder', 'https://example.com/')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-[#5D5D7980] text-[#09090B]"
                 style={{
                   backgroundColor: '#FFFFFF',
@@ -155,7 +157,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" clipRule="evenodd" d="M6.99961 2.09961C7.38621 2.09961 7.69961 2.41301 7.69961 2.79961V6.29961H11.1996C11.5862 6.29961 11.8996 6.61301 11.8996 6.99961C11.8996 7.38621 11.5862 7.69961 11.1996 7.69961H7.69961V11.1996C7.69961 11.5862 7.38621 11.8996 6.99961 11.8996C6.61301 11.8996 6.29961 11.5862 6.29961 11.1996V7.69961H2.79961C2.41301 7.69961 2.09961 7.38621 2.09961 6.99961C2.09961 6.61301 2.41301 6.29961 2.79961 6.29961L6.29961 6.29961V2.79961C6.29961 2.41301 6.61301 2.09961 6.99961 2.09961Z" fill="#498FFF"/>
           </svg>
-          Add another URL
+          {t('interface.importFromUrl.addAnotherUrl', 'Add another URL')}
         </button>
 
         {/* Action buttons */}
@@ -169,7 +171,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
               border: '1px solid #0F58F9',
             }}
           >
-            Cancel
+            {t('interface.importFromUrl.cancel', 'Cancel')}
           </button>
           <button
             onClick={handleImport}
@@ -178,7 +180,7 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
               backgroundColor: '#0F58F9',
             }}
           >
-            Import
+            {t('interface.importFromUrl.import', 'Import')}
           </button>
         </div>
       </div>
