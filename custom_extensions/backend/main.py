@@ -23102,6 +23102,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 if course_structure:
                     wizard_dict["courseStructure"] = course_structure
                     logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
+                    # Log full course structure
+                    import json
+                    logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
                 
                 # Get adjacent lesson content with product type priority
                 product_type = "presentation"  # This is a presentation/slide deck
@@ -23123,17 +23126,21 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     if 'previousLesson' in adjacent_context:
                         wizard_dict["previousLesson"] = adjacent_context['previousLesson']
                         prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                        prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                        # Log full previous lesson content
+                        logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                     
-                    # Add next lesson context (without full content, just structure)
+                    # Add next lesson title to avoid covering topics meant for next lesson
                     if 'nextLesson' in adjacent_context:
                         next_lesson = adjacent_context['nextLesson']
-                        # Include only title and position, not full content
+                        # Include title and position to help AI understand what topics to avoid
                         wizard_dict["nextLesson"] = {
                             'title': next_lesson.get('title'),
                             'position': next_lesson.get('position')
                         }
-                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                        logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wizard_dict['nextLesson'], ensure_ascii=False, indent=2)}")
                     
                     context_summary = []
                     if 'courseStructure' in wizard_dict:
@@ -23251,8 +23258,13 @@ You have been provided with course context information. You MUST use this contex
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
 3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
 4. **Maintain Consistency**: Use the same terminology as previous lessons
-5. **Create Progression**: Prepare groundwork for nextLesson topics when provided
-6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons"""
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
     wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
@@ -28688,6 +28700,9 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
             if course_structure:
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
+                # Log full course structure
+                import json
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
             product_type = "quiz"  # This is a quiz
@@ -28709,16 +28724,20 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 if 'previousLesson' in adjacent_context:
                     wiz_payload["previousLesson"] = adjacent_context['previousLesson']
                     prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                 
-                # Add next lesson context (without full content, just structure)
+                # Add next lesson title to avoid covering topics meant for next lesson
                 if 'nextLesson' in adjacent_context:
                     next_lesson = adjacent_context['nextLesson']
                     wiz_payload["nextLesson"] = {
                         'title': next_lesson.get('title'),
                         'position': next_lesson.get('position')
                     }
-                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
                 
                 context_summary = []
                 if 'courseStructure' in wiz_payload:
@@ -28859,8 +28878,14 @@ You have been provided with course context information. You MUST use this contex
 2. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
 3. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
 4. **Maintain Consistency**: Use the same terminology as previous lessons in your questions
-5. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
-6. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes"""
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
+6. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+7. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT ask about advanced configuration
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT test deep knowledge of data types
+- Keep quiz questions focused on the current lesson only"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
@@ -30053,6 +30078,9 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             if course_structure:
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
+                # Log full course structure
+                import json
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
             product_type = "onepager"  # This is a text presentation/onepager
@@ -30074,16 +30102,20 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 if 'previousLesson' in adjacent_context:
                     wiz_payload["previousLesson"] = adjacent_context['previousLesson']
                     prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
-                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | {prev_size} chars")
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
                 
-                # Add next lesson context (without full content, just structure)
+                # Add next lesson title to avoid covering topics meant for next lesson
                 if 'nextLesson' in adjacent_context:
                     next_lesson = adjacent_context['nextLesson']
                     wiz_payload["nextLesson"] = {
                         'title': next_lesson.get('title'),
                         'position': next_lesson.get('position')
                     }
-                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\"")
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
                 
                 context_summary = []
                 if 'courseStructure' in wiz_payload:
@@ -30194,8 +30226,13 @@ You have been provided with course context information. You MUST use this contex
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
 3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
 4. **Maintain Consistency**: Use the same terminology, frameworks, and mental models as previous lessons
-5. **Create Progression**: Prepare groundwork for nextLesson topics when provided - introduce terms that will be explored later
-6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons"""
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
