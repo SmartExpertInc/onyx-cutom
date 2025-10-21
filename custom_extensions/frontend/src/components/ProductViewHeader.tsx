@@ -23,7 +23,6 @@ interface ProductViewHeaderProps {
   showVideoEditorTools?: boolean;
   activeSettingsPanel?: string | null;
   onSettingsButtonClick?: (settingsType: string) => void;
-  onTextButtonClick?: (position: { x: number; y: number }) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
   hideAiImproveButton?: boolean;
@@ -49,7 +48,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   showVideoEditorTools = false,
   activeSettingsPanel = null,
   onSettingsButtonClick,
-  onTextButtonClick,
   onShapesButtonClick,
   onLanguageVariantModalOpen,
   hideAiImproveButton = false,
@@ -95,6 +93,45 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     }
     setIsResizePopupOpen(false);
   };
+
+  const resizeOptions = [
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "16:9",
+      description: "Desktop video, Youtube"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "9:16",
+      description: "Instagram story"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+        </svg>
+      ),
+      ratio: "1:1",
+      description: "Square, instagram post"
+    },
+    {
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="w-5 h-5 text-gray-500">
+          <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" fill="none"/>
+        </svg>
+      ),
+      ratio: "Custom",
+      description: "set a custom size"
+    }
+  ];
   
   // Check if current component should show AI Improve and Export buttons
   const shouldShowButtons = projectData && productId && (
@@ -155,6 +192,66 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               <path d="M12.2497 7.08398C10.6414 7.08398 9.33301 8.39241 9.33301 10.0007C9.33301 11.6089 10.6414 12.9173 12.2497 12.9173C13.8579 12.9173 15.1663 11.6089 15.1663 10.0007C15.1663 8.39241 13.8579 7.08398 12.2497 7.08398ZM12.2497 12.4173C10.9172 12.4173 9.83301 11.3332 9.83301 10.0007C9.83301 8.66813 10.9172 7.58398 12.2497 7.58398C13.5822 7.58398 14.6663 8.66813 14.6663 10.0007C14.6663 11.3332 13.5822 12.4173 12.2497 12.4173Z" fill="#71717A"/>
               <path d="M13.3661 8.77755C13.4351 8.65802 13.5883 8.61682 13.7079 8.68575C13.8274 8.75476 13.8686 8.90799 13.7997 9.02755L12.2997 11.6252C12.2608 11.6925 12.1922 11.7381 12.1151 11.7483C12.0382 11.7583 11.961 11.7318 11.9061 11.677L10.9061 10.677C10.8087 10.5793 10.8086 10.421 10.9061 10.3234C11.0037 10.2261 11.1621 10.2261 11.2596 10.3234L12.0282 11.092L13.3661 8.77755Z" fill="#71717A"/>
             </svg>
+
+            {/* Resize Button - Only visible in Projects2ViewPage */}
+            {showVideoEditorActions && (
+              <div className="relative flex items-center">
+                <button
+                  ref={resizeButtonRef}
+                  onClick={handleResizeClick}
+                  className="flex items-center gap-1 hover:bg-gray-100 rounded transition-colors cursor-pointer px-2 py-1"
+                >
+                  {aspectRatio === '16:9' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                      <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {aspectRatio === '9:16' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                      <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {aspectRatio === '1:1' && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                      <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  {(!aspectRatio || !['16:9', '9:16', '1:1'].includes(aspectRatio)) && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                      <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    </svg>
+                  )}
+                  <span className="text-xs text-gray-700">{aspectRatio || '16:9'}</span>
+                </button>
+
+                {/* Resize Popup */}
+                {isResizePopupOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg z-50 w-80" data-resize-popup>
+                    <div className="py-2">
+                      {resizeOptions.map((option, index) => (
+                        <button
+                          key={index}
+                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
+                            option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onClick={() => handleResizeOptionClick(option.ratio)}
+                          disabled={option.ratio === 'Custom'}
+                        >
+                          <div>
+                            {option.icon}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm text-black">{option.ratio}</span>
+                            <span className="text-sm text-gray-500">{option.description}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="h-6 w-px bg-gray-300 mx-2"></div>
             <div className="flex items-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,11 +282,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
             {/* Text Button */}
             <button
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                onTextButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
-              }}
-              className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors text-gray-600 hover:bg-gray-50"
+              onClick={() => onSettingsButtonClick?.('text')}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+                activeSettingsPanel === 'text'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
             >
               <Type size={14} />
               <span className="text-[10px] mt-0.5">Text</span>
@@ -214,7 +312,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 const rect = e.currentTarget.getBoundingClientRect();
                 onShapesButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
               }}
-              className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors text-gray-600 hover:bg-gray-50"
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+                activeSettingsPanel === 'shape'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
             >
               <Shapes size={14} />
               <span className="text-[10px] mt-0.5">Shape</span>
@@ -343,51 +445,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {/* Video Editor Actions - Only visible in Projects2ViewPage */}
           {showVideoEditorActions && (
             <>
-              {/* Resize Button */}
-              <div className="relative flex items-center">
-                <button
-                  ref={resizeButtonRef}
-                  onClick={handleResizeClick}
-                  className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
-                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
-                  </svg>
-                  <span className="text-black text-sm font-normal">Resize</span>
-                </button>
-
-                {/* Resize Popup */}
-                {isResizePopupOpen && (
-                  <div data-resize-popup className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]">
-                    <div className="py-2">
-                      {[
-                        { ratio: '16:9', label: 'Landscape (16:9)', icon: '16:9' },
-                        { ratio: '9:16', label: 'Portrait (9:16)', icon: '9:16' },
-                        { ratio: '1:1', label: 'Square (1:1)', icon: '1:1' },
-                        { ratio: 'Custom', label: 'Custom', icon: 'Custom' }
-                      ].map((option) => (
-                        <button
-                          key={option.ratio}
-                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition-colors text-left cursor-pointer ${
-                            option.ratio === 'Custom' ? 'opacity-50 cursor-not-allowed' : ''
-                          } ${option.ratio === aspectRatio ? 'bg-blue-50' : ''}`}
-                          onClick={() => handleResizeOptionClick(option.ratio)}
-                          disabled={option.ratio === 'Custom'}
-                        >
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{option.label}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Preview Button */}
               <button
                 onClick={onPreviewClick}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer border border-[#E4E4E7] h-8"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-700">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -398,8 +459,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               {/* Generate Button */}
               <button
                 onClick={onGenerateClick}
-                className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
+                className="bg-[#0F58F9] text-white hover:bg-[#0D4CD4] rounded px-3 py-1.5 flex items-center gap-2 h-8 border border-[#0F58F9] cursor-pointer"
               >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 11.8593C11.1071 12.0258 10.8704 12.2637 10.702 12.6981C10.5353 12.2637 10.297 12.0274 9.86183 11.8593C10.297 11.6928 10.5337 11.4565 10.702 11.0204C10.8688 11.4549 11.1071 11.6912 11.5423 11.8593ZM10.7628 5.05818C11.1399 3.656 11.6552 3.14044 13.0612 2.76346C11.6568 2.387 11.1404 1.87251 10.7628 0.46875C10.3858 1.87093 9.87044 2.38649 8.46442 2.76346C9.86886 3.13993 10.3852 3.65442 10.7628 5.05818ZM11.1732 7.95231C11.1732 7.8202 11.1044 7.6607 10.9118 7.607C9.33637 7.16717 8.34932 6.66503 7.61233 5.92985C6.8754 5.19411 6.37139 4.20858 5.93249 2.63565C5.8787 2.44339 5.71894 2.37465 5.58662 2.37465C5.4543 2.37465 5.29454 2.44339 5.24076 2.63565C4.80022 4.20858 4.29727 5.19405 3.56092 5.92985C2.82291 6.66668 1.83688 7.1688 0.261415 7.607C0.0688515 7.6607 0 7.82021 0 7.95231C0 8.08442 0.0688515 8.24393 0.261415 8.29763C1.83688 8.73746 2.82393 9.2396 3.56092 9.97477C4.29892 10.7116 4.80186 11.696 5.24076 13.269C5.29455 13.4612 5.45431 13.53 5.58662 13.53C5.71895 13.53 5.87871 13.4612 5.93249 13.269C6.37303 11.696 6.87598 10.7106 7.61233 9.97477C8.35034 9.23795 9.33637 8.73582 10.9118 8.29763C11.1044 8.24392 11.1732 8.08442 11.1732 7.95231Z" fill="white"/>
+                </svg>
                 <span className="text-sm font-normal">Generate</span>
               </button>
             </>

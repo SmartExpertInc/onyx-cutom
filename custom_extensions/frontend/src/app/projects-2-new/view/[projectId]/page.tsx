@@ -13,6 +13,9 @@ import TextPopup from '../../../projects-2/view/components/TextPopup';
 import ShapesPopup from '../../../projects-2/view/components/ShapesPopup';
 import AiPopup from '../../../projects-2/view/components/AiPopup';
 import LanguageVariantModal from '../../../projects-2/view/components/LanguageVariantModal';
+import PlayModal from '../../../projects-2/view/components/PlayModal';
+import GenerateModal from '../../../projects-2/view/components/GenerateModal';
+import GenerationCompletedModal from '../../../projects-2/view/components/GenerationCompletedModal';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import { ComponentBasedSlideDeckRenderer } from '@/components/ComponentBasedSlideRenderer';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
@@ -38,6 +41,11 @@ export default function Projects2ViewPage() {
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
   const [isAiPopupOpen, setIsAiPopupOpen] = useState<boolean>(false);
   const [isLanguageVariantModalOpen, setIsLanguageVariantModalOpen] = useState<boolean>(false);
+  const [isPlayModalOpen, setIsPlayModalOpen] = useState<boolean>(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState<boolean>(false);
+  const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState<boolean>(false);
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [textPopupPosition, setTextPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -545,18 +553,11 @@ export default function Projects2ViewPage() {
   // Simple translation function for ProductViewHeader
   const t = (key: string, fallback: string) => fallback;
 
-  const handleTextButtonClick = (position: { x: number; y: number }) => {
-    setTextPopupPosition(position);
-    setIsTextPopupOpen(true);
-    // Close other popups if open
-    setIsMediaPopupOpen(false);
-    setIsShapesPopupOpen(false);
-    setIsAiPopupOpen(false);
-  };
-
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
     setShapesPopupPosition(position);
     setIsShapesPopupOpen(true);
+    // Also open ShapeSettings in the left panel
+    setActiveSettingsPanel('shape');
     // Close other popups if open
     setIsMediaPopupOpen(false);
     setIsTextPopupOpen(false);
@@ -569,6 +570,23 @@ export default function Projects2ViewPage() {
 
   const handleLanguageVariantModalClose = () => {
     setIsLanguageVariantModalOpen(false);
+  };
+
+  const handlePreviewClick = () => {
+    setIsPlayModalOpen(true);
+  };
+
+  const handleGenerateClick = () => {
+    setIsGenerateModalOpen(true);
+  };
+
+  const handleVideoGeneration = async () => {
+    // For now, just close the generate modal and open the completion modal
+    // The actual generation logic can be implemented later if needed
+    console.log('Video generation started');
+    setIsGenerateModalOpen(false);
+    setIsGenerationCompletedModalOpen(true);
+    setGenerationStatus('completed');
   };
 
   const handleAiButtonClick = (position: { x: number; y: number }) => {
@@ -601,12 +619,7 @@ export default function Projects2ViewPage() {
         case 'shape':
           return <ShapeSettings />;
         case 'media':
-          return <Media 
-            isOpen={false} 
-            onClose={() => {}} 
-            title="Media Library"
-            displayMode="modal"
-          />;
+          return <ImageSettings />;
         case 'music':
           return <Music />;
         case 'background':
@@ -668,15 +681,14 @@ export default function Projects2ViewPage() {
         showVideoEditorTools={true}
         activeSettingsPanel={activeSettingsPanel}
         onSettingsButtonClick={handleSettingsButtonClick}
-        onTextButtonClick={handleTextButtonClick}
         onShapesButtonClick={handleShapesButtonClick}
         onLanguageVariantModalOpen={handleLanguageVariantModalOpen}
         hideAiImproveButton={true}
         showVideoEditorActions={true}
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
-        onPreviewClick={() => {}}
-        onGenerateClick={() => {}}
+        onPreviewClick={handlePreviewClick}
+        onGenerateClick={handleGenerateClick}
       />
       
       <div className="p-2">
@@ -834,6 +846,30 @@ export default function Projects2ViewPage() {
       <LanguageVariantModal 
         isOpen={isLanguageVariantModalOpen}
         onClose={handleLanguageVariantModalClose}
+      />
+
+      {/* Play Modal */}
+      <PlayModal 
+        isOpen={isPlayModalOpen} 
+        onClose={() => setIsPlayModalOpen(false)} 
+        title={projectData?.name || 'Video Preview'}
+      />
+
+      {/* Generate Modal */}
+      <GenerateModal 
+        isOpen={isGenerateModalOpen} 
+        onClose={() => setIsGenerateModalOpen(false)} 
+        title={projectData?.name || 'Video'}
+        onGenerationStart={handleVideoGeneration}
+        generationStatus={generationStatus}
+        generationError={generationError}
+      />
+
+      {/* Generation Completed Modal */}
+      <GenerationCompletedModal 
+        isOpen={isGenerationCompletedModalOpen} 
+        onClose={() => setIsGenerationCompletedModalOpen(false)} 
+        videoTitle={projectData?.name || 'Video'}
       />
 
       {/* Portal Popup Menu */}
