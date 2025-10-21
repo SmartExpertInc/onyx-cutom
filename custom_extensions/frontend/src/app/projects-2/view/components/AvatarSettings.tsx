@@ -79,7 +79,7 @@ export default function AvatarSettings() {
       
       {/* Apply to all scenes button */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-full transition-colors border border-gray-300 hover:border-gray-400">
+        <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-full transition-colors border border-gray-300 hover:border-gray-400 text-xs">
           Apply to all scenes
         </button>
       </div>
@@ -92,7 +92,7 @@ export default function AvatarSettings() {
         <div className="bg-gray-100 rounded-full p-1 flex">
           <button 
             onClick={() => setAppearanceMode('shoulder')}
-            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'shoulder' 
                 ? 'bg-white text-gray-700 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-700'
@@ -102,7 +102,7 @@ export default function AvatarSettings() {
           </button>
           <button 
             onClick={() => setAppearanceMode('full-body')}
-            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'full-body' 
                 ? 'bg-white text-gray-700 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-700'
@@ -112,7 +112,7 @@ export default function AvatarSettings() {
           </button>
           <button 
             onClick={() => setAppearanceMode('bubble')}
-            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors ${
+            className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'bubble' 
                 ? 'bg-white text-gray-700 shadow-sm' 
                 : 'text-gray-600 hover:text-gray-700'
