@@ -161,7 +161,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    padding: '50px',
+    padding: '50px 20px 50px 50px', // Reduced right padding to minimize white space
     fontFamily: 'Georgia, serif'
   };
 
