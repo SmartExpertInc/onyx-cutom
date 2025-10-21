@@ -1047,6 +1047,9 @@ export const en = {
       subtitle: "What would you like to create today?",
       subtitleFromFiles: "Create content from your selected files",
       subtitleFromText: "Create content from your text",
+      yourSelectedMaterials: "Your selected materials",
+      addMaterial: "Add material",
+      selectWhatToGenerate: "Select what you'd like to generate",
       aiWillUseDocuments:
         "The AI will use your selected documents as source material to create educational content.",
       aiWillUseTextAsContext:

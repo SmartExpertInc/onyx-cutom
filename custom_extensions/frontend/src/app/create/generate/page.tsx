@@ -1394,7 +1394,7 @@ function GenerateProductPicker() {
               >
                 <Plus className="h-5 w-5" style={{ color: '#498FFF' }} />
                 <span className="font-medium" style={{ color: '#498FFF' }}>
-                  Add material
+                  {t('interface.generate.addMaterial', 'Add material')}
                 </span>
               </div>
             )}
