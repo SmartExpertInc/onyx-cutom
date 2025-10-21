@@ -22987,6 +22987,102 @@ async def _fetch_lesson_product_content(
         return None
 
 
+async def get_same_lesson_products(
+    outline_id: int,
+    lesson_title: str,
+    exclude_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> List[Dict[str, Any]]:
+    """
+    Fetch all generated products for the same lesson to provide as context.
+    Useful for quiz generation - can quiz on content from presentation/onepager.
+    
+    Args:
+        outline_id: The course outline ID
+        lesson_title: Title of the current lesson
+        exclude_product_type: Product type being generated (to avoid fetching incomplete product)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        List of products with their content: [{title, productType, content, contentSize}]
+    """
+    import json
+    
+    try:
+        logger.info(f"[SAME_LESSON_PRODUCTS] Fetching products for lesson | lesson=\"{lesson_title}\" | exclude_type={exclude_product_type}")
+        
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name, p.project_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                  AND p.microproduct_content IS NOT NULL
+                ORDER BY p.created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[SAME_LESSON_PRODUCTS] No products found for lesson | title=\"{lesson_title}\"")
+            return []
+        
+        # Classify and collect products
+        result = []
+        exclude_normalized = exclude_product_type.lower()
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            project_name = product['project_name']
+            
+            # Classify product type
+            product_type = None
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type = 'presentation'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type = 'onepager'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type = 'quiz'
+            
+            # Skip if this is the type being generated or if we can't classify it
+            if not product_type or product_type in exclude_normalized:
+                continue
+            
+            # Parse content if string
+            if isinstance(content, str):
+                content = json.loads(content)
+            
+            content_str = json.dumps(content, ensure_ascii=False)
+            content_size = len(content_str)
+            
+            result.append({
+                'projectName': project_name,
+                'productType': product_type,
+                'content': content,
+                'contentSize': content_size
+            })
+            
+            logger.info(f"[SAME_LESSON_PRODUCTS] Found {product_type} | name=\"{project_name}\" | size={content_size} chars")
+        
+        logger.info(f"[SAME_LESSON_PRODUCTS] Total products found: {len(result)} (excluding {exclude_product_type})")
+        return result
+        
+    except Exception as e:
+        logger.error(f"[SAME_LESSON_PRODUCTS] Error fetching products | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return []
+
+
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
 class LessonWizardPreview(BaseModel):
@@ -28753,6 +28849,27 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 
                 logger.info(f"[COURSE_CONTEXT] Context added to quiz wizard: {' | '.join(context_summary)}")
             
+            # IMPORTANT: Fetch all products for the SAME lesson to quiz on covered content
+            if payload.lesson:
+                same_lesson_products = await get_same_lesson_products(
+                    payload.outlineId,
+                    payload.lesson,
+                    "quiz",  # Exclude quiz type (being generated)
+                    onyx_user_id,
+                    pool
+                )
+                
+                if same_lesson_products:
+                    wiz_payload["sameLessonProducts"] = same_lesson_products
+                    product_summary = ', '.join([f"{p['productType']} ({p['contentSize']} chars)" for p in same_lesson_products])
+                    logger.info(f"[SAME_LESSON_PRODUCTS] Added to quiz wizard | products: {product_summary}")
+                    # Log full content
+                    import json
+                    for product in same_lesson_products:
+                        logger.info(f"[SAME_LESSON_PRODUCTS] FULL {product['productType'].upper()} CONTENT: {json.dumps(product['content'], ensure_ascii=False, indent=2)[:3000]}...")
+                else:
+                    logger.info(f"[SAME_LESSON_PRODUCTS] No other products found for this lesson yet")
+            
         except Exception as e:
             logger.warning(f"Failed to fetch course context for quiz | outline_id={payload.outlineId} | error={e}")
             # Continue without course context - not critical for preview
@@ -28869,18 +28986,27 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     
     # Add course context instructions if context is present
     course_context_instructions_quiz = ""
-    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload or 'sameLessonProducts' in wiz_payload:
         course_context_instructions_quiz = """
 
 **COURSE CONTEXT INSTRUCTIONS:**
 You have been provided with course context information. You MUST use this context to:
-1. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
-2. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
-3. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
-4. **Maintain Consistency**: Use the same terminology as previous lessons in your questions
-5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
-6. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
-7. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
+1. **Quiz on Covered Content**: If sameLessonProducts is provided, these are products (presentations, onepagers) already created for THIS lesson. Base your quiz questions PRIMARILY on the content covered in these products. Test understanding of concepts, examples, and procedures taught in them.
+2. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
+3. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
+4. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
+5. **Maintain Consistency**: Use the same terminology as previous lessons and same-lesson products in your questions
+6. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
+7. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+8. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
+
+CRITICAL - SAME LESSON PRODUCTS:
+If sameLessonProducts is provided (e.g., presentation and onepager for this lesson):
+- These products contain the ACTUAL content taught in this lesson
+- Your quiz MUST test understanding of THIS specific content
+- Extract key concepts, procedures, examples, and frameworks from these products
+- Create questions that verify the student understood the material in these products
+- Do NOT create generic questions - make them specific to what was taught
 
 CRITICAL: Pay special attention to the nextLesson title if provided. For example:
 - If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT ask about advanced configuration
