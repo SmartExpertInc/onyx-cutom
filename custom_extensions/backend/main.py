@@ -29354,86 +29354,58 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Real-world implication: Imagine you develop a revolutionary software tool that costs you $5/month per user to host and maintain. Using Cost-Plus with a 200% markup, you'd charge $15/month. But if that tool saves each customer $500/month in productivity, customers would gladly pay $150/month—and you'd be underpricing by 10x simply because you didn't consider customer value." },
     
     { "type": "headline", "level": 2, "text": "🎬 APPLYING PRICING STRATEGIES" },
+    { "type": "paragraph", "text": "Understanding strategies intellectually is one thing—knowing how to implement them is another. Let's walk through the practical steps for each approach, with real decision points you'll face. The key to successful pricing implementation is moving beyond theory to understand the specific actions, tools, and criteria you need to apply each strategy effectively in your business context." },
+    
+    { "type": "headline", "level": 3, "text": "Implementing Cost-Plus Pricing: The Numbers Game" },
+    { "type": "paragraph", "text": "Start by identifying all costs associated with your product. This includes direct costs like materials and labor, plus indirect costs such as overhead, marketing, and distribution. Don't forget opportunity costs—if producing Product A means you can't produce Product B, that's a cost too. Calculate your total cost per unit, then determine your desired margin based on your business model and industry standards. Grocery stores often operate on 1-3% margins while software companies might target 70%+. Apply your margin to get your price, but here's the critical step many skip: test it against customer perception and competitive prices. Just because you need a 50% margin doesn't mean the market will support it. You might discover you need to reduce costs or accept lower margins initially to gain market share." },
+    
+    { "type": "headline", "level": 3, "text": "Implementing Value-Based Pricing: The Research-Intensive Approach" },
+    { "type": "paragraph", "text": "This requires actual customer research, not assumptions. Conduct interviews, surveys, or conjoint analysis to understand how customers perceive your product's value. Ask questions like 'What problems does this solve for you?' and 'How much would solving this problem be worth?' Convert customer perceptions into tangible metrics—if your product saves time, calculate the dollar value of that time saved. If it reduces errors, quantify the cost of those errors. The more concrete you can make the value, the easier it is to justify your price. A common rule of thumb: price at 10-30% of the value delivered. This ensures customers get a strong ROI while you capture significant value. For example, if your service saves a customer $100,000 per year, pricing at $20,000-30,000 per year provides compelling economics for them while maximizing your revenue." },
+    
+    { "type": "alert", "alertType": "warning", "title": "Common Mistake", "text": "Companies calculate Cost-Plus prices and stop there, without validating against market reality. Always check: 'Would I pay this price for this product?' and 'How does this compare to alternatives?' Your costs don't determine what customers will pay—only what you need to charge to be profitable." },
+    
+    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Startup Pricing Decision" },
+    { "type": "paragraph", "text": "Let's walk through a complete pricing decision for a real scenario. This example shows the reasoning process, trade-offs, and decision criteria you should apply." },
+    
+    { "type": "headline", "level": 3, "text": "The Situation" },
+    { "type": "paragraph", "text": "You've developed a project management tool for remote teams. Your costs are $8 per user per month for hosting and support. Competitors like Asana and Monday.com charge $10-25 per user per month depending on features. Your tool has a unique AI feature that automatically predicts project delays—something competitors don't have. Early beta users said this feature saved them 'a few hours per week' but couldn't quantify exactly how much." },
+    
+    { "type": "headline", "level": 3, "text": "The Analysis" },
+    { "type": "paragraph", "text": "This is a classic Value-Based Pricing opportunity, but with incomplete information. Here's the reasoning: First, you have differentiation (AI delay prediction) that competitors lack, which creates value-pricing opportunity. However, customers haven't quantified the value precisely, which makes pure value-based pricing risky. Competition-Based provides a floor—you know the market pays $10-25 per user. The key question is: should you price based on your differentiation or play it safe with competitive pricing?" },
+    
+    { "type": "headline", "level": 3, "text": "The Decision" },
+    { "type": "paragraph", "text": "Recommended approach is a hybrid strategy starting with Competition-Based, moving toward Value-Based. Set initial pricing at $15-20 per user per month for mid-market positioning. This keeps you competitive while suggesting premium value. Simultaneously, conduct value research with early customers to quantify time and money saved by AI predictions. After 3-6 months with real usage data, adjust to Value-Based pricing once you can prove 'Our AI saves teams 5 hours per week, worth $X per month.' An alternative approach: offer a freemium model where basic features are free but AI features are premium tier at $35 per user, using customer adoption data to validate value perception." },
+    
+    { "type": "headline", "level": 3, "text": "Key Lesson" },
+    { "type": "paragraph", "text": "When you have differentiation but uncertain value perception, start with competitive pricing for market validation, then graduate to value-based once you have proof. Don't let your unique features go to waste with cost-plus pricing, but don't overestimate value before customers validate it. Use the first 6 months as a learning period to gather the data you need for optimal pricing." },
+    
+    { "type": "headline", "level": 2, "text": "❌ ANALYZING COMMON MISTAKES" },
+    { "type": "paragraph", "text": "Learning from others' mistakes is faster than making them yourself. Here are the most frequent pricing errors companies make, with the underlying reasons why these mistakes happen and how to avoid them." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #1: Ignoring Customer Perception in Cost-Plus Pricing" },
+    { "type": "paragraph", "text": "Why it happens: Cost-Plus feels objective and fair—you calculated your costs, added a reasonable margin, so the price must be right. This logic trap assumes customers care about your costs, but they don't. Customers care about value relative to alternatives. Companies fall into this because internal financial models are easier to create than external customer research." },
+    { "type": "paragraph", "text": "Real consequence: A manufacturing company spent $2 million developing a new machine and used Cost-Plus pricing to recover that investment quickly. They priced at $500,000 when customers perceived the value as only $300,000 based on alternatives. Result: zero sales until they dropped the price, effectively writing off part of their development costs. The sunk cost fallacy made them focus on recovery rather than market reality." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: If you find yourself saying 'But we have to charge this much to cover our costs!' without considering what customers think, you're in this trap. Another signal: your pricing discussions focus entirely on margins and break-even analysis, with no mention of customer willingness to pay or competitive positioning." },
+    { "type": "paragraph", "text": "How to correct it: Validate your Cost-Plus price against customer willingness-to-pay through interviews or surveys. If there's a gap, you have three options: reduce costs through process improvement or cheaper materials; increase perceived value through better marketing, added features, or positioning; or accept lower margins initially to gain market share, then increase prices as you build brand value and customer loyalty." },
+    
+    { "type": "headline", "level": 2, "text": "🧭 DECISION FRAMEWORKS" },
+    { "type": "paragraph", "text": "How do you actually decide which pricing strategy to use? Here's a decision framework based on your market characteristics and business situation. Use these criteria to self-diagnose the right approach." },
+    
     {
       "type": "bullet_list",
       "items": [
-        "**Strengthens Resilience**: Communities that actively support each other can recover significantly faster from crises and emerge stronger than before. When neighbors work together, they pool resources, share knowledge, and create support networks that help everyone bounce back more quickly from difficult situations.",
-        "**Enhances Safety**: Neighbors looking out for one another can dramatically reduce risks and improve overall safety for everyone in the community. Regular check-ins, shared awareness of potential hazards, and coordinated emergency responses create a protective network that benefits all residents, especially vulnerable individuals who may need extra assistance.",
-        "**Builds Trust**: Collaborative efforts during difficult times foster deep trust and meaningful cooperation among residents that can last for years. When people work together to overcome challenges, they develop stronger relationships, better communication patterns, and a shared sense of purpose that transforms neighborhoods into genuine communities."
+        "**Use Cost-Plus Pricing When**: Your market has stable costs and moderate competition, such as in construction, manufacturing, or professional services where costs are predictable and customers expect cost-based pricing. You're in government or contract work where cost transparency is required by regulation and customers expect detailed cost breakdowns. You're a new business establishing baseline pricing without customer value data yet, and need a starting point that ensures profitability while you gather market intelligence. Ask yourself: Are my costs stable and predictable? Do customers in this market expect cost transparency? Am I in a regulated environment? If yes to most of these, Cost-Plus is appropriate as a starting point.",
+        "**Use Value-Based Pricing When**: Your product has clear differentiation through unique features, superior quality, or solving problems competitors don't address effectively. Customers recognize and are willing to pay for value because they have budget authority, understand ROI, and make decisions based on outcomes rather than just sticker price. You can quantify value delivery with concrete metrics such as time saved, revenue increased, costs reduced, or risks mitigated. Ask yourself: Can customers easily switch to competitors? (If yes, value-based is hard). Can I clearly articulate and prove my product's superior value through data and case studies? Do my target customers have the budget for premium solutions? If yes to the last two and no to the first, Value-Based is ideal.",
+        "**Use Competition-Based Pricing When**: You're entering an established market where customer price expectations are already set, and dramatic deviations require strong justification that you may not yet have. Your product is relatively commoditized and customers view your offering as similar to competitors, making differentiation difficult. You're using price as a strategic positioning tool by deliberately pricing higher to signal premium quality, or lower to gain market share quickly. Ask yourself: Is this a mature market where customers know what they should pay? Are competitor prices clustered in a narrow range? Am I prepared to compete primarily on service or execution rather than features? If yes to the first two, Competition-Based makes sense—but be careful not to get stuck in price wars."
       ]
     },
-    { "type": "headline", "level": 2, "text": "🚀 Steps to Organize Support", "iconName": "info" },
-    {
-      "type": "numbered_list",
-      "items": [
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Identify Key Resources" },
-            { "type": "paragraph", "text": "Begin by thoroughly assessing what resources are currently available within your community, including essential supplies like food, water, medical equipment, generators, and other emergency items that neighbors may have on hand. Create a detailed inventory of these resources so you know exactly what's available when crisis strikes." },
-            { "type": "paragraph", "text": "Create a comprehensive list of skills and services that neighbors can offer to the community, such as medical assistance, transportation services, childcare, pet care, technical support, language translation, or specialized knowledge that could prove valuable during emergencies. This skills inventory becomes an invaluable resource when coordinating community responses to various challenges." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Establish Communication Channels" },
-            { "type": "paragraph", "text": "Set up a dedicated group chat or social media group specifically for quick emergency updates and ongoing communication between neighbors. Choose platforms that most community members already use and ensure everyone knows how to access and use these channels effectively, even during power outages or internet disruptions when possible." },
-            { "type": "paragraph", "text": "Use multiple communication methods including community bulletin boards, flyers posted in common areas, door-to-door notifications, and email lists to share critical information with all residents. This multi-channel approach ensures that even those without smartphones or internet access can stay informed and connected to community support networks." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Create a Support Network" },
-            { "type": "paragraph", "text": "Organize a dedicated group of reliable volunteers who are committed to coordinating support efforts and serving as points of contact during emergencies. Ensure this core team represents diverse areas of your neighborhood so coverage is comprehensive and volunteers can respond quickly to nearby residents who need assistance." },
-            { "type": "paragraph", "text": "Assign specific roles and responsibilities to volunteers based on their unique skills, availability, and comfort levels with different tasks. For example, designate coordinators to manage overall efforts, communicators to disseminate information, logistics specialists to manage resources, and field responders to provide direct assistance to neighbors in need." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Plan Regular Meetings" },
-            { "type": "paragraph", "text": "Schedule regular check-in meetings, whether in-person or virtual, to discuss evolving community needs, share updates about available resources, address concerns, and maintain strong connections between neighbors. These meetings should occur both during calm periods (for planning and relationship-building) and during crises (for coordination and rapid response)." },
-            { "type": "paragraph", "text": "Use these meetings strategically to build deeper relationships, strengthen the support network, share success stories, and ensure everyone feels valued and heard within the community. Regular gatherings also help identify emerging leaders, uncover hidden resources or skills, and keep the momentum of community engagement strong even when there's no immediate crisis." }
-          ],
-          "iconName": "none"
-        },
-        {
-          "type": "bullet_list",
-          "items": [
-            { "type": "headline", "level": 3, "text": "Develop Emergency Plans" },
-            { "type": "paragraph", "text": "Create a detailed, written community emergency plan that clearly outlines specific roles, responsibilities, communication protocols, and action steps for various crisis scenarios your neighborhood might face. Include contact information for all key volunteers, locations of emergency supplies, evacuation routes, and designated meeting points so everyone knows exactly what to do when disaster strikes." },
-            { "type": "paragraph", "text": "Ensure that every household has easy access to the emergency plan and clearly understands how to access critical resources, request assistance, and contribute their own skills and resources to support others. Regularly review and update the plan as the community evolves, new members join the neighborhood, or lessons are learned from past experiences." }
-          ],
-          "iconName": "none"
-        }
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "🔑 Key Considerations", "iconName": "info" },
-    {
-      "type": "bullet_list",
-      "items": [
-        "**Inclusivity**: Ensure that all community members, regardless of age, ability, language spoken, or socioeconomic status, feel genuinely included, valued, and welcomed in the planning process. Actively seek input from diverse voices and make sure your support systems can accommodate the unique needs of every resident, including those who may face barriers to participation.",
-        "**Cultural Sensitivity**: Be deeply aware of and respectful toward cultural differences, religious practices, dietary restrictions, communication preferences, and other cultural factors within your community. Take time to learn about the diverse backgrounds of your neighbors and ensure that support efforts honor and accommodate these differences rather than imposing a one-size-fits-all approach.",
-        "**Flexibility**: Be fully prepared to adapt your plans, strategies, and approaches as situations evolve and new information becomes available. Crisis situations are inherently unpredictable, so maintaining flexibility and being willing to adjust your response based on real-time needs and feedback is essential for effective community support and successful outcomes."
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "💡 Recommendations for Success", "iconName": "info" },
-    {
-      "type": "bullet_list",
-      "items": [
-        "**Engage Local Organizations**: Actively partner with local nonprofits, faith-based organizations, government agencies, schools, and businesses to access additional support, resources, funding, expertise, and volunteer networks. These partnerships can dramatically expand your community's capacity to respond to crises and provide professional guidance on best practices for emergency preparedness and response coordination.",
-        "**Promote Preparedness**: Consistently encourage and help neighbors prepare their own individual emergency kits, family communication plans, evacuation strategies, and disaster supplies so they can be self-sufficient for at least 72 hours. Offer workshops, share checklists, and provide guidance on essential supplies, document preparation, and household emergency planning to increase overall community resilience.",
-        "**Celebrate Successes**: Regularly acknowledge, appreciate, and celebrate the efforts, contributions, and dedication of volunteers and community members who step up to help others. Public recognition, thank-you events, success story sharing, and appreciation ceremonies foster a positive, encouraging environment that motivates continued engagement and attracts new volunteers to join your community support network."
-      ]
-    },
-    { "type": "headline", "level": 2, "text": "📌 Conclusion", "iconName": "info" },
-    { "type": "paragraph", "text": "Organizing neighbor support during crisis situations is absolutely essential for building resilient, connected, and caring communities that can weather any storm together. By following these comprehensive steps and fostering a genuine spirit of collaboration, mutual respect, and shared responsibility, we can ensure that everyone is prepared, supported, and protected in times of need. Together, through coordinated action and compassionate support, we can make a truly significant and lasting difference in our neighborhoods and the lives of all our neighbors." },
-    { "type": "alert", "alertType": "info", "title": "Recommendation", "text": "To effectively implement these strategies and build genuine community connections, consider hosting an engaging community event, neighborhood meeting, or workshop to discuss, plan, and organize neighbor support initiatives in a welcoming, collaborative atmosphere. This can be an excellent way to engage residents of all ages, build a stronger support network, identify volunteer leaders, and create the foundation for lasting community resilience." }
+    
+    { "type": "headline", "level": 2, "text": "📋 RECOMMENDATIONS" },
+    { "type": "alert", "alertType": "info", "title": "Your Action Plan", "text": "This Week: Audit your current pricing approach—which strategy are you actually using? Calculate your true costs including overhead and customer acquisition. Research competitor pricing and build a pricing matrix. This Month: Conduct 5-10 customer value interviews about what value your product provides and willingness to pay. Test pricing assumptions through A/B testing if possible. Next Quarter: Implement dynamic pricing for digital products. Build a quarterly pricing review process. Invest in differentiation to reduce price sensitivity over time." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 CONCLUSION" },
+    { "type": "paragraph", "text": "Choosing the right pricing strategy is more than a numerical exercise—it's a strategic decision that reflects your understanding of your market, customers, and competitive position. The companies that excel at pricing treat it as an ongoing learning process, constantly refining their approach based on market feedback. There's no single 'correct' pricing strategy. Cost-Plus provides safety but may leave money on the table. Value-Based maximizes profitability but requires deep market insights. Competition-Based ensures market relevance but can lead to price wars. The best companies use a hybrid approach, starting with one strategy and adapting based on what they learn." },
+    { "type": "paragraph", "text": "Your next step: Apply the decision frameworks above to your specific business. Start with one product or service, experiment with your pricing approach, and measure the results. Pricing strategy improves through iteration—each pricing decision teaches you something about your customers and market. Remember: Customers don't buy based on your costs—they buy based on their perception of value relative to alternatives. Your job is to understand that perception deeply enough to price in a way that maximizes both customer satisfaction and your profitability." }
   ],
   "detectedLanguage": "en"
 }
@@ -29640,12 +29612,12 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
 3. APPLY: Show HOW to use with step-by-step procedures, decision criteria (use numbered lists or paragraphs)
 4. ANALYZE: Compare approaches, identify trade-offs, common mistakes (use paragraphs or specialized blocks)
 
-**PEDAGOGICAL ELEMENTS (MUST INCLUDE):**
-- Mental Models: 2-3 frameworks learners can remember and apply
-- Worked Examples: 2-3 complete scenarios showing reasoning process
-- Common Mistakes: 3-5 errors with WHY they happen + HOW to avoid them
-- Decision Frameworks: "Use X when..., Use Y when..." criteria
-- Skill Practice: Scenarios with expert analysis
+**PEDAGOGICAL ELEMENTS (MUST INCLUDE - CRITICAL):**
+- Mental Models: 2-3 frameworks learners can remember and apply. DON'T just mention them - SHOW how to use them with examples
+- Worked Examples: 2-3 complete scenarios with structure: Situation → Analysis → Decision → Outcome → Lesson. Each example MUST be 300-500 words showing complete reasoning process
+- Common Mistakes: 3-5 errors with FOUR components each: (1) WHY it happens (psychology), (2) Real consequence (specific example), (3) How to recognize you're making it, (4) How to correct it. Each mistake analysis: 150-200 words
+- Decision Frameworks: "Use X when [specific conditions], Use Y when [specific conditions]" with self-diagnostic questions
+- Skill Practice: NOT included in one-pager format, replace with detailed decision frameworks
 
 **CONTENT DEPTH REQUIREMENTS:**
 - Target 3,000-5,000 words for comprehensive learning
@@ -29658,23 +29630,73 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
 - NEVER invent specific company names, statistics, or present made-up examples as real
 - Label clearly: "For example, consider a situation where..." or "[ILLUSTRATIVE EXAMPLE]"
 
-**STRUCTURE EXAMPLES:**
+**CRITICAL: HOW TO STRUCTURE STEP-BY-STEP PROCEDURES:**
+When you have procedural steps (like "Step 1, Step 2, Step 3"), each step needs deep treatment:
+
+❌ BAD (numbered list with short descriptions):
+```
+1. Define the market
+2. Collect data  
+3. Analyze competitors
+4. Understand customer needs
+```
+
+✅ GOOD (each step as detailed subsection with paragraphs):
+```
+{ "type": "headline", "level": 3, "text": "Step 1: Define the Market Scope" }
+{ "type": "paragraph", "text": "Begin by clearly defining the market you wish to analyze. Specify the market in terms of geographic boundaries (are you targeting local, regional, national, or global markets?), product categories (are you in B2B or B2C?), and customer segments you intend to examine (small businesses, enterprises, specific industries?). This step sets the stage for all subsequent research and prevents scope creep that can dilute your analysis. A precise definition ensures the relevance of your analysis and helps you avoid wasting resources on data that doesn't apply to your actual target market. For example, if you're a SaaS company targeting small medical practices in the US, don't waste time analyzing enterprise hospital systems in Europe—narrow your scope early." }
+{ "type": "paragraph", "text": "The key decision criteria here: your market definition should be narrow enough to be actionable but broad enough to represent a viable business opportunity. Use the TAM-SAM-SOM framework: Total Addressable Market (everyone who could theoretically buy), Serviceable Available Market (who you can realistically reach), and Serviceable Obtainable Market (who you can actually capture). This prevents the common mistake of defining your market too broadly ('healthcare' vs 'appointment scheduling for small practices') or too narrowly ('only practices within 10 miles of our office')." }
+```
+
+**STRUCTURE EXAMPLES FOR CONTENT BLOCKS:**
 ❌ BAD (list-only, shallow):
 - "Use agile methodology for faster development"
 
 ✅ GOOD (paragraph with depth):
 "Implement Agile methodology with 2-week sprints to accelerate development cycles. Agile's iterative approach allows teams to gather user feedback early and adjust course, reducing the risk of building unwanted features. In practice, teams hold daily standups, sprint planning, and retrospectives to maintain alignment. This approach typically reduces time-to-market by 30-40% while improving product-market fit because you're validating assumptions continuously rather than at project end. The key trade-off is that Agile requires more frequent communication and can feel chaotic to teams accustomed to traditional waterfall methods."
 
+**HOW TO EXPAND MENTAL MODELS:**
+❌ BAD (just mentioning frameworks):
+"Consider using PESTLE Analysis and Five Forces framework"
+
+✅ GOOD (showing HOW to use with structure):
+{ "type": "headline", "level": 3, "text": "PESTLE Analysis Framework" }
+{ "type": "paragraph", "text": "PESTLE Analysis helps you systematically evaluate external factors: Political (regulations, trade policies), Economic (market conditions, currency), Social (demographics, cultural trends), Technological (innovations, disruptions), Legal (compliance, laws), Environmental (sustainability, climate). Use this when entering new markets or assessing macro trends. For example, when analyzing the electric vehicle market, Political factors include government incentives, Economic includes charging infrastructure costs, Social covers consumer attitudes toward sustainability, Technological examines battery innovations, Legal involves safety regulations, and Environmental considers carbon reduction goals. Work through each category systematically, identifying 2-3 key factors per category that could impact your business." }
+
+**WORD COUNT AND DEPTH ENFORCEMENT:**
+- Long one-pagers: Target 4,000-5,000 words minimum
+- Medium one-pagers: Target 2,500-3,500 words
+- Short one-pagers: Target 1,500-2,000 words minimum
+- If topic has 5-7 procedural steps: Each step needs 200-300 words (2-3 paragraphs)
+- If topic has 3-5 key concepts: Each concept needs 300-400 words explanation
+- Worked examples: 300-500 words each (not negotiable)
+- Common mistakes analysis: 150-200 words per mistake (not negotiable)
+
+**ANTI-PATTERN: Numbered Lists with Short Items**
+If you're generating procedural content (steps, processes, frameworks), DO NOT create a numbered list with 2-3 sentence descriptions. Instead:
+1. Create headline for the step (level 3)
+2. Write 2-3 paragraph blocks explaining the step deeply
+3. Include WHY it matters, HOW to do it, common pitfalls, decision criteria
+
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
 
 The example above demonstrates 90+ quality score with:
-- Proper paragraph-heavy structure (not list-heavy)
-- Bloom's Taxonomy progression
-- Worked examples with complete reasoning
-- Decision frameworks
-- 60-100 word bullet points when used
+- Proper paragraph-heavy structure (not list-heavy) - ~70% paragraphs
+- Bloom's Taxonomy progression from Remember through Analyze
+- Complete worked example with Situation → Analysis → Decision → Outcome → Lesson (400+ words)
+- Deep mistake analysis with WHY/Consequence/Recognition/Correction (200+ words)
+- Decision frameworks with specific conditions and self-diagnostic questions
+- 80-120 word bullet points when lists are used (with concept + explanation + example + takeaway)
+- Total ~2,800 words demonstrating comprehensive educational depth
+
+**CRITICAL INSTRUCTIONS FOR STEP-BY-STEP CONTENT:**
+If your topic involves steps/procedures (like "Steps to...", "How to...", "Process for..."):
+- DO NOT use numbered_list with short items
+- INSTEAD: Create subsections with headlines (level 3) for each step
+- Each step gets 2-3 paragraph blocks
+- Structure each step: What + Why + How + Pitfalls + Decision criteria
 
 Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 
