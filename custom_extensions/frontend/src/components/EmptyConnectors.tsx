@@ -3,7 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 // Background SVG constant - Replace this with your own background design
 const BackgroundSVG = () => (
-  <svg width="826" height="297" viewBox="0 0 826 297" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="100%" height="auto" viewBox="0 0 826 297" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxWidth: '826px' }}>
   <mask id="mask0_867_15959" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="0" y="0" width="826" height="297">
   <rect width="825.528" height="296.674" fill="url(#paint0_radial_867_15959)"/>
   </mask>
@@ -365,10 +365,12 @@ export const EmptyConnectors = () => {
   const { t } = useLanguage();
   
   return (
-    <div className="bg-white rounded-lg p-6 flex flex-col items-center" style={{ height: 'calc(95vh - 220px)' }}>
-      <div className="relative">
+    <div className="bg-white rounded-lg p-6 flex flex-col items-center overflow-hidden" style={{ height: 'calc(95vh - 220px)' }}>
+      <div className="relative w-full max-w-full flex justify-center overflow-hidden">
         {/* Background SVG */}
-        <BackgroundSVG />
+        <div className="max-w-full" style={{ maxWidth: '100%' }}>
+          <BackgroundSVG />
+        </div>
       </div>
 
       {/* Title below SVG */}
