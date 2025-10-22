@@ -22,7 +22,7 @@ interface ProductViewHeaderProps {
   // Video Editor Tools (optional - only for Projects2ViewPage)
   showVideoEditorTools?: boolean;
   activeSettingsPanel?: string | null;
-  onSettingsButtonClick?: (settingsType: string) => void;
+  onSettingsButtonClick?: (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onLanguageVariantModalOpen?: () => void;
   hideAiImproveButton?: boolean;
@@ -309,7 +309,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
             {/* Media Button */}
             <button
-              onClick={() => onSettingsButtonClick?.('media')}
+              onClick={(e) => onSettingsButtonClick?.('media', e)}
               className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
                 activeSettingsPanel === 'media'
                   ? 'bg-blue-50 text-blue-600'
@@ -318,19 +318,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             >
               <FileImage size={14} />
               <span className="text-[10px] mt-0.5">Media</span>
-            </button>
-
-            {/* Transition Button */}
-            <button
-              onClick={() => onSettingsButtonClick?.('transition')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
-                activeSettingsPanel === 'transition'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <Layers size={14} />
-              <span className="text-[10px] mt-0.5">Transition</span>
             </button>
           </div>
         )}

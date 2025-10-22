@@ -90,6 +90,11 @@ export default function Projects2ViewPage() {
   const [colorPalettePosition, setColorPalettePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mediaPopupPosition, setMediaPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
+  // Scene transition panel state
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState<boolean>(true);
+  const [showTransitionDropdown, setShowTransitionDropdown] = useState<boolean>(false);
+  const [selectedTransition, setSelectedTransition] = useState<string>('None');
+
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     console.log('🔍 handleAddSlide called with:', {
@@ -552,8 +557,44 @@ export default function Projects2ViewPage() {
 
 
   // NEW: Handler for video lesson settings buttons
-  const handleSettingsButtonClick = (settingsType: string) => {
-    setActiveSettingsPanel(settingsType);
+  const handleSettingsButtonClick = (settingsType: string, event?: React.MouseEvent<HTMLButtonElement>) => {
+    if (settingsType === 'media' && event) {
+      // Special handling for media button - open media popup positioned to the left of the button
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      const modalWidth = 800;
+      const modalHeight = 400;
+      const gap = 10;
+      
+      // Calculate position to the left of the button
+      let x = rect.left - modalWidth - gap;
+      let y = rect.bottom + gap;
+      
+      // Check if modal would go off the left edge
+      if (x < 0) {
+        x = gap; // Position at the left edge with some padding
+      }
+      
+      // Check if modal would go off the right edge
+      if (x + modalWidth > window.innerWidth) {
+        x = window.innerWidth - modalWidth - gap;
+      }
+      
+      // Check if modal would go off the bottom edge
+      if (y + modalHeight > window.innerHeight) {
+        y = window.innerHeight - modalHeight - gap;
+      }
+      
+      // Check if modal would go off the top edge
+      if (y < 0) {
+        y = gap;
+      }
+      
+      setMediaPopupPosition({ x, y });
+      setIsMediaPopupOpen(true);
+    } else {
+      setActiveSettingsPanel(settingsType);
+    }
   };
 
   // NEW: Handler to close settings panel
@@ -955,10 +996,35 @@ export default function Projects2ViewPage() {
                   onClick={(e) => {
                     const button = e.currentTarget;
                     const rect = button.getBoundingClientRect();
-                    setMediaPopupPosition({
-                      x: rect.left - 400,
-                      y: rect.top
-                    });
+                    const modalWidth = 800;
+                    const modalHeight = 400;
+                    const gap = 10;
+                    
+                    // Calculate position to the left of the button
+                    let x = rect.left - modalWidth - gap;
+                    let y = rect.top;
+                    
+                    // Check if modal would go off the left edge
+                    if (x < 0) {
+                      x = gap;
+                    }
+                    
+                    // Check if modal would go off the right edge
+                    if (x + modalWidth > window.innerWidth) {
+                      x = window.innerWidth - modalWidth - gap;
+                    }
+                    
+                    // Check if modal would go off the bottom edge
+                    if (y + modalHeight > window.innerHeight) {
+                      y = window.innerHeight - modalHeight - gap;
+                    }
+                    
+                    // Check if modal would go off the top edge
+                    if (y < 0) {
+                      y = gap;
+                    }
+                    
+                    setMediaPopupPosition({ x, y });
                     setIsMediaPopupOpen(true);
                   }}
                   disabled={!isBackgroundEnabled}
@@ -998,8 +1064,77 @@ export default function Projects2ViewPage() {
                       borderColor: '#848485'
                     }}
                   />
-                  <span style={{ color: '#848485' }}>No color</span>
+                  <span style={{ color: '#848485' }}>{backgroundColor.replace('#', '')}</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Scene Transition Section */}
+            <div className="space-y-3 flex-shrink-0">
+              {/* Scene Transition Title and Toggle */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Scene transition</h3>
+                <button
+                  onClick={() => setIsTransitionEnabled(!isTransitionEnabled)}
+                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                  style={{ backgroundColor: isTransitionEnabled ? '#0F58F9' : '#E0E0E0' }}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                      isTransitionEnabled ? 'translate-x-5.5' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Transition Dropdown */}
+              <div className={`relative ${!isTransitionEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                <button
+                  onClick={() => setShowTransitionDropdown(!showTransitionDropdown)}
+                  disabled={!isTransitionEnabled}
+                  className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+                  style={{ borderColor: '#E0E0E0' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.9388 8.09891C11.0849 8.2452 11.085 8.48237 10.9388 8.62862L6.36642 13.201C6.22016 13.3471 5.98296 13.3471 5.83671 13.201L1.26437 8.62862C1.11812 8.48237 1.11818 8.2452 1.26437 8.09891L5.83671 3.52657C5.98298 3.3803 6.22014 3.3803 6.36642 3.52657L10.9388 8.09891ZM2.05893 8.36377L6.10156 12.4064L10.1442 8.36377L6.10156 4.32113L2.05893 8.36377Z" fill="#848485"/>
+                      <path d="M8.27148 3.79297L12.7662 8.28768L8.27148 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M10.5195 3.79297L15.0142 8.28768L10.5195 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ color: '#848485' }}>{selectedTransition}</span>
+                  </div>
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${showTransitionDropdown ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="#848485" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu */}
+                {showTransitionDropdown && isTransitionEnabled && (
+                  <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-y-auto" style={{ borderColor: '#E0E0E0' }}>
+                    {['None', 'Fade', 'Close', 'Crop', 'Blur', 'Open', 'Slide', 'Wipe', 'Smooth wipe'].map((transition) => (
+                      <button
+                        key={transition}
+                        onClick={() => {
+                          setSelectedTransition(transition);
+                          setShowTransitionDropdown(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M10.9388 8.09891C11.0849 8.2452 11.085 8.48237 10.9388 8.62862L6.36642 13.201C6.22016 13.3471 5.98296 13.3471 5.83671 13.201L1.26437 8.62862C1.11812 8.48237 1.11818 8.2452 1.26437 8.09891L5.83671 3.52657C5.98298 3.3803 6.22014 3.3803 6.36642 3.52657L10.9388 8.09891ZM2.05893 8.36377L6.10156 12.4064L10.1442 8.36377L6.10156 4.32113L2.05893 8.36377Z" fill="#848485"/>
+                          <path d="M8.27148 3.79297L12.7662 8.28768L8.27148 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M10.5195 3.79297L15.0142 8.28768L10.5195 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span style={{ color: '#848485' }}>{transition}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
