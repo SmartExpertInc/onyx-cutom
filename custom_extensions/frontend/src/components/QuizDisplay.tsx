@@ -40,6 +40,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [editingField, setEditingField] = useState<{type: 'question' | 'option', questionIndex: number, optionIndex?: number} | null>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
 
@@ -135,15 +136,22 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               </div>
               <div className="ml-3 flex-1">
-                {isEditing ? (
+                {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-gray-900"
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900"
                   />
                 ) : (
-                  <span className="text-[#171718] font-light text-base">{option.text}</span>
+                  <span 
+                    className="text-[#171718] font-light text-base cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
+                  >
+                    {option.text}
+                  </span>
                 )}
               </div>
             </div>
@@ -221,15 +229,22 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               </div>
               <div className="ml-3 flex-1">
-                {isEditing ? (
+                {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-[#171718]"
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
                   />
                 ) : (
-                  <span className="text-[#171718] font-light">{option.text}</span>
+                  <span 
+                    className="text-[#171718] font-light cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
+                  >
+                    {option.text}
+                  </span>
                 )}
               </div>
             </div>
@@ -697,17 +712,24 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               <circle cx="9.44068" cy="16.5227" r="1.57349" fill="white"/>
               </svg> */}
               </div>
-              <div className="flex-1">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={question.question_text}
-                    onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                    className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-none outline-none"
+          <div className="flex-1">
+                {(isEditing || (editingField?.type === 'question' && editingField.questionIndex === index)) ? (
+              <input
+                type="text"
+                value={question.question_text}
+                onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
+                    onBlur={() => setEditingField(null)}
+                    autoFocus
+                    className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
                     placeholder={`${questionNumber}. Enter your question...`}
-                  />
-                ) : (
-                  <h3 className="text-xl font-bold text-[#0F58F9]">{questionNumber}. {question.question_text}</h3>
+              />
+            ) : (
+                  <h3 
+                    className="text-xl font-bold text-[#0F58F9] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                    onClick={() => onTextChange && setEditingField({type: 'question', questionIndex: index})}
+                  >
+                    {questionNumber}. {question.question_text}
+                  </h3>
                 )}
               </div>
             </div>
@@ -721,11 +743,11 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
         {/* Question Content */}
         <div className="p-6">
-          {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
-          {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
-          {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
-          {questionType === 'sorting' && renderSorting(question as SortingQuestion, index)}
-          {questionType === 'open-answer' && renderOpenAnswer(question as OpenAnswerQuestion, index)}
+        {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
+        {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
+        {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
+        {questionType === 'sorting' && renderSorting(question as SortingQuestion, index)}
+        {questionType === 'open-answer' && renderOpenAnswer(question as OpenAnswerQuestion, index)}
         </div>
       </div>
     );
@@ -737,7 +759,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div className="max-w-7xl mx-auto px-6 pb-8">
         <div className="text-sm text-[#797979] mb-6">
           {questions.length} questions total
-        </div>
+      </div>
 
       <div className="space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}
