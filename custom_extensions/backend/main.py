@@ -23149,6 +23149,8 @@ class LessonWizardFinalize(BaseModel):
 
 @app.post("/api/custom/lesson-presentation/preview")
 async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    import json
+    
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -23199,7 +23201,6 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                     wizard_dict["courseStructure"] = course_structure
                     logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
                     # Log full course structure
-                    import json
                     logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
                 
                 # Get adjacent lesson content with product type priority
@@ -28740,6 +28741,8 @@ async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
 @app.post("/api/custom/quiz/generate")
 async def quiz_generate(payload: QuizWizardPreview, request: Request):
     """Generate quiz content with streaming response"""
+    import json
+    
     logger.info(f"[QUIZ_PREVIEW_START] Quiz preview initiated")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] questionTypes={payload.questionTypes} lang={payload.language}")
@@ -28797,7 +28800,6 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
                 # Log full course structure
-                import json
                 logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
@@ -30145,6 +30147,8 @@ class TextPresentationEditRequest(BaseModel):
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
     """Generate text presentation content with streaming response"""
+    import json
+    
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
@@ -30205,7 +30209,6 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                 wiz_payload["courseStructure"] = course_structure
                 logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
                 # Log full course structure
-                import json
                 logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
             
             # Get adjacent lesson content with product type priority
