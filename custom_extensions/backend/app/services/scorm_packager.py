@@ -1446,7 +1446,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     continue
                 product_id = matched['id']
                 used_ids.add(product_id)
-
+                
                 # Render product to HTML
                 mtype = (matched.get('microproduct_type') or '').strip().lower()
                 comp = (matched.get('component_name') or '').strip().lower()
@@ -1471,6 +1471,74 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
+                    type_label = 'Quiz'
+                    logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
+                else:
+                    continue
+
+                # Localize images for ALL product types
+                sco_dir = f"sco_{product_id}"
+                logger.info(f"[SCORM] Starting image localization for product_id={product_id}, sco_dir={sco_dir}")
+                
+                # Show a sample of the HTML to see what images are included
+                html_sample = body_html[:1000] + "..." if len(body_html) > 1000 else body_html
+                logger.debug(f"[SCORM] HTML sample for product_id={product_id}: {html_sample}")
+                
+                body_html = await _localize_images_to_assets(body_html, z, sco_dir)
+                logger.info(f"[SCORM] Completed image localization for product_id={product_id}, final HTML length={len(body_html)}")
+
+                # Write SCO HTML into package
+                href = f"{sco_dir}/index.html"
+                res_id = f"res-{(type_label or 'sco').lower()}-{product_id}"
+                # Write as HTML for all types now
+                z.writestr(href, body_html)
+                logger.info(f"[SCORM] Written SCO HTML to {href}")
+                sco_entries.append((res_id, href))
+
+                # Add leaf item under lesson
+                lesson_item['children'].append({
+                    'identifier': f"itm-{product_id}",
+                    'title': (type_label or title_for_sco),
+                    'res_id': res_id,
+                })
+
+            # NEW: Also try to find and include any additional products for this lesson
+            # that weren't explicitly listed in the primary content types
+            logger.info(f"[SCORM] Looking for additional unlisted products for lesson='{lesson_title}'")
+            additional_products = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
+            
+            for additional_match in additional_products:
+                product_id = additional_match['id']
+                if product_id in used_ids:
+                    continue  # Already processed
+                
+                logger.info(f"[SCORM] Found additional product id={product_id} for lesson='{lesson_title}' (not in primary list)")
+                used_ids.add(product_id)
+
+                # Render product to HTML
+                mtype = (additional_match.get('microproduct_type') or '').strip().lower()
+                comp = (additional_match.get('component_name') or '').strip().lower()
+                try:
+                    content = await _load_product_content(product_id, user_id)
+                except Exception as e:
+                    logger.warning(f"[SCORM] Failed to load product content id={product_id}: {e}")
+                    content = None
+
+                title_for_sco = additional_match.get('project_name') or additional_match.get('microproduct_name') or lesson_title or 'Lesson'
+
+                type_label = None
+                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
+                    type_label = 'Onepager'
+                    body_html = _render_onepager_html(additional_match, content if isinstance(content, dict) else {})
+                    logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
+                elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
+                    # Render as HTML using the same template as PDFs and inline images
+                    content_dict = content if isinstance(content, dict) else {}
+                    body_html = _render_slide_deck_html(additional_match, content_dict)
+                    type_label = 'Presentation'
+                    logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
+                elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
+                    body_html = _render_quiz_html(additional_match, content if isinstance(content, dict) else {})
                     type_label = 'Quiz'
                     logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:

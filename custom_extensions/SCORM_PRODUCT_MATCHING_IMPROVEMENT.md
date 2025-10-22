@@ -126,6 +126,52 @@ To verify the fix works:
 - `custom_extensions/backend/app/services/scorm_packager.py` - Main SCORM packaging service
 - `custom_extensions/SCORM_VERSION_AWARE_TEMPLATE_SELECTION.md` - Related SCORM improvements
 
+## Additional Feature: Auto-Discovery of Unlisted Products
+
+### Date: October 22, 2025 (Second Update)
+
+### Problem
+Even with fuzzy matching, products were still being skipped if they weren't explicitly listed in the lesson's `recommended_content_types.primary` array. For example, if a lesson had `primary=['presentation', 'quiz']`, an existing onepager for that lesson would never be found because the system wasn't looking for type='one-pager'.
+
+### Solution
+Added automatic discovery of ALL products matching a lesson, regardless of what's in the primary list:
+
+```python
+# After processing items from the primary list, look for additional products
+logger.info(f"[SCORM] Looking for additional unlisted products for lesson='{lesson_title}'")
+additional_products = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
+
+for additional_match in additional_products:
+    if product_id not in used_ids:
+        # Process and include this product
+        logger.info(f"[SCORM] Found additional product id={product_id} for lesson='{lesson_title}' (not in primary list)")
+```
+
+### How It Works
+1. Process all products explicitly listed in `primary` (presentations, quizzes, etc.)
+2. Call `_infer_products_for_lesson()` to find ALL products matching the lesson name
+3. For each inferred product that hasn't been processed yet:
+   - Add it to the SCORM package
+   - Mark it as used to prevent duplicates
+
+### Benefits
+- **Complete Coverage**: All products for a lesson are included, even if training plan configuration is incomplete
+- **No Configuration Required**: Works automatically without modifying training plans
+- **Backward Compatible**: Doesn't change behavior for properly configured lessons
+- **Prevents User Error**: Missing products due to incomplete configuration is now impossible
+
+### Example Log Output
+```
+[SCORM] Processing item type='presentation' for lesson='Checklist "What to do in the first week"'
+[SCORM] Match result for lesson='Checklist "What to do in the first week"' type='presentation' => matched_id=123
+[SCORM] Processing item type='quiz' for lesson='Checklist "What to do in the first week"'
+[SCORM] Match result for lesson='Checklist "What to do in the first week"' type='quiz' => matched_id=124
+[SCORM] Looking for additional unlisted products for lesson='Checklist "What to do in the first week"'
+[SCORM-MATCH] Inferred products for lesson='Checklist "What to do in the first week"': [125]
+[SCORM] Found additional product id=125 for lesson='Checklist "What to do in the first week"' (not in primary list)
+[SCORM] Rendered one-pager HTML for product_id=125, length=45321
+```
+
 ## Future Improvements
 
 If fuzzy matching is too broad and creates false positives:
@@ -133,4 +179,5 @@ If fuzzy matching is too broad and creates false positives:
 2. Use more sophisticated string matching (e.g., Levenshtein distance)
 3. Add explicit exclusion patterns
 4. Allow configuration of matching strictness
+5. Add UI warnings when products are auto-discovered (to help users fix their training plan configuration)
 
