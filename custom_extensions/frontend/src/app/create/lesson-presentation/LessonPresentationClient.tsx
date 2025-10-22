@@ -1010,9 +1010,23 @@ export default function LessonPresentationClient() {
     const countParsedSlides = (text: string): number => {
       if (!text || !text.trim()) return 0;
 
-      // Handle JSON preview directly
+      // Handle JSON preview directly - check originalJsonResponse first to avoid race condition
+      if (originalJsonResponse) {
+        try {
+          const parsedJson = JSON.parse(originalJsonResponse);
+          if (parsedJson && Array.isArray(parsedJson.slides)) {
+            console.log(`[RESTART_CHECK] Counting slides from originalJsonResponse: ${parsedJson.slides.length} slides`);
+            return parsedJson.slides.length;
+          }
+        } catch (e) {
+          console.warn(`[RESTART_CHECK] Failed to parse originalJsonResponse, falling back to content parsing`, e);
+        }
+      }
+
+      // Try parsing as JSON from current content
       const json = tryParsePresentationJson(text);
       if (json && Array.isArray(json.slides)) {
+        console.log(`[RESTART_CHECK] Counting slides from JSON in content: ${json.slides.length} slides`);
         return json.slides.length;
       }
 
@@ -1027,6 +1041,7 @@ export default function LessonPresentationClient() {
         slides = cleanedText.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
       }
       slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+      console.log(`[RESTART_CHECK] Counting slides from markdown: ${slides.length} slides`);
       return slides.length;
     };
 
@@ -1065,7 +1080,7 @@ export default function LessonPresentationClient() {
         setFormatRetryCounter(0);
       }
     }
-  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits]);
+  }, [streamDone, content, formatRetryCounter, loading, isGenerating, error, isHandlingInsufficientCredits, originalJsonResponse]);
 
   // Handler to finalize the lesson and save it
   const handleGenerateFinal = async () => {
