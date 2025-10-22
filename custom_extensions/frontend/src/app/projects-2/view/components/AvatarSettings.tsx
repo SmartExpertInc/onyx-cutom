@@ -56,7 +56,7 @@ export default function AvatarSettings() {
     <>
       <div className="bg-white h-full flex flex-col">
       {/* Header with grey background */}
-      <div className="bg-blue-100 px-4 py-3 flex items-center justify-between h-16">
+      <div className="bg-gray-100 px-4 py-3 flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
           {/* Avatar icon */}
           <svg width="40" height="40" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -87,15 +87,14 @@ export default function AvatarSettings() {
         <div className="mb-3">
           <span className="text-xs font-medium text-gray-700">Appearance</span>
         </div>
-        <div className="rounded-full p-1 flex" style={{ backgroundColor: '#0F58F9' }}>
+        <div className="bg-gray-100 rounded-full p-1 flex">
           <button 
             onClick={() => setAppearanceMode('shoulder')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'shoulder' 
-                ? 'bg-white shadow-sm' 
-                : 'text-white hover:text-white'
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
             }`}
-            style={appearanceMode === 'shoulder' ? { color: '#0F58F9' } : {}}
           >
             Shoulder
           </button>
@@ -103,10 +102,9 @@ export default function AvatarSettings() {
             onClick={() => setAppearanceMode('full-body')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'full-body' 
-                ? 'bg-white shadow-sm' 
-                : 'text-white hover:text-white'
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
             }`}
-            style={appearanceMode === 'full-body' ? { color: '#0F58F9' } : {}}
           >
             Full body
           </button>
@@ -114,10 +112,9 @@ export default function AvatarSettings() {
             onClick={() => setAppearanceMode('bubble')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'bubble' 
-                ? 'bg-white shadow-sm' 
-                : 'text-white hover:text-white'
+                ? 'bg-white text-gray-700 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-700'
             }`}
-            style={appearanceMode === 'bubble' ? { color: '#0F58F9' } : {}}
           >
             Bubble
           </button>

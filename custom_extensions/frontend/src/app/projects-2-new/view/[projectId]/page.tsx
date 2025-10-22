@@ -771,7 +771,7 @@ export default function Projects2ViewPage() {
         }}
       >
         {/* Left Sidebar - spans columns 1-3, full height of available space */}
-        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '1 / 4' }}>
+        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg" style={{ gridColumn: '1 / 4' }}>
           {renderSidebarComponent()}
         </div>
 
