@@ -178,7 +178,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
       {/* Scrollable Content Container */}
       <div className="relative z-10 flex flex-col gap-4 p-3">
         {/* Map through all slides and create a card for each */}
-        {allSlides.map((slide) => {
+        {allSlides.map((slide, index) => {
           const isSelected = slide.slideId === currentSlideId;
           
           return (
@@ -197,6 +197,11 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
             >
               {/* Top Section with Avatar Dropdown and Voice Selector */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
+          {/* Card Number Circle */}
+          <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-white border border-gray-200 flex-shrink-0">
+            <span className="text-xs font-medium" style={{ color: '#E0E0E0' }}>{index + 1}</span>
+          </div>
+          
           {/* Avatar Dropdown */}
                 <div className="relative flex-shrink-0">
             <button
@@ -209,8 +214,11 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                         openDropdownSlideId === slide.slideId ? null : slide.slideId
                       );
               }}
-                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-              style={{ userSelect: 'none' }}
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+              style={{ 
+                userSelect: 'none',
+                borderColor: openDropdownSlideId === slide.slideId ? '#A5A5A5' : '#E0E0E0'
+              }}
             >
               <User size={20} className="text-gray-700" />
               <ChevronDown size={16} className="text-gray-500" />
@@ -220,7 +228,8 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   {openDropdownSlideId === slide.slideId && (
                     <div 
                       ref={dropdownRef}
-                      className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                      className="absolute top-full left-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+                      style={{ borderColor: '#A5A5A5' }}
                     >
                 <div className="p-2">
                         {/* Row 1: Lisa */}
@@ -268,10 +277,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               onClick={() => {
                 setIsLanguageModalOpen(true);
               }}
-                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
               style={{ userSelect: 'none' }}
             >
-                    <span className="text-xs font-medium" style={{ color: '#878787' }}>
+                    <span className="text-xs" style={{ color: '#878787' }}>
                       Lisa narration
                     </span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
