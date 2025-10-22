@@ -26,6 +26,7 @@ import AvatarSettings from '../../../projects-2/view/components/AvatarSettings';
 import ShapeSettings from '../../../projects-2/view/components/ShapeSettings';
 import OptionPopup from '../../../projects-2/view/components/OptionPopup';
 import TemplateSelector from '../../../projects-2/view/components/TemplateSelector';
+import ColorPalettePopup from '../../../projects-2/view/components/ColorPalettePopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import AvatarDataProvider from '../../../projects-2/view/components/AvatarDataService';
@@ -84,6 +85,10 @@ export default function Projects2ViewPage() {
 
   // Background panel state
   const [isBackgroundEnabled, setIsBackgroundEnabled] = useState<boolean>(true);
+  const [isColorPaletteOpen, setIsColorPaletteOpen] = useState<boolean>(false);
+  const [backgroundColor, setBackgroundColor] = useState<string>('#FFFFFF');
+  const [colorPalettePosition, setColorPalettePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [mediaPopupPosition, setMediaPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -943,10 +948,19 @@ export default function Projects2ViewPage() {
                 </button>
               </div>
 
-              {/* Background Button */}
-              <div className={`${!isBackgroundEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+              {/* Background Buttons */}
+              <div className={`space-y-2 ${!isBackgroundEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                {/* Image Button */}
                 <button
-                  onClick={() => setIsMediaPopupOpen(true)}
+                  onClick={(e) => {
+                    const button = e.currentTarget;
+                    const rect = button.getBoundingClientRect();
+                    setMediaPopupPosition({
+                      x: rect.left - 400,
+                      y: rect.top
+                    });
+                    setIsMediaPopupOpen(true);
+                  }}
                   disabled={!isBackgroundEnabled}
                   className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
                   style={{ borderColor: '#E0E0E0' }}
@@ -961,6 +975,31 @@ export default function Projects2ViewPage() {
                     <path d="M10 3V17M3 10H17" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
+
+                {/* Color Button */}
+                <button
+                  onClick={(e) => {
+                    const button = e.currentTarget;
+                    const rect = button.getBoundingClientRect();
+                    setColorPalettePosition({
+                      x: rect.left,
+                      y: rect.bottom + 5
+                    });
+                    setIsColorPaletteOpen(true);
+                  }}
+                  disabled={!isBackgroundEnabled}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+                  style={{ borderColor: '#E0E0E0' }}
+                >
+                  <div 
+                    className="w-4 h-4 rounded border"
+                    style={{ 
+                      backgroundColor: backgroundColor,
+                      borderColor: '#848485'
+                    }}
+                  />
+                  <span style={{ color: '#848485' }}>No color</span>
+                </button>
               </div>
             </div>
           </div>
@@ -968,13 +1007,26 @@ export default function Projects2ViewPage() {
       </div>
 
       {/* Media Popup */}
-      <Media 
-        isOpen={isMediaPopupOpen} 
-        onClose={() => setIsMediaPopupOpen(false)} 
-        title="Media Library"
-        displayMode="popup"
-        className="top-[150px] left-2 w-[800px] h-[400px]"
-      />
+      {isMediaPopupOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            left: `${mediaPopupPosition.x}px`,
+            top: `${mediaPopupPosition.y}px`,
+            width: '800px',
+            height: '400px',
+            zIndex: 9999
+          }}
+        >
+          <Media 
+            isOpen={isMediaPopupOpen} 
+            onClose={() => setIsMediaPopupOpen(false)} 
+            title="Media Library"
+            displayMode="popup"
+            className="w-full h-full"
+          />
+        </div>
+      )}
 
       {/* Text Popup */}
       <TextPopup 
@@ -1095,6 +1147,18 @@ export default function Projects2ViewPage() {
         isOpen={isOptionPopupOpen} 
         onClose={() => setIsOptionPopupOpen(false)} 
         position={optionPopupPosition}
+      />
+
+      {/* Color Palette Popup */}
+      <ColorPalettePopup
+        isOpen={isColorPaletteOpen}
+        onClose={() => setIsColorPaletteOpen(false)}
+        onColorChange={(color) => {
+          setBackgroundColor(color);
+          setIsColorPaletteOpen(false);
+        }}
+        selectedColor={backgroundColor}
+        position={colorPalettePosition}
       />
       </div>
       

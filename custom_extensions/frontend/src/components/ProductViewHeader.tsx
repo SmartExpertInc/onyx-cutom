@@ -143,26 +143,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a slide deck (presentation) to show Export button
   const isSlideDeck = projectData?.component_name === 'SlideDeckDisplay';
 
-  // Custom background icon (matching Toolbar)
-  const renderBackgroundIcon = () => (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="14" 
-      height="14" 
-      viewBox="0 0 24 24"
-      className="text-current"
-    >
-      <path 
-        fill="none" 
-        stroke="currentColor" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        strokeWidth="2" 
-        d="m4 8l4-4m6 0L4 14m0 6L20 4m0 6L10 20m10-4l-4 4"
-      />
-    </svg>
-  );
-
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
       <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
@@ -338,34 +318,6 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             >
               <FileImage size={14} />
               <span className="text-[10px] mt-0.5">Media</span>
-            </button>
-
-            {/* Music Button */}
-            <button
-              onClick={() => onSettingsButtonClick?.('music')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
-                activeSettingsPanel === 'music'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <Music size={14} />
-              <span className="text-[10px] mt-0.5">Music</span>
-            </button>
-
-            {/* Background Button */}
-            <button
-              onClick={() => onSettingsButtonClick?.('background')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
-                activeSettingsPanel === 'background'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <div className="w-[14px] h-[14px] flex items-center justify-center">
-                {renderBackgroundIcon()}
-              </div>
-              <span className="text-[10px] mt-0.5">Background</span>
             </button>
 
             {/* Transition Button */}
