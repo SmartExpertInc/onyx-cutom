@@ -449,47 +449,47 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
       >
         
         {/* Row 1: Title */}
-        <div className="p-6 pb-4">
-          <h2 className="text-lg text-gray-900">Pick a voice</h2>
+        <div className="p-4 pb-3">
+          <h2 className="text-base font-medium text-gray-900">Pick a voice</h2>
         </div>
 
         {/* Row 2: Search Bar */}
-        <div className="px-6 pb-4">
+        <div className="px-4 pb-3">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={20} className="text-gray-400" />
+              <Search size={16} className="text-gray-400" />
             </div>
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* Row 3: Dropdown Buttons */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-3 items-center justify-between">
-            <div className="flex gap-3">
+        <div className="px-4 pb-3">
+          <div className="flex gap-2 items-center justify-between">
+            <div className="flex gap-2">
             {/* Accent Dropdown */}
             <div className="relative" ref={accentRef}>
               <button
                 onClick={() => setAccentDropdownOpen(!accentDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
                   accentDropdownOpen 
                     ? 'bg-gray-100' 
                     : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <Globe size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-1.5">
+                  <Globe size={14} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">
                     {selectedAccents.length > 0 ? `${selectedAccents.length} selected` : 'Accent'}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={14} className="text-gray-400" />
               </button>
               {/* Accent dropdown popup */}
               {accentDropdownOpen && (
@@ -530,19 +530,19 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="relative" ref={ageRef}>
               <button
                 onClick={() => setAgeDropdownOpen(!ageDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
                   ageDropdownOpen 
                     ? 'bg-gray-100' 
                     : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <Cake size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-1.5">
+                  <Cake size={14} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">
                     {selectedAges.length > 0 ? `${selectedAges.length} selected` : 'Age'}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={14} className="text-gray-400" />
               </button>
               {/* Age dropdown popup */}
               {ageDropdownOpen && (
@@ -580,19 +580,19 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="relative" ref={toneRef}>
               <button
                 onClick={() => setToneDropdownOpen(!toneDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
                   toneDropdownOpen 
                     ? 'bg-gray-100' 
                     : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <RadioWaveIcon size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-1.5">
+                  <RadioWaveIcon size={14} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">
                     {selectedTones.length > 0 ? `${selectedTones.length} selected` : 'Tone'}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={14} className="text-gray-400" />
               </button>
               {/* Tone dropdown popup */}
               {toneDropdownOpen && (
@@ -630,19 +630,19 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             <div className="relative" ref={scenarioRef}>
               <button
                 onClick={() => setScenarioDropdownOpen(!scenarioDropdownOpen)}
-                className={`flex items-center justify-between px-4 py-2 border border-gray-200 rounded-lg transition-colors min-w-[120px] ${
+                className={`flex items-center justify-between px-3 py-1.5 border border-gray-200 rounded-lg transition-colors min-w-[100px] ${
                   scenarioDropdownOpen 
                     ? 'bg-gray-100' 
                     : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <Briefcase size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex items-center gap-1.5">
+                  <Briefcase size={14} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">
                     {selectedScenarios.length > 0 ? `${selectedScenarios.length} selected` : 'Scenario'}
                   </span>
                 </div>
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={14} className="text-gray-400" />
               </button>
               {/* Scenario dropdown popup */}
               {scenarioDropdownOpen && (
@@ -681,11 +681,11 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {hasAnySelections && (
               <button
                 onClick={resetAllSelections}
-                className="flex items-center justify-between px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[120px]"
+                className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors min-w-[100px]"
               >
-                <div className="flex items-center gap-2">
-                  <RotateCcw size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">Reset all</span>
+                <div className="flex items-center gap-1.5">
+                  <RotateCcw size={14} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">Reset all</span>
                 </div>
               </button>
             )}
@@ -700,49 +700,49 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         {/* Content Container with proper flex structure */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Row 5: Main Area Layout Headers - Fixed */}
-          <div className="px-6 py-4 flex justify-between">
+          <div className="px-4 py-3 flex justify-between">
             {/* Left Zone */}
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-gray-900">
+              <h3 className="text-xs font-medium text-gray-900">
                 {loading ? 'Loading voices...' : `${voices.length} voices found`}
               </h3>
             </div>
             
             {/* Right Zone */}
             <div className="w-80">
-              <h3 className="text-sm font-medium text-gray-900">Voice details</h3>
+              <h3 className="text-xs font-medium text-gray-900">Voice details</h3>
             </div>
           </div>
 
           {/* Main Content Area (Left and Right Panels) - With separate scrolling */}
-          <div className="px-6 flex gap-6 flex-1 min-h-0">
+          <div className="px-4 flex gap-4 flex-1 min-h-0">
           {/* Left Panel - Voice List with its own scrolling */}
           <div className="flex-1 overflow-y-auto">
             {/* Create Custom Voice Row */}
-            <div className="mb-3">
+            <div className="mb-2">
               <div 
-                className="rounded-lg p-4 flex items-center justify-between cursor-pointer"
+                className="rounded-lg p-3 flex items-center justify-between cursor-pointer"
                 style={{ 
                   backgroundColor: '#EFF7FE' 
                 }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {/* White circle with radio wave icon */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#2C71F5' }}>
-                    <RadioWaveIcon size={20} className="text-[#2C71F5]" />
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border" style={{ borderColor: '#2C71F5' }}>
+                    <RadioWaveIcon size={16} className="text-[#2C71F5]" />
                   </div>
                   
                   {/* Text and badge */}
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-base" style={{ color: '#2C71F5' }}>Create a custom voice</span>
-                    <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: '#2C71F5', color: '#FFFFFF' }}>
+                    <span className="font-medium text-sm" style={{ color: '#2C71F5' }}>Create a custom voice</span>
+                    <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full" style={{ backgroundColor: '#2C71F5', color: '#FFFFFF' }}>
                       NEW
                     </span>
                   </div>
                 </div>
                 
                 {/* Right chevron */}
-                <ChevronRight size={20} style={{ color: '#2C71F5' }} />
+                <ChevronRight size={16} style={{ color: '#2C71F5' }} />
               </div>
             </div>
 
@@ -757,7 +757,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                voices.map((voice, index) => (
                  <div 
                    key={voice.voice || index} 
-                   className="mb-4 group"
+                   className="mb-2 group"
                    onClick={() => {
                      console.log('🎤 [VOICE_PICKER] Voice item clicked:', {
                        character: voice.character,
@@ -769,37 +769,37 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                      setTempSelectedVoice(voice);
                    }}
                  >
-                   <div className={`rounded-lg p-4 flex items-center justify-between cursor-pointer border transition-colors ${
+                   <div className={`rounded-lg p-3 flex items-center justify-between cursor-pointer border transition-colors ${
                      tempSelectedVoice?.voice === voice.voice 
                        ? 'border-blue-500 bg-blue-50' 
                        : 'border-gray-300 bg-white hover:bg-gray-50'
                    }`}>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {/* Radio wave icon / Play button */}
                       <div 
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
+                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center group-hover:border group-hover:border-gray-300 cursor-pointer"
                         onClick={(e) => handlePlayVoice(e, voice)}
                       >
                         {playingVoice === voice.voice ? (
-                          <div className="flex items-center justify-center w-6 h-6 bg-white rounded-full">
+                          <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full">
                             <div className="flex gap-0.5">
-                              <div className="w-1 h-3 bg-gray-600"></div>
-                              <div className="w-1 h-3 bg-gray-600"></div>
+                              <div className="w-0.5 h-2.5 bg-gray-600"></div>
+                              <div className="w-0.5 h-2.5 bg-gray-600"></div>
                     </div>
                   </div>
                         ) : (
                           <>
-                    <RadioWaveIcon size={20} className="text-gray-600 group-hover:hidden" />
-                    <div className="hidden group-hover:flex items-center justify-center w-6 h-6 bg-white rounded-full">
-                      <div className="w-0 h-0 border-l-[8px] border-l-gray-600 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-0.5"></div>
+                    <RadioWaveIcon size={16} className="text-gray-600 group-hover:hidden" />
+                    <div className="hidden group-hover:flex items-center justify-center w-5 h-5 bg-white rounded-full">
+                      <div className="w-0 h-0 border-l-[7px] border-l-gray-600 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent ml-0.5"></div>
                     </div>
                           </>
                         )}
                   </div>
                   
                   {/* Text and badges */}
-                  <div className="flex flex-col gap-2">
-                        <span className="text-gray-900 font-medium">{voice.character}</span>
+                  <div className="flex flex-col gap-1.5">
+                        <span className="text-gray-900 text-sm font-medium">{voice.character}</span>
                         <div className="flex gap-2 flex-wrap">
                           {voice.name && (
                       <span className="px-2 py-1 bg-gray-200 text-gray-600 text-[10px] rounded-full">
@@ -851,7 +851,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               <>
                 {/* Row 1: Voice name title */}
             <div className="mb-2">
-                  <h3 className="text-xl text-gray-900">{tempSelectedVoice.character}</h3>
+                  <h3 className="text-base font-medium text-gray-900">{tempSelectedVoice.character}</h3>
             </div>
             
                 {/* Row 2: Flag + locale */}
@@ -892,13 +892,13 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 5: Advanced settings */}
-            <div className="mb-3">
-              <h4 className="text-sm text-gray-900">Advanced settings</h4>
+            <div className="mb-2">
+              <h4 className="text-xs font-medium text-gray-900">Advanced settings</h4>
             </div>
             
             {/* Row 6: Speed */}
-            <div className="mb-3">
-              <label className="text-sm text-gray-700 mb-1 block">Speed</label>
+            <div className="mb-2">
+              <label className="text-xs text-gray-700 mb-1 block">Speed</label>
               <input
                 type="range"
                 min="0"
@@ -913,8 +913,8 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             </div>
             
             {/* Row 7: Stability */}
-            <div className="mb-6">
-              <label className="text-sm text-gray-700 mb-1 block">Stability</label>
+            <div className="mb-4">
+              <label className="text-xs text-gray-700 mb-1 block">Stability</label>
               <input
                 type="range"
                 min="0"
@@ -932,10 +932,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
             {tempSelectedVoice && (
               <button 
                 onClick={(e) => handlePlayVoice(e, tempSelectedVoice)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               >
-              <Volume2 size={16} className="text-gray-700" />
-                <span className="text-sm font-medium text-gray-700">
+              <Volume2 size={14} className="text-gray-700" />
+                <span className="text-xs font-medium text-gray-700">
                   {playingVoice === tempSelectedVoice.voice ? 'Stop Sample' : 'Play Sample'}
                 </span>
             </button>
@@ -945,16 +945,16 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex items-center justify-between rounded-b-xl">
+        <div className="bg-gray-50 px-4 py-3 flex items-center justify-between rounded-b-xl">
           {/* Left side - Apply new voice to */}
           <div className="flex-1">
-            <div className="mb-2">
-              <span className="text-sm text-gray-700">Apply new voice to</span>
+            <div className="mb-1.5">
+              <span className="text-xs text-gray-700">Apply new voice to</span>
             </div>
             <div className="bg-gray-200 rounded-lg px-1 py-1 flex gap-1 w-full max-w-md">
               <button
                 onClick={() => setApplyTo('block')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-xs rounded transition-colors ${
                   applyTo === 'block' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:bg-gray-300'
@@ -964,7 +964,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('scene')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-xs rounded transition-colors ${
                   applyTo === 'scene' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:bg-gray-300'
@@ -974,7 +974,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
               </button>
               <button
                 onClick={() => setApplyTo('all')}
-                className={`flex-1 py-1 text-sm rounded transition-colors ${
+                className={`flex-1 py-1 text-xs rounded transition-colors ${
                   applyTo === 'all' 
                     ? 'bg-white text-gray-900 shadow-sm' 
                     : 'text-gray-600 hover:bg-gray-300'
@@ -986,10 +986,10 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
           </div>
 
           {/* Right side - Action buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -1015,7 +1015,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                  }
                 onClose();
               }}
-              className="px-4 py-1.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="px-3 py-1.5 text-xs bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
                disabled={!tempSelectedVoice}
             >
               Apply voice

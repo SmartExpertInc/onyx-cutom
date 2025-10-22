@@ -197,7 +197,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                         openDropdownSlideId === slide.slideId ? null : slide.slideId
                       );
                     }}
-                    className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                     style={{ userSelect: 'none' }}
                   >
                     <User size={20} className="text-gray-700" />
@@ -211,15 +211,10 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                       className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
                     >
                       <div className="p-2">
-                        {/* Row 1: Header */}
-                        <div className="px-2 py-1">
-                          <span className="text-xs text-gray-500">Avatars</span>
-                        </div>
-                        
-                        {/* Row 2: Lisa - Office 4 */}
+                        {/* Row 1: Lisa */}
                         <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
                           <User size={16} className="text-gray-700" />
-                          <span className="text-xs text-gray-700">Lisa - Office 4</span>
+                          <span className="text-xs text-gray-700">Lisa</span>
                         </button>
                         
                         {/* Row 3: Narration only */}
@@ -261,18 +256,15 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                     onClick={() => {
                       setIsLanguageModalOpen(true);
                     }}
-                    className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
                     style={{ userSelect: 'none' }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
-                      <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
-                    </svg>
-                    <span className="text-xs font-medium text-gray-700">
-                      {selectedVoice 
-                        ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
-                        : 'Select Voice'
-                      }
+                    <span className="text-xs font-medium" style={{ color: '#878787' }}>
+                      Lisa narration
                     </span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.74805 1.56934C7.75945 1.57491 7.76655 1.58694 7.7666 1.59961V14.3994C7.7666 14.4122 7.75941 14.4241 7.74805 14.4297C7.73671 14.4352 7.72306 14.4337 7.71289 14.4258L3.74316 11.3389L3.60742 11.2334H1.59961C0.99228 11.2332 0.5 10.7402 0.5 10.1328V5.86621C0.500105 5.25892 0.992342 4.76681 1.59961 4.7666H3.60742L3.74316 4.66113L7.71289 1.57324C7.72289 1.56553 7.73667 1.56383 7.74805 1.56934ZM6.89258 2.2959L3.63965 4.82617C3.63381 4.83071 3.62652 4.83299 3.61914 4.83301H1.59961C1.02916 4.83322 0.566511 5.29574 0.566406 5.86621V10.1328C0.566406 10.7034 1.0291 11.1658 1.59961 11.166H3.61914L3.63965 11.1738L6.89258 13.7041L7.7002 14.332V1.66797L6.89258 2.2959Z" fill="#878787" stroke="#878787"/>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -282,8 +274,12 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                 <div
                   contentEditable
                   suppressContentEditableWarning
-                  className="w-full text-[#5F5F5F] text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
-                  style={{ whiteSpace: 'pre-wrap', minHeight: '100px' }}
+                  className="w-full text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
+                  style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    minHeight: '100px',
+                    color: isSelected ? '#171718' : '#434343'
+                  }}
                   onInput={(e) => handleScriptContentChange(slide.slideId, e.currentTarget.textContent || '')}
                   dangerouslySetInnerHTML={{ __html: slide.voiceoverText || defaultPlaceholder }}
                 />
