@@ -705,14 +705,26 @@ export default function Projects2ViewPage() {
       <div className="p-2 bg-gray-200">
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
-      <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 85px)' }}>
-        {/* Sidebar - 25% width, full height of available space */}
-        <div className="w-[25%] h-full overflow-y-auto overflow-x-hidden">
+      {/* Grid container for 1440px screens: 12 columns × 94px, 24px gutters, 48px horizontal padding (8px + 16px each side) */}
+      <div 
+        className="flex gap-4 mt-[5px] mx-auto mb-[5px]" 
+        style={{ 
+          height: 'calc(100vh - 85px)',
+          maxWidth: '1440px',
+          width: '100%',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(12, 94px)',
+          gap: '24px',
+          padding: '0 16px'
+        }}
+      >
+        {/* Sidebar - spans 3 columns (25% of 12), full height of available space */}
+        <div className="h-full overflow-y-auto overflow-x-hidden" style={{ gridColumn: 'span 3' }}>
           {renderSidebarComponent()}
         </div>
 
-        {/* Main Container - 75% width, full height of available space */}
-        <div className="w-[75%] h-full flex flex-col gap-2 overflow-visible">
+        {/* Main Container - spans 9 columns (75% of 12), full height of available space */}
+        <div className="h-full flex flex-col gap-2 overflow-visible" style={{ gridColumn: 'span 9' }}>
           {/* Slide Container - Takes 80% of main container height */}
           <div 
             className="h-[80%] bg-gray-200 rounded-md flex items-center justify-center relative overflow-visible"
