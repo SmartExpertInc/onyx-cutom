@@ -55,12 +55,19 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
         const currentColor = activeEditor.getAttributes('textStyle').color || '#000000';
         setFontColor(currentColor);
         
+        // Get current font family from textStyle marks
+        const currentFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
+        if (currentFontFamily) {
+          setFontFamily(currentFontFamily);
+        }
+        
         console.log('✏️ TextSettings synced with editor:', {
           bold: activeEditor.isActive('bold'),
           italic: activeEditor.isActive('italic'),
           underline: activeEditor.isActive('underline'),
           strike: activeEditor.isActive('strike'),
-          color: currentColor
+          color: currentColor,
+          fontFamily: currentFontFamily
         });
       } catch (error) {
         console.warn('Editor sync failed:', error);
@@ -155,10 +162,22 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
     { value: 'grow', label: 'Grow' }
   ];
 
+  // Web-safe fonts list with fallbacks
   const fontFamilyOptions = [
-    { value: 'Arial', label: 'Arial' },
-    { value: 'Times New Roman', label: 'Times New Roman' },
-    { value: 'Helvetica', label: 'Helvetica' }
+    { value: 'Arial, sans-serif', label: 'Arial', preview: 'Arial' },
+    { value: 'Helvetica, Arial, sans-serif', label: 'Helvetica', preview: 'Helvetica' },
+    { value: '"Times New Roman", Times, serif', label: 'Times New Roman', preview: 'Times New Roman' },
+    { value: 'Georgia, serif', label: 'Georgia', preview: 'Georgia' },
+    { value: '"Courier New", Courier, monospace', label: 'Courier New', preview: 'Courier New' },
+    { value: 'Verdana, Geneva, sans-serif', label: 'Verdana', preview: 'Verdana' },
+    { value: 'Tahoma, Geneva, sans-serif', label: 'Tahoma', preview: 'Tahoma' },
+    { value: '"Trebuchet MS", Helvetica, sans-serif', label: 'Trebuchet MS', preview: 'Trebuchet MS' },
+    { value: '"Comic Sans MS", cursive, sans-serif', label: 'Comic Sans MS', preview: 'Comic Sans MS' },
+    { value: 'Impact, Charcoal, sans-serif', label: 'Impact', preview: 'Impact' },
+    { value: '"Lucida Console", Monaco, monospace', label: 'Lucida Console', preview: 'Lucida Console' },
+    { value: '"Palatino Linotype", "Book Antiqua", Palatino, serif', label: 'Palatino', preview: 'Palatino' },
+    { value: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', label: 'Inter (Modern)', preview: 'Inter' },
+    { value: 'Lora, serif', label: 'Lora (Elegant)', preview: 'Lora' }
   ];
 
   const fontSizeOptions = [
@@ -226,32 +245,48 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
               <span className="text-sm font-medium text-gray-700">Font family</span>
               <div className="relative" ref={fontFamilyDropdownRef}>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setShowFontFamilyDropdown(!showFontFamilyDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  disabled={!activeEditor}
+                  className={`flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black ${
+                    !activeEditor ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <span className="text-gray-700">{fontFamily}</span>
+                  <span className="text-gray-700 max-w-[120px] truncate">
+                    {fontFamilyOptions.find(opt => opt.value === fontFamily)?.label || 'Select font'}
+                  </span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
-                {showFontFamilyDropdown && (
-                  <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                {showFontFamilyDropdown && activeEditor && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-64 overflow-y-auto">
                     {fontFamilyOptions.map((option) => (
                       <button
                         key={option.value}
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          setFontFamily(option.value);
-                          setShowFontFamilyDropdown(false);
+                          if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                            try {
+                              // Apply font family via inline style using TextStyle extension
+                              activeEditor.chain().focus().setMark('textStyle', { fontFamily: option.value }).run();
+                              setFontFamily(option.value);
+                              setShowFontFamilyDropdown(false);
+                            } catch (error) {
+                              console.warn('Font family change failed:', error);
+                            }
+                          }
                         }}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        style={{ fontFamily: option.preview }}
                       >
                         {fontFamily === option.value ? (
-                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         ) : (
-                          <div className="w-4 h-4 mr-2"></div>
+                          <div className="w-4 h-4 mr-2 flex-shrink-0"></div>
                         )}
                         <span className="text-gray-700">{option.label}</span>
                       </button>

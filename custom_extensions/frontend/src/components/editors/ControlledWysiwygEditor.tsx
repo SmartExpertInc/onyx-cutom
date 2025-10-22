@@ -52,7 +52,29 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           codeBlock: false,
           horizontalRule: false,
         }),
-        TextStyle,
+        TextStyle.configure({
+          HTMLAttributes: {
+            class: 'text-style',
+          },
+        }).extend({
+          addAttributes() {
+            return {
+              ...this.parent?.(),
+              fontFamily: {
+                default: null,
+                parseHTML: element => element.style.fontFamily || null,
+                renderHTML: attributes => {
+                  if (!attributes.fontFamily) {
+                    return {};
+                  }
+                  return {
+                    style: `font-family: ${attributes.fontFamily}`,
+                  };
+                },
+              },
+            };
+          },
+        }),
         Color,
       ],
       content: initialValue || '',
@@ -121,19 +143,24 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       }
     };
 
-    // Add global styles for formatting tags to inherit font
+    // Add global styles for formatting tags
     useEffect(() => {
       const styleId = 'controlled-wysiwyg-formatting-styles';
       if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
+          /* Ensure formatting tags don't override font-family unless explicitly set */
           .controlled-wysiwyg-editor strong,
           .controlled-wysiwyg-editor em,
           .controlled-wysiwyg-editor u,
-          .controlled-wysiwyg-editor s,
-          .controlled-wysiwyg-editor span {
+          .controlled-wysiwyg-editor s {
             font-family: inherit !important;
+          }
+          
+          /* Allow span with inline font-family to override */
+          .controlled-wysiwyg-editor span[style*="font-family"] {
+            /* Font family set via inline style - don't override */
           }
         `;
         document.head.appendChild(style);
