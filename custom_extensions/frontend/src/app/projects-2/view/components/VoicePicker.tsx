@@ -881,7 +881,7 @@ export default function VoicePicker({ isOpen, onClose, onSelectVoice: _onSelectV
                 )}
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-xs text-gray-500">
                 Select a voice to view details
               </div>
             )}

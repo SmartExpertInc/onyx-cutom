@@ -51,6 +51,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
   };
   
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectedCardRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -68,6 +69,16 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openDropdownSlideId]);
+
+  // Scroll to selected card when currentSlideId changes
+  useEffect(() => {
+    if (selectedCardRef.current && currentSlideId) {
+      selectedCardRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [currentSlideId]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
@@ -173,6 +184,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           return (
             <div
               key={slide.slideId}
+              ref={isSelected ? selectedCardRef : null}
               className={`p-3 rounded-lg ${
                 isSelected 
                   ? 'shadow-lg' 
@@ -184,96 +196,99 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               }}
             >
               {/* Top Section with Avatar Dropdown and Voice Selector */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
-                {/* Avatar Dropdown */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
+          {/* Avatar Dropdown */}
                 <div className="relative flex-shrink-0">
-                  <button
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      window.getSelection()?.removeAllRanges();
-                    }}
-                    onClick={() => {
+            <button
+              onMouseDown={(e) => {
+                e.preventDefault();
+                window.getSelection()?.removeAllRanges();
+              }}
+              onClick={() => {
                       setOpenDropdownSlideId(
                         openDropdownSlideId === slide.slideId ? null : slide.slideId
                       );
-                    }}
+              }}
                     className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                    style={{ userSelect: 'none' }}
-                  >
-                    <User size={20} className="text-gray-700" />
-                    <ChevronDown size={16} className="text-gray-500" />
-                  </button>
+              style={{ userSelect: 'none' }}
+            >
+              <User size={20} className="text-gray-700" />
+              <ChevronDown size={16} className="text-gray-500" />
+            </button>
 
-                  {/* Avatar Dropdown Popup */}
+            {/* Avatar Dropdown Popup */}
                   {openDropdownSlideId === slide.slideId && (
                     <div 
                       ref={dropdownRef}
                       className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
                     >
-                      <div className="p-2">
+                <div className="p-2">
                         {/* Row 1: Lisa */}
-                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                          <User size={16} className="text-gray-700" />
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <User size={16} className="text-gray-700" />
                           <span className="text-xs text-gray-700">Lisa</span>
-                        </button>
-                        
-                        {/* Row 3: Narration only */}
-                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
-                            <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
-                          </svg>
-                          <span className="text-xs text-gray-700">Narration only</span>
-                        </button>
-                        
-                        {/* Row 4: Horizontal line */}
-                        <div className="my-1">
-                          <hr className="border-gray-300" />
-                        </div>
-                        
-                        {/* Row 5: Remove avatar */}
-                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                          <UserMinus size={16} className="text-gray-500" />
-                          <span className="text-xs text-gray-500">Remove avatar</span>
-                        </button>
-                        
-                        {/* Row 6: Add new avatar */}
-                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                          <UserPlus size={16} className="text-gray-700" />
-                          <span className="text-xs text-gray-700">Add new avatar</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Voice Selector Button */}
-                <div className="relative w-full sm:w-auto">
-                  <button
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      window.getSelection()?.removeAllRanges();
-                    }}
-                    onClick={() => {
-                      setIsLanguageModalOpen(true);
-                    }}
-                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
-                    style={{ userSelect: 'none' }}
-                  >
-                    <span className="text-xs font-medium" style={{ color: '#878787' }}>
-                      Lisa narration
-                    </span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M7.74805 1.56934C7.75945 1.57491 7.76655 1.58694 7.7666 1.59961V14.3994C7.7666 14.4122 7.75941 14.4241 7.74805 14.4297C7.73671 14.4352 7.72306 14.4337 7.71289 14.4258L3.74316 11.3389L3.60742 11.2334H1.59961C0.99228 11.2332 0.5 10.7402 0.5 10.1328V5.86621C0.500105 5.25892 0.992342 4.76681 1.59961 4.7666H3.60742L3.74316 4.66113L7.71289 1.57324C7.72289 1.56553 7.73667 1.56383 7.74805 1.56934ZM6.89258 2.2959L3.63965 4.82617C3.63381 4.83071 3.62652 4.83299 3.61914 4.83301H1.59961C1.02916 4.83322 0.566511 5.29574 0.566406 5.86621V10.1328C0.566406 10.7034 1.0291 11.1658 1.59961 11.166H3.61914L3.63965 11.1738L6.89258 13.7041L7.7002 14.332V1.66797L6.89258 2.2959Z" fill="#878787" stroke="#878787"/>
+                  </button>
+                  
+                  {/* Row 3: Narration only */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
+                      <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
                     </svg>
+                    <span className="text-xs text-gray-700">Narration only</span>
+                  </button>
+                  
+                  {/* Row 4: Horizontal line */}
+                  <div className="my-1">
+                    <hr className="border-gray-300" />
+                  </div>
+                  
+                  {/* Row 5: Remove avatar */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <UserMinus size={16} className="text-gray-500" />
+                    <span className="text-xs text-gray-500">Remove avatar</span>
+                  </button>
+                  
+                  {/* Row 6: Add new avatar */}
+                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                    <UserPlus size={16} className="text-gray-700" />
+                    <span className="text-xs text-gray-700">Add new avatar</span>
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Voice Selector Button */}
+          <div className="relative w-full sm:w-auto">
+            <button
+              onMouseDown={(e) => {
+                e.preventDefault();
+                window.getSelection()?.removeAllRanges();
+              }}
+              onClick={() => {
+                setIsLanguageModalOpen(true);
+              }}
+                    className="flex items-center gap-1 px-2 py-1 h-8 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto cursor-pointer"
+              style={{ userSelect: 'none' }}
+            >
+                    <span className="text-xs font-medium" style={{ color: '#878787' }}>
+                      Lisa narration
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <g fill="none" stroke="#878787" stroke-width="1.5">
+                        <path d="M1 13.857v-3.714a2 2 0 0 1 2-2h2.9a1 1 0 0 0 .55-.165l6-3.956a1 1 0 0 1 1.55.835v14.286a1 1 0 0 1-1.55.835l-6-3.956a1 1 0 0 0-.55-.165H3a2 2 0 0 1-2-2Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.5 7.5S19 9 19 11.5s-1.5 4-1.5 4m3-11S23 7 23 11.5s-2.5 7-2.5 7"/>
+                      </g>
+                    </svg>
+            </button>
+          </div>
+        </div>
 
               {/* Script Text Area */}
-              <div className="w-full max-w-[615px] lg:max-w-[650px]">
-                <div
-                  contentEditable
-                  suppressContentEditableWarning
+        <div className="w-full max-w-[615px] lg:max-w-[650px]">
+          <div
+            contentEditable
+            suppressContentEditableWarning
                   className="w-full text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
                   style={{ 
                     whiteSpace: 'pre-wrap', 
@@ -282,8 +297,8 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
                   }}
                   onInput={(e) => handleScriptContentChange(slide.slideId, e.currentTarget.textContent || '')}
                   dangerouslySetInnerHTML={{ __html: slide.voiceoverText || defaultPlaceholder }}
-                />
-              </div>
+          />
+        </div>
             </div>
           );
         })}
