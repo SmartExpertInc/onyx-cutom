@@ -197,6 +197,7 @@ export function WysiwygEditor({
             gap: '4px',
             backgroundColor: 'white',
             borderRadius: '6px',
+            padding: '4px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
             zIndex: 10000,
             pointerEvents: 'auto',
@@ -212,8 +213,8 @@ export function WysiwygEditor({
                 setShowColorPicker(!showColorPicker);
               }}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '25px',
+                height: '25px',
                 borderRadius: '4px',
                 backgroundColor: 'white',
                 cursor: 'pointer',
