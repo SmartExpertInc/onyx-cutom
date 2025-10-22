@@ -3,130 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 // FIXED: Function to detect language and provide localized headers
 const getLocalizedHeaders = (title: string, challenges: string[], solutions: string[]): { challengesTitle: string, solutionsTitle: string } => {
@@ -202,7 +79,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
+        background: currentTheme.colors.backgroundColor,
     padding: '60px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont
@@ -386,26 +263,22 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
         style={{ display: 'inline-block', width: '100%' }}
       >
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0 auto 50px auto',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.3'
             }}
           />
         ) : (
@@ -423,9 +296,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               }
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
+            dangerouslySetInnerHTML={{ __html: title || 'Click to add title' }}
+          />
         )}
       </div>
 
@@ -440,26 +312,22 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
           <div style={headerStyles}>
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={finalChallengesTitle || ''}
                 onSave={handleChallengesTitleSave}
                 onCancel={handleChallengesTitleCancel}
-                multiline={true}
                 placeholder="Enter challenges title..."
                 className="inline-editor-challenges-title"
                 style={{
                   ...sectionTitleStyles,
-                  // Ensure title behaves exactly like h2 element
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
@@ -477,9 +345,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-              >
-                                  {finalChallengesTitle || 'Click to add challenges title'}
-              </h2>
+                dangerouslySetInnerHTML={{ __html: finalChallengesTitle || 'Click to add challenges title' }}
+              />
             )}
           </div>
           <ul style={listStyles}>
@@ -487,11 +354,10 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingChallenges.includes(index) ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={challenge || ''}
                     onSave={(newChallenge) => handleChallengeSave(index, newChallenge)}
                     onCancel={() => handleChallengeCancel(index)}
-                    multiline={true}
                     placeholder="Enter challenge..."
                     className="inline-editor-challenge"
                     style={{
@@ -499,19 +365,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       lineHeight: 1.5,
                       color: currentTheme.colors.contentColor,
                       fontFamily: currentTheme.fonts.contentFont,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      margin: '0',
-                      padding: '0'
+                      margin: '0'
                     }}
                   />
                 ) : (
@@ -528,9 +389,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {challenge || 'Click to add challenge'}
-                  </span>
+                    dangerouslySetInnerHTML={{ __html: challenge || 'Click to add challenge' }}
+                  />
                 )}
               </li>
             ))}
@@ -546,26 +406,22 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
           <div style={headerStyles}>
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={finalSolutionsTitle || ''}
                 onSave={handleSolutionsTitleSave}
                 onCancel={handleSolutionsTitleCancel}
-                multiline={true}
                 placeholder="Enter solutions title..."
                 className="inline-editor-solutions-title"
                 style={{
                   ...sectionTitleStyles,
-                  // Ensure title behaves exactly like h2 element
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
@@ -583,9 +439,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-              >
-                {solutionsTitle || 'Click to add solutions title'}
-              </h2>
+                dangerouslySetInnerHTML={{ __html: solutionsTitle || 'Click to add solutions title' }}
+              />
             )}
           </div>
           <ul style={listStyles}>
@@ -593,11 +448,10 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingSolutions.includes(index) ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={solution || ''}
                     onSave={(newSolution) => handleSolutionSave(index, newSolution)}
                     onCancel={() => handleSolutionCancel(index)}
-                    multiline={true}
                     placeholder="Enter solution..."
                     className="inline-editor-solution"
                     style={{
@@ -605,19 +459,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       lineHeight: 1.5,
                       color: currentTheme.colors.contentColor,
                       fontFamily: currentTheme.fonts.contentFont,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      margin: '0',
-                      padding: '0'
+                      margin: '0'
                     }}
                   />
                 ) : (
@@ -634,9 +483,8 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {solution || 'Click to add solution'}
-                  </span>
+                    dangerouslySetInnerHTML={{ __html: solution || 'Click to add solution' }}
+                  />
                 )}
               </li>
             ))}

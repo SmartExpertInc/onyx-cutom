@@ -108,8 +108,9 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     }
   });
   
-  // Get the current theme data
-  const currentThemeData = getSlideTheme(currentTheme || DEFAULT_SLIDE_THEME);
+  // Get the current theme data - ensure we always have a valid theme
+  const effectiveTheme = currentTheme && currentTheme.trim() !== '' ? currentTheme : DEFAULT_SLIDE_THEME;
+  const currentThemeData = getSlideTheme(effectiveTheme);
 
   // Check if any slide has voiceover text
   const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
@@ -841,7 +842,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     isEditable={isEditable}
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
-                    theme={currentTheme}
+                    theme={effectiveTheme}
                     getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
 
@@ -1157,7 +1158,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       <ThemePicker
         isOpen={showThemePicker}
         onClose={() => setShowThemePicker(false)}
-        selectedTheme={currentTheme}
+                selectedTheme={effectiveTheme}
         onThemeSelect={changeTheme}
         isChanging={isChangingTheme}
       />

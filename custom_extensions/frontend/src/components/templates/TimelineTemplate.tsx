@@ -1,129 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { TimelineTemplateProps, TimelineStep } from '@/types/slideTemplates';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
+export interface TimelineStep {
+  heading: string;
+  description: string;
 }
 
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
+export interface TimelineTemplateProps {
+  slideId: string;
+  title: string;
+  steps: TimelineStep[];
+  theme?: SlideTheme;
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
 }
 
 export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
@@ -141,12 +31,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingStepHeadings, setEditingStepHeadings] = useState<number[]>([]);
   const [editingStepDescriptions, setEditingStepDescriptions] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Refs for draggable elements (following Big Image Left pattern)
-  const titleRef = useRef<HTMLDivElement>(null);
-  
-  // Use existing slideId for element positioning (following Big Image Left pattern)
+  const autoSaveTimeoutRef = useRef<number | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -159,99 +44,90 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    height: '100%',
+    background: '#ffffff',
     display: 'flex',
     flexDirection: 'column',
-    padding: '64px',
+    padding: '50px',
     fontFamily: currentTheme.fonts.contentFont,
-    alignItems: 'stretch',
-    textAlign: 'center',
+    textAlign: 'left',
+    overflow: 'hidden',
+    position: 'relative'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '80px',
+    fontSize: '2.5rem',
+    fontFamily: 'Arial, sans-serif',
+    color: '#000000',
+    marginBottom: '50px',
     textAlign: 'left',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const timelineContainerStyles: React.CSSProperties = {
-    position: 'relative',
-    width: '100%',
-    height: '350px',
-    display: 'flex',
+    position: 'absolute',
+    top: '150px',
+    left: '50px',
+    right: '50px',
+    bottom: '50px',
+    width: 'calc(100% - 100px)',
+    height: 'calc(100% - 200px)'
   };
 
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '50%',
-    left: '5%',
-    width: '90%',
-    height: '2px',
-    background: 'rgba(255,255,255,0.25)',
+    top: '11px',
+    left: 'calc(50% + 60px)',
+    width: '2px',
+    height: '115%',
+    background: '#0F58F9'
   };
 
-  const stepWrapperStyles: React.CSSProperties = {
-    position: 'relative',
-    width: '25%',
-    height: '100%',
-  };
-  
-  const milestoneContentStyles = (isTop: boolean): React.CSSProperties => ({
+  // 4 static timeline items with precise positioning
+  const timelineItems = [
+    { top: '9%', side: 'left', topCircle: '5%' },
+    { top: '35%', side: 'right', topCircle: '31%' },
+    { top: '60%', side: 'left', topCircle: '56%' },
+    { top: '85%', side: 'right', topCircle: '81%' }
+  ];
+
+  const circleStyles = (top: string): React.CSSProperties => ({
     position: 'absolute',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px',
-    ...(isTop 
-        ? {bottom: 'calc(50% - 20px)'} 
-        : { top: 'calc(50% - 20px)' }
-    ),
+    top: top,
+    left: 'calc(50% + 60px)',
+    transform: 'translate(-50%, -50%)',
+    width: '20px',
+    height: '20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '50%',
+    border: '4px solid #0F58F9',
+    zIndex: 10
   });
 
-  const numberSquareStyles: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
-    borderRadius: '3px',
-    background: accentColor,
-    color: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1.5rem',
-  };
-
-  const verticalLineStyles: React.CSSProperties = {
-      width: '2px',
-      height: '20px',
-      background: 'rgba(255,255,255,0.25)',
-  };
-
-  const textBlockStyles: React.CSSProperties = {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      gap: '8px',
-  };
+  const textBlockStyles = (top: string, side: string): React.CSSProperties => ({
+    position: 'absolute',
+    top: top,
+    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 110px)' : 'calc(50% + 0px)',
+    width: 'calc(40% - 60px)',
+    transform: 'translateY(-50%)',
+    textAlign: side === 'left' ? 'left' : 'right'
+  });
 
   const headingStyles: React.CSSProperties = {
     fontSize: '1.2rem',
-    color: titleColor,
-    fontFamily: currentTheme.fonts.titleFont,
+    fontWeight: 'bold',
+    color: '#000000',
+    fontFamily: 'Arial, sans-serif',
+    marginBottom: '8px',
     wordWrap: 'break-word'
   };
 
   const descriptionStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    color: contentColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    lineHeight: 1.5,
+    fontSize: '0.9rem',
+    color: '#000000',
+    fontFamily: 'Arial, sans-serif',
+    lineHeight: 1.4,
     wordWrap: 'break-word'
   };
 
@@ -271,28 +147,34 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const handleStepHeadingSave = (index: number, newHeading: string) => {
     if (onUpdate && steps) {
       const updatedSteps = [...steps];
+      if (!updatedSteps[index]) {
+        updatedSteps[index] = { heading: '', description: '' };
+      }
       updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+    setEditingStepHeadings(editingStepHeadings.filter((i: number) => i !== index));
   };
 
   const handleStepHeadingCancel = (index: number) => {
-    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+    setEditingStepHeadings(editingStepHeadings.filter((i: number) => i !== index));
   };
 
   // Handle step description editing
   const handleStepDescriptionSave = (index: number, newDescription: string) => {
     if (onUpdate && steps) {
       const updatedSteps = [...steps];
+      if (!updatedSteps[index]) {
+        updatedSteps[index] = { heading: '', description: '' };
+      }
       updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+    setEditingStepDescriptions(editingStepDescriptions.filter((i: number) => i !== index));
   };
 
   const handleStepDescriptionCancel = (index: number) => {
-    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+    setEditingStepDescriptions(editingStepDescriptions.filter((i: number) => i !== index));
   };
 
   const startEditingStepHeading = (index: number) => {
@@ -303,160 +185,137 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     setEditingStepDescriptions([...editingStepDescriptions, index]);
   };
 
+  // Default steps
+  const defaultSteps: TimelineStep[] = [
+    { heading: 'Milestone 1', description: 'Description of the first milestone' },
+    { heading: 'Milestone 2', description: 'Description of the second milestone' },
+    { heading: 'Milestone 3', description: 'Description of the third milestone' },
+    { heading: 'Milestone 4', description: 'Description of the fourth milestone' }
+  ];
+
+  const displaySteps = steps.length >= 4 ? steps.slice(0, 4) : defaultSteps;
+
   return (
     <div className="timeline-template" style={slideStyles}>
-      {/* Title - wrapped */}
-      <div 
-        ref={titleRef}
-        data-moveable-element={`${slideId}-title`}
-        data-draggable="true" 
-        style={{ display: 'inline-block' }}
-      >
+      {/* Title */}
+      <div style={{ display: 'inline-block', position: 'relative', zIndex: 20 }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title || ''}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={true}
             placeholder="Enter slide title..."
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
               wordWrap: 'break-word',
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
-              display: 'block'
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
           <h1 
             style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
+            onClick={() => {
               if (isEditable) {
                 setEditingTitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
+            className={isEditable ? 'cursor-pointer' : ''}
+            dangerouslySetInnerHTML={{ __html: title || 'Timeline' }}
+          />
         )}
       </div>
 
+      {/* Timeline Container */}
       <div style={timelineContainerStyles}>
+        {/* Vertical Line */}
         <div style={timelineLineStyles}></div>
-        {steps.slice(0, 4).map((step: TimelineStep, index: number) => {
-          const isTop = index % 2 !== 0; // 1, 3 on top
-          
-          return (
-            <div 
-              key={index} 
-              data-moveable-element={`${slideId}-step-${index}`}
-              data-draggable="true"
-              style={stepWrapperStyles}
-            >
-              <div style={milestoneContentStyles(isTop)}>
-                <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
-                  {/* Step Heading */}
-                  {isEditable && editingStepHeadings.includes(index) ? (
-                    <InlineEditor
-                      initialValue={step.heading || ''}
-                      onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
-                      onCancel={() => handleStepHeadingCancel(index)}
-                      multiline={true}
-                      placeholder="Enter step heading..."
-                      className="inline-editor-step-heading"
-                      style={{
-                        ...headingStyles,
-                        // Ensure heading behaves exactly like div element
-                        margin: '0',
-                        padding: '0',
-                        border: 'none',
-                        outline: 'none',
-                        resize: 'none',
-                        overflow: 'hidden',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                        boxSizing: 'border-box',
-                        display: 'block'
-                      }}
-                    />
-                  ) : (
-                    <div 
-                      style={headingStyles}
-                      onClick={() => {
-                        if (isEditable) {
-                          startEditingStepHeading(index);
-                        }
-                      }}
-                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                    >
-                      {step.heading || 'Click to add heading'}
-                    </div>
-                  )}
 
-                  {/* Step Description */}
-                  {isEditable && editingStepDescriptions.includes(index) ? (
-                    <InlineEditor
-                      initialValue={step.description || ''}
-                      onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
-                      onCancel={() => handleStepDescriptionCancel(index)}
-                      multiline={true}
-                      placeholder="Enter step description..."
-                      className="inline-editor-step-description"
-                      style={{
-                        ...descriptionStyles,
-                        // Ensure description behaves exactly like div element
-                        margin: '0',
-                        padding: '0',
-                        border: 'none',
-                        outline: 'none',
-                        resize: 'none',
-                        overflow: 'hidden',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                        boxSizing: 'border-box',
-                        display: 'block'
-                      }}
-                    />
-                  ) : (
-                    <div 
-                      style={descriptionStyles}
-                      onClick={() => {
-                        if (isEditable) {
-                          startEditingStepDescription(index);
-                        }
-                      }}
-                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                    >
-                      {step.description || 'Click to add description'}
-                    </div>
-                  )}
-                </div>
-                <div style={{...verticalLineStyles, order: 2}} />
-                <div style={{...numberSquareStyles, order: isTop ? 3 : 1}}>
-                  {index + 1}
-                </div>
-              </div>
+        {/* Timeline Items */}
+        {timelineItems.map((item, index) => (
+          <React.Fragment key={index}>
+            {/* Circle */}
+            <div style={circleStyles(item.topCircle)}></div>
+
+            {/* Text Block */}
+            <div style={textBlockStyles(item.top, item.side)}>
+              {/* Heading */}
+              {isEditable && editingStepHeadings.includes(index) ? (
+                <WysiwygEditor
+                  initialValue={displaySteps[index]?.heading || ''}
+                  onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
+                  onCancel={() => handleStepHeadingCancel(index)}
+                  placeholder="Enter heading..."
+                  className="inline-editor-heading"
+                  style={{
+                    ...headingStyles,
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.2'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={headingStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingStepHeading(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.heading || `Milestone ${index + 1}` }}
+                />
+              )}
+
+              {/* Description */}
+              {isEditable && editingStepDescriptions.includes(index) ? (
+                <WysiwygEditor
+                  initialValue={displaySteps[index]?.description || ''}
+                  onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
+                  onCancel={() => handleStepDescriptionCancel(index)}
+                  placeholder="Enter description..."
+                  className="inline-editor-description"
+                  style={{
+                    ...descriptionStyles,
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.4'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={descriptionStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingStepDescription(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.description || `Description of milestone ${index + 1}` }}
+                />
+              )}
             </div>
-          );
-        })}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
 };
 
-export default TimelineTemplate; 
+export default TimelineTemplate;

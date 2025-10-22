@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export interface BigNumberItem {
   value: string;
@@ -10,139 +11,17 @@ export interface BigNumberItem {
 export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
+  subtitle?: string;  // Added subtitle prop
   steps: BigNumberItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
-
 export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
+  subtitle,  // Added subtitle prop
   steps,  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
@@ -153,6 +32,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);  // Added subtitle editing state
   const [editingItemValues, setEditingItemValues] = useState<number[]>([]);
   const [editingItemLabels, setEditingItemLabels] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
@@ -175,30 +55,61 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: 'white', // White background for main content area
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    padding: '64px',
     fontFamily: currentTheme.fonts.contentFont,
   };
 
-  const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    textAlign: 'left',
-    marginBottom: '56px',
+  // Header section styles (using dark purple theme background)
+  const headerStyles: React.CSSProperties = {
+    background: currentTheme.colors.backgroundColor, // Use theme background gradient
+    padding: '48px 64px 48px 64px',
     width: '100%',
-    wordWrap: 'break-word'
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2.5rem',
+    fontFamily: currentTheme.fonts.titleFont,
+    color: currentTheme.colors.titleColor, // Use theme title color
+    textAlign: 'left',
+    marginBottom: '24px',
+    width: '100%',
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    lineHeight: '1.2'
+  };
+
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: '1.5rem',
+    fontFamily: currentTheme.fonts.contentFont,
+    color: currentTheme.colors.subtitleColor, // Use theme subtitle color
+    textAlign: 'left',
+    width: '95%',
+    wordWrap: 'break-word',
+    lineHeight: '1.5',
+    opacity: 0.9
+  };
+
+  // Main content area styles (white background)
+  const contentStyles: React.CSSProperties = {
+    padding: '64px',
+    paddingTop: '20px',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   };
 
   const gridStyles: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
-    gap: '32px',
+    gap: '48px',
     width: '100%',
-    maxWidth: '1100px',
+    maxWidth: '1200px',
     margin: '0 auto',
   };
 
@@ -206,29 +117,31 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'center',
-    padding: '0 16px',
+    textAlign: 'start',
+    padding: '32px 24px',
   };
 
   const valueStyles: React.CSSProperties = {
-    fontSize: '4.5rem',
-    color: contentColor,
+    fontSize: '3rem',
+    color: currentTheme.colors.accentColor, // Use theme accent color
     marginBottom: '16px',
     fontFamily: currentTheme.fonts.titleFont,
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const labelStyles: React.CSSProperties = {
-    fontSize: '1.4rem',
-    color: contentColor,
-    marginBottom: '10px',
+    fontSize: '1.5rem',
+    color: currentTheme.colors.contentColor, // Use content color (black) for labels on white background
+    marginBottom: '12px',
     fontFamily: currentTheme.fonts.titleFont,
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: '600'
   };
 
   const descriptionStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    color: contentColor,
+    fontSize: '1rem',
+    color: currentTheme.colors.contentColor, // Use theme content color
     fontFamily: currentTheme.fonts.contentFont,
     lineHeight: 1.5,
     wordWrap: 'break-word'
@@ -244,6 +157,18 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const handleTitleCancel = () => {
     setEditingTitle(false);
+  };
+
+  // Handle subtitle editing
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
   };
 
   // Handle item value editing
@@ -302,138 +227,130 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   return (
     <div className="big-numbers-template" style={slideStyles}>
-      {/* Title - wrapped */}
-      <div 
-        ref={titleRef}
-        data-moveable-element={`${slideId}-title`}
-        data-draggable="true" 
-        style={{ display: 'inline-block', width: '100%' }}
-      >
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
+      {/* Header Section - Dark Blue Background */}
+      <div style={headerStyles}>
+        {/* Title */}
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block', width: '100%' }}
+        >
+          {isEditable && editingTitle ? (
+            <WysiwygEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.2'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: title || 'Stress Management Made Simple' }}
+            />
+          )}
+        </div>
+
+        {/* Subtitle */}
+        <div 
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block', width: '100%' }}
+        >
+          {isEditable && editingSubtitle ? (
+            <WysiwygEditor
+              initialValue={subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.'}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.5'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.' }}
+            />
+          )}
+        </div>
       </div>
 
-      <div style={gridStyles}>
-        {Array.isArray(steps) && steps.length >= 3 ? (
-          steps.slice(0, 3).map((item: BigNumberItem, idx: number) => (
-            <div key={idx} style={itemStyles}>
-              {/* Item Value */}
-              <div 
-                data-moveable-element={`${slideId}-item-${idx}-value`}
-                data-draggable="true" 
-                style={{ width: '100%' }}
-              >
-                {isEditable && editingItemValues.includes(idx) ? (
-                  <InlineEditor
-                    initialValue={item.value || ''}
-                    onSave={(newValue) => handleItemValueSave(idx, newValue)}
-                    onCancel={() => handleItemValueCancel(idx)}
-                    multiline={false}
-                    placeholder="Enter value..."
-                    className="inline-editor-item-value"
-                    style={{
-                      ...valueStyles,
-                      // Ensure value behaves exactly like div element
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block'
-                    }}
-                  />
-                ) : (
-                  <div 
-                    style={valueStyles}
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingItemValue(idx);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {item.value || 'Click to add value'}
-                  </div>
-                )}
-              </div>
+      {/* Main Content Area - White Background */}
+      <div style={contentStyles}>
 
-              {/* Item Label */}
+        <div style={gridStyles}>
+          {/* Three identical blocks with "Increase Productivity" */}
+          {[1, 2, 3].map((idx) => (
+            <div key={idx} style={itemStyles}>
+              {/* Item Label - "Increase Productivity" */}
               <div 
                 data-moveable-element={`${slideId}-item-${idx}-label`}
                 data-draggable="true" 
                 style={{ width: '100%' }}
               >
                 {isEditable && editingItemLabels.includes(idx) ? (
-                  <InlineEditor
-                    initialValue={item.label || ''}
+                  <WysiwygEditor
+                    initialValue="Increase Productivity"
                     onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
                     onCancel={() => handleItemLabelCancel(idx)}
-                    multiline={true}
                     placeholder="Enter label..."
                     className="inline-editor-item-label"
                     style={{
                       ...labelStyles,
-                      // Ensure label behaves exactly like div element
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
-                      display: 'block'
+                      display: 'block',
+                      lineHeight: '1.2'
                     }}
                   />
                 ) : (
@@ -451,39 +368,34 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {item.label || 'Click to add label'}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: "Increase Productivity" }}
+                  />
                 )}
               </div>
 
-              {/* Item Description */}
+              {/* Item Description - Same for all blocks */}
               <div 
                 data-moveable-element={`${slideId}-item-${idx}-description`}
                 data-draggable="true" 
                 style={{ width: '100%' }}
               >
                 {isEditable && editingItemDescriptions.includes(idx) ? (
-                  <InlineEditor
-                    initialValue={item.description || ''}
+                  <WysiwygEditor
+                    initialValue="Gain the skills to be productive and successful in the workplace."
                     onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
                     onCancel={() => handleItemDescriptionCancel(idx)}
-                    multiline={true}
                     placeholder="Enter description..."
                     className="inline-editor-item-description"
                     style={{
                       ...descriptionStyles,
-                      // Ensure description behaves exactly like div element
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
-                      display: 'block'
+                      display: 'block',
+                      lineHeight: '1.5'
                     }}
                   />
                 ) : (
@@ -501,99 +413,13 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {item.description || 'Click to add description'}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: "Gain the skills to be productive and successful in the workplace." }}
+                  />
                 )}
               </div>
             </div>
-          ))
-        ) : (
-          // Fallback: Display available items or placeholder content
-          Array.isArray(steps) && steps.length > 0 ? (
-            steps.slice(0, 3).map((item: BigNumberItem, idx: number) => {
-              // Fill missing fields with defaults
-              const safeItem = {
-                value: item.value || '0',
-                label: item.label || `Item ${idx + 1}`,
-                description: item.description || 'No description available'
-              };
-              
-              return (
-                <div key={idx} style={{
-                  textAlign: 'center',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(10px)'
-                }}>
-                                     <div style={{
-                     fontSize: 'clamp(1.8rem, 4vw, 3rem)',
-                     fontWeight: 'bold',
-                     color: currentTheme.colors.accentColor,
-                     marginBottom: '8px',
-                     textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                   }}>
-                     {safeItem.value}
-                   </div>
-                   <div style={{
-                     fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-                     fontWeight: '600',
-                     color: currentTheme.colors.titleColor,
-                     marginBottom: '8px'
-                   }}>
-                     {safeItem.label}
-                   </div>
-                   <div style={{
-                     fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
-                     color: currentTheme.colors.contentColor,
-                     lineHeight: '1.4'
-                   }}>
-                     {safeItem.description}
-                   </div>
-                </div>
-              );
-            })
-          ) : (
-            // Ultimate fallback: Show placeholder content
-            [1, 2, 3].map((idx) => (
-              <div key={idx} style={{
-                textAlign: 'center',
-                padding: '20px',
-                borderRadius: '12px',
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)'
-              }}>
-                                 <div style={{
-                   fontSize: 'clamp(1.8rem, 4vw, 3rem)',
-                   fontWeight: 'bold',
-                   color: currentTheme.colors.accentColor,
-                   marginBottom: '8px',
-                   textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                 }}>
-                   {idx * 25}%
-                 </div>
-                 <div style={{
-                   fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-                   fontWeight: '600',
-                   color: currentTheme.colors.titleColor,
-                   marginBottom: '8px'
-                 }}>
-                   Key Metric {idx}
-                 </div>
-                 <div style={{
-                   fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
-                   color: currentTheme.colors.contentColor,
-                   lineHeight: '1.4'
-                 }}>
-                   Important statistic for your presentation
-                 </div>
-              </div>
-            ))
-          )
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );

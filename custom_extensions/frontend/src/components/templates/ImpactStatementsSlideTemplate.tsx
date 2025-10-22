@@ -155,7 +155,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',

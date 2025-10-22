@@ -1,118 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MetricsAnalyticsTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
   title = 'Metrics and analytics',
@@ -197,19 +86,27 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
       {/* Title Section */}
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <WysiwygEditor
             initialValue={title}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
-            multiline={false}
             placeholder="Enter title..."
+            className="inline-editor-title"
             style={{
               fontWeight: 700,
               fontSize: currentTheme.fonts.titleSize,
               color: tColor,
               textAlign: 'center',
               width: '100%',
-              fontFamily: currentTheme.fonts.titleFont
+              fontFamily: currentTheme.fonts.titleFont,
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.2'
             }}
           />
         ) : (
@@ -224,9 +121,8 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
             }}
             onClick={() => isEditable && setEditingTitle(true)}
             className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || (isEditable ? 'Click to add title' : '')}
-          </div>
+            dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
+          />
         )}
       </div>
 
@@ -256,12 +152,12 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
           }}>
             {/* Number */}
             {isEditable && editingMetrics[index]?.number ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={metric.number}
                 onSave={(value) => handleMetricSave(index, 'number', value)}
                 onCancel={() => handleMetricCancel(index, 'number')}
-                multiline={false}
                 placeholder="Enter number..."
+                className="inline-editor-metric-number"
                 style={{
                   fontSize: '36px',
                   fontWeight: 700,
@@ -269,7 +165,15 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                   marginBottom: '16px',
                   fontFamily: currentTheme.fonts.titleFont,
                   textAlign: 'center',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
@@ -284,26 +188,32 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                   textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
                 onClick={() => isEditable && handleMetricEdit(index, 'number')}
-              >
-                {metric.number}
-              </div>
+                dangerouslySetInnerHTML={{ __html: metric.number }}
+              />
             )}
             
             {/* Text */}
             {isEditable && editingMetrics[index]?.text ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={metric.text}
                 onSave={(value) => handleMetricSave(index, 'text', value)}
                 onCancel={() => handleMetricCancel(index, 'text')}
-                multiline={true}
                 placeholder="Enter text..."
+                className="inline-editor-metric-text"
                 style={{
                   fontSize: currentTheme.fonts.contentSize,
                   color: txtColor,
                   lineHeight: '1.5',
                   fontFamily: currentTheme.fonts.contentFont,
                   textAlign: 'center',
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
                 }}
               />
             ) : (
@@ -317,9 +227,8 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
                   fontWeight: '500'
                 }}
                 onClick={() => isEditable && handleMetricEdit(index, 'text')}
-              >
-                {metric.text || (isEditable ? 'Click to add text' : '')}
-              </div>
+                dangerouslySetInnerHTML={{ __html: metric.text || (isEditable ? 'Click to add text' : '') }}
+              />
             )}
           </div>
         ))}

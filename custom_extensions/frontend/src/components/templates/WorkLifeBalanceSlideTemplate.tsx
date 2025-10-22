@@ -154,7 +154,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
