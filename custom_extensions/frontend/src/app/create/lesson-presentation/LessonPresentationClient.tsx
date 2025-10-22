@@ -1995,12 +1995,6 @@ export default function LessonPresentationClient() {
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
                 <LoadingAnimation message={thoughts[thoughtIdx]} showFallback={false} />
-                {formatRetryCounter > 0 && debugInfo && (
-                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
-                    <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
-                    <p>Last attempt: {debugInfo.lastAttemptTime}</p>
-                  </div>
-                )}
               </div>
             )}
             {error && (

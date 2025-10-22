@@ -1164,151 +1164,153 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Advanced Data Science Mastery: From Theory to Production",
+  "lessonTitle": "Project Management Fundamentals: From Planning to Delivery",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Section: Advanced Data Science Mastery",
+      "slideTitle": "Section: Project Management Fundamentals",
       "templateId": "title-slide",
       "previewKeyPoints": [
-        "Comprehensive data science training program covering theory and practical applications",
-        "Advanced techniques for real-world data challenges and production deployment",
-        "Industry-standard tools and methodologies for professional data scientists",
-        "Career development pathways and specialization opportunities in data science"
+        "Learning Outcome: You will be able to plan and execute projects using structured methodologies",
+        "Learning Outcome: You will be able to identify and mitigate common project risks before they occur",
+        "Learning Outcome: You will be able to apply time management frameworks to meet project deadlines",
+        "Practical Focus: Real workplace scenarios with step-by-step implementation guides"
       ],
       "props": {
-        "title": "Advanced Data Science Mastery",
-        "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
-        "author": "Data Science Excellence Institute"
+        "title": "Project Management Fundamentals",
+        "subtitle": "Learn to plan, execute, and deliver successful projects in any industry",
+        "author": "Professional Development Institute"
       }
     },
     {
-      "slideId": "slide_2_statistical_foundations",
+      "slideId": "slide_2_learning_objectives",
       "slideNumber": 2,
-      "slideTitle": "Advanced Data Science Mastery — Statistical Foundations and Mathematical Prerequisites",
+      "slideTitle": "Project Management Fundamentals — What You Will Be Able To Do",
       "templateId": "two-column",
       "previewKeyPoints": [
-        "Essential statistical concepts including probability distributions and hypothesis testing",
-        "Linear algebra fundamentals for machine learning algorithms and dimensionality reduction",
-        "Calculus applications in optimization and gradient-based learning methods",
-        "Practical implementation using Python libraries like NumPy, SciPy, and statsmodels"
+        "After this lesson, you will identify project scope and create work breakdown structures",
+        "After this lesson, you will apply risk assessment frameworks to predict potential issues",
+        "After this lesson, you will evaluate progress using key performance metrics",
+        "After this lesson, you will create action plans for common project challenges"
       ],
       "props": {
-        "title": "Core Mathematical and Statistical Foundations",
-        "leftTitle": "Statistical Concepts",
-        "leftContent": "Probability distributions model uncertainty in data while hypothesis testing validates experimental assumptions.",
-        "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "Linear algebra powers dimensionality reduction and neural networks while calculus enables gradient-based optimization."
+        "title": "Your Learning Outcomes: Skills You Will Develop",
+        "leftTitle": "Planning Skills",
+        "leftContent": "You will learn to define project scope, create detailed timelines, and allocate resources effectively. These skills apply to any project in any industry.",
+        "rightTitle": "Execution Skills",
+        "rightContent": "You will learn to track progress, identify risks early, and adjust plans when circumstances change. You will practice these skills through real scenarios."
       }
     },
     {
-      "slideId": "slide_3_data_pipeline_architecture",
+      "slideId": "slide_3_project_planning_steps",
       "slideNumber": 3,
-      "slideTitle": "Advanced Data Science Mastery — Enterprise Data Pipeline Architecture and ETL Processes",
+      "slideTitle": "Project Management Fundamentals — How To Plan Your Project in 5 Steps",
       "templateId": "process-steps",
       "previewKeyPoints": [
-        "End-to-end data pipeline design from ingestion to serving predictions at scale",
-        "ETL and ELT processes with modern tools like Apache Airflow and dbt for workflow orchestration",
-        "Data quality monitoring and validation frameworks to ensure reliable model inputs",
-        "Scalable architecture patterns for handling big data processing and real-time streaming"
+        "Step 1: Define clear project goals that are specific and measurable",
+        "Step 2: Break down work into manageable tasks using proven techniques",
+        "Step 3: Estimate time and resources needed for each task",
+        "Step 4: Identify potential risks and create backup plans",
+        "Step 5: Set up tracking system to monitor progress against goals"
       ],
       "props": {
-        "title": "Building Production-Ready Data Pipelines",
+        "title": "Your Step-by-Step Project Planning Guide",
         "steps": [
-          "Ingest data from databases, APIs, streams, and files with retries, validation, and error handling to ensure completeness and reliability at scale",
-          "Transform and clean data using outlier handling, imputation, feature engineering, and normalization with Spark, Pandas, or dbt for reusable pipelines",
-          "Monitor data quality via profiling, schema checks, statistical tests, and drift detection to catch issues early and maintain trustworthy inputs",
-          "Serve models with Docker/Kubernetes and ML platforms (e.g., MLflow, Seldon) for reliable real-time and batch prediction endpoints",
-          "Track latency, accuracy, throughput, and business KPIs with dashboards and alerts to keep pipelines healthy and actionable"
+          "Define Project Goals: Write down what success looks like. Use the SMART framework (Specific, Measurable, Achievable, Relevant, Time-bound). Example: 'Launch new website with 5 core pages by March 15' rather than 'improve online presence'.",
+          "Create Work Breakdown Structure: List all tasks needed. Start with major phases, then break each into smaller tasks taking 2-5 days each. This makes the project less overwhelming and easier to track.",
+          "Estimate Time and Resources: For each task, estimate hours needed and who will do it. Add buffer time (typically 20% extra) for unexpected issues. Track your estimates to improve accuracy over time.",
+          "Identify Risks: Ask 'What could go wrong?' for each phase. List top 5 risks. For each, create a backup plan. Example risk: 'Team member unavailable' → Backup: 'Cross-train second person on critical tasks'.",
+          "Set Up Tracking: Choose simple tracking method (spreadsheet, project board, or tool). Update weekly. Track: tasks completed, upcoming deadlines, blockers. Hold brief weekly check-ins to stay aligned."
         ]
       }
     },
     {
-      "slideId": "slide_4_machine_learning_algorithms",
+      "slideId": "slide_4_common_challenges",
       "slideNumber": 4,
-      "slideTitle": "Advanced Data Science Mastery — Advanced Machine Learning Algorithms and Model Selection",
+      "slideTitle": "Project Management Fundamentals — Common Challenges You Will Face",
       "templateId": "bullet-points-right",
       "previewKeyPoints": [
-        "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
-        "Unsupervised learning techniques for clustering, dimensionality reduction, and anomaly detection",
-        "Deep learning architectures including CNNs, RNNs, and Transformers for various data types",
-        "Model selection strategies, hyperparameter tuning, and cross-validation best practices"
+        "Challenge: Project scope grows beyond original plan (scope creep)",
+        "Challenge: Team members have conflicting schedules and priorities",
+        "Challenge: Unexpected problems delay progress and consume resources",
+        "Challenge: Stakeholders change requirements mid-project",
+        "How to Apply: Recognize these patterns early and use proven response strategies"
       ],
       "props": {
-        "title": "Comprehensive Machine Learning Algorithm Toolkit",
+        "title": "Typical Project Challenges and How to Address Them",
         "bullets": [
-          "Supervised learning from linear/logistic regression to ensembles (Random Forest, XGBoost, LightGBM, SVM) with guidance on when to use which and key tradeoffs",
-          "Unsupervised learning: clustering (K-means, DBSCAN, hierarchical), dimensionality reduction (PCA, t-SNE, UMAP), and anomaly detection for EDA and features",
-          "Deep learning: CNNs for vision, RNNs/Transformers for NLP, plus transfer learning and attention to tackle complex patterns and limited labeled data",
-          "Model selection and evaluation: proper cross-validation, hyperparameter tuning (grid/random/Bayesian), and metrics for classification, regression, ranking",
-          "Ensembles and stacking to boost accuracy and robustness via voting, bagging, boosting, and layered learners that combine model strengths"
+          "Scope Creep: New features get added during execution. Response: Document all changes formally, assess impact on timeline and resources, get approval before adding work. Use change request forms.",
+          "Resource Conflicts: Team members have other commitments. Response: Identify critical dependencies early, communicate with other project leads, negotiate priorities with management. Keep backup resources identified.",
+          "Unexpected Delays: Technical issues or external factors cause setbacks. Response: Build buffer time into schedule, maintain risk log, communicate delays immediately to stakeholders with revised timeline.",
+          "Changing Requirements: Stakeholders revise what they want. Response: Establish change approval process, show impact on deadline and budget for each change, prioritize changes together with stakeholders.",
+          "Communication Gaps: Team members work in silos without alignment. Response: Hold regular brief check-ins, use shared project tracker visible to all, create simple status update format everyone follows."
         ],
-        "imagePrompt": "Realistic cinematic scene of data scientists collaborating in a modern machine learning lab with multiple monitors displaying algorithm visualizations, code, and model performance metrics. The scene features diverse professionals analyzing complex data patterns on large screens while discussing model architectures. Monitors and visualizations are [COLOR1], data scientists and workstations are [COLOR2], and lab environment is [COLOR3]. Cinematic photography with natural lighting, 50mm lens, three-quarter view, shallow depth of field.",
-        "imageAlt": "Data scientists working on machine learning algorithms"
+        "imagePrompt": "Professional office environment showing diverse team members collaborating around a project planning board with sticky notes and timelines. Team includes people of different backgrounds working together on project strategy. Natural office lighting, realistic workplace setting with laptops and planning materials. Planning board is [COLOR1], team and workspace is [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Team members collaborating on project planning"
       }
     },
     {
-      "slideId": "slide_5_feature_engineering",
+      "slideId": "slide_5_essential_tools",
       "slideNumber": 5,
-      "slideTitle": "Advanced Data Science Mastery — Advanced Feature Engineering and Selection Techniques",
+      "slideTitle": "Project Management Fundamentals — Four Essential Tools You Will Use Daily",
       "templateId": "four-box-grid",
       "previewKeyPoints": [
-        "Systematic approaches to creating meaningful features from raw data across different domains",
-        "Automated feature engineering tools and techniques for scaling feature creation processes",
-        "Feature selection methods to identify most relevant variables and reduce dimensionality",
-        "Domain-specific feature engineering for text, images, time series, and categorical data"
+        "Tool 1: Project Charter - Document that defines project purpose and authority",
+        "Tool 2: Task Board - Visual system to track work progress and identify blockers",
+        "Tool 3: Risk Register - Living document of potential problems and response plans",
+        "Tool 4: Status Report - Regular communication format to keep stakeholders informed"
       ],
       "props": {
-        "title": "Essential Feature Engineering Techniques",
+        "title": "Your Project Management Toolkit: What to Use When",
         "boxes": [
           {
-            "heading": "Domain Knowledge Integration",
-            "text": "Leverage subject matter expertise to create meaningful features that capture underlying patterns and relationships specific to your problem domain."
+            "heading": "Project Charter (Use at Start)",
+            "text": "One-page document defining project goals, scope, key stakeholders, and success criteria. Use this to get approval before starting work. Prevents misunderstandings about what you are building."
           },
           {
-            "heading": "Automated Feature Generation",
-            "text": "Use tools like Featuretools and tsfresh to systematically generate hundreds of candidate features from temporal and relational data."
+            "heading": "Task Board (Use Daily)",
+            "text": "Visual board with columns like 'To Do', 'In Progress', 'Blocked', 'Done'. Each task is a card. Move cards as work progresses. Makes bottlenecks visible immediately. Can be physical board or digital tool."
           },
           {
-            "heading": "Feature Selection Methods",
-            "text": "Apply statistical tests, recursive feature elimination, and model-based importance to identify the most predictive variables and reduce dimensionality."
+            "heading": "Risk Register (Review Weekly)",
+            "text": "Spreadsheet listing potential problems, likelihood, impact, and response plan for each. Update when new risks appear. Helps team prepare rather than react. Example: 'Vendor delay - High likelihood - Medium impact - Response: Order 2 weeks early'."
           },
           {
-            "heading": "Domain-Specific Transforms",
-            "text": "Apply specialized encodings for text (TF-IDF, embeddings), images (CNN features), time series (lag features), and categorical data (target encoding)."
+            "heading": "Status Report (Send Weekly)",
+            "text": "Brief update template: Accomplishments this week, Plans for next week, Blockers needing help. Keep to one page. Send same day each week. Keeps everyone informed without meetings. Builds trust through transparency."
           }
         ]
       }
     },
     {
-      "slideId": "slide_6_model_performance_metrics",
+      "slideId": "slide_6_success_indicators",
       "slideNumber": 6,
-      "slideTitle": "Advanced Data Science Mastery — Comprehensive Model Evaluation and Performance Metrics",
+      "slideTitle": "Project Management Fundamentals — Signs Your Project Is On Track",
       "templateId": "big-numbers",
       "previewKeyPoints": [
-        "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
-        "Regression evaluation methods with RMSE, MAE, and R-squared for different use cases",
-        "Advanced metrics for imbalanced datasets and multi-class classification problems"
+        "Indicator 1: Tasks are being completed consistently each week without major delays",
+        "Indicator 2: Team members know their responsibilities and communicate proactively",
+        "Indicator 3: Stakeholders receive regular updates and provide timely feedback"
       ],
       "props": {
-        "title": "Critical Performance Metrics for Model Evaluation",
-        "subtitle": "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation, with regression evaluation methods and advanced metrics for imbalanced datasets and multi-class classification problems.",
+        "title": "Key Indicators of Project Health: What to Monitor",
+        "subtitle": "These qualitative indicators help you assess whether your project is progressing well. Most successful projects demonstrate these patterns consistently.",
         "steps": [
           {
-            "value": "95%+",
-            "label": "Model Accuracy Threshold",
-            "description": "Balance precision and recall while accounting for class imbalance and business costs. Ensure consistent performance across segments and set alerts for degradation."
+            "value": "Regular",
+            "label": "Task Completion Pattern",
+            "description": "You complete planned tasks most weeks. When delays occur, you identify them early and adjust the schedule. Consistent progress matters more than speed."
           },
           {
-            "value": "0.85+",
-            "label": "AUC-ROC Score Target",
-            "description": "Indicates strong discriminative power for binary tasks like fraud or churn. Prefer scores >0.9 for high-stakes use cases."
+            "value": "Clear",
+            "label": "Team Communication",
+            "description": "Team members raise blockers before they become critical. Everyone knows who is doing what. People respond to questions within expected timeframes. Confusion is addressed immediately."
           },
           {
-            "value": "<5%",
-            "label": "Acceptable Error Rate",
-            "description": "Error budgets depend on domain. Critical systems need <1%, while recommendations can tolerate higher."
+            "value": "Engaged",
+            "label": "Stakeholder Involvement",
+            "description": "Stakeholders attend scheduled reviews. They provide feedback when requested. They express confidence in project direction. No surprises emerge late in the project."
           }
         ]
       }
@@ -23543,12 +23545,45 @@ CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
 CONTENT DENSITY AND LEARNING REQUIREMENTS:
-- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
-- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
-- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
-- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+🎯 **OUTCOME-BASED LEARNING (CRITICAL)**:
+- Every slide must implicitly answer: "After this slide, the learner will be able to [ACTION VERB + SPECIFIC SKILL]"
+- Focus on ACTIONABLE outcomes, not just knowledge transfer
+- Example: Instead of "Understanding project management" → "You will be able to create a project timeline and identify risks"
+
+📚 **STRUCTURED LEARNING PROGRESSION**:
+- Follow What → Why → How → Apply structure in your content
+- What: Define the concept clearly (avoid jargon or explain it immediately)
+- Why: Explain its importance and when to use it
+- How: Provide step-by-step guidance with concrete details
+- Apply: Give real examples and practical application scenarios
+
+🌍 **CULTURAL NEUTRALITY (MANDATORY)**:
+- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream", specific companies as examples
+- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution", "technology company"
+- Examples must be universally relatable across different cultures and countries
+
+📊 **FACTUAL ACCURACY (CRITICAL - NO HALLUCINATED DATA)**:
+- ❌ NEVER invent statistics, percentages, dates, or numerical data unless they are well-known facts
+- ❌ Do NOT create fake numbers like "95% success rate", "3x productivity increase", "50% reduction" 
+- ✅ USE qualitative language instead: "many organizations", "most professionals", "several studies suggest", "substantial improvement", "significant increase"
+- ✅ For big-numbers slides, use qualitative descriptors as values: "High", "Regular", "Strong", "Growing", "Consistent" instead of fake percentages
+
+💡 **PRACTICAL, ACTIONABLE CONTENT**:
+- Every concept MUST be paired with "how to apply this in practice"
+- Include step-by-step implementation guidance
+- Provide concrete examples from real work scenarios
+- Bullet points must be comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific methodologies, step-by-step processes, common pitfalls, and actionable insights
+- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance
+
+🔑 **TERMINOLOGY CONSISTENCY**:
+- Choose ONE term for each concept and use it consistently throughout all slides
+- If you introduce a key term on slide 2, use THE SAME term on slides 3, 4, 5, etc.
+- Example: If you say "task list" initially, don't later switch to "to-do list", "action items", or "work breakdown"
+
+🎓 **EDUCATIONAL DEPTH**:
+- Ensure learners gain deep understanding of the topic after reading the complete presentation
+- Each slide should teach substantial concepts, not just overview points
+- Include concrete examples, specific methodologies, and measurable approaches in every slide
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -23680,12 +23715,45 @@ CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
 CONTENT DENSITY AND LEARNING REQUIREMENTS:
-- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
-- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
-- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
-- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+🎯 **OUTCOME-BASED LEARNING (CRITICAL)**:
+- Every slide must implicitly answer: "After this slide, the learner will be able to [ACTION VERB + SPECIFIC SKILL]"
+- Focus on ACTIONABLE outcomes, not just knowledge transfer
+- Example: Instead of "Understanding project management" → "You will be able to create a project timeline and identify risks"
+
+📚 **STRUCTURED LEARNING PROGRESSION**:
+- Follow What → Why → How → Apply structure in your content
+- What: Define the concept clearly (avoid jargon or explain it immediately)
+- Why: Explain its importance and when to use it
+- How: Provide step-by-step guidance with concrete details
+- Apply: Give real examples and practical application scenarios
+
+🌍 **CULTURAL NEUTRALITY (MANDATORY)**:
+- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream", specific companies as examples
+- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution", "technology company"
+- Examples must be universally relatable across different cultures and countries
+
+📊 **FACTUAL ACCURACY (CRITICAL - NO HALLUCINATED DATA)**:
+- ❌ NEVER invent statistics, percentages, dates, or numerical data unless they are well-known facts
+- ❌ Do NOT create fake numbers like "95% success rate", "3x productivity increase", "50% reduction" 
+- ✅ USE qualitative language instead: "many organizations", "most professionals", "several studies suggest", "substantial improvement", "significant increase"
+- ✅ For big-numbers slides, use qualitative descriptors as values: "High", "Regular", "Strong", "Growing", "Consistent" instead of fake percentages
+
+💡 **PRACTICAL, ACTIONABLE CONTENT**:
+- Every concept MUST be paired with "how to apply this in practice"
+- Include step-by-step implementation guidance
+- Provide concrete examples from real work scenarios
+- Bullet points must be comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific methodologies, step-by-step processes, common pitfalls, and actionable insights
+- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance
+
+🔑 **TERMINOLOGY CONSISTENCY**:
+- Choose ONE term for each concept and use it consistently throughout all slides
+- If you introduce a key term on slide 2, use THE SAME term on slides 3, 4, 5, etc.
+- Example: If you say "task list" initially, don't later switch to "to-do list", "action items", or "work breakdown"
+
+🎓 **EDUCATIONAL DEPTH**:
+- Ensure learners gain deep understanding of the topic after reading the complete presentation
+- Each slide should teach substantial concepts, not just overview points
+- Include concrete examples, specific methodologies, and measurable approaches in every slide
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
