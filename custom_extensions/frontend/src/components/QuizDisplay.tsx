@@ -98,13 +98,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const showResult = isSubmitted && showAnswers;
 
     return (
-      <div className="mt-4">
-        <div className="space-y-2">
+      <div>
+        <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${option.id === question.correct_option_id ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
@@ -118,10 +118,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-black"
+                    className="w-full p-2 border rounded text-gray-900"
                   />
                 ) : (
-                  <span className="text-black">{option.text}</span>
+                  <span className="text-gray-900">{option.text}</span>
                 )}
               </div>
             </div>
@@ -139,14 +139,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12.5c-3.038 0-5.5-2.462-5.5-5.5S4.962 2.5 8 2.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z" fill="#10B981"/>
+                  <path d="M8 4.5c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0 6c-1.38 0-2.5-1.12-2.5-2.5S6.62 5.5 8 5.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/>
+                  <path d="M8 6.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5z" fill="#10B981"/>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-gray-800 flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -169,17 +171,19 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const showResult = isSubmitted && showAnswers;
 
     return (
-      <div className="mt-4">
-        <div className="space-y-2">
+      <div>
+        <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'}`}
+                  className={`w-4 h-4 rounded border-2 flex items-center justify-center ${correctIds.includes(option.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
-                    <div className="w-2 h-2 bg-white" />
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 6L4.5 8.5L10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   )}
                 </div>
               </div>
@@ -189,10 +193,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    className="w-full p-2 border rounded text-black"
+                    className="w-full p-2 border rounded text-gray-900"
                   />
                 ) : (
-                  <span className="text-black">{option.text}</span>
+                  <span className="text-gray-900">{option.text}</span>
                 )}
               </div>
             </div>
@@ -210,14 +214,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12.5c-3.038 0-5.5-2.462-5.5-5.5S4.962 2.5 8 2.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z" fill="#10B981"/>
+                  <path d="M8 4.5c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0 6c-1.38 0-2.5-1.12-2.5-2.5S6.62 5.5 8 5.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/>
+                  <path d="M8 6.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5z" fill="#10B981"/>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-gray-800 flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -361,14 +367,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12.5c-3.038 0-5.5-2.462-5.5-5.5S4.962 2.5 8 2.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z" fill="#10B981"/>
+                  <path d="M8 4.5c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0 6c-1.38 0-2.5-1.12-2.5-2.5S6.62 5.5 8 5.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/>
+                  <path d="M8 6.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5z" fill="#10B981"/>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-gray-800 flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -512,14 +520,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           })}
         </div>
         {question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12.5c-3.038 0-5.5-2.462-5.5-5.5S4.962 2.5 8 2.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z" fill="#10B981"/>
+                  <path d="M8 4.5c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0 6c-1.38 0-2.5-1.12-2.5-2.5S6.62 5.5 8 5.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/>
+                  <path d="M8 6.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5z" fill="#10B981"/>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-gray-800 flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -565,14 +575,16 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(9, 200, 25, 0.2)' }}>
-            <div className="flex items-center gap-2">
-              <div className="bg-white p-1 rounded text-black flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M9.063 18.045c-.046-1.131-.794-2.194-1.803-3.18a7.5 7.5 0 1 1 10.48 0c-1.041 1.017-1.805 2.117-1.805 3.29v1.595a2.25 2.25 0 0 1-2.25 2.25h-2.373a2.25 2.25 0 0 1-2.25-2.25zM6.5 9.5a5.98 5.98 0 0 0 1.808 4.293c.741.724 1.512 1.633 1.933 2.707h4.518c.421-1.074 1.192-1.984 1.933-2.707A6 6 0 1 0 6.5 9.5m4.063 8.713v1.537c0 .414.335.75.75.75h2.372a.75.75 0 0 0 .75-.75V18h-3.873v.017a4 4 0 0 1 0 .196M1.75 9.5a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1-.75-.75m2.465-5.65a.75.75 0 1 0-.75 1.3l.866.5a.75.75 0 1 0 .75-1.3zM3.19 14.875a.75.75 0 0 1 .275-1.024l.866-.5a.75.75 0 0 1 .75 1.298l-.866.5a.75.75 0 0 1-1.025-.274M21.5 8.75a.75.75 0 0 0 0 1.5h1a.75.75 0 0 0 0-1.5zm-1.855 4.875a.75.75 0 0 1 1.025-.274l.866.5a.75.75 0 1 1-.75 1.298l-.866-.5a.75.75 0 0 1-.275-1.024m.275-9.275a.75.75 0 0 0 .75 1.3l.866-.5a.75.75 0 1 0-.75-1.3z"/>
+          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12.5c-3.038 0-5.5-2.462-5.5-5.5S4.962 2.5 8 2.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z" fill="#10B981"/>
+                  <path d="M8 4.5c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0 6c-1.38 0-2.5-1.12-2.5-2.5S6.62 5.5 8 5.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#10B981"/>
+                  <path d="M8 6.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5z" fill="#10B981"/>
                 </svg>
               </div>
-              <p className="text-sm text-black flex-1">{question.explanation}</p>
+              <p className="text-sm text-gray-800 flex-1">{question.explanation}</p>
             </div>
           </div>
         )}
@@ -585,61 +597,100 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     const questionType = question.question_type;
 
     return (
-      <div key={index} className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-start mb-4">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
-            {questionNumber}
-          </span>
-          <div className="flex-1">
-            {isEditing ? (
-              <input
-                type="text"
-                value={question.question_text}
-                onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                className="w-full p-2 border rounded text-lg font-semibold text-black"
-              />
-            ) : (
-              <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
-            )}
+      <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {/* Question Header Bar */}
+        <div className="bg-blue-50 px-6 py-4 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded"></div>
+              </div>
+              <div className="flex-1">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={question.question_text}
+                    onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
+                    className="w-full text-lg font-semibold text-blue-900 bg-transparent border-none outline-none"
+                  />
+                ) : (
+                  <h3 className="text-lg font-semibold text-blue-900">{question.question_text}</h3>
+                )}
+                {questionType === 'multi-select' && (
+                  <p className="text-sm text-gray-600 mt-1">(Select all that apply)</p>
+                )}
+              </div>
+            </div>
+            <button className="p-2 hover:bg-blue-100 rounded">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.333 2.667H4.667C3.93 2.667 3.333 3.264 3.333 4v8c0 .736.597 1.333 1.334 1.333h6.666c.737 0 1.334-.597 1.334-1.333V4c0-.736-.597-1.333-1.334-1.333zM4.667 4h6.666v8H4.667V4z" fill="#6B7280"/>
+                <path d="M6 6h4v1.333H6V6zm0 2h4v1.333H6V8z" fill="#6B7280"/>
+              </svg>
+            </button>
           </div>
         </div>
-        {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
-        {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
-        {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
-        {questionType === 'sorting' && renderSorting(question as SortingQuestion, index)}
-        {questionType === 'open-answer' && renderOpenAnswer(question as OpenAnswerQuestion, index)}
+
+        {/* Question Content */}
+        <div className="p-6">
+          {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
+          {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
+          {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
+          {questionType === 'sorting' && renderSorting(question as SortingQuestion, index)}
+          {questionType === 'open-answer' && renderOpenAnswer(question as OpenAnswerQuestion, index)}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {parentProjectName && (
-        <div style={{ borderLeft: '3px solid #FF1414', paddingLeft: '10px', marginBottom: '8px' }}>
-          <h2 style={{ textTransform: 'uppercase', fontSize: '1.125rem', fontWeight: 500, color: 'black', margin: 0 }}>
-            <span style={{ color: '#FF1414' }}>{t('common.course', 'COURSE')}:</span> {parentProjectName}
-          </h2>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+              <span className="text-white font-bold text-sm">X</span>
+            </div>
+            <h1 className="text-xl font-semibold text-gray-900">
+              {dataToDisplay.quizTitle || t('quiz.quizTitle', 'Quiz Title')}
+            </h1>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-gray-300 rounded"></div>
+              <div className="w-4 h-4 bg-gray-300 rounded"></div>
+              <div className="w-4 h-4 bg-gray-300 rounded"></div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 1L9.5 4.5L13 4.5L10.5 7L12 10.5L8 8L4 10.5L5.5 7L3 4.5L6.5 4.5L8 1Z" fill="currentColor"/>
+              </svg>
+              AI Improve
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 1L9.5 4.5L13 4.5L10.5 7L12 10.5L8 8L4 10.5L5.5 7L3 4.5L6.5 4.5L8 1Z" fill="currentColor"/>
+              </svg>
+              Export
+            </button>
+          </div>
         </div>
-      )}
-      <div className="mb-8">
-        {isEditing ? (
-          <input
-            type="text"
-            value={dataToDisplay.quizTitle}
-            onChange={(e) => handleTextChange(['quizTitle'], e.target.value)}
-            className="w-full p-2 border rounded text-2xl font-bold mb-2 text-black"
-            placeholder={t('quiz.quizTitle', 'Quiz Title')}
-          />
-        ) : (
-          <h1 className="font-bold text-black mb-2" style={{ fontSize: '1.875rem', lineHeight: '2.25rem' }}>
-            {lessonNumber && <span style={{ color: '#FF1414' }}>{t('common.lesson', 'LESSON')} №{lessonNumber}: </span>}
-            {dataToDisplay.quizTitle || t('quiz.quizTitle', 'Quiz Title')}
-          </h1>
-        )}
       </div>
 
-      <div className="space-y-6">
-        {questions.map((question, index) => renderQuestion(question, index))}
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="text-sm text-gray-600 mb-6">
+          {questions.length} questions total
+        </div>
+
+        <div className="space-y-6">
+          {questions.map((question, index) => renderQuestion(question, index))}
+        </div>
       </div>
     </div>
   );

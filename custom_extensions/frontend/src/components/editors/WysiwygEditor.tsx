@@ -6,7 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
-import { ArrowDownIcon } from 'lucide-react';
+import { ArrowDownIcon, ChevronDownIcon, Sparkles } from 'lucide-react';
 
 export interface WysiwygEditorProps {
   initialValue: string;
@@ -196,7 +196,6 @@ export function WysiwygEditor({
             display: 'flex',
             gap: '4px',
             backgroundColor: 'white',
-            border: '1px solid #e5e7eb',
             borderRadius: '6px',
             padding: '4px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -324,7 +323,7 @@ export function WysiwygEditor({
               }}
               style={{
                 minWidth: '120px',
-                height: '32px',
+                height: '25px',
                 border: '1px solid rgb(0, 0, 0)',
                 borderRadius: '6px',
                 backgroundColor: 'white',
@@ -340,7 +339,7 @@ export function WysiwygEditor({
               title="Text Style"
             >
               <span>{currentTextStyle}</span>
-              <span style={{ marginLeft: '4px' }}><ArrowDownIcon size={16} /></span>
+              <span style={{ marginLeft: '4px' }}><ChevronDownIcon size={16} /></span>
             </button>
 
             {/* Text Style Dropdown Menu */}
@@ -408,18 +407,19 @@ export function WysiwygEditor({
           </div>
            <div>
              <input
-               type="number"
+               type="text"
                defaultValue="120"
                style={{
                  width: '60px',
-                 height: '32px',
-                 border: '1px solidrgb(0, 0, 0)',
+                 height: '25px',
+                 border: '1px solid rgb(0, 0, 0)',
                  borderRadius: '6px',
                  padding: '0 8px',
                  fontSize: '14px',
                  textAlign: 'center',
                  backgroundColor: 'white',
-                 outline: 'none'
+                 outline: 'none',
+                 color: 'black',
                }}
                title="Font Size"
              />
@@ -433,8 +433,8 @@ export function WysiwygEditor({
               editor.chain().focus().toggleBold().run();
             }}
             style={{
-              width: '27px',
-              height: '30px',
+              width: '25px',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: editor.isActive('bold') ? '#3b82f6' : 'white',
               color: editor.isActive('bold') ? 'white' : '#374151',
@@ -461,8 +461,8 @@ export function WysiwygEditor({
               editor.chain().focus().toggleItalic().run();
             }}
             style={{
-              width: '27px',
-              height: '30px',
+              width: '25px',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: editor.isActive('italic') ? '#3b82f6' : 'white',
               color: editor.isActive('italic') ? 'white' : '#374151',
@@ -489,8 +489,8 @@ export function WysiwygEditor({
               editor.chain().focus().toggleUnderline().run();
             }}
             style={{
-              width: '27px',
-              height: '30px',
+              width: '25px',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: editor.isActive('underline') ? '#3b82f6' : 'white',
               color: editor.isActive('underline') ? 'white' : '#374151',
@@ -517,8 +517,8 @@ export function WysiwygEditor({
               editor.chain().focus().toggleStrike().run();
             }}
             style={{
-              width: '27px',
-              height: '30px',
+              width: '25px',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: editor.isActive('strike') ? '#3b82f6' : 'white',
               color: editor.isActive('strike') ? 'white' : '#374151',
@@ -568,52 +568,55 @@ export function WysiwygEditor({
           <button
             type="button"
             style={{
-              height: '32px',
-              border: '1px solid #d1d5db',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: 'white',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0 12px',
+              padding: '0 10px',
               transition: 'all 0.2s ease',
               gap: '6px'
             }}
             title="Animate"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 8C2 8 4 4 8 4C12 4 14 8 14 8C14 8 12 12 8 12C4 12 2 8 2 8Z" stroke="#434343" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="8" cy="8" r="2" fill="#434343"/>
+            <g clip-path="url(#clip0_396_47258)">
+            <path d="M1 13.8125H7.88103" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.627 13.8125H14.9997" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.06822 14.9978C9.72344 14.9978 10.2546 14.4666 10.2546 13.8114C10.2546 13.1562 9.72344 12.625 9.06822 12.625C8.413 12.625 7.88184 13.1562 7.88184 13.8114C7.88184 14.4666 8.413 14.9978 9.06822 14.9978Z" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.9993 8.11831C14.9993 9.42876 13.937 10.4911 12.6266 10.4911H3.37277C2.06232 10.4911 1 9.42876 1 8.11831V3.37277C1 2.06232 2.06232 1 3.37277 1H12.6266C13.937 1 14.9993 2.06232 14.9993 3.37277V8.11831Z" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.37305 5.74498C4.6835 5.74498 5.74582 6.8073 5.74582 8.11775C5.74582 6.15209 7.33931 4.55859 9.30497 4.55859H10.2541" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11.4403 5.74777C12.0955 5.74777 12.6267 5.21661 12.6267 4.56139C12.6267 3.90616 12.0955 3.375 11.4403 3.375C10.7851 3.375 10.2539 3.90616 10.2539 4.56139C10.2539 5.21661 10.7851 5.74777 11.4403 5.74777Z" stroke="#434343" stroke-width="1.18639" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_396_47258">
+            <rect width="16" height="16" fill="white"/>
+            </clipPath>
+            </defs>
             </svg>
-            <span style={{ fontSize: '14px', color: '#434343' }}>Animate</span>
+            <span style={{ fontSize: '12px', color: '#434343' }}>Animate</span>
           </button>
 
           {/* Sparkle Button */}
           <button
             type="button"
             style={{
-              height: '32px',
-              border: '1px solid #d1d5db',
+              height: '25px',
               borderRadius: '4px',
               backgroundColor: 'white',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0 12px',
+              padding: '0 10px',
               transition: 'all 0.2s ease',
               gap: '6px'
             }}
             title="Effects"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 1L9.5 4.5L13 4.5L10.5 7L12 10.5L8 8L4 10.5L5.5 7L3 4.5L6.5 4.5L8 1Z" fill="#434343"/>
-            </svg>
-            <span style={{ fontSize: '14px', color: '#434343' }}>Effects</span>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="#434343" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Sparkles width={16} />
           </button>
         </div>
       )}
