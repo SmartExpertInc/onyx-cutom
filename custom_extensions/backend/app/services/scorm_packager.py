@@ -22,15 +22,12 @@ import httpx
 from app.services.pdf_generator import jinja_env
 # Add helper from pdf_generator where needed
 try:
-    from app.services.pdf_generator import get_embedded_fonts_css, calculate_slide_dimensions
+    from app.services.pdf_generator import get_embedded_fonts_css
 except Exception:
     def get_embedded_fonts_css() -> str:
         return ""
-    async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None, deck_template_version: Optional[str] = None) -> int:
-        return 660  # Fallback to 16:9 minimum
 
 from app.services.pdf_generator import generate_slide_deck_pdf_with_dynamic_height
-import pyppeteer
 
 logger = logging.getLogger(__name__)
 
@@ -536,9 +533,8 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
         return html
 
 
-async def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
-    """Render slide deck HTML using the exact PDF slide template with calculated heights per slide."""
-    browser = None
+def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
+    """Render slide deck HTML using the exact PDF slide template, stacked, and ready for SCORM asset localization."""
     try:
         # Extract version first to determine which template to use
         effective_version = None
@@ -565,36 +561,12 @@ async def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> 
         if not slides:
             return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
 
-        logger.info(f"✅ SCORM RENDERING - slides_count={len(slides)}, calculating heights...")
+        logger.info(f"✅ SCORM RENDERING - slides_count={len(slides)}")
 
         # Theme and dimensions consistent with PDF rendering
         theme = content.get('theme', 'dark-purple')
+        slide_height = content.get('slide_height', 800)
         embedded_fonts_css = get_embedded_fonts_css()
-
-        # Calculate heights for each slide (matching PDF generation approach)
-        try:
-            from app.services.pdf_generator import get_browser_launch_options
-            browser = await pyppeteer.launch(**get_browser_launch_options())
-            slide_heights = []
-            
-            for i, slide_data in enumerate(slides):
-                template_id = slide_data.get('templateId', 'unknown')
-                try:
-                    height = await calculate_slide_dimensions(slide_data, theme, browser, effective_version)
-                    slide_heights.append(height)
-                    logger.info(f"✓ SCORM Slide {i + 1}/{len(slides)} ({template_id}) height: {height}px")
-                except Exception as e:
-                    logger.error(f"✗ Failed to calculate height for slide {i + 1} ({template_id}): {e}")
-                    slide_heights.append(660)  # Fallback to 16:9 minimum
-                    
-            await browser.close()
-            browser = None
-        except Exception as e:
-            logger.error(f"Failed to calculate slide heights: {e}, using default 660px for all")
-            slide_heights = [660] * len(slides)
-            if browser:
-                await browser.close()
-                browser = None
 
         injected_styles = ''
         stacked_bodies: List[str] = []
@@ -608,7 +580,6 @@ async def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> 
 
         for idx, raw_slide in enumerate(slides):
             slide = raw_slide
-            slide_height = slide_heights[idx]  # Use calculated height for this specific slide
             rendered = template.render(
                 slide=slide,
                 theme=theme,
@@ -625,20 +596,24 @@ async def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> 
 
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         # Inject styles at the top of body for SCORM wrapper
-        # Heights are now calculated per-slide (matching PDF generation)
+        # Min height of 660px ensures 16:9 aspect ratio (1174px width / 16 * 9 = 660px)
+        # This matches PDF generation approach: minimum aspect ratio but no maximum
         scorm_overrides = """
 <style>
-  /* SCORM overrides to match PDF dynamic heights */
+  /* SCORM overrides to match PDF dynamic heights and spacing */
   .slide-page { 
     width: 1174px;
-    /* Height is set per-slide via inline style from template */
+    height: auto !important; 
+    min-height: 660px !important; /* 16:9 aspect ratio minimum (1174 / 16 * 9) */
+    max-height: none !important; /* No maximum - can grow as needed */
     margin: 0 auto 32px auto !important; 
     display: block; 
     background: transparent; 
   }
   .slide-page:last-child { margin-bottom: 0 !important; }
   .slide-content { 
-    height: 100% !important;
+    height: auto !important; 
+    min-height: 660px !important; /* Ensure content respects 16:9 minimum */
   }
 </style>
 """
@@ -1480,7 +1455,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     continue
                 product_id = matched['id']
                 used_ids.add(product_id)
-                
+
                 # Render product to HTML
                 mtype = (matched.get('microproduct_type') or '').strip().lower()
                 comp = (matched.get('component_name') or '').strip().lower()
@@ -1501,7 +1476,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
-                    body_html = await _render_slide_deck_html(matched, content_dict)
+                    body_html = _render_slide_deck_html(matched, content_dict)
                     type_label = 'Presentation'
                     added_types_for_lesson.add('presentation')
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
@@ -1609,7 +1584,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
-                    body_html = await _render_slide_deck_html(additional_match, content_dict)
+                    body_html = _render_slide_deck_html(additional_match, content_dict)
                     type_label = 'Presentation'
                     added_types_for_lesson.add('presentation')
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
