@@ -22987,6 +22987,120 @@ async def _fetch_lesson_product_content(
         return None
 
 
+def get_educational_quality_instructions(language: str, product_type: str = "general") -> str:
+    """
+    Generate comprehensive educational quality instructions addressing common AI content issues.
+    
+    Addresses:
+    1. Cultural neutrality and global accessibility
+    2. Outcome-based learning (clear objectives)
+    3. Factual accuracy (avoid hallucinated statistics)
+    4. Terminology consistency
+    5. Practical, actionable content
+    """
+    
+    # Detect language region for cultural context
+    language_guidance = ""
+    if language in ['uk', 'ua', 'ukrainian']:
+        language_guidance = "Ukrainian/Eastern European"
+    elif language in ['ru', 'russian']:
+        language_guidance = "Russian/Eastern European"
+    elif language in ['es', 'spanish']:
+        language_guidance = "Spanish-speaking"
+    elif language in ['fr', 'french']:
+        language_guidance = "French-speaking"
+    elif language in ['de', 'german']:
+        language_guidance = "German-speaking"
+    elif language in ['zh', 'chinese']:
+        language_guidance = "Chinese"
+    elif language in ['ja', 'japanese']:
+        language_guidance = "Japanese"
+    elif language in ['ar', 'arabic']:
+        language_guidance = "Arabic"
+    else:
+        language_guidance = "international"
+    
+    product_specific = ""
+    if product_type == "presentation" or product_type == "slides":
+        product_specific = """
+**FOR PRESENTATIONS/SLIDES:**
+- Each slide must have a clear learning objective (what should learner be able to DO after this slide)
+- Start with outcome, then provide path to achieve it
+- Use visual learning principles (not just text dumps)"""
+    elif product_type == "onepager" or product_type == "text":
+        product_specific = """
+**FOR TEXT PRESENTATIONS/ONEPAGERS:**
+- Each section must serve a clear learning outcome
+- Include actionable takeaways (not just inspiration)
+- Use headings that reflect learning goals (e.g., "How to..." rather than just "Overview")"""
+    elif product_type == "quiz":
+        product_specific = """
+**FOR QUIZZES:**
+- Questions must test understanding of specific concepts, not general knowledge
+- Each question should have a clear learning objective it verifies
+- Explanations must teach, not just confirm correctness"""
+    
+    return f"""
+
+🎯 **EDUCATIONAL QUALITY STANDARDS** (MANDATORY):
+
+**1. CULTURAL NEUTRALITY & GLOBAL ACCESSIBILITY:**
+Target audience: {language_guidance} context
+- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream"
+- ❌ AVOID cultural assumptions: holiday references, political systems, economic contexts specific to one region
+- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution"
+- ✅ USE universal concepts: family, work, education, health, technology, nature
+- ✅ IF numbers needed: use international units (metric system), neutral currency examples, or percentage ranges
+- 💡 When region matters: use generic phrasing like "in many countries" or "depending on local regulations"
+
+**2. OUTCOME-BASED CONTENT (Learning Objectives):**
+- Every section/slide/block MUST have implicit learning outcome: "After this, learner will be able to [ACTION VERB]..."
+- Action verbs: identify, explain, apply, analyze, create, evaluate, compare, demonstrate
+- ❌ AVOID vague goals: "understand", "learn about", "be familiar with"
+- ✅ FOCUS on actionable outcomes: "identify 3 key differences", "apply the framework to", "evaluate options using"
+- Content must enable the stated outcome (provide steps, frameworks, examples)
+
+**3. FACTUAL ACCURACY & NO HALLUCINATED DATA:**
+- ❌ NEVER invent statistics, percentages, dates, or numerical data
+- ❌ NEVER cite specific studies, research, or sources unless provided in input materials
+- ✅ USE qualitative language: "many", "most", "several", "commonly", "often", "rarely"
+- ✅ USE general ranges: "significant portion", "majority", "minority", "small percentage"
+- ✅ IF specific data needed: use phrases like "research suggests", "studies indicate" (but avoid specific numbers)
+- 💡 When precision matters: use conditional phrasing: "this can vary from X to Y depending on context"
+
+**4. TERMINOLOGY CONSISTENCY:**
+- Identify 5-7 core concepts in the content
+- Choose ONE term for each concept and use it consistently throughout
+- ❌ AVOID switching terms: "balance"→"stability"→"equilibrium"→"well-being" for same concept
+- ✅ MAINTAIN consistent vocabulary: if you use "work-life balance", always use that exact phrase
+- Create implicit glossary: first mention should be clear definition, subsequent uses maintain same term
+- If synonyms needed for variety: use them for description, not for core concepts
+
+**5. PRACTICAL, ACTIONABLE CONTENT:**
+- Every concept must be paired with "how to apply this"
+- Include concrete steps, frameworks, or decision criteria
+- ❌ AVOID pure theory without application
+- ❌ AVOID motivational content without practical guidance
+- ✅ PROVIDE implementation guidance: "Here's how to use this..."
+- ✅ INCLUDE real-world application scenarios
+
+**6. STRUCTURED LEARNING PROGRESSION:**
+- Clear flow: What → Why → How → Apply
+- Build complexity gradually (don't jump to advanced concepts)
+- Each new concept should connect to previous knowledge
+- Provide transitions between topics
+
+{product_specific}
+
+**CRITICAL REMINDERS:**
+- Content must TEACH (not just inspire)
+- Examples must be GLOBALLY ACCESSIBLE
+- Data must be FACTUALLY ACCURATE or QUALITATIVE
+- Terminology must be CONSISTENT
+- Outcomes must be CLEAR and ACTIONABLE
+"""
+
+
 async def get_same_lesson_products(
     outline_id: int,
     lesson_title: str,
@@ -23344,6 +23458,9 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             logger.error(f"Failed to decompress lesson text: {e}")
             # Continue with original text if decompression fails
     
+    # Add educational quality instructions (addresses user feedback on cultural context, outcomes, terminology, etc.)
+    quality_instructions = get_educational_quality_instructions(payload.language, "presentation")
+    
     # Add course context instructions if context is present
     course_context_instructions = ""
     if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
@@ -23354,7 +23471,7 @@ You have been provided with course context information. You MUST use this contex
 1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, explanations, or scenarios already covered
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
 3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
-4. **Maintain Consistency**: Use the same terminology as previous lessons
+4. **Maintain Terminology**: Use the same key terms as previous lessons - extract core terminology from previousLesson and maintain it
 5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
 6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons
 
@@ -23363,7 +23480,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
 - Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + quality_instructions + course_context_instructions
     wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
@@ -28986,6 +29103,9 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
+    # Add educational quality instructions
+    quality_instructions_quiz = get_educational_quality_instructions(payload.language, "quiz")
+    
     # Add course context instructions if context is present
     course_context_instructions_quiz = ""
     if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload or 'sameLessonProducts' in wiz_payload:
@@ -28997,7 +29117,7 @@ You have been provided with course context information. You MUST use this contex
 2. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
 3. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
 4. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
-5. **Maintain Consistency**: Use the same terminology as previous lessons and same-lesson products in your questions
+5. **Maintain Terminology**: Use the same key terms as previous lessons and same-lesson products - extract and reuse core terminology
 6. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
 7. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
 8. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
@@ -29015,7 +29135,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT test deep knowledge of data types
 - Keep quiz questions focused on the current lesson only"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + quality_instructions_quiz + course_context_instructions_quiz 
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
 
     # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
@@ -30344,6 +30464,9 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
+    # Add educational quality instructions
+    quality_instructions_onepager = get_educational_quality_instructions(payload.language, "onepager")
+    
     # Add course context instructions if context is present
     course_context_instructions_onepager = ""
     if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
@@ -30354,7 +30477,7 @@ You have been provided with course context information. You MUST use this contex
 1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, case studies, or explanations already covered
 2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
 3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
-4. **Maintain Consistency**: Use the same terminology, frameworks, and mental models as previous lessons
+4. **Maintain Terminology**: Use the same key terms, frameworks, and mental models as previous lessons - extract and maintain core vocabulary
 5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
 6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons
 
@@ -30363,7 +30486,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
 - Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + quality_instructions_onepager + course_context_instructions_onepager
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
