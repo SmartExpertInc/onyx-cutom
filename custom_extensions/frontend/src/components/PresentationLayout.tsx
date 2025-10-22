@@ -405,12 +405,15 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     <div style={{ 
                       width: '100%', 
                       height: '100%', 
-                      transform: 'scale(1)', 
+                      transform: 'scale(0.3)', 
                       transformOrigin: 'center',
                       position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      backgroundColor: '#f0f0f0'
+                      top: '50%',
+                      left: '50%',
+                      marginTop: '-50%',
+                      marginLeft: '-50%',
+                      backgroundColor: '#f0f0f0',
+                      overflow: 'hidden'
                     }}>
                       <ComponentBasedSlideRenderer
                         slide={slide}
