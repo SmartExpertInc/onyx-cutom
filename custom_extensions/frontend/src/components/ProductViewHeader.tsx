@@ -6,7 +6,7 @@ import { ProjectInstanceDetail, TrainingPlanData } from '@/types/projectSpecific
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { UserDropdown } from '@/components/UserDropdown';
-import { Type, User, Shapes, FileImage, Music, Layers, MessageSquareText } from 'lucide-react';
+// All icons are now custom SVGs
 
 interface ProductViewHeaderProps {
   projectData: ProjectInstanceDetail | null;
@@ -187,26 +187,26 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   className="flex items-center gap-1 hover:bg-gray-100 rounded transition-colors cursor-pointer px-2 py-1"
                 >
                   {aspectRatio === '16:9' && (
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
                       <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                     </svg>
                   )}
                   {aspectRatio === '9:16' && (
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
                       <rect x="5" y="2" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                     </svg>
                   )}
                   {aspectRatio === '1:1' && (
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
                       <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                     </svg>
                   )}
                   {(!aspectRatio || !['16:9', '9:16', '1:1'].includes(aspectRatio)) && (
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-gray-700">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
                       <rect x="2" y="5" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
                     </svg>
                   )}
-                  <span className="text-xs text-gray-700">{aspectRatio || '16:9'}</span>
+                  <span className="text-xs text-[#71717A]">{aspectRatio || '16:9'}</span>
                 </button>
 
                 {/* Resize Popup */}
@@ -261,21 +261,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <MessageSquareText size={14} />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h3v3.767L13.277 18H20c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm0 14h-7.277L9 18.233V16H4V4h16v12z"/>
+                <path fill="currentColor" d="M7 7h10v2H7zm0 4h7v2H7z"/>
+              </svg>
               <span className="text-[10px] mt-0.5">Script</span>
-            </button>
-
-            {/* Text Button */}
-            <button
-              onClick={() => onSettingsButtonClick?.('text')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
-                activeSettingsPanel === 'text'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <Type size={14} />
-              <span className="text-[10px] mt-0.5">Text</span>
             </button>
 
             {/* Avatar Button */}
@@ -287,7 +277,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <User size={14} />
+              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.5 21C19.5 19.4087 18.8679 17.8826 17.7426 16.7574C16.6174 15.6321 15.0913 15 13.5 15M13.5 15C11.9087 15 10.3826 15.6321 9.25736 16.7574C8.13214 17.8826 7.5 19.4087 7.5 21M13.5 15C15.7091 15 17.5 13.2091 17.5 11C17.5 8.79086 15.7091 7 13.5 7C11.2909 7 9.5 8.79086 9.5 11C9.5 13.2091 11.2909 15 13.5 15ZM23.5 13C23.5 18.5228 19.0228 23 13.5 23C7.97715 23 3.5 18.5228 3.5 13C3.5 7.47715 7.97715 3 13.5 3C19.0228 3 23.5 7.47715 23.5 13Z" stroke="currentColor" strokeWidth="1.625" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span className="text-[10px] mt-0.5">Avatar</span>
             </button>
 
@@ -303,8 +295,27 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <Shapes size={14} />
+              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.38889 11.178C9.24566 11.1858 9.10305 11.1538 8.97684 11.0856C8.85063 11.0175 8.74573 10.9157 8.67375 10.7916C8.60176 10.6676 8.56549 10.526 8.56895 10.3826C8.57241 10.2392 8.61545 10.0995 8.69333 9.97906L12.8333 3.40017C12.8984 3.28303 12.9926 3.18468 13.1068 3.11465C13.2211 3.04463 13.3515 3.00531 13.4854 3.0005C13.6193 2.99569 13.7522 3.02557 13.8712 3.08722C13.9901 3.14887 14.0912 3.24022 14.1644 3.3524L18.2778 9.95573C18.3589 10.0722 18.4065 10.2086 18.4157 10.3502C18.4248 10.4917 18.395 10.6331 18.3296 10.759C18.2641 10.8849 18.1655 10.9905 18.0443 11.0643C17.9231 11.1382 17.7841 11.1775 17.6422 11.178H9.38889Z" stroke="currentColor" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10.1667 15.6224H4.61111C3.99746 15.6224 3.5 16.1199 3.5 16.7335V22.2891C3.5 22.9027 3.99746 23.4002 4.61111 23.4002H10.1667C10.7803 23.4002 11.2778 22.9027 11.2778 22.2891V16.7335C11.2778 16.1199 10.7803 15.6224 10.1667 15.6224Z" stroke="currentColor" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19.6111 23.4002C21.7589 23.4002 23.5 21.6591 23.5 19.5113C23.5 17.3635 21.7589 15.6224 19.6111 15.6224C17.4633 15.6224 15.7222 17.3635 15.7222 19.5113C15.7222 21.6591 17.4633 23.4002 19.6111 23.4002Z" stroke="currentColor" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span className="text-[10px] mt-0.5">Shape</span>
+            </button>
+
+            {/* Text Button */}
+            <button
+              onClick={() => onSettingsButtonClick?.('text')}
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+                activeSettingsPanel === 'text'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3535 3.84277H13.6455V21.752H13.3535V3.84277Z" fill="currentColor" stroke="currentColor" strokeWidth="1.68531"/>
+              </svg>
+              <span className="text-[10px] mt-0.5">Text</span>
             </button>
 
             {/* Media Button */}
@@ -316,7 +327,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <FileImage size={14} />
+              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.1848 13.8249V20.7023C21.1848 21.2235 20.9778 21.7233 20.6093 22.0918C20.2408 22.4603 19.741 22.6673 19.2198 22.6673H5.46498C4.94384 22.6673 4.44403 22.4603 4.07553 22.0918C3.70702 21.7233 3.5 21.2235 3.5 20.7023V6.94747C3.5 6.42633 3.70702 5.92653 4.07553 5.55802C4.44403 5.18951 4.94384 4.98249 5.46498 4.98249H12.3424M16.2724 6.94747H22.1673M19.2198 4V9.89494M21.1848 16.7724L18.1529 13.7404C17.7844 13.372 17.2847 13.1651 16.7636 13.1651C16.2426 13.1651 15.7429 13.372 15.3744 13.7404L6.44747 22.6673M11.3599 10.8774C11.3599 11.9627 10.4802 12.8424 9.39494 12.8424C8.30971 12.8424 7.42996 11.9627 7.42996 10.8774C7.42996 9.7922 8.30971 8.91245 9.39494 8.91245C10.4802 8.91245 11.3599 9.7922 11.3599 10.8774Z" stroke="currentColor" strokeWidth="1.47374" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span className="text-[10px] mt-0.5">Media</span>
             </button>
           </div>
