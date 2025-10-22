@@ -40,7 +40,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [editingField, setEditingField] = useState<{type: 'question' | 'option', questionIndex: number, optionIndex?: number} | null>(null);
+  const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer', questionIndex: number, optionIndex?: number, answerIndex?: number} | null>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
 
@@ -125,10 +125,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center mt-1 h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
                 <div 
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${option.id === question.correct_option_id ? 'border-blue-600 bg-blue-600' : 'border-[#E0E0E0]'}`}
-                  onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
+                  onClick={() => onTextChange && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
                     <Check strokeWidth={2} width={9} height={9} className='text-white' />
@@ -218,10 +218,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center mt-1 h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
                 <div 
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${correctIds.includes(option.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}
-                  onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
+                  onClick={() => onTextChange && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
                     <Check strokeWidth={2} width={9} height={9} className='text-white' />
@@ -637,15 +637,22 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           <h4 className="italic text-black">{t('quiz.acceptableAnswers', 'Acceptable Answers')}:</h4>
           {question.acceptable_answers.map((answer, answerIndex) => (
             <div key={answerIndex}>
-              {isEditing ? (
+              {(isEditing || (editingField?.type === 'answer' && editingField.questionIndex === index && editingField.answerIndex === answerIndex)) ? (
                 <input
                   type="text"
                   value={answer}
                   onChange={(e) => handleTextChange(['questions', index, 'acceptable_answers', answerIndex], e.target.value)}
-                  className="w-full p-2 border rounded text-black"
+                  onBlur={() => setEditingField(null)}
+                  autoFocus
+                  className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
                 />
               ) : (
-                <p className="text-black">{answer}</p>
+                <p 
+                  className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                  onClick={() => onTextChange && setEditingField({type: 'answer', questionIndex: index, answerIndex})}
+                >
+                  {answer}
+                </p>
               )}
             </div>
           ))}
