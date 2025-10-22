@@ -170,9 +170,9 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
 
   return (
     <>
-      <div className={`bg-white rounded-lg border border-gray-200 h-full flex flex-col`} data-textsettings-panel="true">
+      <div className={`bg-white h-full flex flex-col`} data-textsettings-panel="true">
       {/* Header with grey background */}
-      <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 flex-shrink-0`}>
+      <div className={`bg-gray-100 px-4 py-3 flex items-center justify-between h-16 flex-shrink-0`}>
         <div className="flex items-center space-x-2">
           {/* Text icon */}
           <div className="w-5 h-5 text-gray-700">

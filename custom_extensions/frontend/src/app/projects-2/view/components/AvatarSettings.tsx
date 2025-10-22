@@ -54,16 +54,14 @@ export default function AvatarSettings() {
   }, []);
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
+      <div className="bg-white h-full flex flex-col">
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
+      <div className="bg-blue-100 px-4 py-3 flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
-          {/* Avatar placeholder circle */}
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg className="w-6 h-6 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </div>
+          {/* Avatar icon */}
+          <svg width="40" height="40" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.5 21C19.5 19.4087 18.8679 17.8826 17.7426 16.7574C16.6174 15.6321 15.0913 15 13.5 15M13.5 15C11.9087 15 10.3826 15.6321 9.25736 16.7574C8.13214 17.8826 7.5 19.4087 7.5 21M13.5 15C15.7091 15 17.5 13.2091 17.5 11C17.5 8.79086 15.7091 7 13.5 7C11.2909 7 9.5 8.79086 9.5 11C9.5 13.2091 11.2909 15 13.5 15ZM23.5 13C23.5 18.5228 19.0228 23 13.5 23C7.97715 23 3.5 18.5228 3.5 13C3.5 7.47715 7.97715 3 13.5 3C19.0228 3 23.5 7.47715 23.5 13Z" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           {/* Avatar name */}
           <span className="text-xs font-medium text-gray-700">Name of avatar</span>
         </div>
@@ -89,14 +87,15 @@ export default function AvatarSettings() {
         <div className="mb-3">
           <span className="text-xs font-medium text-gray-700">Appearance</span>
         </div>
-        <div className="bg-gray-100 rounded-full p-1 flex">
+        <div className="rounded-full p-1 flex" style={{ backgroundColor: '#0F58F9' }}>
           <button 
             onClick={() => setAppearanceMode('shoulder')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'shoulder' 
-                ? 'bg-white text-gray-700 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-700'
+                ? 'bg-white shadow-sm' 
+                : 'text-white hover:text-white'
             }`}
+            style={appearanceMode === 'shoulder' ? { color: '#0F58F9' } : {}}
           >
             Shoulder
           </button>
@@ -104,9 +103,10 @@ export default function AvatarSettings() {
             onClick={() => setAppearanceMode('full-body')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'full-body' 
-                ? 'bg-white text-gray-700 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-700'
+                ? 'bg-white shadow-sm' 
+                : 'text-white hover:text-white'
             }`}
+            style={appearanceMode === 'full-body' ? { color: '#0F58F9' } : {}}
           >
             Full body
           </button>
@@ -114,9 +114,10 @@ export default function AvatarSettings() {
             onClick={() => setAppearanceMode('bubble')}
             className={`flex-1 font-medium py-2 px-4 rounded-full transition-colors text-xs ${
               appearanceMode === 'bubble' 
-                ? 'bg-white text-gray-700 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-700'
+                ? 'bg-white shadow-sm' 
+                : 'text-white hover:text-white'
             }`}
+            style={appearanceMode === 'bubble' ? { color: '#0F58F9' } : {}}
           >
             Bubble
           </button>
@@ -169,9 +170,9 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50" style={{ backgroundColor: '#0F58F9' }}>
                   Align left
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                 </div>
               </button>
               <button
@@ -181,9 +182,9 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H5a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H5a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50" style={{ backgroundColor: '#0F58F9' }}>
                   Align center
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                 </div>
               </button>
               <button
@@ -193,9 +194,9 @@ export default function AvatarSettings() {
                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50" style={{ backgroundColor: '#0F58F9' }}>
                   Align right
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
                 </div>
               </button>
             </div>

@@ -109,9 +109,9 @@ export default function ShapeSettings() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
+      <div className="bg-white h-full flex flex-col">
       {/* Header with grey background */}
-      <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
+      <div className="bg-gray-100 px-4 py-3 flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
           {/* Shape icon */}
           <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center border border-gray-300">

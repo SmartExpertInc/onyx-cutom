@@ -72,11 +72,11 @@ const Tooltip: React.FC<TooltipProps> = ({ content, children, position = 'top' }
 
   const tooltipContent = isVisible ? (
     <div
-      className="px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap"
-      style={tooltipStyle}
+      className="px-2 py-1 text-xs text-white rounded whitespace-nowrap"
+      style={{ ...tooltipStyle, backgroundColor: '#0F58F9' }}
     >
       {content}
-      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent" style={{ borderTopColor: '#0F58F9' }}></div>
     </div>
   ) : null;
 
