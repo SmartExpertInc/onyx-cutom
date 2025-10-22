@@ -330,7 +330,31 @@ This ensures you receive the most relevant content format for maintaining consis
 
 CORE EDUCATIONAL CONTENT PRINCIPLES (ALL LESSON PRODUCTS):
 
-When generating Presentations, Video Lessons, Quizzes, or Onepagers, you MUST follow these mandatory educational quality standards:
+⚠️ **CRITICAL RULES - VERIFY BEFORE SUBMITTING ANY CONTENT:**
+
+When generating Presentations, Video Lessons, Quizzes, or Onepagers, you MUST follow these mandatory educational quality standards.
+
+**THE MOST VIOLATED RULES - CHECK THESE FIRST:**
+
+RULE #1 - NEVER INVENT ANY STATISTICS, PERCENTAGES, OR NUMERICAL DATA:
+   - ❌ ABSOLUTELY FORBIDDEN: "100%", "75%", "50%", "30%", "95%", "85%", "2x", "3x", "2.5x faster"
+   - ❌ FORBIDDEN: "User Metrics: 100%, 75%, 50%", "Success Rate: 95%", "3x productivity increase"
+   - ❌ FORBIDDEN: Any percentage, multiplier, or statistic you make up
+   - ✅ REQUIRED: Qualitative descriptors ONLY: "High", "Strong", "Regular", "Growing", "Active", "Common", "Frequent", "Widespread", "Steady", "Emerging"
+   - VERIFICATION CHECKPOINT: Before submitting, scan ALL content for percentages or invented numbers. If found, DELETE and replace with qualitative terms.
+
+RULE #2 - NO GENERIC COMPARISONS (Company A vs Company B):
+   - ❌ FORBIDDEN: "Company A vs Company B", "Vendor X vs Vendor Y", generic comparison slides
+   - ✅ REQUIRED: Topic-specific decision frameworks teaching WHEN to use different approaches
+   - Example: ✅ "When to Use Custom App vs Plugin in NextCloud" (teaches decision-making)
+   - Example: ❌ "Company A Features vs Company B Features" (generic, not educational)
+
+RULE #3 - CREATE TOPIC-RELEVANT CONTENT ONLY:
+   - ❌ FORBIDDEN: Generic business content not related to the actual lesson topic
+   - ✅ REQUIRED: Every element must be 100% relevant to the specific topic being taught
+   - VERIFICATION: Ask "Would this exist in content about [ACTUAL TOPIC]?" If no, delete it.
+
+Now follow all educational quality standards:
 
 1. OUTCOME-BASED LEARNING:
    - Every section/slide/question must have implicit learning outcome
@@ -351,17 +375,11 @@ When generating Presentations, Video Lessons, Quizzes, or Onepagers, you MUST fo
    - USE culturally neutral examples: "community center", "technology hub", "educational institution", "workplace", "local initiative", "public service", "technology company"
    - Ensure ALL examples work globally across different cultures and countries
 
-4. FACTUAL ACCURACY - NO HALLUCINATED DATA (CRITICAL - MOST VIOLATED RULE):
-   - ❌ ABSOLUTELY FORBIDDEN: NEVER invent ANY statistics, percentages, dates, or numerical data
-   - ❌ FORBIDDEN EXAMPLES: "95% success rate", "3x productivity increase", "50% reduction", "78% of companies", "100%", "75%", "2.5x faster"
-   - ❌ FORBIDDEN IN PRESENTATIONS: "User Role Management: 100%, 75%, 50%" or any metric slides with invented percentages
-   - ❌ FORBIDDEN: Any specific number you make up, including in big-numbers, metrics-analytics, or pie-chart slides
-   - ✅ REQUIRED: Use qualitative language ONLY: "many organizations", "most professionals", "several studies suggest", "substantial improvement", "significant increase", "growing adoption"
-   - ✅ FOR BIG-NUMBERS SLIDES: Use descriptive terms ONLY: "High", "Strong", "Growing", "Regular", "Consistent", "Active", "Steady", "Frequent", "Common", "Widespread", "Emerging"
-   - ✅ CORRECT big-numbers example: {"value": "Strong", "label": "User Engagement", "description": "Users actively participate..."}
-   - ❌ WRONG big-numbers example: {"value": "85%", "label": "User Engagement", "description": "..."}
-   - Only cite specific numbers if they are well-known facts (e.g., "24 hours in a day") or explicitly provided in source documents
-   - This rule applies to ALL slide types: presentations, big-numbers, metrics, charts, tables - NEVER invent data
+4. FACTUAL ACCURACY - NO HALLUCINATED DATA (SEE RULE #1 ABOVE):
+   - This is the most violated rule - see detailed prohibitions in RULE #1 above
+   - NEVER invent statistics, percentages, or numerical data
+   - Use qualitative language only: "many", "most", "substantial", "significant", "High", "Strong", "Growing"
+   - Only cite numbers from source documents or well-known facts
 
 5. PRACTICAL & ACTIONABLE CONTENT:
    - Pair EVERY concept with "how to apply this in practice"

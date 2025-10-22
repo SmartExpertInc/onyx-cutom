@@ -23195,7 +23195,33 @@ CRITICAL TABLE RULE:
 
 🎯 EDUCATIONAL PRESENTATION REQUIREMENTS (CRITICAL - NOT PRODUCT MARKETING):
 
-Your presentation must TEACH skills, not describe features. Follow these mandatory principles:
+⚠️ **BEFORE YOU GENERATE ANYTHING - READ THESE CRITICAL RULES FIRST:**
+
+**RULE #1: NEVER INVENT STATISTICS, PERCENTAGES, OR NUMBERS (MOST VIOLATED - CHECK EVERY SLIDE):**
+- ❌ ABSOLUTELY FORBIDDEN IN ALL SLIDES: "100%", "75%", "50%", "30%", "95%", "85%", "2x", "3x", ANY percentage or multiplier you make up
+- ❌ FORBIDDEN PATTERNS: "User Metrics: 100%, 75%, 50%", "Company Performance: 85%, 70%", "Success Rate: 95%"
+- ❌ FORBIDDEN: Any big-numbers, metrics-analytics, or chart slide with invented numerical data
+- ✅ ONLY ALLOWED: Qualitative descriptors: "High", "Strong", "Regular", "Growing", "Active", "Steady", "Common", "Frequent", "Widespread"
+- ✅ CORRECT: {"value": "Strong", "label": "User Engagement"} 
+- ❌ WRONG: {"value": "85%", "label": "User Engagement"}
+- **VERIFICATION**: Before finishing, check EVERY slide - if you see ANY percentage or number you invented, DELETE IT and replace with qualitative terms
+
+**RULE #2: NO GENERIC COMPARISON SLIDES (FORBIDDEN PATTERNS):**
+- ❌ ABSOLUTELY FORBIDDEN: "Company A vs Company B", "Vendor X vs Vendor Y", "Option 1 vs Option 2" with made-up company names
+- ❌ FORBIDDEN: Generic comparison tables without teaching decision-making frameworks
+- ✅ ONLY ALLOWED: Decision frameworks teaching WHEN to use specific approaches relevant to the topic
+- ✅ CORRECT: "When to Use Configuration Method A vs Method B" (teaching NextCloud customization decisions)
+- ❌ WRONG: "Company A Features vs Company B Features" (generic, non-educational)
+- If you need comparison, make it topic-specific and teach the decision criteria, not just list differences
+
+**RULE #3: CREATE UNIQUE TOPIC-RELEVANT CONTENT (DO NOT COPY EXAMPLE SLIDES):**
+- ❌ FORBIDDEN: Copying slide topics from the JSON example (project budgets, team conflicts, stakeholder communication)
+- ❌ FORBIDDEN: Reusing example frameworks that don't match the actual topic
+- ✅ REQUIRED: Every slide must be 100% relevant to the ACTUAL lesson topic
+- ✅ REQUIRED: Generate topic-specific scenarios, examples, and frameworks
+- **VERIFICATION**: Before finishing, ask: "Would this slide exist in a presentation about [ACTUAL TOPIC]?" If no, delete and replace
+
+Now follow these educational principles:
 
 **1. FOCUS ON "HOW TO DO" NOT "WHAT EXISTS":**
 - ❌ BAD: "File Sharing Features" with bullet list of feature names
@@ -23234,35 +23260,22 @@ Your presentation must TEACH skills, not describe features. Follow these mandato
 - challenges-solutions: for common problems and how to solve them
 - two-column: for comparison or before/after scenarios
 - bullet-points-right: for detailed explanations with examples
-- comparison-slide/table: for decision frameworks (when to use option A vs option B)
-- Avoid using metrics-analytics, market-share, pie-chart unless teaching data analysis skills
-
-**7. NEVER INVENT STATISTICS OR PERCENTAGES (CRITICAL - MOST COMMON VIOLATION):**
-- ❌ ABSOLUTELY FORBIDDEN: "100%", "75%", "50%", "95% success rate", "3x improvement", "2.5x faster"
-- ❌ FORBIDDEN: Any specific numbers, percentages, or metrics you did not receive in the source materials
-- ❌ FORBIDDEN: "User Role Management: 100%, 75%, 50%" or similar fake data visualizations
-- ✅ REQUIRED for big-numbers slides: Use qualitative descriptors ONLY
-  - Examples: "High", "Strong", "Regular", "Growing", "Consistent", "Active", "Steady", "Improving"
-  - Examples: "Frequent", "Occasional", "Rare", "Common", "Widespread", "Limited", "Emerging"
-- ✅ REQUIRED: Use descriptive language instead of invented numbers
-  - Instead of "95% of teams" → "Most teams" or "The majority of teams"
-  - Instead of "3x productivity increase" → "Substantial productivity improvement" or "Significant gains"
-  - Instead of "50% reduction" → "Considerable reduction" or "Significant decrease"
-- ✅ For big-numbers template: The "value" field MUST contain qualitative words (High, Strong, etc), NEVER percentages or numbers
-- This is a MANDATORY requirement - violating this makes the content factually inaccurate and untrustworthy
-
-**8. CREATE UNIQUE CONTENT FOR EACH TOPIC (DO NOT COPY THE EXAMPLE):**
-- The JSON example shows "Project Management Fundamentals" - this is ONLY an example of structure and depth
-- ❌ DO NOT copy slide topics from the example (budget management, conflict resolution, change requests, etc.)
-- ❌ DO NOT reuse the example's specific scenarios or frameworks verbatim
-- ✅ CREATE completely new content relevant to the actual lesson topic
-- ✅ ADAPT the depth and structure approach to your specific topic
-- ✅ GENERATE unique scenarios, examples, and frameworks appropriate for your subject
-- Example: If teaching "NextCloud Customization", do NOT include slides about project budgets or team conflicts
-- Example: If teaching "Digital Marketing", create marketing-specific scenarios, not generic project management examples
-- Think: "What does someone need to learn to DO this specific topic?" then create slides teaching those skills
+- comparison-slide/table: ONLY for educational decision frameworks (when to use option A vs B), NOT for generic company comparisons
+- ⚠️ AVOID: metrics-analytics, market-share, pie-chart, big-numbers with percentages - these templates are frequently misused with fake data
 
 NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
+
+⚠️ **MANDATORY PRE-SUBMISSION CHECKLIST (RUN BEFORE COMPLETING GENERATION):**
+
+Before you finish generating the presentation, you MUST verify:
+- [ ] Scanned ALL slides for percentages (%, 100%, 75%, 50%, 85%, 95%, etc.) - if found ANY, DELETE and replace with qualitative terms
+- [ ] Scanned for "Company A", "Company B", "Vendor X", "Vendor Y", generic comparison patterns - if found, DELETE or make topic-specific
+- [ ] Verified EVERY slide is relevant to the actual lesson topic (not copied from JSON example)
+- [ ] Checked big-numbers slides use ONLY qualitative values (High, Strong, Growing, etc), NO percentages
+- [ ] Confirmed no invented statistics, multipliers (2x, 3x), or numerical claims anywhere
+- [ ] Verified slide titles answer "How do I..." or teach specific skills, not just "Overview of..."
+
+If ANY item above fails, you MUST fix it before submitting. Do not submit content that violates these rules.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
