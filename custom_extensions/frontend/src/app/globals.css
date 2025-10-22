@@ -101,7 +101,7 @@ body {
 [style*="font-family"] span,
 [style*="font-family"] b,
 [style*="font-family"] i {
-  font-family: inherit !important;
+  font-family: inherit;
 }
 
 /* Ensure strong and em tags inherit font from parent */
