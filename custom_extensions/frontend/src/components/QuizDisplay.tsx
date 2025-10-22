@@ -125,7 +125,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${option.id === question.correct_option_id ? 'border-blue-600 bg-blue-600' : 'border-[#E0E0E0]'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
@@ -135,7 +135,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   )}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
+              <div className="ml-1 flex-1">
                 {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
@@ -218,7 +218,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         <div className="space-y-3">
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
-              <div className={`flex items-center h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
+              <div className={`flex items-center mt-1 h-5 ${isEditing ? 'cursor-pointer' : ''}`}>
                 <div 
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${correctIds.includes(option.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
@@ -228,7 +228,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   )}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
+              <div className="ml-1 flex-1">
                 {(isEditing || (editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id))) ? (
                   <input
                     type="text"
@@ -379,7 +379,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                             </option>
                           ))}
                         </select>
-                        <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-3">
+                        <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-semibold ml-1">
                           {matchedOption?.id || '?'}
                         </span>
                       </div>
@@ -392,8 +392,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ) : (
           <div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <h4 className="font-light text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
-              <h4 className="font-light text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
+              <h4 className="font-light text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
+              <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
             </div>
             {question.prompts.map((prompt, promptIndex) => {
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
@@ -720,7 +720,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
                     onBlur={() => setEditingField(null)}
                     autoFocus
-                    className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
+                    className="w-[400px] text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
                     placeholder={`${questionNumber}. Enter your question...`}
               />
             ) : (
