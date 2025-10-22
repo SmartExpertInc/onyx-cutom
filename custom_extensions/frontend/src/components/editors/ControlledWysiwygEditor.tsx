@@ -6,6 +6,7 @@ import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
 
 export interface ControlledWysiwygEditorProps {
   initialValue: string;
@@ -88,6 +89,10 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           },
         }),
         Color,
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+          alignments: ['left', 'center', 'right', 'justify'],
+        }),
       ],
       content: initialValue || '',
       editorProps: {

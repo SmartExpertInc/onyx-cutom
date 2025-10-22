@@ -67,6 +67,17 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           setFontSize(currentFontSize);
         }
         
+        // Get current text alignment
+        if (activeEditor.isActive({ textAlign: 'left' })) {
+          setTextAlign('left');
+        } else if (activeEditor.isActive({ textAlign: 'center' })) {
+          setTextAlign('center');
+        } else if (activeEditor.isActive({ textAlign: 'right' })) {
+          setTextAlign('right');
+        } else {
+          setTextAlign('left'); // Default
+        }
+        
         console.log('✏️ TextSettings synced with editor:', {
           bold: activeEditor.isActive('bold'),
           italic: activeEditor.isActive('italic'),
@@ -74,7 +85,10 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           strike: activeEditor.isActive('strike'),
           color: currentColor,
           fontFamily: currentFontFamily,
-          fontSize: currentFontSize
+          fontSize: currentFontSize,
+          textAlign: activeEditor.isActive({ textAlign: 'left' }) ? 'left' : 
+                     activeEditor.isActive({ textAlign: 'center' }) ? 'center' : 
+                     activeEditor.isActive({ textAlign: 'right' }) ? 'right' : 'left'
         });
       } catch (error) {
         console.warn('Editor sync failed:', error);
@@ -479,10 +493,21 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
               <span className="text-sm font-medium text-gray-700">Text align</span>
               <div className="bg-gray-100 rounded-full p-1 flex space-x-1">
                 <button
-                  onClick={() => setTextAlign('left')}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().setTextAlign('left').run();
+                        setTextAlign('left');
+                      } catch (error) {
+                        console.warn('Text align left failed:', error);
+                      }
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'left' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  }`}
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Align left"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -494,10 +519,21 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   </div>
                 </button>
                 <button
-                  onClick={() => setTextAlign('center')}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().setTextAlign('center').run();
+                        setTextAlign('center');
+                      } catch (error) {
+                        console.warn('Text align center failed:', error);
+                      }
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'center' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  }`}
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Align center"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -509,10 +545,21 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
                   </div>
                 </button>
                 <button
-                  onClick={() => setTextAlign('right')}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                      try {
+                        activeEditor.chain().focus().setTextAlign('right').run();
+                        setTextAlign('right');
+                      } catch (error) {
+                        console.warn('Text align right failed:', error);
+                      }
+                    }
+                  }}
+                  disabled={!activeEditor}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors group relative ${
                     textAlign === 'right' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                  }`}
+                  } ${!activeEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title="Align right"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
