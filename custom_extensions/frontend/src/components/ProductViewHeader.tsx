@@ -385,7 +385,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               {/* Preview Button */}
               <button
                 onClick={onPreviewClick}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded transition-colors cursor-pointer border border-[#E4E4E7] h-8"
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-md transition-colors cursor-pointer border border-[#E4E4E7] h-8"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-700">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -396,7 +396,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               {/* Generate Button */}
               <button
                 onClick={onGenerateClick}
-                className="bg-[#0F58F9] text-white hover:bg-[#0D4CD4] rounded px-3 py-1.5 flex items-center gap-2 h-8 border border-[#0F58F9] cursor-pointer"
+                className="bg-[#0F58F9] text-white hover:bg-[#0D4CD4] rounded-md px-3 py-1.5 flex items-center gap-2 h-8 border border-[#0F58F9] cursor-pointer"
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11.5423 11.8593C11.1071 12.0258 10.8704 12.2637 10.702 12.6981C10.5353 12.2637 10.297 12.0274 9.86183 11.8593C10.297 11.6928 10.5337 11.4565 10.702 11.0204C10.8688 11.4549 11.1071 11.6912 11.5423 11.8593ZM10.7628 5.05818C11.1399 3.656 11.6552 3.14044 13.0612 2.76346C11.6568 2.387 11.1404 1.87251 10.7628 0.46875C10.3858 1.87093 9.87044 2.38649 8.46442 2.76346C9.86886 3.13993 10.3852 3.65442 10.7628 5.05818ZM11.1732 7.95231C11.1732 7.8202 11.1044 7.6607 10.9118 7.607C9.33637 7.16717 8.34932 6.66503 7.61233 5.92985C6.8754 5.19411 6.37139 4.20858 5.93249 2.63565C5.8787 2.44339 5.71894 2.37465 5.58662 2.37465C5.4543 2.37465 5.29454 2.44339 5.24076 2.63565C4.80022 4.20858 4.29727 5.19405 3.56092 5.92985C2.82291 6.66668 1.83688 7.1688 0.261415 7.607C0.0688515 7.6607 0 7.82021 0 7.95231C0 8.08442 0.0688515 8.24393 0.261415 8.29763C1.83688 8.73746 2.82393 9.2396 3.56092 9.97477C4.29892 10.7116 4.80186 11.696 5.24076 13.269C5.29455 13.4612 5.45431 13.53 5.58662 13.53C5.71895 13.53 5.87871 13.4612 5.93249 13.269C6.37303 11.696 6.87598 10.7106 7.61233 9.97477C8.35034 9.23795 9.33637 8.73582 10.9118 8.29763C11.1044 8.24392 11.1732 8.08442 11.1732 7.95231Z" fill="white"/>

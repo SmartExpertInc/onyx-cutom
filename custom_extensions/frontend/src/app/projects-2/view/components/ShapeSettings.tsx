@@ -14,6 +14,7 @@ export default function ShapeSettings() {
   const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const animationDropdownRef = useRef<HTMLDivElement>(null);
 
   // Color picker states
   const [showFillColorPicker, setShowFillColorPicker] = useState(false);
@@ -45,6 +46,10 @@ export default function ShapeSettings() {
         return;
       }
       
+      if (animationDropdownRef.current && !animationDropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+      
       if (showStrokeWidthDropdown) {
         setShowStrokeWidthDropdown(false);
       }
@@ -54,7 +59,7 @@ export default function ShapeSettings() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showFillColorPicker, showStrokeColorPicker]);
+  }, [showFillColorPicker, showStrokeColorPicker, showStrokeWidthDropdown]);
 
   // Handle fill color button click
   const handleFillColorClick = (event: React.MouseEvent) => {
@@ -334,7 +339,7 @@ export default function ShapeSettings() {
             {/* Animation type */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-700">Animation type</span>
-              <div className="relative">
+              <div className="relative" ref={animationDropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center space-x-2 px-3 py-2 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
