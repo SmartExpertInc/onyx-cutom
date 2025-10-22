@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
@@ -94,6 +94,30 @@ export default function Projects2ViewPage() {
   const [isTransitionEnabled, setIsTransitionEnabled] = useState<boolean>(true);
   const [showTransitionDropdown, setShowTransitionDropdown] = useState<boolean>(false);
   const [selectedTransition, setSelectedTransition] = useState<string>('None');
+
+  // Refs for click outside detection
+  const musicDropdownRef = useRef<HTMLDivElement>(null);
+  const transitionDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (musicDropdownRef.current && !musicDropdownRef.current.contains(event.target as Node)) {
+        setShowMusicDropdown(false);
+      }
+      if (transitionDropdownRef.current && !transitionDropdownRef.current.contains(event.target as Node)) {
+        setShowTransitionDropdown(false);
+      }
+    }
+
+    if (showMusicDropdown || showTransitionDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMusicDropdown, showTransitionDropdown]);
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -783,9 +807,11 @@ export default function Projects2ViewPage() {
           >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div style={{
-                zoom: 0.45,
-                width: '1200px',
-                height: '675px',
+                width: '100%',
+                height: '100%',
+                aspectRatio: '16/9',
+                maxWidth: '100%',
+                maxHeight: '100%',
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
@@ -818,12 +844,23 @@ export default function Projects2ViewPage() {
                 />
               </div>
             ) : (
-              <VideoLessonDisplay 
-                dataToDisplay={videoLessonData || null}
-                isEditing={true}
-                className="h-full"
-                onTextChange={handleTextChange}
-              />
+              <div style={{
+                width: '100%',
+                height: '100%',
+                aspectRatio: '16/9',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <VideoLessonDisplay 
+                  dataToDisplay={videoLessonData || null}
+                  isEditing={true}
+                  className="w-full h-full"
+                  onTextChange={handleTextChange}
+                />
+              </div>
             )}
           </div>
 
@@ -862,7 +899,7 @@ export default function Projects2ViewPage() {
             </div>
 
             {/* Music Dropdown */}
-            <div className={`relative ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div ref={musicDropdownRef} className={`relative ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
               <button
                 onClick={() => setShowMusicDropdown(!showMusicDropdown)}
                 disabled={!isMusicEnabled}
@@ -1091,7 +1128,7 @@ export default function Projects2ViewPage() {
               </div>
 
               {/* Transition Dropdown */}
-              <div className={`relative ${!isTransitionEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div ref={transitionDropdownRef} className={`relative ${!isTransitionEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
                 <button
                   onClick={() => setShowTransitionDropdown(!showTransitionDropdown)}
                   disabled={!isTransitionEnabled}
