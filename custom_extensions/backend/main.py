@@ -231,7 +231,7 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
             temperature=0.2
         )
         
@@ -3037,7 +3037,7 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
             temperature=0.2
         )
         
@@ -4214,7 +4214,7 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
             temperature=0.2
         )
         
@@ -5364,7 +5364,7 @@ async def stream_openai_response(prompt: str, model: str = None):
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
             temperature=0.2
         )
         
@@ -24069,7 +24069,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -24109,7 +24110,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 chunks_received = 0
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -29372,7 +29374,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -29405,7 +29408,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
             logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30868,7 +30872,8 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -30901,7 +30906,8 @@ IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
             logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
