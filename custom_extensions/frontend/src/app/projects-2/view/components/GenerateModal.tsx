@@ -60,12 +60,16 @@ export default function GenerateModal({
       {/* Background overlay */}
       <div 
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+        style={{ 
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
         onClick={onClose}
       ></div>
       
       {/* Modal content */}
-      <div className="relative bg-white shadow-xl w-[500px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px' }}>
+      <div className="relative shadow-xl w-[500px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
         {/* Header */}
         <div className="p-6 pb-3">
           <div className="flex justify-center items-center">
@@ -245,40 +249,13 @@ export default function GenerateModal({
               </div>
             </button>
           </div>
-
-
-          
-          {/* Summary section */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Summary</h3>
-            
-            {/* Generation time */}
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-gray-700">Generation time</span>
-              <span className="text-sm text-gray-700">approx. 8 minutes</span>
-            </div>
-            
-            {/* Video size */}
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs text-gray-700">Video size (per video)</span>
-              <span className="text-sm text-gray-700">~ 20MB</span>
-            </div>
-            
-            {/* Generation with API */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-700">Generation with API</span>
-              <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-1">
-                <span>&lt;/&gt;</span>
-                Export to API
-              </button>
-            </div>
-          </div>
           
           {/* Bottom buttons */}
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 bg-white text-black border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors font-medium text-sm"
+              className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm"
+              style={{ border: '1px solid #719AF5', color: '#719AF5' }}
             >
               Cancel
             </button>
@@ -290,17 +267,23 @@ export default function GenerateModal({
                 onGenerationStart?.();
               }}
               disabled={generationStatus === 'generating'}
-              className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
+              className={`px-4 py-2 rounded-md transition-colors font-medium text-sm flex items-center gap-2 ${
                 generationStatus === 'generating'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-black text-white hover:bg-gray-800'
+                  : 'text-white hover:bg-[#0D4CD4]'
               }`}
+              style={{ backgroundColor: generationStatus === 'generating' ? undefined : '#0F58F9' }}
               title={
                 generationStatus === 'generating' 
                   ? 'Generation in progress...' 
                   : 'Start video generation'
               }
             >
+              {generationStatus !== 'generating' && (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5423 11.3905C11.1071 11.557 10.8704 11.7949 10.702 12.2294C10.5353 11.7949 10.297 11.5586 9.86183 11.3905C10.297 11.2241 10.5337 10.9877 10.702 10.5517C10.8688 10.9861 11.1071 11.2224 11.5423 11.3905ZM10.7628 4.58943C11.1399 3.18725 11.6552 2.67169 13.0612 2.29471C11.6568 1.91825 11.1404 1.40376 10.7628 0C10.3858 1.40218 9.87044 1.91774 8.46442 2.29471C9.86886 2.67118 10.3852 3.18567 10.7628 4.58943ZM11.1732 7.48356C11.1732 7.35145 11.1044 7.19195 10.9118 7.13825C9.33637 6.69842 8.34932 6.19628 7.61233 5.4611C6.8754 4.72536 6.37139 3.73983 5.93249 2.1669C5.8787 1.97464 5.71894 1.9059 5.58662 1.9059C5.4543 1.9059 5.29454 1.97464 5.24076 2.1669C4.80022 3.73983 4.29727 4.7253 3.56092 5.4611C2.82291 6.19793 1.83688 6.70005 0.261415 7.13825C0.0688515 7.19195 0 7.35146 0 7.48356C0 7.61567 0.0688515 7.77518 0.261415 7.82888C1.83688 8.26871 2.82393 8.77085 3.56092 9.50602C4.29892 10.2428 4.80186 11.2273 5.24076 12.8002C5.29455 12.9925 5.45431 13.0612 5.58662 13.0612C5.71895 13.0612 5.87871 12.9925 5.93249 12.8002C6.37303 11.2273 6.87598 10.2418 7.61233 9.50602C8.35034 8.7692 9.33637 8.26707 10.9118 7.82888C11.1044 7.77517 11.1732 7.61567 11.1732 7.48356Z" fill="white"/>
+                </svg>
+              )}
               {generationStatus === 'generating' ? 'Starting generation...' : 'Start generation'}
             </button>
           </div>

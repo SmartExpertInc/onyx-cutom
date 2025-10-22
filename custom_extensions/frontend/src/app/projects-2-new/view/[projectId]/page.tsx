@@ -780,7 +780,7 @@ export default function Projects2ViewPage() {
   return (
     <VoiceProvider>
       <AvatarDataProvider>
-        <div className="h-screen bg-white flex flex-col relative" onClick={() => {
+        <div className="h-screen flex flex-col relative" style={{ backgroundColor: '#F2F2F4' }} onClick={() => {
           closeMenu();
         }}>
       {/* Product View Header */}
@@ -804,7 +804,7 @@ export default function Projects2ViewPage() {
         onGenerateClick={handleGenerateClick}
       />
       
-      <div className="p-2 bg-gray-200">
+      <div className="p-2" style={{ backgroundColor: '#F2F2F4' }}>
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
       {/* Grid container for 1440px screens: 12 columns × 96.67px, 24px gutters, 16px horizontal padding (8px each side from p-2) */}
@@ -897,7 +897,7 @@ export default function Projects2ViewPage() {
           <div className="space-y-3 flex-shrink-0">
             {/* Music Title and Toggle */}
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Music</h3>
+              <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Music</h3>
               <button
                 onClick={() => setIsMusicEnabled(!isMusicEnabled)}
                 className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
@@ -1028,7 +1028,7 @@ export default function Projects2ViewPage() {
             <div className="space-y-3 flex-shrink-0">
               {/* Background Title and Toggle */}
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Background</h3>
+                <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Background</h3>
                 <button
                   onClick={() => setIsBackgroundEnabled(!isBackgroundEnabled)}
                   className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
@@ -1126,7 +1126,7 @@ export default function Projects2ViewPage() {
             <div className="space-y-3 flex-shrink-0">
               {/* Scene Transition Title and Toggle */}
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Scene transition</h3>
+                <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Scene transition</h3>
                 <button
                   onClick={() => setIsTransitionEnabled(!isTransitionEnabled)}
                   className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
