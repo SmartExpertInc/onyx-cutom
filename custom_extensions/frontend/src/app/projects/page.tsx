@@ -646,7 +646,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void;}) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen, onSurveyModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isMyProducts: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void; onSurveyModalOpen: () => void;}) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -708,10 +708,10 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isMyProducts, isWor
           <Coins strokeWidth={1.5} size={16} className="font-normal text-[#8808A2]" />
           {userCredits !== null ? `${userCredits} ${t('interface.courseOutline.credits', 'Credits')}` : t('interface.loading', 'Loading...')}
         </button>
-        {/* <Button variant="outline" onClick={onSurveyModalOpen}>
+        <Button variant="outline" onClick={onSurveyModalOpen}>
           <MessageSquare size={16} className="mr-2" />
-          Survey
-        </Button> */}
+          {t('interface.survey', 'Survey')}
+        </Button>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
@@ -1212,7 +1212,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)}/>
+      <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isMyProducts={isMyProductsAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} onSurveyModalOpen={() => setSurveyModalOpen(true)}/>
       <main className="flex-1 overflow-y-auto p-8 bg-[#FFFFFF]">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />

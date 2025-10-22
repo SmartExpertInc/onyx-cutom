@@ -287,7 +287,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     <>
     <div className="flex h-screen bg-gray-50 presentation-layout">
       {/* Left Sidebar - Slide Thumbnails */}
-      <div className="w-85 h-full bg-[#EEEEEE] flex flex-col relative rounded-md">
+      <div className="w-85 h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
             <button 
@@ -295,14 +295,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 setInsertAfterIndex(null); // Reset to add at end
                 setShowTemplateDropdown(!showTemplateDropdown);
               }}
-              className="w-full flex items-center bg-white text-[#71717A] text-sm rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+              className="w-full flex items-center bg-white text-[#A5A5A5] text-sm rounded-lg hover:bg-gray-100 transition-colors border border-[#CCCCCC]"
             >
               <div className="flex items-center gap-2 pl-18 py-2 flex-1">
                 <Plus size={16} />
                 <span>Add new card</span>
               </div>
-              <div className="flex items-center justify-center px-3 py-2 border-l border-gray-200">
-                <ChevronDown size={16} />
+              <div className="flex items-center justify-center px-3 py-2 border-l border-[#CCCCCC]">
+                <ChevronDown size={16} strokeWidth={3} />
               </div>
             </button>
           </div>
@@ -330,7 +330,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       <button
                         key={template.id}
                         onClick={() => addSlide(template.id, insertAfterIndex || undefined)}
-                        className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                        className="group h-full w-full rounded-xl border border-[#CCCCCC] hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                       >
                         <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                           <div 
@@ -356,7 +356,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     <button
                       key={template.id}
                       onClick={() => addSlide(template.id, insertAfterIndex || undefined)}
-                      className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                      className="group h-full w-full rounded-xl border border-[#CCCCCC] hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                     >
                       <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                         <div 
@@ -374,7 +374,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
             </div>
           )}
         {/* Slide Thumbnails */}
-        <div className="flex-1 p-4 space-y-4 bg-[#EEEEEE] rounded-md">
+        <div className="flex-1 p-4 space-y-4 bg-[#F9F9F9] rounded-md">
           {deck.slides.map((slide, index) => {
             const isActive = slide.slideId === selectedSlideId;
             const isHovered = hoveredSlideId === slide.slideId;
@@ -391,7 +391,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                 onMouseLeave={() => setHoveredSlideId(null)}
               >
                 {/* Slide Number Badge */}
-                <div className="absolute bottom-2 left-2 text-[#71717A] border-2 border-[#E5E0DF] text-[27px] font-semibold w-10 h-10 rounded-[8px] flex items-center justify-center z-30 slide-number-badge">
+                <div className="absolute bottom-2 left-2 text-[#E0E0E0] border-2 border-[#E0E0E0] text-[27px] font-semibold w-10 h-10 rounded-[8px] flex items-center justify-center z-30 slide-number-badge">
                   {index + 1}
                 </div>
                 
@@ -429,7 +429,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-[#F2F2F4]">
         {/* Scrollable Slides Container - Vertical scroll for big slides */}
         <div 
           className="flex-1 bg-white"
@@ -450,7 +450,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={() => setHoveredSlideId(null)}
                   >
                     <div className="w-full max-w-7xl">
-                      <div className="main-slide-container border border-gray-200 rounded-lg relative" style={{ aspectRatio: '16/9' }}>
+                      <div className="main-slide-container border border-[#CCCCCC] rounded-md relative" style={{ aspectRatio: '16/9' }}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -459,9 +459,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 e.stopPropagation();
                                 setShowSlideMenu(showMenu ? null : slide.slideId);
                               }}
-                              className="w-5 h-8 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#E0E0E0] transition-all duration-200"
+                              className="w-5 h-8 bg-white hover:bg-white rounded-md flex items-center justify-center shadow-sm border border-[#CCCCCC] transition-all duration-200"
                             >
-                              <MoreVertical size={16} className="text-[#E0E0E0]" />
+                              <MoreVertical size={16} className="text-[#CCCCCC]" />
                             </button>
                           </div>
                         )}
@@ -518,14 +518,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       <button
                         onClick={() => addSlide('title-slide', index)}
                         title="Add new slide"
-                        className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                        className="w-8 h-8 rounded-l-md bg-white flex items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-[#A5A5A5]"
                       >
                         <Plus size={15} />
                       </button>
                       <button
                         onClick={() => setShowAIModal(true)}
                         title="Generate with AI"
-                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#0F58F9]"
+                        className="w-8 h-8 flex items-center bg-white justify-center border border-[#E0E0E0] !bg-[#CCDBFC] hover:bg-blue-100 text-[#A5A5A5]"
                       >
                         <Sparkles size={15} />
                       </button>
@@ -533,7 +533,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         <PopoverTrigger asChild>
                           <button
                             title="More"
-                            className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-gray-600"
+                            className="w-8 h-8 rounded-r-md flex bg-white items-center justify-center border border-[#E0E0E0] hover:bg-gray-100 text-[#A5A5A5]"
                           >
                             <ArrowDown size={15} />
                           </button>
@@ -555,7 +555,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                   <button
                                     key={template.id}
                                     onClick={() => addSlide(template.id, index)}
-                                    className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                                    className="group h-full w-full rounded-xl border border-[#CCCCCC] hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                   >
                                     <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                                       <div 
@@ -580,7 +580,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                                 <button
                                   key={template.id}
                                   onClick={() => addSlide(template.id, index)}
-                                  className="group h-full w-full rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
+                                  className="group h-full w-full rounded-xl border border-[#CCCCCC] hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-colors text-left bg-white"
                                 >
                                   <div className="aspect-[5/3] w-full rounded-t-xl flex items-center justify-center">
                                     <div 
