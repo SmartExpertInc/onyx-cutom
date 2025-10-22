@@ -202,7 +202,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     }
   };
   return (
-    <div className="h-full bg-white border border-gray-200 relative overflow-hidden w-full script-container">
+    <div className="h-full bg-white relative overflow-hidden w-full script-container">
       <style>{`
         .script-container button {
           -webkit-user-select: none;

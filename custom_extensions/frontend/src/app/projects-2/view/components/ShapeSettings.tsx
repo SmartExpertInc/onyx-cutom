@@ -109,7 +109,7 @@ export default function ShapeSettings() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-fit flex flex-col">
+      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">

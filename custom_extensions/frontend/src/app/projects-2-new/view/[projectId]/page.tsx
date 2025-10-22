@@ -758,7 +758,7 @@ export default function Projects2ViewPage() {
       <div className="p-2 bg-gray-200">
       {/* Main Content Area - Horizontal layout */}
       {/* Calculate available height: 100vh - ProductViewHeader (64px) - padding */}
-      {/* Grid container for 1440px screens: 12 columns × 94px, 24px gutters, 48px horizontal padding (8px + 16px each side) */}
+      {/* Grid container for 1440px screens: 12 columns × 96.67px, 24px gutters, 16px horizontal padding (8px each side from p-2) */}
       <div 
         className="flex gap-4 mt-[5px] mx-auto mb-[5px]" 
         style={{ 
@@ -766,13 +766,12 @@ export default function Projects2ViewPage() {
           maxWidth: '1440px',
           width: '100%',
           display: 'grid',
-          gridTemplateColumns: 'repeat(12, 94px)',
-          gap: '24px',
-          padding: '0 16px'
+          gridTemplateColumns: 'repeat(12, 96.67px)',
+          gap: '24px'
         }}
       >
         {/* Left Sidebar - spans columns 1-3, full height of available space */}
-        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden" style={{ gridColumn: '1 / 4' }}>
+        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '1 / 4' }}>
           {renderSidebarComponent()}
         </div>
 
