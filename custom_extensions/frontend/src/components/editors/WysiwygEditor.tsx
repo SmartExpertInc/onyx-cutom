@@ -215,7 +215,6 @@ export function WysiwygEditor({
               style={{
                 width: '32px',
                 height: '32px',
-                border: '1px solid #d1d5db',
                 borderRadius: '4px',
                 backgroundColor: 'white',
                 cursor: 'pointer',
@@ -232,10 +231,10 @@ export function WysiwygEditor({
                 height: '20px',
                 backgroundColor: selectedColor,
                 borderRadius: '3px',
-                border: '1px solid #d1d5db'
+                border: '1px solid #434343'
               }}></div>
             </button>
-            <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
+
 
             {/* Color Picker Dropdown */}
             {showColorPicker && (
@@ -313,6 +312,7 @@ export function WysiwygEditor({
               </div>
             )}
           </div>
+          <div style={{ width: '1px', height: '20px', backgroundColor: '#E0E0E0', margin: '0 8px' }} />
           {/* Text Style Dropdown */}
           <div style={{ position: 'relative' }}>
             <button
@@ -616,7 +616,7 @@ export function WysiwygEditor({
             }}
             title="Effects"
           >
-            <Sparkles width={16} />
+            <Sparkles width={16} className='text-[#434343]' />
           </button>
         </div>
       )}

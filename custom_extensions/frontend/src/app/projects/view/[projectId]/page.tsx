@@ -2180,7 +2180,7 @@ export default function ProjectInstanceViewPage() {
         <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
           projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
-            ? 'bg-white' 
+            ? 'bg-[#F2F2F4]' 
             : 'bg-transparent'
         }`}>
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
