@@ -481,9 +481,9 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
               const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
               return (
-                <div key={prompt.id} className="grid grid-cols-2 gap-4 p-2">
+                <div key={prompt.id} className="grid grid-cols-2 gap-4">
                   <div className="flex items-center">
-                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
+                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
                       {prompt.id}
                     </span>
                     {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
@@ -505,7 +505,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     )}
                   </div>
                   <div className="flex items-center">
-                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
+                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
                       {matchedOption?.id}
                     </span>
                     {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
@@ -896,9 +896,6 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               Add Question
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
             </button>
 
             {/* Question Type Dropdown Menu */}
