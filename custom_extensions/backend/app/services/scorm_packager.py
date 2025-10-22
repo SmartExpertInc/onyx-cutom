@@ -512,10 +512,32 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     """Render slide deck HTML using the exact PDF slide template, stacked, and ready for SCORM asset localization."""
     try:
-        template = jinja_env.get_template('single_slide_pdf_template.html')
+        # Extract version first to determine which template to use
+        effective_version = None
+        try:
+            if isinstance(content, dict):
+                effective_version = content.get('templateVersion') or (content.get('metadata') or {}).get('templateVersion')
+        except Exception:
+            effective_version = None
+        
+        logger.info(f"🔍 SCORM VERSION CHECK - product_id={product_row.get('id')}, templateVersion={effective_version}")
+        
+        # Select template based on version (matching PDF generation logic)
+        # Use old template for legacy decks (no version or version < 'v2')
+        if not effective_version or effective_version < 'v2':
+            template_file = "single_slide_pdf_template_old.html"
+            logger.info(f"📄 SCORM TEMPLATE SELECTION: Using LEGACY template for version: {effective_version}")
+        else:
+            template_file = "single_slide_pdf_template.html"
+            logger.info(f"📄 SCORM TEMPLATE SELECTION: Using V2 template for version: {effective_version}")
+        
+        template = jinja_env.get_template(template_file)
+        
         slides = content.get('slides', []) if isinstance(content, dict) else []
         if not slides:
             return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
+
+        logger.info(f"✅ SCORM RENDERING - slides_count={len(slides)}")
 
         # Theme and dimensions consistent with PDF rendering
         theme = content.get('theme', 'dark-purple')
@@ -525,19 +547,9 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         injected_styles = ''
         stacked_bodies: List[str] = []
 
-        # NOTE: We do NOT add _old suffix for SCORM rendering because:
-        # 1. The Jinja HTML template doesn't have _old versions of templates
-        # 2. Old and new slides render the same way in HTML (colors are handled by theme)
-        # 3. The _old suffix is only for frontend React component selection
-        effective_version = None
-        try:
-            if isinstance(content, dict):
-                effective_version = content.get('templateVersion') or (content.get('metadata') or {}).get('templateVersion')
-        except Exception:
-            effective_version = None
-        
-        logger.info(f"🔍 SCORM VERSION CHECK - product_id={product_row.get('id')}, templateVersion={effective_version}, slides_count={len(slides)}")
-        logger.info(f"✅ SCORM RENDERING - Using base template IDs (version-agnostic HTML rendering)")
+        # NOTE: Template selection is version-aware (above)
+        # The _old suffix for individual slide templates is only for frontend React component selection
+        # The Jinja templates (single_slide_pdf_template.html vs _old.html) handle version differences
         
         # Apply version-aware theme mapping (matching frontend logic)
         # Legacy decks (no version or < v2) should use v1 theme variants with old colors
