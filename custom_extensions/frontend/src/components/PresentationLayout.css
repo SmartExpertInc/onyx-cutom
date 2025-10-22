@@ -43,9 +43,6 @@
   pointer-events: none;
   user-select: none;
   background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .main-slide-container {
