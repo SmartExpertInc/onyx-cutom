@@ -1255,357 +1255,352 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       }
     },
     {
-      "slideId": "slide_7_deployment_strategies",
+      "slideId": "slide_7_real_scenario_exercise",
       "slideNumber": 7,
-      "slideTitle": "Model Deployment Strategies and MLOps Best Practices",
-      "templateId": "four-box-grid",
+      "slideTitle": "Project Management Fundamentals — Practice Scenario: Plan a Team Project",
+      "templateId": "two-column",
       "previewKeyPoints": [
-        "Containerization and orchestration strategies for scalable model deployment",
-        "A/B testing frameworks for gradual model rollouts and performance monitoring",
-        "Continuous integration and deployment pipelines for machine learning workflows",
-        "Model versioning, monitoring, and automated retraining processes"
+        "Apply what you learned: Plan a real project from start to finish",
+        "Scenario: Your team needs to migrate customer database to new system in 3 months",
+        "Use the tools and frameworks from previous slides to create your plan",
+        "Practice identifying risks, creating timelines, and defining success criteria"
       ],
       "props": {
-        "title": "Production Deployment and MLOps Excellence",
-        "boxes": [
-          {
-            "heading": "Containerized Deployment",
-            "text": "Docker + Kubernetes for scalable, reproducible serving with autoscaling, health checks, and zero-downtime rollouts."
-          },
-          {
-            "heading": "A/B Testing Framework",
-            "text": "Controlled rollouts with significance testing and KPI tracking to validate model impact before full deployment."
-          },
-          {
-            "heading": "CI/CD Pipelines",
-            "text": "Automated testing, validation, and deployments (e.g., GitHub Actions, Jenkins, MLflow) with safe rollback."
-          },
-          {
-            "heading": "Monitoring & Alerting",
-            "text": "Track performance, drift, latency, and health with dashboards and alerts for quick remediation."
-          }
-        ]
+        "title": "Apply Your Skills: Database Migration Project",
+        "leftTitle": "The Scenario",
+        "leftContent": "Your organization uses an outdated customer database system. Management wants to migrate 50,000 customer records to a modern cloud-based system within 3 months. You lead a team of 4 people: 2 developers, 1 database specialist, and 1 tester. Budget is limited. Any downtime must occur outside business hours. Success means all data migrated accurately with no customer-facing disruptions.",
+        "rightTitle": "Your Task (Apply the 5 Steps)",
+        "rightContent": "Using the project planning framework from slide 3, create your project plan: (1) Define specific success criteria using SMART goals, (2) Break down the migration into phases and tasks, (3) Estimate time for data mapping, testing, and cutover, (4) Identify at least 3 major risks and mitigation plans, (5) Design your tracking system and weekly checkpoint format. Consider: How will you test data accuracy? What is your rollback plan if issues arise?"
       }
     },
     {
-      "slideId": "slide_8_industry_challenges",
+      "slideId": "slide_8_stakeholder_communication",
       "slideNumber": 8,
-      "slideTitle": "Common Industry Challenges and Proven Solutions",
+      "slideTitle": "Project Management Fundamentals — How to Communicate Effectively with Stakeholders",
       "templateId": "challenges-solutions",
       "previewKeyPoints": [
-        "Data quality issues and systematic approaches to data validation and cleaning",
-        "Scalability challenges when moving from prototype to production systems",
-        "Model interpretability requirements for regulated industries and stakeholder buy-in",
-        "Talent acquisition and team building strategies for successful data science organizations"
+        "Challenge: Stakeholders don't read long status reports or attend all meetings",
+        "Challenge: Different stakeholders need different levels of detail and frequency",
+        "Challenge: Bad news must be delivered but you don't want to damage trust",
+        "Solution: Use the 3-tier communication framework for different audience needs"
       ],
       "props": {
-        "title": "Overcoming Real-World Data Science Obstacles",
-        "challengesTitle": "Industry Challenges",
-        "solutionsTitle": "Proven Solutions",
+        "title": "Mastering Stakeholder Communication in Project Management",
+        "challengesTitle": "Communication Challenges",
+        "solutionsTitle": "How to Address Them",
         "challenges": [
-          "Data quality degrades model reliability",
-          "Scaling prototypes to production systems",
-          "Stakeholders require interpretable explainable models"
+          "Stakeholders ignore lengthy status reports and skip update meetings",
+          "Executives want high-level summaries while technical leads need detailed information",
+          "Delivering bad news about delays or budget overruns without losing credibility"
         ],
         "solutions": [
-          "Implement validation and quality checks",
-          "Design with cloud-native efficient patterns",
-          "Use XAI tools with documentation"
+          "Use one-page visual dashboards with red/yellow/green status indicators. Put key information in the first 3 bullets. Details go in appendix.",
+          "Create 3 versions of same update: 30-second elevator pitch for executives, 5-minute summary for sponsors, 30-minute deep dive for technical stakeholders.",
+          "Use the situation-impact-action format: State what happened (facts only), explain business impact, present your mitigation plan with dates. Never hide problems."
         ]
       }
     },
     {
-      "slideId": "slide_9_career_advancement",
+      "slideId": "slide_9_project_timeline_phases",
       "slideNumber": 9,
-      "slideTitle": "Data Science Career Paths and Specialization Areas",
+      "slideTitle": "Project Management Fundamentals — Typical Project Timeline and Key Milestones",
       "templateId": "timeline",
       "previewKeyPoints": [
-        "Career progression from junior data scientist to senior leadership roles",
-        "Specialization opportunities in machine learning engineering, research, and business analytics",
-        "Skills development roadmap for advancing in different data science career tracks",
-        "Industry trends and emerging roles in artificial intelligence and data science"
+        "Standard project phases from initiation through closure",
+        "What happens in each phase and how long each typically takes",
+        "Key deliverables and decision points at each milestone",
+        "When to involve which stakeholders throughout the lifecycle"
       ],
       "props": {
-        "title": "Professional Development Timeline and Career Specializations",
+        "title": "Your Project Journey: From Kickoff to Completion",
         "events": [
           {
-            "date": "Year 1-2",
-            "title": "Foundation Building",
-            "description": "Build stats, Python/R, and ML basics; complete projects and assemble a strong portfolio."
+            "date": "Week 1-2",
+            "title": "Initiation Phase",
+            "description": "Create project charter defining goals, scope, stakeholders, and success criteria. Get formal approval to proceed. Assemble team and assign roles. Set up project workspace and communication channels. Deliverable: Approved project charter and kickoff meeting."
           },
           {
-            "date": "Year 2-4",
-            "title": "Specialization Focus",
-            "description": "Choose ML eng., data eng., or analytics; deepen algorithms, cloud, and domain expertise."
+            "date": "Week 2-4",
+            "title": "Planning Phase",
+            "description": "Break down work into tasks with time estimates. Create detailed schedule with dependencies. Identify risks and create mitigation plans. Define quality standards and acceptance criteria. Deliverable: Comprehensive project plan with schedule, risk register, and resource allocation."
           },
           {
-            "date": "Year 4-6",
-            "title": "Senior Individual Contributor",
-            "description": "Lead complex projects, mentor others, and drive MLOps and cross-functional outcomes."
+            "date": "Week 4-10",
+            "title": "Execution Phase",
+            "description": "Team performs actual work according to plan. Hold regular stand-ups and check-ins. Track progress against schedule and budget. Address blockers and manage changes. Maintain stakeholder communication. Deliverable: Completed project tasks and intermediate work products."
           },
           {
-            "date": "Year 6+",
-            "title": "Leadership and Strategy",
-            "description": "Move into management, research, or senior technical leadership; scale teams and impact."
+            "date": "Week 10-12",
+            "title": "Closure Phase",
+            "description": "Verify all deliverables meet acceptance criteria. Conduct final testing and stakeholder sign-off. Document lessons learned and best practices. Archive project materials and celebrate success. Release team members. Deliverable: Final deliverables, project closeout report, and lessons learned document."
           }
         ]
       }
     },
     {
-      "slideId": "slide_10_emerging_technologies",
+      "slideId": "slide_10_managing_change_requests",
       "slideNumber": 10,
-      "slideTitle": "Section: Emerging Technologies and Future Trends",
+      "slideTitle": "Project Management Fundamentals — How to Handle Mid-Project Change Requests",
       "templateId": "process-steps",
       "previewKeyPoints": [
-        "Latest developments in artificial intelligence including large language models and generative AI",
-        "Quantum computing applications in machine learning and optimization problems",
-        "Edge computing and federated learning for distributed AI systems",
-        "Ethical AI considerations and responsible machine learning practices"
+        "Change requests are inevitable - stakeholders will ask for new features or modifications",
+        "Poor change management causes scope creep and project failure",
+        "Use a structured 4-step process to evaluate and respond to change requests",
+        "Protect your project timeline while maintaining stakeholder relationships"
       ],
       "props": {
-        "title": "Evolution of AI Technologies",
+        "title": "Your Step-by-Step Change Request Management Process",
         "steps": [
-          "Large language models like GPT-4 and Claude enable natural language understanding, generation, and reasoning at unprecedented scale with applications across content creation, coding assistance, and knowledge synthesis.",
-          "Quantum computing promises exponential speedups for optimization problems, with quantum-inspired algorithms already improving classical machine learning performance in portfolio optimization and drug discovery.",
-          "Edge computing and federated learning enable privacy-preserving AI by training models across distributed devices without centralizing sensitive data, crucial for healthcare and IoT applications.",
-          "Responsible AI frameworks incorporate fairness metrics, explainability tools, and bias detection to ensure ethical deployment while maintaining transparency and accountability in automated decision-making systems."
+          "Document the Request Formally: When someone asks for a change, don't just say yes or no verbally. Create a change request form capturing: What they want changed, why it is needed, who requested it, when they need it. This creates accountability and ensures you understand the full request. Template: one-page form with request details, business justification, and expected benefit.",
+          "Assess Impact on Triple Constraint: Evaluate how this change affects scope (adds work?), schedule (delays delivery?), and resources (needs more budget/people?). Example: Adding a new report feature might add 2 weeks of development time, require additional testing resources, and delay the launch date. Document these impacts clearly with specific numbers.",
+          "Present Options to Stakeholders: Don't just reject changes. Present 3 options: (1) Add to current scope with timeline extension and budget increase, (2) Defer to phase 2 after initial launch, (3) Remove existing lower-priority feature to make room for new one. Include specific trade-offs for each option. Let stakeholders choose based on business priorities.",
+          "Get Formal Approval Before Proceeding: Never start work on changes without written approval from project sponsor. Update your project plan, schedule, and risk register to reflect approved changes. Communicate the updated timeline to all stakeholders. If request is rejected, document why and when it will be reconsidered (usually post-launch or next version)."
         ]
       }
     },
     {
-      "slideId": "slide_11_metrics_analytics",
+      "slideId": "slide_11_team_motivation",
       "slideNumber": 11,
-      "slideTitle": "Emerging Technologies and Future Trends — Operational Analytics Dashboard Highlights",
-      "templateId": "metrics-analytics",
+      "slideTitle": "Project Management Fundamentals — How to Keep Your Team Motivated and Productive",
+      "templateId": "bullet-points-right",
       "previewKeyPoints": [
-        "Key performance indicators tracked in day-to-day operations",
-        "Link between analytics and business actions taken",
-        "Alert thresholds and on-call procedures for anomalies",
-        "Ownership and review cadence for metrics dashboards"
+        "Team motivation directly impacts project success and timeline adherence",
+        "Common demotivators: unclear expectations, lack of recognition, poor communication",
+        "Five practical techniques you can apply immediately to boost team engagement",
+        "Create an environment where team members take ownership and deliver their best work"
       ],
       "props": {
-        "title": "Daily Metrics and Operational Insights",
-        "metrics": [
-          { "number": "12.3k", "text": "Daily active users across core products with 7-day rolling trend monitoring and threshold alerts for significant deviations from expected usage patterns." },
-          { "number": "98.6%", "text": "Uptime for model-serving endpoints measured via synthetic probes, SLO mapping, and automatic incident creation when SLAs are breached." },
-          { "number": "320ms", "text": "Median prediction latency for real-time inference with p95 and p99 tracked and auto-scaling triggers configured based on sustained load." },
-          { "number": "0.7%", "text": "Error rate on requests including timeouts and failed responses; categorized by cause and mitigated via retry logic and circuit breakers." },
-          { "number": "0.3", "text": "Data drift score computed nightly using PSI/KS metrics; alerts fire when exceeding thresholds prompting retraining investigations." },
-          { "number": "42", "text": "Open data quality issues prioritized by severity, assigned owners, and target resolution dates to ensure pipeline reliability." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_12_market_share",
-      "slideNumber": 12,
-      "slideTitle": "Emerging Technologies and Future Trends — Market Share by Segment and Year",
-      "templateId": "market-share",
-      "previewKeyPoints": [
-        "Year-over-year changes in market penetration by segment",
-        "Competitive positioning relative to primary rivals",
-        "Regions and products driving overall growth"
-      ],
-      "props": {
-        "title": "Market Share Overview",
-        "subtitle": "Comparative view across segments and years",
-        "chartData": [
-          { "label": "Segment A", "description": "Enterprise customers in regulated industries", "percentage": 37, "color": "#3b82f6", "year": 2024 },
-          { "label": "Segment B", "description": "Mid-market technology companies", "percentage": 28, "color": "#8b5cf6", "year": 2024 },
-          { "label": "Segment C", "description": "SMB retail and services", "percentage": 22, "color": "#10b981", "year": 2024 },
-          { "label": "Other", "description": "Long-tail customers", "percentage": 13, "color": "#f59e0b", "year": 2024 }
+        "title": "Building and Maintaining High-Performing Project Teams",
+        "bullets": [
+          "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply.",
+          "Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort.",
+          "Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved.",
+          "Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares: What they completed yesterday, what they will work on today, any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused.",
+          "Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption'."
         ],
-        "bottomText": "Expanding presence in enterprise while maintaining growth in mid-market."
+        "imagePrompt": "Professional photograph of a diverse project team having an engaged discussion around a conference table. Team members are actively participating, some pointing at documents, others taking notes. Natural office lighting, collaborative atmosphere. The scene shows genuine workplace teamwork with laptops, project materials, and planning documents visible. Meeting room is [COLOR1], team and materials are [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Project team engaged in productive planning meeting"
       }
     },
     {
-      "slideId": "slide_13_comparison",
-      "slideNumber": 13,
-      "slideTitle": "Solution Comparison Matrix",
-      "templateId": "comparison-slide",
-      "previewKeyPoints": [
-        "Side-by-side evaluation of key features",
-        "Pricing and support considerations",
-        "Recommended options by use case"
-      ],
-      "props": {
-        "title": "Feature Comparison",
-        "subtitle": "Selecting the right approach by capability",
-        "tableData": {
-          "headers": ["Capability", "Option A", "Option B"],
-          "rows": [
-            ["Deployment Model", "Managed cloud service", "Self-hosted Kubernetes"],
-            ["Latency (p95)", "< 400 ms", "< 250 ms"],
-            ["Maintenance", "Low (SaaS managed)", "Medium (DevOps required)"],
-            ["Cost Profile", "Usage-based pricing", "Fixed infra + ops"],
-            ["Best For", "Fast time-to-value", "Full control & customization"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_14_table_dark",
-      "slideNumber": 14,
-      "slideTitle": "Feature Availability Matrix",
-      "templateId": "table-dark",
-      "previewKeyPoints": [
-        "Feature comparison across different product tiers and versions",
-        "Checkbox-based availability indicators for easy visualization",
-        "Clear comparison matrix for stakeholder decision-making"
-      ],
-      "props": {
-        "title": "Feature Availability by Product Version",
-        "tableData": {
-          "headers": ["Metric", "Free Tier", "Pro Tier", "Enterprise"],
-          "rows": [
-            ["Real-time Analytics", "", "✓", "✓"],
-            ["API Access", "", "✓", "✓"],
-            ["Custom Integrations", "", "", "✓"],
-            ["24/7 Support", "", "", "✓"],
-            ["Advanced Security", "", "✓", "✓"],
-            ["White Label", "", "", "✓"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_15_table_light",
-      "slideNumber": 15,
-      "slideTitle": "Project Milestones (Light Theme)",
-      "templateId": "table-light",
-      "previewKeyPoints": [
-        "Upcoming deliverables and responsible teams",
-        "Dependencies and risk notes",
-        "Tentative timelines"
-      ],
-      "props": {
-        "title": "Milestone Plan",
-        "tableData": {
-          "headers": ["Milestone", "Owner", "Due"],
-          "rows": [
-            ["MVP Release", "Platform", "2024-11-15"],
-            ["Security Review", "SecOps", "2024-12-01"],
-            ["GA Launch", "Go-To-Market", "2025-01-10"]
-          ]
-        },
-        "colors": {
-          "headerBg": "#f3f4f6",
-          "rowAltBg": "#ffffff"
-        }
-      }
-    },
-    {
-      "slideId": "slide_16_event_list",
-      "slideNumber": 16,
-      "slideTitle": "Upcoming Events and Key Dates",
-      "templateId": "timeline",
-      "previewKeyPoints": [
-        "Major internal and external events in the next quarter",
-        "Deadlines that impact delivery timelines",
-        "Engagement opportunities with stakeholders"
-      ],
-      "props": {
-        "title": "Upcoming Events and Key Dates",
-        "events": [
-          { "date": "2024-11-05", "title": "Architecture Review", "description": "Validate scalability and security design decisions." },
-          { "date": "2024-11-20", "title": "Customer Advisory Board", "description": "Gather feedback on beta features and onboarding." },
-          { "date": "2024-12-03", "title": "Enablement Workshop", "description": "Train support and success teams on new tooling." },
-          { "date": "2024-12-17", "title": "Public Webinar", "description": "Share best practices from early adopters." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_17_pyramid",
-      "slideNumber": 17,
-      "slideTitle": "Capability Maturity Pyramid",
-      "templateId": "pyramid",
-      "previewKeyPoints": [
-        "Progression from foundational to advanced capabilities",
-        "Focus areas by maturity level",
-        "Recommended next steps for improvement"
-      ],
-      "props": {
-        "title": "Maturity Stages",
-        "steps": [
-          { "heading": "Strategic Optimization", "number": "01" },
-          { "heading": "Production Excellence", "number": "02" },
-          { "heading": "Operationalization", "number": "03" },
-          { "heading": "Prototyping", "number": "04" },
-          { "heading": "Foundations", "number": "05" }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_18_pie_chart",
-      "slideNumber": 18,
-      "slideTitle": "Resource Allocation Breakdown",
-      "templateId": "pie-chart-infographics",
-      "previewKeyPoints": [
-        "Distribution of time and budget across activities",
-        "Monthly movement and seasonal trends",
-        "Areas for optimization and rebalancing"
-      ],
-      "props": {
-        "title": "Team Allocation Overview",
-        "chartData": {
-          "segments": [
-            { "label": "Data Engineering", "value": 35, "color": "#3b82f6" },
-            { "label": "Modeling", "value": 30, "color": "#8b5cf6" },
-            { "label": "MLOps", "value": 20, "color": "#10b981" },
-            { "label": "Enablement", "value": 15, "color": "#f59e0b" }
-          ]
-        },
-        "monthlyData": [62, 70, 65, 68, 72, 75, 73, 78, 80, 77, 74, 79],
-        "chartSize": "large"
-      }
-    },
-    {
-      "slideId": "slide_19_comparison_table_dark",
-      "slideNumber": 19,
-      "slideTitle": "Feature Parity (Dark)",
-      "templateId": "comparison-slide",
-      "previewKeyPoints": [
-        "Detailed parity view across vendors",
-        "Critical features for shortlisting",
-        "Notes for follow-up demos"
-      ],
-      "props": {
-        "title": "Vendor Feature Parity",
-        "tableData": {
-          "headers": ["Feature", "Vendor X", "Vendor Y"],
-          "rows": [
-            ["RBAC", "Yes", "Partial"],
-            ["Audit Logs", "Yes", "Yes"],
-            ["SLA", "99.9%", "99.5%"],
-            ["Hybrid Deploy", "No", "Yes"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_20_case_studies",
-      "slideNumber": 20,
-      "slideTitle": "Section: Real-World Data Science Applications",
+      "slideId": "slide_12_project_recovery",
+      "slideNumber": 12,
+      "slideTitle": "Project Management Fundamentals — When Your Project Is Falling Behind: Recovery Strategies",
       "templateId": "challenges-solutions",
       "previewKeyPoints": [
-        "Common challenges faced in real-world data science projects",
-        "Proven solutions and best practices from industry leaders",
-        "Lessons learned from successful implementations"
+        "Most projects encounter delays - knowing how to recover is a critical skill",
+        "Challenge: Project is 3 weeks behind schedule with deadline approaching",
+        "Challenge: Team is overwhelmed and quality is starting to slip",
+        "Solution: Apply focused recovery techniques to get back on track"
       ],
       "props": {
-        "title": "Overcoming Real-World Data Science Challenges",
-        "challengesTitle": "Key Challenges",
-        "solutionsTitle": "Proven Solutions",
+        "title": "Project Recovery: How to Get Back on Track When Falling Behind",
+        "challengesTitle": "Project Crisis Scenarios",
+        "solutionsTitle": "Your Recovery Actions",
         "challenges": [
-          "Incomplete or messy datasets",
-          "Model deployment at scale",
-          "Stakeholder alignment and communication",
-          "Balancing speed and accuracy"
+          "Project is significantly behind schedule and stakeholders are concerned about missing the deadline",
+          "Team is working excessive hours but quality is declining and bugs are increasing",
+          "Multiple critical issues arose simultaneously and team does not know what to prioritize"
         ],
         "solutions": [
-          "Automated data quality pipelines",
-          "MLOps and containerization strategies",
-          "Executive dashboards and visualization",
-          "Iterative development and A/B testing"
+          "Conduct rapid triage: List all remaining tasks, reestimate time needed realistically, identify what can be cut or deferred to phase 2. Present revised timeline with options to stakeholders. Example: 'We can deliver core features on time if we defer reporting module to next release'.",
+          "Implement quality gates: Stop accepting new work. Focus team on completing and properly testing existing work. Add code review checkpoints. Sometimes slowing down to fix issues properly gets you to finish line faster than rushing with poor quality.",
+          "Create priority matrix: Plot all open issues on grid: High/Low Impact vs High/Low Effort. Focus team ONLY on high-impact items. Defer low-impact work. Assign clear owner to each high-priority item. Hold brief daily reviews of top 5 priorities only."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_13_decision_making_framework",
+      "slideNumber": 13,
+      "slideTitle": "Project Management Fundamentals — How to Make Good Project Decisions Quickly",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Projects require constant decision-making under uncertainty and time pressure",
+        "Compare options systematically using the decision matrix framework",
+        "Evaluate technical approaches, vendor selections, and priority trade-offs",
+        "Document your decisions to build organizational knowledge"
+      ],
+      "props": {
+        "title": "Decision Matrix: Comparing Options Objectively",
+        "subtitle": "Example: Choosing Between Two Technical Approaches for Data Migration",
+        "tableData": {
+          "headers": ["Evaluation Criteria", "Approach A: Big Bang Migration", "Approach B: Phased Rollout"],
+          "rows": [
+            ["Implementation Time", "Fast (2 weeks)", "Slower (6 weeks)"],
+            ["Risk Level", "High - all data moves at once", "Low - can test and adjust"],
+            ["Rollback Difficulty", "Very difficult if issues arise", "Easy - can revert one phase"],
+            ["Team Resource Needs", "Intense for 2 weeks", "Steady over 6 weeks"],
+            ["User Disruption", "One weekend downtime", "Minimal ongoing disruption"],
+            ["Recommended For", "Simple data, tight deadline", "Complex data, risk-averse stakeholders"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_14_lessons_learned",
+      "slideNumber": 14,
+      "slideTitle": "Project Management Fundamentals — Conducting Effective Lessons Learned Sessions",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Capture what worked and what did not work to improve future projects",
+        "Hold lessons learned session within 2 weeks of project completion while memories are fresh",
+        "Focus on actionable improvements, not blame or vague observations",
+        "Document and share learnings with other project teams across organization"
+      ],
+      "props": {
+        "title": "Your Lessons Learned Template: Questions to Ask Your Team",
+        "tableData": {
+          "headers": ["Question Category", "Specific Questions to Ask", "What to Document"],
+          "rows": [
+            ["What Went Well", "Which practices helped us succeed? What should we repeat?", "Specific techniques that delivered results"],
+            ["What Went Wrong", "What slowed us down? What would we avoid next time?", "Concrete problems with root causes identified"],
+            ["Unexpected Issues", "What surprised us? What did we not plan for?", "Gaps in initial planning or risk assessment"],
+            ["Process Improvements", "How could we work more efficiently? What tools would help?", "Actionable changes for next project"],
+            ["Team Feedback", "What did team members find frustrating or helpful?", "Insights on team dynamics and communication"],
+            ["Key Takeaways", "What are the top 3 lessons for future projects?", "Prioritized list shared with organization"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_15_agile_vs_waterfall",
+      "slideNumber": 15,
+      "slideTitle": "Project Management Fundamentals — When to Use Agile vs Waterfall Methodology",
+      "templateId": "table-dark",
+      "previewKeyPoints": [
+        "Different project types need different management approaches",
+        "Agile works best when requirements are uncertain and may change",
+        "Waterfall works best when requirements are clear and unlikely to change",
+        "Choose based on your specific project characteristics and constraints"
+      ],
+      "props": {
+        "title": "Agile vs Waterfall: Choosing the Right Approach for Your Project",
+        "tableData": {
+          "headers": ["Project Characteristic", "Use Agile When", "Use Waterfall When"],
+          "rows": [
+            ["Requirements Clarity", "Requirements evolving or unclear", "Requirements well-defined upfront"],
+            ["Stakeholder Availability", "Stakeholders can provide frequent feedback", "Limited stakeholder interaction needed"],
+            ["Project Complexity", "High uncertainty, need to experiment", "Clear path to solution, proven approach"],
+            ["Team Structure", "Cross-functional team co-located or well-connected", "Specialized teams work sequentially"],
+            ["Change Tolerance", "Changes expected and welcomed", "Changes costly and discouraged"],
+            ["Delivery Preference", "Deliver working increments every 2-4 weeks", "Deliver complete solution at end"],
+            ["Example Projects", "New product development, software apps", "Construction, manufacturing, compliance projects"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_16_virtual_team_management",
+      "slideNumber": 16,
+      "slideTitle": "Project Management Fundamentals — Managing Remote and Distributed Project Teams",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Remote work is now standard - learn to manage distributed teams effectively",
+        "Challenges: time zones, communication gaps, lack of informal interaction",
+        "Four-step framework for remote team success",
+        "Build trust and accountability without physical presence"
+      ],
+      "props": {
+        "title": "Your Remote Team Management Framework",
+        "steps": [
+          "Establish Communication Norms: Define how team communicates. Examples: Urgent issues via instant message with response expected in 2 hours. Status updates via email by 10am daily. Video calls for complex discussions. Document questions in shared workspace. Everyone knows where to post what and expected response times.",
+          "Create Shared Visibility: Use collaborative tools where everyone sees project status in real-time. Examples: Shared task board updated daily, centralized document repository, visible project timeline. No information should live only in someone's local files or email. This replaces the visibility you would have in an office.",
+          "Schedule Regular Face-Time: Hold video calls (cameras on) at recurring times. Daily 15-minute check-in for immediate coordination. Weekly 1-hour team meeting for deeper discussions. Monthly virtual team lunch for social connection. Seeing faces builds trust that chat alone cannot create. Respect time zones - rotate meeting times if team spans continents.",
+          "Document Everything: What would happen in hallway conversations in office must now be written down. Decisions made in calls should be summarized in email. Context should be explained in task descriptions. Meeting notes should be shared. This creates transparency and helps new team members get up to speed quickly."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_17_project_manager_maturity",
+      "slideNumber": 17,
+      "slideTitle": "Project Management Fundamentals — Your Growth Path as a Project Manager",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Project management is a skill that develops through experience and practice",
+        "Five maturity levels from beginner to strategic leader",
+        "Each level builds on previous capabilities and adds new responsibilities",
+        "Understand where you are now and what skills to develop next"
+      ],
+      "props": {
+        "title": "Project Manager Capability Maturity Levels",
+        "steps": [
+          { "heading": "Strategic Portfolio Leader: Manage multiple high-impact projects, mentor other PMs, shape organizational strategy", "number": "01" },
+          { "heading": "Senior PM: Lead complex projects with multiple teams, manage stakeholder expectations proactively, navigate organizational politics", "number": "02" },
+          { "heading": "Competent PM: Handle mid-size projects independently, anticipate issues, adapt plans effectively, build strong team relationships", "number": "03" },
+          { "heading": "Developing PM: Execute project plans with guidance, learn from mistakes, follow established processes, build basic PM skills", "number": "04" },
+          { "heading": "Beginner PM: Learn project management fundamentals, assist experienced PMs, manage small low-risk projects with close supervision", "number": "05" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_18_budget_management",
+      "slideNumber": 18,
+      "slideTitle": "Project Management Fundamentals — Tracking and Managing Project Budget",
+      "templateId": "bullet-points-right",
+      "previewKeyPoints": [
+        "Most projects have budget constraints - you must track spending carefully",
+        "Common budget categories: labor costs, external vendors, software/tools, travel",
+        "How to forecast remaining costs and identify budget overruns early",
+        "Communicating budget status to financial stakeholders"
+      ],
+      "props": {
+        "title": "Your Project Budget Management Guide",
+        "bullets": [
+          "Create Budget Baseline: At project start, document your approved budget broken down by category (labor, contractors, software licenses, hardware, travel, contingency). Example: Total $100k budget split as: $60k labor, $20k contractors, $10k software, $5k travel, $5k contingency. Get stakeholder sign-off on this baseline.",
+          "Track Actuals Weekly: Every week, record actual spending in each category. Compare to planned spending for that time period. Calculate burn rate (spending per week) and project if you will finish over or under budget. Use simple spreadsheet or project management tool to track this. Update takes 30 minutes weekly.",
+          "Monitor Labor Costs: Labor is usually largest expense. Track hours team members spend on project. Multiply hours by their hourly rate to calculate labor cost consumed. Example: Developer working 40 hours at $75/hour rate = $3,000 labor cost that week. Sum across all team members to get total labor spend.",
+          "Identify Variances Early: If any budget category is trending 10% over plan, investigate immediately. Examples: Contractor work taking longer than estimated, team needs additional software license, unanticipated travel required. Calculate impact on total budget and present options to stakeholders before money is spent.",
+          "Maintain Contingency Reserve: Set aside 5-10% of budget for unexpected costs. Only use contingency with project sponsor approval. Document what contingency was used for. Common uses: scope changes, quality issues requiring rework, team member turnover requiring contractor help."
+        ],
+        "imagePrompt": "Professional photograph of a project manager reviewing financial reports and budget spreadsheets at their desk. Person is focused on laptop screen showing charts and numbers, with printed budget documents and calculator nearby. Clean, organized workspace with natural office lighting. The workspace is [COLOR1], documents and screens are [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Project manager reviewing budget and financial reports"
+      }
+    },
+    {
+      "slideId": "slide_19_conflict_resolution",
+      "slideNumber": 19,
+      "slideTitle": "Project Management Fundamentals — Resolving Team Conflicts and Disagreements",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Conflict on projects is normal - different perspectives on priorities and approaches",
+        "Unresolved conflict damages team morale and derails project progress",
+        "Address conflicts quickly before they escalate and affect other team members",
+        "Use structured conflict resolution techniques to find win-win solutions"
+      ],
+      "props": {
+        "title": "Handling Team Conflicts: Your Facilitation Framework",
+        "challengesTitle": "Common Project Conflicts",
+        "solutionsTitle": "Your Resolution Approach",
+        "challenges": [
+          "Two team members disagree on technical approach and tensions are rising in meetings",
+          "Team member feels overloaded while another has lighter workload creating resentment",
+          "Stakeholder keeps changing requirements and team is frustrated and complaining"
+        ],
+        "solutions": [
+          "Meet privately with each person separately first to understand their perspective fully. Then facilitate joint discussion focused on project goals, not personal positions. Use data to evaluate options objectively. Example: 'Let us test both approaches on small scale and measure performance before deciding'. Focus on finding solution that serves project, not winning argument.",
+          "Privately review workload distribution with facts: actual tasks and time required for each person. Rebalance if needed. If workload is truly equal but perceived as unfair, make task assignments more visible to entire team so everyone sees the distribution. Sometimes perception issue rather than real imbalance.",
+          "Schedule meeting with stakeholder to establish change management process. Explain impact of frequent changes on team morale and timeline. Propose: changes documented formally, evaluated for impact, approved by sponsor before implementation. Protect your team's time while accommodating legitimate business needs."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_20_next_steps_application",
+      "slideNumber": 20,
+      "slideTitle": "Project Management Fundamentals — Your Next Steps: Applying What You Learned",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "You now have the fundamental frameworks and tools to manage projects successfully",
+        "Move from learning to doing: apply these concepts to real projects immediately",
+        "Start with small projects to build confidence and refine your approach",
+        "Continue learning from each project experience to develop mastery over time"
+      ],
+      "props": {
+        "title": "From Learning to Doing: Your Action Plan This Week",
+        "steps": [
+          "Identify Your First Project: Choose a small, low-risk project to practice these skills. Ideal first project: 4-8 weeks duration, 3-5 team members, clear deliverable, supportive stakeholder. Examples: process improvement initiative, internal tool development, department event planning. Avoid choosing your organization's most critical strategic project for your first application.",
+          "Create Your Project Documents: This week, create your basic project management toolkit for this project: (1) One-page project charter defining goals, scope, and success criteria, (2) Simple work breakdown structure with tasks and time estimates, (3) Basic risk register with top 5 risks and mitigation plans, (4) Weekly status report template. Use templates from this lesson.",
+          "Set Up Your Tracking System: Choose your project tracking method: simple spreadsheet, free project management tool, or physical task board. Set it up this week with all your tasks. Update it every Friday. Schedule 15-minute weekly review with your team. The system does not need to be fancy - it needs to be used consistently.",
+          "Find a Mentor: Identify someone who has managed projects successfully in your organization. Ask them to review your project plan and provide feedback. Schedule monthly 30-minute coffee chats to discuss challenges you are facing. Learn from their experiences. Most experienced project managers are happy to mentor and share what they have learned."
         ]
       }
     }
@@ -23197,6 +23192,50 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
+
+🎯 EDUCATIONAL PRESENTATION REQUIREMENTS (CRITICAL - NOT PRODUCT MARKETING):
+
+Your presentation must TEACH skills, not describe features. Follow these mandatory principles:
+
+**1. FOCUS ON "HOW TO DO" NOT "WHAT EXISTS":**
+- ❌ BAD: "File Sharing Features" with bullet list of feature names
+- ✅ GOOD: "How to Set Up Secure File Sharing in 4 Steps" with detailed step-by-step process
+- ❌ BAD: "Project Management Tools Overview" 
+- ✅ GOOD: "How to Track Your Project Progress Using These Specific Tools"
+- Every slide title should answer "How do I..." or "What will I be able to do..."
+
+**2. PROVIDE COMPREHENSIVE EXPLANATIONS (60-100 WORDS):**
+- Each bullet point, process step, or content block must be 60-100 words
+- Include: WHAT it is, WHY it matters, HOW to apply it, WHEN to use it, concrete EXAMPLES
+- ❌ BAD: "Use Gantt charts for scheduling" (7 words)
+- ✅ GOOD: "Use Gantt charts to visualize your project timeline by creating bars for each task showing start date, duration, and dependencies. This helps you identify scheduling conflicts early - for example, if Task B requires completion of Task A, the chart shows this dependency visually. Update your Gantt chart weekly to track actual progress against plan. Free tools like Excel or ProjectLibre work well for projects under 50 tasks." (70 words)
+
+**3. INCLUDE REAL WORKPLACE SCENARIOS:**
+- Every concept must be paired with concrete application example
+- Use realistic scenarios: "When managing a database migration project..." or "If your team member reports a blocker..."
+- Provide specific contexts, not abstract theory
+- Show before/after, common mistakes, troubleshooting steps
+
+**4. BUILD PRACTICAL SKILLS PROGRESSIVELY:**
+- Slide 1-2: What will learners be able to DO after this lesson (action verbs)
+- Slides 3-8: Core concepts with HOW-TO guidance
+- Slides 9-15: Advanced techniques and troubleshooting
+- Slides 16-20: Application exercises, decision frameworks, next steps
+- Each slide builds on previous slides - reference earlier concepts
+
+**5. AVOID FEATURE-LIST PRESENTATIONS:**
+- Do NOT create slides that just list features, capabilities, or components
+- Do NOT create "Overview of X" slides without actionable guidance  
+- Do NOT use business/marketing language like "benefits", "value proposition", "key advantages"
+- This is EDUCATION not SALES - teach practical skills
+
+**6. USE APPROPRIATE TEMPLATES FOR EDUCATION:**
+- process-steps: for sequential how-to guidance
+- challenges-solutions: for common problems and how to solve them
+- two-column: for comparison or before/after scenarios
+- bullet-points-right: for detailed explanations with examples
+- comparison-slide/table: for decision frameworks (when to use option A vs option B)
+- Avoid using metrics-analytics, market-share, pie-chart unless teaching data analysis skills
 
 NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
