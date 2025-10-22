@@ -656,15 +656,13 @@ export default function Projects2ViewPage() {
       switch (activeSettingsPanel) {
         case 'script':
           return (
-            <div className="bg-white border border-[#E0E0E0] rounded-lg p-3">
-              <Script 
-                onAiButtonClick={handleAiButtonClick} 
-                videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-                componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-                currentSlideId={currentSlideId}
-                onTextChange={handleTextChange}
-              />
-            </div>
+            <Script 
+              onAiButtonClick={handleAiButtonClick} 
+              videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+              componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
+              currentSlideId={currentSlideId}
+              onTextChange={handleTextChange}
+            />
           );
         case 'text':
           return <TextSettings activeEditor={activeTextEditor} />;
@@ -774,7 +772,7 @@ export default function Projects2ViewPage() {
         }}
       >
         {/* Left Sidebar - spans columns 1-3, full height of available space */}
-        <div className="h-full overflow-y-auto overflow-x-hidden" style={{ gridColumn: '1 / 4' }}>
+        <div className="h-full flex flex-col overflow-y-auto overflow-x-hidden" style={{ gridColumn: '1 / 4' }}>
           {renderSidebarComponent()}
         </div>
 

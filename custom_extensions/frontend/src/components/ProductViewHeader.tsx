@@ -255,10 +255,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             {/* Script Button */}
             <button
               onClick={() => onSettingsButtonClick?.('script')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer ${
                 activeSettingsPanel === 'script'
                   ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-[#09090B] hover:bg-gray-50'
               }`}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -271,10 +271,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             {/* Avatar Button */}
             <button
               onClick={() => onSettingsButtonClick?.('avatar')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer ${
                 activeSettingsPanel === 'avatar'
                   ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-[#09090B] hover:bg-gray-50'
               }`}
             >
               <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -289,10 +289,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 const rect = e.currentTarget.getBoundingClientRect();
                 onShapesButtonClick?.({ x: rect.left, y: rect.bottom + 5 });
               }}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer ${
                 activeSettingsPanel === 'shape'
                   ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-[#09090B] hover:bg-gray-50'
               }`}
             >
               <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -306,14 +306,14 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             {/* Text Button */}
             <button
               onClick={() => onSettingsButtonClick?.('text')}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer ${
                 activeSettingsPanel === 'text'
                   ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-[#09090B] hover:bg-gray-50'
               }`}
             >
-              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.3535 3.84277H13.6455V21.752H13.3535V3.84277Z" fill="currentColor" stroke="currentColor" strokeWidth="1.68531"/>
+              <svg width="16" height="16" viewBox="0 0 768 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M704 128H448v832q0 27-19 45.5t-45 18.5t-45-18.5t-19-45.5V128H64q-27 0-45.5-18.5T0 64.5T18.5 19T64 0h640q26 0 45 19t19 45.5t-18.5 45T704 128z"/>
               </svg>
               <span className="text-[10px] mt-0.5">Text</span>
             </button>
@@ -321,10 +321,10 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             {/* Media Button */}
             <button
               onClick={(e) => onSettingsButtonClick?.('media', e)}
-              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors ${
+              className={`flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer ${
                 activeSettingsPanel === 'media'
                   ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                  : 'text-[#09090B] hover:bg-gray-50'
               }`}
             >
               <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
