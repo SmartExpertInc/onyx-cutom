@@ -3,11 +3,19 @@ import AdvancedSettings from './AdvancedSettings';
 import ColorPalettePopup from './ColorPalettePopup';
 import Tooltip from './Tooltip';
 
-interface TextSettingsProps {
-  activeEditor?: any | null; // TipTap Editor instance
+interface ComputedStyles {
+  fontSize?: string;
+  fontFamily?: string;
+  color?: string;
+  textAlign?: string;
 }
 
-export default function TextSettings({ activeEditor }: TextSettingsProps) {
+interface TextSettingsProps {
+  activeEditor?: any | null; // TipTap Editor instance
+  computedStyles?: ComputedStyles | null;
+}
+
+export default function TextSettings({ activeEditor, computedStyles }: TextSettingsProps) {
   const [activeTab, setActiveTab] = useState<'format' | 'animate'>('format');
   const [animationType, setAnimationType] = useState<'none' | 'fade' | 'slide' | 'grow'>('fade');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -51,21 +59,20 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
         setIsUnderline(activeEditor.isActive('underline'));
         setIsStrikethrough(activeEditor.isActive('strike'));
         
-        // Get current text color
-        const currentColor = activeEditor.getAttributes('textStyle').color || '#000000';
+        // Get current text color from inline styles
+        const inlineColor = activeEditor.getAttributes('textStyle').color;
+        const currentColor = inlineColor || computedStyles?.color || '#000000';
         setFontColor(currentColor);
         
-        // Get current font family from textStyle marks
-        const currentFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
-        if (currentFontFamily) {
-          setFontFamily(currentFontFamily);
-        }
+        // Get current font family - prefer inline, fallback to computed
+        const inlineFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
+        const currentFontFamily = inlineFontFamily || computedStyles?.fontFamily || 'Arial, sans-serif';
+        setFontFamily(currentFontFamily);
         
-        // Get current font size from textStyle marks
-        const currentFontSize = activeEditor.getAttributes('textStyle').fontSize;
-        if (currentFontSize) {
-          setFontSize(currentFontSize);
-        }
+        // Get current font size - prefer inline, fallback to computed
+        const inlineFontSize = activeEditor.getAttributes('textStyle').fontSize;
+        const currentFontSize = inlineFontSize || computedStyles?.fontSize || '16px';
+        setFontSize(currentFontSize);
         
         // Get current text alignment
         if (activeEditor.isActive({ textAlign: 'left' })) {
@@ -75,7 +82,9 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
         } else if (activeEditor.isActive({ textAlign: 'right' })) {
           setTextAlign('right');
         } else {
-          setTextAlign('left'); // Default
+          // Use computed alignment if available
+          const computedAlign = computedStyles?.textAlign || 'left';
+          setTextAlign(computedAlign as 'left' | 'center' | 'right');
         }
         
         console.log('✏️ TextSettings synced with editor:', {
@@ -88,13 +97,15 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           fontSize: currentFontSize,
           textAlign: activeEditor.isActive({ textAlign: 'left' }) ? 'left' : 
                      activeEditor.isActive({ textAlign: 'center' }) ? 'center' : 
-                     activeEditor.isActive({ textAlign: 'right' }) ? 'right' : 'left'
+                     activeEditor.isActive({ textAlign: 'right' }) ? 'right' : computedStyles?.textAlign || 'left',
+          hasInlineStyles: { inlineColor, inlineFontFamily, inlineFontSize },
+          computedStyles: computedStyles
         });
       } catch (error) {
         console.warn('Editor sync failed:', error);
       }
     }
-  }, [activeEditor]);
+  }, [activeEditor, computedStyles]);
 
   // Refs for dropdowns
   const fontFamilyDropdownRef = useRef<HTMLDivElement>(null);

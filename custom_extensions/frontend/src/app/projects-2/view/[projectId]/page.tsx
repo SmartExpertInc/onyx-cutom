@@ -74,6 +74,7 @@ export default function Projects2ViewPage() {
   
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
+  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -622,7 +623,7 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -638,7 +639,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -843,9 +844,10 @@ export default function Projects2ViewPage() {
                           saveVideoLessonData(updatedDeck);
                         }
                       }}
-                      onEditorActive={(editor, field) => {
-                        console.log('✏️ Editor active:', { field, hasEditor: !!editor });
+                      onEditorActive={(editor, field, computedStyles) => {
+                        console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
                         setActiveTextEditor(editor);
+                        setComputedTextStyles(computedStyles || null);
                         setActiveSettingsPanel('text');
                       }}
                       theme="default"

@@ -11,7 +11,7 @@ interface ComponentBasedSlideRendererProps {
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
-  onEditorActive?: (editor: any, field: string) => void;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
@@ -183,7 +183,7 @@ interface ComponentBasedSlideDeckRendererProps {
   isEditable?: boolean;
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
-  onEditorActive?: (editor: any, field: string) => void;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
   theme?: string;
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };

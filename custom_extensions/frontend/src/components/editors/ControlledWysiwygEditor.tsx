@@ -8,6 +8,13 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 
+export interface ComputedStyles {
+  fontSize?: string;
+  fontFamily?: string;
+  color?: string;
+  textAlign?: string;
+}
+
 export interface ControlledWysiwygEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -15,7 +22,7 @@ export interface ControlledWysiwygEditorProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
-  onEditorReady?: (editor: Editor) => void;
+  onEditorReady?: (editor: Editor, computedStyles?: ComputedStyles) => void;
   onSelectionChange?: (hasSelection: boolean) => void;
 }
 
@@ -116,7 +123,26 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       if (editor) {
         editor.commands.focus('end');
         editor.commands.selectAll();
-        onEditorReady?.(editor);
+        
+        // Read computed styles from the DOM
+        try {
+          const editorElement = editor.view.dom;
+          const computedStyles = window.getComputedStyle(editorElement);
+          
+          const extractedStyles: ComputedStyles = {
+            fontSize: computedStyles.fontSize,      // e.g., "40px" (computed from 2.5rem)
+            fontFamily: computedStyles.fontFamily,  // e.g., "Lora, serif"
+            color: computedStyles.color,            // e.g., "rgb(255, 255, 255)"
+            textAlign: computedStyles.textAlign,    // e.g., "left"
+          };
+          
+          console.log('📏 [ControlledEditor] Computed styles:', extractedStyles);
+          
+          onEditorReady?.(editor, extractedStyles);
+        } catch (error) {
+          console.warn('Failed to read computed styles:', error);
+          onEditorReady?.(editor);
+        }
       }
     }, [editor, onEditorReady]);
 

@@ -131,7 +131,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
-  onEditorActive?: (editor: any, field: string) => void;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   title,
   subtitle,
@@ -328,7 +328,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   lineHeight: '1.2'
                 }}
-                onEditorReady={(editor) => onEditorActive?.(editor, 'title')}
+                onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
               />
             ) : (
               <h1 
@@ -374,7 +374,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     lineHeight: '1.6'
                   }}
-                  onEditorReady={(editor) => onEditorActive?.(editor, 'subtitle')}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'subtitle', computedStyles)}
                 />
               ) : (
                 <h2 
@@ -421,7 +421,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     lineHeight: '1.6'
                   }}
-                  onEditorReady={(editor) => onEditorActive?.(editor, 'content')}
+                  onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'content', computedStyles)}
                 />
               ) : (
                 <div 
