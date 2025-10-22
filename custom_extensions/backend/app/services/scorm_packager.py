@@ -548,26 +548,11 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         stacked_bodies: List[str] = []
 
         # NOTE: Template selection is version-aware (above)
-        # The _old suffix for individual slide templates is only for frontend React component selection
-        # The Jinja templates (single_slide_pdf_template.html vs _old.html) handle version differences
+        # Each template (single_slide_pdf_template.html vs _old.html) has the same theme class names
+        # but with different CSS variable values (e.g., .theme-dark-purple has different colors in each template)
+        # Therefore, template selection handles color differences - no theme name mapping needed
         
-        # Apply version-aware theme mapping (matching frontend logic)
-        # Legacy decks (no version or < v2) should use v1 theme variants with old colors
-        THEME_V1_MAP = {
-            'dark-purple': 'dark-purple-v1',
-            # Add other theme mappings as needed
-        }
-        
-        original_theme = theme
-        if not effective_version or effective_version < 'v2':
-            v1_theme = THEME_V1_MAP.get(theme)
-            if v1_theme:
-                theme = v1_theme
-                logger.info(f"🎨 SCORM THEME MAPPING - Legacy deck: {original_theme} -> {theme}")
-            else:
-                logger.info(f"🎨 SCORM THEME - Legacy deck using: {theme} (no v1 variant)")
-        else:
-            logger.info(f"🎨 SCORM THEME - New deck (v2+) using: {theme}")
+        logger.info(f"🎨 SCORM THEME - Using theme: {theme} with {'V1 OLD' if (not effective_version or effective_version < 'v2') else 'V2 NEW'} template")
 
         for idx, raw_slide in enumerate(slides):
             slide = raw_slide

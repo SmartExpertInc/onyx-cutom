@@ -40,25 +40,34 @@ Updated the `_render_slide_deck_html` function (line 512) to implement version-a
    template = jinja_env.get_template(template_file)
    ```
 
-3. **Updated Comments (lines 550-552)**
-   - Clarified that template selection is now version-aware
-   - Explained the difference between Jinja template versions and React component versions
-
-4. **Preserved Theme Mapping (lines 554-570)**
-   - Kept existing version-aware theme mapping logic unchanged
-   - This was already working correctly
+3. **Updated Theme Handling (lines 550-555)**
+   - Removed theme name mapping (no `dark-purple` → `dark-purple-v1` conversion)
+   - Theme name stays unchanged; template CSS provides correct colors
+   - Added logging to show which template is being used with which theme
 
 ## Template Selection Logic
 
-The selection logic matches the PDF generation system exactly:
+The selection logic uses version-aware template files:
 
 - **Legacy Presentations**: No `templateVersion` field OR `templateVersion < 'v2'`
   - Uses: `single_slide_pdf_template_old.html`
-  - Maintains original v1 design
+  - Maintains original v1 design with old color values
 
 - **New Presentations**: `templateVersion >= 'v2'`
   - Uses: `single_slide_pdf_template.html`
-  - Uses updated v2 design
+  - Uses updated v2 design with new color values
+
+### Important: Theme Handling
+
+**No theme name mapping is performed in SCORM exports.** Each template file contains the same theme class names (e.g., `.theme-dark-purple`) but with different CSS variable values:
+
+- **Old Template**: `.theme-dark-purple` has `--bg-color: #110c35` (old purple)
+- **New Template**: `.theme-dark-purple` has `--bg-color: linear-gradient(#002D91, #000C5B)` (new gradient)
+
+This is different from PDF generation, which may map theme names. For SCORM:
+- Template selection handles version differences
+- Theme name stays unchanged (e.g., `dark-purple`)
+- CSS inside each template provides correct colors
 
 ## Logging and Debugging
 
@@ -68,7 +77,7 @@ Added comprehensive logging for debugging:
 🔍 SCORM VERSION CHECK - product_id={id}, templateVersion={version}
 📄 SCORM TEMPLATE SELECTION: Using {LEGACY/V2} template for version: {version}
 ✅ SCORM RENDERING - slides_count={count}
-🎨 SCORM THEME MAPPING - Legacy deck: {original} -> {v1_variant}
+🎨 SCORM THEME - Using theme: {theme} with {V1 OLD/V2 NEW} template
 ```
 
 Look for these emoji-prefixed logs to debug version issues in SCORM exports.
@@ -89,12 +98,16 @@ To verify the implementation:
 
 ## Consistency Achieved
 
-Both export methods now use identical version logic:
+Both export methods now correctly handle version-aware rendering:
 
-| Export Method | Version Detection | Template Selection | Theme Mapping |
-|---------------|-------------------|-------------------|---------------|
-| PDF Download  | ✅ Correct        | ✅ Correct        | ✅ Correct    |
-| SCORM Export  | ✅ Correct        | ✅ **FIXED**      | ✅ Correct    |
+| Export Method | Version Detection | Template Selection | Theme Handling |
+|---------------|-------------------|-------------------|----------------|
+| PDF Download  | ✅ Correct        | ✅ Correct        | Maps theme names for v1    |
+| SCORM Export  | ✅ Correct        | ✅ **FIXED**      | Uses original theme name   |
+
+**Note**: The difference in theme handling is intentional:
+- **PDF**: May map theme names (e.g., `dark-purple` → `dark-purple-v1`) because it has additional theme variants
+- **SCORM**: Uses original theme name because each template file has version-specific CSS values built-in
 
 ## Related Files
 
@@ -108,9 +121,10 @@ Both export methods now use identical version logic:
 ## Notes
 
 1. **Backward Compatibility**: Presentations without `templateVersion` field default to v1 template
-2. **Theme Mapping**: Already working correctly before this fix
+2. **Theme Handling**: Template selection handles color differences; no theme name mapping needed
 3. **No Frontend Changes**: All changes are backend-only
 4. **Template Files**: Both template files already exist in the templates directory
+5. **CSS Architecture**: Each template contains identical CSS class names with different color values
 
 ## Implementation Complete ✅
 
