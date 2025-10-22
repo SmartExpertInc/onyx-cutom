@@ -257,7 +257,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               onClick={() => onSettingsButtonClick?.('script')}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill="currentColor" d="M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h3v3.767L13.277 18H20c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm0 14h-7.277L9 18.233V16H4V4h16v12z"/>
                 <path fill="currentColor" d="M7 7h10v2H7zm0 4h7v2H7z"/>
               </svg>
@@ -269,7 +269,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               onClick={() => onSettingsButtonClick?.('avatar')}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
-              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19.5 21C19.5 19.4087 18.8679 17.8826 17.7426 16.7574C16.6174 15.6321 15.0913 15 13.5 15M13.5 15C11.9087 15 10.3826 15.6321 9.25736 16.7574C8.13214 17.8826 7.5 19.4087 7.5 21M13.5 15C15.7091 15 17.5 13.2091 17.5 11C17.5 8.79086 15.7091 7 13.5 7C11.2909 7 9.5 8.79086 9.5 11C9.5 13.2091 11.2909 15 13.5 15ZM23.5 13C23.5 18.5228 19.0228 23 13.5 23C7.97715 23 3.5 18.5228 3.5 13C3.5 7.47715 7.97715 3 13.5 3C19.0228 3 23.5 7.47715 23.5 13Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[10px] mt-0.5 text-[#71717A]">Avatar</span>
@@ -283,7 +283,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               }}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
-              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.38889 11.178C9.24566 11.1858 9.10305 11.1538 8.97684 11.0856C8.85063 11.0175 8.74573 10.9157 8.67375 10.7916C8.60176 10.6676 8.56549 10.526 8.56895 10.3826C8.57241 10.2392 8.61545 10.0995 8.69333 9.97906L12.8333 3.40017C12.8984 3.28303 12.9926 3.18468 13.1068 3.11465C13.2211 3.04463 13.3515 3.00531 13.4854 3.0005C13.6193 2.99569 13.7522 3.02557 13.8712 3.08722C13.9901 3.14887 14.0912 3.24022 14.1644 3.3524L18.2778 9.95573C18.3589 10.0722 18.4065 10.2086 18.4157 10.3502C18.4248 10.4917 18.395 10.6331 18.3296 10.759C18.2641 10.8849 18.1655 10.9905 18.0443 11.0643C17.9231 11.1382 17.7841 11.1775 17.6422 11.178H9.38889Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M10.1667 15.6224H4.61111C3.99746 15.6224 3.5 16.1199 3.5 16.7335V22.2891C3.5 22.9027 3.99746 23.4002 4.61111 23.4002H10.1667C10.7803 23.4002 11.2778 22.9027 11.2778 22.2891V16.7335C11.2778 16.1199 10.7803 15.6224 10.1667 15.6224Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M19.6111 23.4002C21.7589 23.4002 23.5 21.6591 23.5 19.5113C23.5 17.3635 21.7589 15.6224 19.6111 15.6224C17.4633 15.6224 15.7222 17.3635 15.7222 19.5113C15.7222 21.6591 17.4633 23.4002 19.6111 23.4002Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -296,7 +296,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               onClick={() => onSettingsButtonClick?.('text')}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
-              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8.24219 23C8.24219 23.41 7.90219 23.75 7.49219 23.75H6.49219C4.42219 23.75 2.74219 22.07 2.74219 20V19C2.74219 18.59 3.08219 18.25 3.49219 18.25C3.90219 18.25 4.24219 18.59 4.24219 19V20C4.24219 21.24 5.25219 22.25 6.49219 22.25H7.49219C7.90219 22.25 8.24219 22.59 8.24219 23ZM20.4922 2.25H19.4922C19.0822 2.25 18.7422 2.59 18.7422 3C18.7422 3.41 19.0822 3.75 19.4922 3.75H20.4922C21.7322 3.75 22.7422 4.76 22.7422 6V7C22.7422 7.41 23.0822 7.75 23.4922 7.75C23.9022 7.75 24.2422 7.41 24.2422 7V6C24.2422 3.93 22.5622 2.25 20.4922 2.25ZM3.49219 7.75C3.90219 7.75 4.24219 7.41 4.24219 7V6C4.24219 4.76 5.25219 3.75 6.49219 3.75H7.49219C7.90219 3.75 8.24219 3.41 8.24219 3C8.24219 2.59 7.90219 2.25 7.49219 2.25H6.49219C4.42219 2.25 2.74219 3.93 2.74219 6V7C2.74219 7.41 3.08219 7.75 3.49219 7.75ZM23.4922 18.25C23.0822 18.25 22.7422 18.59 22.7422 19V20C22.7422 21.24 21.7322 22.25 20.4922 22.25H19.4922C19.0822 22.25 18.7422 22.59 18.7422 23C18.7422 23.41 19.0822 23.75 19.4922 23.75H20.4922C22.5622 23.75 24.2422 22.07 24.2422 20V19C24.2422 18.59 23.9022 18.25 23.4922 18.25ZM18.7422 9C18.7422 9.41 19.0822 9.75 19.4922 9.75C19.9022 9.75 20.2422 9.41 20.2422 9V8C20.2422 7.04 19.4522 6.25 18.4922 6.25H8.49219C7.53219 6.25 6.74219 7.04 6.74219 8V9C6.74219 9.41 7.08219 9.75 7.49219 9.75C7.90219 9.75 8.24219 9.41 8.24219 9V8C8.24219 7.86 8.35219 7.75 8.49219 7.75H12.7422V19.25H10.4922C10.0822 19.25 9.74219 19.59 9.74219 20C9.74219 20.41 10.0822 20.75 10.4922 20.75H16.4922C16.9022 20.75 17.2422 20.41 17.2422 20C17.2422 19.59 16.9022 19.25 16.4922 19.25H14.2422V7.75H18.4922C18.6322 7.75 18.7422 7.86 18.7422 8V9Z" fill="#171718"/>
               </svg>
               <span className="text-[10px] mt-0.5 text-[#71717A]">Text</span>
@@ -307,7 +307,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               onClick={(e) => onSettingsButtonClick?.('media', e)}
               className="flex flex-col items-center justify-center px-2 py-1 rounded transition-colors cursor-pointer text-[#09090B] hover:bg-gray-50"
             >
-              <svg width="16" height="16" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21.1848 13.8249V20.7023C21.1848 21.2235 20.9778 21.7233 20.6093 22.0918C20.2408 22.4603 19.741 22.6673 19.2198 22.6673H5.46498C4.94384 22.6673 4.44403 22.4603 4.07553 22.0918C3.70702 21.7233 3.5 21.2235 3.5 20.7023V6.94747C3.5 6.42633 3.70702 5.92653 4.07553 5.55802C4.44403 5.18951 4.94384 4.98249 5.46498 4.98249H12.3424M16.2724 6.94747H22.1673M19.2198 4V9.89494M21.1848 16.7724L18.1529 13.7404C17.7844 13.372 17.2847 13.1651 16.7636 13.1651C16.2426 13.1651 15.7429 13.372 15.3744 13.7404L6.44747 22.6673M11.3599 10.8774C11.3599 11.9627 10.4802 12.8424 9.39494 12.8424C8.30971 12.8424 7.42996 11.9627 7.42996 10.8774C7.42996 9.7922 8.30971 8.91245 9.39494 8.91245C10.4802 8.91245 11.3599 9.7922 11.3599 10.8774Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="text-[10px] mt-0.5 text-[#71717A]">Media</span>
