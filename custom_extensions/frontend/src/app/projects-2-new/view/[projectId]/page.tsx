@@ -829,7 +829,7 @@ export default function Projects2ViewPage() {
           {/* Slide Container - Takes 80% of main container height */}
           <div 
             ref={slideContainerRef}
-            className="h-[80%] bg-gray-200 rounded-md flex items-center justify-center relative overflow-visible"
+            className="h-[80%] rounded-md flex items-center justify-center relative overflow-visible"
           >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div style={{
