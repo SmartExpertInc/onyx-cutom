@@ -122,35 +122,45 @@ Both export methods now correctly handle version-aware rendering:
 
 ### Date: October 22, 2025 (Additional Update)
 
-Aligned SCORM slide heights with PDF generation approach:
+Implemented dynamic height calculation per slide, **exactly matching PDF generation approach**:
 
-**Minimum Height:** 660px (16:9 aspect ratio for 1174px width)
-- Calculation: `1174 / 16 * 9 = 660px`
-- Ensures slides maintain proper aspect ratio
+**Dynamic Height Calculation:**
+1. Launch headless browser (Pyppeteer)
+2. For each slide:
+   - Render slide with initial height
+   - Measure actual content height using browser
+   - Calculate final height with safety margins
+3. Render each slide with its calculated height
 
-**Maximum Height:** None
-- Slides can grow beyond 16:9 as needed for content
-- Uses `height: auto` with `min-height: 660px`
+**Implementation:**
+```python
+# Calculate heights for each slide (matching PDF generation)
+browser = await pyppeteer.launch(**get_browser_launch_options())
+slide_heights = []
 
-**CSS Implementation:**
-```css
-.slide-page { 
-  width: 1174px;
-  height: auto !important; 
-  min-height: 660px !important; /* 16:9 aspect ratio minimum */
-  max-height: none !important;  /* No maximum - can grow as needed */
-}
+for slide_data in slides:
+    height = await calculate_slide_dimensions(slide_data, theme, browser, effective_version)
+    slide_heights.append(height)
 
-.slide-content { 
-  height: auto !important; 
-  min-height: 660px !important; /* Ensure content respects 16:9 minimum */
-}
+# Render each slide with its calculated height
+for idx, slide in enumerate(slides):
+    slide_height = slide_heights[idx]  # Specific height for this slide
+    rendered = template.render(slide=slide, theme=theme, slide_height=slide_height)
 ```
 
-This matches the PDF generation system which uses:
-- `PDF_MIN_SLIDE_HEIGHT = 600` (slightly less than 16:9)
-- Dynamic height calculation per slide
-- No arbitrary maximum constraint
+**Benefits:**
+- Each slide gets its optimal height based on content
+- Matches PDF generation exactly (uses same `calculate_slide_dimensions` function)
+- Minimum 600-660px, can grow to 3000px if needed
+- No more thin slides with wasted space
+- No more content overflow or clipping
+
+This is identical to PDF generation:
+- Uses `calculate_slide_dimensions()` from `pdf_generator.py`
+- Measures actual rendered content height
+- Applies `PDF_MIN_SLIDE_HEIGHT` (600px) minimum
+- Applies `PDF_MAX_SLIDE_HEIGHT` (3000px) maximum
+- Adds safety margin for padding
 
 ## Notes
 
