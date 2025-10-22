@@ -61,13 +61,20 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
           setFontFamily(currentFontFamily);
         }
         
+        // Get current font size from textStyle marks
+        const currentFontSize = activeEditor.getAttributes('textStyle').fontSize;
+        if (currentFontSize) {
+          setFontSize(currentFontSize);
+        }
+        
         console.log('✏️ TextSettings synced with editor:', {
           bold: activeEditor.isActive('bold'),
           italic: activeEditor.isActive('italic'),
           underline: activeEditor.isActive('underline'),
           strike: activeEditor.isActive('strike'),
           color: currentColor,
-          fontFamily: currentFontFamily
+          fontFamily: currentFontFamily,
+          fontSize: currentFontSize
         });
       } catch (error) {
         console.warn('Editor sync failed:', error);
@@ -181,9 +188,21 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
   ];
 
   const fontSizeOptions = [
-    { value: '12px', label: '12px' },
-    { value: '16px', label: '16px' },
-    { value: '24px', label: '24px' }
+    { value: '10px', label: '10' },
+    { value: '12px', label: '12' },
+    { value: '14px', label: '14' },
+    { value: '16px', label: '16' },
+    { value: '18px', label: '18' },
+    { value: '20px', label: '20' },
+    { value: '24px', label: '24' },
+    { value: '28px', label: '28' },
+    { value: '32px', label: '32' },
+    { value: '36px', label: '36' },
+    { value: '42px', label: '42' },
+    { value: '48px', label: '48' },
+    { value: '56px', label: '56' },
+    { value: '64px', label: '64' },
+    { value: '72px', label: '72' }
   ];
 
   return (
@@ -404,34 +423,50 @@ export default function TextSettings({ activeEditor }: TextSettingsProps) {
               <span className="text-sm font-medium text-gray-700">Font size</span>
               <div className="relative" ref={fontSizeDropdownRef}>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black"
+                  disabled={!activeEditor}
+                  className={`flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-black ${
+                    !activeEditor ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <span className="text-gray-700">{fontSize}</span>
+                  <span className="text-gray-700">{fontSizeOptions.find(opt => opt.value === fontSize)?.label || fontSize}</span>
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 
-                {showFontSizeDropdown && (
-                  <div className="absolute right-0 mt-1 w-20 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                {showFontSizeDropdown && activeEditor && (
+                  <div className="absolute right-0 mt-1 w-24 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-64 overflow-y-auto">
                     {fontSizeOptions.map((option) => (
                       <button
                         key={option.value}
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          setFontSize(option.value);
-                          setShowFontSizeDropdown(false);
+                          if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
+                            try {
+                              // Apply font size via inline style using TextStyle extension
+                              activeEditor.chain().focus().setMark('textStyle', { fontSize: option.value }).run();
+                              setFontSize(option.value);
+                              setShowFontSizeDropdown(false);
+                            } catch (error) {
+                              console.warn('Font size change failed:', error);
+                            }
+                          }
                         }}
-                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center"
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 flex items-center justify-between"
                       >
-                        {fontSize === option.value ? (
-                          <svg className="w-4 h-4 text-black mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <div className="w-4 h-4 mr-2"></div>
-                        )}
-                        <span className="text-gray-700">{option.label}</span>
+                        <div className="flex items-center flex-1">
+                          {fontSize === option.value ? (
+                            <svg className="w-4 h-4 text-black mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <div className="w-4 h-4 mr-2 flex-shrink-0"></div>
+                          )}
+                          <span className="text-gray-700">{option.label}</span>
+                        </div>
+                        <span className="text-xs text-gray-400">px</span>
                       </button>
                     ))}
                   </div>

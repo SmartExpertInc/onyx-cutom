@@ -72,6 +72,18 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
                   };
                 },
               },
+              fontSize: {
+                default: null,
+                parseHTML: element => element.style.fontSize || null,
+                renderHTML: attributes => {
+                  if (!attributes.fontSize) {
+                    return {};
+                  }
+                  return {
+                    style: `font-size: ${attributes.fontSize}`,
+                  };
+                },
+              },
             };
           },
         }),
@@ -150,17 +162,18 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
-          /* Ensure formatting tags don't override font-family unless explicitly set */
+          /* Ensure formatting tags inherit font properties unless explicitly overridden */
           .controlled-wysiwyg-editor strong,
           .controlled-wysiwyg-editor em,
           .controlled-wysiwyg-editor u,
           .controlled-wysiwyg-editor s {
             font-family: inherit !important;
+            font-size: inherit !important;
           }
           
-          /* Allow span with inline font-family to override */
-          .controlled-wysiwyg-editor span[style*="font-family"] {
-            /* Font family set via inline style - don't override */
+          /* Span tags can have inline styles for font-family, font-size, and color */
+          .controlled-wysiwyg-editor span {
+            /* Inline styles will override via specificity */
           }
         `;
         document.head.appendChild(style);
