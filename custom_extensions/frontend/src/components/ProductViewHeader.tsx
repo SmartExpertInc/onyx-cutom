@@ -184,7 +184,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 <button
                   ref={resizeButtonRef}
                   onClick={handleResizeClick}
-                  className="flex items-center gap-1 hover:bg-gray-100 rounded transition-colors cursor-pointer px-2 py-1"
+                  className="flex items-center gap-1 hover:bg-gray-100 rounded transition-colors cursor-pointer py-1"
                 >
                   {aspectRatio === '16:9' && (
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-[#71717A]">
