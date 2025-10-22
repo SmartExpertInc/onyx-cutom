@@ -20,108 +20,60 @@ interface ScriptProps {
 }
 
 export default function Script({ onAiButtonClick, videoLessonData, componentBasedSlideDeck, currentSlideId, onTextChange }: ScriptProps) {
-  const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
+  const [openDropdownSlideId, setOpenDropdownSlideId] = useState<string | null>(null);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
-
-  // const [isPausePopupOpen, setIsPausePopupOpen] = useState(false);
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
-  // const [isPlaying, setIsPlaying] = useState(false);
-  // const [playTime, setPlayTime] = useState(0);
   
   // Get selected voice from context
   const { selectedVoice } = useVoice();
-  // Get current slide data from either structure
-  const currentSlide = componentBasedSlideDeck 
-    ? componentBasedSlideDeck.slides?.find(s => s.slideId === currentSlideId)
-    : videoLessonData?.slides?.find(s => s.slideId === currentSlideId);
+  
+  // Get all slides from either structure
+  const allSlides = componentBasedSlideDeck?.slides || videoLessonData?.slides || [];
   
   // Use voiceover text from current slide or fallback to placeholder
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
   
-  // Function to handle script content changes
-  const handleScriptContentChange = (newContent: string) => {
-    // Save changes directly to parent without updating local state
-    // This prevents re-renders that would reset cursor position
-    if (onTextChange && currentSlide) {
+  // Function to handle script content changes for a specific slide
+  const handleScriptContentChange = (slideId: string, newContent: string) => {
+    if (onTextChange) {
       if (componentBasedSlideDeck?.slides) {
-        // Handle component-based slide deck
-        const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === slideId);
         if (slideIndex !== -1) {
           onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
         }
       } else if (videoLessonData?.slides) {
-        // Handle old video lesson data
-        const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
         if (slideIndex !== -1) {
           onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
         }
       }
     }
   };
-  const [cursorPosition, setCursorPosition] = useState(0);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
-  // const aiButtonRef = useRef<HTMLDivElement>(null);
-  // const pausePopupRef = useRef<HTMLDivElement>(null);
-  const textAreaRef = useRef<HTMLDivElement>(null);
-  // const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsAvatarDropdownOpen(false);
+        setOpenDropdownSlideId(null);
       }
-      // if (pausePopupRef.current && !pausePopupRef.current.contains(event.target as Node)) {
-      //   setIsPausePopupOpen(false);
-      // }
     };
 
-    if (isAvatarDropdownOpen /* || isPausePopupOpen */) {
+    if (openDropdownSlideId) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isAvatarDropdownOpen /* , isPausePopupOpen */]);
-
-  // Timer effect for play functionality
-  // useEffect(() => {
-  //   if (isPlaying) {
-  //     timerIntervalRef.current = setInterval(() => {
-  //       setPlayTime(prev => prev + 1);
-  //     }, 1000);
-  //   } else if (timerIntervalRef.current) {
-  //     clearInterval(timerIntervalRef.current);
-  //     timerIntervalRef.current = null;
-  //   }
-
-  //   return () => {
-  //     if (timerIntervalRef.current) {
-  //       clearInterval(timerIntervalRef.current);
-  //       timerIntervalRef.current = null;
-  //     }
-  //   };
-  // }, [isPlaying]);
-
-  // Update text content when current slide changes (using ref to avoid re-renders)
-  useEffect(() => {
-    if (textAreaRef.current) {
-      const newContent = currentSlide?.voiceoverText || defaultPlaceholder;
-      
-      // Only update if content actually changed to avoid unnecessary DOM updates
-      if (textAreaRef.current.textContent !== newContent) {
-        textAreaRef.current.textContent = newContent;
-      }
-    }
-  }, [currentSlide?.voiceoverText, currentSlideId, defaultPlaceholder]);
+  }, [openDropdownSlideId]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
   console.log('Script - componentBasedSlideDeck:', componentBasedSlideDeck);
   console.log('Script - currentSlideId:', currentSlideId);
-  console.log('Script - currentSlide:', currentSlide);
-  console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
+  console.log('Script - allSlides:', allSlides);
 
   // Play handler
   // const handlePlay = () => {
@@ -202,7 +154,7 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
     }
   }; */
   return (
-    <div className="h-full bg-white relative overflow-hidden w-full script-container">
+    <div className="h-full bg-white relative w-full script-container overflow-y-auto">
       <style>{`
         .script-container button {
           -webkit-user-select: none;
@@ -211,109 +163,134 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
           user-select: none;
         }
       `}</style>
-      {/* Content Container */}
-      <div className="relative z-10 flex flex-col items-start justify-start p-3">
-
-        {/* Top Section with Avatar Dropdown and Selector */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
-          {/* Avatar Dropdown */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
-            <button
-              onMouseDown={(e) => {
-                e.preventDefault();
-                window.getSelection()?.removeAllRanges();
+      
+      {/* Scrollable Content Container */}
+      <div className="relative z-10 flex flex-col gap-4 p-3">
+        {/* Map through all slides and create a card for each */}
+        {allSlides.map((slide) => {
+          const isSelected = slide.slideId === currentSlideId;
+          
+          return (
+            <div
+              key={slide.slideId}
+              className={`p-3 rounded-lg ${
+                isSelected 
+                  ? 'shadow-lg' 
+                  : ''
+              }`}
+              style={{
+                backgroundColor: isSelected ? '#CCDBFC' : 'transparent',
+                border: isSelected ? '1px solid #E0E0E0' : 'none',
               }}
-              onClick={() => {
-                setIsAvatarDropdownOpen(!isAvatarDropdownOpen);
-              }}
-              className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              style={{ userSelect: 'none' }}
             >
-              <User size={20} className="text-gray-700" />
-              <ChevronDown size={16} className="text-gray-500" />
-            </button>
+              {/* Top Section with Avatar Dropdown and Voice Selector */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-4 w-full">
+                {/* Avatar Dropdown */}
+                <div className="relative flex-shrink-0">
+                  <button
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      window.getSelection()?.removeAllRanges();
+                    }}
+                    onClick={() => {
+                      setOpenDropdownSlideId(
+                        openDropdownSlideId === slide.slideId ? null : slide.slideId
+                      );
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    style={{ userSelect: 'none' }}
+                  >
+                    <User size={20} className="text-gray-700" />
+                    <ChevronDown size={16} className="text-gray-500" />
+                  </button>
 
-            {/* Avatar Dropdown Popup */}
-            {isAvatarDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                <div className="p-2">
-                  {/* Row 1: Header */}
-                  <div className="px-2 py-1">
-                    <span className="text-xs text-gray-500">Avatars</span>
-                  </div>
-                  
-                  {/* Row 2: Lisa - Office 4 */}
-                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                    <User size={16} className="text-gray-700" />
-                    <span className="text-xs text-gray-700">Lisa - Office 4</span>
-                  </button>
-                  
-                  {/* Row 3: Narration only */}
-                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
-                      <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
+                  {/* Avatar Dropdown Popup */}
+                  {openDropdownSlideId === slide.slideId && (
+                    <div 
+                      ref={dropdownRef}
+                      className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                    >
+                      <div className="p-2">
+                        {/* Row 1: Header */}
+                        <div className="px-2 py-1">
+                          <span className="text-xs text-gray-500">Avatars</span>
+                        </div>
+                        
+                        {/* Row 2: Lisa - Office 4 */}
+                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                          <User size={16} className="text-gray-700" />
+                          <span className="text-xs text-gray-700">Lisa - Office 4</span>
+                        </button>
+                        
+                        {/* Row 3: Narration only */}
+                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="text-gray-700">
+                            <path fill="currentColor" d="M8.5 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0a5 5 0 0 1-10 0Zm17.073-1.352l.497.867a7 7 0 0 1-.002 6.975l-.499.867l-1.733-.997l.498-.867a5 5 0 0 0 .002-4.982l-.498-.867l1.735-.996ZM17.538 7.39l.497.868a3.5 3.5 0 0 1 0 3.487l-.5.867l-1.733-.997l.498-.867a1.499 1.499 0 0 0 0-1.495l-.497-.867l1.735-.996ZM0 19a5 5 0 0 1 5-5h7a5 5 0 0 1 5 5v2h-2v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2H0v-2Z"/>
+                          </svg>
+                          <span className="text-xs text-gray-700">Narration only</span>
+                        </button>
+                        
+                        {/* Row 4: Horizontal line */}
+                        <div className="my-1">
+                          <hr className="border-gray-300" />
+                        </div>
+                        
+                        {/* Row 5: Remove avatar */}
+                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                          <UserMinus size={16} className="text-gray-500" />
+                          <span className="text-xs text-gray-500">Remove avatar</span>
+                        </button>
+                        
+                        {/* Row 6: Add new avatar */}
+                        <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
+                          <UserPlus size={16} className="text-gray-700" />
+                          <span className="text-xs text-gray-700">Add new avatar</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Voice Selector Button */}
+                <div className="relative w-full sm:w-auto">
+                  <button
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      window.getSelection()?.removeAllRanges();
+                    }}
+                    onClick={() => {
+                      setIsLanguageModalOpen(true);
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
+                    style={{ userSelect: 'none' }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
+                      <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
                     </svg>
-                    <span className="text-xs text-gray-700">Narration only</span>
-                  </button>
-                  
-                  {/* Row 4: Horizontal line */}
-                  <div className="my-1">
-                    <hr className="border-gray-300" />
-                  </div>
-                  
-                  {/* Row 5: Remove avatar */}
-                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                    <UserMinus size={16} className="text-gray-500" />
-                    <span className="text-xs text-gray-500">Remove avatar</span>
-                  </button>
-                  
-                  {/* Row 6: Add new avatar */}
-                  <button className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded text-left">
-                    <UserPlus size={16} className="text-gray-700" />
-                    <span className="text-xs text-gray-700">Add new avatar</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      {selectedVoice 
+                        ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
+                        : 'Select Voice'
+                      }
+                    </span>
                   </button>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Voice Selector Button */}
-          <div className="relative w-full sm:w-auto">
-            <button
-              onMouseDown={(e) => {
-                e.preventDefault();
-                window.getSelection()?.removeAllRanges();
-              }}
-              onClick={() => {
-                setIsLanguageModalOpen(true);
-              }}
-              className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-auto"
-              style={{ userSelect: 'none' }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" className="text-gray-700">
-                <path fill="currentColor" d="M56 96v64a8 8 0 0 1-16 0V96a8 8 0 0 1 16 0Zm32-72a8 8 0 0 0-8 8v192a8 8 0 0 0 16 0V32a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v128a8 8 0 0 0 16 0V64a8 8 0 0 0-8-8Zm40 32a8 8 0 0 0-8 8v64a8 8 0 0 0 16 0V96a8 8 0 0 0-8-8Zm40-16a8 8 0 0 0-8 8v96a8 8 0 0 0 16 0V80a8 8 0 0 0-8-8Z"/>
-              </svg>
-              <span className="text-xs font-medium text-gray-700">
-                {selectedVoice 
-                  ? `${selectedVoice.locale?.split('-')[1] || selectedVoice.locale || 'Voice'} - ${selectedVoice.character}`
-                  : 'Select Voice'
-                }
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Main Content Text */}
-        <div className="w-full max-w-[615px] lg:max-w-[650px]">
-          <div
-            ref={textAreaRef}
-            contentEditable
-            suppressContentEditableWarning
-            className="w-full text-[#5F5F5F] text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
-            style={{ whiteSpace: 'pre-wrap', height: '200px' }}
-            onInput={(e) => handleScriptContentChange(e.currentTarget.textContent || '')}
-          />
-        </div>
+              {/* Script Text Area */}
+              <div className="w-full max-w-[615px] lg:max-w-[650px]">
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="w-full text-[#5F5F5F] text-xs leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
+                  style={{ whiteSpace: 'pre-wrap', minHeight: '100px' }}
+                  onInput={(e) => handleScriptContentChange(slide.slideId, e.currentTarget.textContent || '')}
+                  dangerouslySetInnerHTML={{ __html: slide.voiceoverText || defaultPlaceholder }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Voice Picker Modal */}
