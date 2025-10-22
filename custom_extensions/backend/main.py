@@ -202,67 +202,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -3008,67 +2947,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -4185,67 +4063,6 @@ def get_openai_client():
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
 
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
-
 def should_use_openai_direct(payload) -> bool:
     """
     Determine if we should use OpenAI directly instead of Onyx.
@@ -5355,12 +5172,57 @@ async def stream_openai_response(prompt: str, model: str = None):
         except FileNotFoundError:
             logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
             system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+
+                # Check for preservation mode instructions
+        enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
+        
+        # Add educational depth requirements for non-file generation
+        educational_enhancement = """
+
+**EDUCATIONAL CONTENT REQUIREMENTS:**
+
+Your content must provide deep educational value suitable for corporate training:
+
+**BLOOM'S TAXONOMY PROGRESSION:**
+• REMEMBER: Define key terms with precise definitions
+• UNDERSTAND: Explain WHY concepts work and provide mental models
+• APPLY: Show HOW to use concepts with step-by-step procedures
+• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
+
+**CORPORATE TRAINING STANDARDS:**
+• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
+• Include realistic scenarios with decision points
+• Provide mental models and frameworks learners can remember
+• Add "what would you do?" reflection prompts
+• Show both correct and incorrect examples with analysis
+
+**ANTI-HALLUCINATION PROTOCOL:**
+• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
+• NEVER present made-up examples as if they were real case studies
+• NEVER invent statistics, company names, or specific details
+• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
+
+**BULLET POINT DEPTH (for presentations):**
+Each bullet point MUST contain 60-100 words structured as:
+1. Core concept statement (15-20 words)
+2. Explanation of WHY/HOW it matters (20-30 words)  
+3. Practical application or example (20-30 words)
+4. Key takeaway or implication (10-20 words)
+
+**ONE-PAGER PEDAGOGICAL ELEMENTS:**
+1. MENTAL MODELS: Provide 2-3 frameworks learners can use
+2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
+4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
+5. SKILL PRACTICE: Include 3-5 scenario-based practice items
+
+        """
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system_prompt + educational_enhancement},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
@@ -10711,99 +10573,7 @@ def validate_edit_preservation(original_content: str, edited_content: str, edit_
         
     except Exception as e:
         logger.error(f"[VALIDATION_ERROR] Error validating edit preservation: {e}")
-        return True, ""  # Don't block on validation errors
-
-# --- OpenAI Streaming Functions ---
-
-async def stream_openai_response(message: str, temperature: float = 0.7):
-    """
-    Stream response from OpenAI directly without file context.
-    
-    Args:
-        message: The message to send to OpenAI
-        temperature: Temperature for response generation
-        
-    Yields:
-        Dict with type 'delta' (text chunk) or 'error'
-    """
-    try:
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not openai_api_key:
-            logger.error("[OPENAI_STREAM] No OpenAI API key found")
-            yield {"type": "error", "text": "OpenAI API key not configured"}
-            return
-        
-        client = AsyncOpenAI(api_key=openai_api_key)
-        
-        logger.info(f"[OPENAI_STREAM] Starting streaming with message length: {len(message)}")
-        
-        # Check for preservation mode instructions
-        enhanced_message = add_preservation_mode_if_needed(message, {"prompt": message})
-        
-        # Add educational depth requirements for non-file generation
-        educational_enhancement = """
-
-**EDUCATIONAL CONTENT REQUIREMENTS:**
-
-Your content must provide deep educational value suitable for corporate training:
-
-**BLOOM'S TAXONOMY PROGRESSION:**
-• REMEMBER: Define key terms with precise definitions
-• UNDERSTAND: Explain WHY concepts work and provide mental models
-• APPLY: Show HOW to use concepts with step-by-step procedures
-• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
-
-**CORPORATE TRAINING STANDARDS:**
-• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
-• Include realistic scenarios with decision points
-• Provide mental models and frameworks learners can remember
-• Add "what would you do?" reflection prompts
-• Show both correct and incorrect examples with analysis
-
-**ANTI-HALLUCINATION PROTOCOL:**
-• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
-• NEVER present made-up examples as if they were real case studies
-• NEVER invent statistics, company names, or specific details
-• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
-
-**BULLET POINT DEPTH (for presentations):**
-Each bullet point MUST contain 60-100 words structured as:
-1. Core concept statement (15-20 words)
-2. Explanation of WHY/HOW it matters (20-30 words)  
-3. Practical application or example (20-30 words)
-4. Key takeaway or implication (10-20 words)
-
-**ONE-PAGER PEDAGOGICAL ELEMENTS:**
-1. MENTAL MODELS: Provide 2-3 frameworks learners can use
-2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
-3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
-4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
-5. SKILL PRACTICE: Include 3-5 scenario-based practice items
-
-"""
-        
-        enhanced_message += educational_enhancement
-        
-        stream = await client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=[{
-                "role": "system", 
-                "content": """You are an EDUCATIONAL CONTENT CREATOR specializing in corporate training materials. Generate deep, comprehensive educational content that teaches concepts through multiple cognitive levels. Focus on practical application, real-world scenarios, and actionable insights that learners can immediately implement."""
-            }, {
-                "role": "user", 
-                "content": enhanced_message
-            }],
-            temperature=temperature,
-            stream=True
-        )
-        
-        async for chunk in stream:
-            if chunk.choices and chunk.choices[0].delta.content:
-                yield {"type": "delta", "text": chunk.choices[0].delta.content}
-                
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error: {e}", exc_info=True)
-        yield {"type": "error", "text": str(e)}
+        return True, ""  # Don't block on validation errors 
 
 async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
     """
@@ -22989,120 +22759,6 @@ async def _fetch_lesson_product_content(
         return None
 
 
-def get_educational_quality_instructions(language: str, product_type: str = "general") -> str:
-    """
-    Generate comprehensive educational quality instructions addressing common AI content issues.
-    
-    Addresses:
-    1. Cultural neutrality and global accessibility
-    2. Outcome-based learning (clear objectives)
-    3. Factual accuracy (avoid hallucinated statistics)
-    4. Terminology consistency
-    5. Practical, actionable content
-    """
-    
-    # Detect language region for cultural context
-    language_guidance = ""
-    if language in ['uk', 'ua', 'ukrainian']:
-        language_guidance = "Ukrainian/Eastern European"
-    elif language in ['ru', 'russian']:
-        language_guidance = "Russian/Eastern European"
-    elif language in ['es', 'spanish']:
-        language_guidance = "Spanish-speaking"
-    elif language in ['fr', 'french']:
-        language_guidance = "French-speaking"
-    elif language in ['de', 'german']:
-        language_guidance = "German-speaking"
-    elif language in ['zh', 'chinese']:
-        language_guidance = "Chinese"
-    elif language in ['ja', 'japanese']:
-        language_guidance = "Japanese"
-    elif language in ['ar', 'arabic']:
-        language_guidance = "Arabic"
-    else:
-        language_guidance = "international"
-    
-    product_specific = ""
-    if product_type == "presentation" or product_type == "slides":
-        product_specific = """
-**FOR PRESENTATIONS/SLIDES:**
-- Each slide must have a clear learning objective (what should learner be able to DO after this slide)
-- Start with outcome, then provide path to achieve it
-- Use visual learning principles (not just text dumps)"""
-    elif product_type == "onepager" or product_type == "text":
-        product_specific = """
-**FOR TEXT PRESENTATIONS/ONEPAGERS:**
-- Each section must serve a clear learning outcome
-- Include actionable takeaways (not just inspiration)
-- Use headings that reflect learning goals (e.g., "How to..." rather than just "Overview")"""
-    elif product_type == "quiz":
-        product_specific = """
-**FOR QUIZZES:**
-- Questions must test understanding of specific concepts, not general knowledge
-- Each question should have a clear learning objective it verifies
-- Explanations must teach, not just confirm correctness"""
-    
-    return f"""
-
-🎯 **EDUCATIONAL QUALITY STANDARDS** (MANDATORY):
-
-**1. CULTURAL NEUTRALITY & GLOBAL ACCESSIBILITY:**
-Target audience: {language_guidance} context
-- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream"
-- ❌ AVOID cultural assumptions: holiday references, political systems, economic contexts specific to one region
-- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution"
-- ✅ USE universal concepts: family, work, education, health, technology, nature
-- ✅ IF numbers needed: use international units (metric system), neutral currency examples, or percentage ranges
-- 💡 When region matters: use generic phrasing like "in many countries" or "depending on local regulations"
-
-**2. OUTCOME-BASED CONTENT (Learning Objectives):**
-- Every section/slide/block MUST have implicit learning outcome: "After this, learner will be able to [ACTION VERB]..."
-- Action verbs: identify, explain, apply, analyze, create, evaluate, compare, demonstrate
-- ❌ AVOID vague goals: "understand", "learn about", "be familiar with"
-- ✅ FOCUS on actionable outcomes: "identify 3 key differences", "apply the framework to", "evaluate options using"
-- Content must enable the stated outcome (provide steps, frameworks, examples)
-
-**3. FACTUAL ACCURACY & NO HALLUCINATED DATA:**
-- ❌ NEVER invent statistics, percentages, dates, or numerical data
-- ❌ NEVER cite specific studies, research, or sources unless provided in input materials
-- ✅ USE qualitative language: "many", "most", "several", "commonly", "often", "rarely"
-- ✅ USE general ranges: "significant portion", "majority", "minority", "small percentage"
-- ✅ IF specific data needed: use phrases like "research suggests", "studies indicate" (but avoid specific numbers)
-- 💡 When precision matters: use conditional phrasing: "this can vary from X to Y depending on context"
-
-**4. TERMINOLOGY CONSISTENCY:**
-- Identify 5-7 core concepts in the content
-- Choose ONE term for each concept and use it consistently throughout
-- ❌ AVOID switching terms: "balance"→"stability"→"equilibrium"→"well-being" for same concept
-- ✅ MAINTAIN consistent vocabulary: if you use "work-life balance", always use that exact phrase
-- Create implicit glossary: first mention should be clear definition, subsequent uses maintain same term
-- If synonyms needed for variety: use them for description, not for core concepts
-
-**5. PRACTICAL, ACTIONABLE CONTENT:**
-- Every concept must be paired with "how to apply this"
-- Include concrete steps, frameworks, or decision criteria
-- ❌ AVOID pure theory without application
-- ❌ AVOID motivational content without practical guidance
-- ✅ PROVIDE implementation guidance: "Here's how to use this..."
-- ✅ INCLUDE real-world application scenarios
-
-**6. STRUCTURED LEARNING PROGRESSION:**
-- Clear flow: What → Why → How → Apply
-- Build complexity gradually (don't jump to advanced concepts)
-- Each new concept should connect to previous knowledge
-- Provide transitions between topics
-
-{product_specific}
-
-**CRITICAL REMINDERS:**
-- Content must TEACH (not just inspire)
-- Examples must be GLOBALLY ACCESSIBLE
-- Data must be FACTUALLY ACCURATE or QUALITATIVE
-- Terminology must be CONSISTENT
-- Outcomes must be CLEAR and ACTIONABLE
-"""
-
-
 async def get_same_lesson_products(
     outline_id: int,
     lesson_title: str,
@@ -23460,10 +23116,8 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             logger.error(f"Failed to decompress lesson text: {e}")
             # Continue with original text if decompression fails
     
-    # Add educational quality instructions (addresses user feedback on cultural context, outcomes, terminology, etc.)
-    quality_instructions = get_educational_quality_instructions(payload.language, "presentation")
-    
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions = ""
     if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
         course_context_instructions = """
@@ -23482,7 +23136,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
 - Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + quality_instructions + course_context_instructions
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
     wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
@@ -23544,46 +23198,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
-CONTENT DENSITY AND LEARNING REQUIREMENTS:
-🎯 **OUTCOME-BASED LEARNING (CRITICAL)**:
-- Every slide must implicitly answer: "After this slide, the learner will be able to [ACTION VERB + SPECIFIC SKILL]"
-- Focus on ACTIONABLE outcomes, not just knowledge transfer
-- Example: Instead of "Understanding project management" → "You will be able to create a project timeline and identify risks"
-
-📚 **STRUCTURED LEARNING PROGRESSION**:
-- Follow What → Why → How → Apply structure in your content
-- What: Define the concept clearly (avoid jargon or explain it immediately)
-- Why: Explain its importance and when to use it
-- How: Provide step-by-step guidance with concrete details
-- Apply: Give real examples and practical application scenarios
-
-🌍 **CULTURAL NEUTRALITY (MANDATORY)**:
-- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream", specific companies as examples
-- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution", "technology company"
-- Examples must be universally relatable across different cultures and countries
-
-📊 **FACTUAL ACCURACY (CRITICAL - NO HALLUCINATED DATA)**:
-- ❌ NEVER invent statistics, percentages, dates, or numerical data unless they are well-known facts
-- ❌ Do NOT create fake numbers like "95% success rate", "3x productivity increase", "50% reduction" 
-- ✅ USE qualitative language instead: "many organizations", "most professionals", "several studies suggest", "substantial improvement", "significant increase"
-- ✅ For big-numbers slides, use qualitative descriptors as values: "High", "Regular", "Strong", "Growing", "Consistent" instead of fake percentages
-
-💡 **PRACTICAL, ACTIONABLE CONTENT**:
-- Every concept MUST be paired with "how to apply this in practice"
-- Include step-by-step implementation guidance
-- Provide concrete examples from real work scenarios
-- Bullet points must be comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific methodologies, step-by-step processes, common pitfalls, and actionable insights
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance
-
-🔑 **TERMINOLOGY CONSISTENCY**:
-- Choose ONE term for each concept and use it consistently throughout all slides
-- If you introduce a key term on slide 2, use THE SAME term on slides 3, 4, 5, etc.
-- Example: If you say "task list" initially, don't later switch to "to-do list", "action items", or "work breakdown"
-
-🎓 **EDUCATIONAL DEPTH**:
-- Ensure learners gain deep understanding of the topic after reading the complete presentation
-- Each slide should teach substantial concepts, not just overview points
-- Include concrete examples, specific methodologies, and measurable approaches in every slide
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -23714,46 +23329,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
-CONTENT DENSITY AND LEARNING REQUIREMENTS:
-🎯 **OUTCOME-BASED LEARNING (CRITICAL)**:
-- Every slide must implicitly answer: "After this slide, the learner will be able to [ACTION VERB + SPECIFIC SKILL]"
-- Focus on ACTIONABLE outcomes, not just knowledge transfer
-- Example: Instead of "Understanding project management" → "You will be able to create a project timeline and identify risks"
-
-📚 **STRUCTURED LEARNING PROGRESSION**:
-- Follow What → Why → How → Apply structure in your content
-- What: Define the concept clearly (avoid jargon or explain it immediately)
-- Why: Explain its importance and when to use it
-- How: Provide step-by-step guidance with concrete details
-- Apply: Give real examples and practical application scenarios
-
-🌍 **CULTURAL NEUTRALITY (MANDATORY)**:
-- ❌ AVOID region-specific references: "Thanksgiving", "Silicon Valley", "US college system", "European Union", "American Dream", specific companies as examples
-- ✅ USE culturally neutral examples: "community center", "local initiative", "public service", "workplace scenario", "educational institution", "technology company"
-- Examples must be universally relatable across different cultures and countries
-
-📊 **FACTUAL ACCURACY (CRITICAL - NO HALLUCINATED DATA)**:
-- ❌ NEVER invent statistics, percentages, dates, or numerical data unless they are well-known facts
-- ❌ Do NOT create fake numbers like "95% success rate", "3x productivity increase", "50% reduction" 
-- ✅ USE qualitative language instead: "many organizations", "most professionals", "several studies suggest", "substantial improvement", "significant increase"
-- ✅ For big-numbers slides, use qualitative descriptors as values: "High", "Regular", "Strong", "Growing", "Consistent" instead of fake percentages
-
-💡 **PRACTICAL, ACTIONABLE CONTENT**:
-- Every concept MUST be paired with "how to apply this in practice"
-- Include step-by-step implementation guidance
-- Provide concrete examples from real work scenarios
-- Bullet points must be comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific methodologies, step-by-step processes, common pitfalls, and actionable insights
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance
-
-🔑 **TERMINOLOGY CONSISTENCY**:
-- Choose ONE term for each concept and use it consistently throughout all slides
-- If you introduce a key term on slide 2, use THE SAME term on slides 3, 4, 5, etc.
-- Example: If you say "task list" initially, don't later switch to "to-do list", "action items", or "work breakdown"
-
-🎓 **EDUCATIONAL DEPTH**:
-- Ensure learners gain deep understanding of the topic after reading the complete presentation
-- Each slide should teach substantial concepts, not just overview points
-- Include concrete examples, specific methodologies, and measurable approaches in every slide
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
@@ -29173,10 +28749,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
-    # Add educational quality instructions
-    quality_instructions_quiz = get_educational_quality_instructions(payload.language, "quiz")
-    
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions_quiz = ""
     if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload or 'sameLessonProducts' in wiz_payload:
         course_context_instructions_quiz = """
@@ -29205,7 +28779,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT test deep knowledge of data types
 - Keep quiz questions focused on the current lesson only"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + quality_instructions_quiz + course_context_instructions_quiz 
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
 
     # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
@@ -30536,10 +30110,8 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    # Add educational quality instructions
-    quality_instructions_onepager = get_educational_quality_instructions(payload.language, "onepager")
-    
     # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
     course_context_instructions_onepager = ""
     if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
         course_context_instructions_onepager = """
@@ -30558,7 +30130,7 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 - If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
 - Keep the current lesson focused and leave appropriate topics for the next lesson"""
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + quality_instructions_onepager + course_context_instructions_onepager
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
     wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
