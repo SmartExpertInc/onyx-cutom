@@ -317,7 +317,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <ScrollArea className="h-[85vh] min-h-[600px] max-h-[900px]">
+          <ScrollArea className="h-[85vh] min-h-[600px] max-h-[700px]">
             <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
@@ -346,7 +346,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
             
             {/* Language Selection */}
-            <div className="mb-8">
+            {surveyStep === 1 && (<div className="mb-8">
               <h3 className="text-xl font-regular text-[#171718] mb-3 text-center public-sans-font">{t('language.selectPreferred', 'Select your preferred language')}</h3>
               <div className="relative max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
                 <DropdownMenu>
@@ -390,7 +390,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </div>
+            </div>)}
             
             {/* Main Question */}
             <div className="text-center mb-5">
@@ -408,7 +408,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
           {/* Main Content */}
-          <div className="px-8 pb-8">
+          <div className="px-8 pb-3">
           <div className={`transition-all duration-300 ease-in-out ${
             isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
           }`}>
@@ -644,7 +644,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         
         {/* Navigation Buttons */}
-        <div className="px-8 pt-4 pb-8">
+        <div className="px-8 pt-2 pb-8">
           <div className="max-w-[830px] min-w-[400px] w-[70vw] mx-auto">
             <div className="grid grid-cols-2 gap-16">
               {/* Previous Button */}
@@ -652,7 +652,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex text-sm bg-transparent items-center justify-center px-6 py-4 border-[#171718] text-[#171718] rounded-md font-semibold hover:bg-gray-50/20 transition-all duration-200 public-sans-font"
+                  className="flex text-sm bg-transparent items-center justify-center px-6 py-4 border-[#171718] text-[#171718] rounded-md font-semibold transition-all duration-200 public-sans-font"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
                   {t('survey.navigation.previous', 'Previous')}
