@@ -112,6 +112,7 @@ def _project_type_matches(proj: Dict[str, Any], target_mtypes: List[str]) -> boo
 def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str, used_ids: set) -> Optional[Dict[str, Any]]:
     target_mtypes = _map_item_type_to_microproduct(desired_type)
     if not target_mtypes or not lesson_title:
+        logger.info(f"[SCORM-MATCH] No target types for desired_type='{desired_type}' or no lesson_title")
         return None
 
     def is_unused(proj_id: Any) -> bool:
@@ -123,12 +124,20 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
     def mname(proj: Dict[str, Any]) -> str:
         return (proj.get('microproduct_name') or '').strip()
 
+    # Log available candidates for this type
+    candidates = [p for p in projects if _project_type_matches(p, target_mtypes) and is_unused(p.get('id'))]
+    logger.info(f"[SCORM-MATCH] Looking for type='{desired_type}' (mtypes={target_mtypes}) for lesson='{lesson_title}' | {len(candidates)} unused candidates")
+    if candidates and len(candidates) <= 5:
+        for c in candidates:
+            logger.info(f"[SCORM-MATCH]   Candidate: id={c.get('id')}, pname='{pname(c)}', mname='{mname(c)}', type={c.get('microproduct_type')}")
+
     # Pattern A (quizzes)
     if 'Quiz' in (target_mtypes or []):
         target_name = f"Quiz - {outline_name}: {lesson_title}"
         for proj in projects:
             if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == target_name:
+                    logger.info(f"[SCORM-MATCH] ✓ Matched Pattern A (Quiz) id={proj.get('id')}")
                     return dict(proj)
 
     # Pattern A2 (prefixed)
@@ -144,6 +153,7 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
         for proj in projects:
             if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == target_name_prefixed:
+                    logger.info(f"[SCORM-MATCH] ✓ Matched Pattern A2 (Prefixed) id={proj.get('id')}, pattern='{target_name_prefixed}'")
                     return dict(proj)
 
     # Pattern B: "{outline}: {lesson}"
@@ -151,26 +161,40 @@ def _match_connected_product(projects: List[Dict[str, Any]], outline_name: str, 
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == target_name:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern B (Outline:Lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern C: microproduct_name equals lesson title
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if mname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern C (mname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern E: project_name == outline AND microproduct_name == lesson
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == outline_name and mname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern E (pname==outline AND mname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
     # Pattern D: project_name equals lesson title
     for proj in projects:
         if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
             if pname(proj) == lesson_title:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern D (pname==lesson) id={proj.get('id')}")
                 return dict(proj)
 
+    # Pattern F (NEW): Fuzzy match - project_name contains lesson title
+    for proj in projects:
+        if _project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
+            pn = pname(proj).lower()
+            lt = lesson_title.lower()
+            if lt in pn or pn in lt:
+                logger.info(f"[SCORM-MATCH] ✓ Matched Pattern F (Fuzzy) id={proj.get('id')}, pname='{pname(proj)}'")
+                return dict(proj)
+
+    logger.warning(f"[SCORM-MATCH] ✗ No match found for type='{desired_type}' lesson='{lesson_title}' outline='{outline_name}'")
     return None
 
 
