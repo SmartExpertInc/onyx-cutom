@@ -196,9 +196,9 @@ export default function Script({ onAiButtonClick, videoLessonData, componentBase
               }}
             >
               {/* Top Section with Avatar Dropdown and Voice Selector */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 mb-4 w-full">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 mb-4 w-full">
           {/* Card Number Circle */}
-          <div className="flex items-center justify-center w-5 h-5 rounded-mg bg-white border border-gray-200 flex-shrink-0">
+          <div className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-gray-200 flex-shrink-0">
             <span className="text-xs font-medium" style={{ color: '#E0E0E0' }}>{index + 1}</span>
           </div>
           
