@@ -118,6 +118,40 @@ Both export methods now correctly handle version-aware rendering:
 - `PDF_VERSION_AWARE_TEMPLATE_SELECTION.md` - PDF version implementation documentation
 - `VERSIONED_SLIDES_IMPLEMENTATION.md` - Frontend version system documentation
 
+## Slide Height Handling
+
+### Date: October 22, 2025 (Additional Update)
+
+Aligned SCORM slide heights with PDF generation approach:
+
+**Minimum Height:** 660px (16:9 aspect ratio for 1174px width)
+- Calculation: `1174 / 16 * 9 = 660px`
+- Ensures slides maintain proper aspect ratio
+
+**Maximum Height:** None
+- Slides can grow beyond 16:9 as needed for content
+- Uses `height: auto` with `min-height: 660px`
+
+**CSS Implementation:**
+```css
+.slide-page { 
+  width: 1174px;
+  height: auto !important; 
+  min-height: 660px !important; /* 16:9 aspect ratio minimum */
+  max-height: none !important;  /* No maximum - can grow as needed */
+}
+
+.slide-content { 
+  height: auto !important; 
+  min-height: 660px !important; /* Ensure content respects 16:9 minimum */
+}
+```
+
+This matches the PDF generation system which uses:
+- `PDF_MIN_SLIDE_HEIGHT = 600` (slightly less than 16:9)
+- Dynamic height calculation per slide
+- No arbitrary maximum constraint
+
 ## Notes
 
 1. **Backward Compatibility**: Presentations without `templateVersion` field default to v1 template
@@ -125,6 +159,7 @@ Both export methods now correctly handle version-aware rendering:
 3. **No Frontend Changes**: All changes are backend-only
 4. **Template Files**: Both template files already exist in the templates directory
 5. **CSS Architecture**: Each template contains identical CSS class names with different color values
+6. **Slide Heights**: Minimum 16:9 aspect ratio (660px) but can grow larger for content-heavy slides
 
 ## Implementation Complete ✅
 

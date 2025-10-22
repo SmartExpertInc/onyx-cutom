@@ -596,19 +596,25 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
 
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         # Inject styles at the top of body for SCORM wrapper
+        # Min height of 660px ensures 16:9 aspect ratio (1174px width / 16 * 9 = 660px)
+        # This matches PDF generation approach: minimum aspect ratio but no maximum
         scorm_overrides = """
 <style>
   /* SCORM overrides to match PDF dynamic heights and spacing */
   .slide-page { 
+    width: 1174px;
     height: auto !important; 
-    min-height: 0 !important; 
-    max-height: none !important; 
+    min-height: 660px !important; /* 16:9 aspect ratio minimum (1174 / 16 * 9) */
+    max-height: none !important; /* No maximum - can grow as needed */
     margin: 0 auto 32px auto !important; 
     display: block; 
     background: transparent; 
   }
   .slide-page:last-child { margin-bottom: 0 !important; }
-  .slide-content { height: auto !important; min-height: 0 !important; }
+  .slide-content { 
+    height: auto !important; 
+    min-height: 660px !important; /* Ensure content respects 16:9 minimum */
+  }
 </style>
 """
         body_html = scorm_overrides + (injected_styles or '') + "".join(stacked_bodies)
