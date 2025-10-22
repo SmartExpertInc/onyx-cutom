@@ -1845,7 +1845,8 @@ export default function ProjectInstanceViewPage() {
         allowedComponentNames={[
           COMPONENT_NAME_TRAINING_PLAN,
           COMPONENT_NAME_SLIDE_DECK,
-          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION
+          COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
+          COMPONENT_NAME_QUIZ
         ]}
         t={t}
         onPdfExport={handlePdfDownload}

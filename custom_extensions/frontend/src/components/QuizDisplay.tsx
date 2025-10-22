@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   QuizData, AnyQuizQuestion, MultipleChoiceQuestion, MultiSelectQuestion,
@@ -40,9 +40,28 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer', questionIndex: number, optionIndex?: number, answerIndex?: number} | null>(null);
+  const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'answer' | 'prompt' | 'match-option', questionIndex: number, optionIndex?: number, answerIndex?: number, promptIndex?: number} | null>(null);
+  const [showQuestionTypeMenu, setShowQuestionTypeMenu] = useState(false);
+  const questionTypeMenuRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (questionTypeMenuRef.current && !questionTypeMenuRef.current.contains(event.target as Node)) {
+        setShowQuestionTypeMenu(false);
+      }
+    };
+
+    if (showQuestionTypeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuestionTypeMenu]);
 
   if (!dataToDisplay || !dataToDisplay.questions) {
     return null;
@@ -94,26 +113,89 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     }
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = (questionType: 'multiple-choice' | 'multi-select' | 'matching' | 'sorting' | 'open-answer') => {
     if (!onTextChange) return;
 
-    // Create a new default multiple-choice question
-    const newQuestion: MultipleChoiceQuestion = {
-      question_type: 'multiple-choice',
-      question_text: 'New Question',
-      options: [
-        { id: 'A', text: 'Option A' },
-        { id: 'B', text: 'Option B' },
-        { id: 'C', text: 'Option C' },
-        { id: 'D', text: 'Option D' }
-      ],
-      correct_option_id: 'A',
-      explanation: ''
-    };
+    let newQuestion: AnyQuizQuestion;
+
+    switch (questionType) {
+      case 'multiple-choice':
+        newQuestion = {
+          question_type: 'multiple-choice',
+          question_text: 'New Multiple Choice Question',
+          options: [
+            { id: 'A', text: 'Option A' },
+            { id: 'B', text: 'Option B' },
+            { id: 'C', text: 'Option C' },
+            { id: 'D', text: 'Option D' }
+          ],
+          correct_option_id: 'A',
+          explanation: ''
+        } as MultipleChoiceQuestion;
+        break;
+
+      case 'multi-select':
+        newQuestion = {
+          question_type: 'multi-select',
+          question_text: 'New Multi-Select Question',
+          options: [
+            { id: 'A', text: 'Option A' },
+            { id: 'B', text: 'Option B' },
+            { id: 'C', text: 'Option C' },
+            { id: 'D', text: 'Option D' }
+          ],
+          correct_option_ids: ['A', 'B'],
+          explanation: ''
+        } as MultiSelectQuestion;
+        break;
+
+      case 'matching':
+        newQuestion = {
+          question_type: 'matching',
+          question_text: 'New Matching Question',
+          prompts: [
+            { id: 'A', text: 'Item A' },
+            { id: 'B', text: 'Item B' },
+            { id: 'C', text: 'Item C' }
+          ],
+          options: [
+            { id: '1', text: 'Match 1' },
+            { id: '2', text: 'Match 2' },
+            { id: '3', text: 'Match 3' }
+          ],
+          correct_matches: { 'A': '1', 'B': '2', 'C': '3' },
+          explanation: ''
+        } as MatchingQuestion;
+        break;
+
+      case 'sorting':
+        newQuestion = {
+          question_type: 'sorting',
+          question_text: 'New Sorting Question',
+          items_to_sort: [
+            { id: 'item1', text: 'First item' },
+            { id: 'item2', text: 'Second item' },
+            { id: 'item3', text: 'Third item' }
+          ],
+          correct_order: ['item1', 'item2', 'item3'],
+          explanation: ''
+        } as SortingQuestion;
+        break;
+
+      case 'open-answer':
+        newQuestion = {
+          question_type: 'open-answer',
+          question_text: 'New Open Answer Question',
+          acceptable_answers: ['Answer 1', 'Answer 2'],
+          explanation: ''
+        } as OpenAnswerQuestion;
+        break;
+    }
 
     // Add the new question to the questions array
     const updatedQuestions = [...questions, newQuestion];
     handleTextChange(['questions'], updatedQuestions);
+    setShowQuestionTypeMenu(false);
   };
 
   const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
@@ -122,7 +204,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
     return (
       <div>
-        <div className="space-y-3">
+        <div>
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
@@ -215,7 +297,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
     return (
       <div>
-        <div className="space-y-3">
+        <div>
           {question.options.map((option) => (
             <div key={option.id} className="flex items-start">
               <div className={`flex items-center mt-1 h-5 ${onTextChange ? 'cursor-pointer' : ''}`}>
@@ -356,7 +438,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             {/* Correct Matches Section */}
             <div>
               <h4 className="font-semibold mb-3 text-black border-b pb-2">{t('quiz.correctMatches', 'Correct Matches')}</h4>
-              <div className="space-y-3">
+              <div>
                 {question.prompts.map((prompt) => {
                   const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
                   return (
@@ -391,25 +473,58 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         ) : (
           <div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <h4 className="font-light text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <h4 className="font-light ml-2 text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
               <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
             </div>
             {question.prompts.map((prompt, promptIndex) => {
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+              const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
               return (
                 <div key={prompt.id} className="grid grid-cols-2 gap-4 p-2">
                   <div className="flex items-center">
                     <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
                       {prompt.id}
                     </span>
-                    <span className="text-black">{prompt.text}</span>
+                    {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
+                      <input
+                        type="text"
+                        value={prompt.text}
+                        onChange={(e) => handleTextChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        onBlur={() => setEditingField(null)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+                      />
+                    ) : (
+                      <span 
+                        className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => onTextChange && setEditingField({type: 'prompt', questionIndex: index, promptIndex})}
+                      >
+                        {prompt.text}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center">
                     <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
                       {matchedOption?.id}
                     </span>
-                    <span className="text-[#171718]">{matchedOption?.text}</span>
+                    {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
+                      <input
+                        type="text"
+                        value={matchedOption?.text || ''}
+                        onChange={(e) => handleTextChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
+                        onBlur={() => setEditingField(null)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
+                      />
+                    ) : (
+                      <span 
+                        className="text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => onTextChange && matchedOption && setEditingField({type: 'match-option', questionIndex: index, optionIndex: matchedOptionIndex})}
+                      >
+                        {matchedOption?.text}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -771,17 +886,88 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       <div className="space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}
           
-          {/* Add Question Button */}
-          <div className="flex justify-center mt-8">
+          {/* Add Question Button with Dropdown */}
+          <div className="flex justify-center mt-8 relative" ref={questionTypeMenuRef}>
             <button
-              onClick={handleAddQuestion}
+              onClick={() => setShowQuestionTypeMenu(!showQuestionTypeMenu)}
               className="flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
             >
               <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               Add Question
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
+
+            {/* Question Type Dropdown Menu */}
+            {showQuestionTypeMenu && (
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="p-2">
+                  <button
+                    onClick={() => handleAddQuestion('multiple-choice')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <div className="w-4 h-4 rounded-full border-2 border-blue-600 mt-0.5"></div>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Multiple Choice</div>
+                      <div className="text-xs text-gray-500">Single correct answer</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('multi-select')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <div className="w-4 h-4 rounded-full border-2 border-blue-600 mt-0.5"></div>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Multi-Select</div>
+                      <div className="text-xs text-gray-500">Multiple correct answers</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('matching')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M3 3H7M3 8H7M9 3H13M9 8H13" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Matching</div>
+                      <div className="text-xs text-gray-500">Match items to options</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('sorting')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M2 4H14M2 8H14M2 12H14" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Sorting</div>
+                      <div className="text-xs text-gray-500">Put items in order</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleAddQuestion('open-answer')}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors flex items-start gap-3"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="mt-0.5">
+                      <path d="M2 4H14M2 8H10M2 12H12" stroke="#498FFF" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div>
+                      <div className="font-medium text-gray-900 text-sm">Open Answer</div>
+                      <div className="text-xs text-gray-500">Text-based answer</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

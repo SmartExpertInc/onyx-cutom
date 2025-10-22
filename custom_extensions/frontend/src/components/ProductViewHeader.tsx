@@ -41,6 +41,9 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
   // Check if current component is a slide deck (presentation) to show Export button
   const isSlideDeck = projectData?.component_name === 'SlideDeckDisplay';
+  
+  // Check if current component is a quiz to show Export button
+  const isQuiz = projectData?.component_name === 'QuizDisplay';
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
@@ -118,8 +121,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           </button>
           )}
 
-          {/* Export button for slide deck presentations */}
-          {isSlideDeck && (
+          {/* Export button for slide deck presentations and quizzes */}
+          {(isSlideDeck || isQuiz) && (
             <button
               onClick={() => {
                 if (onPdfExport) {
