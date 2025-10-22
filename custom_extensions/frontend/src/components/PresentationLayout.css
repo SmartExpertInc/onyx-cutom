@@ -10,9 +10,9 @@
   transform-origin: center;
 }
 
-.slide-thumbnail-card.active {
+/* .slide-thumbnail-card.active {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
+} */
 
 .slide-number-badge {
   background: linear-gradient(135deg, #FFFFFF 0%, #FCF9F5 100%);
@@ -27,7 +27,7 @@
 }
 
 .slide-preview-card.active {
-  border-color: #3b82f6;
+  border-color: #7cadfd;
   background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
 }
 

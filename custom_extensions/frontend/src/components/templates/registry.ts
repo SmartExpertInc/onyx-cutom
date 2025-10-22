@@ -813,19 +813,28 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     name: 'Challenges Solutions',
     description: 'Порівняння проблем і рішень з візуальними іконками',
     category: 'layout',
-    icon: `<svg width="95" height="60" viewBox="0 0 94 53" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0.25" y="0.25" width="93.5" height="52.5" rx="1.75" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.5"/>
-      <circle cx="52" cy="34" r="1" fill="#D9D9D9"/>
-      <rect x="27" y="7" width="37" height="7" fill="#E0E0E0"/>
-      <rect x="11" y="28" width="22" height="2" fill="#E0E0E0"/>
-      <rect x="11" y="21" width="22" height="4" fill="#E0E0E0"/>
-      <rect x="56" y="21" width="22" height="4" fill="#E0E0E0"/>
-      <path d="M11 33H33V35H11V33Z" fill="#E0E0E0"/>
-      <rect x="56" y="28" width="22" height="2" fill="#E0E0E0"/>
-      <path d="M56 33H78V35H56V33Z" fill="#E0E0E0"/>
-      <circle cx="52" cy="29" r="1" fill="#D9D9D9"/>
+    icon: `<svg width="95" height="60" viewBox="0 0 95 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_90_5)">
+      <path d="M92.7261 3H1.76862C0.791837 3 0 3.79184 0 4.76862V54.2899C0 55.2667 0.791837 56.0585 1.76862 56.0585H92.7261C93.7029 56.0585 94.4947 55.2667 94.4947 54.2899V4.76862C94.4947 3.79184 93.7029 3 92.7261 3Z" fill="#FEFEFE" stroke="#E0E0E0" stroke-width="0.505319"/>
+      <path d="M52.5532 38.5904C53.1113 38.5904 53.5638 38.1379 53.5638 37.5797C53.5638 37.0216 53.1113 36.5691 52.5532 36.5691C51.995 36.5691 51.5425 37.0216 51.5425 37.5797C51.5425 38.1379 51.995 38.5904 52.5532 38.5904Z" fill="#D9D9D9"/>
+      <path d="M64.6809 10.2925H27.2872V17.3669H64.6809V10.2925Z" fill="#E0E0E0"/>
+      <path d="M33.351 31.5159H11.117V33.5371H33.351V31.5159Z" fill="#E0E0E0"/>
+      <path d="M33.351 24.4414H11.117V28.484H33.351V24.4414Z" fill="#E0E0E0"/>
+      <path d="M78.8298 24.4414H56.5958V28.484H78.8298V24.4414Z" fill="#E0E0E0"/>
+      <path d="M11.117 36.5691H33.351V38.5904H11.117V36.5691Z" fill="#E0E0E0"/>
+      <path d="M78.8298 31.5159H56.5958V33.5371H78.8298V31.5159Z" fill="#E0E0E0"/>
+      <path d="M56.5958 36.5691H78.8298V38.5904H56.5958V36.5691Z" fill="#E0E0E0"/>
+      <path d="M52.5532 33.5371C53.1113 33.5371 53.5638 33.0847 53.5638 32.5265C53.5638 31.9683 53.1113 31.5159 52.5532 31.5159C51.995 31.5159 51.5425 31.9683 51.5425 32.5265C51.5425 33.0847 51.995 33.5371 52.5532 33.5371Z" fill="#D9D9D9"/>
+      <path d="M8.01064 34.0213C8.5688 34.0213 9.02128 33.5688 9.02128 33.0106C9.02128 32.4525 8.5688 32 8.01064 32C7.45248 32 7 32.4525 7 33.0106C7 33.5688 7.45248 34.0213 8.01064 34.0213Z" fill="#D9D9D9"/>
+      <path d="M8.01064 39.0213C8.5688 39.0213 9.02128 38.5688 9.02128 38.0106C9.02128 37.4525 8.5688 37 8.01064 37C7.45248 37 7 37.4525 7 38.0106C7 38.5688 7.45248 39.0213 8.01064 39.0213Z" fill="#D9D9D9"/>
+      </g>
+      <defs>
+      <clipPath id="clip0_90_5">
+      <rect width="95" height="60" fill="white"/>
+      </clipPath>
+      </defs>
       </svg>
-    `,
+          `,
     component: ChallengesSolutionsTemplate,
     defaultProps: {
       title: 'Add title',
