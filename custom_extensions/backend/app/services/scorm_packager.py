@@ -1427,6 +1427,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 'title': lesson_title,
                 'children': []
             }
+            
+            # Track which product types have been added to prevent duplicates
+            added_types_for_lesson: set = set()
 
             normalized: List[Dict[str, Any]] = []
             for it in primary or []:
@@ -1461,6 +1464,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 type_label = None
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     type_label = 'Onepager'
+                    added_types_for_lesson.add('onepager')
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                     logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
@@ -1468,10 +1472,12 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     content_dict = content if isinstance(content, dict) else {}
                     body_html = _render_slide_deck_html(matched, content_dict)
                     type_label = 'Presentation'
+                    added_types_for_lesson.add('presentation')
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                     type_label = 'Quiz'
+                    added_types_for_lesson.add('quiz')
                     logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:
                     continue
@@ -1507,7 +1513,44 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
             logger.info(f"[SCORM] Looking for additional unlisted products for lesson='{lesson_title}'")
             additional_products = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
             
-            for additional_match in additional_products:
+            # Group additional products by type and keep only the newest of each type
+            products_by_type: Dict[str, List[Dict[str, Any]]] = {}
+            for prod in additional_products:
+                mtype = (prod.get('microproduct_type') or '').strip().lower()
+                comp = (prod.get('component_name') or '').strip().lower()
+                
+                # Determine the type category
+                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
+                    type_key = 'onepager'
+                elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
+                    type_key = 'presentation'
+                elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
+                    type_key = 'quiz'
+                else:
+                    continue
+                
+                # Skip if this type was already added from the primary list
+                if type_key in added_types_for_lesson:
+                    logger.info(f"[SCORM] Skipping additional product id={prod.get('id')} type={type_key} - already have one from primary list")
+                    continue
+                
+                if type_key not in products_by_type:
+                    products_by_type[type_key] = []
+                products_by_type[type_key].append(prod)
+            
+            # For each type, keep only the newest product (highest ID = most recent)
+            for type_key, prods in products_by_type.items():
+                if not prods:
+                    continue
+                
+                # Sort by ID descending (newest first)
+                prods.sort(key=lambda p: p.get('id', 0), reverse=True)
+                newest = prods[0]
+                
+                if len(prods) > 1:
+                    logger.info(f"[SCORM] Found {len(prods)} products of type '{type_key}' for lesson='{lesson_title}', keeping newest id={newest.get('id')}")
+                
+                additional_match = newest
                 product_id = additional_match['id']
                 if product_id in used_ids:
                     continue  # Already processed
@@ -1529,6 +1572,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 type_label = None
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     type_label = 'Onepager'
+                    added_types_for_lesson.add('onepager')
                     body_html = _render_onepager_html(additional_match, content if isinstance(content, dict) else {})
                     logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
@@ -1536,10 +1580,12 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     content_dict = content if isinstance(content, dict) else {}
                     body_html = _render_slide_deck_html(additional_match, content_dict)
                     type_label = 'Presentation'
+                    added_types_for_lesson.add('presentation')
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(additional_match, content if isinstance(content, dict) else {})
                     type_label = 'Quiz'
+                    added_types_for_lesson.add('quiz')
                     logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:
                     continue

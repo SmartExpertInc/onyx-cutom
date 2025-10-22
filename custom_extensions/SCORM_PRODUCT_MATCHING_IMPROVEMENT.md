@@ -149,18 +149,44 @@ for additional_match in additional_products:
 
 ### How It Works
 1. Process all products explicitly listed in `primary` (presentations, quizzes, etc.)
-2. Call `_infer_products_for_lesson()` to find ALL products matching the lesson name
-3. For each inferred product that hasn't been processed yet:
-   - Add it to the SCORM package
-   - Mark it as used to prevent duplicates
+2. Track which product types have been added for this lesson
+3. Call `_infer_products_for_lesson()` to find ALL products matching the lesson name
+4. Group additional products by type (presentation, quiz, onepager)
+5. Skip types that were already added from the primary list
+6. For each type with multiple products, keep only the NEWEST one (highest ID)
+7. Add the selected products to the SCORM package
+
+### Deduplication Logic
+```python
+# Track which types have been added
+added_types_for_lesson = set()
+
+# When processing primary list products
+if type == 'presentation':
+    added_types_for_lesson.add('presentation')
+
+# When processing additional products
+for type_key, prods in products_by_type.items():
+    # Skip if already added from primary
+    if type_key in added_types_for_lesson:
+        continue
+    
+    # Sort by ID descending (newest first)
+    prods.sort(key=lambda p: p.get('id', 0), reverse=True)
+    newest = prods[0]  # Keep only the newest
+```
 
 ### Benefits
 - **Complete Coverage**: All products for a lesson are included, even if training plan configuration is incomplete
+- **No Duplicates**: Maximum 1 product of each type per lesson
+- **Newest Wins**: When multiple products of same type exist, uses the most recent one
 - **No Configuration Required**: Works automatically without modifying training plans
 - **Backward Compatible**: Doesn't change behavior for properly configured lessons
 - **Prevents User Error**: Missing products due to incomplete configuration is now impossible
 
 ### Example Log Output
+
+**Case 1: Finding missing onepager**
 ```
 [SCORM] Processing item type='presentation' for lesson='Checklist "What to do in the first week"'
 [SCORM] Match result for lesson='Checklist "What to do in the first week"' type='presentation' => matched_id=123
@@ -170,6 +196,22 @@ for additional_match in additional_products:
 [SCORM-MATCH] Inferred products for lesson='Checklist "What to do in the first week"': [125]
 [SCORM] Found additional product id=125 for lesson='Checklist "What to do in the first week"' (not in primary list)
 [SCORM] Rendered one-pager HTML for product_id=125, length=45321
+```
+
+**Case 2: Multiple products of same type (keeping newest)**
+```
+[SCORM] Looking for additional unlisted products for lesson='Safety Training'
+[SCORM-MATCH] Inferred products for lesson='Safety Training': [201, 202, 203]
+[SCORM] Found 3 products of type 'presentation' for lesson='Safety Training', keeping newest id=203
+[SCORM] Found additional product id=203 for lesson='Safety Training' (not in primary list)
+```
+
+**Case 3: Skipping types already in primary list**
+```
+[SCORM] Processing item type='presentation' for lesson='Module 1'
+[SCORM] Match result for lesson='Module 1' type='presentation' => matched_id=301
+[SCORM] Looking for additional unlisted products for lesson='Module 1'
+[SCORM] Skipping additional product id=302 type=presentation - already have one from primary list
 ```
 
 ## Future Improvements
