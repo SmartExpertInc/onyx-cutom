@@ -40,7 +40,6 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [editingField, setEditingField] = useState<{type: 'question' | 'option' | 'explanation', questionIndex: number, optionIndex?: number} | null>(null);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
 
@@ -136,48 +135,30 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               </div>
               <div className="ml-3 flex-1">
-                {isEditing && editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id) ? (
+                {isEditing ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
-                    autoFocus
-                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-gray-900"
+                    className="w-full p-2 border rounded text-gray-900"
                   />
                 ) : (
-                  <span 
-                    className={`text-[#171718] font-light text-base ${isEditing ? 'cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block' : ''}`}
-                    onClick={() => isEditing && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
-                  >
-                    {option.text}
-                  </span>
+                  <span className="text-[#171718] font-light text-base">{option.text}</span>
                 )}
               </div>
             </div>
           ))}
         </div>
-        {isEditing && editingField?.type === 'explanation' && editingField.questionIndex === index ? (
+        {isEditing ? (
           <div className="mt-4">
             <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={() => setEditingField(null)}
-              autoFocus
-              className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+              className="w-full p-2 border rounded text-black"
               placeholder={t('quiz.explanation', 'Explanation')}
             />
-          </div>
-        ) : isEditing ? (
-          <div 
-            className="mt-4 p-2 border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-blue-50"
-            onClick={() => setEditingField({type: 'explanation', questionIndex: index})}
-          >
-            <p className="text-sm text-gray-500 text-center">
-              {question.explanation ? question.explanation : t('quiz.clickToAddExplanation', 'Click to add explanation')}
-            </p>
           </div>
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
@@ -240,48 +221,30 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 </div>
               </div>
               <div className="ml-3 flex-1">
-                {isEditing && editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === question.options.findIndex(o => o.id === option.id) ? (
+                {isEditing ? (
                   <input
                     type="text"
                     value={option.text}
                     onChange={(e) => handleTextChange(['questions', index, 'options', question.options.findIndex(o => o.id === option.id), 'text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
-                    autoFocus
-                    className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
+                    className="w-full p-2 border rounded text-[#171718]"
                   />
                 ) : (
-                  <span 
-                    className={`text-[#171718] font-light ${isEditing ? 'cursor-pointer hover:bg-blue-50 rounded px-2 py-1 inline-block' : ''}`}
-                    onClick={() => isEditing && setEditingField({type: 'option', questionIndex: index, optionIndex: question.options.findIndex(o => o.id === option.id)})}
-                  >
-                    {option.text}
-                  </span>
+                  <span className="text-[#171718] font-light">{option.text}</span>
                 )}
               </div>
             </div>
           ))}
         </div>
-        {isEditing && editingField?.type === 'explanation' && editingField.questionIndex === index ? (
+        {isEditing ? (
           <div className="mt-4">
             <label className="block text-sm font-medium text-black mb-1">{t('quiz.explanation', 'Explanation')}</label>
             <input
               type="text"
               value={question.explanation || ''}
               onChange={(e) => handleTextChange(['questions', index, 'explanation'], e.target.value)}
-              onBlur={() => setEditingField(null)}
-              autoFocus
-              className="w-full p-2 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+              className="w-full p-2 border rounded text-black"
               placeholder={t('quiz.explanation', 'Explanation')}
             />
-          </div>
-        ) : isEditing ? (
-          <div 
-            className="mt-4 p-2 border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-blue-50"
-            onClick={() => setEditingField({type: 'explanation', questionIndex: index})}
-          >
-            <p className="text-sm text-gray-500 text-center">
-              {question.explanation ? question.explanation : t('quiz.clickToAddExplanation', 'Click to add explanation')}
-            </p>
           </div>
         ) : question.explanation && (
           <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
@@ -414,8 +377,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         ) : (
           <div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <h4 className="font-semibold text-black">{t('quiz.prompts', 'Items')}:</h4>
-              <h4 className="font-semibold text-black">{t('quiz.correctMatches', 'Matches')}:</h4>
+              <h4 className="font-light text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
+              <h4 className="font-light text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
             </div>
             {question.prompts.map((prompt, promptIndex) => {
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
@@ -734,27 +697,17 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               <circle cx="9.44068" cy="16.5227" r="1.57349" fill="white"/>
               </svg> */}
               </div>
-          <div className="flex-1">
-                {isEditing && editingField?.type === 'question' && editingField.questionIndex === index ? (
-              <input
-                type="text"
-                value={question.question_text}
-                onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
-                    onBlur={() => setEditingField(null)}
-                    autoFocus
-                    className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-b-2 border-blue-500 outline-none"
+              <div className="flex-1">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={question.question_text}
+                    onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
+                    className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-none outline-none"
                     placeholder={`${questionNumber}. Enter your question...`}
-              />
-            ) : (
-                  <h3 
-                    className={`text-xl font-bold text-[#0F58F9] ${isEditing ? 'cursor-pointer hover:bg-blue-50 rounded px-2 py-1' : ''}`}
-                    onClick={() => isEditing && setEditingField({type: 'question', questionIndex: index})}
-                  >
-                    {questionNumber}. {question.question_text}
-                  </h3>
-                )}
-                {questionType === 'multi-select' && (
-                  <p className="text-xl text-[#0F58F9] mt-1">(Select all that apply)</p>
+                  />
+                ) : (
+                  <h3 className="text-xl font-bold text-[#0F58F9]">{questionNumber}. {question.question_text}</h3>
                 )}
               </div>
             </div>
@@ -786,23 +739,21 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           {questions.length} questions total
         </div>
 
-        <div className="space-y-6">
-          {questions.map((question, index) => renderQuestion(question, index))}
+      <div className="space-y-6">
+        {questions.map((question, index) => renderQuestion(question, index))}
           
           {/* Add Question Button */}
-          {isEditing && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={handleAddQuestion}
-                className="flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
-              >
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Add Question
-              </button>
-            </div>
-          )}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={handleAddQuestion}
+              className="flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
+            >
+              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Add Question
+            </button>
+          </div>
         </div>
       </div>
     </div>
