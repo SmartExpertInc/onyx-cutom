@@ -108,7 +108,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, option.id === question.correct_option_id)}
                 >
                   {option.id === question.correct_option_id && (
-                    <Check strokeWidth={1.5} width={2} height={2} className='text-white' />
+                    <Check strokeWidth={1.5} width={8} height={8} className='text-white' />
                   )}
                 </div>
               </div>
@@ -194,7 +194,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   onClick={() => isEditing && handleCorrectAnswerChange(index, option.id, correctIds.includes(option.id))}
                 >
                   {correctIds.includes(option.id) && (
-                    <Check width={2} height={2} className='text-white' />
+                    <Check width={8} height={8} className='text-white' />
                   )}
                 </div>
               </div>
@@ -225,7 +225,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="flex items-start gap-3">
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_904_128436)">
@@ -248,6 +249,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               </div>
               <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
+          </div>
         )}
       </div>
     );
@@ -361,13 +363,13 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               return (
                 <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-3 p-2 border-b border-gray-100 last:border-b-0">
                   <div className="flex items-center">
-                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-3 text-sm">
+                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
                       {prompt.id}
                     </span>
                     <span className="text-black">{prompt.text}</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-6 h-6 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-3 text-sm">
+                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-3 text-xs">
                       {matchedOption?.id}
                     </span>
                     <span className="text-black">{matchedOption?.text}</span>
@@ -389,7 +391,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-<div className="flex items-start gap-3">
+<div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_904_128436)">
@@ -412,6 +415,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               </div>
               <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
+          </div>
         )}
       </div>
     );
@@ -504,7 +508,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     onDrop={(e) => handleEditDrop(e, itemId)}
                   >
                     <span 
-                        className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-sm text-white rounded-full mr-3 cursor-grab"
+                        className="w-4 h-4 flex items-center justify-center bg-[#0F58F9] text-xs text-white rounded-full mr-3 cursor-grab"
                         draggable
                         onDragStart={(e) => handleDragStart(e, itemId)}
                     >
@@ -544,10 +548,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             const item = question.items_to_sort.find(i => i.id === itemId);
             return (
               <div key={itemId} className="flex items-center">
-                <span className="w-6 h-6 flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
+                <span className="w-4 h-4 text-xs flex items-center justify-center bg-[#2563eb] text-white rounded-full mr-3">
                   {orderIndex + 1}
                 </span>
-                <span className="text-black">{item?.text}</span>
+                <span className="text-[#434343CC]">{item?.text}</span>
               </div>
             );
           })}
@@ -619,7 +623,8 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
             />
           </div>
         ) : question.explanation && (
-          <div className="flex items-start gap-3">
+          <div className="mt-4 p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_904_128436)">
@@ -642,6 +647,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               </div>
               <p className="text-sm text-[#434343] flex-1">{question.explanation}</p>
             </div>
+          </div>
         )}
       </div>
     );
@@ -674,9 +680,10 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     value={question.question_text}
                     onChange={(e) => handleTextChange(['questions', index, 'question_text'], e.target.value)}
                     className="w-full text-lg font-semibold text-[#0F58F9] bg-transparent border-none outline-none"
+                    placeholder={`${questionNumber}. Enter your question...`}
                   />
                 ) : (
-                  <h3 className="text-xl font-bold text-[#0F58F9]">{question.question_text}</h3>
+                  <h3 className="text-xl font-bold text-[#0F58F9]">{questionNumber}. {question.question_text}</h3>
                 )}
                 {questionType === 'multi-select' && (
                   <p className="text-xl text-[#0F58F9] mt-1">(Select all that apply)</p>
@@ -684,7 +691,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
               </div>
             </div>
             <button className="p-2 hover:bg-blue-100 rounded">
-              <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.44573 2.60853H2.48794C1.96071 2.60853 1.45507 2.81797 1.08225 3.19078C0.709443 3.5636 0.5 4.06924 0.5 4.59647V18.5121C0.5 19.0393 0.709443 19.5449 1.08225 19.9177C1.45507 20.2906 1.96071 20.5 2.48794 20.5H16.4035C16.9308 20.5 17.4364 20.2906 17.8092 19.9177C18.182 19.5449 18.3915 19.0393 18.3915 18.5121V11.5543M16.9005 1.11757C17.2959 0.722148 17.8323 0.5 18.3915 0.5C18.9507 0.5 19.487 0.722148 19.8824 1.11757C20.2779 1.513 20.5 2.04931 20.5 2.60853C20.5 3.16775 20.2779 3.70406 19.8824 4.09949L10.4397 13.5422L6.46382 14.5362L7.45779 10.5603L16.9005 1.11757Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
@@ -704,7 +711,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F2F2F4]">
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="text-sm text-[#797979] mb-6">
@@ -721,7 +728,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                 // Add new question logic here
                 console.log('Add new question clicked');
               }}
-              className="flex text-sm font-medium items-center gap-2 px-6 py-3 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
+              className="flex text-sm w-full text-center font-medium items-center gap-2 px-6 py-3 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
             >
               <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>
