@@ -1062,6 +1062,128 @@
             font-weight: 500;
         }
         
+        /* Culture Values Three Columns Slide Template - EXACT React Copy */
+        .culture-values-three-columns-slide {
+            width: 1920px;
+            height: 1080px;
+            background-color: #E0E7FF;
+            position: relative;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .culture-values-three-columns-slide .top-section {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 250px;
+            background-color: #E0E7FF;
+            border-bottom: 1px solid #d8d8d8;
+        }
+        
+        .culture-values-three-columns-slide .logo-container {
+            position: absolute;
+            left: 25px;
+            top: 25px;
+            color: #6b7280;
+            font-size: 22px;
+        }
+        
+        .culture-values-three-columns-slide .title {
+            position: absolute;
+            left: 48px;
+            top: 88px;
+            font-size: 56px;
+            font-weight: 800;
+            color: #242424;
+            font-family: "Lora", serif;
+        }
+        
+        .culture-values-three-columns-slide .avatar-container {
+            position: absolute;
+            right: 48px;
+            top: 40px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #0F58F9;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.06) inset;
+        }
+        
+        .culture-values-three-columns-slide .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .culture-values-three-columns-slide .grid-container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 250px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .culture-values-three-columns-slide .column {
+            padding: 30px 38px 25px 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #FFFFFF;
+            background-color: #0F58F9;
+        }
+        
+        .culture-values-three-columns-slide .column-middle {
+            padding: 30px 38px 25px 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #000000;
+            background-color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .card-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: "Lora", serif;
+        }
+        
+        .culture-values-three-columns-slide .card-title-left {
+            color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .card-title-middle {
+            color: #000000;
+        }
+        
+        .culture-values-three-columns-slide .card-title-right {
+            color: #FFFFFF;
+        }
+        
+        .culture-values-three-columns-slide .page-number-container {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .culture-values-three-columns-slide .page-line {
+            width: 15px;
+            height: 1px;
+            background-color: #9EBBFC;
+        }
+        
+        .culture-values-three-columns-slide .page-number {
+            color: #9EBBFC;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
         /* Benefits List Slide Template - EXACT React Copy */
         .benefits-list-slide {
             width: 1920px;
@@ -3337,6 +3459,58 @@
                                 Your Logo
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'culture-values-three-columns-slide' or templateId == 'culture-values-three-columns' %}
+                <div class="culture-values-three-columns-slide">
+                    <!-- Top section -->
+                    <div class="top-section"></div>
+                    
+                    <!-- Logo container -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                        {% else %}
+                            Your Logo
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Title -->
+                    <div class="title">{{ title or 'Our culture and values' }}</div>
+                    
+                    <!-- Avatar container -->
+                    <div class="avatar-container">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="{{ avatarAlt or 'Avatar' }}">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Grid container with three columns -->
+                    <div class="grid-container">
+                        <!-- Left column -->
+                        <div class="column">
+                            <div class="card-title card-title-left">{{ leftTitle or 'Code of Conduct' }}</div>
+                            <div>{{ leftText or 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner and to uphold the following principles: ...' }}</div>
+                        </div>
+                        
+                        <!-- Middle column -->
+                        <div class="column-middle">
+                            <div class="card-title card-title-middle">{{ middleTitle or 'HR Policies' }}</div>
+                            <div>{{ middleText or 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees ...' }}</div>
+                        </div>
+                        
+                        <!-- Right column -->
+                        <div class="column">
+                            <div class="card-title card-title-right">{{ rightTitle or 'IT Policies' }}</div>
+                            <div>{{ rightText or 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data ...' }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '40' }}</div>
                     </div>
                 </div>
                 
