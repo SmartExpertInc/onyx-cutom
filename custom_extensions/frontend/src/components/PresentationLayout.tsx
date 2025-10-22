@@ -403,17 +403,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                   {/* Mini slide rendering */}
                   <div className="slide-mini-preview" style={{ aspectRatio: '16/9', minHeight: '120px' }}>
                     <div style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      transform: 'scale(0.3)', 
-                      transformOrigin: 'center',
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      marginTop: '-50%',
-                      marginLeft: '-50%',
-                      backgroundColor: '#f0f0f0',
-                      overflow: 'hidden'
+                        width: '400%', 
+                        height: '400%', 
+                        transform: 'scale(0.25)', 
+                        transformOrigin: 'top left',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        backgroundColor: '#f0f0f0'
                     }}>
                       <ComponentBasedSlideRenderer
                         slide={slide}
