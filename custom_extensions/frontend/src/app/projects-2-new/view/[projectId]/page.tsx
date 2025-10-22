@@ -718,13 +718,13 @@ export default function Projects2ViewPage() {
           padding: '0 16px'
         }}
       >
-        {/* Sidebar - spans 3 columns (25% of 12), full height of available space */}
-        <div className="h-full overflow-y-auto overflow-x-hidden" style={{ gridColumn: 'span 3' }}>
+        {/* Left Sidebar - spans columns 1-3, full height of available space */}
+        <div className="h-full overflow-y-auto overflow-x-hidden" style={{ gridColumn: '1 / 4' }}>
           {renderSidebarComponent()}
         </div>
 
-        {/* Main Container - spans 9 columns (75% of 12), full height of available space */}
-        <div className="h-full flex flex-col gap-2 overflow-visible" style={{ gridColumn: 'span 9' }}>
+        {/* Main Container - spans columns 4-10, full height of available space */}
+        <div className="h-full flex flex-col gap-2 overflow-visible" style={{ gridColumn: '4 / 11' }}>
           {/* Slide Container - Takes 80% of main container height */}
           <div 
             className="h-[80%] bg-gray-200 rounded-md flex items-center justify-center relative overflow-visible"
@@ -788,6 +788,12 @@ export default function Projects2ViewPage() {
             onAddSlide={handleAddSlide}
             onOpenTemplateSelector={handleOpenTemplateSelector}
           />
+        </div>
+
+        {/* Right Panel - spans columns 11-12, full height of available space */}
+        <div className="h-full overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
+          {/* Right panel content goes here */}
+          <div className="text-gray-500 text-sm">Right Panel</div>
         </div>
       </div>
 
