@@ -764,7 +764,7 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
+                className="bg-white rounded-md relative overflow-hidden flex items-center justify-center w-full h-full"
               >
                 {/* Slide Container - Keeps original size */}
                 <div
@@ -778,10 +778,9 @@ export default function Projects2ViewPage() {
                   }}
                 >
                 <div
-                  className="professional-slide relative overflow-hidden"
+                  className="professional-slide relative bg-white overflow-hidden"
                   style={{
                     borderRadius: '12px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
                       width: aspectRatio === '16:9' ? '900px' 
                       : aspectRatio === '9:16' ? '400px'
                       : '800px',
