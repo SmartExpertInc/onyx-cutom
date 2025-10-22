@@ -92,6 +92,10 @@ export default function Projects2ViewPage() {
 
   // Scene transition panel state
   const [isTransitionEnabled, setIsTransitionEnabled] = useState<boolean>(true);
+
+  // Slide container scaling state
+  const slideContainerRef = useRef<HTMLDivElement>(null);
+  const [slideScale, setSlideScale] = useState<number>(0.45);
   const [showTransitionDropdown, setShowTransitionDropdown] = useState<boolean>(false);
   const [selectedTransition, setSelectedTransition] = useState<string>('None');
 
@@ -555,6 +559,27 @@ export default function Projects2ViewPage() {
     };
   }, [openMenuSceneId, menuPosition]);
 
+  // Calculate responsive slide scale based on container width
+  useEffect(() => {
+    const calculateScale = () => {
+      if (slideContainerRef.current) {
+        const containerWidth = slideContainerRef.current.offsetWidth;
+        // Original slide width is 1200px, we want it to fill the container with some padding
+        const targetWidth = containerWidth * 0.95; // 95% of container width for some margin
+        const scale = targetWidth / 1200;
+        setSlideScale(scale);
+      }
+    };
+
+    // Calculate on mount and window resize
+    calculateScale();
+    window.addEventListener('resize', calculateScale);
+    
+    return () => {
+      window.removeEventListener('resize', calculateScale);
+    };
+  }, []);
+
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     
@@ -803,15 +828,14 @@ export default function Projects2ViewPage() {
         <div className="h-full flex flex-col gap-2 overflow-visible" style={{ gridColumn: '4 / 11' }}>
           {/* Slide Container - Takes 80% of main container height */}
           <div 
+            ref={slideContainerRef}
             className="h-[80%] bg-gray-200 rounded-md flex items-center justify-center relative overflow-visible"
           >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div style={{
-                width: '100%',
-                height: '100%',
-                aspectRatio: '16/9',
-                maxWidth: '100%',
-                maxHeight: '100%',
+                zoom: slideScale,
+                width: '1200px',
+                height: '675px',
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
@@ -844,23 +868,12 @@ export default function Projects2ViewPage() {
                 />
               </div>
             ) : (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                aspectRatio: '16/9',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <VideoLessonDisplay 
-                  dataToDisplay={videoLessonData || null}
-                  isEditing={true}
-                  className="w-full h-full"
-                  onTextChange={handleTextChange}
-                />
-              </div>
+              <VideoLessonDisplay 
+                dataToDisplay={videoLessonData || null}
+                isEditing={true}
+                className="h-full"
+                onTextChange={handleTextChange}
+              />
             )}
           </div>
 
