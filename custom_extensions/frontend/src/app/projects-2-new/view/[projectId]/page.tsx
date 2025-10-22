@@ -76,6 +76,12 @@ export default function Projects2ViewPage() {
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
 
+  // Music panel state
+  const [isMusicEnabled, setIsMusicEnabled] = useState<boolean>(true);
+  const [showMusicDropdown, setShowMusicDropdown] = useState<boolean>(false);
+  const [selectedMusic, setSelectedMusic] = useState<string>('East London');
+  const [musicVolume, setMusicVolume] = useState<number>(75);
+
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     console.log('🔍 handleAddSlide called with:', {
@@ -792,8 +798,132 @@ export default function Projects2ViewPage() {
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
         <div className="h-full overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
-          {/* Right panel content goes here */}
-          <div className="text-gray-500 text-sm">Right Panel</div>
+          {/* Music Section */}
+          <div className="space-y-3">
+            {/* Music Title and Toggle */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Music</h3>
+              <button
+                onClick={() => setIsMusicEnabled(!isMusicEnabled)}
+                className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+                style={{ backgroundColor: isMusicEnabled ? '#0F58F9' : '#E0E0E0' }}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    isMusicEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Music Dropdown - shown when toggle is active */}
+            {isMusicEnabled && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowMusicDropdown(!showMusicDropdown)}
+                  className="w-full flex items-center justify-between px-3 py-2 text-sm border rounded-md hover:bg-gray-50 transition-colors"
+                  style={{ borderColor: '#E0E0E0' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ color: '#09090B' }}>{selectedMusic}</span>
+                  </div>
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="#848485" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu */}
+                {showMusicDropdown && (
+                  <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10" style={{ borderColor: '#E0E0E0' }}>
+                    <button
+                      onClick={() => {
+                        setSelectedMusic('East London');
+                        setShowMusicDropdown(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span style={{ color: '#09090B' }}>East London</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Volume Section - shown when toggle is active */}
+            {isMusicEnabled && (
+              <div className="space-y-2">
+                {/* Volume Label and Percentage */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: '#09090B' }}>Volume</span>
+                  <span className="text-xs" style={{ color: '#848485' }}>{musicVolume}%</span>
+                </div>
+
+                {/* Volume Slider */}
+                <div className="relative w-full flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={musicVolume}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      setMusicVolume(value);
+                      const percentage = value + '%';
+                      e.target.style.background = `linear-gradient(to right, #1058F9 0%, #1058F9 ${percentage}, #18181B33 ${percentage}, #18181B33 100%)`;
+                    }}
+                    className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                    title={`Volume: ${musicVolume}%`}
+                    style={{
+                      background: `linear-gradient(to right, #1058F9 0%, #1058F9 ${musicVolume}%, #18181B33 ${musicVolume}%, #18181B33 100%)`
+                    }}
+                  />
+                  <style jsx>{`
+                    input[type="range"]::-webkit-slider-thumb {
+                      appearance: none;
+                      width: 12px;
+                      height: 12px;
+                      border-radius: 50%;
+                      background: white;
+                      cursor: pointer;
+                      border: 1px solid #18181B80;
+                    }
+
+                    input[type="range"]::-moz-range-thumb {
+                      width: 12px;
+                      height: 12px;
+                      border-radius: 50%;
+                      background: white;
+                      cursor: pointer;
+                      border: 1px solid #18181B80;
+                    }
+
+                    input[type="range"]:focus {
+                      outline: none;
+                    }
+
+                    input[type="range"]:focus::-webkit-slider-thumb {
+                      box-shadow: 0 0 0 2px rgba(16, 88, 249, 0.2);
+                    }
+
+                    input[type="range"]:focus::-moz-range-thumb {
+                      box-shadow: 0 0 0 2px rgba(16, 88, 249, 0.2);
+                    }
+                  `}</style>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
