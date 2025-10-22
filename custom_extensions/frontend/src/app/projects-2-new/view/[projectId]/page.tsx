@@ -805,12 +805,12 @@ export default function Projects2ViewPage() {
               <h3 className="text-sm font-medium" style={{ color: '#09090B' }}>Music</h3>
               <button
                 onClick={() => setIsMusicEnabled(!isMusicEnabled)}
-                className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
                 style={{ backgroundColor: isMusicEnabled ? '#0F58F9' : '#E0E0E0' }}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    isMusicEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                    isMusicEnabled ? 'translate-x-5.5' : 'translate-x-0.5'
                   }`}
                 />
               </button>
@@ -828,7 +828,7 @@ export default function Projects2ViewPage() {
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span style={{ color: '#09090B' }}>{selectedMusic}</span>
+                    <span style={{ color: '#848485' }}>{selectedMusic}</span>
                   </div>
                   <svg 
                     className={`w-4 h-4 transition-transform ${showMusicDropdown ? 'rotate-180' : ''}`} 
@@ -853,7 +853,7 @@ export default function Projects2ViewPage() {
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.00033 11.9987C8.00033 13.4715 6.80642 14.6654 5.33366 14.6654C3.8609 14.6654 2.66699 13.4715 2.66699 11.9987C2.66699 10.5259 3.8609 9.33203 5.33366 9.33203C6.80642 9.33203 8.00033 10.5259 8.00033 11.9987ZM8.00033 11.9987V1.33203L12.667 3.9987" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span style={{ color: '#09090B' }}>East London</span>
+                      <span style={{ color: '#848485' }}>East London</span>
                     </button>
                   </div>
                 )}
@@ -865,7 +865,7 @@ export default function Projects2ViewPage() {
               <div className="space-y-2">
                 {/* Volume Label and Percentage */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: '#09090B' }}>Volume</span>
+                  <span className="text-xs" style={{ color: '#848485' }}>Volume</span>
                   <span className="text-xs" style={{ color: '#848485' }}>{musicVolume}%</span>
                 </div>
 
