@@ -147,7 +147,7 @@ export default function GenerationCompletedModal({
                   <div className="relative" data-download-dropdown>
                     <button 
                       onClick={() => setIsDownloadDropdownOpen(!isDownloadDropdownOpen)}
-                      className="bg-white px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-xs flex items-center gap-2"
+                      className="bg-white px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-xs flex items-center gap-2 cursor-pointer"
                       style={{ color: '#171718', borderColor: '#171718', border: '1px solid' }}
                     >
                       Download
@@ -164,7 +164,7 @@ export default function GenerationCompletedModal({
                               downloadVideo();
                               setIsDownloadDropdownOpen(false);
                             }}
-                            className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -177,7 +177,7 @@ export default function GenerationCompletedModal({
                   </div>
               
               {/* Copy link button */}
-              <button className="text-white px-3 py-1.5 rounded-md transition-colors text-xs flex items-center gap-2" style={{ backgroundColor: '#0F58F9' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0D4CD4'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F58F9'}>
+              <button className="text-white px-3 py-1.5 rounded-md transition-colors text-xs flex items-center gap-2 cursor-pointer" style={{ backgroundColor: '#0F58F9' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0D4CD4'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0F58F9'}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-white">
                   <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
                 </svg>
@@ -188,7 +188,7 @@ export default function GenerationCompletedModal({
               <div className="relative" data-more-options-dropdown>
                 <button 
                   onClick={() => setIsMoreOptionsOpen(!isMoreOptionsOpen)}
-                  className={`p-1.5 rounded-md transition-colors ${
+                  className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                     isMoreOptionsOpen ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`}
                 >
@@ -206,7 +206,7 @@ export default function GenerationCompletedModal({
                         <span className="text-xs text-gray-700">Exit to</span>
                       </div>
                       
-                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-xs flex items-center gap-2 text-gray-700">
+                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-xs flex items-center gap-2 text-gray-700 cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                           <polyline points="9,22 9,12 15,12 15,22"/>
@@ -217,7 +217,7 @@ export default function GenerationCompletedModal({
                       {/* Divider */}
                       <div className="border-t border-gray-200 my-1"></div>
                       
-                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-xs flex items-center gap-2 text-gray-700">
+                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-xs flex items-center gap-2 text-gray-700 cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14M5 12h14"/>
                         </svg>
