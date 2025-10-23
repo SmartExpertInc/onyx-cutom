@@ -32982,12 +32982,16 @@ async def create_presentation(request: Request):
         voice_id = body.get("voiceId")
         voice_provider = body.get("voiceProvider")
         
+        # NEW: Extract transitions for multi-slide presentations
+        transitions = body.get("transitions", [])  # Optional - transitions between slides
+        
         # Add detailed logging for debugging
         logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
         logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - transitions_count: {len(transitions) if transitions else 0}")
         logger.info(f"  - theme: {theme}")
         logger.info(f"  - avatar_code: {avatar_code}")
         logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
@@ -33002,6 +33006,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - voice_id: {voice_id}")
         logger.info(f"  - voice_provider: {voice_provider}")
         logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
+        
+        # NEW: Log transitions
+        if transitions and len(transitions) > 0:
+            logger.info("🎞️ [MAIN_ENDPOINT] Transitions received:")
+            for i, trans in enumerate(transitions):
+                logger.info(f"  - Transition {i}: type={trans.get('type')}, duration={trans.get('duration')}s")
         
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
@@ -33045,10 +33055,12 @@ async def create_presentation(request: Request):
             resolution=tuple(resolution),
             project_name=project_name,
             voice_id=voice_id,  # NEW: Pass voice ID
-            voice_provider=voice_provider  # NEW: Pass voice provider
+            voice_provider=voice_provider,  # NEW: Pass voice provider
+            transitions=transitions  # NEW: Pass transitions array
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
+        logger.info(f"🎞️ [MAIN_ENDPOINT] PresentationRequest created with {len(transitions) if transitions else 0} transitions")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)

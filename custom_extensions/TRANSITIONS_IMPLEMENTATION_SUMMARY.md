@@ -340,3 +340,4 @@ All core functionality implemented:
 
 **Ready to test! 🎬** Open your video lesson editor and start adding transitions between your slides!
 
+
