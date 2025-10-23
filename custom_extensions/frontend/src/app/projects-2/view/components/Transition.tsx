@@ -1,19 +1,98 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-interface TransitionProps {
-  // No props needed for side panel component
+export type TransitionType = 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
+export type TransitionVariant = 'circle' | 'horizontal-chevrons' | 'vertical-chevrons';
+
+export interface TransitionData {
+  type: TransitionType;
+  duration: number;
+  variant?: TransitionVariant;
+  applyToAll?: boolean;
 }
 
-export default function Transition({}: TransitionProps) {
-  const [selectedTransition, setSelectedTransition] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [isApplyBetweenAllScenes, setIsApplyBetweenAllScenes] = useState(false);
-  const [duration, setDuration] = useState(1.0);
+interface TransitionProps {
+  transitionIndex?: number | null;
+  currentTransition?: TransitionData | null;
+  onTransitionChange?: (transitionData: TransitionData) => void;
+}
+
+export default function Transition({ transitionIndex, currentTransition, onTransitionChange }: TransitionProps) {
+  const [selectedTransition, setSelectedTransition] = useState<TransitionType>(
+    currentTransition?.type || 'none'
+  );
+  const [showSettings, setShowSettings] = useState(currentTransition?.type !== 'none' && currentTransition?.type !== undefined);
+  const [isApplyBetweenAllScenes, setIsApplyBetweenAllScenes] = useState(currentTransition?.applyToAll || false);
+  const [duration, setDuration] = useState(currentTransition?.duration || 1.0);
+  const [variant, setVariant] = useState<TransitionVariant>(currentTransition?.variant || 'circle');
+
+  // Sync with external changes
+  useEffect(() => {
+    if (currentTransition) {
+      setSelectedTransition(currentTransition.type);
+      setDuration(currentTransition.duration);
+      setVariant(currentTransition.variant || 'circle');
+      setIsApplyBetweenAllScenes(currentTransition.applyToAll || false);
+      setShowSettings(currentTransition.type !== 'none');
+    }
+  }, [currentTransition]);
+  // Handle transition selection
+  const handleTransitionSelect = (transitionType: TransitionType) => {
+    setSelectedTransition(transitionType);
+    if (transitionType !== 'none') {
+      setShowSettings(true);
+    }
+    
+    // Immediately save the transition
+    const transitionData: TransitionData = {
+      type: transitionType,
+      duration,
+      variant,
+      applyToAll: isApplyBetweenAllScenes
+    };
+    onTransitionChange?.(transitionData);
+  };
+
+  // Handle duration change
+  const handleDurationChange = (newDuration: number) => {
+    setDuration(newDuration);
+    const transitionData: TransitionData = {
+      type: selectedTransition,
+      duration: newDuration,
+      variant,
+      applyToAll: isApplyBetweenAllScenes
+    };
+    onTransitionChange?.(transitionData);
+  };
+
+  // Handle variant change
+  const handleVariantChange = (newVariant: TransitionVariant) => {
+    setVariant(newVariant);
+    const transitionData: TransitionData = {
+      type: selectedTransition,
+      duration,
+      variant: newVariant,
+      applyToAll: isApplyBetweenAllScenes
+    };
+    onTransitionChange?.(transitionData);
+  };
+
+  // Handle apply to all change
+  const handleApplyToAllChange = (applyAll: boolean) => {
+    setIsApplyBetweenAllScenes(applyAll);
+    const transitionData: TransitionData = {
+      type: selectedTransition,
+      duration,
+      variant,
+      applyToAll: applyAll
+    };
+    onTransitionChange?.(transitionData);
+  };
+
   // Function to render the selected transition settings view
   const renderSelectedTransitionView = () => {
-    if (!selectedTransition) return null;
+    if (!selectedTransition || selectedTransition === 'none') return null;
 
     return (
       <div className="h-full flex flex-col">
@@ -27,7 +106,10 @@ export default function Transition({}: TransitionProps) {
               
               {/* Transition name */}
               <div className="flex flex-col">
-                <span className="text-gray-700 text-sm font-medium">{selectedTransition}</span>
+                <span className="text-gray-700 text-sm font-medium capitalize">{selectedTransition}</span>
+                {transitionIndex !== null && transitionIndex !== undefined && (
+                  <span className="text-gray-500 text-xs">Between slides {transitionIndex + 1} and {transitionIndex + 2}</span>
+                )}
               </div>
             </div>
             
@@ -52,7 +134,7 @@ export default function Transition({}: TransitionProps) {
                   className={`w-12 h-6 rounded-full flex items-center p-1 cursor-pointer transition-colors ${
                     isApplyBetweenAllScenes ? 'bg-black' : 'bg-gray-300'
                   }`}
-                  onClick={() => setIsApplyBetweenAllScenes(!isApplyBetweenAllScenes)}
+                  onClick={() => handleApplyToAllChange(!isApplyBetweenAllScenes)}
                 >
                   <div 
                     className={`w-4 h-4 rounded-full shadow-sm transition-transform ${
@@ -73,16 +155,16 @@ export default function Transition({}: TransitionProps) {
                       min="0.5"
                       max="3.0"
                       step="0.1"
-                      defaultValue="1.0"
+                      value={duration}
                       className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
                       onChange={(e) => {
-                        const value = e.target.value;
-                        setDuration(parseFloat(value));
-                        const percentage = ((parseFloat(value) - 0.5) / 2.5) * 100 + '%';
+                        const value = parseFloat(e.target.value);
+                        handleDurationChange(value);
+                        const percentage = ((value - 0.5) / 2.5) * 100 + '%';
                         e.target.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percentage}, #e5e7eb ${percentage}, #e5e7eb 100%)`;
                       }}
                       style={{
-                        background: `linear-gradient(to right, #000000 0%, #000000 40%, #e5e7eb 40%, #e5e7eb 100%)`
+                        background: `linear-gradient(to right, #000000 0%, #000000 ${((duration - 0.5) / 2.5) * 100}%, #e5e7eb ${((duration - 0.5) / 2.5) * 100}%, #e5e7eb 100%)`
                       }}
                     />
                     <style jsx>{`
@@ -127,12 +209,22 @@ export default function Transition({}: TransitionProps) {
                 <span className="text-gray-700 text-sm">Variant</span>
                 <div className="flex gap-2">
                   {/* Circle button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
+                  <button 
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'circle' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleVariantChange('circle')}
+                  >
                     <div className="w-3 h-3 rounded-full bg-white border border-black"></div>
                   </button>
                   
                   {/* Horizontal chevrons button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
+                  <button 
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'horizontal-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleVariantChange('horizontal-chevrons')}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
                       <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16 18l-6-6l6-6"/>
                       <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 18l6-6l-6-6"/>
@@ -140,7 +232,12 @@ export default function Transition({}: TransitionProps) {
                   </button>
                   
                   {/* Vertical chevrons button */}
-                  <button className="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center bg-white hover:bg-gray-50">
+                  <button 
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'vertical-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleVariantChange('vertical-chevrons')}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" className="text-gray-600">
                       <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 16l-6-6l-6 6"/>
                       <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 8l-6 6l-6-6"/>
@@ -157,13 +254,25 @@ export default function Transition({}: TransitionProps) {
 
   return (
     <div className="h-full bg-white relative overflow-hidden w-full">
+      {/* Header with transition info */}
+      <div className="mb-4">
+        <h3 className="text-sm font-medium text-gray-700">
+          {transitionIndex !== null && transitionIndex !== undefined
+            ? `Transition ${transitionIndex + 1} (between slides ${transitionIndex + 1} and ${transitionIndex + 2})`
+            : 'Slide Transition'}
+        </h3>
+      </div>
+
       {/* Show selected transition view if a transition is selected and showSettings is true */}
-      {selectedTransition && showSettings ? (
+      {selectedTransition && selectedTransition !== 'none' && showSettings ? (
         renderSelectedTransitionView()
       ) : (
         <>
           {/* Pill-shaped button with SVG and "No transition" text */}
-          <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-full py-3 px-4 transition-colors duration-200">
+          <button 
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-full py-3 px-4 transition-colors duration-200"
+            onClick={() => handleTransitionSelect('none')}
+          >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="20" 
@@ -184,10 +293,7 @@ export default function Transition({}: TransitionProps) {
             {/* Fade */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Fade');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('fade')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Fade</span>
@@ -196,10 +302,7 @@ export default function Transition({}: TransitionProps) {
             {/* Close */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Close');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('close')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Close</span>
@@ -208,10 +311,7 @@ export default function Transition({}: TransitionProps) {
             {/* Crop */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Crop');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('crop')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Crop</span>
@@ -220,10 +320,7 @@ export default function Transition({}: TransitionProps) {
             {/* Blur */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Blur');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('blur')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Blur</span>
@@ -232,10 +329,7 @@ export default function Transition({}: TransitionProps) {
             {/* Open */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Open');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('open')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Open</span>
@@ -244,10 +338,7 @@ export default function Transition({}: TransitionProps) {
             {/* Slide */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Slide');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('slide')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Slide</span>
@@ -256,10 +347,7 @@ export default function Transition({}: TransitionProps) {
             {/* Wipe */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Wipe');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('wipe')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Wipe</span>
@@ -268,10 +356,7 @@ export default function Transition({}: TransitionProps) {
             {/* Smooth wipe */}
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setSelectedTransition('Smooth wipe');
-                setShowSettings(true);
-              }}
+              onClick={() => handleTransitionSelect('smooth-wipe')}
             >
               <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
               <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
