@@ -354,7 +354,7 @@ export default function SceneTimeline({
             className="absolute flex justify-center"
             style={{
               top: `${(timelineContainerRef.current?.getBoundingClientRect().top || 0) - 11}px`,
-              left: '-6.5px',
+              left: '-5.5px',
               width: '13px'
             }}
           >
