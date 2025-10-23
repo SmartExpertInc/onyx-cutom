@@ -1529,6 +1529,12 @@ Each bullet point, challenge-solution, process step, or box content must follow 
    - Are decision criteria provided for when/how to apply?
    - Can learners immediately implement what they learned?
 
+4. **NO REPETITION CHECK:**
+   - Does each slide present NEW information not covered in previous slides?
+   - Are you repeating the same concept in different words across multiple slides?
+   - Have you already explained this principle, framework, or technique earlier?
+   - Are you adding depth to previous concepts or just restating them?
+
 **REJECTION CRITERIA:**
 
 REJECT and revise if content:
@@ -1538,12 +1544,63 @@ REJECT and revise if content:
 - ❌ Provides no decision criteria or trade-offs
 - ❌ Stays at Remember/Understand cognitive level
 - ❌ Uses vague language like "may help" or "can improve"
+- ❌ Repeats information from earlier slides without adding new depth
+- ❌ Covers the same ground in slightly different wording
+- ❌ Uses filler content to reach slide count
 
 **QUALITY STANDARD:**
 
 ✅ ACCEPTABLE: "Agile methodology is an iterative approach to project management [Remember]. It breaks projects into small increments allowing teams to adapt quickly, contrasting with Waterfall where requirements are fixed upfront [Understand]. In practice, teams work in 2-week sprints with daily standups and demonstrate working features to stakeholders, adjusting based on feedback. A mobile app team might release login in Sprint 1, add profiles in Sprint 2 based on testing [Apply]. Compared to Waterfall, Agile reduces risk of building wrong features through 2-week validation cycles rather than 6-month reveals, though requires more stakeholder engagement. Choose Agile when needs evolve; Waterfall when requirements are fixed and compliance demands upfront documentation [Analyze/Evaluate]." (95 words)
 
 ❌ UNACCEPTABLE: "Agile is an iterative project management approach that uses sprints to deliver software incrementally." (14 words - too brief, no cognitive depth)
+
+**🚫 ANTI-REPETITION ENFORCEMENT 🚫**
+
+**CRITICAL RULE: Each slide must teach something NEW and DIFFERENT**
+
+**COMMON REPETITION PATTERNS TO AVOID:**
+
+1. **Concept Restatement Across Slides:**
+   - ❌ WRONG: Slide 3 explains "Define clear goals", Slide 7 explains "Set specific objectives" (same concept)
+   - ✅ CORRECT: Slide 3 explains "Define clear goals", Slide 7 explains "Create accountability structures" (different concept)
+
+2. **Example Redundancy:**
+   - ❌ WRONG: Multiple slides using "project management" or "software development" as the only example domain
+   - ✅ CORRECT: Vary examples across industries (healthcare IT project, manufacturing process, retail supply chain)
+
+3. **Framework Re-explanation:**
+   - ❌ WRONG: Explaining what Agile is on Slide 4, then re-explaining Agile basics on Slide 9
+   - ✅ CORRECT: Slide 4 explains Agile fundamentals, Slide 9 covers advanced Agile scaling techniques
+
+4. **Benefit Repetition:**
+   - ❌ WRONG: Multiple slides listing "improved communication" and "better alignment" as benefits
+   - ✅ CORRECT: Each benefit mentioned once with depth, then BUILD ON IT with implementation details
+
+**DEPTH PROGRESSION MANDATE:**
+
+When covering related topics across slides, each slide must GO DEEPER, not SIDEWAYS:
+
+- **Slide N**: Introduce concept with definition and basic application
+- **Slide N+1**: Show advanced techniques or edge cases for that concept
+- **Slide N+2**: Compare with alternative approaches or show integration with other concepts
+- **Never**: Re-explain the same concept at the same depth level
+
+**INFORMATION DENSITY REQUIREMENTS:**
+
+- Each slide should contain information that could NOT be condensed into a previous slide
+- If you can merge two slides without losing information, they are too similar - MERGE THEM
+- Aim for "this slide teaches 3-5 NEW things" not "this slide restates what we covered"
+- Every bullet point, challenge, solution, or step should introduce NEW knowledge
+
+**PRESENTATION FLOW CHECK:**
+
+Before finalizing, read all slides in sequence and ask:
+1. Does each slide feel redundant after reading the previous one?
+2. Am I using the same examples/scenarios repeatedly?
+3. Have I explained this framework/concept already?
+4. Is this slide adding depth or just adding words?
+
+If the answer reveals repetition, REPLACE the redundant slide with a genuinely new topic
 
 **IMAGE GENERATION MANDATORY RULES:**
 - **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
@@ -3395,6 +3452,12 @@ Each bullet point, challenge-solution, process step, or box content must follow 
    - Are decision criteria provided for when/how to apply?
    - Can learners immediately implement what they learned?
 
+4. **NO REPETITION CHECK:**
+   - Does each slide present NEW information not covered in previous slides?
+   - Are you repeating the same concept in different words across multiple slides?
+   - Have you already explained this principle, framework, or technique earlier?
+   - Are you adding depth to previous concepts or just restating them?
+
 **REJECTION CRITERIA:**
 
 REJECT and revise if content:
@@ -3404,12 +3467,63 @@ REJECT and revise if content:
 - ❌ Provides no decision criteria or trade-offs
 - ❌ Stays at Remember/Understand cognitive level
 - ❌ Uses vague language like "may help" or "can improve"
+- ❌ Repeats information from earlier slides without adding new depth
+- ❌ Covers the same ground in slightly different wording
+- ❌ Uses filler content to reach slide count
 
 **QUALITY STANDARD:**
 
 ✅ ACCEPTABLE: "Agile methodology is an iterative approach to project management [Remember]. It breaks projects into small increments allowing teams to adapt quickly, contrasting with Waterfall where requirements are fixed upfront [Understand]. In practice, teams work in 2-week sprints with daily standups and demonstrate working features to stakeholders, adjusting based on feedback. A mobile app team might release login in Sprint 1, add profiles in Sprint 2 based on testing [Apply]. Compared to Waterfall, Agile reduces risk of building wrong features through 2-week validation cycles rather than 6-month reveals, though requires more stakeholder engagement. Choose Agile when needs evolve; Waterfall when requirements are fixed and compliance demands upfront documentation [Analyze/Evaluate]." (95 words)
 
 ❌ UNACCEPTABLE: "Agile is an iterative project management approach that uses sprints to deliver software incrementally." (14 words - too brief, no cognitive depth)
+
+**🚫 ANTI-REPETITION ENFORCEMENT 🚫**
+
+**CRITICAL RULE: Each slide must teach something NEW and DIFFERENT**
+
+**COMMON REPETITION PATTERNS TO AVOID:**
+
+1. **Concept Restatement Across Slides:**
+   - ❌ WRONG: Slide 3 explains "Define clear goals", Slide 7 explains "Set specific objectives" (same concept)
+   - ✅ CORRECT: Slide 3 explains "Define clear goals", Slide 7 explains "Create accountability structures" (different concept)
+
+2. **Example Redundancy:**
+   - ❌ WRONG: Multiple slides using "project management" or "software development" as the only example domain
+   - ✅ CORRECT: Vary examples across industries (healthcare IT project, manufacturing process, retail supply chain)
+
+3. **Framework Re-explanation:**
+   - ❌ WRONG: Explaining what Agile is on Slide 4, then re-explaining Agile basics on Slide 9
+   - ✅ CORRECT: Slide 4 explains Agile fundamentals, Slide 9 covers advanced Agile scaling techniques
+
+4. **Benefit Repetition:**
+   - ❌ WRONG: Multiple slides listing "improved communication" and "better alignment" as benefits
+   - ✅ CORRECT: Each benefit mentioned once with depth, then BUILD ON IT with implementation details
+
+**DEPTH PROGRESSION MANDATE:**
+
+When covering related topics across slides, each slide must GO DEEPER, not SIDEWAYS:
+
+- **Slide N**: Introduce concept with definition and basic application
+- **Slide N+1**: Show advanced techniques or edge cases for that concept
+- **Slide N+2**: Compare with alternative approaches or show integration with other concepts
+- **Never**: Re-explain the same concept at the same depth level
+
+**INFORMATION DENSITY REQUIREMENTS:**
+
+- Each slide should contain information that could NOT be condensed into a previous slide
+- If you can merge two slides without losing information, they are too similar - MERGE THEM
+- Aim for "this slide teaches 3-5 NEW things" not "this slide restates what we covered"
+- Every bullet point, challenge, solution, or step should introduce NEW knowledge
+
+**PRESENTATION FLOW CHECK:**
+
+Before finalizing, read all slides in sequence and ask:
+1. Does each slide feel redundant after reading the previous one?
+2. Am I using the same examples/scenarios repeatedly?
+3. Have I explained this framework/concept already?
+4. Is this slide adding depth or just adding words?
+
+If the answer reveals repetition, REPLACE the redundant slide with a genuinely new topic
 
 **IMAGE GENERATION MANDATORY RULES:**
 - **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
