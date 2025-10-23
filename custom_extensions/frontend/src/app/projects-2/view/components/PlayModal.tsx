@@ -29,7 +29,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
       
       {/* Modal content */}
       <div 
-        className="relative shadow-xl w-[85vw] h-[75vh] flex flex-col z-10"
+        className="relative shadow-xl w-[85vw] h-[80vh] flex flex-col z-10"
         style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}
       >
         {/* Close button */}
