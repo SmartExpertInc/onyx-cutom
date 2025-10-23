@@ -113,12 +113,16 @@ export default function GenerationCompletedModal({
       {/* Background overlay */}
       <div 
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+        style={{ 
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
         onClick={onClose}
       ></div>
       
       {/* Modal content */}
-      <div className="relative bg-white shadow-xl w-[900px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px' }}>
+      <div className="relative shadow-xl w-[900px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
         {/* Header */}
         <div className="p-6 pb-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
