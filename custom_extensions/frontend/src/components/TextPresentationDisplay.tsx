@@ -810,20 +810,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
       else if (level === 2) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; }  
       else if (level === 3) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 4) { textStyleClass += `text-sm lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
       if (depth > 0) {
         textStyleClass = ''; 
-        if (level === 3) textStyleClass += `text-sm font-bold ${THEME_COLORS.accentRed}`; 
-        else if (level === 4) textStyleClass += `text-xs font-bold ${THEME_COLORS.subHeadingText}`;
+        if (level === 3) textStyleClass += `text-base font-bold ${THEME_COLORS.accentRed}`; 
+        else if (level === 4) textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`;
       }
       if (isMiniSectionHeadline) {
           textStyleClass = ''; 
-          textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-sm font-bold ${THEME_COLORS.accentRed}`; 
+          textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`; 
           if (depth > 0) { 
             textStyleClass = ''; 
-            textStyleClass += level === 3 ? `text-sm font-bold ${THEME_COLORS.accentRed}` : `text-xs font-bold ${THEME_COLORS.accentRed}`;
+            textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-base font-bold ${THEME_COLORS.accentRed}`;
           }
       }
 
@@ -2749,7 +2749,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <div className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                    <div className="p-3 my-4 !bg-white border-l-2 border-[#0F58F9] text-left">
                       <RenderBlock
                         block={item.headline}
                         isMiniSectionHeadline={true}
