@@ -2593,7 +2593,7 @@
                             {% elif step is string %}
                                 {# Handle string format - treat entire string as description, no title #}
                                 {% set stepTitle = '' %}
-                                {% set stepDescription = step %}
+                                    {% set stepDescription = step %}
                             {% else %}
                                 {% set stepTitle = '' %}
                                 {% set stepDescription = step|string if step else 'Description' %}
