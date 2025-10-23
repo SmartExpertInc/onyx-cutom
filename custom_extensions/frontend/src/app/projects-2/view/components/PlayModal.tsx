@@ -41,9 +41,9 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
         </button>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto flex-1">
           {/* Main content area */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-10">
             {/* Left div with grey background - 70% width */}
             <div className="flex-1 bg-gray-200 rounded-lg min-h-[450px] flex items-center justify-center">
               <span className="text-gray-500">Video preview area</span>
@@ -102,7 +102,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                       The preview has no lip movements.
                     </p>
                     <p className="text-[#4D4D4D] text-sm leading-tight">
-                      You need to generate the video to make it visible.
+                      You need to generate the video to<br/> make it visible.
                     </p>
                   </div>
                 </div>
@@ -112,7 +112,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
           
           {/* Rating section */}
           <div className="flex flex-col items-center gap-3">
-            <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-lg rounded-md px-3 py-2">
+            <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-lg rounded-md px-3 py-3">
               <span className="text-[#171718] text-xs">How's the video and voice quality?</span>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
