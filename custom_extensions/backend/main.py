@@ -41403,11 +41403,11 @@ async def export_scorm_package(
             yield (json.dumps(error_packet) + "\n").encode()
             logger.error(f"[API:SCORM] Export failed: {e}")
 
-        return StreamingResponse(
-        content=generate_with_progress(),
-        media_type="application/octet-stream",
-            headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no"
-            }
-        )
+    return StreamingResponse(
+    content=generate_with_progress(),
+    media_type="application/octet-stream",
+        headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no"
+        }
+    )
