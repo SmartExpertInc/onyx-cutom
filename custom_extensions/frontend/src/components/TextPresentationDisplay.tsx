@@ -933,7 +933,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       let recommendationClasses = "";
       if (isRecommendation && !suppressRecommendationStripe) {
-        recommendationClasses = `pl-4 border-l-4 border-[#0F58F9] py-2`;
+        recommendationClasses = `pl-4 border-l-3 border-[#0F58F9] py-2`;
       }
       const styledText = parseAndStyleText(text);
 
@@ -1013,7 +1013,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const currentBlockIconName = block.type === 'bullet_list' ? (block as BulletListBlock).iconName : undefined;
       const { items, fontSize } = block; 
       const isNumbered = block.type === 'numbered_list';
-      const hasRecommendation = !isNumbered && items.some(item => typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation);
+      const hasRecommendation = !isNumbered && items.some(item => 
+        (typeof item === 'object' && item !== null && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation) ||
+        (typeof item === 'string' && item.toLowerCase().includes('recommendation'))
+      );
       
       let BulletIconToRender: React.ElementType | null = NewBulletIcon; 
       if (block.type === 'bullet_list') {
@@ -1182,7 +1185,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-black text-base leading-snug">{styledItemText}</span>
+                          <span className="text-[#0F58F9] text-base leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -1223,7 +1226,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
+                <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}`}>
                   {BulletIconToRender && !isNumbered && !isRecommendation && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center text-[#0F58F9]">
                       <BulletIconToRender />
@@ -1258,7 +1261,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                         <span className="text-black text-base leading-snug">{styledItemText}</span>
                       )
                     ) : Array.isArray(item) ? (
-                        <div className={`flex flex-col ${isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
+                        <div className={`flex flex-col ${isRecommendationPara ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}`}>
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
                                 <RenderBlock
                                     key={blockIndex}
@@ -1275,7 +1278,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             ))}
                         </div>
                     ) : (
-                        <div className={isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}>
+                        <div className={isRecommendationPara ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}>
                             <RenderBlock 
                                 block={item as AnyContentBlock}
                                 depth={(depth || 0) + 1}
@@ -1336,7 +1339,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               onDragEnd();
             }
           }}
-          className={`p-2 border-l-4 ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+          className={`p-2 border-l-3 ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
           role="alert"
         >
           {/* Arrow buttons for reordering */}
@@ -2540,7 +2543,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
               />
           ) : (
-              <h1 className={`text-2xl py-4 px-10 font-bold text-[#0F58F9] mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
+              <h1 className={`text-2xl py-4 px-10 font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
           )}
 
           {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
@@ -2645,7 +2648,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
                             return (
-                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#0F58F9]'} text-left relative group/minisection`}>
+                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-3 border-blue-400' : '!bg-white border-l-3 border-[#0F58F9]'} text-left relative group/minisection`}>
                                 {isEditing && (
                                   <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
                                     <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
@@ -2749,7 +2752,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <div className="p-3 my-4 !bg-white border-l-2 border-[#0F58F9] text-left">
+                    <div className="p-3 my-4 !bg-white border-l-3 border-[#0F58F9] text-left">
                       <RenderBlock
                         block={item.headline}
                         isMiniSectionHeadline={true}
