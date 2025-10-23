@@ -29857,18 +29857,7 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
         "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
       ]
     },
-    { "type": "paragraph", "text": "**How to apply PESTLE systematically** using this step-by-step process:" },
-    {
-      "type": "numbered_list",
-      "items": [
-        "**List all factors** in each category that could impact your market: Create a comprehensive inventory across all six PESTLE dimensions. Don't filter yet—capture everything that might be relevant.",
-        "**Assess each factor's current state**: For each factor, document where it stands today and the direction of change (improving, declining, accelerating, stable). Use data where available.",
-        "**Evaluate potential impact** on your business: Rate each factor's potential impact as high, medium, or low based on how significantly it could affect your strategy, operations, or financial performance.",
-        "**Prioritize the top 3-5 factors**: Focus on factors with both **high impact** and **high likelihood** of occurring. These are your strategic priorities requiring active monitoring and response planning.",
-        "**Create action plans**: For each priority factor, define specific actions—how will you capitalize on opportunities or mitigate threats? Assign owners and timelines for tracking."
-      ]
-    },
-    { "type": "paragraph", "text": "For example, a food delivery company might identify Social factors (changing dining habits driven by remote work), Technological factors (GPS tracking and mobile payment adoption), and Legal factors (gig economy worker classification regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically**: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the **highest impact** and **highest likelihood**. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
     
     { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
     { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
@@ -29906,34 +29895,68 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     },
     
     { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
-    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. **Calculate market size using these three critical metrics**:" },
-    {
-      "type": "numbered_list",
-      "items": [
-        "**Calculate TAM (Total Addressable Market)**: This is the total revenue opportunity if you captured 100% of the entire market with no competition. Use industry reports, market research data, or bottom-up calculations (total potential customers × average revenue per customer). For example, the global CRM software market might be $50B (TAM).",
-        "**Determine SAM (Serviceable Addressable Market)**: This is the portion of TAM you can realistically serve given your **geographic constraints**, **product limitations**, and **go-to-market capabilities**. If you only serve small businesses in Europe, your SAM might be $2B—a subset of the $50B TAM.",
-        "**Project SOM (Serviceable Obtainable Market)**: This is what you can **actually capture** in a realistic timeframe given **competition** and your **market entry strategy**. If typical market leaders capture 5-8% share in your category, your realistic SOM in year three might be $50M-$160M based on a $2B SAM.",
-        "**Validate with growth projections**: Apply market growth rates to each metric. If the overall market grows at 15% annually, factor this into your TAM/SAM/SOM projections for future years. Adjust based on competitive dynamics and your planned investments.",
-        "**Apply the decision criterion**: Only pursue markets where your **realistic SOM** can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears."
-      ]
-    },
-    { "type": "paragraph", "text": "Why three different numbers matter: **TAM** shows the theoretical maximum—useful for understanding market potential but misleading for planning. **SAM** shows what's realistically addressable given your constraints—this is what you should use for strategic planning. **SOM** shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation." },
+    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
+    { "type": "paragraph", "text": "Why three different numbers matter: TAM shows the theoretical maximum if you had infinite resources and no competition—useful for understanding market potential but misleading for planning. SAM shows what's realistically addressable given your go-to-market constraints—this is what you should use for strategic planning. SOM shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation. Decision criterion: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears." },
     
     { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
     { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
-    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction? For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
+    { "type": "paragraph", "text": "**Key indicators to identify genuine trends** follow this systematic approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Multiple independent signals**: A real trend appears in customer interviews, industry reports, competitor behavior, and technology adoption simultaneously. If only one source shows the trend, it might be an outlier or temporary spike.",
+        "**Durable underlying drivers**: Trends are driven by fundamental changes in technology, demographics, or economics that build gradually over years. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction?",
+        " **Convergence of evidence**: Look for the same pattern across different data sources—customer preferences, analyst reports, competitor strategies, and market behavior all pointing in the same direction.",
+        "**Timeline consistency**: Real trends develop over months or years, not days or weeks. They show consistent directional movement rather than sudden spikes followed by crashes.",
+        "**Cross-industry validation**: Genuine trends often appear across multiple industries or sectors, not just in one specific market or use case."
+      ]
+    },
+    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
     
     { "type": "headline", "level": 3, "text": "Step 5: Conduct Competitive Analysis" },
     { "type": "paragraph", "text": "Examine your competitors' strengths, weaknesses, market share, strategies, and weaknesses. Understanding competition is key to differentiation and gaining competitive advantage. Create a detailed competitor matrix documenting: pricing models, target segments, key features, strengths/weaknesses, recent funding or strategic moves, and estimated market share. Don't limit analysis to direct competitors—include substitute products and potential new entrants. For example, a taxi company should analyze not just other taxi companies but also Uber, Lyft, public transit, bicycle sharing, and any other way customers solve the transportation problem." },
-    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. Practical application: Categorize competitors into strategic groups based on their approach (e.g., premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy. Then look for underserved segments—gaps where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
+    { "type": "paragraph", "text": "**Systematic competitive analysis** follows this structured approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Map all competitive alternatives**: Include direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). Don't limit analysis to companies that look like you.",
+        "**Categorize competitors into strategic groups**: Group competitors by approach (premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy and positioning.",
+        "**Analyze competitive gaps**: Look for underserved segments where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental.",
+        "**Assess switching costs**: For each competitive alternative, understand what it costs, what's good enough about it, and what the switching cost would be for customers to move to your solution.",
+        "**Identify competitive advantages**: Determine whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war but lose the value war."
+      ]
+    },
+    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
     
     { "type": "headline", "level": 3, "text": "Step 6: Evaluate Customer Needs and Preferences" },
     { "type": "paragraph", "text": "Use your data to identify what your potential customers need and want. Customer insights drive product development, marketing, and customer service strategies. Go beyond what customers say they want to understand their underlying jobs-to-be-done. People don't want a quarter-inch drill, they want a quarter-inch hole—or actually, they want to hang a picture to make their home feel complete. Understanding these layers helps you identify non-obvious solutions. Use techniques like focus groups for exploratory research, surveys for quantifying preferences across larger groups, and observational research to see what customers actually do versus what they say they do." },
-    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture. Prioritization framework: Identify needs that are (1) important to customers, (2) unsatisfied by current solutions, and (3) feasible for you to address profitably. The intersection of these three is your opportunity space." },
+    { "type": "paragraph", "text": "**Effective customer needs analysis** requires this multi-layered approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Surface-level needs (what they say)**: Use surveys and interviews to capture stated preferences, feature requests, and explicit feedback. This gives you the 'what' but not necessarily the 'why' behind customer behavior.",
+        "**Behavioral needs (what they do)**: Observe actual customer behavior through usage analytics, purchase patterns, and real-world interactions. People's revealed preferences often differ significantly from their stated preferences.",
+        "**Jobs-to-be-done (what they're trying to accomplish)**: Dig deeper to understand the underlying job customers are hiring your product to do. This reveals non-obvious solutions and helps you identify adjacent opportunities.",
+        "**Emotional needs (how they want to feel)**: Understand the emotional outcomes customers seek—confidence, security, status, convenience, or peace of mind. These often drive purchasing decisions more than functional features.",
+        "**Unmet needs (gaps in current solutions)**: Identify needs that are important to customers, unsatisfied by current solutions, and feasible for you to address profitably. The intersection of these three criteria defines your opportunity space."
+      ]
+    },
+    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture." },
     
     { "type": "headline", "level": 3, "text": "Step 7: Synthesize Insights and Draw Conclusions" },
     { "type": "paragraph", "text": "Combine all findings to draw conclusions about market opportunities, challenges, and strategic directions. This synthesis guides decision-making, ensuring strategies are data-driven rather than based on assumptions or intuition alone. Create a clear narrative that connects your findings: What is the market opportunity? Who are the customers? What do they need? Who else serves them and how? Where are the gaps? What trends are creating new opportunities or threats? This narrative becomes your strategic foundation." },
-    { "type": "paragraph", "text": "The synthesis should answer three critical questions: (1) Should we enter/remain in this market? Base this on market attractiveness (size, growth, profitability) and competitive advantage (can we win?). (2) If yes, what segments should we target? Prioritize based on segment attractiveness and your ability to serve them profitably. (3) How should we position ourselves? Based on competitive gaps and customer needs. Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
+    { "type": "paragraph", "text": "**Effective synthesis** requires answering these critical questions systematically:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Market attractiveness assessment**: Should we enter/remain in this market? Base this on market size, growth rate, profitability potential, and competitive dynamics. Consider both current conditions and future projections.",
+        "**Competitive advantage evaluation**: Can we win in this market? Assess your unique strengths, resources, and capabilities against competitive requirements and customer needs. Be honest about gaps and limitations.",
+        "**Target segment prioritization**: If yes to entering, what segments should we target? Prioritize based on segment attractiveness (size, growth, profitability) and your ability to serve them profitably given your constraints.",
+        "**Positioning strategy development**: How should we position ourselves? Based on competitive gaps, customer needs, and your unique value proposition. Define your differentiation and messaging strategy.",
+        "**Risk and confidence assessment**: Present findings with clear confidence levels—distinguish between facts you're certain about and assumptions you're testing. This transparency helps stakeholders understand risks and make informed decisions."
+      ]
+    },
+    { "type": "paragraph", "text": "Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
     
     { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Company Analyzing Healthcare Market" },
     { "type": "paragraph", "text": "Let's walk through a complete market analysis example to see how these steps work in practice." },
@@ -29962,17 +29985,7 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Why it happens: Secondary research (industry reports, market studies, published data) is faster, cheaper, and feels more 'objective' than primary research. Companies rationalize that professional analysts have done the work, so why duplicate it? It's also more comfortable—reading reports doesn't require the vulnerability of talking to customers who might tell you your idea won't work." },
     { "type": "paragraph", "text": "Real consequence: A B2B software company analyzed Gartner and Forrester reports showing strong demand in their category. Market reports showed $5B market size growing at 20% annually. They raised $10M, built the product, and launched to crickets. Post-mortem interviews revealed that while the aggregate market was growing, their specific use case wasn't a priority—customers had workarounds they were satisfied with. The reports averaged across many use cases, hiding this critical nuance. They burned through $8M before pivoting. The $50K they saved by not doing primary research cost them $8M in wasted development." },
     { "type": "paragraph", "text": "How to recognize you're making this mistake: Warning signs include: You can't name 10 potential customers by name and describe their specific pain points. Your pitch deck has a 'market size' slide but no 'customer quotes' slide. When asked 'How do you know customers want this?' your answer starts with 'Research shows...' instead of 'When I talked to customers...'. You're using three-year-old industry reports as your primary source. You haven't personally talked to at least 20 people in your target market." },
-    { "type": "paragraph", "text": "**How to correct this mistake** using a systematic approach:" },
-    {
-      "type": "numbered_list",
-      "items": [
-        "**Implement the 70/30 rule**: Allocate 70% of your analysis time to **primary research** (talking to customers, observing their behavior, testing assumptions) and only 30% to **secondary research** (industry reports, market data, competitive intelligence). This ensures you're building on real customer insights rather than analyst opinions.",
-        "**Start with people, not reports**: Begin every market analysis by talking to people before reading any reports. Conduct 20-30 customer interviews first to understand actual needs, pain points, and willingness to pay. Let customer insights guide which reports are worth buying.",
-        "**Use secondary data for sizing, not validation**: Use secondary research to **size the market** you've already validated through primary research—not to validate whether the market exists in the first place. If customers tell you they have a problem and will pay to solve it, then use reports to estimate market scale.",
-        "**Require customer evidence in all deliverables**: Every market analysis document must include **customer quotes** and **observed behaviors**, not just statistics from reports. If you can't provide direct customer evidence, the analysis isn't complete.",
-        "**Make interviews non-negotiable**: If you can't get 20-30 customer interviews, you don't understand the market well enough to make major strategic or investment decisions. Delay decisions rather than proceeding with inadequate customer insight."
-      ]
-    },
+    { "type": "paragraph", "text": "How to correct it: Implement a 70/30 rule—70% of your analysis time should be primary research (talking to customers, observing their behavior, testing assumptions), 30% secondary research (industry reports, market data, competitive intelligence). Start every market analysis by talking to people before reading reports. Use secondary data to size the market you've already validated through primary research, not to validate whether the market exists. Require every market analysis deliverable to include customer quotes and observed behaviors, not just statistics. Make customer interviews non-negotiable—if you can't get 20-30 interviews, you don't understand the market well enough to make major decisions." },
     
     { "type": "headline", "level": 3, "text": "Mistake #2: Confusing Market Size with Market Opportunity" },
     { "type": "paragraph", "text": "Why it happens: Large TAM numbers are exciting and make pitch decks impressive. There's social pressure to show you're pursuing a 'big' opportunity. Founders and product managers selectively attend to information that makes their opportunity look bigger (confirmation bias). It's also easier to calculate TAM than to realistically assess what you can actually capture (SOM), so people stop at the easy metric." },
@@ -29987,8 +30000,9 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "How to correct it: Reframe competitive analysis around customer jobs-to-be-done instead of product categories. Ask: 'What are all the ways customers currently solve this problem?' not just 'Who else sells this type of product?'. In customer interviews, always ask: 'What do you do today when you encounter this problem?' and 'What would you do if our product didn't exist?'. The answers reveal your real competition. Create a comprehensive competitor map including: direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). For each alternative, understand: What does it cost? What's good enough about it? What's the switching cost from it to you? What would have to be true for customers to switch? This reveals whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war against direct competitors but lose the value war against substitutes and status quo." },
     
     { "type": "headline", "level": 2, "text": "✅ RECOMMENDATIONS FOR EFFECTIVE MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "**Best practices for ongoing market analysis** follow this prioritized sequence:" },
     {
-      "type": "bullet_list",
+      "type": "numbered_list",
       "items": [
         "**Use a combination of data sources to ensure a comprehensive view of the market**: Relying on a single data source creates blind spots and biases in your analysis. Primary research gives you specific insights about your target customers that no report can provide, revealing nuances like workflow details, political dynamics, and unspoken pain points. Secondary research provides market sizing, trend validation, and competitive benchmarking that would take years to gather yourself. This approach mitigates the risk of bias and provides a solid basis for a more reliable analysis that combines the depth of primary research with the breadth of secondary data.",
         "**Regularly update your market analysis to reflect current conditions**: Markets are dynamic—what was true last year may not be true today. Customer preferences shift, new competitors emerge, regulations change, and technological innovations disrupt established patterns. Schedule quarterly reviews of key metrics and assumptions to catch changes early when you can still adapt. Regular updates help strategies remain relevant and responsive to market changes, preventing you from optimizing for yesterday's market. Assign someone ownership of market intelligence—if it's everyone's job, it's no one's job. This person should maintain competitor tracking, customer feedback loops, and industry monitoring.",
@@ -30419,14 +30433,19 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 ⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
 
 **1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
-- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels, systematic approaches, decision frameworks, analysis methods, implementation sequences
 - ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
 - Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
-- **INCLUDE AT LEAST 2-3 NUMBERED LISTS** in every onepager where sequential content exists
+- **INCLUDE AT LEAST 4-6 NUMBERED LISTS** in every onepager where sequential content exists
+- **MANDATORY**: Every onepager MUST have numbered lists for any sequential content
 - Examples of when to use:
   * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
   * "Three Phases of Product Development" → numbered_list (it's sequential)
   * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
+  * "Key indicators to identify trends" → numbered_list (it's a systematic approach)
+  * "Systematic competitive analysis" → numbered_list (it's a structured method)
+  * "Effective customer needs analysis" → numbered_list (it's a multi-layered approach)
+  * "Best practices for ongoing market analysis" → numbered_list (it's a prioritized sequence)
 
 **2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
 - ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
@@ -30449,6 +30468,9 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 2. No bold text anywhere → Makes content look flat and unprofessional
 3. Using bullet_list for sequential steps → Should be numbered_list
 4. Using numbered_list for random related points → Should be bullet_list
+5. Missing numbered lists for systematic approaches → Every "how to" or "steps to" should be numbered_list
+6. Not using numbered lists for frameworks → PESTLE, Five Forces, SWOT, etc. should be numbered_list
+7. Converting sequential content to paragraphs → Any ordered process MUST be numbered_list
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
@@ -30481,7 +30503,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
-✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 2-3 numbered lists included?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 4-6 numbered lists included? Every sequential process MUST use numbered_list format?
 ✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
 ✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
 ✅ Content grouping: Related concepts grouped under ONE level 2 header?
