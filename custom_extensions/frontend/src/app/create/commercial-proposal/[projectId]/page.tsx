@@ -2450,12 +2450,33 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '1 course',
-                              es: '1 curso',
-                              ua: '1 курс',
-                              ru: '1 курс'
-                            })}
+                            {editingField === 'courseCount1' ? (
+                              <InlineEditor
+                                initialValue={getLocalizedText(proposalData?.language, {
+                                  en: '1 course',
+                                  es: '1 curso',
+                                  ua: '1 курс',
+                                  ru: '1 курс'
+                                })}
+                                onSave={(value) => handleTextSave('courseCount1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span
+                                onClick={() => startEditing('courseCount1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit course count"
+                              >
+                                {getLocalizedText(proposalData?.language, {
+                                  en: '1 course',
+                                  es: '1 curso',
+                                  ua: '1 курс',
+                                  ru: '1 курс'
+                                })}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             {editingField === 'price1_service_1' ? (
@@ -2508,12 +2529,33 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '3 courses',
-                              es: '3 cursos',
-                              ua: '3 курси',
-                              ru: '3 курса'
-                            })}
+                            {editingField === 'courseCount2' ? (
+                              <InlineEditor
+                                initialValue={getLocalizedText(proposalData?.language, {
+                                  en: '3 courses',
+                                  es: '3 cursos',
+                                  ua: '3 курси',
+                                  ru: '3 курса'
+                                })}
+                                onSave={(value) => handleTextSave('courseCount2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span
+                                onClick={() => startEditing('courseCount2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit course count"
+                              >
+                                {getLocalizedText(proposalData?.language, {
+                                  en: '3 courses',
+                                  es: '3 cursos',
+                                  ua: '3 курси',
+                                  ru: '3 курса'
+                                })}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             {editingField === 'price2_service_1' ? (
@@ -2566,12 +2608,33 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '10 courses',
-                              es: '10 cursos',
-                              ua: '10 курсів',
-                              ru: '10 курсов'
-                            })}
+                            {editingField === 'courseCount3' ? (
+                              <InlineEditor
+                                initialValue={getLocalizedText(proposalData?.language, {
+                                  en: '10 courses',
+                                  es: '10 cursos',
+                                  ua: '10 курсів',
+                                  ru: '10 курсов'
+                                })}
+                                onSave={(value) => handleTextSave('courseCount3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span
+                                onClick={() => startEditing('courseCount3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit course count"
+                              >
+                                {getLocalizedText(proposalData?.language, {
+                                  en: '10 courses',
+                                  es: '10 cursos',
+                                  ua: '10 курсів',
+                                  ru: '10 курсов'
+                                })}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             {editingField === 'price3_service_1' ? (
@@ -3447,7 +3510,14 @@ export default function CommercialProposalPage() {
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                <h4 className="text-[20px] font-semibold xl:font-medium">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Pricing packages:',
+                    es: 'Paquetes de precios:',
+                    ua: 'Тарифні пакети:',
+                    ru: 'Тарифные пакеты:'
+                  })}
+                </h4>
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[690px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
@@ -4595,7 +4665,14 @@ export default function CommercialProposalPage() {
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                <h4 className="text-[20px] font-semibold xl:font-medium">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Pricing packages:',
+                    es: 'Paquetes de precios:',
+                    ua: 'Тарифні пакети:',
+                    ru: 'Тарифные пакеты:'
+                  })}
+                </h4>
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
