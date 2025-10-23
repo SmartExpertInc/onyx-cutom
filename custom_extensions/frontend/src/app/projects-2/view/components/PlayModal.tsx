@@ -67,11 +67,11 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                 </span>
               </div>
               
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4 leading-tight">{title}</h3>
+              <h3 className="text-3xl font-semibold text-gray-900 mb-4 leading-tight">{title}</h3>
               
               {/* Buttons */}
               <div className="flex gap-3 mb-4">
-                <button className="bg-white px-3 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs whitespace-nowrap cursor-pointer" style={{ border: '1px solid #719AF5', color: '#719AF5' }}>
+                <button className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs whitespace-nowrap cursor-pointer" style={{ border: '1px solid #719AF5', color: '#719AF5' }}>
                   Cancel
                 </button>
                 <button className="px-3 py-2 rounded-md transition-colors font-medium flex items-center justify-center gap-2 text-xs whitespace-nowrap text-white cursor-pointer" style={{ backgroundColor: '#0F58F9', border: '1px solid #0F58F9' }}>

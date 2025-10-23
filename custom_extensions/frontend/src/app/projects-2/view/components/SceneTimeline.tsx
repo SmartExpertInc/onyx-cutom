@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
@@ -14,7 +14,6 @@ interface SceneTimelineProps {
   aspectRatio?: string;
   onAddScene: () => void;
   onMenuClick: (sceneId: string, event: React.MouseEvent) => void;
-  onSceneRename?: (sceneId: string, newName: string) => void;
   // NEW: Video Lesson specific props
   videoLessonData?: VideoLessonData;
   componentBasedSlideDeck?: ComponentBasedSlideDeck;
@@ -29,7 +28,6 @@ export default function SceneTimeline({
   aspectRatio = '16:9', 
   onAddScene, 
   onMenuClick,
-  onSceneRename,
   videoLessonData,
   componentBasedSlideDeck,
   onSlideSelect,
@@ -37,12 +35,9 @@ export default function SceneTimeline({
   onAddSlide,
   onOpenTemplateSelector
 }: SceneTimelineProps) {
-  const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
-  const [editingName, setEditingName] = useState<string>('');
-
   // Function to get scene rectangle dimensions based on aspect ratio
   const getSceneRectangleStyles = () => {
-    const baseHeight = 64; // 16 * 4 (h-16)
+    const baseHeight = 80; // Increased for bigger cards
     
     switch (aspectRatio) {
       case '16:9':
@@ -65,32 +60,6 @@ export default function SceneTimeline({
           width: `${Math.round(baseHeight * 16 / 9)}px`,
           height: `${baseHeight}px`,
         };
-    }
-  };
-
-  const handleRenameClick = (scene: Scene) => {
-    setEditingSceneId(scene.id);
-    setEditingName((typeof scene.name === 'string' ? scene.name : '') || '');
-  };
-
-  const handleRenameSave = () => {
-    if (editingSceneId && editingName.trim() && onSceneRename) {
-      onSceneRename(editingSceneId, editingName.trim());
-    }
-    setEditingSceneId(null);
-    setEditingName('');
-  };
-
-  const handleRenameCancel = () => {
-    setEditingSceneId(null);
-    setEditingName('');
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleRenameSave();
-    } else if (e.key === 'Escape') {
-      handleRenameCancel();
     }
   };
 
@@ -118,31 +87,36 @@ export default function SceneTimeline({
 
   return (
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'auto', minHeight: '120px' }}>
-      <div className="flex items-end gap-4 overflow-x-auto pb-2">
-          {/* Play Button with Time */}
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+      <div className="flex items-end gap-4 pb-2">
+          {/* Play Button with Time - Fixed */}
+          <div className="flex flex-col items-center gap-1 flex-shrink-0">
             <div className="relative flex items-center justify-center h-16">
-              <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
-                <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+              <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center transition-colors cursor-pointer" style={{ border: '1px solid #878787' }}>
+                <div className="w-0 h-0 border-l-[8px] border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" style={{ borderLeftColor: '#878787' }}></div>
               </button>
             </div>
             <div className="h-8 flex items-center justify-center">
-              <span className="text-sm text-gray-600">00:00</span>
+              <span className="text-xs" style={{ color: '#A5A5A5' }}>00:00 / 01:17</span>
             </div>
           </div>
 
+          {/* Scrollable Slides Container */}
+          <div className="flex items-end gap-1 overflow-x-auto flex-1">
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
-              <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="flex flex-col items-center gap-2 flex-shrink-0 relative">
                 <div className="relative group">
                   <div 
                     className={`bg-gray-100 border rounded-md flex items-center justify-center relative cursor-pointer transition-all ${
                       currentSlideId === scene.id 
-                        ? 'border-blue-500 bg-blue-50' 
+                        ? 'bg-blue-50' 
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
-                    style={getSceneRectangleStyles()}
+                    style={{
+                      ...getSceneRectangleStyles(),
+                      ...(currentSlideId === scene.id && { borderColor: '#0F58F9' })
+                    }}
                     onClick={() => onSlideSelect?.(scene.id)}
                   >
                     {/* Simple visual indicator instead of text content */}
@@ -172,52 +146,17 @@ export default function SceneTimeline({
                     </div>
                   </div>
                 </div>
-                <div className="h-8 flex items-center gap-2 min-w-[120px] justify-center">
-                  {editingSceneId === scene.id ? (
-                    <input
-                      type="text"
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      onBlur={handleRenameSave}
-                      className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none focus:outline-none focus:ring-0 min-w-[80px] text-center"
-                      autoFocus
-                    />
-                  ) : (
-                    <>
-                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}>
-                        {(typeof scene.name === 'string' ? scene.name : '') || 'Untitled'}
-                      </span>
-                      <svg 
-                        className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer flex-shrink-0" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        onClick={() => handleRenameClick(scene)}
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
-                        />
-                      </svg>
-                    </>
-                  )}
-                </div>
               </div>
 
-              {/* Transition button - show between scenes (not after the last one) */}
+              {/* Transition button - show between scenes (not after the last one) - Overlapping on slides */}
               {index < displayScenes.length - 1 && (
-                <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                  <div className="relative group flex items-center h-16">
-                    <button className="w-16 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
-                      <svg 
-                        className="w-4 h-4 text-gray-600" 
-                        fill="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h5v18zm7 0q-.425 0-.712-.288T11 20q0-.425.288-.712T12 19q.425 0 .713.288T13 20q0 .425-.288.713T12 21m0-4q-.425 0-.712-.288T11 16q0-.425.288-.712T12 15q.425 0 .713.288T13 16q0 .425-.288.713T12 17m0-4q-.425 0-.712-.288T11 12q0-.425.288-.712T12 11q.425 0 .713.288T13 12q0 .425-.288.713T12 13m0-4q-.425 0-.712-.288T11 8q0-.425.288-.712T12 7q.425 0 .713.288T13 8q0 .425-.288.713T12 9m0-4q-.425 0-.712-.288T11 4q0-.425.288-.712T12 3q.425 0 .713.288T13 4q0 .425-.288.713T12 5m2 14q-.425 0-.712-.288T13 18q0-.425.288-.712T14 17q.425 0 .713.288T15 18q0 .425-.288.713T14 19m0-4q-.425 0-.712-.288T13 14q0-.425.288-.712T14 13q.425 0 .713.288T15 14q0 .425-.288.713T14 15m0-4q-.425 0-.712-.288T13 10q0-.425.288-.712T14 9q.425 0 .713.288T15 10q0 .425-.288.713T14 11m0-4q-.425 0-.712-.288T13 6q0-.425.288-.712T14 5q.425 0 .713.288T15 6q0 .425-.288.713T14 7m2 14q-.425 0-.712-.288T15 20q0-.425.288-.712T16 19q.425 0 .713.288T17 20q0 .425-.288.713T16 21m0-4q-.425 0-.712-.288T15 16q0-.425.288-.712T16 15q.425 0 .713.288T17 16q0 .425-.288.713T16 17m0-4q-.425 0-.712-.288T15 12q0-.425.288-.712T16 11q.425 0 .713.288T17 12q0 .425-.288.713T16 13m0-4q-.425 0-.712-.288T15 8q0-.425.288-.712T16 7q.425 0 .713.288T17 8q0 .425-.288.713T16 9m0-4q-.425 0-.712-.288T15 4q0-.425.288-.712T16 3q.425 0 .713.288T17 4q0 .425-.288.713T16 5"/>
+                <div className="absolute top-0 right-0 transform translate-x-1/2 flex items-center h-16 z-10">
+                  <div className="relative group">
+                    <button className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-md">
+                      <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
+                        <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                     
@@ -229,26 +168,25 @@ export default function SceneTimeline({
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
                     </div>
                   </div>
-                                     <div className="h-8 flex items-center justify-center">
-                     {/* Empty space to maintain layout consistency */}
-                   </div>
                 </div>
               )}
             </React.Fragment>
           ))}
+          </div>
 
-          {/* Add Slide Button - Opens Templates Panel - ALWAYS SHOW */}
+          {/* Add Slide Button - Opens Templates Panel - Fixed */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="h-16 flex items-center justify-center">
                 <button
                   onClick={onOpenTemplateSelector}
-                  className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer shadow-lg"
+                  className="w-12 h-16 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                  style={{ backgroundColor: '#CCDBFC' }}
                   title="Add new slide"
                 >
                 <svg 
-                  className="w-8 h-8 text-white" 
+                  className="w-6 h-6" 
                   fill="none" 
-                  stroke="currentColor" 
+                  stroke="#0F58F9" 
                   viewBox="0 0 24 24"
                 >
                   <path 
@@ -260,8 +198,31 @@ export default function SceneTimeline({
                 </svg>
               </button>
             </div>
-            <div className="h-8 flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-700">Add Slide</span>
+          </div>
+
+          {/* Chevron Up Button - Non-functional for now - Fixed */}
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className="h-16 flex items-center justify-center">
+                <button
+                  onClick={() => {}}
+                  className="w-10 h-16 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                  style={{ backgroundColor: '#CCDBFC' }}
+                  title="Chevron up"
+                >
+                <svg 
+                  className="w-6 h-6" 
+                  fill="none" 
+                  stroke="#0F58F9" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M5 15l7-7 7 7" 
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
