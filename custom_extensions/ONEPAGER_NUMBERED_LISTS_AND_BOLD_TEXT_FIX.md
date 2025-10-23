@@ -1,8 +1,10 @@
-# Onepager Numbered Lists and Bold Text Formatting Fix
+# Onepager Numbered Lists and Bold Text Formatting Fix - V2 Enhanced
 
-## Problem Statement
+## Updated Problem Statement
 
-User reported two formatting issues with AI-generated onepagers:
+**NEW ISSUE (V2)**: After initial fix, onepagers correctly used bold text, but **STILL had ZERO numbered lists**. The AI was ignoring numbered list instructions despite them being in the example and instructions.
+
+**Original Issue (V1)**: User reported two formatting issues with AI-generated onepagers:
 
 ### Issue 1: Numbered Lists Not Being Used
 **Problem**: The AI was creating inline numbered text within paragraphs like:
@@ -385,6 +387,138 @@ Potential improvements if needed:
 - Instructions: Onepager generation endpoint (lines 30011-30436)
 - Schema definitions: `NumberedListBlock` (line 7253), `BulletListBlock` (various)
 
+## V2 Enhanced Fix (Critical Improvements)
+
+### Why V1 Didn't Fully Work
+
+After V1 implementation, testing showed:
+- ✅ **Bold text was working perfectly** - AI used `**asterisks**` throughout
+- ❌ **Numbered lists were still ZERO** - AI completely ignored them
+
+**Root Cause Analysis**:
+1. Only 3 numbered list examples wasn't enough - AI needed MORE repetition
+2. Instructions weren't emphatic enough - AI didn't see it as CRITICAL
+3. No minimum count requirement - AI could "pass" with 0 numbered lists
+4. Common mistakes section didn't show visual comparison of right vs wrong
+
+### V2 Enhancements Implemented
+
+#### 1. **Increased Example Count from 3 to 6**
+
+**File**: `custom_extensions/backend/main.py`
+
+Added 3 MORE numbered list examples:
+- **Line 29860-29870**: "How to apply PESTLE systematically" - 5 sequential steps
+- **Line 29910-29907**: "TAM/SAM/SOM calculation" - 3 market sizing metrics
+- **Line 29953-29962**: "How to correct mistake #1" - 5 correction steps
+
+**Total**: Now 6 comprehensive numbered list examples throughout the onepager example
+
+#### 2. **Made Requirement UNMISSABLE**
+
+**File**: `custom_extensions/backend/main.py`, Lines 30418-30430
+
+Changed from:
+```
+- **INCLUDE AT LEAST 2-3 NUMBERED LISTS** in every onepager where sequential content exists
+```
+
+To:
+```
+- **CRITICAL: INCLUDE AT LEAST 5-7 NUMBERED LISTS** in every onepager - this is NON-NEGOTIABLE
+- **WHERE to use numbered lists** (use for ALL of these):
+  * Framework dimensions: "PESTLE Six Dimensions" → numbered_list
+  * Step-by-step procedures: "Five Steps to..." → numbered_list
+  * Sequential phases: "Three Phases of..." → numbered_list
+  * How-to-apply instructions: "How to apply PESTLE" → numbered_list
+  * Correction steps: "How to correct this mistake" → numbered_list
+  * Prioritized recommendations: "Top 5 Recommendations" → numbered_list
+  * Hierarchical levels: "Five Maturity Levels" → numbered_list
+```
+
+**Impact**: Changed from vague "where it exists" to explicit "you MUST have 5-7" with specific use cases listed
+
+#### 3. **Added Visual Comparison Examples**
+
+**File**: `custom_extensions/backend/main.py`, Lines 30448-30471
+
+```
+❌ COMMON MISTAKES TO AVOID (THESE ARE INSTANT FAILURES):
+1. **PRIMARY VIOLATION**: Writing "(1) First step, (2) Second step" as inline text
+
+✅ CORRECT EXAMPLE:
+{ "type": "paragraph", "text": "Follow this systematic approach:" },
+{
+  "type": "numbered_list",
+  "items": [
+    "**First**: Do this specific thing...",
+    "**Second**: Then do this next thing..."
+  ]
+}
+
+❌ WRONG EXAMPLE (DO NOT DO THIS):
+{ "type": "paragraph", "text": "Follow this systematic approach: (1) First, do this. (2) Second, do that." }
+```
+
+**Impact**: Shows exact JSON of right vs wrong, making it crystal clear what NOT to do
+
+#### 4. **Updated Validation Checklist**
+
+**File**: `custom_extensions/backend/main.py`, Line 30481
+
+Changed from:
+```
+✅ **Numbered lists**: Used for sequential/ordered content? At least 2-3 numbered lists included?
+```
+
+To:
+```
+✅ **Numbered lists**: Used for sequential/ordered content? **AT LEAST 5-7 NUMBERED LISTS** must be included throughout the onepager (frameworks, step-by-step procedures, correction steps, prioritized recommendations)?
+```
+
+**Impact**: Forces AI to count and verify it has 5-7 numbered lists before finalizing
+
+### Why V2 Will Work
+
+| Strategy | V1 | V2 | Impact |
+|----------|----|----|--------|
+| **Example Count** | 3 numbered lists | 6 numbered lists | 2x more repetition |
+| **Minimum Requirement** | "2-3 where it exists" | "5-7 NON-NEGOTIABLE" | Explicit count mandate |
+| **Use Case Guidance** | General mention | 7 specific use cases listed | Cannot claim "didn't know when" |
+| **Visual Comparison** | None | ✅/❌ JSON examples | Shows exact wrong behavior |
+| **Validation Check** | Vague | "Count your numbered lists" | Forces self-audit |
+| **Language Strength** | "Include" | "CRITICAL", "NON-NEGOTIABLE", "INSTANT FAILURE" | Maximum emphasis |
+
+### Expected Results
+
+**Before V2 (After V1)**:
+```json
+✅ Bold text everywhere: "**Political factors**: description"
+❌ Zero numbered lists - all sequential content in paragraphs
+```
+
+**After V2**:
+```json
+✅ Bold text everywhere: "**Political factors**: description"
+✅ 5-7 numbered lists for all sequential content:
+  - PESTLE dimensions → numbered_list
+  - How to apply PESTLE → numbered_list
+  - Five Forces → numbered_list
+  - Data collection steps → numbered_list
+  - TAM/SAM/SOM metrics → numbered_list
+  - Correction procedures → numbered_list
+  - Step-by-step processes → numbered_list
+```
+
+### V2 Testing Checklist
+
+When testing next onepager:
+- [ ] Count numbered lists - verify at least 5-7 are present
+- [ ] Check for inline numbered text like "(1) First, (2) Second" - should be ZERO
+- [ ] Verify all "how to apply", "step-by-step", "correction" sections use numbered lists
+- [ ] Confirm framework dimensions (PESTLE, Five Forces) use numbered lists
+- [ ] Ensure bold text still working (should be maintained from V1)
+
 ## Conclusion
 
 By adding **3 comprehensive numbered list examples** with extensive bold text usage, creating **prominent formatting instructions** with clear ✅/❌ guidance, and adding **validation checklist requirements**, this fix ensures the AI will:
@@ -394,5 +528,11 @@ By adding **3 comprehensive numbered list examples** with extensive bold text us
 3. ✅ Emphasize key terms with **bold text** throughout
 4. ✅ Self-validate before finalizing output
 
-The fix addresses both the technical implementation (examples and structures) and the instructional clarity (when and how to use features), making it highly likely to succeed.
+**V2 Enhancement** strengthens this with:
+5. ✅ **Minimum 5-7 numbered lists required** (not optional)
+6. ✅ **6 examples instead of 3** (more repetition)
+7. ✅ **Visual wrong/right comparison** (explicit anti-pattern)
+8. ✅ **7 specific use cases** (removes ambiguity)
+
+The V2 fix addresses both the technical implementation (examples and structures) and the instructional clarity (when and how to use features), making it highly likely to succeed.
 

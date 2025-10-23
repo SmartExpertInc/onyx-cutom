@@ -29857,7 +29857,17 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
         "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
       ]
     },
-    { "type": "paragraph", "text": "**How to apply PESTLE systematically**: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the **highest impact** and **highest likelihood**. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically** in your market analysis:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**List all potential factors**: Brainstorm factors in each of the six PESTLE categories that could impact your specific market. Cast a wide net initially—you'll narrow down later. Use industry reports, news, and stakeholder interviews to ensure comprehensive coverage.",
+        "**Assess current state and direction**: For each factor, document its current state, the direction it's moving (strengthening, weakening, stable), and the **speed of change** (rapid, gradual, slow). Fast-moving factors require more attention than slow-moving ones.",
+        "**Evaluate business impact**: Rate each factor's potential impact on your business as **High**, **Medium**, or **Low**. Consider both positive opportunities (new market access) and negative threats (regulatory compliance costs).",
+        "**Calculate likelihood**: Assess how likely each factor is to significantly affect your business in the next 1-3 years. A major regulatory change that's **likely** matters more than one that's merely **possible**.",
+        "**Prioritize top 3-5 factors**: Focus on factors with **both high impact AND high likelihood**. For example, a food delivery company might identify: Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations). This focused analysis prevents paralysis from trying to track everything."
+      ]
+    },
     
     { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
     { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
@@ -29895,8 +29905,16 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     },
     
     { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
-    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
-    { "type": "paragraph", "text": "Why three different numbers matter: TAM shows the theoretical maximum if you had infinite resources and no competition—useful for understanding market potential but misleading for planning. SAM shows what's realistically addressable given your go-to-market constraints—this is what you should use for strategic planning. SOM shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation. Decision criterion: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears." },
+    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves **financial analysis**, **trend identification**, and **forecasting techniques**. Calculate three critical market sizing metrics to understand your true opportunity:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**TAM (Total Addressable Market)**: The theoretical maximum if you had infinite resources and no competition. For example, the global CRM software market might be $50B. **Use for**: Understanding overall market potential and attracting investors.",
+        "**SAM (Serviceable Addressable Market)**: What's realistically addressable given your go-to-market constraints. If you only serve small businesses in Europe, your SAM might be $2B. **Use for**: Strategic planning and target setting.",
+        "**SOM (Serviceable Obtainable Market)**: What you can actually capture given competition and your capabilities. Your realistic SOM in year three might be $50M based on expected market share. **Use for**: Revenue forecasting and resource allocation."
+      ]
+    },
+    { "type": "paragraph", "text": "**Decision criterion**: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M SOM, the market is too small regardless of how large the TAM appears. Many startups fail by confusing TAM with actual opportunity." },
     
     { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
     { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
@@ -29941,7 +29959,17 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Why it happens: Secondary research (industry reports, market studies, published data) is faster, cheaper, and feels more 'objective' than primary research. Companies rationalize that professional analysts have done the work, so why duplicate it? It's also more comfortable—reading reports doesn't require the vulnerability of talking to customers who might tell you your idea won't work." },
     { "type": "paragraph", "text": "Real consequence: A B2B software company analyzed Gartner and Forrester reports showing strong demand in their category. Market reports showed $5B market size growing at 20% annually. They raised $10M, built the product, and launched to crickets. Post-mortem interviews revealed that while the aggregate market was growing, their specific use case wasn't a priority—customers had workarounds they were satisfied with. The reports averaged across many use cases, hiding this critical nuance. They burned through $8M before pivoting. The $50K they saved by not doing primary research cost them $8M in wasted development." },
     { "type": "paragraph", "text": "How to recognize you're making this mistake: Warning signs include: You can't name 10 potential customers by name and describe their specific pain points. Your pitch deck has a 'market size' slide but no 'customer quotes' slide. When asked 'How do you know customers want this?' your answer starts with 'Research shows...' instead of 'When I talked to customers...'. You're using three-year-old industry reports as your primary source. You haven't personally talked to at least 20 people in your target market." },
-    { "type": "paragraph", "text": "How to correct it: Implement a 70/30 rule—70% of your analysis time should be primary research (talking to customers, observing their behavior, testing assumptions), 30% secondary research (industry reports, market data, competitive intelligence). Start every market analysis by talking to people before reading reports. Use secondary data to size the market you've already validated through primary research, not to validate whether the market exists. Require every market analysis deliverable to include customer quotes and observed behaviors, not just statistics. Make customer interviews non-negotiable—if you can't get 20-30 interviews, you don't understand the market well enough to make major decisions." },
+    { "type": "paragraph", "text": "**How to correct it with a systematic approach:**" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Implement the 70/30 rule**: Dedicate 70% of your analysis time to **primary research** (talking to customers, observing their behavior, testing assumptions) and 30% to **secondary research** (industry reports, market data, competitive intelligence). This ensures you build on real insights, not just published averages.",
+        "**Always start with people, not reports**: Begin every market analysis by conducting at least 20-30 customer interviews **before** reading industry reports. This prevents anchoring bias where reports shape what you hear from customers.",
+        "**Use secondary data for validation, not discovery**: Use secondary research to size the market you've **already validated** through primary research, not to validate whether the market exists. Reports tell you how big; customers tell you if it's real.",
+        "**Require customer evidence in deliverables**: Every market analysis must include direct customer quotes, observed behaviors, and specific pain points—not just statistics. If you can't provide these, you don't have sufficient primary research.",
+        "**Make interviews non-negotiable**: If you can't get 20-30 quality interviews, delay major decisions until you can. This is not optional—it's the minimum threshold for understanding a market well enough to invest significantly."
+      ]
+    },
     
     { "type": "headline", "level": 3, "text": "Mistake #2: Confusing Market Size with Market Opportunity" },
     { "type": "paragraph", "text": "Why it happens: Large TAM numbers are exciting and make pitch decks impressive. There's social pressure to show you're pursuing a 'big' opportunity. Founders and product managers selectively attend to information that makes their opportunity look bigger (confirmation bias). It's also easier to calculate TAM than to realistically assess what you can actually capture (SOM), so people stop at the easy metric." },
@@ -30388,14 +30416,18 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 ⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
 
 **1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
-- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels, framework components, correction steps
 - ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
-- Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
-- **INCLUDE AT LEAST 2-3 NUMBERED LISTS** in every onepager where sequential content exists
-- Examples of when to use:
-  * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
-  * "Three Phases of Product Development" → numbered_list (it's sequential)
-  * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
+- Structure: {{"type": "numbered_list", "items": ["**First**: Explanation...", "**Second**: Explanation...", "**Third**: Explanation..."]}}
+- **CRITICAL: INCLUDE AT LEAST 5-7 NUMBERED LISTS** in every onepager - this is NON-NEGOTIABLE
+- **WHERE to use numbered lists** (use for ALL of these):
+  * Framework dimensions: "PESTLE Six Dimensions" → numbered_list (Political, Economic, Social, etc.)
+  * Step-by-step procedures: "Five Steps to Conduct Market Analysis" → numbered_list
+  * Sequential phases: "Three Phases of Product Development" → numbered_list
+  * How-to-apply instructions: "How to apply PESTLE systematically" → numbered_list (List factors, Assess state, Evaluate impact, etc.)
+  * Correction steps: "How to correct this mistake" → numbered_list (Step 1, Step 2, Step 3...)
+  * Prioritized recommendations: "Top 5 Recommendations" → numbered_list (when order matters)
+  * Hierarchical levels: "Five Maturity Levels" → numbered_list (from beginner to expert)
 
 **2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
 - ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
@@ -30413,11 +30445,30 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
   * "Use **qualitative research** before **quantitative validation**" (process steps)
   * "The **biggest risk** is ignoring **competitive substitutes**" (emphasis)
 
-❌ COMMON MISTAKES TO AVOID:
-1. Writing "1. First step, 2. Second step" in a paragraph instead of using numbered_list
-2. No bold text anywhere → Makes content look flat and unprofessional
-3. Using bullet_list for sequential steps → Should be numbered_list
-4. Using numbered_list for random related points → Should be bullet_list
+❌ COMMON MISTAKES TO AVOID (THESE ARE INSTANT FAILURES):
+1. **PRIMARY VIOLATION**: Writing "(1) First step, (2) Second step, (3) Third step" or "Step 1: Do this. Step 2: Do that." as inline text in paragraphs instead of using proper numbered_list structure → This is THE MOST COMMON ERROR
+2. **Not enough numbered lists**: Including only 0-2 numbered lists when 5-7 are required → Count your numbered lists before finalizing
+3. **No bold text anywhere** → Makes content look flat and unprofessional, reduces scannability
+4. **Wrong list type**: Using bullet_list for sequential steps → Should be numbered_list
+5. **Wrong list type**: Using numbered_list for random related points → Should be bullet_list
+
+✅ CORRECT EXAMPLE:
+```
+{ "type": "paragraph", "text": "Follow this systematic approach:" },
+{
+  "type": "numbered_list",
+  "items": [
+    "**First**: Do this specific thing...",
+    "**Second**: Then do this next thing...",
+    "**Third**: Finally do this last thing..."
+  ]
+}
+```
+
+❌ WRONG EXAMPLE (DO NOT DO THIS):
+```
+{ "type": "paragraph", "text": "Follow this systematic approach: (1) First, do this specific thing. (2) Second, then do this next thing. (3) Third, finally do this last thing." }
+```
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
@@ -30450,7 +30501,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
-✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 2-3 numbered lists included?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? **AT LEAST 5-7 NUMBERED LISTS** must be included throughout the onepager (frameworks, step-by-step procedures, correction steps, prioritized recommendations)?
 ✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
 ✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
 ✅ Content grouping: Related concepts grouped under ONE level 2 header?
