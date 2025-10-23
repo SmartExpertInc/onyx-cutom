@@ -542,7 +542,12 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
   // Handle row click navigation
   const handleRowClick = (audit: Audit) => {
-    router.push(`/create/audit-2-dynamic/${audit.id}`);
+    if (!audit.name.includes('- Commercial Proposal')) {
+      router.push(`/create/audit-2-dynamic/${audit.id}`);
+    } else {
+      router.push(`/create/commercial-proposal/${audit.id}`);
+    }
+
   };
 
   if (loading) {
