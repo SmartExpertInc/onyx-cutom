@@ -407,6 +407,7 @@ export const en = {
     getUnlimitedAI: "Get Unlimited AI",
     credits: "credits",
     loading: "Loading...",
+    continue: "Continue",
     knowledgeBase: "Knowledge base",
     myProducts: "My products",
 
@@ -1046,6 +1047,9 @@ export const en = {
       subtitle: "What would you like to create today?",
       subtitleFromFiles: "Create content from your selected files",
       subtitleFromText: "Create content from your text",
+      yourSelectedMaterials: "Your selected materials",
+      addMaterial: "Add material",
+      selectWhatToGenerate: "Select what you'd like to generate",
       aiWillUseDocuments:
         "The AI will use your selected documents as source material to create educational content.",
       aiWillUseTextAsContext:
@@ -1540,6 +1544,64 @@ export const en = {
       specificFileSelection: "Specific File Selection",
       specificFileSelectionDesc: "Choose exactly which files to include, giving you precise control over your source material.",
       backToCreateFromFiles: "Back to Create from Files",
+      importWithAI: "Import with AI",
+      selectFile: "Select the file you'd like to transform",
+      uploadFile: "Upload a file",
+      powerpointPPTX: "Powerpoint PPTX",
+      wordDocs: "Word docs",
+      pdfs: "PDFs",
+      importFromKnowledgeBase: "Import from Knowledge base",
+      anyFileFromSmartdrive: "Any file from smartdrive",
+      allFilesFromConnectors: "All files from connectors",
+      importFromURL: "Import from URL",
+      webpages: "Webpages",
+      blogPostsArticles: "Blog post & articles",
+      notionDocs: "Notion docs",
+      upload: {
+        addYourFiles: "Add your files",
+        addMoreOrContinue: "Would you like to add more files or continue?",
+        addMoreFiles: "Add more files",
+        uploadFile: "Upload a file",
+        importFromSmartDrive: "Import from SmartDrive",
+        importFromURL: "Import from URL",
+      },
+    },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "No connectors yet",
+      noIntegrationsYet: "You haven't connected any integrations yet.",
+      exploreConnectors: "Explore available connectors and manage them in your Knowledge Base.",
+      connectNow: "Connect now",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Select a connector",
+      selectFile: "Select a file",
+      cancel: "Cancel",
+      import: "Import",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Import from URL",
+      description: "This will extract the text from the webpage you enter.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Add another URL",
+      cancel: "Cancel",
+      import: "Import",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Your Smart Drive is empty",
+        noMaterials: "You haven't added any materials yet.",
+        goToKnowledgeBase: "Go to your Knowledge Base to upload files and manage your content.",
+        uploadFiles: "Upload files",
+      },
     },
 
     // View New Page (Course Outline View)

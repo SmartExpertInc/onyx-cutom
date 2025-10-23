@@ -387,8 +387,10 @@ export const ru = {
     getUnlimitedAI: "Получить Неограниченный ИИ",
     credits: "кредитов",
     loading: "Загрузка...",
+    continue: "Продолжить",
     knowledgeBase: "База знаний",
     myProducts: "Мои продукты",
+
     // Sidebar
     jumpTo: "Перейти к",
     keyboardShortcut: "⌘+K",
@@ -1226,7 +1228,66 @@ export const ru = {
       specificFileSelection: "Выбор конкретных файлов",
       specificFileSelectionDesc: "Выберите точно, какие файлы включить, давая вам точный контроль над исходным материалом.",
       backToCreateFromFiles: "Назад к созданию из файлов",
+      importWithAI: "Импорт с AI",
+      selectFile: "Выберите файл, который хотите преобразовать",
+      uploadFile: "Загрузить файл",
+      powerpointPPTX: "Powerpoint PPTX",
+      wordDocs: "Документы Word",
+      pdfs: "PDF файлы",
+      importFromKnowledgeBase: "Импорт из базы знаний",
+      anyFileFromSmartdrive: "Любой файл из smartdrive",
+      allFilesFromConnectors: "Все файлы из коннекторов",
+      importFromURL: "Импорт из URL",
+      webpages: "Веб-страницы",
+      blogPostsArticles: "Статьи и блоги",
+      notionDocs: "Документы Notion",
+      upload: {
+        addYourFiles: "Добавьте ваши файлы",
+        addMoreOrContinue: "Хотите добавить больше файлов или продолжить?",
+        addMoreFiles: "Добавить больше файлов",
+        uploadFile: "Загрузить файл",
+        importFromSmartDrive: "Импорт из SmartDrive",
+        importFromURL: "Импорт из URL",
+      },
     },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "Пока нет коннекторов",
+      noIntegrationsYet: "Вы еще не подключили никаких интеграций.",
+      exploreConnectors: "Исследуйте доступные коннекторы и управляйте ими в вашей базе знаний.",
+      connectNow: "Подключить сейчас",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Выберите коннектор",
+      selectFile: "Выберите файл",
+      cancel: "Отмена",
+      import: "Импортировать",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Импорт из URL",
+      description: "Это извлечет текст с веб-страницы, которую вы введете.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Добавить другой URL",
+      cancel: "Отмена",
+      import: "Импортировать",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Ваш Smart Drive пуст",
+        noMaterials: "Вы еще не добавили никаких материалов.",
+        goToKnowledgeBase: "Перейдите в вашу базу знаний, чтобы загрузить файлы и управлять контентом.",
+        uploadFiles: "Загрузить файлы",
+      },
+    },
+
     // Course Outline Page
     courseOutline: {
       loading: "Загрузка...",
@@ -1305,6 +1366,9 @@ export const ru = {
       subtitle: "Что бы вы хотели создать сегодня?",
       subtitleFromFiles: "Создать контент из выбранных файлов",
       subtitleFromText: "Создать контент из вашего текста",
+      yourSelectedMaterials: "Ваши выбранные материалы",
+      addMaterial: "Добавить материал",
+      selectWhatToGenerate: "Выберите, что вы хотите сгенерировать",
       back: "Назад",
       creatingFromFiles: "Создание из файлов",
       creatingFromText: "Создание из текста",

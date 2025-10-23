@@ -49,7 +49,14 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 12H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
-
+// Delete icon component
+const DeleteIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button onClick={onClick} className="ml-2 hover:opacity-70 transition-opacity cursor-pointer">
+    <svg width="31" height="18" viewBox="0 0 31 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path opacity="0.8" d="M8.5 4.2H22.5M20.9444 4.2V15.4C20.9444 16.2 20.1667 17 19.3889 17H11.6111C10.8333 17 10.0556 16.2 10.0556 15.4V4.2M12.3889 4.2V2.6C12.3889 1.8 13.1667 1 13.9444 1H17.0556C17.8333 1 18.6111 1.8 18.6111 2.6V4.2M13.9444 8.2V13M17.0556 8.2V13" stroke="#EF4444" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </button>
+);
 
 function GenerateProductPicker() {
   const { t } = useLanguage();
@@ -57,6 +64,7 @@ function GenerateProductPicker() {
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
+  const isFromUploadedFiles = searchParams?.get('fromUploadedFiles') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
@@ -131,6 +139,65 @@ function GenerateProductPicker() {
       console.error('Error retrieving folder context:', error);
     }
   }, []);
+
+  // NEW: Load files from upload flow
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, name: string, extension: string}>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const storedFiles = localStorage.getItem('generatedFromFiles');
+      if (storedFiles) {
+        const files = JSON.parse(storedFiles);
+        setUploadedFiles(files);
+      }
+    } catch (error) {
+      console.error('Failed to parse uploaded files from localStorage', error);
+    }
+  }, []);
+
+  const handleAddMaterial = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files).map(file => ({
+        id: `${Date.now()}-${file.name}`,
+        name: file.name,
+        extension: file.name.split('.').pop()?.toUpperCase() || 'FILE'
+      }));
+      
+      const updatedFiles = [...uploadedFiles, ...newFiles];
+      setUploadedFiles(updatedFiles);
+      localStorage.setItem('generatedFromFiles', JSON.stringify(updatedFiles));
+      
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleDeleteFile = (id: string) => {
+    const updatedFiles = uploadedFiles.filter((file) => file.id !== id);
+    setUploadedFiles(updatedFiles);
+    localStorage.setItem('generatedFromFiles', JSON.stringify(updatedFiles));
+  };
+
+  // Clear uploaded files from localStorage when leaving the generate page
+  useEffect(() => {
+    return () => {
+      // Cleanup function runs when component unmounts
+      if (uploadedFiles.length > 0) {
+        localStorage.removeItem('generatedFromFiles');
+        if (typeof window !== 'undefined') {
+          delete (window as any).generatedFiles;
+        }
+      }
+    };
+  }, [uploadedFiles.length]);
   
   // Retrieve user text from sessionStorage
   const [userText, setUserText] = useState('');
@@ -257,6 +324,11 @@ function GenerateProductPicker() {
     // Add Knowledge Base context if coming from Knowledge Base
     if (isFromKnowledgeBase) {
       params.set("fromKnowledgeBase", "true");
+    }
+    
+    // Add uploaded files context if coming from uploaded files
+    if (isFromUploadedFiles) {
+      params.set("fromUploadedFiles", "true");
     }
     
     // Add text context if coming from text
@@ -1167,14 +1239,18 @@ function GenerateProductPicker() {
 
       <div className="w-full max-w-5xl flex flex-col gap-3 items-center relative z-10">
 
-        <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
-        <p className="text-center text-[#FAFAFA] text-lg -mt-1">
-          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
-           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
-           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
-           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
-           t('interface.generate.subtitle', 'What would you like to create today?')}
-        </p>
+        {!isFromUploadedFiles && (
+          <>
+            <h1 className="sora-font-semibold text-5xl text-center tracking-wide text-[#FFFFFF] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+            <p className="text-center text-[#FAFAFA] text-lg -mt-1">
+              {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+               isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+               isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+               isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
+               t('interface.generate.subtitle', 'What would you like to create today?')}
+            </p>
+          </>
+        )}
 
         {/* File context indicator */}
         {isFromFiles && (
@@ -1263,7 +1339,62 @@ function GenerateProductPicker() {
           </div>
         )}
 
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx"
+        />
 
+        {/* Uploaded Files Display */}
+        {uploadedFiles.length > 0 && (
+          <>
+            <h3 className="w-full max-w-2xl text-md font-medium mb-2 text-center" style={{ color: '#71717A' }}>
+              {t('interface.generate.yourSelectedMaterials', 'Your selected materials')}
+            </h3>
+            <div 
+              className="w-full max-w-2xl mb-6 bg-white rounded-md shadow-lg border border-[#E0E0E0] flex flex-col min-h-[45px]"
+            >
+            {uploadedFiles.map((file, index) => (
+              <div
+                key={file.id}
+                className="flex items-center justify-between px-8 py-3 border-b-2 border-[#E0E0E0]"
+              >
+                <span className="text-gray-700 font-medium truncate overflow-hidden max-w-[400px]" title={file.name}>
+                  {file.name}
+                </span>
+                <div className="flex items-center gap-6 flex-shrink-0">
+                  <span className="text-gray-500 font-medium">{file.extension}</span>
+                  <DeleteIcon onClick={() => handleDeleteFile(file.id)} />
+                </div>
+              </div>
+            ))}
+            
+            {/* Add Material Row */}
+            {isFromUploadedFiles && (
+              <div
+                className="flex items-center gap-2 px-8 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={handleAddMaterial}
+              >
+                <Plus className="h-5 w-5" style={{ color: '#498FFF' }} />
+                <span className="font-medium" style={{ color: '#498FFF' }}>
+                  {t('interface.generate.addMaterial', 'Add material')}
+                </span>
+              </div>
+            )}
+            </div>
+          </>
+        )}
+
+        {/* Title for uploaded files */}
+        {isFromUploadedFiles && uploadedFiles.length > 0 && (
+          <h3 className="text-xl font-semibold text-[#FAFAFA]">
+            {t('interface.generate.selectWhatToGenerate', 'Select what you\'d like to generate')}
+          </h3>
+        )}
 
         {/* Tab selector */}
         <div 

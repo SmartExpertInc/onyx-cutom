@@ -373,6 +373,7 @@ export const uk = {
     getUnlimitedAI: "Отримати Необмежений ШІ",
     credits: "кредитів",
     loading: "Завантаження...",
+    continue: "Продовжити",
     knowledgeBase: "База знань",
     myProducts: "Мої продукти",
 
@@ -1218,7 +1219,66 @@ export const uk = {
       specificFileSelection: "Вибір конкретних файлів",
       specificFileSelectionDesc: "Виберіть точно, які файли включити, даючи вам точний контроль над вихідним матеріалом.",
       backToCreateFromFiles: "Назад до створення з файлів",
+      importWithAI: "Імпорт з AI",
+      selectFile: "Виберіть файл, який хочете перетворити",
+      uploadFile: "Завантажити файл",
+      powerpointPPTX: "Powerpoint PPTX",
+      wordDocs: "Документи Word",
+      pdfs: "PDF файли",
+      importFromKnowledgeBase: "Імпорт з бази знань",
+      anyFileFromSmartdrive: "Будь-який файл зі smartdrive",
+      allFilesFromConnectors: "Всі файли з коннекторів",
+      importFromURL: "Імпорт з URL",
+      webpages: "Веб-сторінки",
+      blogPostsArticles: "Статті та блоги",
+      notionDocs: "Документи Notion",
+      upload: {
+        addYourFiles: "Додайте ваші файли",
+        addMoreOrContinue: "Хочете додати більше файлів чи продовжити?",
+        addMoreFiles: "Додати більше файлів",
+        uploadFile: "Завантажити файл",
+        importFromSmartDrive: "Імпорт зі SmartDrive",
+        importFromURL: "Імпорт з URL",
+      },
     },
+
+    // Connectors Page
+    connectorsPage: {
+      noConnectorsYet: "Поки немає коннекторів",
+      noIntegrationsYet: "Ви ще не підключили жодної інтеграції.",
+      exploreConnectors: "Досліджуйте доступні коннектори та керуйте ними у вашій базі знань.",
+      connectNow: "Підключити зараз",
+    },
+
+    // Import from SmartDrive Modal
+    importFromSmartDrive: {
+      selectConnector: "Виберіть коннектор",
+      selectFile: "Виберіть файл",
+      cancel: "Скасувати",
+      import: "Імпортувати",
+    },
+
+    // Import from URL Modal
+    importFromUrl: {
+      title: "Імпорт з URL",
+      description: "Це витягне текст з веб-сторінки, яку ви введете.",
+      urlLabel: "URL",
+      urlPlaceholder: "https://example.com/",
+      addAnotherUrl: "Додати інший URL",
+      cancel: "Скасувати",
+      import: "Імпортувати",
+    },
+
+    // Smart Drive Page
+    smartDrivePage: {
+      empty: {
+        title: "Ваш Smart Drive порожній",
+        noMaterials: "Ви ще не додали жодних матеріалів.",
+        goToKnowledgeBase: "Перейдіть до вашої бази знань, щоб завантажити файли та керувати контентом.",
+        uploadFiles: "Завантажити файли",
+      },
+    },
+
     // Course Outline Page
     courseOutline: {
       loading: "Завантаження...",
@@ -1297,6 +1357,9 @@ export const uk = {
       subtitle: "Що б ви хотіли створити сьогодні?",
       subtitleFromFiles: "Створити контент з вибраних файлів",
       subtitleFromText: "Створити контент з вашого тексту",
+      yourSelectedMaterials: "Ваші вибрані матеріали",
+      addMaterial: "Додати матеріал",
+      selectWhatToGenerate: "Виберіть, що ви хочете згенерувати",
       back: "Назад",
       creatingFromFiles: "Створення з файлів",
       creatingFromText: "Створення з тексту",

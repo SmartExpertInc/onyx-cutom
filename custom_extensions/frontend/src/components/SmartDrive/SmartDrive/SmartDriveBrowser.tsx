@@ -925,14 +925,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															</div>
 														</div>
 														<DropdownMenu>
-															<DropdownMenuTrigger asChild>
+															<DropdownMenuTrigger asChild disabled={mode === 'select'}>
 																<Button 
 																	variant="ghost" 
 																	size="sm" 
 																	className="h-6 w-6 pt-3"
 																	onClick={(e) => e.stopPropagation()}
+																	disabled={mode === 'select'}
 																>
-																	<MoreVertical size={14} className="text-gray-500" />
+																	<MoreVertical size={14} className={mode === 'select' ? 'text-gray-300' : 'text-gray-500'} />
 																</Button>
 															</DropdownMenuTrigger>
 															<DropdownMenuContent align="end">
@@ -1000,10 +1001,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												}
 											};
 											
+											const isSelected = selected.has(folderItem.path);
+											
 											return (
 												<div
 													key={folderItem.path}
-													className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group"
+													className={`bg-white border rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer relative group ${
+														isSelected && mode === 'select' ? 'border-blue-500 border-2' : 'border-gray-200'
+													}`}
 													onClick={(e) => onRowClick(folderIdx, folderItem, e)}
 												>
 													{/* Content Preview Area */}
@@ -1035,6 +1040,23 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 																);
 															})()}
 														</div>
+														
+													{/* Selection indicator - blue circle with checkmark in top-right (only in select mode) */}
+													{mode === 'select' && (
+														<div className="absolute top-2 right-2">
+															<div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
+																isSelected 
+																	? 'bg-blue-500 border-2 border-blue-500' 
+																	: 'bg-white border-2 border-gray-300 hover:border-gray-400'
+															}`}>
+																{isSelected && (
+																	<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+																		<path d="M11.6654 3.5L5.24873 9.91667L2.33203 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+																	</svg>
+																)}
+															</div>
+														</div>
+													)}
 													</div>
 													
 													{/* Bottom Section - Title, Date, Actions */}
@@ -1053,14 +1075,15 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															
 															{/* More options button */}
 															<DropdownMenu>
-																<DropdownMenuTrigger asChild>
+																<DropdownMenuTrigger asChild disabled={mode === 'select'}>
 																	<Button 
 																		variant="ghost" 
 																		size="sm" 
 																		className="h-6 w-6 p-0"
 																		onClick={(e) => e.stopPropagation()}
+																		disabled={mode === 'select'}
 																	>
-																		<MoreHorizontal size={14} className="text-gray-500" />
+																		<MoreHorizontal size={14} className={mode === 'select' ? 'text-gray-300' : 'text-gray-500'} />
 																	</Button>
 																</DropdownMenuTrigger>
 																<DropdownMenuContent align="end">
@@ -1261,9 +1284,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 															<TableCell className="px-3 py-2 text-right divide-y divide-gray-200" onClick={(e) => e.stopPropagation()}>
 															<div className="flex justify-end">
 																<DropdownMenu>
-																	<DropdownMenuTrigger asChild>
-																		<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																			<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
+																	<DropdownMenuTrigger asChild disabled={mode === 'select'}>
+																		<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()} disabled={mode === 'select'}>
+																			<MoreHorizontal className={mode === 'select' ? 'w-4 h-4 text-gray-300' : 'w-4 h-4 text-[#09090B] hover:text-slate-600'} />
 																		</Button>
 																	</DropdownMenuTrigger>
 																	<DropdownMenuContent align="end">
@@ -1376,9 +1399,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													<TableCell className="px-3 py-2 text-right divide-y divide-gray-200" onClick={(e) => e.stopPropagation()}>
 													<div className="flex justify-end">
 														<DropdownMenu>
-															<DropdownMenuTrigger asChild>
-																<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																	<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
+															<DropdownMenuTrigger asChild disabled={mode === 'select'}>
+																<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()} disabled={mode === 'select'}>
+																	<MoreHorizontal className={mode === 'select' ? 'w-4 h-4 text-gray-300' : 'w-4 h-4 text-[#09090B] hover:text-slate-600'} />
 																</Button>
 															</DropdownMenuTrigger>
 															<DropdownMenuContent align="end">
@@ -1507,9 +1530,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<TableCell className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
 											<div className="flex justify-end">
 												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-															<MoreHorizontal className="w-4 h-4 text-[#09090B] hover:text-slate-600" />
+													<DropdownMenuTrigger asChild disabled={mode === 'select'}>
+														<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()} disabled={mode === 'select'}>
+															<MoreHorizontal className={mode === 'select' ? 'w-4 h-4 text-gray-300' : 'w-4 h-4 text-[#09090B] hover:text-slate-600'} />
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
