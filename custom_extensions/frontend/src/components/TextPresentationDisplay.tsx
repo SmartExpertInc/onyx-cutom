@@ -808,15 +808,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       let textStyleClass = ''; 
       if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; } 
+      else if (level === 2) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.headingText}`; }  
+      else if (level === 3) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.headingText}`; } 
       else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
       if (depth > 0) {
         textStyleClass = ''; 
         if (level === 3) textStyleClass += `text-base font-bold ${THEME_COLORS.accentRed}`; 
-        else if (level === 4) textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`;
+        else if (level === 4) textStyleClass += `text-base font-bold text-black`;
       }
       if (isMiniSectionHeadline) {
           textStyleClass = ''; 
@@ -1037,7 +1037,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let containerClasses = `flex flex-col ${finalMb} `;
       if (hasRecommendation) {
-        containerClasses += `pl-2.5 border-l-[3px] border-[#0F58F9] py-1`;
+        containerClasses += `border-l-[3px] border-[#0F58F9] py-1`;
       }
 
       // Helpers for list item manipulation
