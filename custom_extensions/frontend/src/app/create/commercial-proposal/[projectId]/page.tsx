@@ -1,10 +1,248 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'next/navigation'
 import Image from 'next/image';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+// InlineEditor component for text editing
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  // Focus the input when component mounts
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    // Small delay to allow for click events to be processed
+    setTimeout(() => {
+      // Check if the element still doesn't have focus
+      if (document.activeElement !== inputRef.current) {
+        // Ensure we save the current value from the input/textarea
+        const currentValue = inputRef.current?.value || value;
+        onSave(currentValue);
+      }
+    }, 100);
+  };
+
+  const handleFocus = () => {
+    // This ensures we don't save on blur if the element regains focus
+  };
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          resize: 'none',
+          overflow: 'hidden',
+          minHeight: '60px'
+        }}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={style}
+    />
+  );
+}
+
+
+interface JobPosition {
+  title: string
+  description: string
+  icon: string
+}
+
+interface PersonnelShortageChartData {
+  month: string
+  shortage: number
+}
+
+interface ChartData {
+  industry: string
+  chartData: PersonnelShortageChartData[]
+  totalShortage: number
+  trend: string
+  description: string
+}
+
+interface YearlyShortageData {
+  yearlyShortage: number
+  industry: string
+  description: string
+}
+
+interface WorkforceCrisisData {
+  industry: string
+  fullTitle: string
+  missingPersonnelDescription: string
+  burnout: {
+    title: string
+    months: string
+    industryName: string
+    fullDescription: string
+  }
+  turnover: {
+    percentage: string
+    earlyExit: {
+      percentage: string
+      months: string
+    }
+    fullTitle: string
+    fullDescription: string
+  }
+  losses: {
+    amount: string
+    fullTitle: string
+    fullDescription: string
+  }
+  searchTime: {
+    days: string
+    fullTitle: string
+    fullDescription: string
+  }
+  chartData: ChartData
+  yearlyShortage: YearlyShortageData
+}
+
+interface CourseTemplate {
+  title: string
+  description: string
+  modules: number
+  lessons: number
+  rating: string
+  image: string
+}
+
+interface CourseModule {
+  title: string
+  lessons: string[]
+  lessonAssessments?: { type: string; duration: string }[]
+}
+
+interface LandingPageData {
+  projectId: number
+  projectName: string
+  companyName: string
+  companyDescription: string
+  proposalTitle: string
+  proposalDescription: string
+  jobPositions: JobPosition[]
+  workforceCrisis: WorkforceCrisisData
+  courseOutlineModules: CourseModule[]
+  courseTemplates: CourseTemplate[]
+  serviceTemplatesDescription: string
+  language?: string
+  courseOutlineTableHeaders?: {
+    lessons: string
+    assessment: string
+    duration: string
+  }
+}
+
+// Localization helper function
+const getLocalizedText = (language: string | undefined, texts: { en: any; es: any; ua: any; ru: any }) => {
+  switch (language) {
+    case 'en': return texts.en
+    case 'es': return texts.es
+    case 'ua': return texts.ua
+    case 'ru': return texts.ru
+    default: return texts.en
+  }
+}
 
 export default function CommercialProposalPage() {
+  const { language, t } = useLanguage();
+  const params = useParams()
+  const projectId = params?.projectId as string
+  const [proposalData, setProposalData] = useState<LandingPageData>({
+    projectId: 0,
+    projectName: 'Project',
+    companyName: 'MHE Group',
+    companyDescription: 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
+    proposalTitle: 'Commercial Proposal',
+    proposalDescription: 'Ready-made course templates for onboarding and training your employees:',
+    jobPositions: [],
+    workforceCrisis: {} as WorkforceCrisisData,
+    courseOutlineModules: [],
+    courseTemplates: [],
+    serviceTemplatesDescription: '',
+    language: language
+  });
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
+  
+  // Text editing state
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Loading and error states
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
@@ -12,6 +250,196 @@ export default function CommercialProposalPage() {
       [moduleId]: !prev[moduleId]
     }));
   };
+
+  // Text editing handlers
+  const startEditing = (field: string) => {
+    setEditingField(field);
+  };
+
+  const stopEditing = () => {
+    setEditingField(null);
+  };
+
+  // Data fetching function
+  const fetchProposalPageData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // LOG: Frontend data fetch started
+      console.log(`[FRONTEND DATA FLOW] Starting data fetch for project ID: ${projectId}`)
+      
+      if (!projectId) {
+        console.error('[FRONTEND DATA FLOW] Project ID is required')
+        setError('Project ID is required')
+        setLoading(false)
+        return
+      }
+      
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+      
+      const response = await fetch(apiUrl)
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`[FRONTEND DATA FLOW] API request failed: ${response.status} - ${errorText}`)
+        throw new Error(`Failed to fetch landing page data: ${response.status}`)
+      }
+      
+      const data = await response.json()          
+      
+      // [IMAGE URL FIX] Process course template images to ensure full URLs
+      if (data.courseTemplates && Array.isArray(data.courseTemplates)) {
+        data.courseTemplates = data.courseTemplates.map((template: any) => {
+          const processedImage = template.image && template.image.startsWith('/static_design_images/') 
+            ? `${window.location.protocol}//${window.location.host}${template.image}`
+            : template.image
+          
+          return {
+            ...template,
+            image: processedImage
+          }
+        })
+      }
+      
+      // Initialize with default values for missing properties
+      const defaultData: LandingPageData = {
+        projectId: parseInt(projectId),
+        projectName: data.projectName || 'Project',
+        companyName: data.companyName || 'MHE Group',
+        companyDescription: data.companyDescription || 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
+        proposalTitle: data.proposalTitle || 'Commercial Proposal',
+        proposalDescription: data.proposalDescription || 'Ready-made course templates for onboarding and training your employees:',
+        jobPositions: data.jobPositions || [],
+        workforceCrisis: data.workforceCrisis || {} as WorkforceCrisisData,
+        courseOutlineModules: data.courseOutlineModules || [],
+        courseTemplates: data.courseTemplates || [],
+        serviceTemplatesDescription: data.serviceTemplatesDescription || '',
+        language: data.language || language,
+        courseOutlineTableHeaders: data.courseOutlineTableHeaders
+      };
+      
+      setProposalData(defaultData);
+      
+    } catch (err) {
+      console.error('[FRONTEND DATA FLOW] Error occurred during data fetch');
+      console.error('[FRONTEND DATA FLOW] Error:', err);
+      console.error('[FRONTEND DATA FLOW] Error type:', err instanceof Error ? err.constructor.name : typeof err);
+      console.error('[FRONTEND DATA FLOW] Error message:', err instanceof Error ? err.message : String(err));
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTextSave = async (field: string, newValue: string) => {
+    // Update local state
+    setProposalData(prev => {
+      if (!prev) return prev; // Do nothing if prev is null
+      return {
+        ...prev,
+        [field]: newValue
+      } as LandingPageData;
+    });
+
+    // Save to backend
+    try {
+      // In a real implementation, you would save to your backend
+      // const response = await fetch('/api/commercial-proposal', {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ [field]: newValue })
+      // });
+      
+      console.log(`Saving ${field}:`, newValue);
+      setHasUnsavedChanges(false);
+    } catch (err) {
+      console.error('Failed to save:', err);
+      setError('Failed to save changes');
+    }
+    
+    stopEditing();
+  };
+
+  const handleTextCancel = () => {
+    stopEditing();
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    if (projectId) {
+      console.log('[COMPONENT MOUNT] DynamicAuditLandingPage component mounting');
+      console.log('[COMPONENT MOUNT] Project ID available:', projectId);
+      console.log('[COMPONENT MOUNT] Starting data fetch...');
+      console.log('[COMPONENT MOUNT] Timestamp:', new Date().toISOString());
+      fetchProposalPageData()
+    } else {
+      console.error('Error: Project ID not found');
+      setError('Project ID not found')
+      setLoading(false)
+    }
+  }, [projectId]);
+
+  // Click outside handler to stop editing
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField) {
+        // Check if click is outside any editing input
+        const target = event.target as HTMLElement;
+        if (!target.closest('input, textarea')) {
+          // Find the currently editing input/textarea and save its value before stopping
+          const editingElement = document.querySelector('input.inline-editor-input, textarea.inline-editor-textarea') as HTMLInputElement | HTMLTextAreaElement;
+          if (editingElement && editingElement.value !== undefined) {
+            handleTextSave(editingField, editingElement.value);
+          } else {
+            stopEditing();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#0F58F9] mx-auto"></div>
+          <p className="mt-4 text-[#71717A]">
+            {getLocalizedText(proposalData?.language, {
+              en: 'Loading proposal data...',
+              es: 'Cargando datos de propuesta...',
+              ua: 'Завантаження даних пропозиції...',
+              ru: 'Загрузка данных предложения...'
+            })}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">
+            {getLocalizedText(proposalData?.language, {
+              en: 'Error: ',
+              es: 'Error: ',
+              ua: 'Помилка: ',
+              ru: 'Ошибка: '
+            })}{error}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -94,12 +522,84 @@ export default function CommercialProposalPage() {
               
               {/* Title with colored text and span */}
               <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
-                Commercial Proposal <span className="text-[#09090B]">for the MHE Group</span>
+                {editingField === 'proposalTitle' ? (
+                  <InlineEditor
+                    initialValue={proposalData.proposalTitle}
+                    onSave={(value) => handleTextSave('proposalTitle', value)}
+                    onCancel={handleTextCancel}
+                    className="inline-block"
+                    style={{ 
+                      fontSize: 'inherit',
+                      fontWeight: 'inherit',
+                      color: 'inherit',
+                      lineHeight: 'inherit'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    onClick={() => startEditing('proposalTitle')}
+                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                    title="Click to edit proposal title"
+                  >
+                    {proposalData.proposalTitle}
+                  </span>
+                )} <span className="text-[#09090B]">
+                  {getLocalizedText(proposalData.language, {
+                    en: 'for the',
+                    es: 'para el',
+                    ua: 'для',
+                    ru: 'для'
+                  })} {editingField === 'companyName' ? (
+                    <InlineEditor
+                      initialValue={proposalData.companyName}
+                      onSave={(value) => handleTextSave('companyName', value)}
+                      onCancel={handleTextCancel}
+                      className="inline-block"
+                      style={{ 
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        color: 'inherit',
+                        lineHeight: 'inherit'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('companyName')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit company name"
+                    >
+                      {proposalData.companyName}
+                    </span>
+                  )}
+                </span>
               </h1>
               
               {/* Description text */}
               <p className="font-normal text-[18px] xl:text-[20px] text-[#71717A] tracking-[0%]">
-                Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.
+                {editingField === 'companyDescription' ? (
+                  <InlineEditor
+                    initialValue={proposalData.companyDescription}
+                    onSave={(value) => handleTextSave('companyDescription', value)}
+                    onCancel={handleTextCancel}
+                    multiline={true}
+                    placeholder="Enter company description..."
+                    style={{ 
+                      fontSize: 'inherit',
+                      fontWeight: 'inherit',
+                      color: 'inherit',
+                      lineHeight: 'inherit',
+                      width: '100%'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    onClick={() => startEditing('companyDescription')}
+                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                    title="Click to edit company description"
+                  >
+                    {proposalData.companyDescription}
+                  </span>
+                )}
               </p>
             </div>
             
@@ -140,406 +640,74 @@ export default function CommercialProposalPage() {
               </div>
               
               <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                Купите готовые шаблоны <br className="xl:hidden"/> курсов для онбординга<br className="hidden xl:block"/> и <br className="xl:hidden"/> обучения:
-              </h3>
-
-              <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:
+                {editingField === 'proposalDescription' ? (
+                  <InlineEditor
+                    initialValue={proposalData.proposalDescription}
+                    onSave={(value) => handleTextSave('proposalDescription', value)}
+                    onCancel={handleTextCancel}
+                    multiline={true}
+                    placeholder="Enter service description..."
+                    style={{ 
+                      fontSize: 'inherit',
+                      fontWeight: 'inherit',
+                      color: 'inherit',
+                      lineHeight: 'inherit',
+                      width: '100%'
+                    }}
+                  />
+                ) : (
+                  <span 
+                    onClick={() => startEditing('proposalDescription')}
+                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                    title="Click to edit service description"
+                  >
+                    {getLocalizedText(proposalData.language, {
+                      en: 'Ready-made course templates for onboarding and training your employees:',
+                      es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+                      ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+                      ru: 'Готовые шаблоны курсов для онбординга и обучения ваших сотрудников:'
+                    })}
+                  </span>
+                )}
               </h3>
               
               <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
-                {/* Card 1 */}
-                <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-1-mobile.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      HVAC Installer
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                      HVAC Installer
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение установке, обслуживанию и ремонту систем HVAC оборудования.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px]">
-                        Уроков (25)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        5.0
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
+                <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
+                  {/* Dynamic Job Cards - Only render if data is available */}
+                  {proposalData.jobPositions && proposalData.jobPositions.length > 0 && (
+                    proposalData.jobPositions.map((position, index) => (
+                      <div key={index} className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+                        <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </div>
+                        {editingField === `jobPosition_${index}` ? (
+                          <InlineEditor
+                            initialValue={position.title}
+                            onSave={(value) => handleTextSave(`jobPosition_${index}`, value)}
+                            onCancel={handleTextCancel}
+                            className="flex-1"
+                            style={{ 
+                              fontSize: 'inherit',
+                              fontWeight: 'inherit',
+                              color: 'inherit',
+                              fontFamily: 'inherit'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing(`jobPosition_${index}`)}
+                            className="font-medium text-[16px] xl:text-[18px] flex-1 cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit job position"
+                          >
+                            {position.title}
+                          </span>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 2 */}
-                <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-2-mobile.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      Electrician
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                    Electrician
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение монтажу, подключению и обслуживанию электрических систем.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px]">
-                        Уроков (22)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        4.6
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.44746 0.816915C5.67973 0.394362 6.32201 0.394361 6.55428 0.816914L7.83368 3.14444C7.92407 3.30889 8.09173 3.4235 8.28589 3.45357L11.0339 3.87917C11.5328 3.95644 11.7313 4.53117 11.376 4.86959L9.41863 6.73368C9.28033 6.86539 9.2163 7.05083 9.2459 7.23386L9.66489 9.82443C9.74096 10.2947 9.22134 10.6499 8.76945 10.4365L6.28035 9.26108C6.10448 9.17803 5.89725 9.17803 5.72138 9.26108L3.23228 10.4365C2.7804 10.6499 2.26078 10.2947 2.33684 9.82443L2.75584 7.23387C2.78544 7.05083 2.7214 6.86539 2.5831 6.73368L0.625764 4.86959C0.270417 4.53117 0.468892 3.95644 0.96779 3.87917L3.71584 3.45357C3.91001 3.4235 4.07766 3.30889 4.16806 3.14444L5.44746 0.816915Z" fill="#D1D1D1"/>
-                          <g clip-path="url(#clip0_379_20737)">
-                          <path d="M5.44746 0.816915C5.67973 0.394362 6.32201 0.394361 6.55428 0.816914L7.83368 3.14444C7.92407 3.30889 8.09173 3.4235 8.28589 3.45357L11.0339 3.87917C11.5328 3.95644 11.7313 4.53117 11.376 4.86959L9.41863 6.73368C9.28033 6.86539 9.2163 7.05083 9.2459 7.23386L9.66489 9.82443C9.74096 10.2947 9.22134 10.6499 8.76945 10.4365L6.28035 9.26108C6.10448 9.17803 5.89725 9.17803 5.72138 9.26108L3.23228 10.4365C2.7804 10.6499 2.26078 10.2947 2.33684 9.82443L2.75584 7.23387C2.78544 7.05083 2.7214 6.86539 2.5831 6.73368L0.625764 4.86959C0.270417 4.53117 0.468892 3.95644 0.96779 3.87917L3.71584 3.45357C3.91001 3.4235 4.07766 3.30889 4.16806 3.14444L5.44746 0.816915Z" fill="#F9A139"/>
-                          </g>
-                          <defs>
-                          <clipPath id="clip0_379_20737">
-                          <rect width="5.55556" height="10" fill="white" transform="translate(0.445312 0.5)"/>
-                          </clipPath>
-                          </defs>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 3 */}
-                <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-3-mobile.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      Service / Inspection Technician
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                      Service / Inspection Technician
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение диагностике, техническому обслуживанию и проверке оборудования.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Уроков (18)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        5.0
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 4 */}
-                <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-4-mobile.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      Project Manager
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                      Project Manager
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение планированию, организации и контролю проектов.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Уроков (14)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        5.0
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 5 */}
-                <div className="hidden xl:block border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-5-desktop.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      Field Operations Manager
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                      Field Operations Manager
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение управлению процессами и координации полевых команд.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px]">
-                        Уроков (22)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        4.6
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.44746 0.816915C5.67973 0.394362 6.32201 0.394361 6.55428 0.816914L7.83368 3.14444C7.92407 3.30889 8.09173 3.4235 8.28589 3.45357L11.0339 3.87917C11.5328 3.95644 11.7313 4.53117 11.376 4.86959L9.41863 6.73368C9.28033 6.86539 9.2163 7.05083 9.2459 7.23386L9.66489 9.82443C9.74096 10.2947 9.22134 10.6499 8.76945 10.4365L6.28035 9.26108C6.10448 9.17803 5.89725 9.17803 5.72138 9.26108L3.23228 10.4365C2.7804 10.6499 2.26078 10.2947 2.33684 9.82443L2.75584 7.23387C2.78544 7.05083 2.7214 6.86539 2.5831 6.73368L0.625764 4.86959C0.270417 4.53117 0.468892 3.95644 0.96779 3.87917L3.71584 3.45357C3.91001 3.4235 4.07766 3.30889 4.16806 3.14444L5.44746 0.816915Z" fill="#D1D1D1"/>
-                          <g clip-path="url(#clip0_379_20737)">
-                          <path d="M5.44746 0.816915C5.67973 0.394362 6.32201 0.394361 6.55428 0.816914L7.83368 3.14444C7.92407 3.30889 8.09173 3.4235 8.28589 3.45357L11.0339 3.87917C11.5328 3.95644 11.7313 4.53117 11.376 4.86959L9.41863 6.73368C9.28033 6.86539 9.2163 7.05083 9.2459 7.23386L9.66489 9.82443C9.74096 10.2947 9.22134 10.6499 8.76945 10.4365L6.28035 9.26108C6.10448 9.17803 5.89725 9.17803 5.72138 9.26108L3.23228 10.4365C2.7804 10.6499 2.26078 10.2947 2.33684 9.82443L2.75584 7.23387C2.78544 7.05083 2.7214 6.86539 2.5831 6.73368L0.625764 4.86959C0.270417 4.53117 0.468892 3.95644 0.96779 3.87917L3.71584 3.45357C3.91001 3.4235 4.07766 3.30889 4.16806 3.14444L5.44746 0.816915Z" fill="#F9A139"/>
-                          </g>
-                          <defs>
-                          <clipPath id="clip0_379_20737">
-                          <rect width="5.55556" height="10" fill="white" transform="translate(0.445312 0.5)"/>
-                          </clipPath>
-                          </defs>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card 6 */}
-                <div className="hidden xl:block border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                  {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-6-desktop.png)' }}>
-                    <span className="font-semibold text-[16px] text-white">
-                      Slide Deck
-                    </span>
-                  </div>
-                  
-                  {/* Card Bottom */}
-                  <div className="p-[15px] flex flex-col gap-[6px]">
-                    <h4 className="font-semibold text-[16px]">
-                      Slide Deck Slide Deck
-                    </h4>
-                    
-                    <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                      Обучение созданию презентаций и визуальных обучающих материалов.
-                    </p>
-                    
-                    <div className="flex gap-[10px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Модулей (5)
-                      </span>
-                      
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        Уроков (18)
-                      </span>
-                    </div>
-                    
-                    <div className="flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-[#09090B]">
-                        5.0
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
+                    ))
+                  )}
                 </div>
               </div>
               
@@ -550,7 +718,12 @@ export default function CommercialProposalPage() {
                   </svg>
                   
                   <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
-                    Пример курса
+                    {getLocalizedText(proposalData.language, {
+                      en: 'Course Example',
+                      es: 'Ejemplo de Curso',
+                      ua: 'Приклад курсу',
+                      ru: 'Пример курса'
+                    })}
                   </span>
                 </div>
                 
