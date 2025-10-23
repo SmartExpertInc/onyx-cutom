@@ -346,7 +346,8 @@ export default function DynamicAuditLandingPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          project_id: parseInt(projectId)
+          project_id: parseInt(projectId),
+          language: landingPageData?.language || 'ru'
         })
       });
       
@@ -1822,7 +1823,7 @@ export default function DynamicAuditLandingPage() {
                     <path d="M16 2 L16 30 M2 16 L30 16" />
                   </svg>
                   <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
-                    Create Commercial Proposal
+                    Commercial Proposal
                   </span>
                 </button>
               </div>

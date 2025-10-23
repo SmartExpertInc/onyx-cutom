@@ -3701,6 +3701,10 @@ class AiAuditScrapedData(BaseModel):
     priorities: list[str]
     priorityOther: str = ""
 
+class CommercialProposalCreateRequest(BaseModel):
+    project_id: str
+    language: str = "ru"  # Default to Russian
+
 # --- Pydantic Models ---
 class StatusInfo(BaseModel):
     type: str = "unknown"
@@ -16688,7 +16692,7 @@ async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, r
 
 
 @app.post("/api/custom/commercial-proposal/generate")
-async def generate_commercial_proposal(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def generate_commercial_proposal(payload: CommercialProposalCreateRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
     """
     Generate a commercial proposal by copying an existing AI audit project.
     """
@@ -16728,7 +16732,7 @@ async def generate_commercial_proposal(payload: AiAuditQuestionnaireRequest, req
             "courseOutlineModules": source_content.get("courseOutlineModules", []),
             "courseTemplates": source_content.get("courseTemplates", []),
             "serviceTemplatesDescription": "Ready-made course templates for onboarding and training your employees:",
-            "language": source_content.get("language", "ru"),
+            "language": payload.language,
             "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", {
                 "lessons": "Уроки в модуле",
                 "assessment": "Проверка знаний: тест / практика с куратором", 
