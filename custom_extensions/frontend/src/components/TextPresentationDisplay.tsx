@@ -1146,6 +1146,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isRecommendationString = itemIsString && (
                 item.toLowerCase().includes('recommendation') || 
                 item.toLowerCase().startsWith('recommendation:') ||
+                item.toLowerCase().startsWith('**recommendation') ||
                 item.toLowerCase().includes('recommendation:')
               );
               const isRecommendation = isRecommendationPara || isRecommendationString;
@@ -1185,7 +1186,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-[#0F58F9] text-base leading-snug">{styledItemText}</span>
+                          <span className="text-black text-base leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -1226,7 +1227,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}`}>
+                <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 py-2' : ''}`}>
                   {BulletIconToRender && !isNumbered && !isRecommendation && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center text-[#0F58F9]">
                       <BulletIconToRender />
