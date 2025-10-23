@@ -78,7 +78,7 @@ function InlineEditor({
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
+        className={className}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -87,9 +87,22 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
           resize: 'none',
           overflow: 'hidden',
-          minHeight: '60px'
+          minHeight: '60px',
+          width: '100%',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
+          lineHeight: 'inherit',
+          color: 'inherit',
+          padding: 0,
+          margin: 0,
+          boxSizing: 'border-box'
         }}
       />
     );
@@ -98,7 +111,7 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
+      className={className}
       type="text"
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -106,7 +119,22 @@ function InlineEditor({
       onFocus={handleFocus}
       onBlur={handleBlur}
       placeholder={placeholder}
-      style={style}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        fontFamily: 'inherit',
+        fontSize: 'inherit',
+        fontWeight: 'inherit',
+        lineHeight: 'inherit',
+        color: 'inherit',
+        padding: 0,
+        margin: 0,
+        boxSizing: 'border-box'
+      }}
     />
   );
 }
@@ -282,7 +310,7 @@ export default function CommercialProposalPage() {
       if (!response.ok) {
         const errorText = await response.text()
         console.error(`[FRONTEND DATA FLOW] API request failed: ${response.status} - ${errorText}`)
-        throw new Error(`Failed to fetch landing page data: ${response.status}`)
+        throw new Error(`Failed to fetch commercial proposal data: ${response.status}`)
       }
       
       const data = await response.json()          
@@ -416,7 +444,7 @@ export default function CommercialProposalPage() {
     return { modules, lessons }
   }
 
-  // Generate assessment data when landing page data is loaded
+  // Generate assessment data when proposal page data is loaded
   useEffect(() => {
     if (proposalData?.courseOutlineModules) {
       const data = generateAssessmentData()
@@ -575,6 +603,68 @@ export default function CommercialProposalPage() {
         <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
           {/* First Section */}
           <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
+
+            {/* Navigation Buttons - positioned in top-right */}
+            <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20 flex gap-3">
+              {/* Return to Audits Button */}
+              <button
+                onClick={() => window.location.href = '/projects?tab=audits'}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                title={getLocalizedText(proposalData?.language, {
+                  en: 'Return to Audits',
+                  es: 'Volver a Auditorías',
+                  ua: 'Повернутися до Аудитів',
+                  ru: 'Вернуться к Аудитам'
+                })}
+              >
+                <svg 
+                  className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Back to Audits',
+                    es: 'Volver a Auditorías',
+                    ua: 'Повернутися до Аудитів',
+                    ru: 'Вернуться к Аудитам'
+                  })}
+                </span>
+              </button>
+
+              {/* Share Button */}
+              <button
+                onClick={() => {}}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                title={getLocalizedText(proposalData?.language, {
+                  en: 'Share audit',
+                  es: 'Compartir auditoría',
+                  ua: 'Поділитися аудитом',
+                  ru: 'Поделиться аудитом'
+                })}
+              >
+                <svg 
+                  className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Share',
+                    es: 'Compartir',
+                    ua: 'Поділитися',
+                    ru: 'Поделиться'
+                  })}
+                </span>
+              </button>
+            </div>
+
             <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
               <svg className="hidden xl:block xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M47.6003 23.6794C47.6003 24.1541 47.6855 24.5562 47.8559 24.8858C48.0264 25.2154 48.2492 25.4857 48.5245 25.6967C48.8128 25.8945 49.1471 26.0461 49.5272 26.1516C49.9074 26.2439 50.3006 26.29 50.707 26.29C50.9823 26.29 51.2772 26.2702 51.5918 26.2307C51.9064 26.1779 52.2013 26.0857 52.4766 25.9538C52.7519 25.822 52.9813 25.644 53.1648 25.4198C53.3483 25.1825 53.44 24.8858 53.44 24.5298C53.44 24.1475 53.3155 23.8376 53.0665 23.6003C52.8305 23.363 52.5159 23.1652 52.1227 23.007C51.7294 22.8487 51.2837 22.7103 50.7856 22.5916C50.2875 22.473 49.7829 22.3411 49.2716 22.1961C48.7473 22.0642 48.2361 21.906 47.738 21.7214C47.2399 21.5237 46.7942 21.2731 46.4009 20.9699C46.0077 20.6666 45.6865 20.2909 45.4375 19.8426C45.2015 19.3811 45.0836 18.8273 45.0836 18.1813C45.0836 17.4561 45.2343 16.8298 45.5358 16.3024C45.8504 15.7618 46.2567 15.3135 46.7549 14.9575C47.253 14.6015 47.8166 14.3378 48.4458 14.1664C49.075 13.995 49.7042 13.9093 50.3334 13.9093C51.0675 13.9093 51.7687 13.995 52.4373 14.1664C53.1189 14.3247 53.7219 14.5884 54.2462 14.9575C54.7705 15.3267 55.1834 15.8014 55.4849 16.3815C55.7995 16.9485 55.9568 17.6407 55.9568 18.4581H52.9682C52.9419 18.0362 52.8502 17.6868 52.6929 17.4099C52.5487 17.1331 52.3521 16.9155 52.103 16.7573C51.854 16.5991 51.5656 16.487 51.2379 16.4211C50.9233 16.3551 50.5759 16.3222 50.1958 16.3222C49.9467 16.3222 49.6976 16.3485 49.4486 16.4013C49.1995 16.454 48.9701 16.5463 48.7604 16.6782C48.5638 16.81 48.3999 16.9748 48.2689 17.1726C48.1378 17.3704 48.0722 17.6209 48.0722 17.9242C48.0722 18.201 48.1247 18.4252 48.2295 18.5966C48.3344 18.768 48.5376 18.9262 48.8391 19.0712C49.1537 19.2163 49.5797 19.3613 50.1171 19.5063C50.6677 19.6514 51.3821 19.836 52.2603 20.0601C52.5225 20.1129 52.8829 20.2117 53.3417 20.3568C53.8136 20.4886 54.279 20.7062 54.7378 21.0094C55.1965 21.3127 55.5898 21.7214 55.9175 22.2356C56.2583 22.7367 56.4287 23.3827 56.4287 24.1738C56.4287 24.8199 56.3042 25.4198 56.0551 25.9736C55.8061 26.5274 55.4325 27.0086 54.9344 27.4173C54.4494 27.8129 53.8398 28.1227 53.1058 28.3469C52.3848 28.571 51.5459 28.6831 50.589 28.6831C49.8156 28.6831 49.0619 28.5842 48.3278 28.3864C47.6069 28.2018 46.9646 27.9052 46.4009 27.4964C45.8504 27.0877 45.4113 26.5669 45.0836 25.934C44.7558 25.3011 44.5985 24.5496 44.6117 23.6794H47.6003Z" fill="#0F58F9"/>
@@ -597,17 +687,17 @@ export default function CommercialProposalPage() {
               {/* Title with colored text and span */}
               <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
                 {getLocalizedText(proposalData.language, {
-                  en: 'Commercial Proposal',
-                  es: 'Propuesta comercial',
-                  ua: 'Комерційна пропозиція',
-                  ru: 'Коммерческое предложение'
+                  en: 'Commercial Proposal ',
+                  es: 'Propuesta comercial ',
+                  ua: 'Комерційна пропозиція ',
+                  ru: 'Коммерческое предложение '
                 })}
                 <span className="text-[#09090B]">
                   {getLocalizedText(proposalData.language, {
-                    en: 'for the',
-                    es: 'para el',
-                    ua: 'для',
-                    ru: 'для'
+                    en: 'for the ',
+                    es: 'para el ',
+                    ua: 'для ',
+                    ru: 'для '
                   })} {editingField === 'companyName' ? (
                     <InlineEditor
                       initialValue={proposalData.companyName}
@@ -734,2034 +824,125 @@ export default function CommercialProposalPage() {
               </h3>
               
               <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
-                <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
-                  {/* Dynamic Job Cards - Only render if data is available */}
-                  {proposalData.jobPositions && proposalData.jobPositions.length > 0 && (
-                    proposalData.jobPositions.map((position, index) => (
-                      <div key={index} className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
-                        <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                          </svg>
-                        </div>
-                        {editingField === `jobPosition_${index}` ? (
-                          <InlineEditor
-                            initialValue={position.title}
-                            onSave={(value) => handleTextSave(`jobPosition_${index}`, value)}
-                            onCancel={handleTextCancel}
-                            className="flex-1"
-                            style={{ 
-                              fontSize: 'inherit',
-                              fontWeight: 'inherit',
-                              color: 'inherit',
-                              fontFamily: 'inherit'
-                            }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing(`jobPosition_${index}`)}
-                            className="font-medium text-[16px] xl:text-[18px] flex-1 cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit job position"
-                          >
-                            {position.title}
-                          </span>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex flex-col gap-[10px] xl:gap-[15px]">
-                <div className="px-[18px] xl:px-[20px] py-[8px] xl:py-[10px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[25px] xl:mt-0 w-fit">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.726 14H1.274C0.574 14 0 13.426 0 12.726V1.274C0 0.573999 0.574 0 1.274 0H12.726C13.426 0 14 0.573999 14 1.274V12.726C14 13.426 13.426 14 12.726 14ZM2.548 10.822C2.548 11.018 2.674 11.144 2.87 11.144H6.048C6.244 11.144 6.37 11.018 6.37 10.822V7.644C6.37 7.448 6.244 7.322 6.048 7.322H2.87C2.674 7.322 2.548 7.448 2.548 7.644V10.822ZM10.178 2.548C10.178 2.352 10.052 2.226 9.856 2.226H2.856C2.66 2.226 2.534 2.352 2.534 2.548V3.178C2.534 3.374 2.66 3.5 2.856 3.5H9.856C10.052 3.5 10.178 3.374 10.178 3.178V2.548ZM11.452 5.096C11.452 4.9 11.326 4.774 11.13 4.774H2.87C2.674 4.774 2.548 4.9 2.548 5.096V5.726C2.548 5.922 2.674 6.048 2.87 6.048H11.144C11.34 6.048 11.466 5.922 11.466 5.726V5.096H11.452ZM11.452 7.63C11.452 7.434 11.326 7.308 11.13 7.308H7.952C7.756 7.308 7.63 7.434 7.63 7.63V8.26C7.63 8.456 7.756 8.582 7.952 8.582H11.13C11.326 8.582 11.452 8.456 11.452 8.26V7.63ZM11.452 10.178C11.452 9.982 11.326 9.856 11.13 9.856H7.952C7.756 9.856 7.63 9.982 7.63 10.178V10.808C7.63 11.004 7.756 11.13 7.952 11.13H11.13C11.326 11.13 11.452 11.004 11.452 10.808V10.178Z" fill="black"/>
-                  </svg>
-                  
-                  <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
-                    {getLocalizedText(proposalData.language, {
-                      en: 'Course Example',
-                      es: 'Ejemplo de Curso',
-                      ua: 'Приклад курсу',
-                      ru: 'Пример курса'
-                    })}
-                  </span>
-                </div>
-                
-                <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Onboarding course for',
-                    es: 'Curso de incorporación para',
-                    ua: 'Курс онбордингу для',
-                    ru: 'Онбординг курс для'
-                  })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
-                    en: 'position',
-                    es: 'posición',
-                    ua: 'посади',
-                    ru: 'должности'
-                  })}{' '}
-                  {editingField === 'onboardingCourseTitle' ? (
-                    <InlineEditor
-                      initialValue={proposalData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
-                      onSave={(value) => handleTextSave('onboardingCourseTitle', value)}
-                      onCancel={handleTextCancel}
-                      className="font-medium text-[#09090B]"
-                      style={{ fontSize: '20px' }}
-                    />
-                  ) : (
-                    <span 
-                      onClick={() => startEditing('onboardingCourseTitle')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                      title="Click to edit onboarding course title"
+                {/* Dynamic Course Templates */}
+                {proposalData?.courseTemplates && proposalData.courseTemplates.length > 0 && proposalData.courseTemplates.map((template, index) => (
+                  <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
+                    {/* Card Top */}
+                    <div 
+                      className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" 
+                      style={{ 
+                        backgroundImage: template.image 
+                          ? `url(${template.image})` 
+                          : `url(/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png)`,
+                        backgroundColor: template.image ? 'transparent' : '#f3f4f6'
+                      }}
+                      onLoad={() => {
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Course template ${index + 1} image loaded successfully`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Template title: ${template.title}`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Image URL: ${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`}`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Background image CSS: url(${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`})`)
+                      }}
+                      onError={(e) => {
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Failed to load course template ${index + 1} image`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Template title: ${template.title}`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Image URL: ${template.image}`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Fallback URL: /custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Error event:`, e)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Element style:`, e.currentTarget.style.backgroundImage)
+                      }}
                     >
-                      {`"${proposalData?.courseTemplates?.[0]?.title || 'HVAC Installer'}"`}
-                    </span>
-                  )}
-                </h4>
-                
-                <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
-                  <div className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-4-desktop.png)' }}>
-                    <div className="absolute bottom-[5px] xl:bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
-                        <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
-                        <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
-                        <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
-                        <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
-                      </svg>
-                      
-                      <span className="font-medium text-[12px] text-white">
-                        {getLocalizedText(proposalData?.language, {
-                          en: `Modules (${getTotalModulesAndLessons().modules})`,
-                          es: `Módulos (${getTotalModulesAndLessons().modules})`,
-                          ua: `Модулі (${getTotalModulesAndLessons().modules})`,
-                          ru: `Модулей (${getTotalModulesAndLessons().modules})`
-                        })}
-                      </span>
-                      
-                      <span className="font-medium text-[12px] text-white">
-                        {getLocalizedText(proposalData?.language, {
-                          en: `Lessons (  ${getTotalModulesAndLessons().lessons})`,
-                          es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
-                          ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
-                          ru: `Уроков (${getTotalModulesAndLessons().lessons})`
-                        })}
+                      <span className="font-semibold text-[16px] text-white drop-shadow-lg">
+                        {template.title}
                       </span>
                     </div>
                     
-                    <div className="absolute bottom-[5px] xl:bottom-[10px] right-[6px] xl:right-[20px] flex gap-[6px] items-center">
-                      <span className="font-medium text-[12px] text-white">
-                        5.0
-                      </span>
-                      
-                      <div className="flex gap-[3.33px]">
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                        <svg width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
-                    <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
-                      {getLocalizedText(proposalData?.language, {
-                        en: 'Training Plan',
-                        es: 'Plan de Entrenamiento',
-                        ua: 'План навчання',
-                        ru: 'План обучения'
-                      })}
-                    </h4>
-
-                    {/* Module 1*/}
-                    <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-0'] ? 'xl:border-b-0' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="xl:flex xl:items-center xl:gap-[6px]">
-                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              {getLocalizedText(proposalData?.language, {
-                                en: 'Module 01:',
-                                es: 'Módulo 01:',
-                                ua: 'Модуль 01:',
-                                ru: 'Модуль 01:'
-                              })}
-                            </span>
-
-                            <h5 className="hidden xl:block font-medium text-[16px]">
-                              {editingField === 'courseModule_0' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
-                                  onSave={(value) => handleTextSave('courseModule_0', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '16px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('courseModule_0')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit module title"
-                                >
-                              {proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
-                                </span>
-                              )}
-                            </h5>
-                          </div>
-                          
-                          <button 
-                            onClick={() => toggleModule('module-0')}
-                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module-0'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                            }`}
-                          >
-                            {expandedModules['module-0'] ? (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            ) : (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        
-                        <h5 className="font-medium text-[16px] xl:hidden">
-                          {editingField === 'courseModule_0' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
-                              onSave={(value) => handleTextSave('courseModule_0', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('courseModule_0')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit module title"
-                            >
-                          {proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
-                            </span>
-                          )}
-                        </h5>
-
-                        {/* Module 1 Expandable Content */}
-                        <div 
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            expandedModules['module-0'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
-                          }`}
-                        >
-                          {/* XL Desktop Table Layout */}
-                          <div className="hidden xl:block">
-                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
-                              {/* Table Header */}
-                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                                <div className="grid grid-cols-3 gap-[20px]">
-                                  <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {editingField === 'tableHeaderLessons' ? (
-                                      <InlineEditor
-                                        initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                          en: 'Lessons in module',
-                                          es: 'Lecciones en módulo',
-                                          ua: 'Уроки в модулі',
-                                          ru: 'Уроки в модуле'
-                                        })}
-                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                        onCancel={handleTextCancel}
-                                        className="font-medium text-white inline-block"
-                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                      />
-                                    ) : (
-                                      <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                          startEditing('tableHeaderLessons');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                        title="Click to edit header"
-                                      >
-                                        {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                          en: 'Lessons in module',
-                                          es: 'Lecciones en módulo',
-                                          ua: 'Уроки в модулі',
-                                          ru: 'Уроки в модуле'
-                                        })}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {editingField === 'tableHeaderAssessment' ? (
-                                      <InlineEditor
-                                        initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                          en: 'Knowledge check: test / practice with mentor',
-                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                          ua: 'Перевірка знань: тест / практика з куратором',
-                                          ru: 'Проверка знаний: тест / практика с куратором'
-                                        })}
-                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                        onCancel={handleTextCancel}
-                                        className="font-medium text-white inline-block"
-                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                      />
-                                    ) : (
-                                      <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                          startEditing('tableHeaderAssessment');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                        title="Click to edit header"
-                                      >
-                                        {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                          en: 'Knowledge check: test / practice with mentor',
-                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                          ua: 'Перевірка знань: тест / практика з куратором',
-                                          ru: 'Проверка знаний: тест / практика с куратором'
-                                        })}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {editingField === 'tableHeaderDuration' ? (
-                                      <InlineEditor
-                                        initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                          en: 'Training duration',
-                                          es: 'Duración del entrenamiento',
-                                          ua: 'Тривалість навчання',
-                                          ru: 'Длительность обучения'
-                                        })}
-                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                        onCancel={handleTextCancel}
-                                        className="font-medium text-white inline-block"
-                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                      />
-                                    ) : (
-                                      <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                          startEditing('tableHeaderDuration');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                        title="Click to edit header"
-                                      >
-                                        {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                          en: 'Training duration',
-                                          es: 'Duración del entrenamiento',
-                                          ua: 'Тривалість навчання',
-                                          ru: 'Длительность обучения'
-                                        })}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Table Rows - Dynamic */}
-                              <div className="bg-white">
-                                {proposalData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
-                                  const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
-                                  const isLast = index === (proposalData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
-                                  
-                                  return (
-                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
-                                      <div className="grid grid-cols-3 gap-[20px] items-center">
-                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {editingField === `courseLesson_0_${index}` ? (
-                                            <InlineEditor
-                                              initialValue={lesson}
-                                              onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
-                                              onCancel={handleTextCancel}
-                                              className="font-medium"
-                                              style={{ fontSize: '12px', color: '#09090B' }}
-                                            />
-                                          ) : (
-                                            <span 
-                                              onClick={() => startEditing(`courseLesson_0_${index}`)}
-                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                              title="Click to edit lesson name"
-                                            >
-                                          {lesson}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
-                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                            </svg>
-                                          ) : (
-                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                            </svg>
-                                          )}
-                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                            {assessment.type}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                          </svg>
-                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                            {assessment.duration}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )
-                                }) || (
-                                  // Fallback if no lessons available
-                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                    <div className="grid grid-cols-3 gap-[20px] items-center">
-                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        Основные этапы открытия салона
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {getLocalizedText(proposalData?.language, {
-                                            en: 'none',
-                                            es: 'ninguno',
-                                            ua: 'немає',
-                                            ru: 'нет'
-                                          })}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          5 мин
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Mobile Layout - Hidden on XL */}
-                          <div className="xl:hidden">
-                            {proposalData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
-                              const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
-                              const isLast = index === (proposalData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
-                              
-                              return (
-                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
-                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                    {editingField === `courseLesson_0_${index}` ? (
-                                      <InlineEditor
-                                        initialValue={lesson}
-                                        onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
-                                        onCancel={handleTextCancel}
-                                        className="font-medium"
-                                        style={{ fontSize: '14px', color: '#09090B' }}
-                                      />
-                                    ) : (
-                                      <span 
-                                        onClick={() => startEditing(`courseLesson_0_${index}`)}
-                                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                        title="Click to edit lesson name"
-                                      >
-                                    {lesson}
-                                      </span>
-                                    )}
-                                  </span>
-                                  <div className="flex items-center justify-between mb-[12px]">
-                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                      {assessment.type === 'нет' ? (
-                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                        </svg>
-                                      ) : (
-                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                        </svg>
-                                      )}
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        Проверка знаний: {assessment.type}
-                                      </span>
-                                    </div>
-                                    
-                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        {assessment.duration}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }) || (
-                              // Fallback if no lessons available
-                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  Основные этапы открытия салона
-                                </span>
-                                <div className="flex items-center justify-between mb-[12px]">
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: none',
-                                        es: 'Verificación de conocimientos: ninguno',
-                                        ua: 'Перевірка знань: немає',
-                                        ru: 'Проверка знаний: нет'
-                                      })}
-                                    </span>
-                                  </div>
-                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      5 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-
-                          </div>
-                        </div>
-                    </div>
-
-                    {/* Module 2*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
-                      <div className="flex items-center justify-between">
-                        <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            {getLocalizedText(proposalData?.language, {
-                              en: 'Module 02:',
-                              es: 'Módulo 02:',
-                              ua: 'Модуль 02:',
-                              ru: 'Модуль 02:'
-                            })}
-                          </span>
-
-                          <h5 className="hidden xl:block font-medium text-[16px]">
-                            {editingField === 'courseModule_1' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
-                                onSave={(value) => handleTextSave('courseModule_1', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '16px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('courseModule_1')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit module title"
-                              >
-                            {proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
-                              </span>
-                            )}
-                          </h5>
-                        </div>
-                        
-                        <button 
-                          onClick={() => toggleModule('module-1')}
-                          className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module-1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                          }`}
-                        >
-                          {expandedModules['module-1'] ? (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          ) : (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      
-                      <h5 className="font-medium text-[16px] xl:hidden">
-                        {editingField === 'courseModule_1' ? (
+                    {/* Card Bottom */}
+                    <div className="p-[15px] flex flex-col gap-[6px]">
+                      <h4 className="font-semibold text-[16px]">
+                        {editingField === `courseTemplate_${index}` ? (
                           <InlineEditor
-                            initialValue={proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
-                            onSave={(value) => handleTextSave('courseModule_1', value)}
+                            initialValue={template.title}
+                            onSave={(value) => handleTextSave(`courseTemplate_${index}`, value)}
                             onCancel={handleTextCancel}
-                            className="font-medium"
+                            className="font-semibold"
                             style={{ fontSize: '16px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('courseModule_1')}
+                            onClick={() => startEditing(`courseTemplate_${index}`)}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit module title"
+                            title="Click to edit course template title"
                           >
-                        {proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                        {template.title}
                           </span>
                         )}
-                      </h5>
-
-                      {/* Module 2 Expandable Content */}
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedModules['module-1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
-                        }`}
-                      >
-                        {/* XL Desktop Table Layout */}
-                        <div className="hidden xl:block">
-                          <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
-                            {/* Table Header */}
-                            <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                              <div className="grid grid-cols-3 gap-[20px]">
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderLessons' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderAssessment' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderDuration' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Table Body */}
-                            <div className="bg-white">
-                              {proposalData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
-                                const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
-                                const isLast = index === (proposalData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
-                                
-                                return (
-                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
-                                    <div className="grid grid-cols-3 gap-[20px] items-center">
-                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {lesson}
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
-                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                          </svg>
-                                        ) : (
-                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                          </svg>
-                                        )}
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.type}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.duration}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              }) || (
-                                // Fallback if no lessons available
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      Поиск и отбор сотрудников
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {getLocalizedText(proposalData?.language, {
-                                          en: 'none',
-                                          es: 'ninguno',
-                                          ua: 'немає',
-                                          ru: 'нет'
-                                        })}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        5 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Mobile Layout - Hidden on XL */}
-                        <div className="xl:hidden">
-                          {proposalData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
-                            const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
-                            const isLast = index === (proposalData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
-                            
-                            return (
-                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
-                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  {lesson}
-                                </span>
-                                <div className="flex items-center justify-between mb-[12px]">
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                    {assessment.type === 'нет' ? (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                      </svg>
-                                    ) : (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                    )}
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      Проверка знаний: {assessment.type}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {assessment.duration}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          }) || (
-                            // Fallback if no lessons available
-                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                Поиск и отбор сотрудников
-                              </span>
-                              <div className="flex items-center justify-between mb-[12px]">
-                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    {getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: none',
-                                      es: 'Verificación de conocimientos: ninguno',
-                                      ua: 'Перевірка знань: немає',
-                                      ru: 'Проверка знаний: нет'
-                                    })}
-                                  </span>
-                                </div>
-                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    5 мин
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Module 3*/}
-                    <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-2'] ? 'xl:border-b-0' : ''}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            {getLocalizedText(proposalData?.language, {
-                              en: 'Module 03:',
-                              es: 'Módulo 03:',
-                              ua: 'Модуль 03:',
-                              ru: 'Модуль 03:'
-                            })}
-                          </span>
-
-                          <h5 className="font-medium text-[16px] hidden xl:block">
-                            {editingField === 'courseModule_2' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                                onSave={(value) => handleTextSave('courseModule_2', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '16px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('courseModule_2')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit module title"
-                              >
-                            {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                              </span>
-                            )}
-                          </h5>
-                        </div>
-                        
-                        <button 
-                          onClick={() => toggleModule('module-2')}
-                          className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module-2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                          }`}
-                        >
-                          {expandedModules['module-2'] ? (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          ) : (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
+                      </h4>
                       
-                      <h5 className="font-medium text-[16px] xl:hidden">
-                        {editingField === 'courseModule_2' ? (
+                      <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
+                        {editingField === `courseTemplateDescription_${index}` ? (
                           <InlineEditor
-                            initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                            onSave={(value) => handleTextSave('courseModule_2', value)}
+                            initialValue={template.description}
+                            onSave={(value) => handleTextSave(`courseTemplateDescription_${index}`, value)}
                             onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '16px' }}
+                            multiline={true}
+                            className="font-normal"
+                            style={{ fontSize: '14px', color: '#71717A' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('courseModule_2')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit module title"
+                            onClick={() => startEditing(`courseTemplateDescription_${index}`)}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                            title="Click to edit course template description"
                           >
-                        {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                        {template.description}
                           </span>
                         )}
-                      </h5>
-
-                      {/* Module 3 Expandable Content */}
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedModules['module-2'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
-                        }`}
-                      >
-                        {/* XL Desktop Table Layout */}
-                        <div className="hidden xl:block">
-                          <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
-                            {/* Table Header */}
-                            <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                              <div className="grid grid-cols-3 gap-[20px]">
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderLessons' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderAssessment' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderDuration' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Table Body */}
-                            <div className="bg-white">
-                              {proposalData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
-                                const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
-                                const isLast = index === (proposalData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
-                                
-                                return (
-                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
-                                    <div className="grid grid-cols-3 gap-[20px] items-center">
-                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {lesson}
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
-                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
-                                          </svg>
-                                        ) : (
-                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                          </svg>
-                                        )}
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.type}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.duration}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              }) || (
-                                // Fallback if no lessons available
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      Стратегия продвижения
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {getLocalizedText(proposalData?.language, {
-                                          en: 'none',
-                                          es: 'ninguno',
-                                          ua: 'немає',
-                                          ru: 'нет'
-                                        })}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        5 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Mobile Layout - Hidden on XL */}
-                        <div className="xl:hidden">
-                          {proposalData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
-                            const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
-                            const isLast = index === (proposalData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
-                            
-                            return (
-                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
-                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  {lesson}
-                                </span>
-                                <div className="flex items-center justify-between mb-[12px]">
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                    {assessment.type === 'нет' ? (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                      </svg>
-                                    ) : (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                    )}
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      Проверка знаний: {assessment.type}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {assessment.duration}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          }) || (
-                            // Fallback if no lessons available
-                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                Стратегия продвижения
-                              </span>
-                              <div className="flex items-center justify-between mb-[12px]">
-                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    {getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: none',
-                                      es: 'Verificación de conocimientos: ninguno',
-                                      ua: 'Перевірка знань: немає',
-                                      ru: 'Проверка знаний: нет'
-                                    })}
-                                  </span>
-                                </div>
-                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    5 мин
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Module 4*/}
-                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module-3'] ? 'xl:border-b-0' : ''}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            {getLocalizedText(proposalData?.language, {
-                              en: 'Module 04:',
-                              es: 'Módulo 04:',
-                              ua: 'Модуль 04:',
-                              ru: 'Модуль 04:'
-                            })}
-                          </span>
-
-                          <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                            {editingField === 'courseModule_3' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                                onSave={(value) => handleTextSave('courseModule_3', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '16px', color: '#09090B' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('courseModule_3')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit module title"
-                              >
-                            {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                              </span>
-                            )}
-                          </h5>
-                        </div>
-                        
-                        <button 
-                          onClick={() => toggleModule('module-3')}
-                          className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module-3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                          }`}
-                        >
-                          {expandedModules['module-3'] ? (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          ) : (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
+                      </p>
                       
-                      <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                        {editingField === 'courseModule_3' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                            onSave={(value) => handleTextSave('courseModule_3', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '16px', color: '#09090B' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('courseModule_3')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit module title"
-                          >
-                        {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                          </span>
-                        )}
-                      </h5>
-
-                      {/* Module 4 Expandable Content */}
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedModules['module-3'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
-                        }`}
-                      >
-                        {/* XL Desktop Table Layout */}
-                        <div className="hidden xl:block">
-                          <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
-                            {/* Table Header */}
-                            <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                              <div className="grid grid-cols-3 gap-[20px]">
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderLessons' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                        en: 'Lessons in module',
-                                        es: 'Lecciones en módulo',
-                                        ua: 'Уроки в модулі',
-                                        ru: 'Уроки в модуле'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderAssessment' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                        en: 'Knowledge check: test / practice with mentor',
-                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                        ua: 'Перевірка знань: тест / практика з куратором',
-                                        ru: 'Проверка знаний: тест / практика с куратором'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  {editingField === 'tableHeaderDuration' ? (
-                                    <InlineEditor
-                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                      onCancel={handleTextCancel}
-                                      className="font-medium text-white inline-block"
-                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                    />
-                                  ) : (
-                                    <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
-                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                      title="Click to edit header"
-                                    >
-                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                        en: 'Training duration',
-                                        es: 'Duración del entrenamiento',
-                                        ua: 'Тривалість навчання',
-                                        ru: 'Длительность обучения'
-                                      })}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Table Body */}
-                            <div className="bg-white">
-                              {proposalData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
-                                const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
-                                const isLast = index === (proposalData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
-                                
-                                return (
-                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
-                                    <div className="grid grid-cols-3 gap-[20px] items-center">
-                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {lesson}
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
-                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
-                                          </svg>
-                                        ) : (
-                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                          </svg>
-                                        )}
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.type}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {assessment.duration}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              }) || (
-                                // Fallback if no lessons available
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      Финансовое планирование
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {getLocalizedText(proposalData?.language, {
-                                          en: 'none',
-                                          es: 'ninguno',
-                                          ua: 'немає',
-                                          ru: 'нет'
-                                        })}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        5 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                      <div className="flex gap-[10px] items-center">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
+                          <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
+                          <path d="M9.01359 7.0428C10.8505 7.0428 12.3397 5.55366 12.3397 3.71671C12.3397 1.87976 10.8505 0.390625 9.01359 0.390625C7.17664 0.390625 5.6875 1.87976 5.6875 3.71671C5.6875 5.55366 7.17664 7.0428 9.01359 7.0428Z" fill="#0F58F9"/>
+                          <path d="M0.915082 14.986H1.85421C2.40204 14.986 2.8716 14.5165 2.8716 13.9686V12.7947C2.8716 12.2469 2.40204 11.7773 1.85421 11.7773H0.915082C0.602038 11.7773 0.328125 12.0513 0.328125 12.3643V14.3991C0.328125 14.7121 0.602038 14.986 0.915082 14.986Z" fill="#0F58F9"/>
+                          <path d="M15.125 12.7947V13.9686C15.125 14.5165 15.5946 14.986 16.1424 14.986H17.0815C17.3946 14.986 17.6685 14.7121 17.6685 14.3991V12.3643C17.6685 12.0513 17.3946 11.7773 17.0815 11.7773H16.1424C15.5946 11.7773 15.125 12.2078 15.125 12.7947Z" fill="#0F58F9"/>
+                        </svg>
                         
-                        {/* Mobile Layout - Hidden on XL */}
-                        <div className="xl:hidden">
-                          {proposalData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
-                            const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
-                            const isLast = index === (proposalData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
-                            
-                            return (
-                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
-                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  {lesson}
-                                </span>
-                                <div className="flex items-center justify-between mb-[12px]">
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                    {assessment.type === 'нет' ? (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                      </svg>
-                                    ) : (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                    )}
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      Проверка знаний: {assessment.type}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {assessment.duration}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          }) || (
-                            // Fallback if no lessons available
-                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                Финансовое планирование
-                              </span>
-                              <div className="flex items-center justify-between mb-[12px]">
-                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    {getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: none',
-                                      es: 'Verificación de conocimientos: ninguno',
-                                      ua: 'Перевірка знань: немає',
-                                      ru: 'Проверка знаний: нет'
-                                    })}
-                                  </span>
-                                </div>
-                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                  </svg>
-                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    5 мин
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div 
-                    className="flex flex-col gap-[15px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
-                    style={{
-                      background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
-                      borderRadius: '6px',
-                      boxShadow: '2px 2px 10px 0px #0000001A'
-                    }}
-                  >
-                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">
-                      {getLocalizedText(proposalData?.language, {
-                        en: 'Ready-made courses for',
-                        es: 'Cursos listos para',
-                        ua: 'Готові курси для',
-                        ru: 'Готовые курсы для'
-                      })}<br className="xl:hidden" /> {getLocalizedText(proposalData?.language, {
-                        en: 'quick',
-                        es: 'rápido',
-                        ua: 'швидкого',
-                        ru: 'быстрого'
-                      })}<br className="hidden xl:block" /> {getLocalizedText(proposalData?.language, {
-                        en: 'launch of training',
-                        es: 'lanzamiento de entrenamiento',
-                        ua: 'запуску навчання',
-                        ru: 'запуска обучения'
-                      })}
-                    </span>
-                    <span className="text-[60px] font-bold text-[#0F58F9]">
-                      {editingField === 'mainPrice' ? (
-                        <InlineEditor
-                          initialValue="$900"
-                          onSave={(value) => handleTextSave('mainPrice', value)}
-                          onCancel={handleTextCancel}
-                          className="text-[#0F58F9] font-bold"
-                          style={{ fontSize: '60px' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('mainPrice')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit main price"
-                        >
-                          $900
+                        <span className="font-medium text-[12px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: `Modules (${template.modules})`,
+                            es: `Módulos (${template.modules})`,
+                            ua: `Модулів (${template.modules})`,
+                            ru: `Модулей (${template.modules})`
+                          })}
                         </span>
-                      )}
-                      <span className="text-[26px] font-bold text-[#09090B]">
-                        {getLocalizedText(proposalData?.language, {
-                          en: '/course',
-                          es: '/curso',
-                          ua: '/курс',
-                          ru: '/курс'
-                        })}
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Pricing packages:',
-                    es: 'Paquetes de precios:',
-                    ua: 'Тарифні пакети:',
-                    ru: 'Тарифные пакеты:'
-                  })}
-                </h4>
-
-                {/* Pricing Table */}
-                <div className="w-full">
-                  <div className="w-full rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
-                    {/* Table Header */}
-                    <div className="bg-[#F5F5F5] px-4 py-3">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                        
+                        <span className="font-medium text-[12px]">
                           {getLocalizedText(proposalData?.language, {
-                            en: 'Package',
-                            es: 'Paquete',
-                            ua: 'Пакет',
-                            ru: 'Пакет'
+                            en: `Lessons (${template.lessons})`,
+                            es: `Lecciones (${template.lessons})`,
+                            ua: `Уроків (${template.lessons})`,
+                            ru: `Уроков (${template.lessons})`
                           })}
-                        </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {getLocalizedText(proposalData?.language, {
-                            en: 'Price',
-                            es: 'Precio',
-                            ua: 'Вартість',
-                            ru: 'Стоимость'
-                          })}
-                        </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {getLocalizedText(proposalData?.language, {
-                            en: 'Total',
-                            es: 'Total',
-                            ua: 'Разом',
-                            ru: 'Итого'
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Table Rows */}
-                    <div className="bg-white">
-                      {/* Row 1 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '1 course',
-                              es: '1 curso',
-                              ua: '1 курс',
-                              ru: '1 курс'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'price1' ? (
-                              <InlineEditor
-                                initialValue="$900"
-                                onSave={(value) => handleTextSave('price1', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('price1')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit price"
-                              >
-                                $900
-                              </span>
-                            )}
-                            {getLocalizedText(proposalData?.language, {
-                              en: '/course',
-                              es: '/curso',
-                              ua: '/курс',
-                              ru: '/курс'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'total1' ? (
-                              <InlineEditor
-                                initialValue="$900"
-                                onSave={(value) => handleTextSave('total1', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('total1')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit total"
-                              >
-                                $900
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                        </span>
                       </div>
                       
-                      {/* Row 2 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '3 courses',
-                              es: '3 cursos',
-                              ua: '3 курси',
-                              ru: '3 курса'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'price2' ? (
-                              <InlineEditor
-                                initialValue="$750"
-                                onSave={(value) => handleTextSave('price2', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('price2')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit price"
-                              >
-                                $750
-                              </span>
-                            )}
-                            {getLocalizedText(proposalData?.language, {
-                              en: '/course',
-                              es: '/curso',
-                              ua: '/курс',
-                              ru: '/курс'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'total2' ? (
-                              <InlineEditor
-                                initialValue="$2250"
-                                onSave={(value) => handleTextSave('total2', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('total2')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit total"
-                              >
-                                $2250
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Row 3 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold">
-                            {getLocalizedText(proposalData?.language, {
-                              en: '10 courses',
-                              es: '10 cursos',
-                              ua: '10 курсів',
-                              ru: '10 курсов'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'price3' ? (
-                              <InlineEditor
-                                initialValue="$600"
-                                onSave={(value) => handleTextSave('price3', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('price3')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit price"
-                              >
-                                $600
-                              </span>
-                            )}
-                            {getLocalizedText(proposalData?.language, {
-                              en: '/course',
-                              es: '/curso',
-                              ua: '/курс',
-                              ru: '/курс'
-                            })}
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            {editingField === 'total3' ? (
-                              <InlineEditor
-                                initialValue="$6000"
-                                onSave={(value) => handleTextSave('total3', value)}
-                                onCancel={handleTextCancel}
-                                className="font-medium"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('total3')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit total"
-                              >
-                                $6000
-                              </span>
-                            )}
-                          </div>
+                      <div className="flex gap-[6px] items-center">
+                        <span className="font-medium text-[12px] text-[#09090B]">
+                          {template.rating}
+                        </span>
+                        
+                        <div className="flex gap-[3.33px]">
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <svg key={i} width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                            </svg>
+                          ))}
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-                </div>
+                ))}
               </div>
             </div>
 
