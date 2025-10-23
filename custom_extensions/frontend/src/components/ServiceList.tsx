@@ -22,7 +22,7 @@ import { CSS } from '@dnd-kit/utilities';
 interface ServiceListProps {
   serviceOrder: string[];
   onServiceReorder: (newOrder: string[]) => void;
-  renderService: (serviceId: string) => React.ReactNode;
+  renderService: (serviceId: string, index: number) => React.ReactNode;
   deletedElements: { [key: string]: boolean };
 }
 
@@ -45,7 +45,7 @@ function SortableService({ serviceId, children, isDeleted }: SortableServiceProp
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.3 : 1,
     zIndex: isDragging ? 1000 : 'auto',
   };
 
@@ -112,13 +112,13 @@ export function ServiceList({
     >
       <SortableContext items={serviceOrder} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-[30px] xl:gap-[50px]">
-          {serviceOrder.map((serviceId) => (
+          {serviceOrder.map((serviceId, index) => (
             <SortableService
               key={serviceId}
               serviceId={serviceId}
               isDeleted={deletedElements[serviceId] || false}
             >
-              {renderService(serviceId)}
+              {renderService(serviceId, index)}
             </SortableService>
           ))}
         </div>
@@ -126,8 +126,8 @@ export function ServiceList({
       
       <DragOverlay>
         {activeId ? (
-          <div className="opacity-90 rotate-2 scale-105">
-            {renderService(activeId)}
+          <div className="opacity-95 rotate-1 scale-105 shadow-2xl">
+            {renderService(activeId, serviceOrder.indexOf(activeId))}
           </div>
         ) : null}
       </DragOverlay>

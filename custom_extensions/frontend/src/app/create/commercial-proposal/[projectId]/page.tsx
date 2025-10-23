@@ -364,18 +364,11 @@ export default function CommercialProposalPage() {
 
 
   // Service renderer function
-  const renderService = (serviceId: string) => {
-    const serviceNumber = serviceId.replace('service', '');
+  const renderService = (serviceId: string, index: number) => {
+    const serviceNumber = index + 1; // Use 1-based indexing for display
     
     return (
       <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px] relative" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-        {/* Drag Handle Indicator */}
-        <div className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 cursor-move">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
-        </div>
-        
         <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
           <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
             {getLocalizedText(proposalData?.language, {
