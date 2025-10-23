@@ -29845,11 +29845,32 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Mental models are frameworks that help simplify complex information into understandable and usable forms. For market analysis, several proven models provide structured approaches to evaluating markets systematically." },
     
     { "type": "headline", "level": 3, "text": "PESTLE Analysis Framework" },
-    { "type": "paragraph", "text": "PESTLE Analysis evaluates external factors across six dimensions: Political (government policies, trade regulations, political stability), Economic (GDP growth, interest rates, inflation, exchange rates), Social (demographics, cultural trends, consumer attitudes), Technological (innovation rates, automation, R&D investment), Legal (employment law, health and safety regulations, intellectual property), and Environmental (climate change regulations, sustainability trends, resource scarcity). This framework is particularly useful for evaluating both internal and external factors influencing a company, helping identify opportunities and threats that might not be immediately obvious." },
-    { "type": "paragraph", "text": "How to apply PESTLE: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the highest impact and likelihood. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    { "type": "paragraph", "text": "PESTLE Analysis evaluates **external factors across six dimensions** that shape your market environment. Understanding these forces helps you anticipate changes before they become critical threats or missed opportunities. The six dimensions are:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Political factors**: Government policies, trade regulations, political stability, and policy changes that affect market access and operations. For example, new data privacy laws can require significant compliance investments.",
+        "**Economic factors**: GDP growth, interest rates, inflation, exchange rates, and consumer spending power. Rising interest rates increase your capital costs while decreasing customer purchasing power.",
+        "**Social factors**: Demographics, cultural trends, consumer attitudes, and lifestyle changes. The shift to remote work created massive demand for collaboration tools and home office equipment.",
+        "**Technological factors**: Innovation rates, automation trends, R&D investment, and emerging technologies. Cloud computing transformed software delivery from licenses to subscriptions.",
+        "**Legal factors**: Employment law, health and safety regulations, intellectual property rights, and industry-specific regulations. Healthcare providers face strict HIPAA requirements affecting their technology choices.",
+        "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
+      ]
+    },
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically**: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the **highest impact** and **highest likelihood**. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
     
     { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
-    { "type": "paragraph", "text": "Porter's Five Forces helps assess industry attractiveness and competitive intensity by examining: (1) Threat of New Entrants—how easy is it for new competitors to enter your market? High barriers like capital requirements or regulatory hurdles protect incumbents. (2) Bargaining Power of Suppliers—can suppliers dictate terms? If you have few supplier options, they can squeeze your margins. (3) Bargaining Power of Buyers—can customers demand lower prices? Large customers or commoditized products increase buyer power. (4) Threat of Substitutes—can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. (5) Competitive Rivalry—how intense is competition among existing players? High rivalry leads to price wars and margin erosion." },
+    { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Threat of New Entrants**: How easy is it for new competitors to enter your market? **High barriers** like capital requirements or regulatory hurdles protect incumbents and preserve margins. **Low barriers** mean constant new competition and pressure on pricing.",
+        "**Bargaining Power of Suppliers**: Can suppliers dictate terms? If you have few supplier options or switching costs are high, they can squeeze your margins. Multiple supplier options give you **negotiating leverage**.",
+        "**Bargaining Power of Buyers**: Can customers demand lower prices? Large customers or commoditized products increase buyer power. When buyers are fragmented and your product is differentiated, you maintain **pricing power**.",
+        "**Threat of Substitutes**: Can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. **Strong substitutes** limit how much you can charge before customers switch to alternatives.",
+        "**Competitive Rivalry**: How intense is competition among existing players? High rivalry leads to price wars and margin erosion. Industries with **few large players** and differentiated products have healthier margins than crowded markets with commodity products."
+      ]
+    },
     { "type": "paragraph", "text": "These models offer structured approaches for analyzing markets, ensuring comprehensive evaluation rather than ad-hoc guesswork. Use PESTLE when evaluating macro-environmental factors and market entry decisions. Use Five Forces when assessing industry profitability and competitive positioning. Combine both for a complete picture: PESTLE shows you which markets are attractive from a macro perspective, while Five Forces reveals whether you can actually make money in those markets given competitive dynamics." },
     
     { "type": "headline", "level": 2, "text": "🎬 STEP-BY-STEP PROCEDURES FOR MARKET ANALYSIS" },
@@ -29860,8 +29881,18 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Why this matters: Without clear boundaries, you'll collect irrelevant data and draw misleading conclusions. A company analyzing 'the healthcare market' might include everything from hospital equipment to consumer vitamins—markets with completely different dynamics, customers, and competitors. The narrower your initial scope, the more actionable your insights. You can always expand later once you understand one segment deeply. Common pitfall: Defining the market too broadly to make the opportunity look bigger for stakeholders, then realizing you can't actually serve that entire market." },
     
     { "type": "headline", "level": 3, "text": "Step 2: Collect Data from Multiple Sources" },
-    { "type": "paragraph", "text": "Gather quantitative and qualitative data from various sources. Primary data comes directly from the market via surveys, interviews, or social media. This data is expensive and time-consuming but highly relevant to your specific questions. Secondary data can be found in existing reports or databases—industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
-    { "type": "paragraph", "text": "Best practices for data collection: Start with secondary research to understand the landscape, then use primary research to fill gaps and validate assumptions. When conducting interviews, talk to customers, potential customers, AND non-customers who chose alternatives—understanding why people didn't choose you is as valuable as understanding why they did. Aim for at least 20-30 interviews to identify patterns. For surveys, quality matters more than quantity—500 responses from your actual target segment beat 5,000 responses from a generic audience. Document your sources meticulously—you'll need to reference them later when stakeholders question your conclusions." },
+    { "type": "paragraph", "text": "Gather both **quantitative** and **qualitative data** from various sources. **Primary data** comes directly from the market via surveys, interviews, or social media—expensive and time-consuming but highly relevant to your specific questions. **Secondary data** can be found in existing reports or databases like industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
+    { "type": "paragraph", "text": "**Best practices for systematic data collection** follow this prioritized sequence:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Start with secondary research** to understand the overall landscape: Read 2-3 recent industry reports, study competitor websites and case studies, analyze government statistics or trade association data. This gives you context before talking to people.",
+        "**Conduct customer interviews** (20-30 minimum) to understand real needs: Talk to current customers, potential customers, AND non-customers who chose alternatives. Understanding **why people didn't choose you** is as valuable as understanding why they did. Record and transcribe interviews to identify patterns.",
+        "**Survey for quantification** after interviews reveal key themes: Use surveys to test how widespread the patterns are. **Quality matters more than quantity**—500 responses from your actual target segment beat 5,000 responses from a generic audience.",
+        "**Observe actual behavior** where possible: Watch how customers use existing solutions, attend industry events, analyze publicly available usage data. People's **revealed preferences** (what they do) often differ from **stated preferences** (what they say).",
+        "**Document sources meticulously**: Create a reference database linking every insight to its source. You'll need this when stakeholders question your conclusions or when you need to update analysis later."
+      ]
+    },
     
     { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
     { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
@@ -30354,6 +30385,40 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 4. Aim for 4-6 level 2 sections in a complete one-pager
 5. Each level 2 section can have 2-5 level 3 subsections
 
+⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
+
+**1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels
+- ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
+- Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
+- **INCLUDE AT LEAST 2-3 NUMBERED LISTS** in every onepager where sequential content exists
+- Examples of when to use:
+  * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
+  * "Three Phases of Product Development" → numbered_list (it's sequential)
+  * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
+
+**2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
+- ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
+- ❌ DON'T USE for: Sequential steps or ranked priorities (use numbered_list instead)
+- Structure: {{"type": "bullet_list", "items": ["Point A...", "Point B...", "Point C..."]}}
+
+**3. BOLD TEXT WITH ASTERISKS - EMPHASIZE KEY TERMS:**
+- ✅ **REQUIRED**: Use **asterisks** around important terms throughout all content
+- Format: **term** (asterisks on both sides, no spaces inside)
+- **Each list item should have 3-5 bold terms** highlighting key concepts
+- Use bold for: Technical terms, key concepts, critical actions, important names, emphasis points
+- Examples:
+  * "**Primary data** comes from direct market research" (term definition)
+  * "Calculate **TAM**, **SAM**, and **SOM** for market sizing" (key concepts)
+  * "Use **qualitative research** before **quantitative validation**" (process steps)
+  * "The **biggest risk** is ignoring **competitive substitutes**" (emphasis)
+
+❌ COMMON MISTAKES TO AVOID:
+1. Writing "1. First step, 2. Second step" in a paragraph instead of using numbered_list
+2. No bold text anywhere → Makes content look flat and unprofessional
+3. Using bullet_list for sequential steps → Should be numbered_list
+4. Using numbered_list for random related points → Should be bullet_list
+
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
 {DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
@@ -30371,7 +30436,13 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Include exact fields: textTitle, contentBlocks[], detectedLanguage
 - contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
 - Use "paragraph" type liberally (60% of content) - this is where deep learning happens
-- Use bullet_list ONLY when listing related points, and make each item 60-100 words
+- **LIST USAGE RULES (CRITICAL)**:
+  - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels
+  - Use **bullet_list** for: Related but non-sequential points, benefits/features, characteristics, recommendations
+  - Example numbered_list: {{"type": "numbered_list", "items": ["**Step 1**: Do this first...", "**Step 2**: Then do this...", "**Step 3**: Finally do this..."]}}
+  - Example bullet_list: {{"type": "bullet_list", "items": ["**Benefit A**: Detailed explanation...", "**Benefit B**: Another point...", "**Benefit C**: Third point..."]}}
+- Make each list item 60-100 words with **bold text** for emphasis on key terms/concepts
+- **BOLD TEXT FORMATTING**: Use asterisks to emphasize important terms: **important term**, **key concept**, **critical point**
 - Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
 - Preserve original language across all text
 
@@ -30379,6 +30450,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 2-3 numbered lists included?
+✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
 ✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
 ✅ Content grouping: Related concepts grouped under ONE level 2 header?
 ✅ Mental models: 2-3 frameworks with HOW to apply them?
