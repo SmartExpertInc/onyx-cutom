@@ -2907,7 +2907,7 @@ export default function DynamicAuditLandingPage() {
                           en: 'Ready-made course templates for onboarding and training your employees:',
                           es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
                           ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
-                          ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+                          ru: 'Готовые шаблоны курсов для онбординга и обучения ваших сотрудников:'
                         })}
                       onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
                       onCancel={handleTextCancel}
