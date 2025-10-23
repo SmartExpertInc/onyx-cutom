@@ -172,6 +172,7 @@ interface ProposalPageData {
     assessment: string
     duration: string
   }
+  [key: string]: string | number | object | undefined
 }
 
 // Localization helper function
