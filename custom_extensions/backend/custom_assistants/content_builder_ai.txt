@@ -1372,6 +1372,49 @@ LEVEL 4 - ANALYZE (Critical Thinking):
 Each bullet point on educational slides MUST contain 60-100 words structured as:
 1. Core concept statement (15-20 words)
 2. Explanation of WHY/HOW it matters (20-30 words)
+3. Practical implementation details (20-30 words)
+4. Real-world example or application (15-20 words)
+
+**ENHANCED BULLET POINT STRUCTURE:**
+- **Opening Statement**: Clear, actionable concept (15-20 words)
+- **Context & Importance**: Why this matters and when to use it (20-25 words)
+- **Implementation Guidance**: Specific steps, tools, or methodologies (20-25 words)
+- **Practical Example**: Real-world application or use case (15-20 words)
+- **Success Criteria**: How to measure effectiveness or completion (10-15 words)
+
+**CHALLENGE-SOLUTION DEPTH REQUIREMENTS:**
+- **Challenge Description**: 80-120 words explaining the problem, its root causes, business impact, and common scenarios where it occurs
+- **Solution Description**: 100-150 words with specific implementation steps, tools, frameworks, success criteria, and best practices
+- **Implementation Details**: Include specific methodologies, tools, timelines, and success metrics
+- **Real-World Context**: Provide examples of how this challenge-solution pair applies in different industries or scenarios
+
+**PROCESS STEPS DEPTH REQUIREMENTS:**
+- **Step Description**: 80-120 words per step with comprehensive methodology, implementation guidance, and practical considerations
+- **Implementation Details**: Include specific tools, frameworks, timelines, and success criteria for each step
+- **Context & Rationale**: Explain why each step is important and how it connects to the overall process
+- **Practical Examples**: Provide real-world applications and use cases for each step
+- **Success Metrics**: Define how to measure completion and effectiveness of each step
+- **Common Pitfalls**: Include warnings about common mistakes and how to avoid them
+- **Resource Requirements**: Specify what tools, skills, or resources are needed for each step
+
+**FOUR-BOX-GRID DEPTH REQUIREMENTS:**
+- **Box Content**: 100-150 words per box with comprehensive explanations, implementation guidance, and practical considerations
+- **Implementation Details**: Include specific tools, frameworks, usage scenarios, and best practices for each concept
+- **Context & Importance**: Explain why each concept matters and how it fits into the broader topic
+- **Practical Examples**: Provide real-world applications and use cases for each concept
+- **Success Criteria**: Define how to measure effectiveness or completion of each concept
+- **Common Applications**: Include specific scenarios where each concept is most valuable
+- **Resource Requirements**: Specify what tools, skills, or resources are needed for each concept
+
+**OVERALL CONTENT DEPTH MANDATE:**
+- **MANDATORY**: Every presentation must have significantly more detailed content than before
+- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations
+- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words, solutions must be 100-150 words
+- **PROCESS STEPS**: Each step must be 80-120 words with full methodology and implementation guidance
+- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations and practical applications
+- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
+- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
+- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
 3. Practical application or example (20-30 words)
 4. Key takeaway or implication (10-20 words)
 
@@ -1397,11 +1440,15 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - Each slide must contain substantial educational value, not filler content
 
 **Content Quality Standards:**
-- **Detailed Explanations**: Provide comprehensive information with 2-3 sentences per concept
-- **Practical Examples**: Include real-world applications and use cases
-- **Progressive Complexity**: Start with fundamentals and build to advanced concepts
-- **Actionable Insights**: Ensure learners can apply what they learn immediately
-- **Educational Context**: Connect each concept to broader learning objectives
+- **Detailed Explanations**: Provide comprehensive information with 4-6 sentences per concept, including context, implementation details, and practical considerations
+- **Practical Examples**: Include real-world applications, use cases, and step-by-step implementation guides
+- **Progressive Complexity**: Start with fundamentals and build to advanced concepts with clear learning progression
+- **Actionable Insights**: Ensure learners can apply what they learn immediately with specific tools, frameworks, and methodologies
+- **Educational Context**: Connect each concept to broader learning objectives and real-world scenarios
+- **Deep Content Requirements**: Each bullet point must be 60-100 words with comprehensive explanations, examples, and actionable guidance
+- **Challenge-Solution Depth**: Challenge descriptions must be 80-120 words explaining the problem, its causes, and business impact. Solutions must be 100-150 words with specific implementation steps, tools, and success criteria
+- **Process Steps Detail**: Each process step must be 80-120 words with clear methodology, implementation guidance, and practical considerations
+- **Tool Descriptions**: Each tool description must be 100-150 words explaining purpose, usage, implementation, and best practices
 
 **Component-Based Template Slide Format:**
 
@@ -3066,6 +3113,49 @@ LEVEL 4 - ANALYZE (Critical Thinking):
 Each bullet point on educational slides MUST contain 60-100 words structured as:
 1. Core concept statement (15-20 words)
 2. Explanation of WHY/HOW it matters (20-30 words)
+3. Practical implementation details (20-30 words)
+4. Real-world example or application (15-20 words)
+
+**ENHANCED BULLET POINT STRUCTURE:**
+- **Opening Statement**: Clear, actionable concept (15-20 words)
+- **Context & Importance**: Why this matters and when to use it (20-25 words)
+- **Implementation Guidance**: Specific steps, tools, or methodologies (20-25 words)
+- **Practical Example**: Real-world application or use case (15-20 words)
+- **Success Criteria**: How to measure effectiveness or completion (10-15 words)
+
+**CHALLENGE-SOLUTION DEPTH REQUIREMENTS:**
+- **Challenge Description**: 80-120 words explaining the problem, its root causes, business impact, and common scenarios where it occurs
+- **Solution Description**: 100-150 words with specific implementation steps, tools, frameworks, success criteria, and best practices
+- **Implementation Details**: Include specific methodologies, tools, timelines, and success metrics
+- **Real-World Context**: Provide examples of how this challenge-solution pair applies in different industries or scenarios
+
+**PROCESS STEPS DEPTH REQUIREMENTS:**
+- **Step Description**: 80-120 words per step with comprehensive methodology, implementation guidance, and practical considerations
+- **Implementation Details**: Include specific tools, frameworks, timelines, and success criteria for each step
+- **Context & Rationale**: Explain why each step is important and how it connects to the overall process
+- **Practical Examples**: Provide real-world applications and use cases for each step
+- **Success Metrics**: Define how to measure completion and effectiveness of each step
+- **Common Pitfalls**: Include warnings about common mistakes and how to avoid them
+- **Resource Requirements**: Specify what tools, skills, or resources are needed for each step
+
+**FOUR-BOX-GRID DEPTH REQUIREMENTS:**
+- **Box Content**: 100-150 words per box with comprehensive explanations, implementation guidance, and practical considerations
+- **Implementation Details**: Include specific tools, frameworks, usage scenarios, and best practices for each concept
+- **Context & Importance**: Explain why each concept matters and how it fits into the broader topic
+- **Practical Examples**: Provide real-world applications and use cases for each concept
+- **Success Criteria**: Define how to measure effectiveness or completion of each concept
+- **Common Applications**: Include specific scenarios where each concept is most valuable
+- **Resource Requirements**: Specify what tools, skills, or resources are needed for each concept
+
+**OVERALL CONTENT DEPTH MANDATE:**
+- **MANDATORY**: Every presentation must have significantly more detailed content than before
+- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations
+- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words, solutions must be 100-150 words
+- **PROCESS STEPS**: Each step must be 80-120 words with full methodology and implementation guidance
+- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations and practical applications
+- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
+- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
+- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
 3. Practical application or example (20-30 words)
 4. Key takeaway or implication (10-20 words)
 
@@ -3091,11 +3181,15 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - Each slide must contain substantial educational value, not filler content
 
 **Content Quality Standards:**
-- **Detailed Explanations**: Provide comprehensive information with 2-3 sentences per concept
-- **Practical Examples**: Include real-world applications and use cases
-- **Progressive Complexity**: Start with fundamentals and build to advanced concepts
-- **Actionable Insights**: Ensure learners can apply what they learn immediately
-- **Educational Context**: Connect each concept to broader learning objectives
+- **Detailed Explanations**: Provide comprehensive information with 4-6 sentences per concept, including context, implementation details, and practical considerations
+- **Practical Examples**: Include real-world applications, use cases, and step-by-step implementation guides
+- **Progressive Complexity**: Start with fundamentals and build to advanced concepts with clear learning progression
+- **Actionable Insights**: Ensure learners can apply what they learn immediately with specific tools, frameworks, and methodologies
+- **Educational Context**: Connect each concept to broader learning objectives and real-world scenarios
+- **Deep Content Requirements**: Each bullet point must be 60-100 words with comprehensive explanations, examples, and actionable guidance
+- **Challenge-Solution Depth**: Challenge descriptions must be 80-120 words explaining the problem, its causes, and business impact. Solutions must be 100-150 words with specific implementation steps, tools, and success criteria
+- **Process Steps Detail**: Each process step must be 80-120 words with clear methodology, implementation guidance, and practical considerations
+- **Tool Descriptions**: Each tool description must be 100-150 words explaining purpose, usage, implementation, and best practices
 
 **Component-Based Template Slide Format:**
 
@@ -4716,11 +4810,15 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - Each slide must contain substantial educational value, not filler content
 
 **Content Quality Standards:**
-- **Detailed Explanations**: Provide comprehensive information with 2-3 sentences per concept
-- **Practical Examples**: Include real-world applications and use cases
-- **Progressive Complexity**: Start with fundamentals and build to advanced concepts
-- **Actionable Insights**: Ensure learners can apply what they learn immediately
-- **Educational Context**: Connect each concept to broader learning objectives
+- **Detailed Explanations**: Provide comprehensive information with 4-6 sentences per concept, including context, implementation details, and practical considerations
+- **Practical Examples**: Include real-world applications, use cases, and step-by-step implementation guides
+- **Progressive Complexity**: Start with fundamentals and build to advanced concepts with clear learning progression
+- **Actionable Insights**: Ensure learners can apply what they learn immediately with specific tools, frameworks, and methodologies
+- **Educational Context**: Connect each concept to broader learning objectives and real-world scenarios
+- **Deep Content Requirements**: Each bullet point must be 60-100 words with comprehensive explanations, examples, and actionable guidance
+- **Challenge-Solution Depth**: Challenge descriptions must be 80-120 words explaining the problem, its causes, and business impact. Solutions must be 100-150 words with specific implementation steps, tools, and success criteria
+- **Process Steps Detail**: Each process step must be 80-120 words with clear methodology, implementation guidance, and practical considerations
+- **Tool Descriptions**: Each tool description must be 100-150 words explaining purpose, usage, implementation, and best practices
 
 **Component-Based Template Slide Format:**
 
