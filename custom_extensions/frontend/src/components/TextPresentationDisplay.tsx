@@ -48,7 +48,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
       const segments = segment.split(/\*\*(.*?)\*\*/g);
       return segments.map((seg, index) => {
         if (index % 2 === 1) { 
-          return <span key={`${keyPrefix}-${index}`} className="font-medium text-black">{seg}</span>;
+          return <span key={`${keyPrefix}-${index}`} className="font-medium text-blue-600">{seg}</span>;
         }
         return seg; 
       }).filter(seg => seg !== "");
@@ -64,7 +64,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
   const segments = text.split(/\*\*(.*?)\*\*/g); 
   return segments.map((segment, index) => {
     if (index % 2 === 1) { 
-      return <span key={index} className="font-medium text-black">{segment}</span>;
+      return <span key={index} className="font-medium text-blue-600">{segment}</span>;
     }
     return segment; 
   }).filter(segment => segment !== ""); 
@@ -389,16 +389,16 @@ const BlockSettingsModal = ({
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
             <option value="none">{t('interface.blockSettings.noIcon')}</option>
-            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
-            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
-            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
-            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
-            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
-            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
-            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
-            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
-            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
-            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
+            <option value="info">{t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">{t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">{t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">{t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">{t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">{t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">{t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">{t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">{t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">{t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
@@ -1168,7 +1168,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                          <span className="text-black text-base font-semibold leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -1241,10 +1241,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                           </div>
                         </div>
                       ) : (
-                        <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                        <span className="text-black text-base font-semibold leading-snug">{styledItemText}</span>
                       )
                     ) : Array.isArray(item) ? (
-                        <div className="flex flex-col">
+                        <div className={`flex flex-col ${isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
                                 <RenderBlock
                                     key={blockIndex}
@@ -1255,23 +1255,25 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                     isEditing={isEditing}
                                     onTextChange={onTextChange}
                                     basePath={listItemPath(index, String(blockIndex))}
-                                    suppressRecommendationStripe={hasRecommendation}
+                                    suppressRecommendationStripe={false}
                                     documentContent={documentContent}
                                 />
                             ))}
                         </div>
                     ) : (
-                        <RenderBlock 
-                            block={item as AnyContentBlock}
-                            depth={(depth || 0) + 1}
-                            isListItemContent={true}
-                            isLastInBox={isLastItem}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            basePath={listItemPath(index)}
-                            suppressRecommendationStripe={hasRecommendation}
-                            documentContent={documentContent}
-                        />
+                        <div className={isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}>
+                            <RenderBlock 
+                                block={item as AnyContentBlock}
+                                depth={(depth || 0) + 1}
+                                isListItemContent={true}
+                                isLastInBox={isLastItem}
+                                isEditing={isEditing}
+                                onTextChange={onTextChange}
+                                basePath={listItemPath(index)}
+                                suppressRecommendationStripe={false}
+                                documentContent={documentContent}
+                            />
+                        </div>
                     )}
                   </div>
                 </li>
