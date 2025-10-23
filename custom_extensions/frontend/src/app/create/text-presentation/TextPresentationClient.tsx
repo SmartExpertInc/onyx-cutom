@@ -219,6 +219,15 @@ export default function TextPresentationClient() {
   const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
   const [originalTitles, setOriginalTitles] = useState<{ [key: number]: string }>({});
   const nextEditingIdRef = useRef<number | null>(null);
+  
+  // State for editing lesson content
+  const [editingContentId, setEditingContentId] = useState<number | null>(null);
+  const [editedContents, setEditedContents] = useState<{ [key: number]: string }>({});
+  const [originalContents, setOriginalContents] = useState<{ [key: number]: string }>({});
+  const nextEditingContentIdRef = useRef<number | null>(null);
+
+  // State for additional sections
+  const [additionalSections, setAdditionalSections] = useState<{ id: string; title: string; content: string }[]>([]);
 
   // Smart change handling states (similar to QuizClient)
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -575,6 +584,11 @@ export default function TextPresentationClient() {
       }
     });
 
+    // Add additional sections
+    additionalSections.forEach((section) => {
+      cleanContent += `## ${section.title}\n\n${section.content}\n\n`;
+    });
+
     console.log("DEBUG: Final clean content length:", cleanContent.length);
     return cleanContent.trim();
   };
@@ -582,10 +596,9 @@ export default function TextPresentationClient() {
   // NEW: Create clean content for finalization - similar to QuizClient logic
   const createCleanFinalizationContent = (content: string) => {
     const lessons = parseContentIntoLessons(content);
-    if (lessons.length === 0) return content;
-
     let cleanContent = "";
 
+    // Add original lessons
     lessons.forEach((lesson, index) => {
       // Check if this title was edited by the user (by name, not by index)
       if (editedTitleNames.has(lesson.title)) {
@@ -597,6 +610,11 @@ export default function TextPresentationClient() {
         // This preserves the original content structure and context
         cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
       }
+    });
+
+    // Add additional sections
+    additionalSections.forEach((section) => {
+      cleanContent += `## ${section.title}\n\n${section.content}\n\n`;
     });
 
     return cleanContent.trim();
@@ -619,6 +637,156 @@ export default function TextPresentationClient() {
 
   const getTitleForLesson = (lesson: any, index: number) => {
     return editedTitles[index] || lesson.title;
+  };
+
+  // Handle lesson content editing
+  const handleContentEdit = (lessonIndex: number, newContent: string) => {
+    setEditedContents(prev => ({
+      ...prev,
+      [lessonIndex]: newContent
+    }));
+
+    // Store original content if not already stored
+    if (!originalContents[lessonIndex] && lessonIndex < lessonList.length) {
+      setOriginalContents(prev => ({
+        ...prev,
+        [lessonIndex]: lessonList[lessonIndex].content
+      }));
+    }
+
+    setHasUserEdits(true);
+  };
+
+  const handleContentSave = (lessonIndex: number, finalContent?: string) => {
+    setEditingContentId(null);
+
+    // If we're switching to another content, don't save
+    if (nextEditingContentIdRef.current !== null) {
+      nextEditingContentIdRef.current = null;
+      return;
+    }
+
+    const newContent = (finalContent ?? editedContents[lessonIndex]);
+    if (!newContent) {
+      return;
+    }
+
+    // Update the content in the main content string
+    updateContentWithNewContent(lessonIndex, newContent);
+  };
+
+  const updateContentWithNewContent = (lessonIndex: number, newContent: string) => {
+    if (!newContent && newContent !== '') return;
+
+    const lessons = parseContentIntoLessons(content);
+    if (lessonIndex >= lessons.length) return;
+
+    const oldContent = lessons[lessonIndex].content;
+
+    // Find and replace the old content with new content
+    const escapedOldContent = escapeRegExp(oldContent);
+    const pattern = new RegExp(escapedOldContent, 'g');
+
+    let updatedContent = content;
+    if (pattern.test(updatedContent)) {
+      updatedContent = updatedContent.replace(pattern, newContent);
+    }
+
+    setContent(updatedContent);
+
+    // Clear the edited content since it's now part of the main content
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[lessonIndex];
+      return newContents;
+    });
+
+    // Mark that content has been updated
+    if (updatedContent !== content) {
+      setHasUserEdits(true);
+    }
+  };
+
+  const handleContentCancel = (lessonIndex: number) => {
+    setEditedContents(prev => {
+      const newContents = { ...prev };
+      delete newContents[lessonIndex];
+      return newContents;
+    });
+    setEditingContentId(null);
+  };
+
+  const getContentForLesson = (lesson: any, index: number) => {
+    return editedContents[index] !== undefined ? editedContents[index] : lesson.content;
+  };
+
+  // Handle adding new section
+  const handleAddSection = () => {
+    const newSection = {
+      id: `section_${Date.now()}`,
+      title: "New Section",
+      content: "Add your content here..."
+    };
+    setAdditionalSections(prev => [...prev, newSection]);
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional section title
+  const handleAdditionalSectionTitleEdit = (sectionId: string, newTitle: string) => {
+    setAdditionalSections(prev => prev.map(section => 
+      section.id === sectionId ? { ...section, title: newTitle } : section
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional section content
+  const handleAdditionalSectionContentEdit = (sectionId: string, newContent: string) => {
+    setAdditionalSections(prev => prev.map(section => 
+      section.id === sectionId ? { ...section, content: newContent } : section
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle deleting additional section
+  const handleDeleteAdditionalSection = (sectionId: string) => {
+    setAdditionalSections(prev => prev.filter(section => section.id !== sectionId));
+    setHasUserEdits(true);
+  };
+
+  // Function to render content with colored circles for bullet points
+  const renderContentWithCircles = (content: string) => {
+    if (!content) return content;
+
+    // Split content into lines and process each line
+    const lines = content.split('\n');
+    const processedLines = lines.map((line, lineIndex) => {
+      const trimmedLine = line.trim();
+      
+      // Check if line starts with a hyphen (bullet point)
+      if (trimmedLine.startsWith('-')) {
+        const contentAfterDash = trimmedLine.substring(1).trim();
+        return (
+          <div key={lineIndex} className="flex items-start gap-2 mb-1">
+            <div className="w-2 h-2 bg-[#6091F9] rounded-full mt-2 flex-shrink-0"></div>
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{contentAfterDash}</span>
+          </div>
+        );
+      }
+      
+      // For regular lines (non-bullet points), return as is
+      if (trimmedLine) {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{line}</span>
+          </div>
+        );
+      }
+      
+      // For empty lines, return a line break
+      return <br key={lineIndex} />;
+    });
+
+    return processedLines;
   };
 
   // Example prompts for advanced mode
@@ -1391,7 +1559,8 @@ export default function TextPresentationClient() {
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
           transform: 'rotate(-300deg)',
-          filter: 'blur(100px)',
+          filter: 'blur(200px)',
+          opacity: '40%',
         }}
       />
       <div 
@@ -1404,7 +1573,8 @@ export default function TextPresentationClient() {
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
           transform: 'rotate(-120deg)',
-          filter: 'blur(100px)',
+          filter: 'blur(200px)',
+          opacity: '40%',
         }}
       />
 
@@ -1421,7 +1591,7 @@ export default function TextPresentationClient() {
         <span>{t('interface.generate.back', 'Back')}</span>
       </Link>
 
-      <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
+      <div className="w-full max-w-4xl flex flex-col gap-0 text-gray-900 relative z-10">
 
           {/* Page title */}
           <h1 className="text-center text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">One-Pager outline preview</h1>
@@ -1450,19 +1620,18 @@ export default function TextPresentationClient() {
                   }}
                   placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                   rows={1}
-                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
-                  style={{ background: "#0F58F999", border: "#CCCCCC" }}
+                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                  style={{ background: "#6E9BFB", border: "#CCCCCC" }}
                 />
               </div>
             </div>
           )}
 
         <section className="flex flex-col gap-3">
-          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
           {error && <p className="text-red-600">{error}</p>}
 
           {/* Main content display - Custom slide titles display matching course outline format */}
-          {textareaVisible && (
+          {(textareaVisible || loading) && (
             <div
               className="rounded-[8px] flex flex-col relative"
               style={{ 
@@ -1474,6 +1643,8 @@ export default function TextPresentationClient() {
               
               {/* Lesson cards container */}
               <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
+                {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+                
                 {loadingEdit && (
                   <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
                     <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
@@ -1482,10 +1653,10 @@ export default function TextPresentationClient() {
 
                 {/* Display content in card format if lessons are available */}
                 {lessonList.length > 0 && lessonList.map((lesson, idx: number) => (
-                  <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #E0E0E0' }}>
+                  <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                     {/* Lesson header with number and title */}
-                    <div className="flex items-center gap-3 px-5 py-4">
-                      <span className="text-[#0D001B] font-semibold text-lg">{idx + 1}.</span>
+                    <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                      {/* <span className="text-[#0D001B] font-semibold text-lg">{idx + 1}.</span> */}
                       <div className="flex-1">
                         {editingLessonId === idx ? (
                           <div className="relative group">
@@ -1493,7 +1664,7 @@ export default function TextPresentationClient() {
                               type="text"
                               value={editedTitles[idx] || lesson.title}
                               onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                              className="text-[#0D001B] font-semibold text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                               autoFocus
                               onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                               onKeyDown={(e) => {
@@ -1515,7 +1686,7 @@ export default function TextPresentationClient() {
                                 if (streamDone) setEditingLessonId(idx);
                               }}
                               readOnly
-                              className="text-[#0D001B] font-semibold text-lg leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                               disabled={!streamDone}
                             />
                           </div>
@@ -1523,17 +1694,83 @@ export default function TextPresentationClient() {
                       </div>
                     </div>
 
-                    {/* Content preview */}
+                    {/* Content preview/edit */}
                     {lesson.content && (
                       <div className="px-5 pb-4">
-                        <div className={`text-[16px] font-normal leading-[140%] text-[#434343] whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
-                          {lesson.content.substring(0, 100)}
-                          {lesson.content.length > 100 && '...'}
-                        </div>
+                        {editingContentId === idx ? (
+                          <Textarea
+                            value={getContentForLesson(lesson, idx)}
+                            onChange={(e) => handleContentEdit(idx, e.target.value)}
+                            className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                            autoFocus
+                            onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') handleContentCancel(idx);
+                            }}
+                            disabled={!streamDone}
+                          />
+                        ) : (
+                          <div 
+                            className={`cursor-pointer hover:bg-gray-50 rounded p-2 -m-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                            onMouseDown={() => {
+                              nextEditingContentIdRef.current = idx;
+                            }}
+                            onClick={() => {
+                              if (streamDone) setEditingContentId(idx);
+                            }}
+                          >
+                            {renderContentWithCircles(getContentForLesson(lesson, idx))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 ))}
+
+                {/* Additional sections */}
+                {additionalSections.map((section, idx: number) => (
+                  <div key={section.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                    {/* Section header with title */}
+                    <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          value={section.title}
+                          onChange={(e) => handleAdditionalSectionTitleEdit(section.id, e.target.value)}
+                          className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                          placeholder="Section title..."
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAdditionalSection(section.id)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    {/* Section content */}
+                    <div className="px-5 pb-4">
+                      <Textarea
+                        value={section.content}
+                        onChange={(e) => handleAdditionalSectionContentEdit(section.id, e.target.value)}
+                        className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                        placeholder="Add your content here..."
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add Section Button */}
+                <button
+                  type="button"
+                  onClick={handleAddSection}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <span className="text-lg">+</span>
+                  <span>Add Section</span>
+                </button>
               </div>
             </div>
           )}
@@ -1716,24 +1953,24 @@ export default function TextPresentationClient() {
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="px-6 py-2 rounded-full border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span>{t('interface.courseOutline.aiAgent', 'AI Agent')}</span>
+              <span>AI Improve</span>
             </button>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleFinalize}
-                className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-6 py-2 rounded-md bg-[#0F58F9] text-white text-sm font-bold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading || isGenerating || isCreatingFinal}
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11.5423 12.1718C11.1071 12.3383 10.8704 12.5762 10.702 13.0106C10.5353 12.5762 10.297 12.3399 9.86183 12.1718C10.297 12.0053 10.5337 11.769 10.702 11.3329C10.8688 11.7674 11.1071 12.0037 11.5423 12.1718ZM10.7628 5.37068C11.1399 3.9685 11.6552 3.45294 13.0612 3.07596C11.6568 2.6995 11.1404 2.18501 10.7628 0.78125C10.3858 2.18343 9.87044 2.69899 8.46442 3.07596C9.86886 3.45243 10.3852 3.96692 10.7628 5.37068ZM11.1732 8.26481C11.1732 8.1327 11.1044 7.9732 10.9118 7.9195C9.33637 7.47967 8.34932 6.97753 7.61233 6.24235C6.8754 5.50661 6.37139 4.52108 5.93249 2.94815C5.8787 2.75589 5.71894 2.68715 5.58662 2.68715C5.4543 2.68715 5.29454 2.75589 5.24076 2.94815C4.80022 4.52108 4.29727 5.50655 3.56092 6.24235C2.82291 6.97918 1.83688 7.4813 0.261415 7.9195C0.0688515 7.9732 0 8.13271 0 8.26481C0 8.39692 0.0688515 8.55643 0.261415 8.61013C1.83688 9.04996 2.82393 9.5521 3.56092 10.2873C4.29892 11.0241 4.80186 12.0085 5.24076 13.5815C5.29455 13.7737 5.45431 13.8425 5.58662 13.8425C5.71895 13.8425 5.87871 13.7737 5.93249 13.5815C6.37303 12.0085 6.87598 11.0231 7.61233 10.2873C8.35034 9.55045 9.33637 9.04832 10.9118 8.61013C11.1044 8.55642 11.1732 8.39692 11.1732 8.26481Z" fill="white"/>
                 </svg>
-                <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
+                <span className="select-none font-semibold">Generate One-Pager</span>
               </button>
             </div>
           </div>
