@@ -29,7 +29,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
       
       {/* Modal content */}
       <div 
-        className="relative shadow-xl w-[90vw] h-[90vh] flex flex-col z-10"
+        className="relative shadow-xl w-[85vw] h-[75vh] flex flex-col z-10"
         style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}
       >
         {/* Close button */}
@@ -45,7 +45,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
           {/* Main content area */}
           <div className="flex gap-4 mb-6">
             {/* Left div with grey background - 70% width */}
-            <div className="flex-1 bg-gray-200 rounded-lg min-h-[350px] flex items-center justify-center">
+            <div className="flex-1 bg-gray-200 rounded-lg min-h-[450px] flex items-center justify-center">
               <span className="text-gray-500">Video preview area</span>
             </div>
             
@@ -83,7 +83,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
               </div>
               
               {/* Blue info box */}
-              <div className="rounded-lg p-4 mt-auto max-w-[370px]" style={{ backgroundColor: '#CCDBFC' }}>
+              <div className="rounded-lg p-4 mt-auto max-w-[340px]" style={{ backgroundColor: '#CCDBFC' }}>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
