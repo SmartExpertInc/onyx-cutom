@@ -71,7 +71,7 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
 };
 
 const NewBulletIcon = () => (
-  <div className="w-0.75 h-0.75 rounded-full bg-black mr-1.5 mt-[1px] shrink-0" />
+  <div className="w-0.75 h-0.75 rounded-full bg-[#0F58F9] mr-1.5 mt-[5px] shrink-0" />
 );
 
 // Helper function to detect if text starts with an emoji
@@ -144,7 +144,7 @@ const iconMap: { [key: string]: React.ElementType } = {
 
 const THEME_COLORS = {
   primaryText: 'text-[#171718]',        
-  headingText: 'text-[#0F58F9]',        
+  headingText: 'text-[#171718]',        
   subHeadingText: 'text-[#171718]',     
   accentRed: 'text-[#FF1414]', 
   accentRedBg: 'bg-white',      
@@ -925,7 +925,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       let recommendationClasses = "";
       if (isRecommendation && !suppressRecommendationStripe) {
-        recommendationClasses = `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+        recommendationClasses = `pl-4 border-l-4 border-[#0F58F9] py-2`;
       }
       const styledText = parseAndStyleText(text);
 
@@ -1141,7 +1141,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               if (isNumbered) {
                 return (
                   <li key={index} className="flex items-start gap-3 group/listitem relative">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div>
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
@@ -2511,9 +2511,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   return (
-    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-md max-w-7xl mx-auto my-6">
+    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-7xl mx-auto my-6">
       {dataToDisplay.textTitle && (
-        <header className="mb-4 text-left border-b border-[#CCCCCC]">
+        <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
           {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}
           
           {isEditing && onTextChange ? (
@@ -2524,13 +2524,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                   className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
               />
           ) : (
-              <h1 className={`text-2xl p-4 font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
+              <h1 className={`text-2xl py-4 px-10 font-bold text-[#0F58F9] mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
           )}
 
           {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
         </header>
       )}
-      <div className="bg-[#FFFFFF] rounded-[10px] p-4 sm:p-6 md:p-8">
+      <div className="bg-[#FFFFFF] rounded-[10px] px-4 sm:px-6 md:px-8 py-4">
           <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;
