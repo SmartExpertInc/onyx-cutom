@@ -304,7 +304,7 @@ export default function CommercialProposalPage() {
     // Save to backend
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const apiEndpoint = `${CUSTOM_BACKEND_URL}/commercial-proposal/${projectId}`;
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
       
       console.log(`[COMMERCIAL PROPOSAL SAVE] Saving ${field}:`, newValue);
       console.log(`[COMMERCIAL PROPOSAL SAVE] API endpoint:`, apiEndpoint);
@@ -1135,31 +1135,7 @@ export default function CommercialProposalPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                          startEditing('tableHeaderLessons');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
+                                        onClick={() => startEditing('tableHeaderLessons')}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
@@ -1188,31 +1164,7 @@ export default function CommercialProposalPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                          startEditing('tableHeaderAssessment');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
+                                        onClick={() => startEditing('tableHeaderAssessment')}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
@@ -1241,31 +1193,7 @@ export default function CommercialProposalPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onMouseDown={(e) => {
-                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                        }}
-                                        onClick={(e) => {
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                          e.stopPropagation();
-                                          e.preventDefault();
-                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                          startEditing('tableHeaderDuration');
-                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                        }}
+                                        onClick={() => startEditing('tableHeaderDuration')}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
@@ -1560,31 +1488,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderLessons')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -1613,31 +1517,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderAssessment')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -1666,31 +1546,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderDuration')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -1951,31 +1807,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderLessons')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -2004,31 +1836,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderAssessment')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -2057,31 +1865,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderDuration')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -2342,31 +2126,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
-                                        startEditing('tableHeaderLessons');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderLessons')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -2395,31 +2155,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
-                                        startEditing('tableHeaderAssessment');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderAssessment')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
@@ -2448,31 +2184,7 @@ export default function CommercialProposalPage() {
                                     />
                                   ) : (
                                     <span 
-                                      onMouseDown={(e) => {
-                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
-                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
-                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
-                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
-                                      }}
-                                      onClick={(e) => {
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
-                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
-                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
-                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
-                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
-                                        startEditing('tableHeaderDuration');
-                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
-                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
-                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
-                                      }}
+                                      onClick={() => startEditing('tableHeaderDuration')}
                                       className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                       title="Click to edit header"
                                     >
