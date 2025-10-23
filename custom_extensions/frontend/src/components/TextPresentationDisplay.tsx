@@ -1279,7 +1279,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             ))}
                         </div>
                     ) : (
-                        <div className={isRecommendationPara ? 'pl-4 border-l-3 border-[#0F58F9] py-2' : ''}>
+                        <div>
                             <RenderBlock 
                                 block={item as AnyContentBlock}
                                 depth={(depth || 0) + 1}
