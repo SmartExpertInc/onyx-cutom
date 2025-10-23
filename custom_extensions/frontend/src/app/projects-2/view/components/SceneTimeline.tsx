@@ -98,7 +98,7 @@ export default function SceneTimeline({
     return () => clearInterval(interval);
   }, [isPlaying, totalDuration]);
 
-  // Calculate playhead position
+  // Calculate playhead position and auto-scroll
   useEffect(() => {
     const updatePlayhead = () => {
       if (!timelineContainerRef.current || displayScenes.length === 0) return;
@@ -119,6 +119,19 @@ export default function SceneTimeline({
       const xPosition = startX + (totalWidth * progress);
       
       setPlayheadPosition(xPosition);
+      
+      // Auto-scroll when playhead approaches the right edge
+      if (isPlaying && timelineContainerRef.current) {
+        const containerRect = timelineContainerRef.current.getBoundingClientRect();
+        const containerRightEdge = containerRect.right;
+        const playheadRelativeToContainer = xPosition - containerRect.left;
+        const scrollThreshold = containerRect.width * 0.8; // Start scrolling when 80% to the right
+        
+        if (playheadRelativeToContainer > scrollThreshold) {
+          const scrollAmount = playheadRelativeToContainer - scrollThreshold;
+          timelineContainerRef.current.scrollLeft += scrollAmount;
+        }
+      }
     };
     
     updatePlayhead();
@@ -136,7 +149,7 @@ export default function SceneTimeline({
       }
       window.removeEventListener('resize', updatePlayhead);
     };
-  }, [currentTime, displayScenes, totalDuration]);
+  }, [currentTime, displayScenes, totalDuration, isPlaying]);
 
   // Update transition button positions when slides change
   useEffect(() => {
@@ -258,29 +271,29 @@ export default function SceneTimeline({
           {/* Action Buttons Group - Fixed */}
           <div className="flex items-end gap-1 flex-shrink-0">
             {/* Add Slide Button - Opens Templates Panel */}
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="h-20 flex items-center justify-center">
-                  <button
-                    onClick={onOpenTemplateSelector}
+                <button
+                  onClick={onOpenTemplateSelector}
                     className="w-12 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
                     style={{ backgroundColor: '#CCDBFC' }}
-                    title="Add new slide"
-                  >
-                  <svg 
+                  title="Add new slide"
+                >
+                <svg 
                     className="w-6 h-6" 
-                    fill="none" 
+                  fill="none" 
                     stroke="#0F58F9" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                    />
-                  </svg>
-                </button>
-              </div>
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                  />
+                </svg>
+              </button>
+            </div>
             </div>
 
             {/* Chevron Up Button - Non-functional for now */}
@@ -325,8 +338,10 @@ export default function SceneTimeline({
         >
           {/* Time display above the line */}
           <div 
-            className="absolute bg-[#0F58F9] text-white text-[10px] px-1.5 py-0.5 rounded"
+            className="absolute text-[9px] px-2 py-1 rounded-full"
             style={{
+              backgroundColor: '#CCDBFC',
+              color: '#0F58F9',
               bottom: 'calc(100vh - ' + (timelineContainerRef.current?.getBoundingClientRect().top || 0) + 'px + 10px)',
               transform: 'translateX(-50%)',
               left: 0
@@ -334,10 +349,24 @@ export default function SceneTimeline({
           >
             {formatTime(currentTime)}
           </div>
+          {/* Triangle arrow above the line */}
+          <div 
+            className="absolute"
+            style={{
+              top: `${(timelineContainerRef.current?.getBoundingClientRect().top || 0) - 11}px`,
+              transform: 'translateX(-50%)',
+              left: 0
+            }}
+          >
+            <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.06329 10.5C6.67839 11.1667 5.71614 11.1667 5.33124 10.5L0.135086 1.5C-0.249814 0.833332 0.231312 -2.67268e-07 1.00111 -1.9997e-07L11.3934 7.08554e-07C12.1632 7.75852e-07 12.6443 0.833334 12.2594 1.5L7.06329 10.5Z" fill="#0F58F9"/>
+            </svg>
+          </div>
           {/* Vertical line */}
           <div 
-            className="w-0.5 bg-[#0F58F9]"
+            className="bg-[#0F58F9]"
             style={{
+              width: '2px',
               height: `${timelineContainerRef.current?.getBoundingClientRect().height || 0}px`,
               position: 'absolute',
               top: `${timelineContainerRef.current?.getBoundingClientRect().top || 0}px`,
@@ -391,5 +420,5 @@ export default function SceneTimeline({
         document.body
       )}
     </>
-  );
+    );
 }
