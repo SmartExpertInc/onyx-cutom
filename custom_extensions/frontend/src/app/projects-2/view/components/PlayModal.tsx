@@ -29,7 +29,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
       
       {/* Modal content */}
       <div 
-        className="relative shadow-xl w-[80vw] flex flex-col z-10"
+        className="relative shadow-xl w-[90vw] h-[90vh] flex flex-col z-10"
         style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}
       >
         {/* Close button */}
@@ -43,7 +43,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
         {/* Content */}
         <div className="p-6">
           {/* Main content area */}
-          <div className="flex gap-6 mb-6">
+          <div className="flex gap-4 mb-6">
             {/* Left div with grey background - 70% width */}
             <div className="flex-1 bg-gray-200 rounded-lg min-h-[350px] flex items-center justify-center">
               <span className="text-gray-500">Video preview area</span>
@@ -52,7 +52,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
             {/* Right div with content */}
             <div className="w-[400px] flex-shrink-0 flex flex-col">
               {/* Grey badges */}
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-4">
                 <span className="bg-gray-200 text-[#171718] px-3 py-2 rounded-sm text-[10px] font-medium flex items-center gap-1">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.33301 7.66667V3.33333C1.33301 2.6 1.93301 2 2.66634 2H5.28634C5.50595 2.00114 5.72188 2.0565 5.91494 2.16117C6.10801 2.26585 6.27222 2.41659 6.39301 2.6L6.93967 3.4C7.06046 3.58341 7.22468 3.73415 7.41774 3.83883C7.6108 3.9435 7.82673 3.99886 8.04634 4H13.333C13.6866 4 14.0258 4.14048 14.2758 4.39052C14.5259 4.64057 14.6663 4.97971 14.6663 5.33333V12C14.6663 12.3536 14.5259 12.6928 14.2758 12.9428C14.0258 13.1929 13.6866 13.3333 13.333 13.3333H6.99967M5.61301 7.07333C5.74302 6.94332 5.89736 6.8402 6.06722 6.76984C6.23709 6.69948 6.41915 6.66326 6.60301 6.66326C6.78687 6.66326 6.96893 6.69948 7.13879 6.76984C7.30866 6.8402 7.463 6.94332 7.59301 7.07333C7.72302 7.20334 7.82614 7.35768 7.8965 7.52755C7.96687 7.69741 8.00308 7.87947 8.00308 8.06333C8.00308 8.24719 7.96687 8.42925 7.8965 8.59912C7.82614 8.76898 7.72302 8.92332 7.59301 9.05333L3.96634 12.6667L1.33301 13.3333L1.99301 10.7L5.61301 7.07333Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
@@ -83,7 +83,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
               </div>
               
               {/* Blue info box */}
-              <div className="rounded-lg p-4 mt-auto" style={{ backgroundColor: '#CCDBFC' }}>
+              <div className="rounded-lg p-4 mt-auto max-w-[370px]" style={{ backgroundColor: '#CCDBFC' }}>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +98,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <p className="text-[#171718] text-sm">
+                    <p className="text-[#171718] text-sm font-medium">
                       The preview has no lip movements.
                     </p>
                     <p className="text-[#4D4D4D] text-sm leading-tight">
