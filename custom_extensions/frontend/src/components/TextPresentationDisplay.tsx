@@ -79,7 +79,7 @@ const parseAndStyleText = (text: string | undefined | null, isInRecommendationSe
 };
 
 const NewBulletIcon = () => (
-  <div className="w-0.75 h-0.75 rounded-full bg-[#0F58F9] mr-1.5 mt-[5px] shrink-0" />
+  <div className="w-1.5 h-1.5 rounded-full bg-[#0F58F9] mr-1.5 mt-[5px] shrink-0" />
 );
 
 // Helper function to detect if text starts with an emoji
@@ -211,8 +211,7 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
         borderColor: 'border-blue-500',
         textColor: 'text-black',
         iconColorClass: 'text-blue-500',
-        // Icon: InfoIconLucide
-        Icon: ''
+        Icon: () => null
       };
   }
 };
@@ -1136,7 +1135,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             </div>
           )}
           
-          <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
+          <ListTag className={`${listStyle} ${textIndentClass} ${isNumbered ? 'grid grid-cols-2 gap-x-4 gap-y-1.5' : 'space-y-1.5'}`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
