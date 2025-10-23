@@ -39,6 +39,10 @@ export default function SceneTimeline({
   const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [transitionPositions, setTransitionPositions] = useState<{ [key: string]: { x: number, y: number } }>({});
   const [isMounted, setIsMounted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0); // in seconds
+  const timelineContainerRef = useRef<HTMLDivElement | null>(null);
+  const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -61,10 +65,78 @@ export default function SceneTimeline({
     }
     return []; // Commented out regular scenes for now
   })();
+  
+  const SECONDS_PER_SLIDE = 30;
+  const totalDuration = displayScenes.length * SECONDS_PER_SLIDE;
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Playback timer
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(prev => {
+        const newTime = prev + 0.1; // Update every 100ms
+        if (newTime >= totalDuration) {
+          setIsPlaying(false);
+          return 0; // Reset to start
+        }
+        return newTime;
+      });
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, totalDuration]);
+
+  // Calculate playhead position
+  useEffect(() => {
+    const updatePlayhead = () => {
+      if (!timelineContainerRef.current || displayScenes.length === 0) return;
+      
+      const firstSlide = slideRefs.current[displayScenes[0].id];
+      const lastSlide = slideRefs.current[displayScenes[displayScenes.length - 1].id];
+      
+      if (!firstSlide || !lastSlide) return;
+      
+      const firstRect = firstSlide.getBoundingClientRect();
+      const lastRect = lastSlide.getBoundingClientRect();
+      
+      const startX = firstRect.left;
+      const endX = lastRect.right;
+      const totalWidth = endX - startX;
+      
+      const progress = totalDuration > 0 ? currentTime / totalDuration : 0;
+      const xPosition = startX + (totalWidth * progress);
+      
+      setPlayheadPosition(xPosition);
+    };
+    
+    updatePlayhead();
+    
+    const container = timelineContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', updatePlayhead);
+    }
+    
+    window.addEventListener('resize', updatePlayhead);
+    
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', updatePlayhead);
+      }
+      window.removeEventListener('resize', updatePlayhead);
+    };
+  }, [currentTime, displayScenes, totalDuration]);
 
   // Update transition button positions when slides change
   useEffect(() => {
@@ -108,17 +180,33 @@ export default function SceneTimeline({
           {/* Play Button with Time - Fixed */}
           <div className="flex flex-col items-center flex-shrink-0">
             <div className="relative flex items-center justify-center">
-              <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center transition-colors cursor-pointer" style={{ border: '1px solid #878787' }}>
-                <div className="w-0 h-0 border-l-[8px] border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" style={{ borderLeftColor: '#878787' }}></div>
+              <button 
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="w-10 h-10 bg-white rounded-full flex items-center justify-center transition-colors cursor-pointer" 
+                style={{ border: '1px solid #878787' }}
+              >
+                {isPlaying ? (
+                  // Pause icon
+                  <div className="flex gap-0.5">
+                    <div className="w-1 h-3 bg-[#878787]"></div>
+                    <div className="w-1 h-3 bg-[#878787]"></div>
+                  </div>
+                ) : (
+                  // Play icon
+                  <div className="w-0 h-0 border-l-[8px] border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" style={{ borderLeftColor: '#878787' }}></div>
+                )}
               </button>
             </div>
             <div className="h-8 flex items-center justify-center">
-              <span className="text-[10px] text-[#A5A5A5]">00:00 / 01:17</span>
+              <span className="text-[10px] text-[#A5A5A5]">{formatTime(currentTime)} / {formatTime(totalDuration)}</span>
             </div>
           </div>
 
           {/* Scrollable Slides Container */}
-          <div className="flex items-end gap-1 overflow-x-auto overflow-y-visible flex-1">
+          <div 
+            ref={timelineContainerRef}
+            className="flex items-end gap-1 overflow-x-auto overflow-y-visible flex-1"
+          >
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
@@ -223,6 +311,41 @@ export default function SceneTimeline({
           </div>
         </div>
       </div>
+      
+      {/* Portal for playhead line - rendered outside to avoid overflow clipping */}
+      {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && ReactDOM.createPortal(
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            left: `${playheadPosition}px`,
+            top: 0,
+            height: '100vh',
+            zIndex: 999
+          }}
+        >
+          {/* Time display above the line */}
+          <div 
+            className="absolute bg-[#0F58F9] text-white text-[10px] px-1.5 py-0.5 rounded"
+            style={{
+              bottom: 'calc(100vh - ' + (timelineContainerRef.current?.getBoundingClientRect().top || 0) + 'px + 10px)',
+              transform: 'translateX(-50%)',
+              left: 0
+            }}
+          >
+            {formatTime(currentTime)}
+          </div>
+          {/* Vertical line */}
+          <div 
+            className="w-0.5 bg-[#0F58F9]"
+            style={{
+              height: `${timelineContainerRef.current?.getBoundingClientRect().height || 0}px`,
+              position: 'absolute',
+              top: `${timelineContainerRef.current?.getBoundingClientRect().top || 0}px`,
+            }}
+          ></div>
+        </div>,
+        document.body
+      )}
       
       {/* Portal for transition buttons - rendered outside to avoid overflow clipping */}
       {isMounted && typeof window !== 'undefined' && ReactDOM.createPortal(
