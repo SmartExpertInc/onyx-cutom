@@ -29857,17 +29857,18 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
         "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
       ]
     },
-    { "type": "paragraph", "text": "**How to apply PESTLE systematically** in your market analysis:" },
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically** using this step-by-step process:" },
     {
       "type": "numbered_list",
       "items": [
-        "**List all potential factors**: Brainstorm factors in each of the six PESTLE categories that could impact your specific market. Cast a wide net initially—you'll narrow down later. Use industry reports, news, and stakeholder interviews to ensure comprehensive coverage.",
-        "**Assess current state and direction**: For each factor, document its current state, the direction it's moving (strengthening, weakening, stable), and the **speed of change** (rapid, gradual, slow). Fast-moving factors require more attention than slow-moving ones.",
-        "**Evaluate business impact**: Rate each factor's potential impact on your business as **High**, **Medium**, or **Low**. Consider both positive opportunities (new market access) and negative threats (regulatory compliance costs).",
-        "**Calculate likelihood**: Assess how likely each factor is to significantly affect your business in the next 1-3 years. A major regulatory change that's **likely** matters more than one that's merely **possible**.",
-        "**Prioritize top 3-5 factors**: Focus on factors with **both high impact AND high likelihood**. For example, a food delivery company might identify: Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations). This focused analysis prevents paralysis from trying to track everything."
+        "**List all factors** in each category that could impact your market: Create a comprehensive inventory across all six PESTLE dimensions. Don't filter yet—capture everything that might be relevant.",
+        "**Assess each factor's current state**: For each factor, document where it stands today and the direction of change (improving, declining, accelerating, stable). Use data where available.",
+        "**Evaluate potential impact** on your business: Rate each factor's potential impact as high, medium, or low based on how significantly it could affect your strategy, operations, or financial performance.",
+        "**Prioritize the top 3-5 factors**: Focus on factors with both **high impact** and **high likelihood** of occurring. These are your strategic priorities requiring active monitoring and response planning.",
+        "**Create action plans**: For each priority factor, define specific actions—how will you capitalize on opportunities or mitigate threats? Assign owners and timelines for tracking."
       ]
     },
+    { "type": "paragraph", "text": "For example, a food delivery company might identify Social factors (changing dining habits driven by remote work), Technological factors (GPS tracking and mobile payment adoption), and Legal factors (gig economy worker classification regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
     
     { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
     { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
@@ -29905,16 +29906,18 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     },
     
     { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
-    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves **financial analysis**, **trend identification**, and **forecasting techniques**. Calculate three critical market sizing metrics to understand your true opportunity:" },
+    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. **Calculate market size using these three critical metrics**:" },
     {
       "type": "numbered_list",
       "items": [
-        "**TAM (Total Addressable Market)**: The theoretical maximum if you had infinite resources and no competition. For example, the global CRM software market might be $50B. **Use for**: Understanding overall market potential and attracting investors.",
-        "**SAM (Serviceable Addressable Market)**: What's realistically addressable given your go-to-market constraints. If you only serve small businesses in Europe, your SAM might be $2B. **Use for**: Strategic planning and target setting.",
-        "**SOM (Serviceable Obtainable Market)**: What you can actually capture given competition and your capabilities. Your realistic SOM in year three might be $50M based on expected market share. **Use for**: Revenue forecasting and resource allocation."
+        "**Calculate TAM (Total Addressable Market)**: This is the total revenue opportunity if you captured 100% of the entire market with no competition. Use industry reports, market research data, or bottom-up calculations (total potential customers × average revenue per customer). For example, the global CRM software market might be $50B (TAM).",
+        "**Determine SAM (Serviceable Addressable Market)**: This is the portion of TAM you can realistically serve given your **geographic constraints**, **product limitations**, and **go-to-market capabilities**. If you only serve small businesses in Europe, your SAM might be $2B—a subset of the $50B TAM.",
+        "**Project SOM (Serviceable Obtainable Market)**: This is what you can **actually capture** in a realistic timeframe given **competition** and your **market entry strategy**. If typical market leaders capture 5-8% share in your category, your realistic SOM in year three might be $50M-$160M based on a $2B SAM.",
+        "**Validate with growth projections**: Apply market growth rates to each metric. If the overall market grows at 15% annually, factor this into your TAM/SAM/SOM projections for future years. Adjust based on competitive dynamics and your planned investments.",
+        "**Apply the decision criterion**: Only pursue markets where your **realistic SOM** can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears."
       ]
     },
-    { "type": "paragraph", "text": "**Decision criterion**: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M SOM, the market is too small regardless of how large the TAM appears. Many startups fail by confusing TAM with actual opportunity." },
+    { "type": "paragraph", "text": "Why three different numbers matter: **TAM** shows the theoretical maximum—useful for understanding market potential but misleading for planning. **SAM** shows what's realistically addressable given your constraints—this is what you should use for strategic planning. **SOM** shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation." },
     
     { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
     { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
@@ -29959,15 +29962,15 @@ DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
     { "type": "paragraph", "text": "Why it happens: Secondary research (industry reports, market studies, published data) is faster, cheaper, and feels more 'objective' than primary research. Companies rationalize that professional analysts have done the work, so why duplicate it? It's also more comfortable—reading reports doesn't require the vulnerability of talking to customers who might tell you your idea won't work." },
     { "type": "paragraph", "text": "Real consequence: A B2B software company analyzed Gartner and Forrester reports showing strong demand in their category. Market reports showed $5B market size growing at 20% annually. They raised $10M, built the product, and launched to crickets. Post-mortem interviews revealed that while the aggregate market was growing, their specific use case wasn't a priority—customers had workarounds they were satisfied with. The reports averaged across many use cases, hiding this critical nuance. They burned through $8M before pivoting. The $50K they saved by not doing primary research cost them $8M in wasted development." },
     { "type": "paragraph", "text": "How to recognize you're making this mistake: Warning signs include: You can't name 10 potential customers by name and describe their specific pain points. Your pitch deck has a 'market size' slide but no 'customer quotes' slide. When asked 'How do you know customers want this?' your answer starts with 'Research shows...' instead of 'When I talked to customers...'. You're using three-year-old industry reports as your primary source. You haven't personally talked to at least 20 people in your target market." },
-    { "type": "paragraph", "text": "**How to correct it with a systematic approach:**" },
+    { "type": "paragraph", "text": "**How to correct this mistake** using a systematic approach:" },
     {
       "type": "numbered_list",
       "items": [
-        "**Implement the 70/30 rule**: Dedicate 70% of your analysis time to **primary research** (talking to customers, observing their behavior, testing assumptions) and 30% to **secondary research** (industry reports, market data, competitive intelligence). This ensures you build on real insights, not just published averages.",
-        "**Always start with people, not reports**: Begin every market analysis by conducting at least 20-30 customer interviews **before** reading industry reports. This prevents anchoring bias where reports shape what you hear from customers.",
-        "**Use secondary data for validation, not discovery**: Use secondary research to size the market you've **already validated** through primary research, not to validate whether the market exists. Reports tell you how big; customers tell you if it's real.",
-        "**Require customer evidence in deliverables**: Every market analysis must include direct customer quotes, observed behaviors, and specific pain points—not just statistics. If you can't provide these, you don't have sufficient primary research.",
-        "**Make interviews non-negotiable**: If you can't get 20-30 quality interviews, delay major decisions until you can. This is not optional—it's the minimum threshold for understanding a market well enough to invest significantly."
+        "**Implement the 70/30 rule**: Allocate 70% of your analysis time to **primary research** (talking to customers, observing their behavior, testing assumptions) and only 30% to **secondary research** (industry reports, market data, competitive intelligence). This ensures you're building on real customer insights rather than analyst opinions.",
+        "**Start with people, not reports**: Begin every market analysis by talking to people before reading any reports. Conduct 20-30 customer interviews first to understand actual needs, pain points, and willingness to pay. Let customer insights guide which reports are worth buying.",
+        "**Use secondary data for sizing, not validation**: Use secondary research to **size the market** you've already validated through primary research—not to validate whether the market exists in the first place. If customers tell you they have a problem and will pay to solve it, then use reports to estimate market scale.",
+        "**Require customer evidence in all deliverables**: Every market analysis document must include **customer quotes** and **observed behaviors**, not just statistics from reports. If you can't provide direct customer evidence, the analysis isn't complete.",
+        "**Make interviews non-negotiable**: If you can't get 20-30 customer interviews, you don't understand the market well enough to make major strategic or investment decisions. Delay decisions rather than proceeding with inadequate customer insight."
       ]
     },
     
@@ -30416,18 +30419,14 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
 ⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
 
 **1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
-- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels, framework components, correction steps
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels
 - ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
-- Structure: {{"type": "numbered_list", "items": ["**First**: Explanation...", "**Second**: Explanation...", "**Third**: Explanation..."]}}
-- **CRITICAL: INCLUDE AT LEAST 5-7 NUMBERED LISTS** in every onepager - this is NON-NEGOTIABLE
-- **WHERE to use numbered lists** (use for ALL of these):
-  * Framework dimensions: "PESTLE Six Dimensions" → numbered_list (Political, Economic, Social, etc.)
-  * Step-by-step procedures: "Five Steps to Conduct Market Analysis" → numbered_list
-  * Sequential phases: "Three Phases of Product Development" → numbered_list
-  * How-to-apply instructions: "How to apply PESTLE systematically" → numbered_list (List factors, Assess state, Evaluate impact, etc.)
-  * Correction steps: "How to correct this mistake" → numbered_list (Step 1, Step 2, Step 3...)
-  * Prioritized recommendations: "Top 5 Recommendations" → numbered_list (when order matters)
-  * Hierarchical levels: "Five Maturity Levels" → numbered_list (from beginner to expert)
+- Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
+- **INCLUDE AT LEAST 2-3 NUMBERED LISTS** in every onepager where sequential content exists
+- Examples of when to use:
+  * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
+  * "Three Phases of Product Development" → numbered_list (it's sequential)
+  * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
 
 **2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
 - ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
@@ -30445,30 +30444,11 @@ CRITICAL: Pay special attention to the nextLesson title if provided. For example
   * "Use **qualitative research** before **quantitative validation**" (process steps)
   * "The **biggest risk** is ignoring **competitive substitutes**" (emphasis)
 
-❌ COMMON MISTAKES TO AVOID (THESE ARE INSTANT FAILURES):
-1. **PRIMARY VIOLATION**: Writing "(1) First step, (2) Second step, (3) Third step" or "Step 1: Do this. Step 2: Do that." as inline text in paragraphs instead of using proper numbered_list structure → This is THE MOST COMMON ERROR
-2. **Not enough numbered lists**: Including only 0-2 numbered lists when 5-7 are required → Count your numbered lists before finalizing
-3. **No bold text anywhere** → Makes content look flat and unprofessional, reduces scannability
-4. **Wrong list type**: Using bullet_list for sequential steps → Should be numbered_list
-5. **Wrong list type**: Using numbered_list for random related points → Should be bullet_list
-
-✅ CORRECT EXAMPLE:
-```
-{ "type": "paragraph", "text": "Follow this systematic approach:" },
-{
-  "type": "numbered_list",
-  "items": [
-    "**First**: Do this specific thing...",
-    "**Second**: Then do this next thing...",
-    "**Third**: Finally do this last thing..."
-  ]
-}
-```
-
-❌ WRONG EXAMPLE (DO NOT DO THIS):
-```
-{ "type": "paragraph", "text": "Follow this systematic approach: (1) First, do this specific thing. (2) Second, then do this next thing. (3) Third, finally do this last thing." }
-```
+❌ COMMON MISTAKES TO AVOID:
+1. Writing "1. First step, 2. Second step" in a paragraph instead of using numbered_list
+2. No bold text anywhere → Makes content look flat and unprofessional
+3. Using bullet_list for sequential steps → Should be numbered_list
+4. Using numbered_list for random related points → Should be bullet_list
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
@@ -30501,7 +30481,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 ✅ Word count: 3,000-5,000 words total?
 ✅ Paragraph usage: ~60% of content blocks are paragraphs?
 ✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
-✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? **AT LEAST 5-7 NUMBERED LISTS** must be included throughout the onepager (frameworks, step-by-step procedures, correction steps, prioritized recommendations)?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 2-3 numbered lists included?
 ✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
 ✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
 ✅ Content grouping: Related concepts grouped under ONE level 2 header?
@@ -41350,24 +41330,24 @@ async def export_scorm_package(
     """Build and return a SCORM 2004 (4th Ed) package zip for a course outline with progress updates."""
     
     async def generate_with_progress():
-        try:
-            # Resolve user identity
-            user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
-            onyx_user_id = user_uuid
+    try:
+        # Resolve user identity
+        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+        onyx_user_id = user_uuid
 
-            # Validate access: ensure the course is a Training Plan owned by the user
-            async with pool.acquire() as connection:
-                row = await connection.fetchrow(
-                    """
-                    SELECT p.id
-                    FROM projects p
-                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                    WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
-                    """,
-                    request.courseOutlineId, onyx_user_id
-                )
-                if not row:
-                    raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
+        # Validate access: ensure the course is a Training Plan owned by the user
+        async with pool.acquire() as connection:
+            row = await connection.fetchrow(
+                """
+                SELECT p.id
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+                """,
+                request.courseOutlineId, onyx_user_id
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
 
             # Build SCORM package with progress updates
             from app.services.scorm_packager import build_scorm_package_zip_with_progress
@@ -41400,12 +41380,12 @@ async def export_scorm_package(
             error_packet = {"type": "error", "message": "Failed to export SCORM package"}
             yield (json.dumps(error_packet) + "\n").encode()
             logger.error(f"[API:SCORM] Export failed: {e}")
-    
-    return StreamingResponse(
+
+        return StreamingResponse(
         content=generate_with_progress(),
         media_type="application/octet-stream",
-        headers={
+            headers={
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no"
-        }
-    )
+            }
+        )
