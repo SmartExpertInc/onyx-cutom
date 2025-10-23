@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation'
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
+import DeletableWrapper from '@/components/DeletableWrapper';
+import DeletableDiv from '@/components/DeletableDiv';
 
 // InlineEditor component for text editing
 interface InlineEditorProps {
@@ -198,6 +200,7 @@ export default function CommercialProposalPage() {
   });
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
   const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
+  const [deletableItems, setDeletableItems] = useState<{ [key: string]: boolean }>({})
   
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -333,6 +336,18 @@ export default function CommercialProposalPage() {
 
   const handleTextCancel = () => {
     stopEditing();
+  };
+
+  // Handle deletion of elements
+  const handleDeleteElement = (elementId: string) => {
+    console.log(`[DELETE ELEMENT] Deleting element: ${elementId}`);
+    setDeletableItems(prev => {
+      const newItems = { ...prev };
+      delete newItems[elementId];
+      return newItems;
+    });
+    // Add your custom deletion logic here
+    // For example, remove from proposalData, update backend, etc.
   };
 
   // Helper function to generate random assessment type and duration
@@ -709,7 +724,15 @@ export default function CommercialProposalPage() {
           {/* Second Section */}
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
             {/* Service 1 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <DeletableWrapper
+              onDelete={() => handleDeleteElement('service1')}
+              deleteButtonPosition="top-right"
+              deleteButtonSize="md"
+              confirmDelete={true}
+              deleteConfirmText="Are you sure you want to delete Service 1? This action cannot be undone."
+              className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
+              style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
+            >
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   {getLocalizedText(proposalData?.language, {
@@ -2401,7 +2424,7 @@ export default function CommercialProposalPage() {
                     </span>
                   </div>
 
-                  <div className="flex flex-col gap-[20px] xl:gap-[40px]">
+                <div className="flex flex-col gap-[20px] xl:gap-[40px]">
                 <h4 className="text-[20px] font-semibold xl:font-medium">
                   {getLocalizedText(proposalData?.language, {
                     en: 'Pricing packages:',
@@ -2688,7 +2711,7 @@ export default function CommercialProposalPage() {
               </div>
               </div>
               </div>
-            </div>
+            </DeletableWrapper>
 
             {/* Service 2 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
@@ -4664,7 +4687,7 @@ export default function CommercialProposalPage() {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-[20px] xl:gap-[40px]">
+              <DeletableDiv className="flex flex-col gap-[20px] xl:gap-[40px]">
                 <h4 className="text-[20px] font-semibold xl:font-medium">
                   {getLocalizedText(proposalData?.language, {
                     en: 'Pricing packages:',
@@ -5562,7 +5585,7 @@ export default function CommercialProposalPage() {
                     </defs>
                   </svg>
                 </div>
-              </div>
+              </DeletableDiv>
               
               <div 
                 className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
