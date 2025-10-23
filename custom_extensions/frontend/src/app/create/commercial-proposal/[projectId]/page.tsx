@@ -190,7 +190,6 @@ interface LandingPageData {
   projectName: string
   companyName: string
   companyDescription: string
-  proposalTitle: string
   proposalDescription: string
   jobPositions: JobPosition[]
   workforceCrisis: WorkforceCrisisData
@@ -225,7 +224,6 @@ export default function CommercialProposalPage() {
     projectName: 'Project',
     companyName: 'MHE Group',
     companyDescription: 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-    proposalTitle: 'Commercial Proposal',
     proposalDescription: 'Ready-made course templates for onboarding and training your employees:',
     jobPositions: [],
     workforceCrisis: {} as WorkforceCrisisData,
@@ -235,6 +233,7 @@ export default function CommercialProposalPage() {
     language: language
   });
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
+  const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
   
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -308,7 +307,6 @@ export default function CommercialProposalPage() {
         projectName: data.projectName || 'Project',
         companyName: data.companyName || 'MHE Group',
         companyDescription: data.companyDescription || 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-        proposalTitle: data.proposalTitle || 'Commercial Proposal',
         proposalDescription: data.proposalDescription || 'Ready-made course templates for onboarding and training your employees:',
         jobPositions: data.jobPositions || [],
         workforceCrisis: data.workforceCrisis || {} as WorkforceCrisisData,
@@ -364,6 +362,82 @@ export default function CommercialProposalPage() {
   const handleTextCancel = () => {
     stopEditing();
   };
+
+  // Helper function to generate random assessment type and duration
+  const getRandomAssessment = () => {
+    // Language parameter usage in conditional rendering
+    console.log(`[LANGUAGE FLOW DEBUG] getRandomAssessment - proposalData?.language: "${proposalData?.language}"`)
+    console.log(`[LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${proposalData?.language === 'en'}`)
+    
+    const assessments = getLocalizedText(proposalData?.language, {
+      en: ['none', 'test', 'practice'],
+      es: ['ninguno', 'prueba', 'práctica'],
+      ua: ['немає', 'тест', 'практика'],
+      ru: ['нет', 'тест', 'практика']
+    })
+    
+    const durations = getLocalizedText(proposalData?.language, {
+      en: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      es: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
+      ua: ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв'],
+      ru: ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+    })
+    
+    return {
+      type: assessments[Math.floor(Math.random() * assessments.length)],
+      duration: durations[Math.floor(Math.random() * durations.length)]
+    }
+  }
+
+  // Generate stable assessment data for all modules
+  const generateAssessmentData = () => {
+    if (!proposalData?.courseOutlineModules) return {}
+    
+    const data: { [key: string]: { type: string; duration: string }[] } = {}
+    
+    proposalData.courseOutlineModules.forEach((module, moduleIndex) => {
+      if (module.lessons) {
+        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      }
+    })
+    
+    return data
+  }
+
+  // Calculate total modules and lessons count from course outline
+  const getTotalModulesAndLessons = () => {
+    if (!proposalData.courseOutlineModules) return { modules: 0, lessons: 0 }
+    
+    const modules = proposalData.courseOutlineModules.length
+    const lessons = proposalData.courseOutlineModules.reduce((total, module) => {
+      return total + (module.lessons?.length || 0)
+    }, 0)
+    
+    return { modules, lessons }
+  }
+
+  // Generate assessment data when landing page data is loaded
+  useEffect(() => {
+    if (proposalData?.courseOutlineModules) {
+      const data = generateAssessmentData()
+      setAssessmentData(data)
+    }
+    
+    // Log chart data for verification
+        if (proposalData?.workforceCrisis?.chartData) {
+          console.log('Chart Data Received:', proposalData.workforceCrisis.chartData)
+          console.log('Chart Data Points:', proposalData.workforceCrisis.chartData.chartData)
+          console.log('Total Shortage:', proposalData.workforceCrisis.chartData.totalShortage)
+          console.log('Trend:', proposalData.workforceCrisis.chartData.trend)
+        }
+        
+        if (proposalData?.workforceCrisis?.yearlyShortage) {
+          console.log('Yearly Shortage Data Received:', proposalData.workforceCrisis.yearlyShortage)
+          console.log('Yearly Shortage Number:', proposalData.workforceCrisis.yearlyShortage.yearlyShortage)
+          console.log('Industry:', proposalData.workforceCrisis.yearlyShortage.industry)
+          console.log('Description:', proposalData.workforceCrisis.yearlyShortage.description)
+        }
+  }, [proposalData?.courseOutlineModules, proposalData?.workforceCrisis?.chartData])
 
   // Fetch data on component mount
   useEffect(() => {
@@ -522,28 +596,13 @@ export default function CommercialProposalPage() {
               
               {/* Title with colored text and span */}
               <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
-                {editingField === 'proposalTitle' ? (
-                  <InlineEditor
-                    initialValue={proposalData.proposalTitle}
-                    onSave={(value) => handleTextSave('proposalTitle', value)}
-                    onCancel={handleTextCancel}
-                    className="inline-block"
-                    style={{ 
-                      fontSize: 'inherit',
-                      fontWeight: 'inherit',
-                      color: 'inherit',
-                      lineHeight: 'inherit'
-                    }}
-                  />
-                ) : (
-                  <span 
-                    onClick={() => startEditing('proposalTitle')}
-                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                    title="Click to edit proposal title"
-                  >
-                    {proposalData.proposalTitle}
-                  </span>
-                )} <span className="text-[#09090B]">
+                {getLocalizedText(proposalData.language, {
+                  en: 'Commercial Proposal',
+                  es: 'Propuesta comercial',
+                  ua: 'Комерційна пропозиція',
+                  ru: 'Коммерческое предложение'
+                })}
+                <span className="text-[#09090B]">
                   {getLocalizedText(proposalData.language, {
                     en: 'for the',
                     es: 'para el',
@@ -582,7 +641,6 @@ export default function CommercialProposalPage() {
                     onSave={(value) => handleTextSave('companyDescription', value)}
                     onCancel={handleTextCancel}
                     multiline={true}
-                    placeholder="Enter company description..."
                     style={{ 
                       fontSize: 'inherit',
                       fontWeight: 'inherit',
@@ -635,7 +693,12 @@ export default function CommercialProposalPage() {
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                  Услуга 1:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Service 1:',
+                    es: 'Servicio 1:',
+                    ua: 'Послуга 1:',
+                    ru: 'Услуга 1:'
+                  })}
                 </span>
               </div>
               
@@ -646,7 +709,6 @@ export default function CommercialProposalPage() {
                     onSave={(value) => handleTextSave('proposalDescription', value)}
                     onCancel={handleTextCancel}
                     multiline={true}
-                    placeholder="Enter service description..."
                     style={{ 
                       fontSize: 'inherit',
                       fontWeight: 'inherit',
@@ -728,7 +790,34 @@ export default function CommercialProposalPage() {
                 </div>
                 
                 <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
-                  Онбординг курс для <br className="xl:hidden"/> должности HVAC Installer
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Onboarding course for',
+                    es: 'Curso de incorporación para',
+                    ua: 'Курс онбордингу для',
+                    ru: 'Онбординг курс для'
+                  })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'position',
+                    es: 'posición',
+                    ua: 'посади',
+                    ru: 'должности'
+                  })}{' '}
+                  {editingField === 'onboardingCourseTitle' ? (
+                    <InlineEditor
+                      initialValue={proposalData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
+                      onSave={(value) => handleTextSave('onboardingCourseTitle', value)}
+                      onCancel={handleTextCancel}
+                      className="font-medium text-[#09090B]"
+                      style={{ fontSize: '20px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('onboardingCourseTitle')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit onboarding course title"
+                    >
+                      {`"${proposalData?.courseTemplates?.[0]?.title || 'HVAC Installer'}"`}
+                    </span>
+                  )}
                 </h4>
                 
                 <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
@@ -743,11 +832,21 @@ export default function CommercialProposalPage() {
                       </svg>
                       
                       <span className="font-medium text-[12px] text-white">
-                        Модулей (5)
+                        {getLocalizedText(proposalData?.language, {
+                          en: `Modules (${getTotalModulesAndLessons().modules})`,
+                          es: `Módulos (${getTotalModulesAndLessons().modules})`,
+                          ua: `Модулі (${getTotalModulesAndLessons().modules})`,
+                          ru: `Модулей (${getTotalModulesAndLessons().modules})`
+                        })}
                       </span>
                       
                       <span className="font-medium text-[12px] text-white">
-                        Уроков (14)
+                        {getLocalizedText(proposalData?.language, {
+                          en: `Lessons (  ${getTotalModulesAndLessons().lessons})`,
+                          es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
+                          ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
+                          ru: `Уроков (${getTotalModulesAndLessons().lessons})`
+                        })}
                       </span>
                     </div>
                     
@@ -778,29 +877,480 @@ export default function CommercialProposalPage() {
                   
                   <div className="flex flex-col xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
                     <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
-                      План обучения
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Training Plan',
+                        es: 'Plan de Entrenamiento',
+                        ua: 'План навчання',
+                        ru: 'План обучения'
+                      })}
                     </h4>
 
                     {/* Module 1*/}
-                    <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-0'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'Module 01:',
+                                es: 'Módulo 01:',
+                                ua: 'Модуль 01:',
+                                ru: 'Модуль 01:'
+                              })}
+                            </span>
+
+                            <h5 className="hidden xl:block font-medium text-[16px]">
+                              {editingField === 'courseModule_0' ? (
+                                <InlineEditor
+                                  initialValue={proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                  onSave={(value) => handleTextSave('courseModule_0', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_0')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                              {proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                </span>
+                              )}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module-0')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module-0'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module-0'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] xl:hidden">
+                          {editingField === 'courseModule_0' ? (
+                            <InlineEditor
+                              initialValue={proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                              onSave={(value) => handleTextSave('courseModule_0', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_0')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                          {proposalData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                            </span>
+                          )}
+                        </h5>
+
+                        {/* Module 1 Expandable Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedModules['module-0'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          }`}
+                        >
+                          {/* XL Desktop Table Layout */}
+                          <div className="hidden xl:block">
+                            <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                              {/* Table Header */}
+                              <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                                <div className="grid grid-cols-3 gap-[20px]">
+                                  <div className="text-white font-medium text-[12px] leading-[100%]">
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Table Rows - Dynamic */}
+                              <div className="bg-white">
+                                {proposalData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                                  const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
+                                  const isLast = index === (proposalData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {editingField === `courseLesson_0_${index}` ? (
+                                            <InlineEditor
+                                              initialValue={lesson}
+                                              onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                              onCancel={handleTextCancel}
+                                              className="font-medium"
+                                              style={{ fontSize: '12px', color: '#09090B' }}
+                                            />
+                                          ) : (
+                                            <span 
+                                              onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                              title="Click to edit lesson name"
+                                            >
+                                          {lesson}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                          </svg>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
+                                  <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        Основные этапы открытия салона
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {getLocalizedText(proposalData?.language, {
+                                            en: 'none',
+                                            es: 'ninguno',
+                                            ua: 'немає',
+                                            ru: 'нет'
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          5 мин
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Mobile Layout - Hidden on XL */}
+                          <div className="xl:hidden">
+                            {proposalData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                              const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
+                              const isLast = index === (proposalData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {editingField === `courseLesson_0_${index}` ? (
+                                      <InlineEditor
+                                        initialValue={lesson}
+                                        onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium"
+                                        style={{ fontSize: '14px', color: '#09090B' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                        title="Click to edit lesson name"
+                                      >
+                                    {lesson}
+                                      </span>
+                                    )}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }) || (
+                              // Fallback if no lessons available
+                              <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  Основные этапы открытия салона
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: none',
+                                        es: 'Verificación de conocimientos: ninguno',
+                                        ua: 'Перевірка знань: немає',
+                                        ru: 'Проверка знаний: нет'
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      5 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+
+                          </div>
+                        </div>
+                    </div>
+
+                    {/* Module 2*/}
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            Модуль 01:
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'Module 02:',
+                              es: 'Módulo 02:',
+                              ua: 'Модуль 02:',
+                              ru: 'Модуль 02:'
+                            })}
                           </span>
 
                           <h5 className="hidden xl:block font-medium text-[16px]">
-                            Корпоративная культура и стандарты работы в Vogue Lashes & Spa
+                            {editingField === 'courseModule_1' ? (
+                              <InlineEditor
+                                initialValue={proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                                onSave={(value) => handleTextSave('courseModule_1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '16px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('courseModule_1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit module title"
+                              >
+                            {proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                              </span>
+                            )}
                           </h5>
                         </div>
                         
                         <button 
-                          onClick={() => toggleModule('module1')}
+                          onClick={() => toggleModule('module-1')}
                           className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            expandedModules['module-1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
                           }`}
                         >
-                          {expandedModules['module1'] ? (
+                          {expandedModules['module-1'] ? (
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
@@ -813,13 +1363,29 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] xl:hidden">
-                        Корпоративная культура и<br className="xl:hidden"/> стандарты работы в Vogue<br className="xl:hidden"/> Lashes & Spa
+                        {editingField === 'courseModule_1' ? (
+                          <InlineEditor
+                            initialValue={proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                            onSave={(value) => handleTextSave('courseModule_1', value)}
+                            onCancel={handleTextCancel}
+                            className="font-medium"
+                            style={{ fontSize: '16px' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('courseModule_1')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit module title"
+                          >
+                        {proposalData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                          </span>
+                        )}
                       </h5>
 
-                      {/* Module 1 Expandable Content */}
+                      {/* Module 2 Expandable Content */}
                       <div 
                         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedModules['module1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          expandedModules['module-1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
                         }`}
                       >
                         {/* XL Desktop Table Layout */}
@@ -829,442 +1395,353 @@ export default function CommercialProposalPage() {
                             <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                               <div className="grid grid-cols-3 gap-[20px]">
                                 <div className="text-white font-medium text-[12px] leading-[100%]">
-                                  Уроки в модуле
+                                  {editingField === 'tableHeaderLessons' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                        startEditing('tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                    </span>
+                                  )}
                                 </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                  Проверка знаний: тест / практика с куратором
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderAssessment' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                        startEditing('tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                    </span>
+                                  )}
                                 </div>
-                                <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                  Длительность обучения
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderDuration' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                        startEditing('tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
                             
-                            {/* Table Rows */}
+                            {/* Table Body */}
                             <div className="bg-white">
-                              {/* Row 1 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                    Основные этапы открытия салона
+                              {proposalData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
+                                const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
+                                const isLast = index === (proposalData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
+                                
+                                return (
+                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {lesson}
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                          </svg>
+                                        ) : (
+                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                          </svg>
+                                        )}
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.type}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.duration}
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                    </svg>
-
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      нет
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd" clip-rule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                    </svg>
-
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      5 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Row 2 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Локация и планировка: требования к помещению
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      практика
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      4 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Row 3 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Финансовая модель и управление бюджетом
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      практика
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      6 мин
-                                    </span>
+                                )
+                              }) || (
+                                // Fallback if no lessons available
+                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                  <div className="grid grid-cols-3 gap-[20px] items-center">
+                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                      Поиск и отбор сотрудников
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {getLocalizedText(proposalData?.language, {
+                                          en: 'none',
+                                          es: 'ninguno',
+                                          ua: 'немає',
+                                          ru: 'нет'
+                                        })}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        5 мин
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              
-                              {/* Row 4 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Финансовая модель и управление бюджетом
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      практика
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      6 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Row 5 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Работа с поставщиками и закупка материалов
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      практика
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      4 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Row 6 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Требования к оборудованию и его размещение
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      нет
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      5 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Row 7 */}
-                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
-                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Тест по запуску и организации салона
-                                  </div>
-                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <g clipPath="url(#clip0_379_20901)">
-                                      <path d="M6 6.99902C6.14167 6.99902 6.26458 6.94694 6.36875 6.84277C6.47292 6.73861 6.525 6.61569 6.525 6.47402C6.525 6.33236 6.47292 6.20944 6.36875 6.10527C6.26458 6.00111 6.14167 5.94902 6 5.94902C5.85833 5.94902 5.73542 6.00111 5.63125 6.10527C5.52708 6.20944 5.475 6.33236 5.475 6.47402C5.475 6.61569 5.52708 6.73861 5.63125 6.84277C5.73542 6.94694 5.85833 6.99902 6 6.99902ZM5.625 5.39902H6.375C6.375 5.15736 6.4 4.98027 6.45 4.86777C6.5 4.75527 6.61667 4.60736 6.8 4.42402C7.05 4.17402 7.21667 3.97194 7.3 3.81777C7.38333 3.66361 7.425 3.48236 7.425 3.27402C7.425 2.89902 7.29375 2.59277 7.03125 2.35527C6.76875 2.11777 6.425 1.99902 6 1.99902C5.65833 1.99902 5.36042 2.09486 5.10625 2.28652C4.85208 2.47819 4.675 2.73236 4.575 3.04902L5.25 3.32402C5.325 3.11569 5.42708 2.95944 5.55625 2.85527C5.68542 2.75111 5.83333 2.69902 6 2.69902C6.2 2.69902 6.3625 2.75527 6.4875 2.86777C6.6125 2.98027 6.675 3.13236 6.675 3.32402C6.675 3.44069 6.64167 3.55111 6.575 3.65527C6.50833 3.75944 6.39167 3.89069 6.225 4.04902C5.95 4.29069 5.78125 4.48027 5.71875 4.61777C5.65625 4.75527 5.625 5.01569 5.625 5.39902ZM3 8.49902C2.725 8.49902 2.48958 8.40111 2.29375 8.20527C2.09792 8.00944 2 7.77402 2 7.49902V1.49902C2 1.22402 2.09792 0.988607 2.29375 0.792773C2.48958 0.59694 2.725 0.499023 3 0.499023H9C9.275 0.499023 9.51042 0.59694 9.70625 0.792773C9.90208 0.988607 10 1.22402 10 1.49902V7.49902C10 7.77402 9.90208 8.00944 9.70625 8.20527C9.51042 8.40111 9.275 8.49902 9 8.49902H3ZM1 10.499C0.725 10.499 0.489583 10.4011 0.29375 10.2053C0.0979167 10.0094 0 9.77402 0 9.49902V2.49902H1V9.49902H8V10.499H1Z" fill="#FF1414"/>
-                                      </g>
-                                      <defs>
-                                      <clipPath id="clip0_379_20901">
-                                      <rect width="10" height="10" fill="white" transform="translate(0 0.5)"/>
-                                      </clipPath>
-                                      </defs>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      тест
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      2 мин
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
+                              )}
                             </div>
                           </div>
                         </div>
                         
                         {/* Mobile Layout - Hidden on XL */}
                         <div className="xl:hidden">
-                          {/* Lesson 1 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Основные этапы открытия салона
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: нет
-                              </span>
-                            </div>
+                          {proposalData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
+                            const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
+                            const isLast = index === (proposalData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
                             
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                5 мин
+                            return (
+                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  {lesson}
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    {assessment.type === 'нет' ? (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                      </svg>
+                                    ) : (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                      </svg>
+                                    )}
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      Проверка знаний: {assessment.type}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {assessment.duration}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }) || (
+                            // Fallback if no lessons available
+                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                Поиск и отбор сотрудников
                               </span>
+                              <div className="flex items-center justify-between mb-[12px]">
+                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: none',
+                                      es: 'Verificación de conocimientos: ninguno',
+                                      ua: 'Перевірка знань: немає',
+                                      ru: 'Проверка знаний: нет'
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    5 мин
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-
-                        {/* Lesson 2 */}
-                        <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Локация и планировка:<br className="xl:hidden"/> требования к помещению
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: практика
-                              </span>
-                            </div>
-                            
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                4 мин
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Lesson 3 */}
-                        <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Финансовая модель и<br className="xl:hidden"/> управление бюджетом
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: практика
-                              </span>
-                            </div>
-                            
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                6 мин
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Lesson 4 */}
-                        <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Работа с поставщиками<br className="xl:hidden"/> и закупка материалов
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: практика
-                              </span>
-                            </div>
-                            
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                4 мин
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Lesson 5 */}
-                        <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Требования к оборудованию<br className="xl:hidden"/> и его размещение
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: нет
-                              </span>
-                            </div>
-                            
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                5 мин
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Lesson 6 */}
-                        <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                          <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                            Тест по запуску и<br className="xl:hidden"/> организации салона
-                          </span>
-                          <div className="flex items-center justify-between mb-[12px]">
-                            <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_379_20901)">
-                                <path d="M6 6.99902C6.14167 6.99902 6.26458 6.94694 6.36875 6.84277C6.47292 6.73861 6.525 6.61569 6.525 6.47402C6.525 6.33236 6.47292 6.20944 6.36875 6.10527C6.26458 6.00111 6.14167 5.94902 6 5.94902C5.85833 5.94902 5.73542 6.00111 5.63125 6.10527C5.52708 6.20944 5.475 6.33236 5.475 6.47402C5.475 6.61569 5.52708 6.73861 5.63125 6.84277C5.73542 6.94694 5.85833 6.99902 6 6.99902ZM5.625 5.39902H6.375C6.375 5.15736 6.4 4.98027 6.45 4.86777C6.5 4.75527 6.61667 4.60736 6.8 4.42402C7.05 4.17402 7.21667 3.97194 7.3 3.81777C7.38333 3.66361 7.425 3.48236 7.425 3.27402C7.425 2.89902 7.29375 2.59277 7.03125 2.35527C6.76875 2.11777 6.425 1.99902 6 1.99902C5.65833 1.99902 5.36042 2.09486 5.10625 2.28652C4.85208 2.47819 4.675 2.73236 4.575 3.04902L5.25 3.32402C5.325 3.11569 5.42708 2.95944 5.55625 2.85527C5.68542 2.75111 5.83333 2.69902 6 2.69902C6.2 2.69902 6.3625 2.75527 6.4875 2.86777C6.6125 2.98027 6.675 3.13236 6.675 3.32402C6.675 3.44069 6.64167 3.55111 6.575 3.65527C6.50833 3.75944 6.39167 3.89069 6.225 4.04902C5.95 4.29069 5.78125 4.48027 5.71875 4.61777C5.65625 4.75527 5.625 5.01569 5.625 5.39902ZM3 8.49902C2.725 8.49902 2.48958 8.40111 2.29375 8.20527C2.09792 8.00944 2 7.77402 2 7.49902V1.49902C2 1.22402 2.09792 0.988607 2.29375 0.792773C2.48958 0.59694 2.725 0.499023 3 0.499023H9C9.275 0.499023 9.51042 0.59694 9.70625 0.792773C9.90208 0.988607 10 1.22402 10 1.49902V7.49902C10 7.77402 9.90208 8.00944 9.70625 8.20527C9.51042 8.40111 9.275 8.49902 9 8.49902H3ZM1 10.499C0.725 10.499 0.489583 10.4011 0.29375 10.2053C0.0979167 10.0094 0 9.77402 0 9.49902V2.49902H1V9.49902H8V10.499H1Z" fill="#FF1414"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_379_20901">
-                                <rect width="10" height="10" fill="white" transform="translate(0 0.5)"/>
-                                </clipPath>
-                                </defs>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                Проверка знаний: тест
-                              </span>
-                            </div>
-                            
-                            <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                              <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                              </svg>
-
-                              <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                2 мин
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Module 2*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
-                      <div className="flex items-center justify-between">
-                        <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            Модуль 02:
-                          </span>
-
-                          <h5 className="hidden xl:block font-medium text-[16px]">
-                            Подбор и управление персоналом
-                          </h5>
-                        </div>
-                        
-                        <button 
-                          onClick={() => toggleModule('module3')}
-                          className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                          }`}
-                        >
-                          {expandedModules['module3'] ? (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                          ) : (
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
                           )}
-                        </button>
+                        </div>
                       </div>
-                      
-                      <h5 className="font-medium text-[16px] xl:hidden">
-                        Подбор и управление<br className="xl:hidden"/> персоналом
-                      </h5>
                     </div>
 
                     {/* Module 3*/}
-                    <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module3'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module-2'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            Модуль 03:
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'Module 03:',
+                              es: 'Módulo 03:',
+                              ua: 'Модуль 03:',
+                              ru: 'Модуль 03:'
+                            })}
                           </span>
 
                           <h5 className="font-medium text-[16px] hidden xl:block">
-                            Маркетинг и привлечение клиентов
+                            {editingField === 'courseModule_2' ? (
+                              <InlineEditor
+                                initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                                onSave={(value) => handleTextSave('courseModule_2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '16px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('courseModule_2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit module title"
+                              >
+                            {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                              </span>
+                            )}
                           </h5>
                         </div>
                         
                         <button 
-                          onClick={() => toggleModule('module4')}
+                          onClick={() => toggleModule('module-2')}
                           className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module4'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            expandedModules['module-2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
                           }`}
                         >
-                          {expandedModules['module4'] ? (
+                          {expandedModules['module-2'] ? (
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
@@ -1277,30 +1754,385 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] xl:hidden">
-                        Маркетинг и<br className="xl:hidden"/> привлечение клиентов
+                        {editingField === 'courseModule_2' ? (
+                          <InlineEditor
+                            initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                            onSave={(value) => handleTextSave('courseModule_2', value)}
+                            onCancel={handleTextCancel}
+                            className="font-medium"
+                            style={{ fontSize: '16px' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('courseModule_2')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit module title"
+                          >
+                        {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                          </span>
+                        )}
                       </h5>
+
+                      {/* Module 3 Expandable Content */}
+                      <div 
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          expandedModules['module-2'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                        }`}
+                      >
+                        {/* XL Desktop Table Layout */}
+                        <div className="hidden xl:block">
+                          <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                            {/* Table Header */}
+                            <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                              <div className="grid grid-cols-3 gap-[20px]">
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderLessons' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                        startEditing('tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderAssessment' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                        startEditing('tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderDuration' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                        startEditing('tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Table Body */}
+                            <div className="bg-white">
+                              {proposalData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
+                                const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
+                                const isLast = index === (proposalData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
+                                
+                                return (
+                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {lesson}
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                          </svg>
+                                        ) : (
+                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                          </svg>
+                                        )}
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.type}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.duration}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }) || (
+                                // Fallback if no lessons available
+                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                  <div className="grid grid-cols-3 gap-[20px] items-center">
+                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                      Стратегия продвижения
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {getLocalizedText(proposalData?.language, {
+                                          en: 'none',
+                                          es: 'ninguno',
+                                          ua: 'немає',
+                                          ru: 'нет'
+                                        })}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        5 мин
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Layout - Hidden on XL */}
+                        <div className="xl:hidden">
+                          {proposalData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
+                            const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
+                            const isLast = index === (proposalData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
+                            
+                            return (
+                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  {lesson}
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    {assessment.type === 'нет' ? (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                      </svg>
+                                    ) : (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                      </svg>
+                                    )}
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      Проверка знаний: {assessment.type}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {assessment.duration}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }) || (
+                            // Fallback if no lessons available
+                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                Стратегия продвижения
+                              </span>
+                              <div className="flex items-center justify-between mb-[12px]">
+                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: none',
+                                      es: 'Verificación de conocimientos: ninguno',
+                                      ua: 'Перевірка знань: немає',
+                                      ru: 'Проверка знаний: нет'
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    5 мин
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Module 4*/}
-                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module-3'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                            Модуль 04:
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'Module 04:',
+                              es: 'Módulo 04:',
+                              ua: 'Модуль 04:',
+                              ru: 'Модуль 04:'
+                            })}
                           </span>
 
                           <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                            Финансовый контроль и развитие бизнеса
+                            {editingField === 'courseModule_3' ? (
+                              <InlineEditor
+                                initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                                onSave={(value) => handleTextSave('courseModule_3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '16px', color: '#09090B' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('courseModule_3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit module title"
+                              >
+                            {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                              </span>
+                            )}
                           </h5>
                         </div>
                         
                         <button 
-                          onClick={() => toggleModule('module5')}
+                          onClick={() => toggleModule('module-3')}
                           className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                            expandedModules['module5'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            expandedModules['module-3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
                           }`}
                         >
-                          {expandedModules['module5'] ? (
+                          {expandedModules['module-3'] ? (
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
@@ -1313,8 +2145,342 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                        Финансовый контроль<br className="xl:hidden"/> и развитие бизнеса
+                        {editingField === 'courseModule_3' ? (
+                          <InlineEditor
+                            initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                            onSave={(value) => handleTextSave('courseModule_3', value)}
+                            onCancel={handleTextCancel}
+                            className="font-medium"
+                            style={{ fontSize: '16px', color: '#09090B' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('courseModule_3')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit module title"
+                          >
+                        {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                          </span>
+                        )}
                       </h5>
+
+                      {/* Module 4 Expandable Content */}
+                      <div 
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          expandedModules['module-3'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                        }`}
+                      >
+                        {/* XL Desktop Table Layout */}
+                        <div className="hidden xl:block">
+                          <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
+                            {/* Table Header */}
+                            <div className="bg-[#0F58F9] px-[20px] py-[12px]">
+                              <div className="grid grid-cols-3 gap-[20px]">
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderLessons' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                        startEditing('tableHeaderLessons');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                        en: 'Lessons in module',
+                                        es: 'Lecciones en módulo',
+                                        ua: 'Уроки в модулі',
+                                        ru: 'Уроки в модуле'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderAssessment' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                        startEditing('tableHeaderAssessment');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: test / practice with mentor',
+                                        es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                        ua: 'Перевірка знань: тест / практика з куратором',
+                                        ru: 'Проверка знаний: тест / практика с куратором'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-white font-medium text-[12px] leading-[100%]">
+                                  {editingField === 'tableHeaderDuration' ? (
+                                    <InlineEditor
+                                      initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                      onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                      onCancel={handleTextCancel}
+                                      className="font-medium text-white inline-block"
+                                      style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                    />
+                                  ) : (
+                                    <span 
+                                      onMouseDown={(e) => {
+                                        console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                        console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                        console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                        console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                      }}
+                                      onClick={(e) => {
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                        console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                        console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                        console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                        console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                        startEditing('tableHeaderDuration');
+                                        console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                        console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                        console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                      }}
+                                      className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                      title="Click to edit header"
+                                    >
+                                      {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                        en: 'Training duration',
+                                        es: 'Duración del entrenamiento',
+                                        ua: 'Тривалість навчання',
+                                        ru: 'Длительность обучения'
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Table Body */}
+                            <div className="bg-white">
+                              {proposalData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
+                                const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
+                                const isLast = index === (proposalData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
+                                
+                                return (
+                                  <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {lesson}
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                          <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                          </svg>
+                                        ) : (
+                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                          </svg>
+                                        )}
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.type}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                        </svg>
+                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {assessment.duration}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }) || (
+                                // Fallback if no lessons available
+                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                  <div className="grid grid-cols-3 gap-[20px] items-center">
+                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                      Финансовое планирование
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.89981 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.97376 6.43766Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {getLocalizedText(proposalData?.language, {
+                                          en: 'none',
+                                          es: 'ninguno',
+                                          ua: 'немає',
+                                          ru: 'нет'
+                                        })}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
+                                      </svg>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        5 мин
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Layout - Hidden on XL */}
+                        <div className="xl:hidden">
+                          {proposalData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
+                            const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
+                            const isLast = index === (proposalData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
+                            
+                            return (
+                              <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                  {lesson}
+                                </span>
+                                <div className="flex items-center justify-between mb-[12px]">
+                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                    {assessment.type === 'нет' ? (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                      </svg>
+                                    ) : (
+                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                      </svg>
+                                    )}
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      Проверка знаний: {assessment.type}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      {assessment.duration}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }) || (
+                            // Fallback if no lessons available
+                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+                              <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                Финансовое планирование
+                              </span>
+                              <div className="flex items-center justify-between mb-[12px]">
+                                <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: none',
+                                      es: 'Verificación de conocimientos: ninguno',
+                                      ua: 'Перевірка знань: немає',
+                                      ru: 'Проверка знаний: нет'
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                  </svg>
+                                  <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                    5 мин
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1326,12 +2492,62 @@ export default function CommercialProposalPage() {
                       boxShadow: '2px 2px 10px 0px #0000001A'
                     }}
                   >
-                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
-                    <span className="text-[60px] font-bold text-[#0F58F9]">$900<span className="text-[26px] font-bold text-[#09090B]">/курс</span></span>
+                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Ready-made courses for',
+                        es: 'Cursos listos para',
+                        ua: 'Готові курси для',
+                        ru: 'Готовые курсы для'
+                      })}<br className="xl:hidden" /> {getLocalizedText(proposalData?.language, {
+                        en: 'quick',
+                        es: 'rápido',
+                        ua: 'швидкого',
+                        ru: 'быстрого'
+                      })}<br className="hidden xl:block" /> {getLocalizedText(proposalData?.language, {
+                        en: 'launch of training',
+                        es: 'lanzamiento de entrenamiento',
+                        ua: 'запуску навчання',
+                        ru: 'запуска обучения'
+                      })}
+                    </span>
+                    <span className="text-[60px] font-bold text-[#0F58F9]">
+                      {editingField === 'mainPrice' ? (
+                        <InlineEditor
+                          initialValue="$900"
+                          onSave={(value) => handleTextSave('mainPrice', value)}
+                          onCancel={handleTextCancel}
+                          className="text-[#0F58F9] font-bold"
+                          style={{ fontSize: '60px' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('mainPrice')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit main price"
+                        >
+                          $900
+                        </span>
+                      )}
+                      <span className="text-[26px] font-bold text-[#09090B]">
+                        {getLocalizedText(proposalData?.language, {
+                          en: '/course',
+                          es: '/curso',
+                          ua: '/курс',
+                          ru: '/курс'
+                        })}
+                      </span>
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                <h4 className="text-[20px] font-semibold xl:font-medium">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Pricing packages:',
+                    es: 'Paquetes de precios:',
+                    ua: 'Тарифні пакети:',
+                    ru: 'Тарифные пакеты:'
+                  })}
+                </h4>
 
                 {/* Pricing Table */}
                 <div className="w-full">
@@ -1340,13 +2556,28 @@ export default function CommercialProposalPage() {
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-[14px] xl:text-[22px] font-semibold">
-                          Пакет
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Package',
+                            es: 'Paquete',
+                            ua: 'Пакет',
+                            ru: 'Пакет'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Стоимость
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Price',
+                            es: 'Precio',
+                            ua: 'Вартість',
+                            ru: 'Стоимость'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Итого
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Total',
+                            es: 'Total',
+                            ua: 'Разом',
+                            ru: 'Итого'
+                          })}
                         </div>
                       </div>
                     </div>
@@ -1357,13 +2588,56 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            1 курс
+                            {getLocalizedText(proposalData?.language, {
+                              en: '1 course',
+                              es: '1 curso',
+                              ua: '1 курс',
+                              ru: '1 курс'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $900/курс
+                            {editingField === 'price1' ? (
+                              <InlineEditor
+                                initialValue="$900"
+                                onSave={(value) => handleTextSave('price1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $900
+                              </span>
+                            )}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/course',
+                              es: '/curso',
+                              ua: '/курс',
+                              ru: '/курс'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $900
+                            {editingField === 'total1' ? (
+                              <InlineEditor
+                                initialValue="$900"
+                                onSave={(value) => handleTextSave('total1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('total1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit total"
+                              >
+                                $900
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1372,13 +2646,56 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            3 курса
+                            {getLocalizedText(proposalData?.language, {
+                              en: '3 courses',
+                              es: '3 cursos',
+                              ua: '3 курси',
+                              ru: '3 курса'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $750/курс
+                            {editingField === 'price2' ? (
+                              <InlineEditor
+                                initialValue="$750"
+                                onSave={(value) => handleTextSave('price2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $750
+                              </span>
+                            )}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/course',
+                              es: '/curso',
+                              ua: '/курс',
+                              ru: '/курс'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $2250
+                            {editingField === 'total2' ? (
+                              <InlineEditor
+                                initialValue="$2250"
+                                onSave={(value) => handleTextSave('total2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('total2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit total"
+                              >
+                                $2250
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1387,13 +2704,56 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            10 курсов
+                            {getLocalizedText(proposalData?.language, {
+                              en: '10 courses',
+                              es: '10 cursos',
+                              ua: '10 курсів',
+                              ru: '10 курсов'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $600/курс
+                            {editingField === 'price3' ? (
+                              <InlineEditor
+                                initialValue="$600"
+                                onSave={(value) => handleTextSave('price3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $600
+                              </span>
+                            )}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/course',
+                              es: '/curso',
+                              ua: '/курс',
+                              ru: '/курс'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $6000
+                            {editingField === 'total3' ? (
+                              <InlineEditor
+                                initialValue="$6000"
+                                onSave={(value) => handleTextSave('total3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('total3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit total"
+                              >
+                                $6000
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1409,18 +2769,43 @@ export default function CommercialProposalPage() {
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                  Услуга 2:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Service 2:',
+                    es: 'Servicio 2:',
+                    ua: 'Послуга 2:',
+                    ru: 'Услуга 2:'
+                  })}
                 </span>
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа для <br/> автоматизации создания<br className="xl:hidden"/> и обновления курсов
+                ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(proposalData?.language, {
+                  en: 'platform for',
+                  es: 'plataforma para',
+                  ua: 'платформа для',
+                  ru: 'платформа для'
+                })} <br/> {getLocalizedText(proposalData?.language, {
+                  en: 'automating course creation',
+                  es: 'automatización de creación de cursos',
+                  ua: 'автоматизації створення курсів',
+                  ru: 'автоматизации создания'
+                })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                  en: 'and updating',
+                  es: 'y actualización',
+                  ua: 'і оновлення',
+                  ru: 'и обновления'
+                })} {getLocalizedText(proposalData?.language, {
+                  en: 'courses',
+                  es: 'cursos',
+                  ua: 'курсів',
+                  ru: 'курсов'
+                })}
               </h3>
 
               <div 
                 className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
                 style={{ 
-                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                  backgroundImage: `url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${proposalData?.language === 'ua' ? 'ua' : 'en'}.png)`,
                   backgroundSize: 'cover',
                   backgroundRepeat: 'no-repeat',
                   boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
@@ -1429,7 +2814,12 @@ export default function CommercialProposalPage() {
 
               <div className="flex flex-col gap-[15px] xl:gap-[40px]">
                 <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%]">
-                  Как это работает:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'How it works:',
+                    es: 'Cómo funciona:',
+                    ua: 'Як це працює:',
+                    ru: 'Как это работает:'
+                  })}
                 </h4>
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
@@ -1443,9 +2833,34 @@ export default function CommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
-                      <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
-                      инструкции, PDF, видео и др.)
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Methodologist',
+                        es: 'Metodólogo',
+                        ua: 'Методолог',
+                        ru: 'Методолог'
+                      })} <span className="text-[#0F58F9]">{getLocalizedText(proposalData?.language, {
+                        en: 'uploads your ',
+                        es: 'sube tus ',
+                        ua: 'завантажує ваші ',
+                        ru: 'загружает ваши '
+                      })}</span><br className="xl:hidden"/>
+                      <span className="text-[#0F58F9]">{getLocalizedText(proposalData?.language, {
+                        en: 'materials',
+                        es: 'materiales',
+                        ua: 'матеріали',
+                        ru: 'материалы'
+                      })}</span><br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                        en: 'texts,',
+                        es: 'textos,',
+                        ua: 'тексти,',
+                        ru: 'тексты,'
+                      })}<br className="xl:hidden"/>
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'instructions, PDF, videos, etc.)',
+                        es: 'instrucciones, PDF, videos, etc.)',
+                        ua: 'інструкції, PDF, відео та ін.)',
+                        ru: 'инструкции, PDF, видео и др.)'
+                      })}
                     </h5>
                   </div>
 
@@ -1459,14 +2874,44 @@ export default function CommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Platform converts',
+                        es: 'La plataforma convierte',
+                        ua: 'Платформа перетворює',
+                        ru: 'Платформа превращает'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'them into',
+                        es: 'en',
+                        ua: 'їх в',
+                        ru: 'их в'
+                      })} <span className="text-[#0F58F9]">{getLocalizedText(proposalData?.language, {
+                        en: 'lessons,',
+                        es: 'lecciones,',
+                        ua: 'уроки,',
+                        ru: 'уроки,'
+                      })}<br className="hidden xl:block"/> {getLocalizedText(proposalData?.language, {
+                        en: 'tests,',
+                        es: 'pruebas,',
+                        ua: 'тести,',
+                        ru: 'тесты,'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'videos and presentations',
+                        es: 'videos y presentaciones',
+                        ua: 'відео та презентації',
+                        ru: 'видео и презентации'
+                      })}</span>
                     </h5>
                   </div>
                 </div>
               </div>
               
               <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%]">
-                Тариф:
+                {getLocalizedText(proposalData?.language, {
+                  en: 'Tariff:',
+                  es: 'Tarifa:',
+                  ua: 'Тариф:',
+                  ru: 'Тариф:'
+                })}
               </h4>
 
               <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-0 xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] mb-[15px] xl:mb-[40px]">
@@ -1474,7 +2919,12 @@ export default function CommercialProposalPage() {
                   className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] xl:bg-[linear-gradient(240.17deg,#F5F8FF_34.29%,rgba(203,220,255,0.55)_107.22%)] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px] flex-shrink-0"
                 >
                   <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px]">
-                    AI capabilities:
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'Platform capabilities:',
+                      es: 'Capacidades de la plataforma:',
+                      ua: 'Можливості платформи:',
+                      ru: 'Возможности платформы:'
+                    })}
                   </h4>
                   
                   {/* Capability 1 */}
@@ -1489,7 +2939,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Генерация видеоуроков
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Video lesson generation',
+                        es: 'Generación de lecciones en video',
+                        ua: 'Генерація відеоуроків',
+                        ru: 'Генерация видеоуроков'
+                      })}
                     </span>
                   </div>
 
@@ -1505,7 +2960,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Генерация тестов
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Test generation',
+                        es: 'Generación de pruebas',
+                        ua: 'Генерація тестів',
+                        ru: 'Генерация тестов'
+                      })}
                     </span>
                   </div>
 
@@ -1525,7 +2985,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Генерация презентаций
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Presentation generation',
+                        es: 'Generación de presentaciones',
+                        ua: 'Генерація презентацій',
+                        ru: 'Генерация презентаций'
+                      })}
                     </span>
                   </div>
 
@@ -1541,7 +3006,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Перевод на 120+ языков
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Translation to 120+ languages',
+                        es: 'Traducción a 120+ idiomas',
+                        ua: 'Переклад на 120+ мов',
+                        ru: 'Перевод на 120+ языков'
+                      })}
                     </span>
                   </div>
 
@@ -1558,7 +3028,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Озвучка и AI-аватары
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Voice-over and AI avatars',
+                        es: 'Voz en off y avatares de IA',
+                        ua: 'Озвучка та AI-аватари',
+                        ru: 'Озвучка и AI-аватары'
+                      })}
                     </span>
                   </div>
 
@@ -1575,7 +3050,12 @@ export default function CommercialProposalPage() {
                     </div>
 
                     <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                      Интеграция с LMS платформами
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Integration with LMS platforms',
+                        es: 'Integración con plataformas LMS',
+                        ua: 'Інтеграція з LMS платформами',
+                        ru: 'Интеграция с LMS платформами'
+                      })}
                     </span>
                   </div>
                 </div>
@@ -1589,11 +3069,42 @@ export default function CommercialProposalPage() {
                     </svg>
                     
                     <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
-                      Базовая подписка
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Basic subscription',
+                        es: 'Suscripción básica',
+                        ua: 'Базова підписка',
+                        ru: 'Базовая подписка'
+                      })}
                     </span>
                   </div>
 
-                  <span className="text-[60px] xl:text-[70px] font-bold text-[#0F58F9]">$100<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
+                  <span className="text-[60px] xl:text-[70px] font-bold text-[#0F58F9]">
+                    {editingField === 'monthlyPrice' ? (
+                      <InlineEditor
+                        initialValue="$100"
+                        onSave={(value) => handleTextSave('monthlyPrice', value)}
+                        onCancel={handleTextCancel}
+                        className="text-[#0F58F9] font-bold"
+                        style={{ fontSize: '60px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('monthlyPrice')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit monthly price"
+                      >
+                        $100
+                      </span>
+                    )}
+                    <span className="text-[26px] xl:text-[40px] font-bold text-[#09090B] xl:hidden">
+                      {getLocalizedText(proposalData?.language, {
+                        en: '/month',
+                        es: '/mes',
+                        ua: '/місяць',
+                        ru: '/месяц'
+                      })}
+                    </span>
+                  </span>
 
                   <div className="h-[1px] bg-[#D2E3F1] bt-[5px]"></div>
 
@@ -1610,7 +3121,40 @@ export default function CommercialProposalPage() {
                           </defs>
                         </svg>
 
-                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">Включает <span className="font-semibold text-[#09090B]">500 AI-кредитов</span> на генерацию и редактирование</span>
+                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">{getLocalizedText(proposalData?.language, {
+                          en: 'Includes',
+                          es: 'Incluye',
+                          ua: 'Включає',
+                          ru: 'Включает'
+                        })} <span className="font-semibold text-[#09090B]">
+                          {editingField === 'aiCredits' ? (
+                            <InlineEditor
+                              initialValue="500"
+                              onSave={(value) => handleTextSave('aiCredits', value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold text-[#09090B]"
+                              style={{ fontSize: '14px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('aiCredits')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit AI credits count"
+                            >
+                              500
+                            </span>
+                          )} {getLocalizedText(proposalData?.language, {
+                            en: 'AI credits',
+                            es: 'créditos de IA',
+                            ua: 'AI-кредитів',
+                            ru: 'AI-кредитов'
+                          })}
+                        </span> {getLocalizedText(proposalData?.language, {
+                          en: 'for generation and editing',
+                          es: 'para generación y edición',
+                          ua: 'на генерацію та редагування',
+                          ru: 'на генерацию и редактирование'
+                        })}</span>
                       </li>
                       <li className="flex gap-[12px]">
                         <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
@@ -1623,7 +3167,22 @@ export default function CommercialProposalPage() {
                           </defs>
                         </svg>
 
-                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">При необходимости можно <span className="font-semibold text-[#09090B]">докупить дополнительные кредиты,</span> если базового пакета недостаточно</span>
+                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">{getLocalizedText(proposalData?.language, {
+                          en: 'If necessary, you can',
+                          es: 'Si es necesario, puedes',
+                          ua: 'При необхідності можна',
+                          ru: 'При необходимости можно'
+                        })} <span className="font-semibold text-[#09090B]">{getLocalizedText(proposalData?.language, {
+                          en: 'purchase additional credits,',
+                          es: 'comprar créditos adicionales,',
+                          ua: 'докупити додаткові кредити,',
+                          ru: 'докупить дополнительные кредиты,'
+                        })}</span> {getLocalizedText(proposalData?.language, {
+                          en: 'if the basic package is not enough',
+                          es: 'si el paquete básico no es suficiente',
+                          ua: 'якщо базового пакету недостатньо',
+                          ru: 'если базового пакета недостаточно'
+                        })}</span>
                       </li>
                     </ul>
                   </div>
@@ -1635,12 +3194,37 @@ export default function CommercialProposalPage() {
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                  Услуга 3:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Service 3:',
+                    es: 'Servicio 3:',
+                    ua: 'Послуга 3:',
+                    ru: 'Услуга 3:'
+                  })}
                 </span>
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизация<br /> корпоративного<br className="xl:hidden"/> обучения и онбординга
+                {getLocalizedText(proposalData?.language, {
+                  en: 'LMS platform',
+                  es: 'Plataforma LMS',
+                  ua: 'LMS-платформа',
+                  ru: 'LMS-платформа'
+                })}<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                  en: 'automation',
+                  es: 'automatización',
+                  ua: 'автоматизація',
+                  ru: 'автоматизация'
+                })}<br /> {getLocalizedText(proposalData?.language, {
+                  en: 'of corporate',
+                  es: 'de capacitación',
+                  ua: 'корпоративного',
+                  ru: 'корпоративного'
+                })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                  en: 'training and onboarding',
+                  es: 'y incorporación',
+                  ua: 'навчання та онбордингу',
+                  ru: 'обучения и онбординга'
+                })}
               </h3>
 
               <div 
@@ -1655,149 +3239,299 @@ export default function CommercialProposalPage() {
 
               <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
                 <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                  Возможности платформы:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Platform capabilities:',
+                    es: 'Capacidades de la plataforma:',
+                    ua: 'Можливості платформи:',
+                    ru: 'Возможности платформы:'
+                  })}
                 </h4>
                 
                 {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
                 <div className="flex flex-col gap-[20px] xl:flex xl:flex-row xl:gap-x-[70px] xl:gap-y-[30px]">
-                  {/* Left Column - Perks 1-4 */}
-                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
-                    {/* Perk 1 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="20" height="13" viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8.8397 9.66293C8.82642 9.46261 8.74345 9.27686 8.60405 9.14572C8.47793 9.02552 8.31861 8.95996 8.15268 8.95996C7.95355 8.95996 7.76438 9.05466 7.63493 9.21857L6.69902 10.4023C6.57953 10.5553 6.51979 10.7483 6.53307 10.9523C6.54635 11.1526 6.62932 11.3384 6.76872 11.4695C6.89483 11.5897 7.05415 11.6553 7.22009 11.6553C7.41922 11.6553 7.60839 11.5606 7.74115 11.3967L8.67707 10.2166C8.79323 10.0599 8.85297 9.8669 8.8397 9.66293Z" fill="white"/>
-                      <path d="M7.84603 7.59336C7.72169 7.48114 7.56462 7.41992 7.40102 7.41992H7.35194C7.17197 7.43352 7.0051 7.51854 6.88728 7.66138L5.16613 9.71545C4.92071 10.0079 4.95018 10.4534 5.23484 10.7119C5.35918 10.8241 5.51625 10.8853 5.67332 10.8853C5.69295 10.8853 5.70931 10.8853 5.72567 10.8819C5.90564 10.8683 6.07251 10.7833 6.19033 10.6405L7.91148 8.58639C8.16016 8.29732 8.13071 7.85182 7.84603 7.59336Z" fill="white"/>
-                      <path d="M8.98711 10.501H8.94486C8.77886 10.5127 8.62797 10.5861 8.51628 10.7093L8.22354 11.0349C7.99718 11.2872 8.02436 11.6744 8.28692 11.8915C8.4016 11.9883 8.54648 12.0412 8.69737 12.0412H8.73962C8.90562 12.0294 9.05953 11.9561 9.1682 11.8329L9.45793 11.5072C9.56658 11.384 9.6209 11.2285 9.60883 11.0642C9.59676 10.9029 9.52131 10.7533 9.39455 10.6477C9.2859 10.5567 9.13802 10.501 8.98711 10.501Z" fill="white"/>
-                      <path d="M6.37216 7.79512C6.48546 7.65495 6.54211 7.47806 6.52952 7.29451C6.51693 7.11095 6.43825 6.94076 6.30606 6.8206C6.18647 6.71047 6.03856 6.65039 5.88119 6.65039H5.83398C5.66088 6.66374 5.50038 6.74717 5.38707 6.88735L3.99602 8.58271C3.75997 8.86973 3.78831 9.3069 4.05896 9.56054C4.17855 9.67067 4.32963 9.73074 4.48698 9.73074C4.50271 9.73074 4.51845 9.73074 4.53419 9.7274C4.70728 9.71406 4.86778 9.63062 4.9811 9.49045L6.37216 7.79512Z" fill="white"/>
-                      <path d="M15.1482 8.02288C14.6905 7.62764 13.4954 6.59174 13.4509 6.55349C12.9423 6.0945 12.1063 5.2594 11.6518 4.80361L11.4961 4.64743L11.3975 4.84824C11.1973 5.25304 10.8921 5.79171 10.5711 6.06263C10.3105 6.28256 10.0276 6.40369 9.77014 6.40369C9.69385 6.40369 9.62393 6.39413 9.554 6.37182C9.35375 6.31125 9.08358 6.12957 8.93419 5.6132C8.68945 4.77491 9.12172 3.75494 9.68114 3.25463L9.84642 3.10482L9.65253 2.99645C9.42051 2.86576 9.18212 2.79883 8.9469 2.79883C8.56865 2.79883 8.24445 2.96457 7.9552 3.14307L7.9107 3.17175C7.81217 3.23232 7.631 3.30562 7.3354 3.30562C7.06523 3.30562 6.76327 3.24825 6.42634 3.13032L3.83594 7.14654C3.96308 7.27404 4.09022 7.4079 4.21101 7.55135L4.33179 7.69478L5.43154 6.42939C5.60636 6.22858 5.85747 6.11383 6.12127 6.11383C6.34059 6.11383 6.55355 6.19351 6.71883 6.33696C6.87776 6.4772 6.98265 6.66527 7.01443 6.88201L7.04303 7.05732L7.21149 7.01269C7.26871 6.99676 7.32592 6.9872 7.38631 6.98401C7.40856 6.98401 7.43081 6.98082 7.45306 6.98082C7.67556 6.98082 7.88216 7.05732 8.05062 7.20713C8.3939 7.50676 8.46064 8.02311 8.20319 8.40878L8.07287 8.60321L8.30172 8.65421C8.46064 8.68927 8.59732 8.7562 8.70857 8.85183C8.89292 9.0112 9.00416 9.23431 9.02005 9.47974C9.02959 9.59767 9.01369 9.7188 8.97555 9.83036L8.91516 10.012L9.10269 10.0375C9.27751 10.063 9.4396 10.1364 9.57311 10.2543C9.85282 10.4997 9.9577 10.8854 9.83693 11.2424L9.80515 11.3412L10.8318 12.2942C10.9272 12.3803 11.0543 12.4249 11.1878 12.4249H11.2228C11.369 12.4154 11.5025 12.3484 11.601 12.2369L11.6709 12.154C11.7885 12.0201 11.8458 11.8512 11.833 11.6759C11.8203 11.5038 11.744 11.3444 11.6137 11.2265L10.746 10.4615C10.7206 10.4392 10.7047 10.4073 10.7015 10.3754C10.6983 10.3404 10.711 10.3085 10.7333 10.283C10.7587 10.2543 10.7905 10.2384 10.8286 10.2384C10.8509 10.2384 10.8827 10.2447 10.9113 10.2702L12.0873 11.303C12.2081 11.4113 12.3607 11.4655 12.5228 11.4655H12.5641C12.7389 11.4528 12.901 11.3731 13.0154 11.2424L13.0886 11.1595C13.2888 10.93 13.2666 10.5826 13.0345 10.3818L11.3563 8.90601C11.3308 8.8837 11.315 8.85183 11.3118 8.81995C11.3086 8.78489 11.3213 8.75302 11.3436 8.72752C11.369 8.69883 11.4008 8.68289 11.4389 8.68289C11.4612 8.68289 11.4929 8.68927 11.5216 8.71477L13.4032 10.3659C13.524 10.4742 13.6766 10.5284 13.8419 10.5284H13.88C14.0548 10.5157 14.2169 10.436 14.3314 10.3053C14.449 10.1714 14.5062 10.0025 14.4935 9.82716C14.4807 9.65185 14.4013 9.48931 14.2709 9.37454L12.2748 7.62146C12.2494 7.59915 12.2335 7.56727 12.2304 7.5354C12.2272 7.50033 12.2399 7.46846 12.2621 7.44296C12.2876 7.41428 12.3193 7.39834 12.3575 7.39834C12.3797 7.39834 12.4115 7.40472 12.4401 7.43021L14.3027 9.06853C14.4203 9.17053 14.5729 9.22471 14.7287 9.22471C14.9194 9.22471 15.1005 9.14184 15.2245 8.9984C15.4629 8.72427 15.4375 8.30674 15.1609 8.0645L15.1482 8.02288Z" fill="white"/>
-                      <path d="M5.73763 1.75165L4.54107 1.01316C4.12261 0.754527 3.56029 0.869824 3.28894 1.26866L0.519955 5.35067C0.248601 5.74952 0.369569 6.28547 0.788024 6.5441L1.98458 7.28259C2.40305 7.54122 2.96536 7.42592 3.23672 7.02708L6.0057 2.94508C6.27706 2.54623 6.15609 2.01028 5.73763 1.75165Z" fill="white"/>
-                      <path d="M13.1602 3.53605C12.8334 3.52999 12.5647 3.43606 12.3265 3.35122C12.0822 3.26638 11.8501 3.18457 11.56 3.18457C11.3249 3.18457 11.0744 3.23911 10.7966 3.35425L10.7019 3.39364C10.5309 3.46333 10.366 3.52999 10.2011 3.60271C9.6575 3.86935 9.03758 4.90259 9.2941 5.77521C9.38571 6.08731 9.52924 6.27214 9.72468 6.33274C9.76743 6.34486 9.81324 6.35092 9.8621 6.35092C10.0484 6.35092 10.2652 6.25699 10.4698 6.08428C10.7172 5.87521 11.0225 5.40858 11.3035 4.79954C11.334 4.73288 11.3982 4.6844 11.4715 4.67228C11.4837 4.66925 11.4959 4.66925 11.5112 4.66925C11.5722 4.66925 11.6303 4.69349 11.673 4.73591C12.0578 5.12073 13.0136 6.06913 13.5694 6.56605C13.6763 6.6721 14.9497 7.77806 15.1482 7.92653L15.1788 7.94774L15.1879 7.9538L15.2215 7.98107C15.2398 7.99622 15.2521 8.0144 15.2673 8.02955L15.4139 8.19014L15.6766 7.8538C15.8262 7.65988 15.9819 7.45384 16.1652 7.25385L13.6977 3.46927C13.5267 3.51169 13.3465 3.53605 13.1602 3.53605Z" fill="white"/>
-                      <path d="M19.4823 5.35067L16.7133 1.26866C16.4419 0.869816 15.8829 0.754529 15.4611 1.01316L14.2646 1.75165C13.8461 2.01028 13.7252 2.54312 13.9965 2.94508L16.7655 7.02708C17.0369 7.42593 17.5959 7.54122 18.0176 7.28258L19.2142 6.5441C19.6327 6.28235 19.7536 5.74951 19.4823 5.35067Z" fill="white"/>
-                    </svg>
+                    {/* Left Column - Perks 1-4 */}
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                      {/* Perk 1 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="13" viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.8397 9.66293C8.82642 9.46261 8.74345 9.27686 8.60405 9.14572C8.47793 9.02552 8.31861 8.95996 8.15268 8.95996C7.95355 8.95996 7.76438 9.05466 7.63493 9.21857L6.69902 10.4023C6.57953 10.5553 6.51979 10.7483 6.53307 10.9523C6.54635 11.1526 6.62932 11.3384 6.76872 11.4695C6.89483 11.5897 7.05415 11.6553 7.22009 11.6553C7.41922 11.6553 7.60839 11.5606 7.74115 11.3967L8.67707 10.2166C8.79323 10.0599 8.85297 9.8669 8.8397 9.66293Z" fill="white"/>
+                        <path d="M7.84603 7.59336C7.72169 7.48114 7.56462 7.41992 7.40102 7.41992H7.35194C7.17197 7.43352 7.0051 7.51854 6.88728 7.66138L5.16613 9.71545C4.92071 10.0079 4.95018 10.4534 5.23484 10.7119C5.35918 10.8241 5.51625 10.8853 5.67332 10.8853C5.69295 10.8853 5.70931 10.8853 5.72567 10.8819C5.90564 10.8683 6.07251 10.7833 6.19033 10.6405L7.91148 8.58639C8.16016 8.29732 8.13071 7.85182 7.84603 7.59336Z" fill="white"/>
+                        <path d="M8.98711 10.501H8.94486C8.77886 10.5127 8.62797 10.5861 8.51628 10.7093L8.22354 11.0349C7.99718 11.2872 8.02436 11.6744 8.28692 11.8915C8.4016 11.9883 8.54648 12.0412 8.69737 12.0412H8.73962C8.90562 12.0294 9.05953 11.9561 9.1682 11.8329L9.45793 11.5072C9.56658 11.384 9.6209 11.2285 9.60883 11.0642C9.59676 10.9029 9.52131 10.7533 9.39455 10.6477C9.2859 10.5567 9.13802 10.501 8.98711 10.501Z" fill="white"/>
+                        <path d="M6.37216 7.79512C6.48546 7.65495 6.54211 7.47806 6.52952 7.29451C6.51693 7.11095 6.43825 6.94076 6.30606 6.8206C6.18647 6.71047 6.03856 6.65039 5.88119 6.65039H5.83398C5.66088 6.66374 5.50038 6.74717 5.38707 6.88735L3.99602 8.58271C3.75997 8.86973 3.78831 9.3069 4.05896 9.56054C4.17855 9.67067 4.32963 9.73074 4.48698 9.73074C4.50271 9.73074 4.51845 9.73074 4.53419 9.7274C4.70728 9.71406 4.86778 9.63062 4.9811 9.49045L6.37216 7.79512Z" fill="white"/>
+                        <path d="M15.1482 8.02288C14.6905 7.62764 13.4954 6.59174 13.4509 6.55349C12.9423 6.0945 12.1063 5.2594 11.6518 4.80361L11.4961 4.64743L11.3975 4.84824C11.1973 5.25304 10.8921 5.79171 10.5711 6.06263C10.3105 6.28256 10.0276 6.40369 9.77014 6.40369C9.69385 6.40369 9.62393 6.39413 9.554 6.37182C9.35375 6.31125 9.08358 6.12957 8.93419 5.6132C8.68945 4.77491 9.12172 3.75494 9.68114 3.25463L9.84642 3.10482L9.65253 2.99645C9.42051 2.86576 9.18212 2.79883 8.9469 2.79883C8.56865 2.79883 8.24445 2.96457 7.9552 3.14307L7.9107 3.17175C7.81217 3.23232 7.631 3.30562 7.3354 3.30562C7.06523 3.30562 6.76327 3.24825 6.42634 3.13032L3.83594 7.14654C3.96308 7.27404 4.09022 7.4079 4.21101 7.55135L4.33179 7.69478L5.43154 6.42939C5.60636 6.22858 5.85747 6.11383 6.12127 6.11383C6.34059 6.11383 6.55355 6.19351 6.71883 6.33696C6.87776 6.4772 6.98265 6.66527 7.01443 6.88201L7.04303 7.05732L7.21149 7.01269C7.26871 6.99676 7.32592 6.9872 7.38631 6.98401C7.40856 6.98401 7.43081 6.98082 7.45306 6.98082C7.67556 6.98082 7.88216 7.05732 8.05062 7.20713C8.3939 7.50676 8.46064 8.02311 8.20319 8.40878L8.07287 8.60321L8.30172 8.65421C8.46064 8.68927 8.59732 8.7562 8.70857 8.85183C8.89292 9.0112 9.00416 9.23431 9.02005 9.47974C9.02959 9.59767 9.01369 9.7188 8.97555 9.83036L8.91516 10.012L9.10269 10.0375C9.27751 10.063 9.4396 10.1364 9.57311 10.2543C9.85282 10.4997 9.9577 10.8854 9.83693 11.2424L9.80515 11.3412L10.8318 12.2942C10.9272 12.3803 11.0543 12.4249 11.1878 12.4249H11.2228C11.369 12.4154 11.5025 12.3484 11.601 12.2369L11.6709 12.154C11.7885 12.0201 11.8458 11.8512 11.833 11.6759C11.8203 11.5038 11.744 11.3444 11.6137 11.2265L10.746 10.4615C10.7206 10.4392 10.7047 10.4073 10.7015 10.3754C10.6983 10.3404 10.711 10.3085 10.7333 10.283C10.7587 10.2543 10.7905 10.2384 10.8286 10.2384C10.8509 10.2384 10.8827 10.2447 10.9113 10.2702L12.0873 11.303C12.2081 11.4113 12.3607 11.4655 12.5228 11.4655H12.5641C12.7389 11.4528 12.901 11.3731 13.0154 11.2424L13.0886 11.1595C13.2888 10.93 13.2666 10.5826 13.0345 10.3818L11.3563 8.90601C11.3308 8.8837 11.315 8.85183 11.3118 8.81995C11.3086 8.78489 11.3213 8.75302 11.3436 8.72752C11.369 8.69883 11.4008 8.68289 11.4389 8.68289C11.4612 8.68289 11.4929 8.68927 11.5216 8.71477L13.4032 10.3659C13.524 10.4742 13.6766 10.5284 13.8419 10.5284H13.88C14.0548 10.5157 14.2169 10.436 14.3314 10.3053C14.449 10.1714 14.5062 10.0025 14.4935 9.82716C14.4807 9.65185 14.4013 9.48931 14.2709 9.37454L12.2748 7.62146C12.2494 7.59915 12.2335 7.56727 12.2304 7.5354C12.2272 7.50033 12.2399 7.46846 12.2621 7.44296C12.2876 7.41428 12.3193 7.39834 12.3575 7.39834C12.3797 7.39834 12.4115 7.40472 12.4401 7.43021L14.3027 9.06853C14.4203 9.17053 14.5729 9.22471 14.7287 9.22471C14.9194 9.22471 15.1005 9.14184 15.2245 8.9984C15.4629 8.72427 15.4375 8.30674 15.1609 8.0645L15.1482 8.02288Z" fill="white"/>
+                        <path d="M5.73763 1.75165L4.54107 1.01316C4.12261 0.754527 3.56029 0.869824 3.28894 1.26866L0.519955 5.35067C0.248601 5.74952 0.369569 6.28547 0.788024 6.5441L1.98458 7.28259C2.40305 7.54122 2.96536 7.42592 3.23672 7.02708L6.0057 2.94508C6.27706 2.54623 6.15609 2.01028 5.73763 1.75165Z" fill="white"/>
+                        <path d="M13.1602 3.53605C12.8334 3.52999 12.5647 3.43606 12.3265 3.35122C12.0822 3.26638 11.8501 3.18457 11.56 3.18457C11.3249 3.18457 11.0744 3.23911 10.7966 3.35425L10.7019 3.39364C10.5309 3.46333 10.366 3.52999 10.2011 3.60271C9.6575 3.86935 9.03758 4.90259 9.2941 5.77521C9.38571 6.08731 9.52924 6.27214 9.72468 6.33274C9.76743 6.34486 9.81324 6.35092 9.8621 6.35092C10.0484 6.35092 10.2652 6.25699 10.4698 6.08428C10.7172 5.87521 11.0225 5.40858 11.3035 4.79954C11.334 4.73288 11.3982 4.6844 11.4715 4.67228C11.4837 4.66925 11.4959 4.66925 11.5112 4.66925C11.5722 4.66925 11.6303 4.69349 11.673 4.73591C12.0578 5.12073 13.0136 6.06913 13.5694 6.56605C13.6763 6.6721 14.9497 7.77806 15.1482 7.92653L15.1788 7.94774L15.1879 7.9538L15.2215 7.98107C15.2398 7.99622 15.2521 8.0144 15.2673 8.02955L15.4139 8.19014L15.6766 7.8538C15.8262 7.65988 15.9819 7.45384 16.1652 7.25385L13.6977 3.46927C13.5267 3.51169 13.3465 3.53605 13.1602 3.53605Z" fill="white"/>
+                        <path d="M19.4823 5.35067L16.7133 1.26866C16.4419 0.869816 15.8829 0.754529 15.4611 1.01316L14.2646 1.75165C13.8461 2.01028 13.7252 2.54312 13.9965 2.94508L16.7655 7.02708C17.0369 7.42593 17.5959 7.54122 18.0176 7.28258L19.2142 6.5441C19.6327 6.28235 19.7536 5.74951 19.4823 5.35067Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Onboarding and adaptation',
+                        es: 'Incorporación y adaptación',
+                        ua: 'Онбординг та адаптація',
+                        ru: 'Онбординг и адаптация'
+                      })}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{getLocalizedText(proposalData?.language, {
+                        en: 'of new',
+                        es: 'de nuevos',
+                        ua: 'нових',
+                        ru: 'новых'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                        en: 'employees',
+                        es: 'empleados',
+                        ua: 'співробітників',
+                        ru: 'сотрудников'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Онбординг и адаптация<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">новых<br className="hidden xl:block"/> сотрудников</span>
-                  </span>
-                </div>
-
-                    {/* Perk 2 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M16.6014 7.78296V16.3851C16.6014 16.7067 16.3178 16.969 15.9697 16.969H10.294C9.65187 16.969 9.08305 17.2721 8.74605 17.7315C8.74012 17.7389 8.70753 17.7456 8.66013 17.75V7.83707H10.6554C10.9175 7.83707 11.1709 7.75038 11.3775 7.59254C11.5841 7.75037 11.8367 7.83707 12.0996 7.83707H16.1257C16.2894 7.83707 16.4479 7.81855 16.6012 7.78298L16.6014 7.78296ZM8.14691 1.64016C8.03803 1.61867 7.92545 1.60756 7.81066 1.60756C6.84561 1.60756 6.06273 2.39078 6.06273 3.35629C6.06273 3.64675 6.13309 3.92019 6.25825 4.161C5.54055 4.32921 5.00581 4.97311 5.00581 5.743C5.00581 6.64034 5.73312 7.36797 6.63005 7.36797H10.6561C10.8435 7.36797 11.0146 7.29536 11.1435 7.17754V1.03323C10.8591 0.563436 10.3428 0.250008 9.75403 0.250008C8.93635 0.250008 8.26024 0.853983 8.14691 1.64016ZM11.6123 7.17746C11.7412 7.29528 11.9123 7.3679 12.0997 7.3679H16.1258C17.0227 7.3679 17.75 6.64026 17.75 5.74292C17.75 4.97303 17.2153 4.32912 16.4976 4.16092C16.6227 3.92011 16.6931 3.64669 16.6931 3.35621C16.6931 2.39072 15.9102 1.60748 14.9451 1.60748C14.8303 1.60748 14.7178 1.61859 14.6089 1.64008C14.4956 0.853904 13.8194 0.25 13.0017 0.25C12.4129 0.25 11.8966 0.563428 11.6122 1.03322L11.6123 7.17746ZM12.8137 4.0705C12.69 4.10681 12.5596 4.03567 12.5233 3.91193C12.487 3.78818 12.5581 3.65778 12.6818 3.62147C13.0359 3.51699 13.4151 3.5696 13.7284 3.76522C14.0054 3.02127 14.9593 2.82194 15.5141 3.37694C15.6059 3.46882 15.6059 3.61701 15.5141 3.7089C15.4222 3.80079 15.2741 3.80078 15.1823 3.7089C14.7882 3.3147 14.1683 3.57775 14.1283 4.1609C14.1942 4.26315 14.2446 4.37504 14.2794 4.49064C14.3727 4.80557 14.3453 5.15678 14.1757 5.46949C14.1646 5.4895 14.152 5.50802 14.1365 5.52358C13.9476 5.71253 13.6262 5.48505 13.7735 5.23015C13.8735 5.03602 13.8883 4.81816 13.8306 4.62254C13.7024 4.18906 13.2469 3.94232 12.8137 4.0705ZM7.57277 3.70815C7.48092 3.80003 7.3328 3.80003 7.24096 3.70815C7.14911 3.61626 7.14911 3.46807 7.24096 3.37619C7.7957 2.82119 8.74891 3.02125 9.02666 3.76447C9.33921 3.56886 9.71842 3.51624 10.0732 3.62072C10.1969 3.65703 10.268 3.78744 10.2317 3.91117C10.1954 4.03492 10.065 4.10604 9.94137 4.06974C9.50808 3.94155 9.05333 4.18756 8.92519 4.62179C8.86594 4.82333 8.88297 5.04637 8.99037 5.24496C9.00889 5.27905 9.01999 5.31758 9.01925 5.35685C9.01925 5.59914 8.68375 5.69251 8.5682 5.44799C8.40822 5.14122 8.38452 4.79814 8.47562 4.4899C8.50969 4.3743 8.56079 4.26242 8.62671 4.16015C8.58672 3.57626 7.96678 3.31395 7.57277 3.70815ZM10.1992 15.4609H14.8275C14.9571 15.4609 15.0622 15.3557 15.0622 15.226C15.0622 15.0963 14.9571 14.9911 14.8275 14.9911H10.1992C10.0696 14.9911 9.96439 15.0963 9.96439 15.226C9.96439 15.3564 10.0696 15.4609 10.1992 15.4609ZM10.1992 13.4395H14.8275C14.9571 13.4395 15.0622 13.3343 15.0622 13.2046C15.0622 13.075 14.9571 12.9697 14.8275 12.9697H10.1992C10.0696 12.9697 9.96439 13.075 9.96439 13.2046C9.96439 13.3343 10.0696 13.4395 10.1992 13.4395ZM10.1992 11.4174H14.8275C14.9571 11.4174 15.0622 11.3122 15.0622 11.1825C15.0622 11.0529 14.9571 10.9476 14.8275 10.9476H10.1992C10.0696 10.9476 9.96439 11.0529 9.96439 11.1825C9.96439 11.3129 10.0696 11.4174 10.1992 11.4174ZM10.1992 9.39606H14.8275C14.9571 9.39606 15.0622 9.29084 15.0622 9.16117C15.0622 9.0315 14.9571 8.92627 14.8275 8.92627H10.1992C10.0696 8.92627 9.96439 9.03149 9.96439 9.16117C9.96439 9.29084 10.0696 9.39606 10.1992 9.39606ZM2.02395 7.37471H5.3176C5.6768 7.66442 6.13305 7.83708 6.63003 7.83708H8.19205V17.7492C8.14391 17.7448 8.11132 17.7389 8.10614 17.7307C7.76916 17.2713 7.20034 16.9683 6.55818 16.9683H0.881766C0.533669 16.9683 0.25 16.706 0.25 16.3844V5.98165C0.25 5.66007 0.533669 5.39776 0.881766 5.39776H4.56505C4.54653 5.51039 4.53616 5.62598 4.53616 5.74306C4.53616 6.17283 4.66577 6.57222 4.88798 6.90492H2.02398C1.89437 6.90492 1.78919 7.01014 1.78919 7.13982C1.78919 7.26949 1.89434 7.37471 2.02395 7.37471ZM2.02395 15.4611H6.65223C6.78184 15.4611 6.88702 15.3559 6.88702 15.2262C6.88702 15.0965 6.78185 14.9913 6.65223 14.9913H2.02395C1.89434 14.9913 1.78917 15.0965 1.78917 15.2262C1.78917 15.3566 1.89434 15.4611 2.02395 15.4611ZM2.02395 13.4397H6.65223C6.78184 13.4397 6.88702 13.3345 6.88702 13.2048C6.88702 13.0752 6.78185 12.9699 6.65223 12.9699H2.02395C1.89434 12.9699 1.78917 13.0752 1.78917 13.2048C1.78917 13.3345 1.89434 13.4397 2.02395 13.4397ZM2.02395 11.4176H6.65223C6.78184 11.4176 6.88702 11.3124 6.88702 11.1827C6.88702 11.053 6.78185 10.9478 6.65223 10.9478H2.02395C1.89434 10.9478 1.78917 11.053 1.78917 11.1827C1.78917 11.3131 1.89434 11.4176 2.02395 11.4176ZM2.02395 9.39625H6.65223C6.78184 9.39625 6.88702 9.29103 6.88702 9.16136C6.88702 9.03169 6.78185 8.92646 6.65223 8.92646H2.02395C1.89434 8.92646 1.78917 9.03168 1.78917 9.16136C1.78917 9.29103 1.89434 9.39625 2.02395 9.39625Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 2 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M16.6014 7.78296V16.3851C16.6014 16.7067 16.3178 16.969 15.9697 16.969H10.294C9.65187 16.969 9.08305 17.2721 8.74605 17.7315C8.74012 17.7389 8.70753 17.7456 8.66013 17.75V7.83707H10.6554C10.9175 7.83707 11.1709 7.75038 11.3775 7.59254C11.5841 7.75037 11.8367 7.83707 12.0996 7.83707H16.1257C16.2894 7.83707 16.4479 7.81855 16.6012 7.78298L16.6014 7.78296ZM8.14691 1.64016C8.03803 1.61867 7.92545 1.60756 7.81066 1.60756C6.84561 1.60756 6.06273 2.39078 6.06273 3.35629C6.06273 3.64675 6.13309 3.92019 6.25825 4.161C5.54055 4.32921 5.00581 4.97311 5.00581 5.743C5.00581 6.64034 5.73312 7.36797 6.63005 7.36797H10.6561C10.8435 7.36797 11.0146 7.29536 11.1435 7.17754V1.03323C10.8591 0.563436 10.3428 0.250008 9.75403 0.250008C8.93635 0.250008 8.26024 0.853983 8.14691 1.64016ZM11.6123 7.17746C11.7412 7.29528 11.9123 7.3679 12.0997 7.3679H16.1258C17.0227 7.3679 17.75 6.64026 17.75 5.74292C17.75 4.97303 17.2153 4.32912 16.4976 4.16092C16.6227 3.92011 16.6931 3.64669 16.6931 3.35621C16.6931 2.39072 15.9102 1.60748 14.9451 1.60748C14.8303 1.60748 14.7178 1.61859 14.6089 1.64008C14.4956 0.853904 13.8194 0.25 13.0017 0.25C12.4129 0.25 11.8966 0.563428 11.6122 1.03322L11.6123 7.17746ZM12.8137 4.0705C12.69 4.10681 12.5596 4.03567 12.5233 3.91193C12.487 3.78818 12.5581 3.65778 12.6818 3.62147C13.0359 3.51699 13.4151 3.5696 13.7284 3.76522C14.0054 3.02127 14.9593 2.82194 15.5141 3.37694C15.6059 3.46882 15.6059 3.61701 15.5141 3.7089C15.4222 3.80079 15.2741 3.80078 15.1823 3.7089C14.7882 3.3147 14.1683 3.57775 14.1283 4.1609C14.1942 4.26315 14.2446 4.37504 14.2794 4.49064C14.3727 4.80557 14.3453 5.15678 14.1757 5.46949C14.1646 5.4895 14.152 5.50802 14.1365 5.52358C13.9476 5.71253 13.6262 5.48505 13.7735 5.23015C13.8735 5.03602 13.8883 4.81816 13.8306 4.62254C13.7024 4.18906 13.2469 3.94232 12.8137 4.0705ZM7.57277 3.70815C7.48092 3.80003 7.3328 3.80003 7.24096 3.70815C7.14911 3.61626 7.14911 3.46807 7.24096 3.37619C7.7957 2.82119 8.74891 3.02125 9.02666 3.76447C9.33921 3.56886 9.71842 3.51624 10.0732 3.62072C10.1969 3.65703 10.268 3.78744 10.2317 3.91117C10.1954 4.03492 10.065 4.10604 9.94137 4.06974C9.50808 3.94155 9.05333 4.18756 8.92519 4.62179C8.86594 4.82333 8.88297 5.04637 8.99037 5.24496C9.00889 5.27905 9.01999 5.31758 9.01925 5.35685C9.01925 5.59914 8.68375 5.69251 8.5682 5.44799C8.40822 5.14122 8.38452 4.79814 8.47562 4.4899C8.50969 4.3743 8.56079 4.26242 8.62671 4.16015C8.58672 3.57626 7.96678 3.31395 7.57277 3.70815ZM10.1992 15.4609H14.8275C14.9571 15.4609 15.0622 15.3557 15.0622 15.226C15.0622 15.0963 14.9571 14.9911 14.8275 14.9911H10.1992C10.0696 14.9911 9.96439 15.0963 9.96439 15.226C9.96439 15.3564 10.0696 15.4609 10.1992 15.4609ZM10.1992 13.4395H14.8275C14.9571 13.4395 15.0622 13.3343 15.0622 13.2046C15.0622 13.075 14.9571 12.9697 14.8275 12.9697H10.1992C10.0696 12.9697 9.96439 13.075 9.96439 13.2046C9.96439 13.3343 10.0696 13.4395 10.1992 13.4395ZM10.1992 11.4174H14.8275C14.9571 11.4174 15.0622 11.3122 15.0622 11.1825C15.0622 11.0529 14.9571 10.9476 14.8275 10.9476H10.1992C10.0696 10.9476 9.96439 11.0529 9.96439 11.1825C9.96439 11.3129 10.0696 11.4174 10.1992 11.4174ZM10.1992 9.39606H14.8275C14.9571 9.39606 15.0622 9.29084 15.0622 9.16117C15.0622 9.0315 14.9571 8.92627 14.8275 8.92627H10.1992C10.0696 8.92627 9.96439 9.03149 9.96439 9.16117C9.96439 9.29084 10.0696 9.39606 10.1992 9.39606ZM2.02395 7.37471H5.3176C5.6768 7.66442 6.13305 7.83708 6.63003 7.83708H8.19205V17.7492C8.14391 17.7448 8.11132 17.7389 8.10614 17.7307C7.76916 17.2713 7.20034 16.9683 6.55818 16.9683H0.881766C0.533669 16.9683 0.25 16.706 0.25 16.3844V5.98165C0.25 5.66007 0.533669 5.39776 0.881766 5.39776H4.56505C4.54653 5.51039 4.53616 5.62598 4.53616 5.74306C4.53616 6.17283 4.66577 6.57222 4.88798 6.90492H2.02398C1.89437 6.90492 1.78919 7.01014 1.78919 7.13982C1.78919 7.26949 1.89434 7.37471 2.02395 7.37471ZM2.02395 15.4611H6.65223C6.78184 15.4611 6.88702 15.3559 6.88702 15.2262C6.88702 15.0965 6.78185 14.9913 6.65223 14.9913H2.02395C1.89434 14.9913 1.78917 15.0965 1.78917 15.2262C1.78917 15.3566 1.89434 15.4611 2.02395 15.4611ZM2.02395 13.4397H6.65223C6.78184 13.4397 6.88702 13.3345 6.88702 13.2048C6.88702 13.0752 6.78185 12.9699 6.65223 12.9699H2.02395C1.89434 12.9699 1.78917 13.0752 1.78917 13.2048C1.78917 13.3345 1.89434 13.4397 2.02395 13.4397ZM2.02395 11.4176H6.65223C6.78184 11.4176 6.88702 11.3124 6.88702 11.1827C6.88702 11.053 6.78185 10.9478 6.65223 10.9478H2.02395C1.89434 10.9478 1.78917 11.053 1.78917 11.1827C1.78917 11.3131 1.89434 11.4176 2.02395 11.4176ZM2.02395 9.39625H6.65223C6.78184 9.39625 6.88702 9.29103 6.88702 9.16136C6.88702 9.03169 6.78185 8.92646 6.65223 8.92646H2.02395C1.89434 8.92646 1.78917 9.03168 1.78917 9.16136C1.78917 9.29103 1.89434 9.39625 2.02395 9.39625Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'Role and department',
+                      es: 'Entrenamiento basado en roles',
+                      ua: 'Навчання за ролями',
+                      ru: 'Обучение по ролям'
+                    })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                      en: 'based',
+                      es: 'y',
+                      ua: 'та',
+                      ru: 'и'
+                    })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                      en: 'training',
+                      es: 'departamentos',
+                      ua: 'департаментами',
+                      ru: 'департаментам'
+                    })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                  Обучение по ролям <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>и<br className="xl:hidden"/> департаментам</span>
-                  </span>
-                </div>
-
-                    {/* Perk 3 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15.875 9.125V5.75C15.8743 5.15347 15.637 4.58157 15.2152 4.15976C14.7934 3.73795 14.2215 3.50068 13.625 3.5H11.375V2.375C11.3743 1.77847 11.137 1.20657 10.7152 0.784763C10.2934 0.362954 9.72153 0.125682 9.125 0.125H6.875C6.27847 0.125682 5.70657 0.362954 5.28476 0.784763C4.86295 1.20657 4.62568 1.77847 4.625 2.375V3.5H2.375C1.77847 3.50068 1.20657 3.73795 0.784763 4.15976C0.362954 4.58157 0.125682 5.15347 0.125 5.75V9.125H15.875ZM5.75 2.375C5.7503 2.07672 5.86892 1.79075 6.07983 1.57983C6.29075 1.36892 6.57672 1.2503 6.875 1.25H9.125C9.42328 1.2503 9.70925 1.36892 9.92017 1.57983C10.1311 1.79075 10.2497 2.07672 10.25 2.375V3.5H5.75V2.375ZM15.875 10.25V13.625C15.8743 14.2215 15.637 14.7934 15.2152 15.2152C14.7934 15.637 14.2215 15.8743 13.625 15.875H2.375C1.77847 15.8743 1.20657 15.637 0.784763 15.2152C0.362954 14.7934 0.125682 14.2215 0.125 13.625V10.25H5.75V10.8125C5.74996 10.8864 5.76448 10.9595 5.79273 11.0278C5.82098 11.0961 5.86241 11.1581 5.91466 11.2103C5.9669 11.2626 6.02892 11.304 6.09719 11.3323C6.16545 11.3605 6.23862 11.375 6.3125 11.375H9.6875C9.76138 11.375 9.83455 11.3605 9.90281 11.3323C9.97108 11.304 10.0331 11.2626 10.0853 11.2103C10.1376 11.1581 10.179 11.0961 10.2073 11.0278C10.2355 10.9595 10.25 10.8864 10.25 10.8125V10.25H15.875Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 3 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.875 9.125V5.75C15.8743 5.15347 15.637 4.58157 15.2152 4.15976C14.7934 3.73795 14.2215 3.50068 13.625 3.5H11.375V2.375C11.3743 1.77847 11.137 1.20657 10.7152 0.784763C10.2934 0.362954 9.72153 0.125682 9.125 0.125H6.875C6.27847 0.125682 5.70657 0.362954 5.28476 0.784763C4.86295 1.20657 4.62568 1.77847 4.625 2.375V3.5H2.375C1.77847 3.50068 1.20657 3.73795 0.784763 4.15976C0.362954 4.58157 0.125682 5.15347 0.125 5.75V9.125H15.875ZM5.75 2.375C5.7503 2.07672 5.86892 1.79075 6.07983 1.57983C6.29075 1.36892 6.57672 1.2503 6.875 1.25H9.125C9.42328 1.2503 9.70925 1.36892 9.92017 1.57983C10.1311 1.79075 10.2497 2.07672 10.25 2.375V3.5H5.75V2.375ZM15.875 10.25V13.625C15.8743 14.2215 15.637 14.7934 15.2152 15.2152C14.7934 15.637 14.2215 15.8743 13.625 15.875H2.375C1.77847 15.8743 1.20657 15.637 0.784763 15.2152C0.362954 14.7934 0.125682 14.2215 0.125 13.625V10.25H5.75V10.8125C5.74996 10.8864 5.76448 10.9595 5.79273 11.0278C5.82098 11.0961 5.86241 11.1581 5.91466 11.2103C5.9669 11.2626 6.02892 11.304 6.09719 11.3323C6.16545 11.3605 6.23862 11.375 6.3125 11.375H9.6875C9.76138 11.375 9.83455 11.3605 9.90281 11.3323C9.97108 11.304 10.0331 11.2626 10.0853 11.2103C10.1376 11.1581 10.179 11.0961 10.2073 11.0278C10.2355 10.9595 10.25 10.8864 10.25 10.8125V10.25H15.875Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Knowledge base',
+                        es: 'Base de conocimientos',
+                        ua: 'База знань',
+                        ru: 'База знаний'
+                      })} <span className="font-normal text-[#71717A]">{getLocalizedText(proposalData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'centralized',
+                        es: 'actualización centralizada',
+                        ua: 'централізоване',
+                        ru: 'централизованное'
+                      })}<br/>{getLocalizedText(proposalData?.language, {
+                        en: 'content updates',
+                        es: 'de contenido',
+                        ua: 'оновлення контенту',
+                        ru: 'обновление контента'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    База знаний <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> централизованное<br/> обновление контента</span>
-                  </span>
-                </div>
-
-                    {/* Perk 4 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16.7303 5.13219C16.2366 3.93731 15.0978 3.16353 13.8387 3.16353H10.5405V0.855009C10.5405 0.382616 10.1692 0 9.7108 0C9.25238 0 8.88107 0.382616 8.88107 0.855009V3.16139H5.58289C4.3217 3.16139 3.1829 3.93518 2.68921 5.13005L0.569243 10.5102C0.0900728 11.673 0.523607 13.0196 1.58151 13.6566C2.55023 14.2402 3.77823 14.0649 4.55817 13.2355L5.71358 12.0043C6.172 11.5148 6.8026 11.2391 7.46223 11.2391H11.9552C12.6149 11.2391 13.2455 11.5148 13.7039 12.0043L14.8593 13.2355C15.6392 14.067 16.8672 14.2402 17.8359 13.6566C18.8939 13.0196 19.3274 11.6709 18.8461 10.5081L16.7262 5.13005L16.7303 5.13219ZM7.38963 7.80195H6.55783V8.6591C6.55783 8.95408 6.3255 9.19348 6.03924 9.19348C5.75299 9.19348 5.52066 8.95408 5.52066 8.6591V7.80195H4.68886C4.4026 7.80195 4.17028 7.56255 4.17028 7.26757C4.17028 6.97259 4.4026 6.73319 4.68886 6.73319H5.52066V5.87605C5.52066 5.58107 5.75299 5.34167 6.03924 5.34167C6.3255 5.34167 6.55783 5.58107 6.55783 5.87605V6.73319H7.38963C7.67589 6.73319 7.90821 6.97259 7.90821 7.26757C7.90821 7.56255 7.67589 7.80195 7.38963 7.80195ZM12.7538 8.78308C12.4178 9.12935 11.8723 9.12935 11.5362 8.78308C11.2002 8.4368 11.2002 7.87463 11.5362 7.52835C11.8723 7.18207 12.4178 7.18207 12.7538 7.52835C13.0899 7.87463 13.0899 8.4368 12.7538 8.78308ZM14.4797 7.00466C14.1436 7.35094 13.5981 7.35094 13.2621 7.00466C12.926 6.65838 12.926 6.09621 13.2621 5.74993C13.5981 5.40365 14.1436 5.40365 14.4797 5.74993C14.8157 6.09621 14.8157 6.65838 14.4797 7.00466Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 4 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.7303 5.13219C16.2366 3.93731 15.0978 3.16353 13.8387 3.16353H10.5405V0.855009C10.5405 0.382616 10.1692 0 9.7108 0C9.25238 0 8.88107 0.382616 8.88107 0.855009V3.16139H5.58289C4.3217 3.16139 3.1829 3.93518 2.68921 5.13005L0.569243 10.5102C0.0900728 11.673 0.523607 13.0196 1.58151 13.6566C2.55023 14.2402 3.77823 14.0649 4.55817 13.2355L5.71358 12.0043C6.172 11.5148 6.8026 11.2391 7.46223 11.2391H11.9552C12.6149 11.2391 13.2455 11.5148 13.7039 12.0043L14.8593 13.2355C15.6392 14.067 16.8672 14.2402 17.8359 13.6566C18.8939 13.0196 19.3274 11.6709 18.8461 10.5081L16.7262 5.13005L16.7303 5.13219ZM7.38963 7.80195H6.55783V8.6591C6.55783 8.95408 6.3255 9.19348 6.03924 9.19348C5.75299 9.19348 5.52066 8.95408 5.52066 8.6591V7.80195H4.68886C4.4026 7.80195 4.17028 7.56255 4.17028 7.26757C4.17028 6.97259 4.4026 6.73319 4.68886 6.73319H5.52066V5.87605C5.52066 5.58107 5.75299 5.34167 6.03924 5.34167C6.3255 5.34167 6.55783 5.58107 6.55783 5.87605V6.73319H7.38963C7.67589 6.73319 7.90821 6.97259 7.90821 7.26757C7.90821 7.56255 7.67589 7.80195 7.38963 7.80195ZM12.7538 8.78308C12.4178 9.12935 11.8723 9.12935 11.5362 8.78308C11.2002 8.4368 11.2002 7.87463 11.5362 7.52835C11.8723 7.18207 12.4178 7.18207 12.7538 7.52835C13.0899 7.87463 13.0899 8.4368 12.7538 8.78308ZM14.4797 7.00466C14.1436 7.35094 13.5981 7.35094 13.2621 7.00466C12.926 6.65838 12.926 6.09621 13.2621 5.74993C13.5981 5.40365 14.1436 5.40365 14.4797 5.74993C14.8157 6.09621 14.8157 6.65838 14.4797 7.00466Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Gamification',
+                        es: 'Gamificación',
+                        ua: 'Гейміфікація',
+                        ru: 'Геймификация'
+                      })}<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'testing',
+                        es: 'pruebas',
+                        ua: 'тестування',
+                        ru: 'тестирование'
+                      })}<br className="hidden xl:block"/> {getLocalizedText(proposalData?.language, {
+                        en: 'and assessment',
+                        es: 'y evaluación',
+                        ua: 'і оцінка',
+                        ru: 'и оценка'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'of competencies',
+                        es: 'de competencias',
+                        ua: 'компетенцій',
+                        ru: 'компетенций'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Геймификация<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> тестирование<br className="hidden xl:block"/> и оценка<br className="xl:hidden"/> компетенций</span>
-                  </span>
-                </div>
+                    </div>
+  
+                    {/* Right Column - Perks 5-8 */}
+                    <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
+                      {/* Perk 5 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.74999 0.125C0.990321 0.125 0.375 0.748672 0.375 1.51865V4.30596H19.6249V1.51865C19.6249 0.748672 19.0095 0.125 18.2499 0.125H1.74999ZM19.625 14.5262V5.23521H0.375147V14.5262C0.375147 15.2962 0.990467 15.9199 1.75014 15.9199H18.25C19.0097 15.9199 19.625 15.2962 19.625 14.5262ZM7.24995 10.5776C7.24995 10.0643 7.66014 9.64851 8.16661 9.64851H10.6874C11.1939 9.64851 11.6041 10.0643 11.6041 10.5776V12.9004C11.6041 13.4137 11.1939 13.8295 10.6874 13.8295H8.16661C7.66014 13.8295 7.24995 13.4137 7.24995 12.9004V10.5776ZM10.6875 10.5776H8.16667V12.9004H10.6875V10.5776ZM13.896 9.64851C13.3895 9.64851 12.9793 10.0643 12.9793 10.5776V12.9004C12.9793 13.4137 13.3895 13.8295 13.896 13.8295H16.4168C16.9232 13.8295 17.3334 13.4137 17.3334 12.9004V10.5776C17.3334 10.0643 16.9232 9.64851 16.4168 9.64851H13.896ZM13.896 10.5776H16.4168V12.9004H13.896V10.5776ZM7.47933 7.09341C7.22611 7.09341 7.021 7.3013 7.021 7.55796C7.021 7.81462 7.22611 8.02251 7.47933 8.02251H16.875C17.1282 8.02251 17.3334 7.81462 17.3334 7.55796C17.3334 7.3013 17.1282 7.09341 16.875 7.09341H7.47933ZM2.89603 10.8098C2.89603 10.5532 3.10114 10.3453 3.35436 10.3453H5.41683C5.67006 10.3453 5.87516 10.5532 5.87516 10.8098C5.87516 11.0665 5.67006 11.2744 5.41683 11.2744H3.35436C3.10114 11.2744 2.89603 11.0665 2.89603 10.8098ZM3.35436 12.9003C3.10114 12.9003 2.89603 13.1082 2.89603 13.3648C2.89603 13.6215 3.10114 13.8294 3.35436 13.8294H5.41683C5.67006 13.8294 5.87516 13.6215 5.87516 13.3648C5.87516 13.1082 5.67006 12.9003 5.41683 12.9003H3.35436ZM18.0209 2.21546C18.0209 2.59989 17.7127 2.9123 17.3334 2.9123C16.9541 2.9123 16.6459 2.59989 16.6459 2.21546C16.6459 1.83104 16.9541 1.51862 17.3334 1.51862C17.7127 1.51862 18.0209 1.83104 18.0209 2.21546ZM3.81255 8.25447C4.19182 8.25447 4.50006 7.94206 4.50006 7.55763C4.50006 7.17321 4.19182 6.86079 3.81255 6.86079C3.43327 6.86079 3.12504 7.17321 3.12504 7.55763C3.12504 7.94206 3.43327 8.25447 3.81255 8.25447ZM14.8125 2.21546C14.8125 2.59989 14.5042 2.9123 14.125 2.9123C13.7457 2.9123 13.4374 2.59989 13.4374 2.21546C13.4374 1.83104 13.7457 1.51862 14.125 1.51862C14.5042 1.51862 14.8125 1.83104 14.8125 2.21546Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Reporting, dashboards',
+                        es: 'Reportes, tableros',
+                        ua: 'Звітність, дашборди',
+                        ru: 'Отчётность, дашборды'
+                      })}<span className="font-normal text-[#71717A]"> {getLocalizedText(proposalData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br/>{getLocalizedText(proposalData?.language, {
+                        en: 'training analytics',
+                        es: 'análisis de entrenamiento',
+                        ua: 'аналітика навчання',
+                        ru: 'аналитика по обучению'
+                      })}</span>
+                    </span>
                   </div>
-
-                  {/* Right Column - Perks 5-8 */}
-                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
-                    {/* Perk 5 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M1.74999 0.125C0.990321 0.125 0.375 0.748672 0.375 1.51865V4.30596H19.6249V1.51865C19.6249 0.748672 19.0095 0.125 18.2499 0.125H1.74999ZM19.625 14.5262V5.23521H0.375147V14.5262C0.375147 15.2962 0.990467 15.9199 1.75014 15.9199H18.25C19.0097 15.9199 19.625 15.2962 19.625 14.5262ZM7.24995 10.5776C7.24995 10.0643 7.66014 9.64851 8.16661 9.64851H10.6874C11.1939 9.64851 11.6041 10.0643 11.6041 10.5776V12.9004C11.6041 13.4137 11.1939 13.8295 10.6874 13.8295H8.16661C7.66014 13.8295 7.24995 13.4137 7.24995 12.9004V10.5776ZM10.6875 10.5776H8.16667V12.9004H10.6875V10.5776ZM13.896 9.64851C13.3895 9.64851 12.9793 10.0643 12.9793 10.5776V12.9004C12.9793 13.4137 13.3895 13.8295 13.896 13.8295H16.4168C16.9232 13.8295 17.3334 13.4137 17.3334 12.9004V10.5776C17.3334 10.0643 16.9232 9.64851 16.4168 9.64851H13.896ZM13.896 10.5776H16.4168V12.9004H13.896V10.5776ZM7.47933 7.09341C7.22611 7.09341 7.021 7.3013 7.021 7.55796C7.021 7.81462 7.22611 8.02251 7.47933 8.02251H16.875C17.1282 8.02251 17.3334 7.81462 17.3334 7.55796C17.3334 7.3013 17.1282 7.09341 16.875 7.09341H7.47933ZM2.89603 10.8098C2.89603 10.5532 3.10114 10.3453 3.35436 10.3453H5.41683C5.67006 10.3453 5.87516 10.5532 5.87516 10.8098C5.87516 11.0665 5.67006 11.2744 5.41683 11.2744H3.35436C3.10114 11.2744 2.89603 11.0665 2.89603 10.8098ZM3.35436 12.9003C3.10114 12.9003 2.89603 13.1082 2.89603 13.3648C2.89603 13.6215 3.10114 13.8294 3.35436 13.8294H5.41683C5.67006 13.8294 5.87516 13.6215 5.87516 13.3648C5.87516 13.1082 5.67006 12.9003 5.41683 12.9003H3.35436ZM18.0209 2.21546C18.0209 2.59989 17.7127 2.9123 17.3334 2.9123C16.9541 2.9123 16.6459 2.59989 16.6459 2.21546C16.6459 1.83104 16.9541 1.51862 17.3334 1.51862C17.7127 1.51862 18.0209 1.83104 18.0209 2.21546ZM3.81255 8.25447C4.19182 8.25447 4.50006 7.94206 4.50006 7.55763C4.50006 7.17321 4.19182 6.86079 3.81255 6.86079C3.43327 6.86079 3.12504 7.17321 3.12504 7.55763C3.12504 7.94206 3.43327 8.25447 3.81255 8.25447ZM14.8125 2.21546C14.8125 2.59989 14.5042 2.9123 14.125 2.9123C13.7457 2.9123 13.4374 2.59989 13.4374 2.21546C13.4374 1.83104 13.7457 1.51862 14.125 1.51862C14.5042 1.51862 14.8125 1.83104 14.8125 2.21546Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 6 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.5124 8.68801C13.0797 7.46398 12.1578 6.5412 10.9337 2.10925C10.8948 1.9683 10.7668 1.87109 10.621 1.87109C10.4752 1.87109 10.3472 1.9683 10.3083 2.10925C9.08427 6.54203 8.16148 7.46384 3.72954 8.68801C3.58858 8.72689 3.49219 8.85489 3.49219 9.0007C3.49219 9.14651 3.5894 9.2745 3.72954 9.31339C8.16231 10.5374 9.08412 11.4602 10.3083 15.8921C10.3472 16.0331 10.4752 16.1303 10.621 16.1303C10.7668 16.1303 10.8948 16.0331 10.9337 15.8921C12.1577 11.4594 13.0805 10.5376 17.5124 9.31339C17.6534 9.2745 17.7498 9.14651 17.7498 9.0007C17.7498 8.85489 17.6526 8.72689 17.5124 8.68801Z" fill="white"/>
+                        <path d="M3.50164 7.14211C3.54052 7.28307 3.66851 7.38027 3.81433 7.38027C3.96014 7.38027 4.08813 7.28306 4.12702 7.14211C4.69408 5.08937 5.08858 4.6948 7.1413 4.12782C7.28226 4.08894 7.37865 3.96095 7.37865 3.81513C7.37865 3.66932 7.28144 3.54133 7.1413 3.50244C5.08856 2.93538 4.694 2.54169 4.12702 0.488157C4.08813 0.347202 3.96014 0.25 3.81433 0.25C3.66851 0.25 3.54052 0.34721 3.50164 0.488157C2.93457 2.5409 2.54007 2.93546 0.487348 3.50244C0.346393 3.54133 0.25 3.66932 0.25 3.81513C0.25 3.96095 0.34721 4.08894 0.487348 4.12782C2.54009 4.69489 2.93466 5.08858 3.50164 7.14211Z" fill="white"/>
+                        <path d="M7.62222 14.3581C5.89998 13.8826 5.56948 13.5521 5.09404 11.83C5.05515 11.689 4.92716 11.5918 4.78135 11.5918C4.63554 11.5918 4.50754 11.689 4.46866 11.83C3.99313 13.5522 3.66263 13.8827 1.94047 14.3581C1.79952 14.397 1.70312 14.525 1.70312 14.6708C1.70312 14.8166 1.80033 14.9446 1.94047 14.9835C3.66271 15.459 3.99322 15.7895 4.46866 17.5117C4.50754 17.6527 4.63554 17.7499 4.78135 17.7499C4.92716 17.7499 5.05515 17.6527 5.09404 17.5117C5.56956 15.7895 5.90007 15.459 7.62222 14.9835C7.76318 14.9446 7.85957 14.8166 7.85957 14.6708C7.85957 14.525 7.76236 14.397 7.62222 14.3581Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Built-in AI assistant',
+                        es: 'Asistente IA integrado',
+                        ua: 'Вбудований AI-асистент',
+                        ru: 'Встроенный AI-ассистент'
+                      })}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{getLocalizedText(proposalData?.language, {
+                        en: 'for',
+                        es: 'para',
+                        ua: 'для',
+                        ru: 'для'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                        en: 'support and',
+                        es: 'soporte y',
+                        ua: 'підтримки та',
+                        ru: 'сопровождения и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'automation',
+                        es: 'automatización',
+                        ua: 'автоматизації',
+                        ru: 'автоматизации'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Отчётность, дашборды<span className="font-normal text-[#71717A]"> и<br/> аналитика по обучению</span>
-                  </span>
-                </div>
-
-                    {/* Perk 6 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17.5124 8.68801C13.0797 7.46398 12.1578 6.5412 10.9337 2.10925C10.8948 1.9683 10.7668 1.87109 10.621 1.87109C10.4752 1.87109 10.3472 1.9683 10.3083 2.10925C9.08427 6.54203 8.16148 7.46384 3.72954 8.68801C3.58858 8.72689 3.49219 8.85489 3.49219 9.0007C3.49219 9.14651 3.5894 9.2745 3.72954 9.31339C8.16231 10.5374 9.08412 11.4602 10.3083 15.8921C10.3472 16.0331 10.4752 16.1303 10.621 16.1303C10.7668 16.1303 10.8948 16.0331 10.9337 15.8921C12.1577 11.4594 13.0805 10.5376 17.5124 9.31339C17.6534 9.2745 17.7498 9.14651 17.7498 9.0007C17.7498 8.85489 17.6526 8.72689 17.5124 8.68801Z" fill="white"/>
-                      <path d="M3.50164 7.14211C3.54052 7.28307 3.66851 7.38027 3.81433 7.38027C3.96014 7.38027 4.08813 7.28306 4.12702 7.14211C4.69408 5.08937 5.08858 4.6948 7.1413 4.12782C7.28226 4.08894 7.37865 3.96095 7.37865 3.81513C7.37865 3.66932 7.28144 3.54133 7.1413 3.50244C5.08856 2.93538 4.694 2.54169 4.12702 0.488157C4.08813 0.347202 3.96014 0.25 3.81433 0.25C3.66851 0.25 3.54052 0.34721 3.50164 0.488157C2.93457 2.5409 2.54007 2.93546 0.487348 3.50244C0.346393 3.54133 0.25 3.66932 0.25 3.81513C0.25 3.96095 0.34721 4.08894 0.487348 4.12782C2.54009 4.69489 2.93466 5.08858 3.50164 7.14211Z" fill="white"/>
-                      <path d="M7.62222 14.3581C5.89998 13.8826 5.56948 13.5521 5.09404 11.83C5.05515 11.689 4.92716 11.5918 4.78135 11.5918C4.63554 11.5918 4.50754 11.689 4.46866 11.83C3.99313 13.5522 3.66263 13.8827 1.94047 14.3581C1.79952 14.397 1.70312 14.525 1.70312 14.6708C1.70312 14.8166 1.80033 14.9446 1.94047 14.9835C3.66271 15.459 3.99322 15.7895 4.46866 17.5117C4.50754 17.6527 4.63554 17.7499 4.78135 17.7499C4.92716 17.7499 5.05515 17.6527 5.09404 17.5117C5.56956 15.7895 5.90007 15.459 7.62222 14.9835C7.76318 14.9446 7.85957 14.8166 7.85957 14.6708C7.85957 14.525 7.76236 14.397 7.62222 14.3581Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 7 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.15865 4.69118L7.1962 6.48006H5.12334L6.15865 4.69118ZM7.66131 7.294L7.58305 7.15536H4.73649L3.98964 8.4523C3.96001 8.50317 3.91759 8.5454 3.8666 8.57482C3.81561 8.60424 3.75781 8.61982 3.69894 8.62C3.63999 8.62084 3.58195 8.60536 3.53124 8.57528C3.45708 8.53093 3.4029 8.45967 3.37998 8.37636C3.35707 8.29304 3.3672 8.20409 3.40825 8.12806L5.8702 3.85264C5.89961 3.80155 5.94196 3.75911 5.993 3.72961C6.04403 3.7001 6.10194 3.68456 6.16089 3.68456C6.21984 3.68456 6.27775 3.7001 6.32878 3.72961C6.37982 3.75911 6.42217 3.80155 6.45158 3.85264L8.17114 6.82218C9.24911 5.9031 10.5966 5.35924 12.0105 5.27256C11.8709 4.35359 11.5166 3.48049 10.9762 2.72419C10.4358 1.9679 9.72467 1.34972 8.90052 0.919881C8.07636 0.490041 7.16244 0.260658 6.23298 0.250363C5.30353 0.240067 4.38475 0.44915 3.55127 0.860629C2.7178 1.27211 1.99313 1.87438 1.43613 2.61852C0.879133 3.36267 0.505512 4.2277 0.345615 5.14336C0.185718 6.05901 0.244054 6.99948 0.515885 7.88835C0.787715 8.77723 1.26538 9.58946 1.91007 10.2591L0.378338 11.4554C0.323393 11.4985 0.283279 11.5577 0.263595 11.6247C0.243911 11.6917 0.245639 11.7632 0.268537 11.8292C0.291435 11.8952 0.334361 11.9524 0.391325 11.9928C0.44829 12.0332 0.51645 12.0548 0.586296 12.0547H5.84113C5.84113 11.9786 5.84113 11.9048 5.84113 11.831C5.84062 10.1402 6.49358 8.51465 7.66355 7.294H7.66131ZM11.0915 10.6481C11.3211 11.5526 11.7783 12.3832 12.4197 13.0609C13.0562 12.3788 13.5127 11.5488 13.748 10.6459L11.0915 10.6481ZM18.2 17.1507C18.255 17.1938 18.2951 17.253 18.3148 17.3201C18.3345 17.3871 18.3327 17.4586 18.3098 17.5245C18.2869 17.5905 18.244 17.6477 18.1871 17.6881C18.1301 17.7286 18.0619 17.7502 17.9921 17.75H12.4197C11.0525 17.7521 9.72668 17.2815 8.66688 16.4178C7.60708 15.554 6.87854 14.3504 6.60477 13.0109C6.33099 11.6714 6.52882 10.2785 7.16472 9.0682C7.80063 7.85791 8.83547 6.90473 10.0939 6.37025C11.3522 5.83577 12.7567 5.75287 14.0692 6.1356C15.3818 6.51833 16.5215 7.34314 17.2954 8.47022C18.0693 9.59731 18.4296 10.9573 18.3153 12.3197C18.201 13.6821 17.6192 14.9631 16.6683 15.9455L18.2 17.1507ZM12.9206 13.4925C13.6567 12.6864 14.1768 11.7072 14.4322 10.6459H15.0114C15.1003 10.6459 15.1856 10.6106 15.2485 10.5477C15.3114 10.4848 15.3468 10.3995 15.3468 10.3105C15.3468 10.2215 15.3114 10.1362 15.2485 10.0733C15.1856 10.0104 15.1003 9.97508 15.0114 9.97508H12.7529V9.18797C12.7529 9.09901 12.7176 9.0137 12.6547 8.9508C12.5918 8.8879 12.5064 8.85256 12.4175 8.85256C12.3285 8.85256 12.2432 8.8879 12.1803 8.9508C12.1174 9.0137 12.0821 9.09901 12.0821 9.18797V9.97508H9.82809C9.73913 9.97508 9.65382 10.0104 9.59092 10.0733C9.52801 10.1362 9.49267 10.2215 9.49267 10.3105C9.49267 10.3995 9.52801 10.4848 9.59092 10.5477C9.65382 10.6106 9.73913 10.6459 9.82809 10.6459H10.4072C10.66 11.7045 11.1761 12.6821 11.9077 13.488C11.3171 13.9041 10.6173 14.1374 9.89517 14.1588C9.80622 14.1606 9.72161 14.1976 9.65996 14.2618C9.59832 14.326 9.56469 14.412 9.56647 14.5009C9.56825 14.5899 9.60529 14.6745 9.66945 14.7362C9.73361 14.7978 9.81963 14.8314 9.90859 14.8296H9.92424C10.8284 14.8039 11.7015 14.4941 12.4197 13.9442C13.136 14.4907 14.0057 14.7988 14.9063 14.8252H14.9219C14.966 14.8261 15.0098 14.8183 15.0508 14.8022C15.0918 14.7862 15.1293 14.7622 15.1611 14.7317C15.1928 14.7012 15.2183 14.6647 15.2359 14.6243C15.2536 14.584 15.2632 14.5405 15.264 14.4965C15.2649 14.4524 15.2571 14.4086 15.2411 14.3676C15.225 14.3266 15.2011 14.2891 15.1705 14.2573C15.14 14.2256 15.1035 14.2001 15.0632 14.1824C15.0228 14.1648 14.9794 14.1552 14.9353 14.1543C14.2137 14.1345 13.5135 13.9044 12.9206 13.4925Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Multilingual support',
+                        es: 'Soporte multilingüe',
+                        ua: 'Багатомовність',
+                        ru: 'Мультиязычность'
+                      })}<span className="font-normal text-[#71717A]"> {getLocalizedText(proposalData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'support for',
+                        es: 'soporte para',
+                        ua: 'підтримка',
+                        ru: 'поддержка'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                        en: 'global',
+                        es: 'equipos globales',
+                        ua: 'глобальних',
+                        ru: 'глобальных'
+                      })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'teams',
+                        es: '',
+                        ua: 'команд',
+                        ru: 'команд'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Встроенный AI-ассистент<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">для<br className="hidden xl:block"/> сопровождения и<br className="xl:hidden"/> автоматизации</span>
-                  </span>
-                </div>
-
-                    {/* Perk 7 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6.15865 4.69118L7.1962 6.48006H5.12334L6.15865 4.69118ZM7.66131 7.294L7.58305 7.15536H4.73649L3.98964 8.4523C3.96001 8.50317 3.91759 8.5454 3.8666 8.57482C3.81561 8.60424 3.75781 8.61982 3.69894 8.62C3.63999 8.62084 3.58195 8.60536 3.53124 8.57528C3.45708 8.53093 3.4029 8.45967 3.37998 8.37636C3.35707 8.29304 3.3672 8.20409 3.40825 8.12806L5.8702 3.85264C5.89961 3.80155 5.94196 3.75911 5.993 3.72961C6.04403 3.7001 6.10194 3.68456 6.16089 3.68456C6.21984 3.68456 6.27775 3.7001 6.32878 3.72961C6.37982 3.75911 6.42217 3.80155 6.45158 3.85264L8.17114 6.82218C9.24911 5.9031 10.5966 5.35924 12.0105 5.27256C11.8709 4.35359 11.5166 3.48049 10.9762 2.72419C10.4358 1.9679 9.72467 1.34972 8.90052 0.919881C8.07636 0.490041 7.16244 0.260658 6.23298 0.250363C5.30353 0.240067 4.38475 0.44915 3.55127 0.860629C2.7178 1.27211 1.99313 1.87438 1.43613 2.61852C0.879133 3.36267 0.505512 4.2277 0.345615 5.14336C0.185718 6.05901 0.244054 6.99948 0.515885 7.88835C0.787715 8.77723 1.26538 9.58946 1.91007 10.2591L0.378338 11.4554C0.323393 11.4985 0.283279 11.5577 0.263595 11.6247C0.243911 11.6917 0.245639 11.7632 0.268537 11.8292C0.291435 11.8952 0.334361 11.9524 0.391325 11.9928C0.44829 12.0332 0.51645 12.0548 0.586296 12.0547H5.84113C5.84113 11.9786 5.84113 11.9048 5.84113 11.831C5.84062 10.1402 6.49358 8.51465 7.66355 7.294H7.66131ZM11.0915 10.6481C11.3211 11.5526 11.7783 12.3832 12.4197 13.0609C13.0562 12.3788 13.5127 11.5488 13.748 10.6459L11.0915 10.6481ZM18.2 17.1507C18.255 17.1938 18.2951 17.253 18.3148 17.3201C18.3345 17.3871 18.3327 17.4586 18.3098 17.5245C18.2869 17.5905 18.244 17.6477 18.1871 17.6881C18.1301 17.7286 18.0619 17.7502 17.9921 17.75H12.4197C11.0525 17.7521 9.72668 17.2815 8.66688 16.4178C7.60708 15.554 6.87854 14.3504 6.60477 13.0109C6.33099 11.6714 6.52882 10.2785 7.16472 9.0682C7.80063 7.85791 8.83547 6.90473 10.0939 6.37025C11.3522 5.83577 12.7567 5.75287 14.0692 6.1356C15.3818 6.51833 16.5215 7.34314 17.2954 8.47022C18.0693 9.59731 18.4296 10.9573 18.3153 12.3197C18.201 13.6821 17.6192 14.9631 16.6683 15.9455L18.2 17.1507ZM12.9206 13.4925C13.6567 12.6864 14.1768 11.7072 14.4322 10.6459H15.0114C15.1003 10.6459 15.1856 10.6106 15.2485 10.5477C15.3114 10.4848 15.3468 10.3995 15.3468 10.3105C15.3468 10.2215 15.3114 10.1362 15.2485 10.0733C15.1856 10.0104 15.1003 9.97508 15.0114 9.97508H12.7529V9.18797C12.7529 9.09901 12.7176 9.0137 12.6547 8.9508C12.5918 8.8879 12.5064 8.85256 12.4175 8.85256C12.3285 8.85256 12.2432 8.8879 12.1803 8.9508C12.1174 9.0137 12.0821 9.09901 12.0821 9.18797V9.97508H9.82809C9.73913 9.97508 9.65382 10.0104 9.59092 10.0733C9.52801 10.1362 9.49267 10.2215 9.49267 10.3105C9.49267 10.3995 9.52801 10.4848 9.59092 10.5477C9.65382 10.6106 9.73913 10.6459 9.82809 10.6459H10.4072C10.66 11.7045 11.1761 12.6821 11.9077 13.488C11.3171 13.9041 10.6173 14.1374 9.89517 14.1588C9.80622 14.1606 9.72161 14.1976 9.65996 14.2618C9.59832 14.326 9.56469 14.412 9.56647 14.5009C9.56825 14.5899 9.60529 14.6745 9.66945 14.7362C9.73361 14.7978 9.81963 14.8314 9.90859 14.8296H9.92424C10.8284 14.8039 11.7015 14.4941 12.4197 13.9442C13.136 14.4907 14.0057 14.7988 14.9063 14.8252H14.9219C14.966 14.8261 15.0098 14.8183 15.0508 14.8022C15.0918 14.7862 15.1293 14.7622 15.1611 14.7317C15.1928 14.7012 15.2183 14.6647 15.2359 14.6243C15.2536 14.584 15.2632 14.5405 15.264 14.4965C15.2649 14.4524 15.2571 14.4086 15.2411 14.3676C15.225 14.3266 15.2011 14.2891 15.1705 14.2573C15.14 14.2256 15.1035 14.2001 15.0632 14.1824C15.0228 14.1648 14.9794 14.1552 14.9353 14.1543C14.2137 14.1345 13.5135 13.9044 12.9206 13.4925Z" fill="white"/>
-                    </svg>
+  
+                      {/* Perk 8 */}
+                  <div className="flex gap-[15px]">
+                    <div 
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.84232 8.69152C6.35498 8.69152 6.77058 8.27395 6.77058 7.75885C6.77058 7.24374 6.35498 6.82617 5.84232 6.82617C5.32966 6.82617 4.91406 7.24374 4.91406 7.75885C4.91406 8.27395 5.32966 8.69152 5.84232 8.69152Z" fill="white"/>
+                        <path d="M8.08576 12.735C8.08576 11.4542 7.07123 10.4121 5.8241 10.4121C4.57707 10.4121 3.5625 11.4542 3.5625 12.735V12.9347H8.08571L8.08576 12.735Z" fill="white"/>
+                        <path d="M8.21875 2.32121C8.21875 3.365 9.06392 4.2142 10.1028 4.2142C11.1416 4.2142 11.9868 3.365 11.9868 2.32121V0.125H8.21875V2.32121Z" fill="white"/>
+                        <path d="M0.375 4.35236V14.35C0.375 15.1904 1.05553 15.8742 1.89201 15.8742H18.3018C19.1382 15.8742 19.8188 15.1904 19.8188 14.35V4.35236C19.8188 3.51189 19.1382 2.82812 18.3018 2.82812H12.9471C12.7071 4.19069 11.5208 5.22919 10.0969 5.22919C8.67297 5.22919 7.48662 4.19074 7.24668 2.82812H1.89201C1.05553 2.82812 0.375 3.51189 0.375 4.35236ZM11.7118 8.03185H14.5338C14.813 8.03185 15.0394 8.25936 15.0394 8.53992C15.0394 8.82048 14.813 9.048 14.5338 9.048H11.7118C11.4326 9.048 11.2061 8.82048 11.2061 8.53992C11.2061 8.25936 11.4325 8.03185 11.7118 8.03185ZM11.7118 11.277H17.0621C17.3414 11.277 17.5678 11.5045 17.5678 11.7851C17.5678 12.0656 17.3414 12.2931 17.0621 12.2931H11.7118C11.4326 12.2931 11.2061 12.0656 11.2061 11.7851C11.2061 11.5045 11.4325 11.277 11.7118 11.277ZM2.54725 12.7334C2.54725 11.1861 3.58438 9.8816 4.9866 9.50451C4.34678 9.18564 3.90573 8.5226 3.90573 7.75774C3.90573 6.68316 4.77584 5.80891 5.84532 5.80891C6.91481 5.80891 7.78497 6.68311 7.78497 7.75769C7.78497 8.52986 7.33568 9.19859 6.686 9.5138C8.07178 9.90218 9.09318 11.198 9.09318 12.7334V13.4411C9.09318 13.7217 8.86675 13.9492 8.58752 13.9492H3.05292C2.77369 13.9492 2.54725 13.7217 2.54725 13.4411V12.7334Z" fill="white"/>
+                      </svg>
+                    </div>
+                    
+                    <span className="font-medium text-[16px] xl:text-[20px]">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Flexible access management',
+                        es: 'Gestión flexible de acceso',
+                        ua: 'Гнучке управління',
+                        ru: 'Гибкое управление'
+                      })}<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> {getLocalizedText(proposalData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'доступами',
+                        ru: 'доступами'
+                      })}<br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                        en: 'branding',
+                        es: 'marca',
+                        ua: 'і брендуванням',
+                        ru: 'и брендированием'
+                      })}</span>
+                    </span>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Мультиязычность<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> поддержка<br className="hidden xl:block"/> глобальных<br className="xl:hidden"/> команд</span>
-                  </span>
-                </div>
-
-                    {/* Perk 8 */}
-                <div className="flex gap-[15px]">
-                  <div 
-                    className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] xl:rounded-[3.2px] flex items-center justify-center flex-shrink-0"
-                  >
-                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5.84232 8.69152C6.35498 8.69152 6.77058 8.27395 6.77058 7.75885C6.77058 7.24374 6.35498 6.82617 5.84232 6.82617C5.32966 6.82617 4.91406 7.24374 4.91406 7.75885C4.91406 8.27395 5.32966 8.69152 5.84232 8.69152Z" fill="white"/>
-                      <path d="M8.08576 12.735C8.08576 11.4542 7.07123 10.4121 5.8241 10.4121C4.57707 10.4121 3.5625 11.4542 3.5625 12.735V12.9347H8.08571L8.08576 12.735Z" fill="white"/>
-                      <path d="M8.21875 2.32121C8.21875 3.365 9.06392 4.2142 10.1028 4.2142C11.1416 4.2142 11.9868 3.365 11.9868 2.32121V0.125H8.21875V2.32121Z" fill="white"/>
-                      <path d="M0.375 4.35236V14.35C0.375 15.1904 1.05553 15.8742 1.89201 15.8742H18.3018C19.1382 15.8742 19.8188 15.1904 19.8188 14.35V4.35236C19.8188 3.51189 19.1382 2.82812 18.3018 2.82812H12.9471C12.7071 4.19069 11.5208 5.22919 10.0969 5.22919C8.67297 5.22919 7.48662 4.19074 7.24668 2.82812H1.89201C1.05553 2.82812 0.375 3.51189 0.375 4.35236ZM11.7118 8.03185H14.5338C14.813 8.03185 15.0394 8.25936 15.0394 8.53992C15.0394 8.82048 14.813 9.048 14.5338 9.048H11.7118C11.4326 9.048 11.2061 8.82048 11.2061 8.53992C11.2061 8.25936 11.4325 8.03185 11.7118 8.03185ZM11.7118 11.277H17.0621C17.3414 11.277 17.5678 11.5045 17.5678 11.7851C17.5678 12.0656 17.3414 12.2931 17.0621 12.2931H11.7118C11.4326 12.2931 11.2061 12.0656 11.2061 11.7851C11.2061 11.5045 11.4325 11.277 11.7118 11.277ZM2.54725 12.7334C2.54725 11.1861 3.58438 9.8816 4.9866 9.50451C4.34678 9.18564 3.90573 8.5226 3.90573 7.75774C3.90573 6.68316 4.77584 5.80891 5.84532 5.80891C6.91481 5.80891 7.78497 6.68311 7.78497 7.75769C7.78497 8.52986 7.33568 9.19859 6.686 9.5138C8.07178 9.90218 9.09318 11.198 9.09318 12.7334V13.4411C9.09318 13.7217 8.86675 13.9492 8.58752 13.9492H3.05292C2.77369 13.9492 2.54725 13.7217 2.54725 13.4411V12.7334Z" fill="white"/>
-                    </svg>
+                    </div>
                   </div>
-                  
-                  <span className="font-medium text-[16px] xl:text-[20px]">
-                    Гибкое управление<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> доступами<br className="hidden xl:block"/> и брендированием</span>
-                  </span>
-                </div>
-                  </div>
-                </div>
               </div>
 
               <div 
@@ -1808,8 +3542,46 @@ export default function CommercialProposalPage() {
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9]">$350<span className="text-[26px] font-bold text-[#09090B]">/месяц</span></span>
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'SmartExpert: fast',
+                    es: 'SmartExpert: rápido',
+                    ua: 'SmartExpert: швидке',
+                    ru: 'SmartExpert: быстрое'
+                  })}<br /> {getLocalizedText(proposalData?.language, {
+                    en: 'employee training',
+                    es: 'entrenamiento de empleados',
+                    ua: 'навчання співробітників',
+                    ru: 'обучение сотрудников'
+                  })}
+                </span>
+                <span className="text-[60px] font-bold text-[#0F58F9]">
+                  {editingField === 'mainSmartExpertPrice' ? (
+                    <InlineEditor
+                      initialValue="$350"
+                      onSave={(value) => handleTextSave('mainSmartExpertPrice', value)}
+                      onCancel={handleTextCancel}
+                      className="text-[#0F58F9] font-bold"
+                      style={{ fontSize: '60px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('mainSmartExpertPrice')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit main price"
+                    >
+                      $350
+                    </span>
+                  )}
+                  <span className="text-[26px] font-bold text-[#09090B]">
+                    {getLocalizedText(proposalData?.language, {
+                      en: '/month',
+                      es: '/mes',
+                      ua: '/місяць',
+                      ru: '/месяц'
+                    })}
+                  </span>
+                </span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
@@ -1822,13 +3594,28 @@ export default function CommercialProposalPage() {
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-[14px] xl:text-[22px] font-semibold">
-                          Кол-во пользователей
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Number of users',
+                            es: 'Número de usuarios',
+                            ua: 'Кількість користувачів',
+                            ru: 'Кол-во пользователей'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Месячная цена (со скидкой)
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Monthly price (with discount)',
+                            es: 'Precio mensual (con descuento)',
+                            ua: 'Місячна ціна (зі знижкою)',
+                            ru: 'Месячная цена (со скидкой)'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Средняя цена за пользователя
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Average price per user',
+                            es: 'Precio promedio por usuario',
+                            ua: 'Середня ціна за користувача',
+                            ru: 'Средняя цена за пользователя'
+                          })}
                         </div>
                       </div>
                     </div>
@@ -1839,13 +3626,77 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
-                            до 100
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'up to',
+                              es: 'hasta',
+                              ua: 'до',
+                              ru: 'до'
+                            })}{' '}
+                            {editingField === 'userCount1' ? (
+                              <InlineEditor
+                                initialValue="100"
+                                onSave={(value) => handleTextSave('userCount1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('userCount1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit user count"
+                              >
+                                100
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $350
+                            {editingField === 'monthlyPrice1' ? (
+                              <InlineEditor
+                                initialValue="$350"
+                                onSave={(value) => handleTextSave('monthlyPrice1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('monthlyPrice1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit monthly price"
+                              >
+                                $350
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            <span className="font-medium">от</span> <span className="font-semibold">$3.50</span>
+                            <span className="font-medium">
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'from',
+                                es: 'desde',
+                                ua: 'від',
+                                ru: 'от'
+                              })}
+                            </span>{' '}
+                            <span className="font-semibold">
+                              {editingField === 'perUserPrice1' ? (
+                                <InlineEditor
+                                  initialValue="$3.50"
+                                  onSave={(value) => handleTextSave('perUserPrice1', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-semibold"
+                                  style={{ fontSize: '14px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('perUserPrice1')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit per-user price"
+                                >
+                                  $3.50
+                                </span>
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1854,13 +3705,76 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
-                            до 200
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'up to',
+                              es: 'hasta',
+                              ua: 'до',
+                              ru: 'до'
+                            })}{' '}
+                            {editingField === 'userCount2' ? (
+                              <InlineEditor
+                                initialValue="200"
+                                onSave={(value) => handleTextSave('userCount2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('userCount2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit user count"
+                              >
+                                200
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $500
+                            {editingField === 'monthlyPrice2' ? (
+                              <InlineEditor
+                                initialValue="$500"
+                                onSave={(value) => handleTextSave('monthlyPrice2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('monthlyPrice2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit monthly price"
+                              >
+                                $500
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            <span className="font-medium">от</span> <span className="font-semibold">$2.50</span>
+                            <span className="font-medium">
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'from',
+                                es: 'desde',
+                                ua: 'від',
+                                ru: 'от'
+                              })}
+                            </span>{' '}<span className="font-semibold">
+                              {editingField === 'perUserPrice2' ? (
+                                <InlineEditor
+                                  initialValue="$2.50"
+                                  onSave={(value) => handleTextSave('perUserPrice2', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-semibold"
+                                  style={{ fontSize: '14px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('perUserPrice2')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit per-user price"
+                                >
+                                  $2.50
+                                </span>
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1869,13 +3783,70 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
-                            201-500
+                            {editingField === 'userCount3' ? (
+                              <InlineEditor
+                                initialValue="201-500"
+                                onSave={(value) => handleTextSave('userCount3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('userCount3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit user count"
+                              >
+                                201-500
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $1000
+                            {editingField === 'monthlyPrice3' ? (
+                              <InlineEditor
+                                initialValue="$1000"
+                                onSave={(value) => handleTextSave('monthlyPrice3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('monthlyPrice3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit monthly price"
+                              >
+                                $1000
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            <span className="font-medium">от</span> <span className="font-semibold">$2.00</span>
+                            <span className="font-medium">
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'from',
+                                es: 'desde',
+                                ua: 'від',
+                                ru: 'от'
+                              })}
+                            </span>{' '}<span className="font-semibold">
+                              {editingField === 'perUserPrice3' ? (
+                                <InlineEditor
+                                  initialValue="$2.00"
+                                  onSave={(value) => handleTextSave('perUserPrice3', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-semibold"
+                                  style={{ fontSize: '14px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('perUserPrice3')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit per-user price"
+                                >
+                                  $2.00
+                                </span>
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1884,13 +3855,70 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
-                            501-1000
+                            {editingField === 'userCount4' ? (
+                              <InlineEditor
+                                initialValue="501-1000"
+                                onSave={(value) => handleTextSave('userCount4', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('userCount4')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit user count"
+                              >
+                                501-1000
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $1800
+                            {editingField === 'monthlyPrice4' ? (
+                              <InlineEditor
+                                initialValue="$1800"
+                                onSave={(value) => handleTextSave('monthlyPrice4', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('monthlyPrice4')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit monthly price"
+                              >
+                                $1800
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            <span className="font-medium">от</span> <span className="font-semibold">$1.80</span>
+                            <span className="font-medium">
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'from',
+                                es: 'desde',
+                                ua: 'від',
+                                ru: 'от'
+                              })}
+                            </span>{' '}<span className="font-semibold">
+                              {editingField === 'perUserPrice4' ? (
+                                <InlineEditor
+                                  initialValue="$1.80"
+                                  onSave={(value) => handleTextSave('perUserPrice4', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-semibold"
+                                  style={{ fontSize: '14px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('perUserPrice4')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit per-user price"
+                                >
+                                  $1.80
+                                </span>
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -2466,12 +4494,22 @@ export default function CommercialProposalPage() {
             <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                  Услуга 4:
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Service 4:',
+                    es: 'Servicio 4:',
+                    ua: 'Послуга 4:',
+                    ru: 'Услуга 4:'
+                  })}
                 </span>
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                Expert-as-a-Service — Методолог:
+                Expert-as-a-Service — {getLocalizedText(proposalData?.language, {
+                  en: 'Methodologist:',
+                  es: 'Metodólogo:',
+                  ua: 'Методолог:',
+                  ru: 'Методолог:'
+                })}
               </h3>
 
               <div className="xl:h-[531px] xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
@@ -2492,13 +4530,23 @@ export default function CommercialProposalPage() {
                     </svg>
                     
                     <span className="font-semibold text-[14px] text-[#09090B]">
-                      Пробный пакет
+                      {getLocalizedText(language, {
+                        en: 'Trial Package',
+                        es: 'Paquete de Prueba',
+                        ua: 'Пробний пакет',
+                        ru: 'Пробный пакет'
+                      })}
                     </span>
                   </div>
 
                   <div>
                     <span className="font-bold text-[30px] leading-[120%]">
-                      <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> часов
+                      <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(language, {
+                        en: 'hours',
+                        es: 'horas',
+                        ua: 'годин',
+                        ru: 'часов'
+                      })}
                     </span>
                   </div>
 
@@ -2512,7 +4560,12 @@ export default function CommercialProposalPage() {
                       </div>
 
                       <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                        Структурирует и систематизирует ваши знания
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Structures and systematizes your knowledge',
+                          es: 'Estructura y sistematiza tu conocimiento',
+                          ua: 'Структурує та систематизує ваші знання',
+                          ru: 'Структурирует и систематизирует ваши знания'
+                        })}
                       </span>
                     </div>
 
@@ -2528,7 +4581,12 @@ export default function CommercialProposalPage() {
                       </div>
 
                       <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                        Создаёт курсы, видеоуроки, тесты, презентации
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Creates courses, video lessons, tests, presentations',
+                          es: 'Crea cursos, lecciones en video, pruebas, presentaciones',
+                          ua: 'Створює курси, відеоуроки, тести, презентації',
+                          ru: 'Создаёт курсы, видеоуроки, тесты, презентации'
+                        })}
                       </span>
                     </div>
 
@@ -2541,7 +4599,12 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                        Загружает и адаптирует материалы в LMS
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Uploads and adapts materials to LMS',
+                          es: 'Sube y adapta materiales al LMS',
+                          ua: 'Завантажує та адаптує матеріали в LMS',
+                          ru: 'Загружает и адаптирует материалы в LMS'
+                        })}
                       </span>
                     </div>
 
@@ -2557,7 +4620,17 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                        Выполняет технические и методологические<br className="hidden xl:block"/> задачи по вашему запросу
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Performs technical and methodological',
+                          es: 'Realiza tareas técnicas y metodológicas',
+                          ua: 'Виконує технічні та методологічні',
+                          ru: 'Выполняет технические и методологические'
+                        })}<br className="hidden xl:block"/>{getLocalizedText(proposalData?.language, {
+                          en: 'tasks upon your request',
+                          es: 'a tu solicitud',
+                          ua: 'завдання за вашим запитом',
+                          ru: 'задачи по вашему запросу'
+                        })}
                       </span>
                     </div>
                   </div>
@@ -2572,10 +4645,91 @@ export default function CommercialProposalPage() {
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'SmartExpert: fast',
+                    es: 'SmartExpert: rápido',
+                    ua: 'SmartExpert: швидке',
+                    ru: 'SmartExpert: быстрое'
+                  })}<br /> {getLocalizedText(proposalData?.language, {
+                    en: 'employee training',
+                    es: 'entrenamiento de empleados',
+                    ua: 'навчання співробітників',
+                    ru: 'обучение сотрудников'
+                  })}
+                </span>
+                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">
+                  {editingField === 'mainPriceMobile' ? (
+                    <InlineEditor
+                      initialValue="$750"
+                      onSave={(value) => handleTextSave('mainPriceMobile', value)}
+                      onCancel={handleTextCancel}
+                      className="text-[#0F58F9] font-bold"
+                      style={{ fontSize: '60px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('mainPriceMobile')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit main price"
+                    >
+                      $750
+                    </span>
+                  )}
+                  <span className="text-[26px] font-bold text-[#09090B] xl:hidden">
+                    {getLocalizedText(proposalData?.language, {
+                      en: '/month',
+                      es: '/mes',
+                      ua: '/місяць',
+                      ru: '/месяц'
+                    })}
+                  </span>
+                </span>
 
-                <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
+                <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">
+                  {editingField === 'mainPriceDesktop' ? (
+                    <InlineEditor
+                      initialValue="$750"
+                      onSave={(value) => handleTextSave('mainPriceDesktop', value)}
+                      onCancel={handleTextCancel}
+                      className="text-[#0F58F9] font-bold"
+                      style={{ fontSize: '60px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('mainPriceDesktop')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit main price"
+                    >
+                      $750
+                    </span>
+                  )}{' '}
+                  <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]">
+                    {editingField === 'hoursCount' ? (
+                      <InlineEditor
+                        initialValue="10"
+                        onSave={(value) => handleTextSave('hoursCount', value)}
+                        onCancel={handleTextCancel}
+                        className="font-bold text-[#09090B]"
+                        style={{ fontSize: '26px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('hoursCount')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit hours count"
+                      >
+                        10
+                      </span>
+                    )}{' '}
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'hrs/month',
+                      es: 'hrs/mes',
+                      ua: 'год/місяць',
+                      ru: 'ч./месяц'
+                    })}
+                  </span>
+                </span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
@@ -2588,16 +4742,36 @@ export default function CommercialProposalPage() {
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-4 gap-4">
                         <div className="text-[14px] xl:text-[22px] font-semibold">
-                          Пакет
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Package',
+                            es: 'Paquete',
+                            ua: 'Пакет',
+                            ru: 'Пакет'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Кол-во часов
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Hours',
+                            es: 'Horas',
+                            ua: 'Години',
+                            ru: 'Кол-во часов'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Стоимость
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Price',
+                            es: 'Precio',
+                            ua: 'Вартість',
+                            ru: 'Стоимость'
+                          })}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Ставка за час
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Rate per hour',
+                            es: 'Tarifa por hora',
+                            ua: 'Ставка за годину',
+                            ru: 'Ставка за час'
+                          })}
                         </div>
                       </div>
                     </div>
@@ -2608,16 +4782,92 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            Pack 1
+                            {editingField === 'packName1' ? (
+                              <InlineEditor
+                                initialValue="Pack 1"
+                                onSave={(value) => handleTextSave('packName1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('packName1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit pack name"
+                              >
+                                Pack 1
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            30 часов
+                            {editingField === 'hours1' ? (
+                              <InlineEditor
+                                initialValue="30"
+                                onSave={(value) => handleTextSave('hours1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('hours1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit hours count"
+                              >
+                                30
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'hours',
+                              es: 'horas',
+                              ua: 'годин',
+                              ru: 'часов'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $2,250
+                            {editingField === 'price1' ? (
+                              <InlineEditor
+                                initialValue="$2,250"
+                                onSave={(value) => handleTextSave('price1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $2,250
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $75 / час
+                            {editingField === 'rate1' ? (
+                              <InlineEditor
+                                initialValue="$75"
+                                onSave={(value) => handleTextSave('rate1', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('rate1')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit rate"
+                              >
+                                $75
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/hour',
+                              es: '/hora',
+                              ua: '/годину',
+                              ru: '/час'
+                            })}
                           </div>
                         </div>
                       </div>
@@ -2626,16 +4876,92 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            Pack 2
+                            {editingField === 'packName2' ? (
+                              <InlineEditor
+                                initialValue="Pack 2"
+                                onSave={(value) => handleTextSave('packName2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('packName2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit pack name"
+                              >
+                                Pack 2
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            50 часов
+                            {editingField === 'hours2' ? (
+                              <InlineEditor
+                                initialValue="50"
+                                onSave={(value) => handleTextSave('hours2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('hours2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit hours count"
+                              >
+                                50
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'hours',
+                              es: 'horas',
+                              ua: 'годин',
+                              ru: 'часов'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $3,500
+                            {editingField === 'price2' ? (
+                              <InlineEditor
+                                initialValue="$3,500"
+                                onSave={(value) => handleTextSave('price2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $3,500
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $70 / час
+                            {editingField === 'rate2' ? (
+                              <InlineEditor
+                                initialValue="$70"
+                                onSave={(value) => handleTextSave('rate2', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('rate2')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit rate"
+                              >
+                                $70
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/hour',
+                              es: '/hora',
+                              ua: '/годину',
+                              ru: '/час'
+                            })}
                           </div>
                         </div>
                       </div>
@@ -2644,16 +4970,92 @@ export default function CommercialProposalPage() {
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            Pack 3
+                            {editingField === 'packName3' ? (
+                              <InlineEditor
+                                initialValue="Pack 3"
+                                onSave={(value) => handleTextSave('packName3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('packName3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit pack name"
+                              >
+                                Pack 3
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            100 часов
+                            {editingField === 'hours3' ? (
+                              <InlineEditor
+                                initialValue="100"
+                                onSave={(value) => handleTextSave('hours3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('hours3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit hours count"
+                              >
+                                100
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'hours',
+                              es: 'horas',
+                              ua: 'годин',
+                              ru: 'часов'
+                            })}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $5,900
+                            {editingField === 'price3' ? (
+                              <InlineEditor
+                                initialValue="$5,900"
+                                onSave={(value) => handleTextSave('price3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('price3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit price"
+                              >
+                                $5,900
+                              </span>
+                            )}
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $59 / час
+                            {editingField === 'rate3' ? (
+                              <InlineEditor
+                                initialValue="$59"
+                                onSave={(value) => handleTextSave('rate3', value)}
+                                onCancel={handleTextCancel}
+                                className="font-medium"
+                                style={{ fontSize: '14px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('rate3')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit rate"
+                              >
+                                $59
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: '/hour',
+                              es: '/hora',
+                              ua: '/годину',
+                              ru: '/час'
+                            })}
                           </div>
                         </div>
                       </div>
@@ -3231,7 +5633,60 @@ export default function CommercialProposalPage() {
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                  <span className="text-[14px] xl:text-[22px] font-medium text-[#09090B]">Использованные часы<br className="xl:hidden"/> списываются согласно тайм-<br className="xl:hidden"/>трекеру.</span> Вы можете<br className="xl:hidden"/> приостановить или завершить<br className="xl:hidden"/> сотрудничество в любой момент,<br className="xl:hidden"/> оплата за неиспользованные часы<br className="xl:hidden"/> возвращаются вам в полном<br className="xl:hidden"/> объёме
+                  <span className="text-[14px] xl:text-[22px] font-medium text-[#09090B]">
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'Used hours are',
+                      es: 'Las horas utilizadas se',
+                      ua: 'Використані години',
+                      ru: 'Использованные часы'
+                    })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                      en: 'debited according to',
+                      es: 'descuentan según el',
+                      ua: 'списуються згідно з',
+                      ru: 'списываются согласно'
+                    })} {getLocalizedText(proposalData?.language, {
+                      en: 'time tracker.',
+                      es: 'seguimiento de tiempo.',
+                      ua: 'тайм-трекером.',
+                      ru: 'тайм-трекеру.'
+                    })}
+                  </span>{' '}
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'You can',
+                    es: 'Puedes',
+                    ua: 'Ви можете',
+                    ru: 'Вы можете'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'pause or terminate',
+                    es: 'pausar o terminar',
+                    ua: 'призупинити або завершити',
+                    ru: 'приостановить или завершить'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'cooperation at any time,',
+                    es: 'la cooperación en cualquier momento,',
+                    ua: 'співпрацю в будь-який момент,',
+                    ru: 'сотрудничество в любой момент,'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'payment for unused hours',
+                    es: 'el pago por horas no utilizadas',
+                    ua: 'оплата за невикористані години',
+                    ru: 'оплата за неиспользованные часы'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'is refunded to you',
+                    es: 'se te reembolsa',
+                    ua: 'повертається вам',
+                    ru: 'возвращается вам'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'in full',
+                    es: 'completamente',
+                    ua: 'в повному',
+                    ru: 'в полном'
+                  })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    en: 'amount',
+                    es: 'monto',
+                    ua: 'обсязі',
+                    ru: 'объёме'
+                  })}
                 </span>
               </div> 
             </div>
@@ -3240,7 +5695,27 @@ export default function CommercialProposalPage() {
           {/* Section 6 */}
           <section className="bg-white pt-[50px] pb-[60px] xl:py-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[20px]">
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%]">
-              Стартовый пакет - всё,<br className="xl:hidden"/> что<br className="hidden xl:block"/> нужно для запуска<br className="xl:hidden"/> обучения
+              {getLocalizedText(proposalData?.language, {
+                en: 'Starter package - everything',
+                es: 'Paquete inicial - todo',
+                ua: 'Стартовий пакет - все',
+                ru: 'Стартовый пакет - всё'
+              })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                en: 'you need',
+                es: 'lo que necesitas',
+                ua: 'що потрібно',
+                ru: 'что'
+              })}<br className="hidden xl:block"/> {getLocalizedText(proposalData?.language, {
+                en: 'to launch',
+                es: 'para lanzar',
+                ua: 'для запуску',
+                ru: 'нужно для запуска'
+              })}<br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                en: 'training',
+                es: 'el entrenamiento',
+                ua: 'навчання',
+                ru: 'обучения'
+              })}
             </h3>
 
             <div 
@@ -3251,7 +5726,21 @@ export default function CommercialProposalPage() {
             >
               <div className="flex flex-col gap-[20px] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0 xl:flex-1">
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
-                  <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
+                  <h4 className="text-[18px] font-semibold">
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'Methodologist by',
+                      es: 'Metodólogo por',
+                      ua: 'Методолог за',
+                      ru: 'Методолог по'
+                    })}{' '}
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'model',
+                      es: 'modelo',
+                      ua: 'моделлю',
+                      ru: 'модели'
+                    })}{' '}
+                    <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span>
+                  </h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3259,26 +5748,103 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Пробный пакет — <span className="font-semibold">10 часов работы</span></span>
+                        <span className="text-[16px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Trial package —',
+                            es: 'Paquete de prueba —',
+                            ua: 'Пробний пакет —',
+                            ru: 'Пробный пакет —'
+                          })}{' '}
+                          <span className="font-semibold">
+                            {editingField === 'trialHours' ? (
+                              <InlineEditor
+                                initialValue="10"
+                                onSave={(value) => handleTextSave('trialHours', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '16px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('trialHours')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit trial hours"
+                              >
+                                10
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'hours of work',
+                              es: 'horas de trabajo',
+                              ua: 'годин роботи',
+                              ru: 'часов работы'
+                            })}
+                          </span>
+                        </span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Помощь в создании курсов, тестов и структуры</span>
+                        <span className="text-[16px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Help in creating',
+                            es: 'Ayuda en la creación de',
+                            ua: 'Допомога у створенні',
+                            ru: 'Помощь в создании'
+                          })}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'courses, tests and structure',
+                            es: 'cursos, pruebas y estructura',
+                            ua: 'курсів, тестів та структури',
+                            ru: 'курсов, тестов и структуры'
+                          })}
+                        </span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$750 единовременно</span>
+                        <span className="text-[16px] font-semibold">
+                          {editingField === 'methodologistPrice' ? (
+                            <InlineEditor
+                              initialValue="$750"
+                              onSave={(value) => handleTextSave('methodologistPrice', value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('methodologistPrice')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit methodologist price"
+                            >
+                              $750
+                            </span>
+                          )}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'one-time',
+                            es: 'una sola vez',
+                            ua: 'одноразово',
+                            ru: 'единовременно'
+                          })}
+                        </span>
                       </li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-[20px] py-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
-                  <h4 className="text-[18px] font-semibold">Платформа <span className="text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span></h4>
+                  <h4 className="text-[18px] font-semibold">
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'Platform',
+                      es: 'Plataforma',
+                      ua: 'Платформа',
+                      ru: 'Платформа'
+                    })}{' '}
+                    <span className="text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span>
+                  </h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3286,26 +5852,103 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Генерация курсов, презентаций, видеоуроков</span>
+                        <span className="text-[16px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Generation of',
+                            es: 'Generación de',
+                            ua: 'Генерація',
+                            ru: 'Генерация'
+                          })}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'courses, presentations, video lessons',
+                            es: 'cursos, presentaciones, lecciones en video',
+                            ua: 'курсів, презентацій, відеоуроків',
+                            ru: 'курсов, презентаций, видеоуроков'
+                          })}
+                        </span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Включено 500 <span className="font-semibold">AI-кредитов</span></span>
+                        <span className="text-[16px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Includes',
+                            es: 'Incluye',
+                            ua: 'Включено',
+                            ru: 'Включено'
+                          })}{' '}
+                          {editingField === 'aiCreditsCount' ? (
+                            <InlineEditor
+                              initialValue="500"
+                              onSave={(value) => handleTextSave('aiCreditsCount', value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('aiCreditsCount')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit AI credits count"
+                            >
+                              500
+                            </span>
+                          )}{' '}
+                          <span className="font-semibold">
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'AI credits',
+                              es: 'créditos de IA',
+                              ua: 'AI-кредитів',
+                              ru: 'AI-кредитов'
+                            })}
+                          </span>
+                        </span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$100 в месяц</span>
+                        <span className="text-[16px] font-semibold">
+                          {editingField === 'contentBuilderPrice' ? (
+                            <InlineEditor
+                              initialValue="$100"
+                              onSave={(value) => handleTextSave('contentBuilderPrice', value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('contentBuilderPrice')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit ContentBuilder price"
+                            >
+                              $100
+                            </span>
+                          )}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'per month',
+                            es: 'por mes',
+                            ua: 'на місяць',
+                            ru: 'в месяц'
+                          })}
+                        </span>
                       </li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-[20px] pt-[20px]">
-                  <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span></h4>
+                  <h4 className="text-[18px] font-semibold">
+                    {getLocalizedText(proposalData?.language, {
+                      en: 'LMS platform',
+                      es: 'Plataforma LMS',
+                      ua: 'LMS-платформа',
+                      ru: 'LMS-платформа'
+                    })}
+                    <span className="text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span>
+                  </h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3313,19 +5956,86 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Обучение, онбординг, база знаний, отчёты</span>
+                        <span className="text-[16px]">{getLocalizedText(proposalData?.language, {
+                          en: 'Training, onboarding, knowledge base, reports',
+                          es: 'Entrenamiento, incorporación, base de conocimientos, informes',
+                          ua: 'Навчання, онбординг, база знань, звіти',
+                          ru: 'Обучение, онбординг, база знаний, отчёты'
+                        })}</span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">До <span className="font-semibold">200 пользователей</span></span>
+                        <span className="text-[16px]">
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Up to',
+                            es: 'Hasta',
+                            ua: 'До',
+                            ru: 'До'
+                          })}{' '}
+                          <span className="font-semibold">
+                            {editingField === 'smartExpertUsers' ? (
+                              <InlineEditor
+                                initialValue="200"
+                                onSave={(value) => handleTextSave('smartExpertUsers', value)}
+                                onCancel={handleTextCancel}
+                                className="font-semibold"
+                                style={{ fontSize: '16px' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('smartExpertUsers')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit user count"
+                              >
+                                200
+                              </span>
+                            )}{' '}
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'users',
+                              es: 'usuarios',
+                              ua: 'користувачів',
+                              ru: 'пользователей'
+                            })}
+                          </span>
+                        </span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$250 в месяц (со скидкой 50% до конца 2025)</span>
+                        <span className="text-[16px] font-semibold">
+                          {editingField === 'smartExpertPrice' ? (
+                            <InlineEditor
+                              initialValue="$250"
+                              onSave={(value) => handleTextSave('smartExpertPrice', value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('smartExpertPrice')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit SmartExpert price"
+                            >
+                              $250
+                            </span>
+                          )}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'per month',
+                            es: 'por mes',
+                            ua: 'на місяць',
+                            ru: 'в месяц'
+                          })}{' '}
+                          {getLocalizedText(proposalData?.language, {
+                            en: '(with 50% discount until end of 2025)',
+                            es: '(con 50% de descuento hasta finales de 2025)',
+                            ua: '(зі знижкою 50% до кінця 2025)',
+                            ru: '(со скидкой 50% до конца 2025)'
+                          })}
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -3361,22 +6071,109 @@ export default function CommercialProposalPage() {
                   }}
                 />
 
-                <span className="text-white text-[22px] xl:text-[26px] font-semibold relative z-10">Итого:</span>
+                <span className="text-white text-[22px] xl:text-[26px] font-semibold relative z-10">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Total:',
+                    es: 'Total:',
+                    ua: 'Разом:',
+                    ru: 'Итого:'
+                  })}
+                </span>
                 
                 <div className="flex flex-col gap-[30px] relative z-10">
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
-                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">$750</span>
-                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога (разово)</span>
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">
+                      {editingField === 'totalMethodologistPrice' ? (
+                        <InlineEditor
+                          initialValue="$750"
+                          onSave={(value) => handleTextSave('totalMethodologistPrice', value)}
+                          onCancel={handleTextCancel}
+                          className="text-white font-semibold"
+                          style={{ fontSize: '46px' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('totalMethodologistPrice')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit total methodologist price"
+                        >
+                          $750
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Trial methodologist package (one-time)',
+                        es: 'Paquete de metodólogo de prueba (una sola vez)',
+                        ua: 'Пробний пакет методолога (одноразово)',
+                        ru: 'Пробный пакет методолога (разово)'
+                      })}
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
-                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">$350</span>
-                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Подписка на 2 платформы</span>
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">
+                      {editingField === 'totalPlatformsPrice' ? (
+                        <InlineEditor
+                          initialValue="$350"
+                          onSave={(value) => handleTextSave('totalPlatformsPrice', value)}
+                          onCancel={handleTextCancel}
+                          className="text-white font-semibold"
+                          style={{ fontSize: '46px' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('totalPlatformsPrice')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit total platforms price"
+                        >
+                          $350
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Subscription to 2 platforms',
+                        es: 'Suscripción a 2 plataformas',
+                        ua: 'Підписка на 2 платформи',
+                        ru: 'Подписка на 2 платформы'
+                      })}
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
-                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">7-14 дней</span>
-                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Всё готово к запуску</span>
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">
+                      {editingField === 'timeline' ? (
+                        <InlineEditor
+                          initialValue="7-14 дней"
+                          onSave={(value) => handleTextSave('timeline', value)}
+                          onCancel={handleTextCancel}
+                          className="text-white font-semibold"
+                          style={{ fontSize: '46px' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('timeline')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit timeline"
+                        >
+                          {getLocalizedText(proposalData?.language, {
+                            en: '7-14 days',
+                            es: '7-14 días',
+                            ua: '7-14 днів',
+                            ru: '7-14 дней'
+                          })}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Everything ready to launch',
+                        es: 'Todo listo para lanzar',
+                        ua: 'Все готово до запуску',
+                        ru: 'Всё готово к запуску'
+                      })}
+                    </span>
                   </div>
                   
                   <div 
@@ -3394,7 +6191,14 @@ export default function CommercialProposalPage() {
                     <button 
                       className="font-semibold text-[16px] w-full mx-auto block bg-white px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
                     >
-                      <span className="font-semibold text-[16px] xl:text-[18px]">Забронировать</span>
+                      <span className="font-semibold text-[16px] xl:text-[18px]">
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Book now',
+                          es: 'Reservar',
+                          ua: 'Забронювати',
+                          ru: 'Забронировать'
+                        })}
+                      </span>
                     </button>
                   </div>
                 </div>

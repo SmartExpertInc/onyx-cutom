@@ -1796,7 +1796,7 @@ export default function DynamicAuditLandingPage() {
                     es: 'para empresa',
                     ua: 'для компанії',
                     ru: 'для компании'
-                  }                  )} {editingField === 'companyName' ? (
+                  })} {editingField === 'companyName' ? (
                     <InlineEditor
                       initialValue={companyName}
                       onSave={(value) => handleTextSave('companyName', value)}
