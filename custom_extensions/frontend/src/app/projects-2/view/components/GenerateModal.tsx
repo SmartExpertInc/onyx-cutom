@@ -69,40 +69,41 @@ export default function GenerateModal({
       ></div>
       
       {/* Modal content */}
-      <div className="relative shadow-xl w-[500px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
+      <div className="relative shadow-xl w-[700px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
         {/* Header */}
         <div className="p-6 pb-3">
           <div className="flex justify-center items-center">
-            <h2 className="text-lg font-semibold text-gray-700">Generate video</h2>
+            <h2 className="text-lg font-semibold text-[#171718]">Generate video</h2>
           </div>
         </div>
 
         {/* Content */}
         <div className="px-6 pb-6">
           {/* Title input */}
-          <div className="mb-2">
-            <label className="block text-xs text-gray-700 mb-2">Title</label>
+          <div>
+            <label className="block text-[10px] text-[#878787] mb-2">Title</label>
             <input
               type="text"
               value={videoTitle}
               onChange={(e) => setVideoTitle(e.target.value)}
               onBlur={() => setIsEditingTitle(false)}
               onFocus={() => setIsEditingTitle(true)}
-              className="w-full text-sm bg-transparent border-none outline-none focus:ring-0 px-0 py-1 text-gray-700 placeholder-gray-500"
+              className="w-full text-sm bg-transparent border-none outline-none focus:ring-0 px-0 py-1 text-[#171718] placeholder-[#171718]"
               placeholder="Enter video title"
             />
           </div>
           
           {/* Horizontal line */}
-          <div className="border-t-2 border-gray-300 mb-6"></div>
+          <div className="border-t-2 border-[#171718] mb-6"></div>
           
           {/* Subtitles */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-700">Subtitles</span>
+            <span className="text-sm text-[#171718]">Subtitles</span>
             <div className="relative" data-subtitle-dropdown>
               <button 
                 onClick={() => setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen)}
-                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedSubtitleOption}
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +113,7 @@ export default function GenerateModal({
               
               {/* Dropdown popup */}
               {isSubtitleDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-80">
+                <div className="absolute top-full right-0 mt-1 bg-white border border-[#E0E0E0] rounded-md shadow-lg z-50 w-80">
                   <div className="py-2">
                     <button
                       onClick={() => {
@@ -121,8 +122,8 @@ export default function GenerateModal({
                       }}
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
-                      <div className="text-sm text-black font-medium">Optional subtitles (SRT/VTT)</div>
-                      <div className="text-sm text-gray-500">Can be turned on by viewers on demand</div>
+                      <div className="text-sm font-medium" style={{ color: '#878787' }}>Optional subtitles (SRT/VTT)</div>
+                      <div className="text-sm" style={{ color: '#878787' }}>Can be turned on by viewers on demand</div>
                     </button>
                     <button
                       onClick={() => {
@@ -131,8 +132,8 @@ export default function GenerateModal({
                       }}
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
-                      <div className="text-sm text-black font-medium">Burnt-in subtitles</div>
-                      <div className="text-sm text-gray-500">Burnt into the video, can't be disabled</div>
+                      <div className="text-sm font-medium" style={{ color: '#878787' }}>Burnt-in subtitles</div>
+                      <div className="text-sm" style={{ color: '#878787' }}>Burnt into the video, can't be disabled</div>
                     </button>
                   </div>
                 </div>
@@ -142,11 +143,12 @@ export default function GenerateModal({
           
           {/* Resolution */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-700">Resolution</span>
+            <span className="text-sm text-[#171718]">Resolution</span>
             <div className="relative" data-resolution-dropdown>
               <button 
                 onClick={() => setIsResolutionDropdownOpen(!isResolutionDropdownOpen)}
-                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedResolution}
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +158,7 @@ export default function GenerateModal({
               
               {/* Dropdown popup */}
               {isResolutionDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-48">
+                <div className="absolute top-full right-0 mt-1 bg-white border border-[#E0E0E0] rounded-md shadow-lg z-50 w-48">
                   <div className="py-2">
                     <button
                       onClick={() => {
@@ -172,7 +174,7 @@ export default function GenerateModal({
                       ) : (
                         <div className="w-4 h-4"></div>
                       )}
-                      <span className="text-sm text-black">720p</span>
+                      <span className="text-sm" style={{ color: '#878787' }}>720p</span>
                     </button>
                     <button
                       onClick={() => {
@@ -188,7 +190,7 @@ export default function GenerateModal({
                       ) : (
                         <div className="w-4 h-4"></div>
                       )}
-                      <span className="text-sm text-black">1080p HD</span>
+                      <span className="text-sm text-[#878787]">1080p HD</span>
                     </button>
                     <button
                       onClick={() => {
@@ -205,7 +207,7 @@ export default function GenerateModal({
                         <div className="w-4 h-4"></div>
                       )}
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-black">1440p HD</span>
+                        <span className="text-sm" style={{ color: '#878787' }}>1440p HD</span>
                         <Gem className="w-4 h-4 text-purple-700" />
                       </div>
                     </button>
@@ -224,7 +226,7 @@ export default function GenerateModal({
                         <div className="w-4 h-4"></div>
                       )}
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-black">2160p 4K</span>
+                        <span className="text-sm" style={{ color: '#878787' }}>2160p 4K</span>
                         <Gem className="w-4 h-4 text-purple-700" />
                       </div>
                     </button>
@@ -236,8 +238,8 @@ export default function GenerateModal({
           
           {/* Location */}
           <div className="flex justify-between items-center mb-6">
-            <span className="text-sm text-gray-700">Location</span>
-            <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2">
+            <span className="text-sm text-[#171718]">Location</span>
+            <button className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2" style={{ color: '#878787', borderColor: '#E0E0E0' }}>
               Library
               <div className="flex flex-col">
                 <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
