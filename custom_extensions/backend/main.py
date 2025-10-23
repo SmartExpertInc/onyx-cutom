@@ -16701,9 +16701,10 @@ async def generate_commercial_proposal(payload: CommercialProposalCreateRequest,
         
         onyx_user_id = await get_current_onyx_user_id(request)
         
-        # Get the source AI audit project
+        # Get the source AI audit project with all necessary fields
         query = """
-        SELECT microproduct_content, microproduct_name, created_at
+        SELECT microproduct_content, microproduct_name, created_at, product_type, microproduct_type, 
+               design_template_id, source_chat_session_id, folder_id
         FROM projects 
         WHERE id = $1 AND onyx_user_id = $2
         """
@@ -16718,9 +16719,16 @@ async def generate_commercial_proposal(payload: CommercialProposalCreateRequest,
         source_content = source_row["microproduct_content"]
         source_name = source_row["microproduct_name"]
         source_created_at = source_row["created_at"]
+        source_product_type = source_row["product_type"]
+        source_microproduct_type = source_row["microproduct_type"]
+        source_design_template_id = source_row["design_template_id"]
+        source_chat_session_id = source_row["source_chat_session_id"]
+        source_folder_id = source_row["folder_id"]
         
         logger.info(f"📋 [COMMERCIAL PROPOSAL] Source project data retrieved:")
         logger.info(f"📋 [COMMERCIAL PROPOSAL] - Name: {source_name}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Product Type: {source_product_type}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Microproduct Type: {source_microproduct_type}")
         logger.info(f"📋 [COMMERCIAL PROPOSAL] - Content keys: {list(source_content.keys()) if source_content else 'None'}")
         
         # Create commercial proposal content based on AI audit data
@@ -16746,22 +16754,40 @@ async def generate_commercial_proposal(payload: CommercialProposalCreateRequest,
         logger.info(f"📝 [COMMERCIAL PROPOSAL] - Course Templates: {len(commercial_proposal_content['courseTemplates'])}")
         logger.info(f"📝 [COMMERCIAL PROPOSAL] - Language: {commercial_proposal_content['language']}")
         
-        # Insert new commercial proposal project
+        # Insert new commercial proposal project with proper product type and template
         insert_query = """
-        INSERT INTO projects (onyx_user_id, microproduct_name, microproduct_content, created_at, updated_at)
-        VALUES ($1, $2, $3, NOW(), NOW())
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
         RETURNING id
         """
+        
+        # Use the same template as the source project or get a text presentation template
+        template_id = source_design_template_id
+        if not template_id:
+            template_id = await _ensure_text_presentation_template(pool)
         
         async with pool.acquire() as conn:
             new_project_id = await conn.fetchval(
                 insert_query, 
-                onyx_user_id, 
-                commercial_proposal_content["projectName"],
-                commercial_proposal_content
+                onyx_user_id,
+                commercial_proposal_content["projectName"],  # project_name
+                "Commercial Proposal",  # product_type - changed from AI Audit
+                "Commercial Proposal",  # microproduct_type - changed from AI Audit
+                commercial_proposal_content["projectName"],  # microproduct_name
+                commercial_proposal_content,  # microproduct_content
+                template_id,  # design_template_id
+                source_chat_session_id,  # source_chat_session_id
+                source_folder_id  # folder_id - keep same folder as source
             )
         
         logger.info(f"✅ [COMMERCIAL PROPOSAL] Successfully created commercial proposal project with ID: {new_project_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Product Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Microproduct Type: Commercial Proposal")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Template ID: {template_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] - Folder ID: {source_folder_id}")
         
         return {
             "success": True,
