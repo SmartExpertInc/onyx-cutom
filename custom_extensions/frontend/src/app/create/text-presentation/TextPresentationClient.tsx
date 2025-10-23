@@ -766,8 +766,8 @@ export default function TextPresentationClient() {
       if (trimmedLine.startsWith('-')) {
         const contentAfterDash = trimmedLine.substring(1).trim();
         return (
-          <div key={lineIndex} className="flex items-start gap-2 mb-1">
-            <div className="w-2 h-2 bg-[#6091F9] rounded-full mt-2 flex-shrink-0"></div>
+          <div key={lineIndex} className="flex items-start gap-2">
+            <div className="w-1 h-1 bg-[#6091F9] rounded-full mt-2 flex-shrink-0"></div>
             <span className="text-sm font-normal leading-[140%] text-[#171718]">{contentAfterDash}</span>
           </div>
         );
@@ -1466,6 +1466,12 @@ export default function TextPresentationClient() {
     { id: "lunaria", label: t('interface.generate.lunaria', 'Lunaria') },
     { id: "zephyr", label: t('interface.generate.zephyr', 'Zephyr') },
   ];
+
+  // Helper function to get theme SVG component
+  const getThemeSvg = (themeId: string) => {
+    const ThemeSvgComponent = ThemeSvgs[themeId as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+    return ThemeSvgComponent;
+  };
   const styleOptions = [
     { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
     { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
@@ -1620,20 +1626,20 @@ export default function TextPresentationClient() {
                   }}
                   placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                   rows={1}
-                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                  className="w-full px-7 py-5 rounded-t-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
                   style={{ background: "#6E9BFB", border: "#CCCCCC" }}
                 />
               </div>
             </div>
           )}
 
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3 rounded-b-lg">
           {error && <p className="text-red-600">{error}</p>}
 
           {/* Main content display - Custom slide titles display matching course outline format */}
           {(textareaVisible || loading) && (
             <div
-              className="rounded-[8px] flex flex-col relative"
+              className="rounded-b-lg flex flex-col relative"
               style={{ 
                 animation: 'fadeInDown 0.25s ease-out both',
                 background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)',
@@ -1711,7 +1717,7 @@ export default function TextPresentationClient() {
                           />
                         ) : (
                           <div 
-                            className={`cursor-pointer hover:bg-gray-50 rounded p-2 -m-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                            className={`cursor-pointer text-sm rounded p-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
                             onMouseDown={() => {
                               nextEditingContentIdRef.current = idx;
                             }}
@@ -1766,7 +1772,7 @@ export default function TextPresentationClient() {
                 <button
                   type="button"
                   onClick={handleAddSection}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">+</span>
                   <span>Add Section</span>
@@ -1775,6 +1781,72 @@ export default function TextPresentationClient() {
             </div>
           )}
           </section>
+
+          {/* Theme section */}
+          {streamDone && content && (
+            <section className="flex flex-col gap-3">
+              <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+                <div className="bg-white rounded-lg pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
+                    <div className="flex flex-col">
+                      <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.themes', 'Themes')}</h2>
+                      <p className="text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 text-sm text-[#71717AB2] hover:opacity-80 transition-opacity border border-[#71717AB2] rounded-lg px-3 py-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717AB2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
+                      <span>{t('interface.generate.viewMore', 'View more')}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col gap-5 px-6">
+                    {/* Themes grid */}
+                    <div className="grid grid-cols-3 gap-5 justify-items-center">
+                      {themeOptions.map((theme) => {
+                        const ThemeSvgComponent = getThemeSvg(theme.id);
+                        const isSelected = selectedTheme === theme.id;
+
+                        return (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => setSelectedTheme(theme.id)}
+                            className={`relative flex flex-col rounded-lg overflow-hidden transition-all p-2 gap-2 ${isSelected
+                              ? 'bg-[#F2F8FF] border-2 border-[#0F58F9]'
+                              : 'bg-[#FFFFFF] border border-[#E0E0E0] hover:shadow-lg'
+                              }`}
+                          >
+                            {/* Status indicator circle - top right */}
+                            <div className={`absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center ${isSelected
+                              ? 'bg-[#0F58F9]'
+                              : 'bg-white border border-[#E0E0E0]'
+                              }`}>
+                              {isSelected && (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </div>
+                            
+                            <div className="w-[214px] h-[116px] flex items-center justify-center">
+                              <ThemeSvgComponent />
+                            </div>
+                            <div className="flex items-center justify-left px-3">
+                              <span className="text-sm text-[#20355D] font-medium select-none">
+                                {theme.label}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Inline Advanced section & button */}
           {streamDone && content && (
@@ -1824,7 +1896,7 @@ export default function TextPresentationClient() {
           )}
 
           {streamDone && content && (
-            <section className="flex flex-col gap-3" style={{ display: 'none' }}>
+            <section className="flex flex-col gap-3 rounded-b-lg" style={{ display: 'none' }}>
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
               <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
