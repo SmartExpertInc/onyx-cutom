@@ -34,6 +34,33 @@ type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
 
 const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
   if (!text) return [];
+  
+  // Check if text contains a colon
+  const colonIndex = text.indexOf(':');
+  
+  if (colonIndex !== -1) {
+    // Split into before and after the first colon
+    const beforeColon = text.substring(0, colonIndex);
+    const afterColon = text.substring(colonIndex);
+    
+    // Process both parts for bold markers
+    const processSegment = (segment: string, keyPrefix: string) => {
+      const segments = segment.split(/\*\*(.*?)\*\*/g);
+      return segments.map((seg, index) => {
+        if (index % 2 === 1) { 
+          return <span key={`${keyPrefix}-${index}`} className="font-medium text-black">{seg}</span>;
+        }
+        return seg; 
+      }).filter(seg => seg !== "");
+    };
+    
+    return [
+      <span key="before-colon" className="text-blue-600">{processSegment(beforeColon, 'before')}</span>,
+      ...processSegment(afterColon, 'after')
+    ];
+  }
+  
+  // Original behavior if no colon
   const segments = text.split(/\*\*(.*?)\*\*/g); 
   return segments.map((segment, index) => {
     if (index % 2 === 1) { 
@@ -116,11 +143,11 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const THEME_COLORS = {
-  primaryText: 'text-black',        
-  headingText: 'text-black',        
-  subHeadingText: 'text-black',     
+  primaryText: 'text-[#171718]',        
+  headingText: 'text-[#0F58F9]',        
+  subHeadingText: 'text-[#171718]',     
   accentRed: 'text-[#FF1414]', 
-  accentRedBg: 'bg-[#FF1414]',      
+  accentRedBg: 'bg-white',      
   veryLightAccentBg: 'bg-[#FAFAFA]',
   lightBorder: 'border-gray-200',   
   mutedText: 'text-black',          
@@ -771,7 +798,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       const IconComponent = iconName ? iconMap[iconName] : null;
       
-      let textStyleClass = 'uppercase '; 
+      let textStyleClass = ''; 
       if (level === 1) { textStyleClass += `text-lg lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
       else if (level === 2) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; }  
       else if (level === 3) { textStyleClass += `text-base lg:text-lg font-bold ${THEME_COLORS.headingText}`; } 
@@ -779,15 +806,15 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
       if (depth > 0) {
-        textStyleClass = 'uppercase '; 
+        textStyleClass = ''; 
         if (level === 3) textStyleClass += `text-sm font-bold ${THEME_COLORS.accentRed}`; 
         else if (level === 4) textStyleClass += `text-xs font-bold ${THEME_COLORS.subHeadingText}`;
       }
       if (isMiniSectionHeadline) {
-          textStyleClass = 'uppercase '; 
+          textStyleClass = ''; 
           textStyleClass += level === 3 ? `text-base font-bold ${THEME_COLORS.accentRed}` : `text-sm font-bold ${THEME_COLORS.accentRed}`; 
           if (depth > 0) { 
-            textStyleClass = 'uppercase '; 
+            textStyleClass = ''; 
             textStyleClass += level === 3 ? `text-sm font-bold ${THEME_COLORS.accentRed}` : `text-xs font-bold ${THEME_COLORS.accentRed}`;
           }
       }
@@ -971,7 +998,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           </div>
         );
       }
-      return ( <p className={`${paragraphClasses} ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '10px' }}>{styledText}</p> );
+      return ( <p className={`${paragraphClasses} font-light ${finalMb} ${recommendationClasses}`.trim()} style={{ fontSize: fontSize || '16px' }}>{styledText}</p> );
     }
     case 'bullet_list': 
     case 'numbered_list': {
@@ -1114,7 +1141,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               if (isNumbered) {
                 return (
                   <li key={index} className="flex items-start gap-3 group/listitem relative">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
@@ -2484,27 +2511,26 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   return (
-    <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-      <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
-          {dataToDisplay.textTitle && (
-            <header className="mb-4 text-left">
-              {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
-              
-              {isEditing && onTextChange ? (
-                  <input 
-                      type="text" 
-                      value={dataToDisplay.textTitle} 
-                      onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
-                      className={`${editingInputClass} text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
-                  />
-              ) : (
-                  <h1 className={`text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
-              )}
-
-              <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} />
-            </header>
+    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-md max-w-7xl mx-auto my-6">
+      {dataToDisplay.textTitle && (
+        <header className="mb-4 text-left border-b border-[#CCCCCC]">
+          {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}
+          
+          {isEditing && onTextChange ? (
+              <input 
+                  type="text" 
+                  value={dataToDisplay.textTitle} 
+                  onChange={(e) => onTextChange && onTextChange(['textTitle'], e.target.value)} 
+                  className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold ${THEME_COLORS.headingText} text-left`}
+              />
+          ) : (
+              <h1 className={`text-2xl p-4 font-bold ${THEME_COLORS.headingText} mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
           )}
 
+          {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
+        </header>
+      )}
+      <div className="bg-[#FFFFFF] rounded-[10px] p-4 sm:p-6 md:p-8">
           <main className="text-left">
             {renderableItems.map((item, index) => {
               const isLastItem = index === renderableItems.length - 1;

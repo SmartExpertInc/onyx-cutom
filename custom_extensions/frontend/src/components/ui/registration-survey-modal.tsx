@@ -14,7 +14,6 @@ import {
   DialogOverlay,
   DialogPortal,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import './registration-survey-modal.css';
 
 interface SurveyData {
   category: string;
@@ -317,7 +317,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <ScrollArea className="h-[85vh] min-h-[600px] max-h-[700px]">
+          <div className="h-[85vh] min-h-[600px] max-h-[700px] overflow-y-auto survey-modal-scroll">
             <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto">
             {/* Header with Logo and Progress */}
             <div className="flex-shrink-0 p-8 pb-4">
@@ -710,7 +710,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           </div>
         </div>
             </div>
-          </ScrollArea>
+          </div>
       </DialogContent>
     </Dialog>
     </>

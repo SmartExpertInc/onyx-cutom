@@ -1856,7 +1856,7 @@ export default function ProjectInstanceViewPage() {
         className={`min-h-screen font-inter ${
           projectInstanceData?.component_name === COMPONENT_NAME_QUIZ  || projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
             ? 'bg-[#F2F2F4] p-0'
-            : 'bg-white p-4 md:p-8'
+            : 'bg-[#F2F2F4] p-4 md:p-8'
         }`}
       >
         <div className={`mx-auto ${

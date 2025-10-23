@@ -432,7 +432,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       <div className="flex-1 flex flex-col bg-[#F2F2F4]">
         {/* Scrollable Slides Container - Vertical scroll for big slides */}
         <div 
-          className="flex-1 bg-white"
+          className="flex-1 bg-[#F2F2F4]"
           ref={scrollContainerRef}
         >
           <div className="space-y-8 px-6">
@@ -513,7 +513,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               </div>
               
                   {/* Between-slides action bar */}
-                  <div className="flex bg-white justify-center mt-4">
+                  <div className="flex justify-center mt-4">
                     <div className="flex items-center bg-white rounded-md shadow-sm">
                       <button
                         onClick={() => addSlide('title-slide', index)}
