@@ -1533,7 +1533,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -2082,16 +2082,26 @@ Understanding how our revenue is distributed across different business segments 
   * "Thank You" + "Feedback"
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
-- **ALLOWED final slide types** (choose only ONE):
-  * "Conclusion" (preferred)
-  * "Key Takeaways" 
-  * "Summary"
-  * "Next Steps"
-- **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
+- **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
+- **End with content**: The final slide should contain substantive educational content, not meta-commentary
+- **Exception**: You may create ending slides ONLY if the user explicitly requests them
+
+**CASE STUDY MANDATORY RULES:**
+- **ALWAYS include company/case name**: When generating ANY slide about a case study, real-world example, or company scenario, you MUST include the specific company name, project name, or case identifier
+- **Be specific**: Never use generic phrases like "A company" or "An organization" - always name the specific entity
+- **Integrate naturally**: Include the company name in the title, subtitle, or first sentence
+- **Examples**: "How Amazon Transformed Retail with AWS", "Netflix's Migration to Microservices", "Toyota Production System at General Motors"
+
+**RESOURCE SLIDES MANDATORY RULES:**
+- **NO generic lists**: NEVER create slides like "5 Books to Read" or "Top Resources" without listing ACTUAL specific titles, authors, and details
+- **Be specific**: If mentioning resources, provide exact names
+- **WRONG**: "5 Essential Books on Project Management"
+- **CORRECT**: "Essential PM Books: 1. 'The Lean Startup' by Eric Ries, 2. 'Scrum' by Jeff Sutherland, 3. 'The Phoenix Project' by Gene Kim"
+- **Preferred**: Skip resource slides unless you have specific, named resources
 
 **SLIDE COUNT ENFORCEMENT:**
-- **If you reach the target count before creating a final slide**: Use the last slide as the conclusion
-- **If you need more slides to reach the target**: Add more educational content, not additional ending slides
+- **If you reach the target count**: End with substantive educational content, not a summary slide
+- **If you need more slides**: Add more educational content, not ending slides
 - **NEVER create "courtesy" slides** to fill the count - create meaningful educational content instead
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
@@ -3324,7 +3334,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format
@@ -3873,16 +3883,26 @@ Understanding how our revenue is distributed across different business segments 
   * "Thank You" + "Feedback"
   * "Further Reading" + "Conclusion"
   * Any combination of 2+ ending slides
-- **ALLOWED final slide types** (choose only ONE):
-  * "Conclusion" (preferred)
-  * "Key Takeaways" 
-  * "Summary"
-  * "Next Steps"
-- **NEVER create these slides**: "Questions and Discussion", "Open Floor for Questions", "Thank You", "Feedback", "Further Reading", "Additional Resources"
+- **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
+- **End with content**: The final slide should contain substantive educational content, not meta-commentary
+- **Exception**: You may create ending slides ONLY if the user explicitly requests them
+
+**CASE STUDY MANDATORY RULES:**
+- **ALWAYS include company/case name**: When generating ANY slide about a case study, real-world example, or company scenario, you MUST include the specific company name, project name, or case identifier
+- **Be specific**: Never use generic phrases like "A company" or "An organization" - always name the specific entity
+- **Integrate naturally**: Include the company name in the title, subtitle, or first sentence
+- **Examples**: "How Amazon Transformed Retail with AWS", "Netflix's Migration to Microservices", "Toyota Production System at General Motors"
+
+**RESOURCE SLIDES MANDATORY RULES:**
+- **NO generic lists**: NEVER create slides like "5 Books to Read" or "Top Resources" without listing ACTUAL specific titles, authors, and details
+- **Be specific**: If mentioning resources, provide exact names
+- **WRONG**: "5 Essential Books on Project Management"
+- **CORRECT**: "Essential PM Books: 1. 'The Lean Startup' by Eric Ries, 2. 'Scrum' by Jeff Sutherland, 3. 'The Phoenix Project' by Gene Kim"
+- **Preferred**: Skip resource slides unless you have specific, named resources
 
 **SLIDE COUNT ENFORCEMENT:**
-- **If you reach the target count before creating a final slide**: Use the last slide as the conclusion
-- **If you need more slides to reach the target**: Add more educational content, not additional ending slides
+- **If you reach the target count**: End with substantive educational content, not a summary slide
+- **If you need more slides**: Add more educational content, not ending slides
 - **NEVER create "courtesy" slides** to fill the count - create meaningful educational content instead
 
 **TEMPLATE VARIETY GUIDELINES (UPDATED):**
@@ -4957,7 +4977,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 11. `process-steps` - Sequential learning steps and methodologies
 12. `timeline` - Historical progression and evolution (exactly 4 steps)
 13. `pyramid` - Hierarchical concepts and foundational learning structures
-14. `challenges-solutions` - Problem-solving approaches and solutions
+14. `challenges-solutions` - Problem-solving approaches and solutions (ALWAYS exactly 3 challenges and 3 solutions, NEVER 4)
 15. `big-image-top` - Visual demonstrations with explanatory content below
 16. `event-dates` - Event schedules, milestones, and important dates with timeline visualization
 17. `six-ideas-list` - Six key ideas, concepts, or recommendations in an organized list format

@@ -1339,7 +1339,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 40px;
+            padding: 60px 40px;
             position: relative;
             font-family: var(--content-font);
         }
@@ -1358,7 +1358,8 @@
             gap: 0px;
             width: 100%;
             max-width: 1400px;
-            height: 100%;
+            flex: 1;
+            min-height: 0;
             position: relative;
             align-items: stretch;
         }
@@ -1384,6 +1385,7 @@
             padding: 40px 30px 20px 30px;
             border-radius: 8px;
             position: relative;
+            min-height: 0;
         }
         
         .column-title {
@@ -2581,7 +2583,7 @@
                                 {% if 'title' in step and step['title'] %}
                                     {% set stepTitle = step['title'] %}
                                 {% else %}
-                                    {% set stepTitle = 'Step ' + loop.index|string %}
+                                    {% set stepTitle = '' %}
                                 {% endif %}
                                 {% if 'description' in step and step['description'] %}
                                     {% set stepDescription = step['description'] %}
@@ -2589,17 +2591,11 @@
                                     {% set stepDescription = 'Description' %}
                                 {% endif %}
                             {% elif step is string %}
-                                {# Handle string format: "Step 1: Description text" #}
-                                {% if ':' in step %}
-                                    {% set parts = step.split(':', 1) %}
-                                    {% set stepTitle = parts[0].strip() %}
-                                    {% set stepDescription = parts[1].strip() %}
-                                {% else %}
-                                    {% set stepTitle = 'Step ' + loop.index|string %}
-                                    {% set stepDescription = step %}
-                                {% endif %}
+                                {# Handle string format - treat entire string as description, no title #}
+                                {% set stepTitle = '' %}
+                                {% set stepDescription = step %}
                             {% else %}
-                                {% set stepTitle = 'Step ' + loop.index|string %}
+                                {% set stepTitle = '' %}
                                 {% set stepDescription = step|string if step else 'Description' %}
                             {% endif %}
                             
@@ -2613,8 +2609,10 @@
 
                                 <!-- Step Content -->
                                 <div class="step-content">
+                                    {% if stepTitle %}
                                     <h3 class="step-title">{{ stepTitle }}</h3>
-                                    <p class="step-description">{{ stepDescription }}</p>
+                                    {% endif %}
+                                    <p class="step-description" style="{% if not stepTitle %}width: 100%;{% endif %}">{{ stepDescription }}</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -2624,7 +2622,9 @@
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
                     <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solutions' }}</h1>
-                    <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
+                    {% if slide.props.subtitle %}
+                    <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
+                    {% endif %}
                     
                     <div class="main-content">
                         <!-- Left side text items (Challenges) - positioned at 15%, 48%, 75% -->

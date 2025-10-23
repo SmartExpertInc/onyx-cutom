@@ -116,7 +116,7 @@ function InlineEditor({
 
 const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>> = ({
   title = 'Challenges & Solutions',
-  subtitle = 'Type The Subtitle Of Your Great Here',
+  subtitle = '',
   theme,
   isEditable = true,
   slideId = 'challenges-solutions',
@@ -299,23 +299,27 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         </h1>
       )}
 
-      {/* Subtitle */}
-      {isEditingSubtitle ? (
-        <InlineEditor
-          initialValue={currentSubtitle}
-          onSave={handleSubtitleSave}
-          onCancel={() => setIsEditingSubtitle(false)}
-          placeholder="Enter subtitle"
-          style={subtitleStyles}
-        />
-      ) : (
-        <h2
-          style={subtitleStyles}
-          onClick={() => isEditable && setIsEditingSubtitle(true)}
-          data-draggable={isEditable}
-        >
-          {currentSubtitle}
-        </h2>
+      {/* Subtitle - only show if subtitle exists */}
+      {currentSubtitle && (
+        <>
+          {isEditingSubtitle ? (
+            <InlineEditor
+              initialValue={currentSubtitle}
+              onSave={handleSubtitleSave}
+              onCancel={() => setIsEditingSubtitle(false)}
+              placeholder="Enter subtitle"
+              style={subtitleStyles}
+            />
+          ) : (
+            <h2
+              style={subtitleStyles}
+              onClick={() => isEditable && setIsEditingSubtitle(true)}
+              data-draggable={isEditable}
+            >
+              {currentSubtitle}
+            </h2>
+          )}
+        </>
       )}
 
       {/* Main Content with Image */}
@@ -450,7 +454,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           display: 'flex',
           gap: '70px',
           zIndex: 10,
-          paddingLeft: '40px'
+          paddingLeft: '10px'
         }}>
           {/* Challenges Title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
