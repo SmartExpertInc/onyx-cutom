@@ -2361,7 +2361,7 @@ export default function CommercialProposalPage() {
         )}
         
         {serviceId === 'service2' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px] border-2 border-dashed border-blue-300" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>      
+          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>      
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
               ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(proposalData?.language, {
                 en: 'platform for',
@@ -4086,18 +4086,7 @@ export default function CommercialProposalPage() {
           deleteConfirmText="Are you sure you want to delete Service 4? This action cannot be undone."
           className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
           style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
-        >
-          <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-            <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-              {getLocalizedText(proposalData?.language, {
-                en: 'Service 4:',
-                es: 'Servicio 4:',
-                ua: 'Послуга 4:',
-                ru: 'Услуга 4:'
-              })}
-            </span>
-          </div>
-          
+        > 
           <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
             Expert-as-a-Service — {getLocalizedText(proposalData?.language, {
               en: 'Methodologist:',
@@ -5677,23 +5666,6 @@ export default function CommercialProposalPage() {
 
           {/* Second Section */}
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px]">
-            {/* Drag and Drop Instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center gap-2 text-blue-700">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-                <span className="font-medium">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Drag and drop services to reorder them',
-                    es: 'Arrastra y suelta los servicios para reordenarlos',
-                    ua: 'Перетягніть послуги, щоб змінити їх порядок',
-                    ru: 'Перетащите услуги, чтобы изменить их порядок'
-                  })}
-                </span>
-              </div>
-            </div>
-            
             {/* Draggable Services using @dnd-kit */}
             <ServiceList
               serviceOrder={serviceOrder}
