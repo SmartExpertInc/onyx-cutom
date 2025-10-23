@@ -2562,7 +2562,9 @@
                     <!-- Left Column - Title and Subtitle -->
                     <div class="left-column">
                         <h1 class="slide-title">{{ slide.props.title or 'The Stages of Research' }}</h1>
-                        <p class="slide-subtitle">{{ slide.props.subtitle or 'Miss Jones Science Class' }}</p>
+                        {% if slide.props.subtitle %}
+                        <p class="slide-subtitle">{{ slide.props.subtitle }}</p>
+                        {% endif %}
                     </div>
 
                     <!-- Right Column - Process Steps -->

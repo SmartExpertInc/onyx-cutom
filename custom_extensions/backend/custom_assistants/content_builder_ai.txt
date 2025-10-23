@@ -2190,6 +2190,14 @@ Understanding the diverse sources of organizational revenue.
 - **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
 - **End with content**: The final slide should contain substantive educational content, not meta-commentary
 - **Exception**: You may create ending slides ONLY if the user explicitly requests them
+- **CRITICAL ENFORCEMENT**: If you find yourself creating multiple closing slides (Summary + Next Steps, Conclusion + Resources), STOP immediately and replace them with substantive educational content slides instead
+
+**BIG-IMAGE-LEFT USAGE RESTRICTIONS:**
+- **ONLY use big-image-left as the FIRST slide** (title slide) of presentations
+- **NEVER use big-image-left in the middle** of presentations as "section breaks" or "transition slides"
+- **WRONG**: Using big-image-left on slide 5 with title "Section 2: Advanced Concepts"
+- **CORRECT**: Use process-steps, bullet-points, challenges-solutions, or other educational templates for ALL slides after slide 1
+- **Purpose**: Every slide except the title slide must provide substantial educational value, not just visual breaks
 
 **CASE STUDY MANDATORY RULES:**
 - **ALWAYS include company/case name**: When generating ANY slide about a case study, real-world example, or company scenario, you MUST include the specific company name, project name, or case identifier
@@ -4048,6 +4056,14 @@ Understanding the diverse sources of organizational revenue.
 - **ABSOLUTELY BANNED SLIDE TITLES**: Do NOT create slides titled "Conclusion", "Summary", "Key Takeaways", "Next Steps", "Questions", "Thank You", "Q&A", "Questions and Discussion", "Open Floor for Questions", "Feedback", "Further Reading", "Additional Resources", or any similar wrap-up slides
 - **End with content**: The final slide should contain substantive educational content, not meta-commentary
 - **Exception**: You may create ending slides ONLY if the user explicitly requests them
+- **CRITICAL ENFORCEMENT**: If you find yourself creating multiple closing slides (Summary + Next Steps, Conclusion + Resources), STOP immediately and replace them with substantive educational content slides instead
+
+**BIG-IMAGE-LEFT USAGE RESTRICTIONS:**
+- **ONLY use big-image-left as the FIRST slide** (title slide) of presentations
+- **NEVER use big-image-left in the middle** of presentations as "section breaks" or "transition slides"
+- **WRONG**: Using big-image-left on slide 5 with title "Section 2: Advanced Concepts"
+- **CORRECT**: Use process-steps, bullet-points, challenges-solutions, or other educational templates for ALL slides after slide 1
+- **Purpose**: Every slide except the title slide must provide substantial educational value, not just visual breaks
 
 **CASE STUDY MANDATORY RULES:**
 - **ALWAYS include company/case name**: When generating ANY slide about a case study, real-world example, or company scenario, you MUST include the specific company name, project name, or case identifier
