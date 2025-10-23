@@ -146,7 +146,7 @@ const THEME_COLORS = {
   primaryText: 'text-[#171718]',        
   headingText: 'text-[#171718]',        
   subHeadingText: 'text-[#171718]',     
-  accentRed: 'text-[#FF1414]', 
+  accentRed: 'text-[#171718]', 
   accentRedBg: 'bg-white',      
   veryLightAccentBg: 'bg-[#FAFAFA]',
   lightBorder: 'border-gray-200',   
@@ -296,16 +296,16 @@ const BlockSettingsModal = ({
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
             <option value="">{t('interface.blockSettings.noIcon')}</option>
-            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
-            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
-            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
-            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
-            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
-            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
-            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
-            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
-            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
-            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
+            <option value="info">{t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">{t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">{t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">{t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">{t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">{t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">{t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">{t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">{t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">{t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
@@ -1209,9 +1209,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className="flex items-start group/listitem relative">
-                  {BulletIconToRender && !isNumbered && (
-                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
+                <li key={index} className={`flex items-start group/listitem relative ${isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
+                  {BulletIconToRender && !isNumbered && !isRecommendationPara && (
+                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#0F58F9]">
                       <BulletIconToRender />
                     </div>
                   )}
