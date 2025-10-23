@@ -3174,7 +3174,7 @@
         {% set EDITOR_HEIGHT = 600 %}
     {% endif %}
     
-    {# Video canvas dimensions (always 1920×1080) #}
+    {# Video canvas dimensions (always 1920x1080) #}
     {% set VIDEO_WIDTH = 1920 %}
     {% set VIDEO_HEIGHT = 1080 %}
     
@@ -3228,26 +3228,26 @@
                                 {% for item in items %}
                                     <div class="checklist-item">
                                         <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
-                                            {% if item.isPositive %}✓{% else %}✗{% endif %}
+                                            {% if item.isPositive %}&#10003;{% else %}&#10007;{% endif %}
                                         </span>
                                         <span>{{ item.text }}</span>
                                     </div>
                                 {% endfor %}
                                 {% if not items or items|length == 0 %}
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"Let me help you"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"I'll be happy to clarify"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon positive-icon">✓</span>
+                                        <span class="icon positive-icon">&#10003;</span>
                                         <span>"Thank you for your attention"</span>
                                     </div>
                                     <div class="checklist-item">
-                                        <span class="icon negative-icon">✗</span>
+                                        <span class="icon negative-icon">&#10007;</span>
                                         <span>Avoid cold phrases and uncertainty</span>
                                     </div>
                                 {% endif %}
@@ -3283,25 +3283,25 @@
                         >
                             {% if subtitle %}
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                     <span>{{ subtitle }}</span>
                             </div>
                             {% endif %}
                             
                             {% if content %}
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                     <span>{{ content }}</span>
                             </div>
                             {% endif %}
                             
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                 <span>Maintain warm contact</span>
                             </div>
                             
                             <div class="checklist-item">
-                                <span class="checkmark">✓</span>
+                                <span class="checkmark">&#10003;</span>
                                 <span>The client will feel it</span>
                             </div>
                         </div>
@@ -3318,13 +3318,13 @@
                 
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
                 <!-- 
-                ═══════════════════════════════════════════════════════════════════════════
-                🔍 AVATAR-SERVICE POSITIONING DEBUG LOG
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
+                AVATAR-SERVICE POSITIONING DEBUG LOG
+                ============================================================================
                 Template ID: {{ templateId }}
                 Slide ID: {{ slideId }}
                 
-                📐 Canvas Dimensions Analysis:
+                Canvas Dimensions Analysis:
                   ACTUAL Editor Canvas (from metadata):
                     - Width:  {{ "%.2f"|format(EDITOR_WIDTH) }}px
                     - Height: {{ "%.2f"|format(EDITOR_HEIGHT) }}px
@@ -3332,7 +3332,7 @@
                     - Total Pixels: {{ "{:,}".format((EDITOR_WIDTH * EDITOR_HEIGHT)|int) }}
                     - Source: {{ 'metadata.canvasDimensions' if metadata and metadata.canvasDimensions else 'fallback defaults' }}
                     {% if not metadata or not metadata.canvasDimensions %}
-                    - ⚠️ Using fallback - may cause positioning errors!
+                    - WARNING: Using fallback - may cause positioning errors!
                     {% endif %}
                   
                   Design Editor Canvas (reference):
@@ -3340,7 +3340,7 @@
                     - Height: 600px
                     - Aspect Ratio: 1.956667 (1.957:1)
                     {% if metadata and metadata.canvasDimensions and (EDITOR_WIDTH - 1174)|abs > 1 %}
-                    - ⚠️ MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
+                    - WARNING: MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
                     {% endif %}
                   
                   Video Canvas (Backend):
@@ -3353,9 +3353,9 @@
                     - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
                     - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
                     - Aspect Ratio Mismatch: {{ "%.6f"|format((EDITOR_WIDTH/EDITOR_HEIGHT) - (VIDEO_WIDTH/VIDEO_HEIGHT)|abs) }}
-                    - ⚠️ Non-uniform scaling required (different X/Y factors)
+                    - WARNING: Non-uniform scaling required (different X/Y factors)
                 
-                📏 Scale Factors (using ACTUAL dimensions):
+                Scale Factors (using ACTUAL dimensions):
                   - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
                   - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
                   - Scale Factor Ratio: {{ "%.6f"|format(SCALE_Y/SCALE_X) }} (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% {{ 'larger' if SCALE_Y > SCALE_X else 'smaller' }})
@@ -3367,7 +3367,7 @@
                 Total Positioned Elements: {{ metadata.elementPositions|length }}
                 Position Keys: {{ metadata.elementPositions.keys()|list }}
                 {% endif %}
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
                 -->
                 
                 <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
@@ -3385,28 +3385,28 @@
                                         {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 TITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        TITLE POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ titleId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[titleId].x }}px
                                           y: {{ metadata.elementPositions[titleId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[titleId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[titleId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
                                     {% else %}
-                                        <!-- 📍 TITLE: No custom position found for {{ titleId }}, using default layout -->
+                                        <!-- TITLE: No custom position found for {{ titleId }}, using default layout -->
                                         <h1 class="slide-title">{{ title }}</h1>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 TITLE: No metadata available, using default layout -->
+                                    <!-- TITLE: No metadata available, using default layout -->
                                     <h1 class="slide-title">{{ title }}</h1>
                                 {% endif %}
                             {% endif %}
@@ -3419,28 +3419,28 @@
                                         {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 SUBTITLE POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        SUBTITLE POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ subtitleId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[subtitleId].x }}px
                                           y: {{ metadata.elementPositions[subtitleId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[subtitleId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[subtitleId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
                                     {% else %}
-                                        <!-- 📍 SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
+                                        <!-- SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
                                         <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 SUBTITLE: No metadata available, using default layout -->
+                                    <!-- SUBTITLE: No metadata available, using default layout -->
                                     <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                 {% endif %}
                             {% endif %}
@@ -3453,28 +3453,28 @@
                                         {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
                                         <!-- 
-                                        ───────────────────────────────────────────────────────────────
-                                        📍 CONTENT POSITIONING
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
+                                        CONTENT POSITIONING
+                                        ---------------------------------------------------------------
                                         Element ID: {{ contentId }}
                                         Original Position (Editor Canvas):
                                           x: {{ metadata.elementPositions[contentId].x }}px
                                           y: {{ metadata.elementPositions[contentId].y }}px
                                         
                                         Scaling Calculation:
-                                          scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
-                                          scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        scaledX = {{ metadata.elementPositions[contentId].x }} * {{ SCALE_X }} = {{ scaledX }}px
+                                        scaledY = {{ metadata.elementPositions[contentId].y }} * {{ SCALE_Y }} = {{ scaledY }}px
                                         
                                         Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
-                                        ───────────────────────────────────────────────────────────────
+                                        ---------------------------------------------------------------
                                         -->
                                         <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
                                     {% else %}
-                                        <!-- 📍 CONTENT: No custom position found for {{ contentId }}, using default layout -->
+                                        <!-- CONTENT: No custom position found for {{ contentId }}, using default layout -->
                                         <p class="content-text">{{ content }}</p>
                                     {% endif %}
                                 {% else %}
-                                    <!-- 📍 CONTENT: No metadata available, using default layout -->
+                                    <!-- CONTENT: No metadata available, using default layout -->
                                     <p class="content-text">{{ content }}</p>
                                 {% endif %}
                             {% endif %}
@@ -3490,9 +3490,9 @@
                 </div>
                 
                 <!-- 
-                ═══════════════════════════════════════════════════════════════════════════
-                ✅ END AVATAR-SERVICE POSITIONING DEBUG LOG
-                ═══════════════════════════════════════════════════════════════════════════
+                ============================================================================
+                END AVATAR-SERVICE POSITIONING DEBUG LOG
+                ============================================================================
                 -->
                 
             {% elif templateId == 'avatar-buttons' %}
@@ -3768,7 +3768,7 @@
                                 
                                 <!-- Arrow icon for second card -->
                                 {% if card.hasArrow %}
-                                    <div class="arrow-icon">→</div>
+                                    <div class="arrow-icon">&rarr;</div>
                                 {% endif %}
                             </div>
                         {% endfor %}
@@ -3781,7 +3781,7 @@
                             </div>
                             <div class="white-card">
                                 <div class="card-text card-text-second">Companies with diverse leadership outperform competitors by 35%</div>
-                                <div class="arrow-icon">→</div>
+                                <div class="arrow-icon">&rarr;</div>
                             </div>
                         {% endif %}
                     </div>
@@ -4086,18 +4086,18 @@
                                 {% for step in steps %}
                                     <div class="step-box">{{ step }}</div>
                                     {% if not loop.last %}
-                                        <div class="arrow">↓</div>
+                                        <div class="arrow">&darr;</div>
                                     {% endif %}
                                 {% endfor %}
                                 {% if not steps or steps|length == 0 %}
                                     <div class="step-box">Greeting</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Consultation</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Comfort</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Final Recommendations</div>
-                                    <div class="arrow">↓</div>
+                                    <div class="arrow">&darr;</div>
                                     <div class="step-box">Farewell</div>
                                 {% endif %}
                             </div>
