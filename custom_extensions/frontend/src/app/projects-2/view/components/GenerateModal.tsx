@@ -73,7 +73,7 @@ export default function GenerateModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors z-20"
+          className="absolute top-4 right-4 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors z-20 cursor-pointer"
         >
           <X className="w-4 h-4 text-gray-500" />
         </button>
@@ -89,7 +89,7 @@ export default function GenerateModal({
         <div className="px-6 pb-6">
           {/* Title input */}
           <div>
-            <label className="block text-[10px] text-[#878787] mb-2">Title</label>
+            <label className="block text-[10px] text-[#878787]">Title</label>
             <input
               type="text"
               value={videoTitle}
@@ -106,11 +106,11 @@ export default function GenerateModal({
           
           {/* Subtitles */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-[#171718]">Subtitles</span>
+            <span className="text-sm text-[#171718] font-medium">Subtitles</span>
             <div className="relative" data-subtitle-dropdown>
               <button 
                 onClick={() => setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen)}
-                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2 cursor-pointer"
                 style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedSubtitleOption}
@@ -151,11 +151,11 @@ export default function GenerateModal({
           
           {/* Resolution */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-[#171718]">Resolution</span>
+            <span className="text-sm text-[#171718] font-medium">Resolution</span>
             <div className="relative" data-resolution-dropdown>
               <button 
                 onClick={() => setIsResolutionDropdownOpen(!isResolutionDropdownOpen)}
-                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2 cursor-pointer"
                 style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedResolution}
@@ -246,8 +246,8 @@ export default function GenerateModal({
           
           {/* Location */}
           <div className="flex justify-between items-center mb-6">
-            <span className="text-sm text-[#171718]">Location</span>
-            <button className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2" style={{ color: '#878787', borderColor: '#E0E0E0' }}>
+            <span className="text-sm text-[#171718] font-medium">Location</span>
+            <button className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2 cursor-pointer" style={{ color: '#878787', borderColor: '#E0E0E0' }}>
               Library
               <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -259,7 +259,7 @@ export default function GenerateModal({
           <div className="flex gap-3 justify-center">
             <button
               onClick={onClose}
-              className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs"
+              className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs cursor-pointer"
               style={{ border: '1px solid #719AF5', color: '#719AF5' }}
             >
               Cancel
@@ -275,7 +275,7 @@ export default function GenerateModal({
               className={`px-4 py-2 rounded-md transition-colors font-medium text-xs flex items-center gap-2 ${
                 generationStatus === 'generating'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'text-white hover:bg-[#0D4CD4]'
+                  : 'text-white hover:bg-[#0D4CD4] cursor-pointer'
               }`}
               style={{ backgroundColor: generationStatus === 'generating' ? undefined : '#0F58F9' }}
               title={
