@@ -29,7 +29,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
       
       {/* Modal content */}
       <div 
-        className="relative shadow-xl w-[90vw] flex flex-col z-10"
+        className="relative shadow-xl w-[80vw] flex flex-col z-10"
         style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}
       >
         {/* Close button */}
@@ -41,16 +41,16 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
         </button>
 
         {/* Content */}
-        <div className="px-6 pb-6">
+        <div className="p-6">
           {/* Main content area */}
           <div className="flex gap-6 mb-6">
             {/* Left div with grey background - 70% width */}
-            <div className="flex-1 bg-gray-100 rounded-lg min-h-[350px] flex items-center justify-center">
+            <div className="flex-1 bg-gray-200 rounded-lg min-h-[350px] flex items-center justify-center">
               <span className="text-gray-500">Video preview area</span>
             </div>
             
             {/* Right div with content */}
-            <div className="w-[300px] flex-shrink-0">
+            <div className="w-[400px] flex-shrink-0 flex flex-col">
               {/* Grey badges */}
               <div className="flex gap-2 mb-3">
                 <span className="bg-gray-200 text-[#171718] px-3 py-2 rounded-sm text-[10px] font-medium flex items-center gap-1">
@@ -83,7 +83,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
               </div>
               
               {/* Blue info box */}
-              <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: '#CCDBFC' }}>
+              <div className="rounded-lg p-4 mt-auto" style={{ backgroundColor: '#CCDBFC' }}>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,19 +97,21 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                       </defs>
                     </svg>
                   </div>
-                  <p className="text-[#171718] text-sm">
-                    The preview has no lip movements.
-                  </p>
-                  <p className="text-[#4D4D4D] text-sm">
-                    You need to generate the video to make it visible.
-                  </p>
+                  <div className="flex flex-col">
+                    <p className="text-[#171718] text-sm">
+                      The preview has no lip movements.
+                    </p>
+                    <p className="text-[#4D4D4D] text-sm leading-tight">
+                      You need to generate the video to make it visible.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
           {/* Rating section */}
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3">
             <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-lg rounded-md px-3 py-2">
               <span className="text-[#171718] text-xs">How's the video and voice quality?</span>
               <div className="flex gap-1">
