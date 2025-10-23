@@ -32,7 +32,7 @@ type MajorSection = {
 };
 type RenderableItem = MajorSection | MiniSection | StandaloneBlock;
 
-const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] => {
+const parseAndStyleText = (text: string | undefined | null, isInRecommendationSection: boolean = false): React.ReactNode[] => {
   if (!text) return [];
   
   // Check if text contains a colon
@@ -53,6 +53,14 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
         return seg; 
       }).filter(seg => seg !== "");
     };
+    
+    // If in recommendation section, apply blue styling to the "Recommendation:" part
+    if (isInRecommendationSection && beforeColon.toLowerCase().includes('recommendation')) {
+      return [
+        <span key="before-colon" className="font-semibold text-blue-600">{processSegment(beforeColon, 'before')}</span>,
+        ...processSegment(afterColon, 'after')
+      ];
+    }
     
     return [
       <span key="before-colon" className="font-semibold text-blue-600">{processSegment(beforeColon, 'before')}</span>,
@@ -203,7 +211,8 @@ const getAlertColors = (alertType: AlertBlock['alertType']) => {
         borderColor: 'border-blue-500',
         textColor: 'text-black',
         iconColorClass: 'text-blue-500',
-        Icon: InfoIconLucide
+        // Icon: InfoIconLucide
+        Icon: ''
       };
   }
 };
@@ -1132,12 +1141,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
               const isRecommendationPara = !itemIsString && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation;
-              const isRecommendationString = itemIsString && item.toLowerCase().includes('recommendation');
+              const isRecommendationString = itemIsString && (
+                item.toLowerCase().includes('recommendation') || 
+                item.toLowerCase().startsWith('recommendation:') ||
+                item.toLowerCase().includes('recommendation:')
+              );
+              const isRecommendation = isRecommendationPara || isRecommendationString;
               
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
               const textSource = itemIsString ? ((isNumbered && isPlainStringNoBold) ? `**${item}**` : item) : "";
-              let styledItemText = itemIsString ? parseAndStyleText(textSource) : null;
+              let styledItemText = itemIsString ? parseAndStyleText(textSource, isRecommendation) : null;
 
               if (isNumbered) {
                 return (
@@ -1209,7 +1223,6 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               }
 
               // Bullet list items - consistent with numbered list structure
-              const isRecommendation = isRecommendationPara || isRecommendationString;
               return (
                 <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
                   {BulletIconToRender && !isNumbered && !isRecommendation && (
@@ -1380,8 +1393,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </>
               ) : (
                 <>
-                  {title && <p className={`font-bold`} style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{title}</p>}
-                  <p style={{ color: effectiveTextColor, fontSize: fontSize || '10px' }}>{text}</p>
+                  {title && <p className={`font-medium`} style={{ color: effectiveTextColor, fontSize: fontSize || '16px' }}>{title}</p>}
+                  <p style={{ color: effectiveTextColor, fontSize: fontSize || '16px' }}>{text}</p>
                 </>
               )}
             </div>
