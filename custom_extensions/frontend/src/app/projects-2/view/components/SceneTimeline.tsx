@@ -188,7 +188,7 @@ export default function SceneTimeline({
 
   return (
     <>
-    <div className="bg-white border-[#E0E0E0] rounded-md overflow-visible px-4 py-8" style={{ height: 'auto', minHeight: '120px' }}>
+    <div className="bg-white border border-[#E0E0E0] rounded-md overflow-visible px-4 py-12" style={{ height: 'auto', minHeight: '120px' }}>
       <div className="flex items-end gap-4 pb-2 justify-center">
           {/* Play Button with Time - Fixed */}
           <div className="flex flex-col items-center flex-shrink-0">
@@ -326,7 +326,7 @@ export default function SceneTimeline({
       </div>
       
       {/* Portal for playhead line - rendered outside to avoid overflow clipping */}
-      {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && ReactDOM.createPortal(
+      {isMounted && typeof window !== 'undefined' && playheadPosition > 0 && (isPlaying || currentTime > 0) && ReactDOM.createPortal(
         <div
           className="fixed pointer-events-none"
           style={{
@@ -342,7 +342,7 @@ export default function SceneTimeline({
             style={{
               backgroundColor: '#CCDBFC',
               color: '#0F58F9',
-              bottom: 'calc(100vh - ' + (timelineContainerRef.current?.getBoundingClientRect().top || 0) + 'px + 10px)',
+              bottom: 'calc(100vh - ' + (timelineContainerRef.current?.getBoundingClientRect().top || 0) + 'px + 15px)',
               transform: 'translateX(-50%)',
               left: 0
             }}
@@ -351,11 +351,11 @@ export default function SceneTimeline({
           </div>
           {/* Triangle arrow above the line */}
           <div 
-            className="absolute"
+            className="absolute flex justify-center"
             style={{
               top: `${(timelineContainerRef.current?.getBoundingClientRect().top || 0) - 11}px`,
-              transform: 'translateX(-50%)',
-              left: 0
+              left: '-6.5px',
+              width: '13px'
             }}
           >
             <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg">
