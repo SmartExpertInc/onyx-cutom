@@ -325,6 +325,56 @@ export default function DynamicAuditLandingPage() {
     }))
   }
 
+  const handleCreateCP = async () => {
+    try {
+      console.log('🚀 [CREATE COMMERCIAL PROPOSAL] Starting commercial proposal creation for project:', projectId);
+      
+      if (!projectId) {
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Project ID is required');
+        return;
+      }
+      
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/commercial-proposal/generate`;
+      
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Making request to:', apiEndpoint);
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Project ID:', projectId);
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          project_id: parseInt(projectId)
+        })
+      });
+      
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response status:', response.status);
+      console.log('📡 [CREATE COMMERCIAL PROPOSAL] Response ok:', response.ok);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Successfully created commercial proposal');
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] New project ID:', data.projectId);
+        console.log('✅ [CREATE COMMERCIAL PROPOSAL] Message:', data.message);
+        
+        // Redirect to the new commercial proposal page
+        if (data.projectId) {
+          window.location.href = `/create/commercial-proposal/${data.projectId}`;
+        }
+      } else {
+        const errorText = await response.text();
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Request failed:', response.status);
+        console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error response:', errorText);
+        alert('Failed to create commercial proposal. Please try again.');
+      }
+    } catch (error) {
+      console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error creating commercial proposal:', error);
+      alert('An error occurred while creating the commercial proposal. Please try again.');
+    }
+  }
+
   // Text editing handlers
   const startEditing = (field: string) => {
     console.log('🚀🚀🚀 [START EDITING] ========================================');
@@ -1745,6 +1795,34 @@ export default function DynamicAuditLandingPage() {
                       ua: 'Поділитися',
                       ru: 'Поделиться'
                     })}
+                  </span>
+                </button>
+
+                {/* Create CP Button */}
+                <button
+                  onClick={() => handleCreateCP()}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Create Commercial Proposal',
+                    es: 'Crear Commercial Proposal',
+                    ua: 'Створити Commercial Proposal',
+                    ru: 'Создать Commercial Proposal'
+                  })}
+                >
+                  <svg
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors"
+                    viewBox="0 0 32 32"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  >
+                    <path d="M16 2 L16 30 M2 16 L30 16" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    Create Commercial Proposal
                   </span>
                 </button>
               </div>

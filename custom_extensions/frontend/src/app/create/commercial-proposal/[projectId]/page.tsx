@@ -140,64 +140,6 @@ function InlineEditor({
 }
 
 
-interface JobPosition {
-  title: string
-  description: string
-  icon: string
-}
-
-interface PersonnelShortageChartData {
-  month: string
-  shortage: number
-}
-
-interface ChartData {
-  industry: string
-  chartData: PersonnelShortageChartData[]
-  totalShortage: number
-  trend: string
-  description: string
-}
-
-interface YearlyShortageData {
-  yearlyShortage: number
-  industry: string
-  description: string
-}
-
-interface WorkforceCrisisData {
-  industry: string
-  fullTitle: string
-  missingPersonnelDescription: string
-  burnout: {
-    title: string
-    months: string
-    industryName: string
-    fullDescription: string
-  }
-  turnover: {
-    percentage: string
-    earlyExit: {
-      percentage: string
-      months: string
-    }
-    fullTitle: string
-    fullDescription: string
-  }
-  losses: {
-    amount: string
-    fullTitle: string
-    fullDescription: string
-  }
-  searchTime: {
-    days: string
-    fullTitle: string
-    fullDescription: string
-  }
-  chartData: ChartData
-  yearlyShortage: YearlyShortageData
-}
-
 interface CourseTemplate {
   title: string
   description: string
@@ -213,14 +155,11 @@ interface CourseModule {
   lessonAssessments?: { type: string; duration: string }[]
 }
 
-interface LandingPageData {
+interface ProposalPageData {
   projectId: number
   projectName: string
   companyName: string
   companyDescription: string
-  proposalDescription: string
-  jobPositions: JobPosition[]
-  workforceCrisis: WorkforceCrisisData
   courseOutlineModules: CourseModule[]
   courseTemplates: CourseTemplate[]
   serviceTemplatesDescription: string
@@ -247,14 +186,11 @@ export default function CommercialProposalPage() {
   const { language, t } = useLanguage();
   const params = useParams()
   const projectId = params?.projectId as string
-  const [proposalData, setProposalData] = useState<LandingPageData>({
+  const [proposalData, setProposalData] = useState<ProposalPageData>({
     projectId: 0,
     projectName: 'Project',
     companyName: 'MHE Group',
     companyDescription: 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-    proposalDescription: 'Ready-made course templates for onboarding and training your employees:',
-    jobPositions: [],
-    workforceCrisis: {} as WorkforceCrisisData,
     courseOutlineModules: [],
     courseTemplates: [],
     serviceTemplatesDescription: '',
@@ -304,7 +240,7 @@ export default function CommercialProposalPage() {
       }
       
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+      const apiUrl = `${CUSTOM_BACKEND_URL}/commercial-proposal/${projectId}`
       
       const response = await fetch(apiUrl)
       if (!response.ok) {
@@ -330,14 +266,11 @@ export default function CommercialProposalPage() {
       }
       
       // Initialize with default values for missing properties
-      const defaultData: LandingPageData = {
+      const defaultData: ProposalPageData = {
         projectId: parseInt(projectId),
         projectName: data.projectName || 'Project',
         companyName: data.companyName || 'MHE Group',
         companyDescription: data.companyDescription || 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-        proposalDescription: data.proposalDescription || 'Ready-made course templates for onboarding and training your employees:',
-        jobPositions: data.jobPositions || [],
-        workforceCrisis: data.workforceCrisis || {} as WorkforceCrisisData,
         courseOutlineModules: data.courseOutlineModules || [],
         courseTemplates: data.courseTemplates || [],
         serviceTemplatesDescription: data.serviceTemplatesDescription || '',
@@ -365,22 +298,33 @@ export default function CommercialProposalPage() {
       return {
         ...prev,
         [field]: newValue
-      } as LandingPageData;
+      } as ProposalPageData;
     });
 
     // Save to backend
     try {
-      // In a real implementation, you would save to your backend
-      // const response = await fetch('/api/commercial-proposal', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ [field]: newValue })
-      // });
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/commercial-proposal/${projectId}`;
       
-      console.log(`Saving ${field}:`, newValue);
-      setHasUnsavedChanges(false);
+      console.log(`[COMMERCIAL PROPOSAL SAVE] Saving ${field}:`, newValue);
+      console.log(`[COMMERCIAL PROPOSAL SAVE] API endpoint:`, apiEndpoint);
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ microProductContent: proposalData })
+      });
+      
+      if (response.ok) {
+        console.log(`[COMMERCIAL PROPOSAL SAVE] Successfully saved ${field}`);
+        setHasUnsavedChanges(false);
+      } else {
+        const errorText = await response.text();
+        console.error(`[COMMERCIAL PROPOSAL SAVE] Save failed: ${response.status} - ${errorText}`);
+        setError('Failed to save changes');
+      }
     } catch (err) {
-      console.error('Failed to save:', err);
+      console.error('[COMMERCIAL PROPOSAL SAVE] Failed to save:', err);
       setError('Failed to save changes');
     }
     
@@ -450,22 +394,7 @@ export default function CommercialProposalPage() {
       const data = generateAssessmentData()
       setAssessmentData(data)
     }
-    
-    // Log chart data for verification
-        if (proposalData?.workforceCrisis?.chartData) {
-          console.log('Chart Data Received:', proposalData.workforceCrisis.chartData)
-          console.log('Chart Data Points:', proposalData.workforceCrisis.chartData.chartData)
-          console.log('Total Shortage:', proposalData.workforceCrisis.chartData.totalShortage)
-          console.log('Trend:', proposalData.workforceCrisis.chartData.trend)
-        }
-        
-        if (proposalData?.workforceCrisis?.yearlyShortage) {
-          console.log('Yearly Shortage Data Received:', proposalData.workforceCrisis.yearlyShortage)
-          console.log('Yearly Shortage Number:', proposalData.workforceCrisis.yearlyShortage.yearlyShortage)
-          console.log('Industry:', proposalData.workforceCrisis.yearlyShortage.industry)
-          console.log('Description:', proposalData.workforceCrisis.yearlyShortage.description)
-        }
-  }, [proposalData?.courseOutlineModules, proposalData?.workforceCrisis?.chartData])
+  }, [proposalData?.courseOutlineModules])
 
   // Fetch data on component mount
   useEffect(() => {
@@ -814,28 +743,28 @@ export default function CommercialProposalPage() {
                     className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                     title="Click to edit service templates description"
                   >
-                    {proposalData?.serviceTemplatesDescription || 
-                      getLocalizedText(proposalData?.language, {
-                  en: 'Buy ready-made course templates',
-                  es: 'Compre plantillas de cursos listas',
-                  ua: 'Купуйте готові шаблони курсів',
-                  ru: 'Купите готовые шаблоны'
-                })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
-                  en: 'for onboarding',
-                  es: 'para incorporación',
-                  ua: 'для онбордингу',
-                  ru: 'курсов для онбординга'
-                })}<br className="hidden xl:block"/> {getLocalizedText(proposalData?.language, {
-                  en: 'and',
-                  es: 'y',
-                  ua: 'і',
-                  ru: 'и'
-                })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
-                  en: 'training:',
-                  es: 'entrenamiento:',
-                  ua: 'навчання:',
-                  ru: 'обучения:'
-                })}
+                  {proposalData?.serviceTemplatesDescription || 
+                    getLocalizedText(proposalData?.language, {
+                      en: 'Buy ready-made course templates',
+                      es: 'Compre plantillas de cursos listas',
+                      ua: 'Купуйте готові шаблони курсів',
+                      ru: 'Купите готовые шаблоны'
+                    })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                      en: 'for onboarding',
+                      es: 'para incorporación',
+                      ua: 'для онбордингу',
+                      ru: 'курсов для онбординга'
+                    })}<br className="hidden xl:block"/> {getLocalizedText(proposalData?.language, {
+                      en: 'and',
+                      es: 'y',
+                      ua: 'і',
+                      ru: 'и'
+                    })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                      en: 'training:',
+                      es: 'entrenamiento:',
+                      ua: 'навчання:',
+                      ru: 'обучения:'
+                    })}
                   </span>
                 )}
               </h3>
@@ -6410,13 +6339,14 @@ export default function CommercialProposalPage() {
                       }}
                     ></div>
                     <button 
-                      className="font-semibold text-[16px] w-full mx-auto block bg-white px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
+                      className="font-semibold text-[16px] w-full mx-auto block bg-white hover:bg-gray-100 cursor-pointer px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
+                      onClick={() => window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank')}
                     >
                       <span className="font-semibold text-[16px] xl:text-[18px]">
                         {getLocalizedText(proposalData?.language, {
-                          en: 'Book now',
-                          es: 'Reservar',
-                          ua: 'Забронювати',
+                          en: 'Book Now',
+                          es: 'Reservar Ahora',
+                          ua: 'Забронювати Зараз',
                           ru: 'Забронировать'
                         })}
                       </span>

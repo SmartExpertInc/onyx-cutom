@@ -16687,6 +16687,249 @@ async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, r
     return {"jobId": job_id}
 
 
+@app.post("/api/custom/commercial-proposal/generate")
+async def generate_commercial_proposal(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Generate a commercial proposal by copying an existing AI audit project.
+    """
+    try:
+        logger.info(f"🚀 [COMMERCIAL PROPOSAL] Starting commercial proposal generation for project ID: {payload.project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the source AI audit project
+        query = """
+        SELECT microproduct_content, microproduct_name, created_at
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            source_row = await conn.fetchrow(query, payload.project_id, onyx_user_id)
+            
+        if not source_row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL] Source project {payload.project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Source AI audit project not found")
+        
+        source_content = source_row["microproduct_content"]
+        source_name = source_row["microproduct_name"]
+        source_created_at = source_row["created_at"]
+        
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] Source project data retrieved:")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Name: {source_name}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL] - Content keys: {list(source_content.keys()) if source_content else 'None'}")
+        
+        # Create commercial proposal content based on AI audit data
+        commercial_proposal_content = {
+            "projectId": payload.project_id,
+            "projectName": f"{source_name} - Commercial Proposal",
+            "companyName": source_content.get("companyName", "MHE Group"),
+            "companyDescription": source_content.get("companyDescription", "Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment."),
+            "courseOutlineModules": source_content.get("courseOutlineModules", []),
+            "courseTemplates": source_content.get("courseTemplates", []),
+            "serviceTemplatesDescription": "Ready-made course templates for onboarding and training your employees:",
+            "language": source_content.get("language", "ru"),
+            "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", {
+                "lessons": "Уроки в модуле",
+                "assessment": "Проверка знаний: тест / практика с куратором", 
+                "duration": "Длительность обучения"
+            })
+        }
+        
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] Created commercial proposal content:")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Project Name: {commercial_proposal_content['projectName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Company Name: {commercial_proposal_content['companyName']}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Course Templates: {len(commercial_proposal_content['courseTemplates'])}")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL] - Language: {commercial_proposal_content['language']}")
+        
+        # Insert new commercial proposal project
+        insert_query = """
+        INSERT INTO projects (onyx_user_id, microproduct_name, microproduct_content, created_at, updated_at)
+        VALUES ($1, $2, $3, NOW(), NOW())
+        RETURNING id
+        """
+        
+        async with pool.acquire() as conn:
+            new_project_id = await conn.fetchval(
+                insert_query, 
+                onyx_user_id, 
+                commercial_proposal_content["projectName"],
+                commercial_proposal_content
+            )
+        
+        logger.info(f"✅ [COMMERCIAL PROPOSAL] Successfully created commercial proposal project with ID: {new_project_id}")
+        
+        return {
+            "success": True,
+            "projectId": new_project_id,
+            "message": "Commercial proposal generated successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL] Error generating commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.get("/api/custom/commercial-proposal/{project_id}")
+async def get_commercial_proposal_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the commercial proposal data for a specific project.
+    """
+    try:
+        logger.info(f"📥 [COMMERCIAL PROPOSAL DATA] Request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] Retrieved project data:")
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Project name: '{project_name}'")
+        logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Content keys: {list(content.keys()) if content else 'None'}")
+        
+        # Extract the commercial proposal data
+        company_name = content.get("companyName", "MHE Group")
+        company_description = content.get("companyDescription", "Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.")
+        
+        # Extract course outline modules
+        course_outline_modules = content.get("courseOutlineModules", [])
+        
+        # Extract course templates
+        course_templates = content.get("courseTemplates", [])
+        
+        # Extract service templates description
+        service_templates_description = content.get("serviceTemplatesDescription", "Ready-made course templates for onboarding and training your employees:")
+        
+        # Extract table headers
+        course_outline_table_headers = content.get("courseOutlineTableHeaders", None)
+        
+        # Build response data in ProposalPageData format
+        response_data = {
+            "projectId": project_id,
+            "projectName": project_name,
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "courseOutlineModules": course_outline_modules,
+            "courseTemplates": course_templates,
+            "serviceTemplatesDescription": service_templates_description,
+            "language": content.get("language", "ru"),
+            "courseOutlineTableHeaders": course_outline_table_headers
+        }
+        
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] Final response data:")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project ID: {response_data['projectId']}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project Name: '{response_data['projectName']}'")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Company Name: '{response_data['companyName']}'")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Course Templates Count: {len(response_data['courseTemplates'])}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Language: '{response_data['language']}'")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL DATA] Error getting commercial proposal data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.put("/api/custom/commercial-proposal/{project_id}")
+async def update_commercial_proposal(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Update commercial proposal text fields by merging changes with existing data.
+    """
+    try:
+        logger.info(f"🔄 [COMMERCIAL PROPOSAL UPDATE] Starting update for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get request body
+        body = await request.json()
+        micro_product_content = body.get("microProductContent")
+        
+        if not micro_product_content:
+            logger.error("❌ [COMMERCIAL PROPOSAL UPDATE] No microProductContent in request body")
+            raise HTTPException(status_code=400, detail="microProductContent is required")
+        
+        logger.info(f"📝 [COMMERCIAL PROPOSAL UPDATE] Received fields to update:")
+        logger.info(f"📝 [COMMERCIAL PROPOSAL UPDATE] - Fields: {list(micro_product_content.keys())}")
+        for key, value in micro_product_content.items():
+            logger.info(f"📝 [COMMERCIAL PROPOSAL UPDATE] - {key}: {value}")
+        
+        # First, get the existing project data
+        get_query = """
+        SELECT microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            existing_row = await conn.fetchrow(get_query, project_id, onyx_user_id)
+            
+        if not existing_row:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL UPDATE] Project {project_id} not found or not owned by user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        existing_content = existing_row["microproduct_content"] or {}
+        
+        logger.info(f"📋 [COMMERCIAL PROPOSAL UPDATE] Existing content keys: {list(existing_content.keys())}")
+        logger.info(f"📋 [COMMERCIAL PROPOSAL UPDATE] Existing content: {existing_content}")
+        
+        # Merge the new content with existing content
+        # This will update existing fields and add new ones
+        merged_content = {**existing_content, **micro_product_content}
+        
+        logger.info(f"🔀 [COMMERCIAL PROPOSAL UPDATE] Merged content:")
+        logger.info(f"🔀 [COMMERCIAL PROPOSAL UPDATE] - All keys: {list(merged_content.keys())}")
+        logger.info(f"🔀 [COMMERCIAL PROPOSAL UPDATE] - Updated/Added fields: {list(micro_product_content.keys())}")
+        
+        # Update the project with merged content
+        update_query = """
+        UPDATE projects 
+        SET microproduct_content = $1, updated_at = NOW()
+        WHERE id = $2 AND onyx_user_id = $3
+        RETURNING id
+        """
+        
+        async with pool.acquire() as conn:
+            updated_id = await conn.fetchval(update_query, merged_content, project_id, onyx_user_id)
+            
+        if not updated_id:
+            logger.error(f"❌ [COMMERCIAL PROPOSAL UPDATE] Failed to update project {project_id}")
+            raise HTTPException(status_code=500, detail="Failed to update project")
+        
+        logger.info(f"✅ [COMMERCIAL PROPOSAL UPDATE] Successfully updated project {project_id}")
+        logger.info(f"✅ [COMMERCIAL PROPOSAL UPDATE] Updated fields: {list(micro_product_content.keys())}")
+        
+        return {
+            "success": True,
+            "message": "Commercial proposal updated successfully",
+            "projectId": project_id,
+            "updatedFields": list(micro_product_content.keys())
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [COMMERCIAL PROPOSAL UPDATE] Error updating commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @app.get("/api/custom/ai-audit/landing-page/{project_id}")
 async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """
