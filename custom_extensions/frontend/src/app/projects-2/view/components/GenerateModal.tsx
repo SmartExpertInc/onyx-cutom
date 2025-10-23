@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Gem } from 'lucide-react';
+import { Gem, X } from 'lucide-react';
 
 interface GenerateModalProps {
   isOpen: boolean;
@@ -69,7 +69,15 @@ export default function GenerateModal({
       ></div>
       
       {/* Modal content */}
-      <div className="relative shadow-xl w-[700px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
+      <div className="relative shadow-xl w-[600px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors z-20"
+        >
+          <X className="w-4 h-4 text-gray-500" />
+        </button>
+        
         {/* Header */}
         <div className="p-6 pb-3">
           <div className="flex justify-center items-center">
@@ -88,7 +96,7 @@ export default function GenerateModal({
               onChange={(e) => setVideoTitle(e.target.value)}
               onBlur={() => setIsEditingTitle(false)}
               onFocus={() => setIsEditingTitle(true)}
-              className="w-full text-sm bg-transparent border-none outline-none focus:ring-0 px-0 py-1 text-[#171718] placeholder-[#171718]"
+              className="w-full text-xs bg-transparent border-none outline-none focus:ring-0 px-0 py-1 text-[#171718] placeholder-[#171718]"
               placeholder="Enter video title"
             />
           </div>
@@ -102,7 +110,7 @@ export default function GenerateModal({
             <div className="relative" data-subtitle-dropdown>
               <button 
                 onClick={() => setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen)}
-                className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
                 style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedSubtitleOption}
@@ -122,8 +130,8 @@ export default function GenerateModal({
                       }}
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
-                      <div className="text-sm font-medium" style={{ color: '#878787' }}>Optional subtitles (SRT/VTT)</div>
-                      <div className="text-sm" style={{ color: '#878787' }}>Can be turned on by viewers on demand</div>
+                      <div className="text-xs font-medium" style={{ color: '#878787' }}>Optional subtitles (SRT/VTT)</div>
+                      <div className="text-xs" style={{ color: '#878787' }}>Can be turned on by viewers on demand</div>
                     </button>
                     <button
                       onClick={() => {
@@ -132,8 +140,8 @@ export default function GenerateModal({
                       }}
                       className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer"
                     >
-                      <div className="text-sm font-medium" style={{ color: '#878787' }}>Burnt-in subtitles</div>
-                      <div className="text-sm" style={{ color: '#878787' }}>Burnt into the video, can't be disabled</div>
+                      <div className="text-xs font-medium" style={{ color: '#878787' }}>Burnt-in subtitles</div>
+                      <div className="text-xs" style={{ color: '#878787' }}>Burnt into the video, can't be disabled</div>
                     </button>
                   </div>
                 </div>
@@ -147,7 +155,7 @@ export default function GenerateModal({
             <div className="relative" data-resolution-dropdown>
               <button 
                 onClick={() => setIsResolutionDropdownOpen(!isResolutionDropdownOpen)}
-                className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
+                className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2"
                 style={{ color: '#878787', borderColor: '#E0E0E0' }}
               >
                 {selectedResolution}
@@ -174,7 +182,7 @@ export default function GenerateModal({
                       ) : (
                         <div className="w-4 h-4"></div>
                       )}
-                      <span className="text-sm" style={{ color: '#878787' }}>720p</span>
+                      <span className="text-xs" style={{ color: '#878787' }}>720p</span>
                     </button>
                     <button
                       onClick={() => {
@@ -190,7 +198,7 @@ export default function GenerateModal({
                       ) : (
                         <div className="w-4 h-4"></div>
                       )}
-                      <span className="text-sm text-[#878787]">1080p HD</span>
+                      <span className="text-xs text-[#878787]">1080p HD</span>
                     </button>
                     <button
                       onClick={() => {
@@ -207,7 +215,7 @@ export default function GenerateModal({
                         <div className="w-4 h-4"></div>
                       )}
                       <div className="flex items-center gap-2">
-                        <span className="text-sm" style={{ color: '#878787' }}>1440p HD</span>
+                        <span className="text-xs" style={{ color: '#878787' }}>1440p HD</span>
                         <Gem className="w-4 h-4 text-purple-700" />
                       </div>
                     </button>
@@ -226,7 +234,7 @@ export default function GenerateModal({
                         <div className="w-4 h-4"></div>
                       )}
                       <div className="flex items-center gap-2">
-                        <span className="text-sm" style={{ color: '#878787' }}>2160p 4K</span>
+                        <span className="text-xs" style={{ color: '#878787' }}>2160p 4K</span>
                         <Gem className="w-4 h-4 text-purple-700" />
                       </div>
                     </button>
@@ -239,24 +247,19 @@ export default function GenerateModal({
           {/* Location */}
           <div className="flex justify-between items-center mb-6">
             <span className="text-sm text-[#171718]">Location</span>
-            <button className="bg-white text-sm hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2" style={{ color: '#878787', borderColor: '#E0E0E0' }}>
+            <button className="bg-white text-xs hover:text-gray-800 px-3 py-1.5 border rounded-md flex items-center gap-2" style={{ color: '#878787', borderColor: '#E0E0E0' }}>
               Library
-              <div className="flex flex-col">
-                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
           </div>
           
           {/* Bottom buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 justify-center">
             <button
               onClick={onClose}
-              className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm"
+              className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs"
               style={{ border: '1px solid #719AF5', color: '#719AF5' }}
             >
               Cancel
@@ -269,7 +272,7 @@ export default function GenerateModal({
                 onGenerationStart?.();
               }}
               disabled={generationStatus === 'generating'}
-              className={`px-4 py-2 rounded-md transition-colors font-medium text-sm flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-md transition-colors font-medium text-xs flex items-center gap-2 ${
                 generationStatus === 'generating'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                   : 'text-white hover:bg-[#0D4CD4]'
