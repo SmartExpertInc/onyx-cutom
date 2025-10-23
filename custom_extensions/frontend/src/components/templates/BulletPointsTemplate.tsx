@@ -281,7 +281,8 @@ function UnifiedBulletEditor({
           margin: 0,
           width: '100%',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          alignItems: 'flex-end'
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
@@ -296,7 +297,7 @@ function UnifiedBulletEditor({
                 gap: '12px', 
                 marginBottom: '30px',
                 minHeight: '1.6em',
-                width: '100%'
+                width: '85%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -442,7 +443,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '90%'
+            width: '85%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
