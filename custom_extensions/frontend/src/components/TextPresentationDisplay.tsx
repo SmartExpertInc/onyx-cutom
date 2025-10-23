@@ -153,7 +153,7 @@ const iconMap: { [key: string]: React.ElementType } = {
 const THEME_COLORS = {
   primaryText: 'text-[#171718]',        
   headingText: 'text-[#171718]',        
-  subHeadingText: 'text-[#171718]',     
+  subHeadingText: 'text-[#0F58F9]',     
   accentRed: 'text-[#171718]', 
   accentRedBg: 'bg-white',      
   veryLightAccentBg: 'bg-[#FAFAFA]',
@@ -1034,7 +1034,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let containerClasses = `flex flex-col ${finalMb} `;
       if (hasRecommendation) {
-        containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
+        containerClasses += `pl-2.5 border-l-[3px] border-[#0F58F9] py-1`;
       }
 
       // Helpers for list item manipulation
@@ -1154,7 +1154,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-start gap-3 group/listitem relative">
+                  <li key={index} className="flex items-start gap-1 group/listitem relative">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-white text-[#0F58F9] flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
@@ -2645,7 +2645,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
                             return (
-                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#FF1414]'} text-left shadow-sm rounded-sm relative group/minisection`}>
+                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#0F58F9]'} text-left relative group/minisection`}>
                                 {isEditing && (
                                   <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
                                     <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
