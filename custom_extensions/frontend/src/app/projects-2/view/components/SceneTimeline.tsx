@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
@@ -35,33 +36,9 @@ export default function SceneTimeline({
   onAddSlide,
   onOpenTemplateSelector
 }: SceneTimelineProps) {
-  // Function to get scene rectangle dimensions based on aspect ratio
-  const getSceneRectangleStyles = () => {
-    const baseHeight = 80; // Increased for bigger cards
-    
-    switch (aspectRatio) {
-      case '16:9':
-        return {
-          width: `${Math.round(baseHeight * 16 / 9)}px`,
-          height: `${baseHeight}px`,
-        };
-      case '9:16':
-        return {
-          width: `${Math.round(baseHeight * 9 / 16)}px`,
-          height: `${baseHeight}px`,
-        };
-      case '1:1':
-        return {
-          width: `${baseHeight}px`,
-          height: `${baseHeight}px`,
-        };
-      default:
-        return {
-          width: `${Math.round(baseHeight * 16 / 9)}px`,
-          height: `${baseHeight}px`,
-        };
-    }
-  };
+  const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [transitionPositions, setTransitionPositions] = useState<{ [key: string]: { x: number, y: number } }>({});
+  const [isMounted, setIsMounted] = useState(false);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -85,9 +62,49 @@ export default function SceneTimeline({
     return []; // Commented out regular scenes for now
   })();
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Update transition button positions when slides change
+  useEffect(() => {
+    const updatePositions = () => {
+      const newPositions: { [key: string]: { x: number, y: number } } = {};
+      Object.entries(slideRefs.current).forEach(([slideId, element]) => {
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          newPositions[slideId] = {
+            x: rect.right,
+            y: rect.top + rect.height / 2
+          };
+        }
+      });
+      setTransitionPositions(newPositions);
+    };
+
+    updatePositions();
+    window.addEventListener('resize', updatePositions);
+    window.addEventListener('scroll', updatePositions);
+    
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+      window.removeEventListener('scroll', updatePositions);
+    };
+  }, [displayScenes]);
+
+  // Function to get scene rectangle dimensions based on aspect ratio (16:9 only)
+  const getSceneRectangleStyles = () => {
+    const baseHeight = 80; // Increased for bigger cards
+    return {
+      width: `${Math.round(baseHeight * 16 / 9)}px`,
+      height: `${baseHeight}px`,
+    };
+  };
+
   return (
-    <div className="bg-white rounded-md overflow-visible px-4 py-6" style={{ height: 'auto', minHeight: '120px' }}>
-      <div className="flex items-end gap-4 pb-2">
+    <>
+    <div className="bg-white border-[#E0E0E0] rounded-md overflow-visible px-4 py-8" style={{ height: 'auto', minHeight: '120px' }}>
+      <div className="flex items-end gap-4 pb-2 justify-center">
           {/* Play Button with Time - Fixed */}
           <div className="flex flex-col items-center flex-shrink-0">
             <div className="relative flex items-center justify-center">
@@ -105,7 +122,10 @@ export default function SceneTimeline({
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
-              <div className="flex flex-col items-center gap-2 flex-shrink-0 relative">
+              <div 
+                ref={el => { slideRefs.current[scene.id] = el; }}
+                className="flex flex-col items-center gap-2 flex-shrink-0 relative"
+              >
                 <div className="relative group">
                   <div 
                     className={`bg-gray-100 border rounded-sm flex items-center justify-center relative cursor-pointer transition-all ${
@@ -127,7 +147,7 @@ export default function SceneTimeline({
                     {/* Three-dot menu button - visible on hover */}
                     <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button 
-                        className="w-6 h-6 bg-white rounded-md shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        className="w-6 h-2 bg-white rounded-md shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           onMenuClick(scene.id, e);
@@ -143,29 +163,6 @@ export default function SceneTimeline({
                   </div>
                 </div>
               </div>
-
-              {/* Transition button - show between scenes (not after the last one) - Overlapping on slides */}
-              {index < displayScenes.length - 1 && (
-                <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-20">
-                  <div className="relative group">
-                    <button className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
-                      <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
-                        <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                    
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
-                      <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        Add transition
-                      </div>
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </React.Fragment>
           ))}
           </div>
@@ -203,7 +200,7 @@ export default function SceneTimeline({
               <div className="h-20 flex items-center justify-center">
                   <button
                     onClick={() => {}}
-                    className="w-10 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                    className="w-8 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
                     style={{ backgroundColor: '#CCDBFC' }}
                     title="Chevron up"
                   >
@@ -226,5 +223,50 @@ export default function SceneTimeline({
           </div>
         </div>
       </div>
-    );
+      
+      {/* Portal for transition buttons - rendered outside to avoid overflow clipping */}
+      {isMounted && typeof window !== 'undefined' && ReactDOM.createPortal(
+        <>
+          {displayScenes.map((scene, index) => {
+            if (index >= displayScenes.length - 1) return null;
+            
+            const position = transitionPositions[scene.id];
+            if (!position) return null;
+            
+            return (
+              <div 
+                key={`transition-${scene.id}`}
+                className="fixed pointer-events-auto"
+                style={{
+                  left: `${position.x}px`,
+                  top: `${position.y}px`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 1000
+                }}
+              >
+                <div className="relative group">
+                  <button className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
+                    <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
+                      <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                    <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                      Add transition
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </>,
+        document.body
+      )}
+    </>
+  );
 }
