@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
 import { capitalize } from '@/lib/utils'
@@ -297,6 +297,7 @@ const getLocalizedText = (language: string | undefined, texts: { en: any; es: an
 
 export default function DynamicAuditLandingPage() {
   const params = useParams()
+  const router = useRouter()
   const projectId = params?.projectId as string
   const [landingPageData, setLandingPageData] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -362,7 +363,7 @@ export default function DynamicAuditLandingPage() {
         
         // Redirect to the new commercial proposal page
         if (data.projectId) {
-          window.location.href = `/create/commercial-proposal/${data.projectId}`;
+          router.push(`/create/commercial-proposal/${data.projectId}`);
         }
       } else {
         const errorText = await response.text();
