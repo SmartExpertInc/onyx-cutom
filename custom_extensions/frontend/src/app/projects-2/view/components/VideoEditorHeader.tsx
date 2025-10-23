@@ -38,7 +38,7 @@ export default function VideoEditorHeader({
   const [isEyeVisible, setIsEyeVisible] = useState(false);
   const [isPlayModalOpen, setIsPlayModalOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState(true); // Temporarily always open for design updates
+  const [isGenerationCompletedModalOpen, setIsGenerationCompletedModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [videoTitle, setVideoTitle] = useState('Create your first AI video');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -48,9 +48,9 @@ export default function VideoEditorHeader({
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   
   // Video generation state - transferred from VideoDownloadButton
-  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('completed'); // Temporarily set to 'completed' for design updates
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [generationJobId, setGenerationJobId] = useState<string | null>('temp-job-id'); // Temporary job ID for design updates
+  const [generationJobId, setGenerationJobId] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   
   // Use global avatar context instead of local state
