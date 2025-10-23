@@ -368,7 +368,7 @@ export default function DynamicAuditLandingPage() {
         const errorText = await response.text();
         console.error('❌ [CREATE COMMERCIAL PROPOSAL] Request failed:', response.status);
         console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error response:', errorText);
-        alert('Failed to create commercial proposal. Please try again.');
+        alert(`Failed to create commercial proposal. Please try again. ${errorText}`);
       }
     } catch (error) {
       console.error('❌ [CREATE COMMERCIAL PROPOSAL] Error creating commercial proposal:', error);

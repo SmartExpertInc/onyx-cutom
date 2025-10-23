@@ -3702,7 +3702,7 @@ class AiAuditScrapedData(BaseModel):
     priorityOther: str = ""
 
 class CommercialProposalCreateRequest(BaseModel):
-    project_id: str
+    project_id: int
     language: str = "ru"  # Default to Russian
 
 # --- Pydantic Models ---
@@ -16692,7 +16692,7 @@ async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, r
 
 
 @app.post("/api/custom/commercial-proposal/generate")
-async def generate_commercial_proposal(payload: CommercialProposalCreateRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def generate_commercial_proposal(payload: CommercialProposalCreateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """
     Generate a commercial proposal by copying an existing AI audit project.
     """
