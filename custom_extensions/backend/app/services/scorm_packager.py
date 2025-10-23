@@ -641,24 +641,33 @@ async def _render_slide_deck_html_with_progress(
                 injected_styles = _extract_style_blocks(head_inner)
                 if not injected_styles and embedded_fonts_css:
                     injected_styles = f"<style>\n{embedded_fonts_css}\n</style>"
+            
+            # CRITICAL: Inject the specific height as an inline style on this slide's .slide-page div
+            # This ensures each slide gets its own calculated height, not just the first slide's height from CSS
+            body_inner = body_inner.replace(
+                '<div class="slide-page">',
+                f'<div class="slide-page" style="height: {slide_height}px; min-height: {slide_height}px; max-height: {slide_height}px;">'
+            )
+            
             stacked_bodies.append(body_inner)
 
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         # Inject styles at the top of body for SCORM wrapper
-        # Heights are now calculated per-slide (matching PDF generation exactly)
+        # Heights are set per-slide via inline styles (injected above in the loop)
         scorm_overrides = """
 <style>
   /* SCORM overrides to match PDF dynamic heights */
   .slide-page { 
     width: 1174px;
-    /* Height is set per-slide via inline style from template */
+    /* Height is set per-slide via inline style attribute (e.g., style="height: 780px") */
+    /* Each slide gets its own calculated height from Pyppeteer measurement */
     margin: 0 auto 32px auto !important; 
     display: block; 
     background: transparent; 
   }
   .slide-page:last-child { margin-bottom: 0 !important; }
   .slide-content { 
-    height: 100% !important;
+    height: 100% !important; /* Fill parent height */
   }
 </style>
 """

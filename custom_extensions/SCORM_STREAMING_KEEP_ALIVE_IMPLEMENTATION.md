@@ -16,10 +16,23 @@ Implemented a **streaming response architecture** that sends progress updates ev
 
 #### 1. Backend Generator Functions (`scorm_packager.py`)
 
-**A. `_render_slide_deck_html_with_progress`** (Lines 540-672)
+**A. `_render_slide_deck_html_with_progress`** (Lines 540-676)
 - Async generator that yields progress updates during slide height calculation
 - Sends heartbeat every 10 seconds with progress counter
+- **CRITICAL FIX**: Injects calculated height as inline style on each `.slide-page` div
+  - Problem: We were only capturing CSS from first slide, so all slides used first slide's height
+  - Solution: Each slide gets `style="height: XXXpx; min-height: XXXpx; max-height: XXXpx;"` injected
+  - Ensures slides 2, 3, 4, etc. don't get cut off with wrong heights
 - Returns: `{"type": "progress", "message": "..."}` or `{"type": "complete", "html": "..."}`
+
+```python
+# CRITICAL: Inject the specific height as an inline style on this slide's .slide-page div
+# This ensures each slide gets its own calculated height, not just the first slide's height from CSS
+body_inner = body_inner.replace(
+    '<div class="slide-page">',
+    f'<div class="slide-page" style="height: {slide_height}px; min-height: {slide_height}px; max-height: {slide_height}px;">'
+)
+```
 
 ```python
 # Calculate heights for each slide with progress updates every 10 seconds

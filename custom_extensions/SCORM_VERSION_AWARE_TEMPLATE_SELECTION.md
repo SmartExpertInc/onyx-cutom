@@ -171,9 +171,34 @@ This is identical to PDF generation:
 5. **CSS Architecture**: Each template contains identical CSS class names with different color values
 6. **Slide Heights**: Dynamic calculation per slide matching PDF generation (600-3000px range)
 
+## Critical Slide Height Fix (Per-Slide Inline Styles)
+
+**Problem**: Initial implementation calculated heights correctly but all slides after the first were cut off.
+
+**Root Cause**: 
+- SCORM stacks all slides in one HTML document (unlike PDF which has separate pages)
+- We only captured CSS from first slide, which had `.slide-page { height: 660px; }` (first slide's height)
+- All subsequent slides used this same CSS with the wrong height
+- Slides 2, 3, 4, etc. were cut off if they needed more than first slide's height
+
+**Solution**: Inject height as inline style attribute on each `.slide-page` div (lines 645-650):
+
+```python
+# CRITICAL: Inject the specific height as an inline style on this slide's .slide-page div
+# This ensures each slide gets its own calculated height, not just the first slide's height from CSS
+body_inner = body_inner.replace(
+    '<div class="slide-page">',
+    f'<div class="slide-page" style="height: {slide_height}px; min-height: {slide_height}px; max-height: {slide_height}px;">'
+)
+```
+
+**Result**: Each slide now gets its own calculated height applied as an inline style, ensuring perfect match with PDF output regardless of slide position in the deck.
+
 ## Implementation Complete ✅
 
 SCORM exports now correctly handle presentation versions, matching the behavior of PDF downloads.
 
 Legacy presentations will maintain their original appearance in both PDF and SCORM exports, while new presentations will use the updated v2 design consistently across all export formats.
+
+Each slide gets its own dynamically calculated height via inline styles, ensuring no content is cut off.
 
