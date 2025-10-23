@@ -86,11 +86,11 @@ export default function SceneTimeline({
   })();
 
   return (
-    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'auto', minHeight: '120px' }}>
+    <div className="bg-white rounded-md overflow-visible px-4 py-6" style={{ height: 'auto', minHeight: '120px' }}>
       <div className="flex items-end gap-4 pb-2">
           {/* Play Button with Time - Fixed */}
-          <div className="flex flex-col items-center gap-1 flex-shrink-0">
-            <div className="relative flex items-center justify-center h-16">
+          <div className="flex flex-col items-center flex-shrink-0">
+            <div className="relative flex items-center justify-center">
               <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center transition-colors cursor-pointer" style={{ border: '1px solid #878787' }}>
                 <div className="w-0 h-0 border-l-[8px] border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1" style={{ borderLeftColor: '#878787' }}></div>
               </button>
@@ -101,14 +101,14 @@ export default function SceneTimeline({
           </div>
 
           {/* Scrollable Slides Container */}
-          <div className="flex items-end gap-1 overflow-x-auto flex-1">
+          <div className="flex items-end gap-1 overflow-x-auto overflow-y-visible flex-1">
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
               <div className="flex flex-col items-center gap-2 flex-shrink-0 relative">
                 <div className="relative group">
                   <div 
-                    className={`bg-gray-100 border rounded-md flex items-center justify-center relative cursor-pointer transition-all ${
+                    className={`bg-gray-100 border rounded-sm flex items-center justify-center relative cursor-pointer transition-all ${
                       currentSlideId === scene.id 
                         ? 'bg-blue-50' 
                         : 'border-gray-300 hover:border-gray-400'
@@ -127,20 +127,16 @@ export default function SceneTimeline({
                     {/* Three-dot menu button - visible on hover */}
                     <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button 
-                        className="w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        className="w-6 h-6 bg-white rounded-md shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           onMenuClick(scene.id, e);
                         }}
                       >
-                        <svg 
-                          className="w-3 h-3 text-gray-600" 
-                          fill="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <circle cx="6" cy="12" r="2"/>
-                          <circle cx="12" cy="12" r="2"/>
-                          <circle cx="18" cy="12" r="2"/>
+                        <svg width="12" height="3" viewBox="0 0 12 3" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5.29599 1.19509C5.29599 1.5725 5.60194 1.87845 5.97935 1.87845C6.35677 1.87845 6.66272 1.5725 6.66272 1.19509C6.66272 0.817672 6.35677 0.511719 5.97935 0.511719C5.60194 0.511718 5.29599 0.817672 5.29599 1.19509Z" stroke="#E0E0E0" strokeWidth="1.02505" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M10.0796 1.19509C10.0796 1.5725 10.3855 1.87845 10.7629 1.87845C11.1403 1.87845 11.4463 1.5725 11.4463 1.19509C11.4463 0.817672 11.1403 0.511719 10.7629 0.511719C10.3855 0.511719 10.0796 0.817672 10.0796 1.19509Z" stroke="#E0E0E0" strokeWidth="1.02505" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M0.51242 1.19509C0.51242 1.5725 0.818374 1.87845 1.19579 1.87845C1.5732 1.87845 1.87915 1.5725 1.87915 1.19509C1.87915 0.817672 1.5732 0.511718 1.19579 0.511718C0.818374 0.511718 0.51242 0.817672 0.51242 1.19509Z" stroke="#E0E0E0" strokeWidth="1.02505" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </button>
                     </div>
@@ -150,9 +146,9 @@ export default function SceneTimeline({
 
               {/* Transition button - show between scenes (not after the last one) - Overlapping on slides */}
               {index < displayScenes.length - 1 && (
-                <div className="absolute top-0 right-0 transform translate-x-1/2 flex items-center h-16 z-10">
+                <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-20">
                   <div className="relative group">
-                    <button className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-md">
+                    <button className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
                       <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
                         <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
@@ -174,55 +170,58 @@ export default function SceneTimeline({
           ))}
           </div>
 
-          {/* Add Slide Button - Opens Templates Panel - Fixed */}
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="h-16 flex items-center justify-center">
-                <button
-                  onClick={onOpenTemplateSelector}
-                  className="w-12 h-16 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                  style={{ backgroundColor: '#CCDBFC' }}
-                  title="Add new slide"
-                >
-                <svg 
-                  className="w-6 h-6" 
-                  fill="none" 
-                  stroke="#0F58F9" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                  />
-                </svg>
-              </button>
+          {/* Action Buttons Group - Fixed */}
+          <div className="flex items-end gap-1 flex-shrink-0">
+            {/* Add Slide Button - Opens Templates Panel */}
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="h-20 flex items-center justify-center">
+                  <button
+                    onClick={onOpenTemplateSelector}
+                    className="w-12 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                    style={{ backgroundColor: '#CCDBFC' }}
+                    title="Add new slide"
+                  >
+                  <svg 
+                    className="w-6 h-6" 
+                    fill="none" 
+                    stroke="#0F58F9" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Chevron Up Button - Non-functional for now - Fixed */}
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="h-16 flex items-center justify-center">
-                <button
-                  onClick={() => {}}
-                  className="w-10 h-16 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                  style={{ backgroundColor: '#CCDBFC' }}
-                  title="Chevron up"
-                >
-                <svg 
-                  className="w-6 h-6" 
-                  fill="none" 
-                  stroke="#0F58F9" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M5 15l7-7 7 7" 
-                  />
-                </svg>
-              </button>
+            {/* Chevron Up Button - Non-functional for now */}
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="h-20 flex items-center justify-center">
+                  <button
+                    onClick={() => {}}
+                    className="w-10 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                    style={{ backgroundColor: '#CCDBFC' }}
+                    title="Chevron up"
+                  >
+                  <svg 
+                    className="w-6 h-6" 
+                    fill="none" 
+                    stroke="#0F58F9" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M5 15l7-7 7 7" 
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>

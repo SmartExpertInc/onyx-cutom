@@ -826,10 +826,10 @@ export default function Projects2ViewPage() {
 
         {/* Main Container - spans columns 4-10, full height of available space */}
         <div className="h-full flex flex-col gap-2 overflow-visible" style={{ gridColumn: '4 / 11' }}>
-          {/* Slide Container - Takes 75% of main container height */}
+          {/* Slide Container - Takes 80% of main container height */}
           <div 
             ref={slideContainerRef}
-            className="h-[75%] rounded-md flex items-center justify-center relative overflow-visible"
+            className="h-[80%] rounded-md flex items-center justify-center relative overflow-visible"
           >
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div style={{
@@ -877,7 +877,7 @@ export default function Projects2ViewPage() {
             )}
           </div>
 
-          {/* Bottom Container - Takes 25% of main container height */}
+          {/* Bottom Container - Takes 20% of main container height */}
           <SceneTimeline 
             scenes={[]} // Commented out regular scenes for now
             onAddScene={() => {}} // Disabled for now
