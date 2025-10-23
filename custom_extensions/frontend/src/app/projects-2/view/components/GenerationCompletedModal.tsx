@@ -124,12 +124,20 @@ export default function GenerationCompletedModal({
       {/* Modal content */}
       <div className="relative shadow-xl w-[900px] max-w-[95vw] flex flex-col z-10" style={{ borderRadius: '12px', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)' }}>
         {/* Header */}
-        <div className="p-6 pb-3">
-          <div className="flex justify-between items-center">
-            {/* Video title on the left */}
-            <h2 className="text-lg font-semibold text-[#171718] truncate max-w-[300px]" title={videoTitle}>
-              {videoTitle}
-            </h2>
+        <div className="px-6 py-4">
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col">
+              {/* Video title on the left */}
+              <h2 className="text-lg font-semibold text-[#171718] truncate max-w-[300px]" title={videoTitle}>
+                {videoTitle}
+              </h2>
+              {/* Generation progress text */}
+              {generationStatus === 'generating' && (
+                <span className="text-xs mt-1" style={{ color: '#878787' }}>
+                  Generating video... ({generationProgress}%)
+                </span>
+              )}
+            </div>
             
             {/* Buttons on the right - only show when generation is completed */}
             <div className="flex items-center gap-2">
@@ -283,22 +291,6 @@ export default function GenerationCompletedModal({
               );
             })()}
           </div>
-
-          {/* Progress Bar - show during generation */}
-          {generationStatus === 'generating' && (
-            <div className="w-80 mt-4">
-              <div className="w-full bg-gray-300 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${generationProgress}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Processing...</span>
-                <span>{generationProgress}%</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
