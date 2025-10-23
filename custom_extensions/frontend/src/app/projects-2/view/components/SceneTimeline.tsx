@@ -245,8 +245,8 @@ export default function SceneTimeline({
                 }}
               >
                 <div className="relative group">
-                  <button className="w-5 h-5 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
-                    <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3 h-2">
+                  <button className="w-7 h-7 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shadow-lg">
+                    <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-3">
                       <path d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" fill="#848485"/>
                       <path d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" stroke="#848485" strokeWidth="0.640535" strokeLinecap="round" strokeLinejoin="round"/>
