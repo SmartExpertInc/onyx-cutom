@@ -48,14 +48,14 @@ const parseAndStyleText = (text: string | undefined | null): React.ReactNode[] =
       const segments = segment.split(/\*\*(.*?)\*\*/g);
       return segments.map((seg, index) => {
         if (index % 2 === 1) { 
-          return <span key={`${keyPrefix}-${index}`} className="font-medium text-blue-600">{seg}</span>;
+          return <span key={`${keyPrefix}-${index}`} className="font-semibold text-blue-600">{seg}</span>;
         }
         return seg; 
       }).filter(seg => seg !== "");
     };
     
     return [
-      <span key="before-colon" className="text-blue-600">{processSegment(beforeColon, 'before')}</span>,
+      <span key="before-colon" className="font-semibold text-blue-600">{processSegment(beforeColon, 'before')}</span>,
       ...processSegment(afterColon, 'after')
     ];
   }
@@ -1132,6 +1132,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               const isLastItem = index === items.length - 1;
               const itemIsString = typeof item === 'string';
               const isRecommendationPara = !itemIsString && (item as AnyContentBlock).type === 'paragraph' && (item as ParagraphBlock).isRecommendation;
+              const isRecommendationString = itemIsString && item.toLowerCase().includes('recommendation');
               
               const isPlainStringNoBold = itemIsString && !item.includes("**");
               // Only wrap with ** when inside a numbered list and the original string has no bold markers
@@ -1168,7 +1169,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-black text-base font-semibold leading-snug">{styledItemText}</span>
+                          <span className="text-black text-base leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
                           <div className="flex flex-col">
@@ -1208,9 +1209,10 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               }
 
               // Bullet list items - consistent with numbered list structure
+              const isRecommendation = isRecommendationPara || isRecommendationString;
               return (
-                <li key={index} className={`flex items-start group/listitem relative ${isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
-                  {BulletIconToRender && !isNumbered && !isRecommendationPara && (
+                <li key={index} className={`flex items-start group/listitem relative ${isRecommendation ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
+                  {BulletIconToRender && !isNumbered && !isRecommendation && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center text-[#0F58F9]">
                       <BulletIconToRender />
                     </div>
@@ -1241,7 +1243,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                           </div>
                         </div>
                       ) : (
-                        <span className="text-black text-base font-semibold leading-snug">{styledItemText}</span>
+                        <span className="text-black text-base leading-snug">{styledItemText}</span>
                       )
                     ) : Array.isArray(item) ? (
                         <div className={`flex flex-col ${isRecommendationPara ? 'pl-4 border-l-4 border-[#0F58F9] py-2' : ''}`}>
@@ -1322,7 +1324,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               onDragEnd();
             }
           }}
-          className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+          className={`p-2 border-l-4 ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
           role="alert"
         >
           {/* Arrow buttons for reordering */}
