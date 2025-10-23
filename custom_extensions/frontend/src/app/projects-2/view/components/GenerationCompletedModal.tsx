@@ -150,10 +150,10 @@ export default function GenerationCompletedModal({
                       className="bg-white px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-xs flex items-center gap-2"
                       style={{ color: '#171718', borderColor: '#171718', border: '1px solid' }}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4" style={{ color: '#171718' }}>
-                        <path fill="currentColor" fillRule="evenodd" d="M8 2a.75.75 0 0 1 .75.75v8.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V2.75A.75.75 0 0 1 8 2Z" clipRule="evenodd"/>
-                      </svg>
                       Download
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
                     </button>
                     
                     {isDownloadDropdownOpen && (
