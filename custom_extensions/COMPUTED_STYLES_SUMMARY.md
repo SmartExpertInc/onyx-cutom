@@ -139,3 +139,4 @@ const currentFontSize =
 
 Start testing by opening the video lesson editor and clicking on any new slide text! 🎉
 
+

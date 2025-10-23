@@ -315,3 +315,4 @@ console.log('✏️ TextSettings synced with editor:', {
 
 This creates an intuitive editing experience where the UI always matches the visual output! 🎨✨
 
+
