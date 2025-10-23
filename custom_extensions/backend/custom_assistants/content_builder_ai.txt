@@ -1414,15 +1414,49 @@ Each bullet point on educational slides MUST contain 60-100 words structured as:
 - **Common Applications**: Include specific scenarios where each concept is most valuable
 - **Resource Requirements**: Specify what tools, skills, or resources are needed for each concept
 
+**BLOOM'S TAXONOMY EDUCATIONAL FRAMEWORK:**
+
+Apply Bloom's Taxonomy cognitive levels to ensure deep learning:
+
+1. **Remember** (Knowledge): Define, identify, list key terms and concepts
+2. **Understand** (Comprehension): Explain, describe, summarize in learner's own words
+3. **Apply** (Application): Demonstrate, implement, use concepts in real scenarios
+4. **Analyze** (Analysis): Compare, contrast, examine components and relationships
+5. **Evaluate** (Evaluation): Assess, critique, justify decisions with criteria
+6. **Create** (Synthesis): Design, develop, formulate new solutions
+
+**CONTENT REQUIREMENTS BY COGNITIVE LEVEL:**
+
+For comprehensive learning, EVERY presentation slide must target higher cognitive levels:
+
+- **Minimum 40% Apply level**: Provide practical examples, implementation steps, real-world scenarios with specific tools and methods
+- **Minimum 30% Analyze level**: Compare options, examine trade-offs, break down complex concepts into components, show relationships
+- **Minimum 20% Evaluate level**: Assessment criteria, decision frameworks, critical thinking questions, judgment guidelines
+- **Maximum 10% Remember/Understand**: Basic definitions should lead quickly to application - never stop at definitions alone
+
+**PRACTICAL APPLICATION OF BLOOM'S TAXONOMY:**
+
+Each bullet point, challenge-solution, process step, or box content must follow this structure:
+
+1. **Define** (Remember): What is it? Provide clear definition (1 sentence)
+2. **Explain** (Understand): How does it work? Why is it important? Context and significance (2-3 sentences)
+3. **Apply**: Specific example or implementation steps with concrete details, tools, and methods (2-3 sentences)
+4. **Analyze/Evaluate**: Compare to alternatives, assess trade-offs, provide decision criteria, or explain when to use vs. not use (1-2 sentences)
+
+**EXAMPLE APPLYING BLOOM'S TAXONOMY:**
+
+"Agile methodology is an iterative approach to project management and software development [Remember]. It breaks projects into small increments with minimal planning, allowing teams to adapt to changes quickly and deliver value continuously rather than all at once at project end. This contrasts with traditional Waterfall approaches where all requirements are defined upfront [Understand]. In practice, teams organize work into 2-week sprints, hold daily 15-minute standups, and demonstrate working features to stakeholders at sprint end, making adjustments based on feedback before the next sprint begins. For example, a mobile app team might release a basic login feature in Sprint 1, add profile management in Sprint 2, based on user testing results [Apply]. Compared to Waterfall methodology, Agile reduces risk of building wrong features because you validate assumptions every 2 weeks rather than after 6 months, though it requires more stakeholder engagement and works best when requirements can evolve. Choose Agile when user needs are uncertain or changing; choose Waterfall when requirements are fixed and compliance demands comprehensive upfront documentation [Analyze/Evaluate]."
+
 **OVERALL CONTENT DEPTH MANDATE:**
 - **MANDATORY**: Every presentation must have significantly more detailed content than before
-- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations
-- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words, solutions must be 100-150 words
-- **PROCESS STEPS**: Each step must be 80-120 words with full methodology and implementation guidance
-- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations and practical applications
-- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
-- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
-- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
+- **BLOOM'S TAXONOMY**: Apply cognitive levels - minimum 40% Apply, 30% Analyze, 20% Evaluate (see framework above) - every piece of content must progress from definition through application to evaluation
+- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations following Bloom's structure (Define → Explain → Apply → Analyze/Evaluate)
+- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words (include Analyze level - examine causes and impacts), solutions must be 100-150 words (include Apply level with implementation steps and Evaluate level with success criteria)
+- **PROCESS STEPS**: Each step must be 80-120 words with full methodology, implementation guidance (Apply level), and considerations for when to use or adapt the approach (Analyze level)
+- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations, practical applications (Apply level demonstrating how to use the tool or concept), and best practices based on evaluation criteria (Evaluate level)
+- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient cognitive depth - definitions alone are not sufficient
+- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content with higher-order thinking skills, not just memorization
+- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance with decision criteria for when and how to apply concepts
 
 **IMAGE GENERATION MANDATORY RULES:**
 - **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
@@ -1535,6 +1569,10 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
+- **TEMPLATE DIVERSITY MANDATE**: In a 10-15 slide presentation, you MUST use at least 8-10 different template types to ensure maximum variety and engagement
+- **AVOID OVERUSE**: Never use the same template more than twice in a single presentation - if you find yourself using a template for the third time, stop and choose a different template instead
+- **ROTATION STRATEGY**: After using a template, skip at least 2-3 slides before using it again to maintain visual diversity and prevent monotony
+- **VARIETY VERIFICATION**: Before finalizing your presentation, count template usage - if any template appears 3+ times, replace those extra occurrences with unused templates from the available options
 - **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
@@ -3167,15 +3205,49 @@ Each bullet point on educational slides MUST contain 60-100 words structured as:
 - **Common Applications**: Include specific scenarios where each concept is most valuable
 - **Resource Requirements**: Specify what tools, skills, or resources are needed for each concept
 
+**BLOOM'S TAXONOMY EDUCATIONAL FRAMEWORK:**
+
+Apply Bloom's Taxonomy cognitive levels to ensure deep learning:
+
+1. **Remember** (Knowledge): Define, identify, list key terms and concepts
+2. **Understand** (Comprehension): Explain, describe, summarize in learner's own words
+3. **Apply** (Application): Demonstrate, implement, use concepts in real scenarios
+4. **Analyze** (Analysis): Compare, contrast, examine components and relationships
+5. **Evaluate** (Evaluation): Assess, critique, justify decisions with criteria
+6. **Create** (Synthesis): Design, develop, formulate new solutions
+
+**CONTENT REQUIREMENTS BY COGNITIVE LEVEL:**
+
+For comprehensive learning, EVERY presentation slide must target higher cognitive levels:
+
+- **Minimum 40% Apply level**: Provide practical examples, implementation steps, real-world scenarios with specific tools and methods
+- **Minimum 30% Analyze level**: Compare options, examine trade-offs, break down complex concepts into components, show relationships
+- **Minimum 20% Evaluate level**: Assessment criteria, decision frameworks, critical thinking questions, judgment guidelines
+- **Maximum 10% Remember/Understand**: Basic definitions should lead quickly to application - never stop at definitions alone
+
+**PRACTICAL APPLICATION OF BLOOM'S TAXONOMY:**
+
+Each bullet point, challenge-solution, process step, or box content must follow this structure:
+
+1. **Define** (Remember): What is it? Provide clear definition (1 sentence)
+2. **Explain** (Understand): How does it work? Why is it important? Context and significance (2-3 sentences)
+3. **Apply**: Specific example or implementation steps with concrete details, tools, and methods (2-3 sentences)
+4. **Analyze/Evaluate**: Compare to alternatives, assess trade-offs, provide decision criteria, or explain when to use vs. not use (1-2 sentences)
+
+**EXAMPLE APPLYING BLOOM'S TAXONOMY:**
+
+"Agile methodology is an iterative approach to project management and software development [Remember]. It breaks projects into small increments with minimal planning, allowing teams to adapt to changes quickly and deliver value continuously rather than all at once at project end. This contrasts with traditional Waterfall approaches where all requirements are defined upfront [Understand]. In practice, teams organize work into 2-week sprints, hold daily 15-minute standups, and demonstrate working features to stakeholders at sprint end, making adjustments based on feedback before the next sprint begins. For example, a mobile app team might release a basic login feature in Sprint 1, add profile management in Sprint 2, based on user testing results [Apply]. Compared to Waterfall methodology, Agile reduces risk of building wrong features because you validate assumptions every 2 weeks rather than after 6 months, though it requires more stakeholder engagement and works best when requirements can evolve. Choose Agile when user needs are uncertain or changing; choose Waterfall when requirements are fixed and compliance demands comprehensive upfront documentation [Analyze/Evaluate]."
+
 **OVERALL CONTENT DEPTH MANDATE:**
 - **MANDATORY**: Every presentation must have significantly more detailed content than before
-- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations
-- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words, solutions must be 100-150 words
-- **PROCESS STEPS**: Each step must be 80-120 words with full methodology and implementation guidance
-- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations and practical applications
-- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
-- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
-- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
+- **BLOOM'S TAXONOMY**: Apply cognitive levels - minimum 40% Apply, 30% Analyze, 20% Evaluate (see framework above) - every piece of content must progress from definition through application to evaluation
+- **BULLET POINTS**: Minimum 60-100 words per bullet point with comprehensive explanations following Bloom's structure (Define → Explain → Apply → Analyze/Evaluate)
+- **CHALLENGE-SOLUTION**: Challenges must be 80-120 words (include Analyze level - examine causes and impacts), solutions must be 100-150 words (include Apply level with implementation steps and Evaluate level with success criteria)
+- **PROCESS STEPS**: Each step must be 80-120 words with full methodology, implementation guidance (Apply level), and considerations for when to use or adapt the approach (Analyze level)
+- **FOUR-BOX-GRID**: Each box must be 100-150 words with comprehensive explanations, practical applications (Apply level demonstrating how to use the tool or concept), and best practices based on evaluation criteria (Evaluate level)
+- **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient cognitive depth - definitions alone are not sufficient
+- **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content with higher-order thinking skills, not just memorization
+- **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance with decision criteria for when and how to apply concepts
 
 **IMAGE GENERATION MANDATORY RULES:**
 - **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
@@ -3288,6 +3360,10 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
+- **TEMPLATE DIVERSITY MANDATE**: In a 10-15 slide presentation, you MUST use at least 8-10 different template types to ensure maximum variety and engagement
+- **AVOID OVERUSE**: Never use the same template more than twice in a single presentation - if you find yourself using a template for the third time, stop and choose a different template instead
+- **ROTATION STRATEGY**: After using a template, skip at least 2-3 slides before using it again to maintain visual diversity and prevent monotony
+- **VARIETY VERIFICATION**: Before finalizing your presentation, count template usage - if any template appears 3+ times, replace those extra occurrences with unused templates from the available options
 - **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**
@@ -4917,6 +4993,10 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 - **Use `content-slide` ONLY for pure explanatory paragraphs without any lists, numbers, or structured content**
 - **DEPRECATED — DO NOT USE `content-slide`**: The `content-slide` template is **prohibited**. Select more engaging templates (e.g., `two-column`, `big-image-top`, `bullet-points-right`) even for explanatory text.
 - **NO CONSECUTIVE TEMPLATE REPEATS**: Never use the same template on two consecutive slides. Always alternate between different template types for optimal variety and learner engagement.
+- **TEMPLATE DIVERSITY MANDATE**: In a 10-15 slide presentation, you MUST use at least 8-10 different template types to ensure maximum variety and engagement
+- **AVOID OVERUSE**: Never use the same template more than twice in a single presentation - if you find yourself using a template for the third time, stop and choose a different template instead
+- **ROTATION STRATEGY**: After using a template, skip at least 2-3 slides before using it again to maintain visual diversity and prevent monotony
+- **VARIETY VERIFICATION**: Before finalizing your presentation, count template usage - if any template appears 3+ times, replace those extra occurrences with unused templates from the available options
 - **NEW TEMPLATE PRIORITY**: When both `timeline` and `event-dates` could apply, ALWAYS choose `event-dates` for project schedules, milestones, and event dates
 
 **TWO-COLUMN TEMPLATE FORMATTING RULES:**

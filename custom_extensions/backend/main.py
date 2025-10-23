@@ -1257,20 +1257,35 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_7_real_scenario_exercise",
       "slideNumber": 7,
-      "slideTitle": "Project Management Fundamentals — Practice Scenario: Plan a Team Project",
-      "templateId": "two-column",
+      "slideTitle": "Project Management Fundamentals — Project Planning Pyramid: Priority Layers",
+      "templateId": "pyramid",
       "previewKeyPoints": [
-        "Apply what you learned: Plan a real project from start to finish",
-        "Scenario: Your team needs to migrate customer database to new system in 3 months",
-        "Use the tools and frameworks from previous slides to create your plan",
-        "Practice identifying risks, creating timelines, and defining success criteria"
+        "Understand the hierarchical structure of project planning priorities",
+        "Foundation layer: Clear goals and success criteria form the base",
+        "Middle layers: Planning, resources, and risk management build upward",
+        "Top layer: Execution and monitoring complete the project structure"
       ],
       "props": {
-        "title": "Apply Your Skills: Database Migration Project",
-        "leftTitle": "The Scenario",
-        "leftContent": "Your organization uses an outdated customer database system. Management wants to migrate 50,000 customer records to a modern cloud-based system within 3 months. You lead a team of 4 people: 2 developers, 1 database specialist, and 1 tester. Budget is limited. Any downtime must occur outside business hours. Success means all data migrated accurately with no customer-facing disruptions.",
-        "rightTitle": "Your Task (Apply the 5 Steps)",
-        "rightContent": "Using the project planning framework from slide 3, create your project plan: (1) Define specific success criteria using SMART goals, (2) Break down the migration into phases and tasks, (3) Estimate time for data mapping, testing, and cutover, (4) Identify at least 3 major risks and mitigation plans, (5) Design your tracking system and weekly checkpoint format. Consider: How will you test data accuracy? What is your rollback plan if issues arise?"
+        "title": "The Project Planning Pyramid: Building Success Layer by Layer",
+        "subtitle": "Each layer supports the next - skip one and your project becomes unstable",
+        "levels": [
+          {
+            "label": "Foundation: Define Clear Goals",
+            "description": "Bottom layer - most critical. Write SMART goals that specify exactly what success looks like. Example: 'Migrate 50,000 customer records to new cloud system by March 15 with zero data loss and 99.9% accuracy.' This foundation supports everything above it. Without clear goals, your project has no direction."
+          },
+          {
+            "label": "Layer 2: Break Down Work & Estimate",
+            "description": "Create detailed task list with time estimates. Identify dependencies between tasks. Assign resources to each task based on skills and availability. Add 20-30% buffer for unexpected issues. This layer translates goals into actionable work packages."
+          },
+          {
+            "label": "Layer 3: Identify Risks & Create Plans",
+            "description": "List potential problems with likelihood and impact ratings. Develop specific mitigation strategies for high-priority risks. Assign risk owners responsible for monitoring. Create contingency plans for critical risks. This layer protects your project from derailment."
+          },
+          {
+            "label": "Top: Execute, Monitor & Adjust",
+            "description": "Track progress against plan using task board and status reports. Hold regular check-ins to identify blockers early. Communicate status to stakeholders weekly. Adjust plans based on actual progress and new information. This layer turns plans into delivered results."
+          }
+        ]
       }
     },
     {
@@ -1340,29 +1355,34 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
     {
       "slideId": "slide_10_managing_change_requests",
       "slideNumber": 10,
-      "slideTitle": "Project Management Fundamentals — How to Handle Mid-Project Change Requests",
-      "templateId": "process-steps",
+      "slideTitle": "Project Management Fundamentals — Change Request Evaluation Framework",
+      "templateId": "table-light",
       "previewKeyPoints": [
         "Change requests are inevitable - stakeholders will ask for new features or modifications",
         "Poor change management causes scope creep and project failure",
-        "Use a structured 4-step process to evaluate and respond to change requests",
+        "Use structured evaluation framework to assess and respond to change requests",
         "Protect your project timeline while maintaining stakeholder relationships"
       ],
       "props": {
-        "title": "Your Step-by-Step Change Request Management Process",
-        "steps": [
-          "Document the Request Formally: When someone asks for a change, don't just say yes or no verbally. Create a change request form capturing: What they want changed, why it is needed, who requested it, when they need it. This creates accountability and ensures you understand the full request. Template: one-page form with request details, business justification, and expected benefit.",
-          "Assess Impact on Triple Constraint: Evaluate how this change affects scope (adds work?), schedule (delays delivery?), and resources (needs more budget/people?). Example: Adding a new report feature might add 2 weeks of development time, require additional testing resources, and delay the launch date. Document these impacts clearly with specific numbers.",
-          "Present Options to Stakeholders: Don't just reject changes. Present 3 options: (1) Add to current scope with timeline extension and budget increase, (2) Defer to phase 2 after initial launch, (3) Remove existing lower-priority feature to make room for new one. Include specific trade-offs for each option. Let stakeholders choose based on business priorities.",
-          "Get Formal Approval Before Proceeding: Never start work on changes without written approval from project sponsor. Update your project plan, schedule, and risk register to reflect approved changes. Communicate the updated timeline to all stakeholders. If request is rejected, document why and when it will be reconsidered (usually post-launch or next version)."
-        ]
+        "title": "Change Request Evaluation Framework: Questions to Ask Before Approving",
+        "tableData": {
+          "headers": ["Evaluation Category", "Key Questions to Ask", "What to Document"],
+          "rows": [
+            ["Business Justification", "What business problem does this solve? What is the expected ROI or benefit? Who is requesting this and why now?", "Business case, expected benefits, urgency level, requester name and role"],
+            ["Scope Impact", "Does this add new features or change existing ones? How does it affect project boundaries? What work is added?", "Detailed description of changes, new tasks required, work breakdown additions"],
+            ["Schedule Impact", "How many additional days/weeks will this add? Which tasks are affected? Does it push the deadline?", "Time estimates per task, impact on critical path, new completion date"],
+            ["Resource Impact", "Do we need additional people, budget, or tools? Are current team members available? What skills are needed?", "Resource requirements, budget increase needed, team capacity analysis"],
+            ["Risk Assessment", "What new risks does this introduce? How does it affect existing risks? What could go wrong?", "New risk entries, risk probability and impact, mitigation strategies"],
+            ["Decision Options", "Can we add it to current scope? Should we defer to phase 2? Can we swap it for lower-priority work?", "3 options with trade-offs, recommendation, stakeholder decision and approval"]
+          ]
+        }
       }
     },
     {
       "slideId": "slide_11_team_motivation",
       "slideNumber": 11,
       "slideTitle": "Project Management Fundamentals — How to Keep Your Team Motivated and Productive",
-      "templateId": "bullet-points-right",
+      "templateId": "big-image-top",
       "previewKeyPoints": [
         "Team motivation directly impacts project success and timeline adherence",
         "Common demotivators: unclear expectations, lack of recognition, poor communication",
@@ -1371,41 +1391,62 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Building and Maintaining High-Performing Project Teams",
-        "bullets": [
-          "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply.",
-          "Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort.",
-          "Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved.",
-          "Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares: What they completed yesterday, what they will work on today, any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused.",
-          "Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption'."
-        ],
-        "imagePrompt": "Professional photograph of a diverse project team having an engaged discussion around a conference table. Team members are actively participating, some pointing at documents, others taking notes. Natural office lighting, collaborative atmosphere. The scene shows genuine workplace teamwork with laptops, project materials, and planning documents visible. Meeting room is [COLOR1], team and materials are [COLOR2], office environment is [COLOR3].",
-        "imageAlt": "Project team engaged in productive planning meeting"
+        "imagePrompt": "Realistic cinematic scene of a diverse project team having an engaged discussion around a conference table in a modern office. A confident Asian woman in business attire stands presenting project updates on a large screen while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Project team engaged in productive planning meeting",
+        "content": "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply. Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort. Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved. Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares what they completed yesterday, what they will work on today, and any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused. Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption and revenue growth by 40% based on our analysis'."
       }
     },
     {
       "slideId": "slide_12_project_recovery",
       "slideNumber": 12,
-      "slideTitle": "Project Management Fundamentals — When Your Project Is Falling Behind: Recovery Strategies",
-      "templateId": "challenges-solutions",
+      "slideTitle": "Project Management Fundamentals — Critical Project Recovery Milestones",
+      "templateId": "event-dates",
       "previewKeyPoints": [
         "Most projects encounter delays - knowing how to recover is a critical skill",
-        "Challenge: Project is 3 weeks behind schedule with deadline approaching",
-        "Challenge: Team is overwhelmed and quality is starting to slip",
-        "Solution: Apply focused recovery techniques to get back on track"
+        "Follow a structured 4-week recovery timeline to get back on track",
+        "Week 1: Assessment and triage of current situation",
+        "Weeks 2-3: Implementation of recovery actions and quality controls",
+        "Week 4: Verification and stakeholder communication of revised plan"
       ],
       "props": {
-        "title": "Project Recovery: How to Get Back on Track When Falling Behind",
-        "challengesTitle": "Project Crisis Scenarios",
-        "solutionsTitle": "Your Recovery Actions",
-        "challenges": [
-          "Project is significantly behind schedule and stakeholders are concerned about missing the deadline",
-          "Team is working excessive hours but quality is declining and bugs are increasing",
-          "Multiple critical issues arose simultaneously and team does not know what to prioritize"
-        ],
-        "solutions": [
-          "Conduct rapid triage: List all remaining tasks, reestimate time needed realistically, identify what can be cut or deferred to phase 2. Present revised timeline with options to stakeholders. Example: 'We can deliver core features on time if we defer reporting module to next release'.",
-          "Implement quality gates: Stop accepting new work. Focus team on completing and properly testing existing work. Add code review checkpoints. Sometimes slowing down to fix issues properly gets you to finish line faster than rushing with poor quality.",
-          "Create priority matrix: Plot all open issues on grid: High/Low Impact vs High/Low Effort. Focus team ONLY on high-impact items. Defer low-impact work. Assign clear owner to each high-priority item. Hold brief daily reviews of top 5 priorities only."
+        "title": "Project Recovery Timeline: 4-Week Plan to Get Back on Track",
+        "subtitle": "When your project falls behind, follow this structured recovery schedule",
+        "events": [
+          {
+            "date": "Week 1: Days 1-2",
+            "title": "Conduct Rapid Triage Assessment",
+            "description": "Stop all new work immediately. List every remaining task with realistic time estimates. Identify which deliverables are must-have vs. nice-to-have. Create priority matrix plotting tasks by Impact (High/Low) vs. Effort (High/Low). Focus only on high-impact items. Document current project health: how many tasks behind, budget status, team capacity, and quality metrics."
+          },
+          {
+            "date": "Week 1: Days 3-5",
+            "title": "Develop Recovery Options",
+            "description": "Create 3 options for stakeholders: (Option 1) Extend deadline by X weeks with same scope, (Option 2) Reduce scope to meet original deadline, (Option 3) Add resources to accelerate delivery. Include specific trade-offs, costs, and risks for each option. Calculate the realistic revised timeline for each scenario. Prepare presentation showing current status, causes of delay, and recovery options with recommendations."
+          },
+          {
+            "date": "Week 2: Days 1-2",
+            "title": "Get Stakeholder Decision & Approval",
+            "description": "Present recovery options to project sponsor and key stakeholders. Walk through impact analysis for each option. Get formal written approval of chosen recovery path. Update project charter, timeline, and budget to reflect approved changes. Communicate the new plan to entire team with clear priorities and expectations. Hold team meeting to address concerns and ensure alignment."
+          },
+          {
+            "date": "Week 2: Days 3-7",
+            "title": "Implement Quality Gates",
+            "description": "Stop accepting new feature requests - focus on completing existing work. Add mandatory code review checkpoints before any task is marked complete. Implement daily standup meetings (15 minutes) to identify blockers early. Create 'definition of done' checklist that includes testing and documentation requirements. Sometimes slowing down to fix issues properly gets you to finish line faster than rushing with poor quality."
+          },
+          {
+            "date": "Week 3: Full Week",
+            "title": "Execute Recovery Plan with Daily Monitoring",
+            "description": "Team works ONLY on high-priority items from the approved recovery plan. Project manager removes blockers within 24 hours of being reported. Hold brief daily reviews of top 5 priorities to ensure progress. Track actual progress vs. recovery timeline daily. Escalate any new issues immediately to stakeholders. Maintain team morale through recognition of progress and quick wins."
+          },
+          {
+            "date": "Week 4: Days 1-3",
+            "title": "Verify Progress & Adjust Course",
+            "description": "Compare actual progress to recovery timeline projections. Identify any remaining gaps between current state and recovery goals. Make final adjustments to priorities or resources if needed. Conduct quality checks on completed work to ensure standards are maintained. Document lessons learned about what caused the delays and how to prevent similar issues in future projects."
+          },
+          {
+            "date": "Week 4: Days 4-5",
+            "title": "Communicate Updated Status",
+            "description": "Prepare comprehensive status update showing recovery progress, remaining work, and confidence level in revised timeline. Present to stakeholders with evidence of improved velocity and quality. Update all project documentation to reflect current reality. Send formal status report to all stakeholders with revised timeline and next milestones. Build trust through transparency about both successes and remaining challenges."
+          }
         ]
       }
     },

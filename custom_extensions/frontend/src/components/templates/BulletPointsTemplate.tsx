@@ -295,9 +295,8 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '30px',
-                minHeight: '1.6em',
-                width: '85%'
+                marginBottom: '35px',
+                width: '80%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -443,7 +442,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '85%'
+            width: '80%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
