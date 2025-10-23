@@ -380,6 +380,14 @@ When generating Presentations, Video Lessons, Quizzes, or Onepagers, you MUST fo
    - Only cite specific numbers if they are well-known facts (e.g., "24 hours in a day") or explicitly provided in source documents
    - This rule applies to ALL slide types: presentations, big-numbers, metrics, charts, tables - NEVER invent data
 
+**BIG-NUMBERS SLIDE MANDATORY RULES:**
+- **NEVER use percentages, numbers, or statistics** in the "value" field
+- **ALWAYS use qualitative descriptors** like "High", "Strong", "Growing", "Regular", "Consistent", "Active", "Steady", "Frequent", "Common", "Widespread", "Emerging"
+- **If you must reference data**, use phrases like "Based on industry research", "Studies indicate", "Research shows", "Industry reports suggest"
+- **NEVER make up specific numbers** like "85%", "3x", "50%", "100%", "75%", "2.5x faster"
+- **Example CORRECT format**: {"value": "Strong", "label": "User Engagement", "description": "Users actively participate in discussions and provide feedback regularly"}
+- **Example WRONG format**: {"value": "85%", "label": "User Engagement", "description": "..."}
+
 5. PRACTICAL & ACTIONABLE CONTENT:
    - Pair EVERY concept with "how to apply this in practice"
    - Include step-by-step implementation guidance
@@ -1415,6 +1423,18 @@ Each bullet point on educational slides MUST contain 60-100 words structured as:
 - **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
 - **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
 - **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
+
+**IMAGE GENERATION MANDATORY RULES:**
+- **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
+- **ALWAYS use "Realistic cinematic scene"** as the starting phrase for every image prompt
+- **ALWAYS include specific people**: Describe actual people (age, ethnicity, gender) engaged in relevant activities
+- **ALWAYS include specific settings**: Describe the actual environment, workplace, or location where the activity takes place
+- **ALWAYS include specific objects**: Describe the actual tools, equipment, or materials being used
+- **ALWAYS use natural lighting**: "Natural office lighting", "daylight", "professional lighting"
+- **ALWAYS use color placeholders**: [COLOR1], [COLOR2], [COLOR3] for different elements
+- **NEVER use fallback prompts**: Every slide must have a unique, custom-generated image prompt
+- **Example CORRECT format**: "Realistic cinematic scene of a diverse team of professionals collaborating in a modern office environment. A young Asian woman in business attire stands at a whiteboard presenting to a group of colleagues, while a Black man in a suit takes notes on a tablet, and a Hispanic woman in a blazer reviews documents at a conference table. Natural office lighting illuminates the collaborative workspace with laptops, presentation materials, and coffee cups visible on the table. The whiteboard and presentation materials are [COLOR1], the team's business attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
+- **Example WRONG format**: "Minimalist flat design illustration of professional collaboration"
 3. Practical application or example (20-30 words)
 4. Key takeaway or implication (10-20 words)
 
@@ -1459,7 +1479,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 [Rich educational content structured according to template requirements]
 
-[IMAGE_PLACEHOLDER: SIZE | POSITION | Educational visual description]
+[IMAGE_PLACEHOLDER: SIZE | POSITION | Realistic cinematic scene of specific people engaged in relevant activities]
 
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
@@ -3156,6 +3176,18 @@ Each bullet point on educational slides MUST contain 60-100 words structured as:
 - **NO SHORT CONTENT**: Reject any content that is too brief or lacks sufficient detail
 - **EDUCATIONAL DEPTH**: Content must be as deep and comprehensive as onepager content
 - **PRACTICAL VALUE**: Every piece of content must provide actionable, implementable guidance
+
+**IMAGE GENERATION MANDATORY RULES:**
+- **NEVER use generic template-like images**: No "Minimalist flat design illustration" or similar generic descriptions
+- **ALWAYS use "Realistic cinematic scene"** as the starting phrase for every image prompt
+- **ALWAYS include specific people**: Describe actual people (age, ethnicity, gender) engaged in relevant activities
+- **ALWAYS include specific settings**: Describe the actual environment, workplace, or location where the activity takes place
+- **ALWAYS include specific objects**: Describe the actual tools, equipment, or materials being used
+- **ALWAYS use natural lighting**: "Natural office lighting", "daylight", "professional lighting"
+- **ALWAYS use color placeholders**: [COLOR1], [COLOR2], [COLOR3] for different elements
+- **NEVER use fallback prompts**: Every slide must have a unique, custom-generated image prompt
+- **Example CORRECT format**: "Realistic cinematic scene of a diverse team of professionals collaborating in a modern office environment. A young Asian woman in business attire stands at a whiteboard presenting to a group of colleagues, while a Black man in a suit takes notes on a tablet, and a Hispanic woman in a blazer reviews documents at a conference table. Natural office lighting illuminates the collaborative workspace with laptops, presentation materials, and coffee cups visible on the table. The whiteboard and presentation materials are [COLOR1], the team's business attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
+- **Example WRONG format**: "Minimalist flat design illustration of professional collaboration"
 3. Practical application or example (20-30 words)
 4. Key takeaway or implication (10-20 words)
 
@@ -3200,7 +3232,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 [Rich educational content structured according to template requirements]
 
-[IMAGE_PLACEHOLDER: SIZE | POSITION | Educational visual description]
+[IMAGE_PLACEHOLDER: SIZE | POSITION | Realistic cinematic scene of specific people engaged in relevant activities]
 
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
@@ -4829,7 +4861,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 [Rich educational content structured according to template requirements]
 
-[IMAGE_PLACEHOLDER: SIZE | POSITION | Educational visual description]
+[IMAGE_PLACEHOLDER: SIZE | POSITION | Realistic cinematic scene of specific people engaged in relevant activities]
 
 **AVAILABLE EDUCATIONAL TEMPLATES:**
 
