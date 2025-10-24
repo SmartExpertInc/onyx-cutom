@@ -18415,8 +18415,6 @@ async def get_public_product(
         WHERE p.id = $1 AND EXISTS (
             SELECT 1 FROM projects course 
             WHERE course.share_token = $2 
-            AND course.is_public = TRUE 
-            AND course.microproduct_type = 'Training Plan'
             AND course.onyx_user_id = p.onyx_user_id
             AND (course.expires_at IS NULL OR course.expires_at > NOW())
         )
@@ -18426,6 +18424,7 @@ async def get_public_product(
             product = await conn.fetchrow(verify_query, product_id, share_token)
         
         if not product:
+            logger.error(f"❌ [PUBLIC PRODUCT ACCESS] Product {product_id} not found or not accessible with share_token: {share_token}")
             raise HTTPException(status_code=404, detail="Product not found or not accessible via this share link")
         
         # Parse product content
