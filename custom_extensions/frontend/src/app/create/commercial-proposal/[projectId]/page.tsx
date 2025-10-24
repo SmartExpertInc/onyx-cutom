@@ -484,8 +484,16 @@ export default function CommercialProposalPage() {
     return (
       <>
         {/* Service content based on ID */}
-        {serviceId === 'service1' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+        {serviceId === 'service1' && !deletedElements['service1'] && (
+          <DeletableWrapper
+            onDelete={() => handleDeleteElement('service1')}
+            deleteButtonPosition="top-right"
+            deleteButtonSize="md"
+            confirmDelete={true}
+            deleteConfirmText="Are you sure you want to delete Service 1? This action cannot be undone."
+            className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
+            style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
+          > 
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
 
             <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
@@ -2463,11 +2471,19 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </DeletableWrapper>
         )}
         
-        {serviceId === 'service2' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+        {serviceId === 'service2' && !deletedElements['service2'] && (
+          <DeletableWrapper
+            onDelete={() => handleDeleteElement('service2')}
+            deleteButtonPosition="top-right"
+            deleteButtonSize="md"
+            confirmDelete={true}
+            deleteConfirmText="Are you sure you want to delete Service 2? This action cannot be undone."
+            className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
+            style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
+          > 
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
@@ -2885,11 +2901,19 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </DeletableWrapper>
         )}
         
-        {serviceId === 'service3' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+        {serviceId === 'service3' && !deletedElements['service3'] && (
+          <DeletableWrapper
+            onDelete={() => handleDeleteElement('service3')}
+            deleteButtonPosition="top-right"
+            deleteButtonSize="md"
+            confirmDelete={true}
+            deleteConfirmText="Are you sure you want to delete Service 3? This action cannot be undone."
+            className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
+            style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
+          > 
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
@@ -4184,7 +4208,7 @@ export default function CommercialProposalPage() {
                 </svg>
               </div>
             </div>
-          </div>
+          </DeletableWrapper>
         )}
         
         {serviceId === 'service4' && !deletedElements['service4'] && (

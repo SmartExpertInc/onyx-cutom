@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDragContext } from './ServiceList';
 
 interface DeletableWrapperProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ const DeletableWrapper: React.FC<DeletableWrapperProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isDragging } = useDragContext();
 
   const handleDelete = async () => {
     if (disabled || isDeleting) return;
@@ -112,9 +114,13 @@ const DeletableWrapper: React.FC<DeletableWrapperProps> = ({
       {/* Delete Button */}
       {isHovered && !disabled && (
         <button
-          onClick={handleDelete}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
           disabled={isDeleting}
-          className={`absolute ${getPositionClasses()} z-10 ${getSizeClasses()} bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:scale-100 ${deleteButtonClassName}`}
+          className={`absolute ${getPositionClasses()} z-20 ${getSizeClasses()} bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:scale-100 ${deleteButtonClassName}`}
           title={isDeleting ? "Deleting..." : "Delete this item"}
         >
           {isDeleting ? (
