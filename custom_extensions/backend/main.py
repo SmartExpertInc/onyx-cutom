@@ -34411,15 +34411,28 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     
                     # Update microproduct_content to reflect the new course name
                     new_content = orig['microproduct_content']
+                    logger.info(f"[DUPLICATE] Original content type: {type(new_content)}, has mainTitle: {isinstance(new_content, dict) and 'mainTitle' in new_content}")
+                    
                     if new_content:
                         # Deep copy to avoid mutating original
                         import copy
                         new_content = copy.deepcopy(new_content)
+                        logger.info(f"[DUPLICATE] After deepcopy, content type: {type(new_content)}")
+                        
                         # Update mainTitle in the content
-                        if isinstance(new_content, dict) and 'mainTitle' in new_content:
-                            old_main_title = new_content['mainTitle']
-                            new_content['mainTitle'] = new_name
-                            logger.info(f"[DUPLICATE] Updated mainTitle: '{old_main_title}' -> '{new_name}'")
+                        if isinstance(new_content, dict):
+                            if 'mainTitle' in new_content:
+                                old_main_title = new_content['mainTitle']
+                                new_content['mainTitle'] = new_name
+                                logger.info(f"[DUPLICATE] ✅ Updated mainTitle: '{old_main_title}' -> '{new_name}'")
+                            else:
+                                # mainTitle doesn't exist, add it
+                                new_content['mainTitle'] = new_name
+                                logger.info(f"[DUPLICATE] ⚠️ mainTitle didn't exist, added: '{new_name}'")
+                        else:
+                            logger.error(f"[DUPLICATE] ❌ Content is not a dict! Type: {type(new_content)}")
+                    else:
+                        logger.error(f"[DUPLICATE] ❌ microproduct_content is None or empty!")
                     
                     # Duplicate the main Training Plan with all fields
                     new_outline_id = await conn.fetchval(
@@ -34451,6 +34464,20 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     )
                     
                     logger.info(f"Created new Training Plan with ID {new_outline_id}")
+                    
+                    # Verify what was actually inserted
+                    verify_row = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1",
+                        new_outline_id
+                    )
+                    if verify_row:
+                        verify_content = verify_row['microproduct_content']
+                        if isinstance(verify_content, dict) and 'mainTitle' in verify_content:
+                            logger.info(f"[DUPLICATE] ✅ VERIFIED: Database has mainTitle = '{verify_content['mainTitle']}'")
+                        else:
+                            logger.error(f"[DUPLICATE] ❌ VERIFICATION FAILED: Database mainTitle not found or content is not dict!")
+                    else:
+                        logger.error(f"[DUPLICATE] ❌ VERIFICATION FAILED: Could not fetch inserted row!")
                     
                     # Find all connected products using the same naming patterns as frontend
                     # Get all user's projects to search through
