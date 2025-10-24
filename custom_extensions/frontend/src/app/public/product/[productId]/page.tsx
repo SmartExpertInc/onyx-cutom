@@ -12,7 +12,6 @@ const QuizDisplay = React.lazy(() => import('@/components/QuizDisplay'));
 const TextPresentationDisplay = React.lazy(() => import('@/components/TextPresentationDisplay'));
 const VideoLessonDisplay = React.lazy(() => import('@/components/VideoLessonDisplay'));
 const PdfLessonDisplay = React.lazy(() => import('@/components/PdfLessonDisplay'));
-const EditorPage = React.lazy(() => import('@/components/EditorPage'));
 
 interface ProductData {
   id: number;
@@ -92,8 +91,10 @@ function PublicProductViewerContent() {
     const { component_name, content, name, type } = productData;
 
     // Determine which component to render based on component_name
+    // All slide deck types use SmartSlideDeckViewer in read-only mode
     switch (component_name) {
       case 'SlideDeckDisplay':
+      case 'EditorPage':
         return <SmartSlideDeckViewer deck={content} isEditable={false} />;
       
       case 'QuizDisplay':
@@ -107,10 +108,6 @@ function PublicProductViewerContent() {
       
       case 'PdfLessonDisplay':
         return <PdfLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
-      
-      case 'EditorPage':
-        // For slide decks that use EditorPage
-        return <EditorPage initialSlideData={content} projectName={name} isReadOnly={true} />;
       
       default:
         return (
