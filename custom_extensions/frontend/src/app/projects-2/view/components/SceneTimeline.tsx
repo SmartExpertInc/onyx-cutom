@@ -196,7 +196,7 @@ export default function SceneTimeline({
     <div className="bg-white border border-[#E0E0E0] rounded-md overflow-visible px-4 py-12" style={{ height: 'auto', minHeight: '120px' }}>
       <div className="flex items-end gap-4 pb-2 justify-center">
           {/* Play Button with Time - Fixed */}
-          <div className="flex flex-col items-center flex-shrink-0">
+          <div className="flex flex-col items-center flex-shrink-0" style={{ width: '80px' }}>
             <div className="relative flex items-center justify-center">
               <button 
                 onClick={() => setIsPlaying(!isPlaying)}
@@ -398,7 +398,7 @@ export default function SceneTimeline({
                   left: `${position.x}px`,
                   top: `${position.y}px`,
                   transform: 'translate(-50%, -50%)',
-                  zIndex: 1000
+                  zIndex: 50
                 }}
               >
                 <div className="relative group">

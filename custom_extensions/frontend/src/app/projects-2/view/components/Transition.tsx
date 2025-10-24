@@ -96,9 +96,9 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
 
     return (
       <div className="h-full flex flex-col">
-        <div className="w-full rounded-md">
+        <div className="w-full border border-gray-300 rounded-md">
           {/* Top part - Light grey background */}
-          <div className="bg-gray-100 flex items-center justify-between rounded-t-md">
+          <div className="bg-gray-100 p-4 flex items-center justify-between rounded-t-md">
             <div className="flex items-center gap-3">
               {/* Transition square */}
               <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
@@ -115,7 +115,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
             
             {/* Change button */}
             <button 
-              className="px-3 py-1 text-xs rounded-full bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
+              className="px-3 py-1 text-xs rounded-full border border-gray-300 bg-white text-black hover:bg-gray-50 transition-colors cursor-pointer"
               onClick={() => setShowSettings(false)}
             >
               Change
@@ -123,9 +123,9 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
           </div>
 
           {/* Bottom part - White background */}
-          <div className="bg-white flex-1 rounded-b-md">
+          <div className="bg-white p-4 flex-1 rounded-b-md">
             {/* Settings container */}
-            <div className="rounded-lg">
+            <div className="p-4 rounded-lg">
               {/* Apply between all scenes row */}
               <div className="flex items-center justify-between mb-6">
                 <span className="text-gray-700 text-xs">Apply between all scenes</span>
@@ -210,18 +210,18 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 <div className="flex gap-2">
                   {/* Circle button */}
                   <button 
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'circle' ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-150'
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'circle' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
                     }`}
                     onClick={() => handleVariantChange('circle')}
                   >
-                    <div className="w-3 h-3 rounded-full bg-black"></div>
+                    <div className="w-3 h-3 rounded-full bg-white border border-black"></div>
                   </button>
                   
                   {/* Horizontal chevrons button */}
                   <button 
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'horizontal-chevrons' ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-150'
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'horizontal-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
                     }`}
                     onClick={() => handleVariantChange('horizontal-chevrons')}
                   >
@@ -233,8 +233,8 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   
                   {/* Vertical chevrons button */}
                   <button 
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      variant === 'vertical-chevrons' ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-150'
+                    className={`w-8 h-8 border rounded-lg flex items-center justify-center transition-colors ${
+                      variant === 'vertical-chevrons' ? 'border-black bg-gray-100' : 'border-gray-300 bg-white hover:bg-gray-50'
                     }`}
                     onClick={() => handleVariantChange('vertical-chevrons')}
                   >
@@ -270,7 +270,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
         <>
           {/* Pill-shaped button with SVG and "No transition" text */}
           <button 
-            className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full py-3 px-4 transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-full py-3 px-4 transition-colors duration-200"
             onClick={() => handleTransitionSelect('none')}
           >
             <svg 
