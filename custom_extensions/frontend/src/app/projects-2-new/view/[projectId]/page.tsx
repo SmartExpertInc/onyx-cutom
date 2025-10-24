@@ -32,6 +32,7 @@ import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes'
 import AvatarDataProvider from '../../../projects-2/view/components/AvatarDataService';
 import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
+import TextEditingToolbar from '@/components/TextEditingToolbar';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -78,6 +79,10 @@ export default function Projects2ViewPage() {
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
   const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
+  
+  // NEW: Text editing toolbar state
+  const [isTextToolbarVisible, setIsTextToolbarVisible] = useState<boolean>(false);
+  const [textToolbarPosition, setTextToolbarPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
@@ -832,8 +837,15 @@ export default function Projects2ViewPage() {
   return (
     <VoiceProvider>
       <AvatarDataProvider>
-        <div className="h-screen flex flex-col relative" style={{ backgroundColor: '#F2F2F4' }} onClick={() => {
+        <div className="h-screen flex flex-col relative" style={{ backgroundColor: '#F2F2F4' }} onClick={(e) => {
           closeMenu();
+          // Hide text toolbar when clicking outside
+          const target = e.target as HTMLElement;
+          if (!target.closest('[data-textsettings-panel]') && 
+              !target.closest('.ProseMirror') && 
+              !target.closest('.text-editing-toolbar')) {
+            setIsTextToolbarVisible(false);
+          }
         }}>
       {/* Product View Header */}
       <ProductViewHeader
@@ -915,7 +927,31 @@ export default function Projects2ViewPage() {
                     console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
                     setActiveTextEditor(editor);
                     setComputedTextStyles(computedStyles || null);
-                    setActiveSettingsPanel('text');
+                    // setActiveSettingsPanel('text'); // Disabled - only show toolbar
+                    
+                    // Calculate toolbar position above the text element
+                    if (editor && editor.view && editor.view.dom) {
+                      const editorElement = editor.view.dom as HTMLElement;
+                      const rect = editorElement.getBoundingClientRect();
+                      const toolbarHeight = 50; // Approximate toolbar height
+                      const toolbarWidth = 500; // Approximate toolbar width
+                      
+                      // Position above the text element, centered
+                      let x = rect.left + (rect.width / 2) - (toolbarWidth / 2);
+                      let y = rect.top - toolbarHeight - 10; // 10px gap
+                      
+                      // Keep within viewport
+                      if (x < 10) x = 10;
+                      if (x + toolbarWidth > window.innerWidth - 10) {
+                        x = window.innerWidth - toolbarWidth - 10;
+                      }
+                      if (y < 10) {
+                        y = rect.bottom + 10; // Position below if not enough space above
+                      }
+                      
+                      setTextToolbarPosition({ x, y });
+                      setIsTextToolbarVisible(true);
+                    }
                   }}
                   theme="default"
                   isVideoMode={true}
@@ -1131,6 +1167,14 @@ export default function Projects2ViewPage() {
         }}
         selectedColor={backgroundColor}
         position={colorPalettePosition}
+      />
+
+      {/* Text Editing Toolbar */}
+      <TextEditingToolbar
+        activeEditor={activeTextEditor}
+        computedStyles={computedTextStyles}
+        position={textToolbarPosition}
+        isVisible={isTextToolbarVisible}
       />
       </div>
       
