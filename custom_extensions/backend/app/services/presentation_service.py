@@ -969,24 +969,96 @@ class ProfessionalPresentationService:
                 logger.info(f"  🎞️ Video {i+1}: {duration:.2f}s - {os.path.basename(video_path)}")
             
             # Map frontend transition types to FFmpeg xfade types
-            # Most transitions match FFmpeg names directly from https://trac.ffmpeg.org/wiki/Xfade
-            # Only 'none' needs special handling (no transition)
+            # Complete mapping from https://trac.ffmpeg.org/wiki/Xfade
             transition_type_map = {
-                'none': None,  # No transition, will use minimal fade
-                # All other transitions use their FFmpeg xfade names directly:
-                # fade, fadeblack, fadewhite, fadegrays
-                # wipeleft, wiperight, wipeup, wipedown, wipetl, wipetr, wipebl, wipebr
-                # slideleft, slideright, slideup, slidedown
-                # smoothleft, smoothright, smoothup, smoothdown
-                # circlecrop, circleclose, circleopen, rectcrop
-                # horzclose, horzopen, vertclose, vertopen
-                # diagbl, diagbr, diagtl, diagtr
-                # hlslice, hrslice, vuslice, vdslice
-                # dissolve, pixelize, radial, hblur, distance
-                # squeezev, squeezeh, zoomin
-                # hlwind, hrwind, vuwind, vdwind
-                # coverleft, coverright, coverup, coverdown
-                # revealleft, revealright, revealup, revealdown
+                # Special
+                'none': None,  # No transition, will use simple concat
+                
+                # Basic fades
+                'fade': 'fade',
+                'fadeblack': 'fadeblack',
+                'fadewhite': 'fadewhite',
+                'fadegrays': 'fadegrays',
+                
+                # Wipes (directional)
+                'wipeleft': 'wipeleft',
+                'wiperight': 'wiperight',
+                'wipeup': 'wipeup',
+                'wipedown': 'wipedown',
+                'wipetl': 'wipetl',
+                'wipetr': 'wipetr',
+                'wipebl': 'wipebl',
+                'wipebr': 'wipebr',
+                
+                # Slides (directional)
+                'slideleft': 'slideleft',
+                'slideright': 'slideright',
+                'slideup': 'slideup',
+                'slidedown': 'slidedown',
+                
+                # Smooth transitions (directional)
+                'smoothleft': 'smoothleft',
+                'smoothright': 'smoothright',
+                'smoothup': 'smoothup',
+                'smoothdown': 'smoothdown',
+                
+                # Circle transitions
+                'circlecrop': 'circlecrop',
+                'circleclose': 'circleclose',
+                'circleopen': 'circleopen',
+                
+                # Rectangle/Shape transitions
+                'rectcrop': 'rectcrop',
+                
+                # Horizontal/Vertical opens and closes
+                'horzclose': 'horzclose',
+                'horzopen': 'horzopen',
+                'vertclose': 'vertclose',
+                'vertopen': 'vertopen',
+                
+                # Diagonal transitions
+                'diagbl': 'diagbl',
+                'diagbr': 'diagbr',
+                'diagtl': 'diagtl',
+                'diagtr': 'diagtr',
+                
+                # Slice transitions
+                'hlslice': 'hlslice',
+                'hrslice': 'hrslice',
+                'vuslice': 'vuslice',
+                'vdslice': 'vdslice',
+                
+                # Wind transitions
+                'hlwind': 'hlwind',
+                'hrwind': 'hrwind',
+                'vuwind': 'vuwind',
+                'vdwind': 'vdwind',
+                
+                # Effects
+                'dissolve': 'dissolve',
+                'pixelize': 'pixelize',
+                'radial': 'radial',
+                'hblur': 'hblur',
+                'distance': 'distance',
+                
+                # Squeeze transitions
+                'squeezeh': 'squeezeh',
+                'squeezev': 'squeezev',
+                
+                # Cover transitions
+                'coverleft': 'coverleft',
+                'coverright': 'coverright',
+                'coverup': 'coverup',
+                'coverdown': 'coverdown',
+                
+                # Reveal transitions
+                'revealleft': 'revealleft',
+                'revealright': 'revealright',
+                'revealup': 'revealup',
+                'revealdown': 'revealdown',
+                
+                # Zoom
+                'zoomin': 'zoomin'
             }
             
             # Build FFmpeg command with xfade filters
@@ -1013,11 +1085,8 @@ class ProfessionalPresentationService:
                 transition_type_raw = transition_config.get('type', 'none')
                 transition_duration = float(transition_config.get('duration', 0.5))
                 
-                # Map transition type - if not in map, use the raw type directly (FFmpeg xfade names)
-                transition_type_ffmpeg = transition_type_map.get(transition_type_raw)
-                if transition_type_ffmpeg is None and transition_type_raw != 'none':
-                    # Type not in map, assume it's a valid FFmpeg xfade name
-                    transition_type_ffmpeg = transition_type_raw
+                # Map transition type
+                transition_type_ffmpeg = transition_type_map.get(transition_type_raw, 'fade')
                 
                 logger.info(f"  🎞️ Transition {i+1}: {transition_type_raw} → {transition_type_ffmpeg} ({transition_duration}s)")
                 
