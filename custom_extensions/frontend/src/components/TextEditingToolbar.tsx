@@ -56,14 +56,20 @@ export default function TextEditingToolbar({
     return '#000000';
   };
 
+  // Sync color from prop
+  useEffect(() => {
+    if (currentColor) {
+      console.log('🎨 TOOLBAR: UPDATING FONT COLOR FROM PROP:', currentColor);
+      setFontColor(currentColor);
+    }
+  }, [currentColor]);
+
   // Sync formatting state with active editor
   useEffect(() => {
     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
       try {
-        // Use currentColor prop if available, otherwise get from editor
-        if (currentColor) {
-          setFontColor(currentColor);
-        } else {
+        // Only sync color if currentColor prop is not available
+        if (!currentColor) {
           const inlineColor = activeEditor.getAttributes('textStyle').color;
           const rawColor = inlineColor || computedStyles?.color || '#000000';
           const hexColor = rgbToHex(rawColor);

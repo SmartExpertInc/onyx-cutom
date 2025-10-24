@@ -605,7 +605,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       isDraggingRef.current = false; 
       setIsDragging(false);
       // Pass the color with current opacity to the parent component when dragging ends
-      console.log('🎨 Mouse up - calling onColorChange with:', colorState.hex);
+      console.log('🎨 MOUSE UP - CALLING ONCOLORCHANGE WITH:', colorState.hex);
       onColorChange(colorState.hex);
       // Add the current color to recent colors when dragging the saturation/brightness square ends
       addToRecentColors(colorState.hex);

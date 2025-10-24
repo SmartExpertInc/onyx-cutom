@@ -860,11 +860,11 @@ export default function Projects2ViewPage() {
             const isProtectedArea = isTextSettingsPanel || isProseMirror || isToolbar || isColorPalette || isColorButton;
             
             if (!isProtectedArea) {
-              console.log('🔍 Main container onClick - closing toolbar and color picker');
+              console.log('🔍 MAIN CONTAINER ONCLICK - CLOSING TOOLBAR AND COLOR PICKER');
               setIsTextToolbarVisible(false);
               setIsTextColorPickerOpen(false);
             } else {
-              console.log('🔍 Main container onClick - protected area, keeping open', {
+              console.log('🔍 MAIN CONTAINER ONCLICK - PROTECTED AREA, KEEPING OPEN', {
                 isColorPalette: !!isColorPalette,
                 isToolbar: !!isToolbar,
                 targetElement: target.className
@@ -877,7 +877,7 @@ export default function Projects2ViewPage() {
             const isColorPalette = target.closest('[data-color-palette-popup]');
             
             if (isColorPalette) {
-              console.log('🔍 Main container onMouseDown - color palette click, preventing close');
+              console.log('🔍 MAIN CONTAINER ONMOUSEDOWN - COLOR PALETTE CLICK, PREVENTING CLOSE');
               e.stopPropagation();
             }
           }}
@@ -958,7 +958,7 @@ export default function Projects2ViewPage() {
                     }
                   }}
                   onEditorActive={(editor, field, computedStyles) => {
-                    console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
+                    console.log('✏️ EDITOR ACTIVE:', { field, hasEditor: !!editor, computedStyles });
                     setActiveTextEditor(editor);
                     setComputedTextStyles(computedStyles || null);
                     // setActiveSettingsPanel('text'); // Disabled - only show toolbar
@@ -1237,12 +1237,12 @@ export default function Projects2ViewPage() {
       <ColorPalettePopup
         isOpen={isTextColorPickerOpen}
         onClose={() => {
-          console.log('🎨 Text color picker closing');
+          console.log('🎨 TEXT COLOR PICKER CLOSING VIA ONCLOSE');
           setIsTextColorPickerOpen(false);
         }}
         onColorChange={(color) => {
-          console.log('🎨 Text color change triggered:', color);
-          console.log('🎨 Active editor status:', {
+          console.log('🎨 TEXT COLOR CHANGE TRIGGERED:', color);
+          console.log('🎨 ACTIVE EDITOR STATUS:', {
             exists: !!activeTextEditor,
             isDestroyed: activeTextEditor?.isDestroyed,
             hasView: !!activeTextEditor?.view
@@ -1253,18 +1253,30 @@ export default function Projects2ViewPage() {
           
           if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
             try {
+              // Check if Color extension is available
+              console.log('🎨 EDITOR CAPABILITIES:', {
+                hasChain: !!activeTextEditor.chain,
+                hasFocus: !!activeTextEditor.chain().focus,
+                hasSetColor: !!activeTextEditor.chain().focus().setColor,
+                canSetColor: activeTextEditor.can?.().setColor?.(color)
+              });
+              
               // Apply color using TipTap's color command
-              activeTextEditor.chain().focus().setColor(color).run();
-              console.log('✅ Color applied to editor successfully:', color);
+              const result = activeTextEditor.chain().focus().setColor(color).run();
+              console.log('✅ COLOR COMMAND EXECUTED:', { color, result });
+              
+              // Verify the color was applied
+              const appliedColor = activeTextEditor.getAttributes('textStyle').color;
+              console.log('🔍 VERIFICATION - COLOR IN EDITOR AFTER APPLY:', appliedColor);
               
               // Close color picker immediately after applying color
               setIsTextColorPickerOpen(false);
-              console.log('✅ Color picker closed');
+              console.log('✅ COLOR PICKER CLOSED');
             } catch (error) {
-              console.error('❌ Color change failed:', error);
+              console.error('❌ COLOR CHANGE FAILED:', error, error instanceof Error ? error.message : '');
             }
           } else {
-            console.error('❌ No active editor available', {
+            console.error('❌ NO ACTIVE EDITOR AVAILABLE', {
               activeTextEditor,
               isDestroyed: activeTextEditor?.isDestroyed
             });
