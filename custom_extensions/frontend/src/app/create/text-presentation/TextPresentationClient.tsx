@@ -1574,8 +1574,8 @@ export default function TextPresentationClient() {
       <div 
         className="absolute pointer-events-none"
         style={{
-          width: '980px',
-          height: '1100px',
+          width: '1100px',
+          height: '1500px',
           top: '-500px',
           left: '-350px',
           borderRadius: '450px',
@@ -1588,9 +1588,9 @@ export default function TextPresentationClient() {
       <div 
         className="absolute pointer-events-none"
         style={{
-          width: '1660px',
-          height: '2100px',
-          top: '758px',
+          width: '1960px',
+          height: '2400px',
+          top: '958px',
           left: '433px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
@@ -1621,7 +1621,7 @@ export default function TextPresentationClient() {
           {/* Main content container - removed this div wrapper */}
           {/* Prompt input for standalone presentation */}
           {useExistingOutline === false && (
-            <div className="flex gap-2 items-start">
+            <div className="flex gap-2 items-start bg-[#6E9BFB] rounded-t-lg">
               <div className="relative group flex-1">
                 <Textarea
                   value={currentPrompt}
@@ -1649,7 +1649,7 @@ export default function TextPresentationClient() {
             </div>
           )}
 
-        <section className="flex flex-col gap-3 rounded-b-lg">
+        <section className="flex flex-col gap-3 pb-8 rounded-b-lg">
           {error && <p className="text-red-600">{error}</p>}
 
           {/* Main content display - Custom slide titles display matching course outline format */}
@@ -1788,7 +1788,7 @@ export default function TextPresentationClient() {
                 <button
                   type="button"
                   onClick={handleAddSection}
-                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">+</span>
                   <span>Add Section</span>
@@ -1862,10 +1862,10 @@ export default function TextPresentationClient() {
                 </div>
 
                 {/* Content section */}
-                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="bg-white rounded-full border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
-                    <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
-                    <p className="text-[#A5A5A5] text-sm">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
+                    <h2 className="text-base font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
+                    <p className="text-[#A5A5A5] font-light text-xs">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
                   </div>
 
                   <div className="flex flex-col gap-4 px-6">
@@ -1873,7 +1873,7 @@ export default function TextPresentationClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                       <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-sm text-[#171718] cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="border-[#E0E0E0]" side="top">
@@ -2024,11 +2024,11 @@ export default function TextPresentationClient() {
       {!loading && streamDone && content && (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-3 px-6 flex items-center justify-center">
           {/* Credits required */}
-          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+          <div className="absolute left-6 flex items-center gap-2 text-base font-medium text-[#A5A5A5] select-none">
             {/* custom credits svg */}
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_476_6531)">
-                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#434343" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.0597 6.91301C12.6899 7.14796 13.2507 7.53803 13.6902 8.04714C14.1297 8.55625 14.4337 9.16797 14.5742 9.82572C14.7146 10.4835 14.6869 11.166 14.4937 11.8102C14.3005 12.4545 13.9479 13.0396 13.4686 13.5114C12.9893 13.9833 12.3988 14.3267 11.7517 14.5098C11.1045 14.693 10.4216 14.71 9.76613 14.5593C9.11065 14.4086 8.50375 14.0951 8.00156 13.6477C7.49937 13.2003 7.1181 12.6335 6.89301 11.9997M4.66634 3.99967H5.33301V6.66634M11.1397 9.25301L11.6063 9.72634L9.72634 11.6063M9.33301 5.33301C9.33301 7.54215 7.54215 9.33301 5.33301 9.33301C3.12387 9.33301 1.33301 7.54215 1.33301 5.33301C1.33301 3.12387 3.12387 1.33301 5.33301 1.33301C7.54215 1.33301 9.33301 3.12387 9.33301 5.33301Z" stroke="#A5A5A5" stroke-linecap="round" stroke-linejoin="round"/>
               </g>
               <defs>
                 <clipPath id="clip0_476_6531">
