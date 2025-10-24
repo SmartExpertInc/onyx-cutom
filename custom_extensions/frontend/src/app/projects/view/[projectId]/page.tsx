@@ -672,6 +672,11 @@ export default function ProjectInstanceViewPage() {
       
       // Check if this is a landing page project and redirect accordingly
       if (instanceData.name && instanceData.name.includes("AI-Аудит Landing Page")) {
+        if (instanceData.name.includes("Commercial Proposal")) {
+          console.log('🔄 [COMMERCIAL PROPOSAL DETECTED] Redirecting to commercial proposal page:', instanceData.project_id);
+          router.push(`/create/commercial-proposal/${instanceData.project_id}`);
+          return;
+        }
         console.log('🔄 [LANDING PAGE DETECTED] Redirecting to dynamic landing page:', instanceData.project_id);
         router.push(`/create/audit-2-dynamic/${instanceData.project_id}`);
         return;
