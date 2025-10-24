@@ -7,11 +7,12 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 // Dynamic imports for product display components
-const SlideDeckDisplay = React.lazy(() => import('@/components/SlideDeckDisplay'));
+const SmartSlideDeckViewer = React.lazy(() => import('@/components/SmartSlideDeckViewer').then(mod => ({ default: mod.SmartSlideDeckViewer })));
 const QuizDisplay = React.lazy(() => import('@/components/QuizDisplay'));
-const OnePagerDisplay = React.lazy(() => import('@/components/OnePagerDisplay'));
+const TextPresentationDisplay = React.lazy(() => import('@/components/TextPresentationDisplay'));
 const VideoLessonDisplay = React.lazy(() => import('@/components/VideoLessonDisplay'));
 const PdfLessonDisplay = React.lazy(() => import('@/components/PdfLessonDisplay'));
+const EditorPage = React.lazy(() => import('@/components/EditorPage'));
 
 interface ProductData {
   id: number;
@@ -93,13 +94,13 @@ function PublicProductViewerContent() {
     // Determine which component to render based on component_name
     switch (component_name) {
       case 'SlideDeckDisplay':
-        return <SlideDeckDisplay data={content} projectName={name} />;
+        return <SmartSlideDeckViewer slideData={content} projectName={name} isPublicView={true} />;
       
       case 'QuizDisplay':
         return <QuizDisplay data={content} projectName={name} />;
       
-      case 'OnePagerDisplay':
-        return <OnePagerDisplay data={content} projectName={name} />;
+      case 'TextPresentationDisplay':
+        return <TextPresentationDisplay data={content} projectName={name} />;
       
       case 'VideoLessonDisplay':
         return <VideoLessonDisplay data={content} projectName={name} />;
@@ -107,11 +108,15 @@ function PublicProductViewerContent() {
       case 'PdfLessonDisplay':
         return <PdfLessonDisplay data={content} projectName={name} />;
       
+      case 'EditorPage':
+        // For slide decks that use EditorPage
+        return <EditorPage initialSlideData={content} projectName={name} isReadOnly={true} />;
+      
       default:
         return (
           <div className="bg-white rounded-lg p-8 text-center">
             <p className="text-gray-600 mb-4">
-              Product type "{type}" is not supported for public viewing yet.
+              Product type "{type}" (component: {component_name}) is not supported for public viewing yet.
             </p>
             <pre className="text-left text-sm bg-gray-100 p-4 rounded overflow-auto max-h-96">
               {JSON.stringify(content, null, 2)}
