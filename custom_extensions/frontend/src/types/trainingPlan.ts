@@ -68,6 +68,7 @@ export interface TrainingPlanData { // This can be the generic structure for mic
   detectedLanguage?: string | null;
   displayOptions?: DisplayOptions; // NEW: column visibility settings chosen during creation
   theme?: string; // Theme selection for styling
+  isPublicView?: boolean; // Flag to indicate this is a public view
 }
 
 // For fetching project details for the edit page
