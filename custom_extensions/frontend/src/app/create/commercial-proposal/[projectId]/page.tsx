@@ -5718,7 +5718,6 @@ export default function CommercialProposalPage() {
       </>
     );
   };
-  
   // Use assessment data from backend instead of generating randomly
   const generateAssessmentData = () => {
     if (!proposalData?.courseOutlineModules) return {}

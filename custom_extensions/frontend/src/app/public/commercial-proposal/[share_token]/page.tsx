@@ -126,7 +126,7 @@ function ServiceNumberDiv({ serviceNumber, language }: { serviceNumber: number; 
 export default function PublicCommercialProposalPage() {
   const { language, t } = useLanguage();
   const params = useParams()
-  const projectId = params?.projectId as string
+  const shareToken = params?.share_token as string
   const [proposalData, setProposalData] = useState<ProposalPageData | null>(null);
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
   const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
@@ -149,17 +149,17 @@ export default function PublicCommercialProposalPage() {
       setError(null);
 
       // LOG: Frontend data fetch started
-      console.log(`[FRONTEND DATA FLOW] Starting data fetch for project ID: ${projectId}`)
+      console.log(`[FRONTEND DATA FLOW] Starting data fetch with share token: ${shareToken}`)
       
-      if (!projectId) {
-        console.error('[FRONTEND DATA FLOW] Project ID is required')
-        setError('Project ID is required')
+      if (!shareToken) {
+        console.error('[FRONTEND DATA FLOW] Share token is required')
+        setError('Share token is required')
         setLoading(false)
         return
       }
       
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const apiUrl = `${CUSTOM_BACKEND_URL}/commercial-proposal/${projectId}`
+      const apiUrl = `${CUSTOM_BACKEND_URL}/public/commercial-proposal/${shareToken}`
       
       const response = await fetch(apiUrl)
       if (!response.ok) {
@@ -184,81 +184,7 @@ export default function PublicCommercialProposalPage() {
         })
       }
       
-      // Initialize with default values for missing properties
-      const defaultData: ProposalPageData = {
-        projectId: parseInt(projectId),
-        projectName: data.projectName || 'Project',
-        companyName: data.companyName || 'MHE Group',
-        companyDescription: data.companyDescription || 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-        courseOutlineModules: data.courseOutlineModules || [],
-        courseTemplates: data.courseTemplates || [],
-        serviceTemplatesDescription: data.serviceTemplatesDescription || '',
-        language: data.language || language,
-        courseOutlineTableHeaders: data.courseOutlineTableHeaders,
-        
-        // Service 1 fields
-        mainPrice: data.mainPrice,
-        courseCount1: data.courseCount1,
-        price1_service_1: data.price1_service_1,
-        total1_service_1: data.total1_service_1,
-        courseCount2: data.courseCount2,
-        price2_service_1: data.price2_service_1,
-        total2_service_1: data.total2_service_1,
-        courseCount3: data.courseCount3,
-        price3_service_1: data.price3_service_1,
-        total3_service_1: data.total3_service_1,
-        
-        // Service 2 fields
-        monthlyPrice: data.monthlyPrice,
-        aiCredits: data.aiCredits,
-        
-        // Service 3 fields
-        mainSmartExpertPrice: data.mainSmartExpertPrice,
-        monthlyPrice1: data.monthlyPrice1,
-        
-        // Service 2 pricing table fields
-        perUserPrice1: data.perUserPrice1,
-        userCount2: data.userCount2,
-        monthlyPrice2: data.monthlyPrice2,
-        perUserPrice2: data.perUserPrice2,
-        userCount3: data.userCount3,
-        monthlyPrice3: data.monthlyPrice3,
-        perUserPrice3: data.perUserPrice3,
-        userCount4: data.userCount4,
-        monthlyPrice4: data.monthlyPrice4,
-        perUserPrice4: data.perUserPrice4,
-        
-        // Service 4 fields
-        mainPriceMobile_service_4: data.mainPriceMobile_service_4,
-        mainPriceDesktop_service_4: data.mainPriceDesktop_service_4,
-        hoursCount_service_4: data.hoursCount_service_4,
-        
-        // Service 4 pack fields
-        packName1_service_4: data.packName1_service_4,
-        hours1_service_4: data.hours1_service_4,
-        price1_service_4: data.price1_service_4,
-        rate1_service_4: data.rate1_service_4,
-        packName2_service_4: data.packName2_service_4,
-        hours2_service_4: data.hours2_service_4,
-        price2_service_4: data.price2_service_4,
-        rate2_service_4: data.rate2_service_4,
-        packName3_service_4: data.packName3_service_4,
-        hours3_service_4: data.hours3_service_4,
-        price3_service_4: data.price3_service_4,
-        rate3_service_4: data.rate3_service_4,
-        
-        // Final section fields
-        trialHours: data.trialHours,
-        methodologistPrice: data.methodologistPrice,
-        aiCreditsCount: data.aiCreditsCount,
-        contentBuilderPrice: data.contentBuilderPrice,
-        smartExpertUsers: data.smartExpertUsers,
-        smartExpertPrice: data.smartExpertPrice,
-        totalPlatformsPrice: data.totalPlatformsPrice,
-        timeline: data.timeline
-      };
-      
-      setProposalData(defaultData);
+      setProposalData(data);
       
     } catch (err) {
       console.error('[FRONTEND DATA FLOW] Error occurred during data fetch');
@@ -278,11 +204,10 @@ export default function PublicCommercialProposalPage() {
     return (
       <>
         {/* Service content based on ID */}
-        {serviceId === 'service1' && !deletedElements['service1'] && (
+        {serviceId === 'service1' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}> 
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                <span className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded">
                 {proposalData?.serviceTemplatesDescription || 
                   getLocalizedText(proposalData?.language, {
                     en: 'Buy ready-made course templates',
@@ -305,27 +230,24 @@ export default function PublicCommercialProposalPage() {
                     ua: 'навчання:',
                     ru: 'обучения:'
                   })}
-                </span>
             </h3>
       
             <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                <span className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded">
-                  {proposalData?.serviceTemplatesDescription || (
-                    <>
-                      {getLocalizedText(proposalData?.language, {
+                {proposalData?.serviceTemplatesDescription || (
+                <>
+                    {getLocalizedText(proposalData?.language, {
                         en: 'Ready-made course templates for onboarding',
                         es: 'Plantillas de cursos listas para incorporación',
                         ua: 'Готові шаблони курсів для онбордингу',
                         ru: 'Готовые шаблоны курсов для онбординга'
-                      })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                    })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
                         en: 'and training your employees:',
                         es: 'y entrenamiento de sus empleados:',
                         ua: 'та навчання ваших співробітників:',
                         ru: 'и обучения Ваших сотрудников:'
-                      })}
-                    </>
-                  )}
-                </span>
+                    })}
+                </>
+                )}
             </h3>
             
             <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
@@ -816,91 +738,28 @@ export default function PublicCommercialProposalPage() {
                           <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderLessons')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                    en: 'Lessons in module',
+                                    es: 'Lecciones en módulo',
+                                    ua: 'Уроки в модулі',
+                                    ru: 'Уроки в модуле'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderAssessment')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                    en: 'Knowledge check: test / practice with mentor',
+                                    es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                    ua: 'Перевірка знань: тест / практика з куратором',
+                                    ru: 'Проверка знаний: тест / практика с куратором'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderDuration')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                    en: 'Training duration',
+                                    es: 'Duración del entrenamiento',
+                                    ua: 'Тривалість навчання',
+                                    ru: 'Длительность обучения'
+                                })}
                               </div>
                             </div>
                           </div>
@@ -1089,23 +948,7 @@ export default function PublicCommercialProposalPage() {
                         </span>
       
                         <h5 className="font-medium text-[16px] hidden xl:block">
-                          {editingField === 'courseModule_2' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                              onSave={(value) => handleTextSave('courseModule_2', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('courseModule_2')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit module title"
-                            >
-                          {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                            </span>
-                          )}
+                            {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                         </h5>
                       </div>
                       
@@ -1128,23 +971,7 @@ export default function PublicCommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-medium text-[16px] xl:hidden">
-                      {editingField === 'courseModule_2' ? (
-                        <InlineEditor
-                          initialValue={proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                          onSave={(value) => handleTextSave('courseModule_2', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium"
-                          style={{ fontSize: '16px' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('courseModule_2')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit module title"
-                        >
-                      {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
-                        </span>
-                      )}
+                        {proposalData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                     </h5>
       
                     {/* Module 3 Expandable Content */}
@@ -1160,91 +987,28 @@ export default function PublicCommercialProposalPage() {
                           <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderLessons')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                    en: 'Lessons in module',
+                                    es: 'Lecciones en módulo',
+                                    ua: 'Уроки в модулі',
+                                    ru: 'Уроки в модуле'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderAssessment')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                    en: 'Knowledge check: test / practice with mentor',
+                                    es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                    ua: 'Перевірка знань: тест / практика з куратором',
+                                    ru: 'Проверка знаний: тест / практика с куратором'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderDuration')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                    en: 'Training duration',
+                                    es: 'Duración del entrenamiento',
+                                    ua: 'Тривалість навчання',
+                                    ru: 'Длительность обучения'
+                                })}
                               </div>
                             </div>
                           </div>
@@ -1433,23 +1197,7 @@ export default function PublicCommercialProposalPage() {
                         </span>
       
                         <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                          {editingField === 'courseModule_3' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                              onSave={(value) => handleTextSave('courseModule_3', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '16px', color: '#09090B' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('courseModule_3')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit module title"
-                            >
-                          {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                            </span>
-                          )}
+                            {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                         </h5>
                       </div>
                       
@@ -1472,23 +1220,7 @@ export default function PublicCommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                      {editingField === 'courseModule_3' ? (
-                        <InlineEditor
-                          initialValue={proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                          onSave={(value) => handleTextSave('courseModule_3', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium"
-                          style={{ fontSize: '16px', color: '#09090B' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('courseModule_3')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit module title"
-                        >
-                      {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
-                        </span>
-                      )}
+                        {proposalData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                     </h5>
       
                     {/* Module 4 Expandable Content */}
@@ -1504,91 +1236,28 @@ export default function PublicCommercialProposalPage() {
                           <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderLessons')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                    en: 'Lessons in module',
+                                    es: 'Lecciones en módulo',
+                                    ua: 'Уроки в модулі',
+                                    ru: 'Уроки в модуле'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderAssessment')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                    en: 'Knowledge check: test / practice with mentor',
+                                    es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                    ua: 'Перевірка знань: тест / практика з куратором',
+                                    ru: 'Проверка знаний: тест / практика с куратором'
+                                })}
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
-                                {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
-                                ) : (
-                                  <span 
-                                    onClick={() => startEditing('tableHeaderDuration')}
-                                    className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
-                                    title="Click to edit header"
-                                  >
-                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
-                                  </span>
-                                )}
+                                {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                    en: 'Training duration',
+                                    es: 'Duración del entrenamiento',
+                                    ua: 'Тривалість навчання',
+                                    ru: 'Длительность обучения'
+                                })}
                               </div>
                             </div>
                           </div>
@@ -1791,23 +1460,7 @@ export default function PublicCommercialProposalPage() {
                     })}
                   </span>
                   <span className="text-[60px] font-bold text-[#0F58F9]">
-                    {editingField === 'mainPrice' ? (
-                      <InlineEditor
-                        initialValue={proposalData?.mainPrice || "$900"}
-                        onSave={(value) => handleTextSave('mainPrice', value)}
-                        onCancel={handleTextCancel}
-                        className="text-[#0F58F9] font-bold"
-                        style={{ fontSize: '60px' }}
-                      />
-                    ) : (
-                      <span 
-                        onClick={() => startEditing('mainPrice')}
-                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                        title="Click to edit main price"
-                      >
-                        {proposalData?.mainPrice || "$900"}
-                      </span>
-                    )}
+                    {proposalData?.mainPrice || "$900"}
                     <span className="text-[26px] font-bold text-[#09090B]">
                       {getLocalizedText(proposalData?.language, {
                         en: '/course',
@@ -1868,52 +1521,15 @@ export default function PublicCommercialProposalPage() {
                         <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
-                              {editingField === 'courseCount1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.courseCount1 || getLocalizedText(proposalData?.language, {
+                                {proposalData?.courseCount1 || getLocalizedText(proposalData?.language, {
                                     en: '1 course',
                                     es: '1 curso',
                                     ua: '1 курс',
                                     ru: '1 курс'
-                                  })}
-                                  onSave={(value) => handleTextSave('courseCount1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-semibold"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span
-                                  onClick={() => startEditing('courseCount1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit course count"
-                                >
-                                  {proposalData?.courseCount1 || getLocalizedText(proposalData?.language, {
-                                    en: '1 course',
-                                    es: '1 curso',
-                                    ua: '1 курс',
-                                    ru: '1 курс'
-                                  })}
-                                </span>
-                              )}
+                                })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'price1_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.price1_service_1 || "$900"}
-                                  onSave={(value) => handleTextSave('price1_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('price1_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit price"
-                                >
-                                  {proposalData?.price1_service_1 || "$900"}
-                                </span>
-                              )}
+                                {proposalData?.price1_service_1 || "$900"}
                               {getLocalizedText(proposalData?.language, {
                                 en: '/course',
                                 es: '/curso',
@@ -1922,23 +1538,7 @@ export default function PublicCommercialProposalPage() {
                               })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'total1_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.total1_service_1 || "$900"}
-                                  onSave={(value) => handleTextSave('total1_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('total1_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit total"
-                                >
-                                  {proposalData?.total1_service_1 || "$900"}
-                                </span>
-                              )}
+                                {proposalData?.total1_service_1 || "$900"}
                             </div>
                           </div>
                         </div>
@@ -1947,52 +1547,15 @@ export default function PublicCommercialProposalPage() {
                         <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
-                              {editingField === 'courseCount2' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.courseCount2 || getLocalizedText(proposalData?.language, {
+                                {proposalData?.courseCount2 || getLocalizedText(proposalData?.language, {
                                     en: '3 courses',
                                     es: '3 cursos',
                                     ua: '3 курси',
                                     ru: '3 курса'
-                                  })}
-                                  onSave={(value) => handleTextSave('courseCount2', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-semibold"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span
-                                  onClick={() => startEditing('courseCount2')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit course count"
-                                >
-                                  {proposalData?.courseCount2 || getLocalizedText(proposalData?.language, {
-                                    en: '3 courses',
-                                    es: '3 cursos',
-                                    ua: '3 курси',
-                                    ru: '3 курса'
-                                  })}
-                                </span>
-                              )}
+                                })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'price2_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.price2_service_1 || "$750"}
-                                  onSave={(value) => handleTextSave('price2_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('price2_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit price"
-                                >
-                                  {proposalData?.price2_service_1 || "$750"}
-                                </span>
-                              )}
+                                {proposalData?.price2_service_1 || "$750"}
                               {getLocalizedText(proposalData?.language, {
                                 en: '/course',
                                 es: '/curso',
@@ -2001,23 +1564,7 @@ export default function PublicCommercialProposalPage() {
                               })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'total2_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.total2_service_1 || "$2250"}
-                                  onSave={(value) => handleTextSave('total2_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('total2_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit total"
-                                >
-                                  {proposalData?.total2_service_1 || "$2250"}
-                                </span>
-                              )}
+                                {proposalData?.total2_service_1 || "$2250"}
                             </div>
                           </div>
                         </div>
@@ -2026,52 +1573,15 @@ export default function PublicCommercialProposalPage() {
                         <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
-                              {editingField === 'courseCount3' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.courseCount3 || getLocalizedText(proposalData?.language, {
+                                {proposalData?.courseCount3 || getLocalizedText(proposalData?.language, {
                                     en: '10 courses',
                                     es: '10 cursos',
                                     ua: '10 курсів',
                                     ru: '10 курсов'
-                                  })}
-                                  onSave={(value) => handleTextSave('courseCount3', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-semibold"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span
-                                  onClick={() => startEditing('courseCount3')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit course count"
-                                >
-                                  {proposalData?.courseCount3 || getLocalizedText(proposalData?.language, {
-                                    en: '10 courses',
-                                    es: '10 cursos',
-                                    ua: '10 курсів',
-                                    ru: '10 курсов'
-                                  })}
-                                </span>
-                              )}
+                                })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'price3_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.price3_service_1 || "$600"}
-                                  onSave={(value) => handleTextSave('price3_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('price3_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit price"
-                                >
-                                  {proposalData?.price3_service_1 || "$600"}
-                                </span>
-                              )}
+                                {proposalData?.price3_service_1 || "$600"}
                               {getLocalizedText(proposalData?.language, {
                                 en: '/course',
                                 es: '/curso',
@@ -2080,23 +1590,7 @@ export default function PublicCommercialProposalPage() {
                               })}
                             </div>
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                              {editingField === 'total3_service_1' ? (
-                                <InlineEditor
-                                  initialValue={proposalData?.total3_service_1 || "$6000"}
-                                  onSave={(value) => handleTextSave('total3_service_1', value)}
-                                  onCancel={handleTextCancel}
-                                  className="font-medium"
-                                  style={{ fontSize: '14px' }}
-                                />
-                              ) : (
-                                <span 
-                                  onClick={() => startEditing('total3_service_1')}
-                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                  title="Click to edit total"
-                                >
-                                  {proposalData?.total3_service_1 || "$6000"}
-                                </span>
-                              )}
+                                {proposalData?.total3_service_1 || "$6000"}
                             </div>
                           </div>
                         </div>
@@ -2109,7 +1603,7 @@ export default function PublicCommercialProposalPage() {
           </div>
         )}
         
-        {serviceId === 'service2' && !deletedElements['service2'] && (
+        {serviceId === 'service2' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
@@ -2420,23 +1914,7 @@ export default function PublicCommercialProposalPage() {
                 </div>
       
                 <span className="text-[60px] xl:text-[70px] font-bold text-[#0F58F9]">
-                  {editingField === 'monthlyPrice' ? (
-                    <InlineEditor
-                      initialValue={proposalData?.monthlyPrice || "$100"}
-                      onSave={(value) => handleTextSave('monthlyPrice', value)}
-                      onCancel={handleTextCancel}
-                      className="text-[#0F58F9] font-bold"
-                      style={{ fontSize: '60px' }}
-                    />
-                  ) : (
-                    <span 
-                      onClick={() => startEditing('monthlyPrice')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                      title="Click to edit monthly price"
-                    >
-                      {proposalData?.monthlyPrice || "$100"}
-                    </span>
-                  )}
+                    {proposalData?.monthlyPrice || "$100"}
                   <span className="text-[26px] xl:text-[40px] font-bold text-[#09090B] xl:hidden">
                     {getLocalizedText(proposalData?.language, {
                       en: '/month',
@@ -2468,23 +1946,7 @@ export default function PublicCommercialProposalPage() {
                         ua: 'Включає',
                         ru: 'Включает'
                       })} <span className="font-semibold text-[#09090B]">
-                        {editingField === 'aiCredits' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.aiCredits || "500"}
-                            onSave={(value) => handleTextSave('aiCredits', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold text-[#09090B]"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('aiCredits')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit AI credits count"
-                          >
-                            {proposalData?.aiCredits || "500"}
-                          </span>
-                        )} {getLocalizedText(proposalData?.language, {
+                        {proposalData?.aiCredits || "500"} {getLocalizedText(proposalData?.language, {
                           en: 'AI credits',
                           es: 'créditos de IA',
                           ua: 'AI-кредитів',
@@ -2532,7 +1994,7 @@ export default function PublicCommercialProposalPage() {
           </div>
         )}
         
-        {serviceId === 'service3' && !deletedElements['service3'] && (
+        {serviceId === 'service3' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}> 
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
@@ -2889,23 +2351,7 @@ export default function PublicCommercialProposalPage() {
                 })}
               </span>
               <span className="text-[60px] font-bold text-[#0F58F9]">
-                {editingField === 'mainSmartExpertPrice' ? (
-                  <InlineEditor
-                    initialValue={proposalData?.mainSmartExpertPrice || "$350"}
-                    onSave={(value) => handleTextSave('mainSmartExpertPrice', value)}
-                    onCancel={handleTextCancel}
-                    className="text-[#0F58F9] font-bold"
-                    style={{ fontSize: '60px' }}
-                  />
-                ) : (
-                  <span 
-                    onClick={() => startEditing('mainSmartExpertPrice')}
-                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                    title="Click to edit main price"
-                  >
-                    {proposalData?.mainSmartExpertPrice || "$350"}
-                  </span>
-                )}
+                {proposalData?.mainSmartExpertPrice || "$350"}
                 <span className="text-[26px] font-bold text-[#09090B]">
                   {getLocalizedText(proposalData?.language, {
                     en: '/month',
@@ -2971,43 +2417,10 @@ export default function PublicCommercialProposalPage() {
                             es: 'hasta',
                             ua: 'до',
                             ru: 'до'
-                          })}{' '}
-                          {editingField === 'userCount1' ? (
-                            <InlineEditor
-                              initialValue="100"
-                              onSave={(value) => handleTextSave('userCount1', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('userCount1')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit user count"
-                            >
-                              100
-                            </span>
-                          )}
+                          })}{' 100'}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {editingField === 'monthlyPrice1' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.monthlyPrice1 || "$350"}
-                              onSave={(value) => handleTextSave('monthlyPrice1', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('monthlyPrice1')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit monthly price"
-                            >
-                              {proposalData?.monthlyPrice1 || "$350"}
-                            </span>
-                          )}
+                            {proposalData?.monthlyPrice1 || "$350"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           <span className="font-medium">
@@ -3019,23 +2432,7 @@ export default function PublicCommercialProposalPage() {
                             })}
                           </span>{' '}
                           <span className="font-semibold">
-                            {editingField === 'perUserPrice1' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.perUserPrice1 || "$3.50"}
-                                onSave={(value) => handleTextSave('perUserPrice1', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('perUserPrice1')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit per-user price"
-                              >
-                                {proposalData?.perUserPrice1 || "$3.50"}
-                              </span>
-                            )}
+                            {proposalData?.perUserPrice1 || "$3.50"}
                           </span>
                         </div>
                       </div>
@@ -3050,43 +2447,10 @@ export default function PublicCommercialProposalPage() {
                             es: 'hasta',
                             ua: 'до',
                             ru: 'до'
-                          })}{' '}
-                          {editingField === 'userCount2' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.userCount2 || "200"}
-                              onSave={(value) => handleTextSave('userCount2', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('userCount2')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit user count"
-                            >
-                              {proposalData?.userCount2 || "200"}
-                            </span>
-                          )}
+                          })}{' '} {proposalData?.userCount2 || "200"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {editingField === 'monthlyPrice2' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.monthlyPrice2 || "$500"}
-                              onSave={(value) => handleTextSave('monthlyPrice2', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('monthlyPrice2')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit monthly price"
-                            >
-                              {proposalData?.monthlyPrice2 || "$500"}
-                            </span>
-                          )}
+                            {proposalData?.monthlyPrice2 || "$500"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           <span className="font-medium">
@@ -3097,23 +2461,7 @@ export default function PublicCommercialProposalPage() {
                               ru: 'от'
                             })}
                           </span>{' '}<span className="font-semibold">
-                            {editingField === 'perUserPrice2' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.perUserPrice2 || "$2.50"}
-                                onSave={(value) => handleTextSave('perUserPrice2', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('perUserPrice2')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit per-user price"
-                              >
-                                {proposalData?.perUserPrice2 || "$2.50"}
-                              </span>
-                            )}
+                            {proposalData?.perUserPrice2 || "$2.50"}
                           </span>
                         </div>
                       </div>
@@ -3123,42 +2471,10 @@ export default function PublicCommercialProposalPage() {
                     <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <div className="text-[14px] xl:text-[22px] font-medium">
-                          {editingField === 'userCount3' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.userCount3 || "201-500"}
-                              onSave={(value) => handleTextSave('userCount3', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('userCount3')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit user count"
-                            >
-                              {proposalData?.userCount3 || "201-500"}
-                            </span>
-                          )}
+                            {proposalData?.userCount3 || "201-500"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {editingField === 'monthlyPrice3' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.monthlyPrice3 || "$1000"}
-                              onSave={(value) => handleTextSave('monthlyPrice3', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('monthlyPrice3')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit monthly price"
-                            >
-                              {proposalData?.monthlyPrice3 || "$1000"}
-                            </span>
-                          )}
+                            {proposalData?.monthlyPrice3 || "$1000"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           <span className="font-medium">
@@ -3169,23 +2485,7 @@ export default function PublicCommercialProposalPage() {
                               ru: 'от'
                             })}
                           </span>{' '}<span className="font-semibold">
-                            {editingField === 'perUserPrice3' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.perUserPrice3 || "$2.00"}
-                                onSave={(value) => handleTextSave('perUserPrice3', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('perUserPrice3')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit per-user price"
-                              >
-                                {proposalData?.perUserPrice3 || "$2.00"}
-                              </span>
-                            )}
+                            {proposalData?.perUserPrice3 || "$2.00"}
                           </span>
                         </div>
                       </div>
@@ -3195,42 +2495,10 @@ export default function PublicCommercialProposalPage() {
                     <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                       <div className="grid grid-cols-3 gap-4 items-center">
                         <div className="text-[14px] xl:text-[22px] font-medium">
-                          {editingField === 'userCount4' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.userCount4 || "501-1000"}
-                              onSave={(value) => handleTextSave('userCount4', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('userCount4')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit user count"
-                            >
-                              {proposalData?.userCount4 || "501-1000"}
-                            </span>
-                          )}
+                            {proposalData?.userCount4 || "501-1000"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          {editingField === 'monthlyPrice4' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.monthlyPrice4 || "$1800"}
-                              onSave={(value) => handleTextSave('monthlyPrice4', value)}
-                              onCancel={handleTextCancel}
-                              className="font-medium"
-                              style={{ fontSize: '14px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('monthlyPrice4')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit monthly price"
-                            >
-                              {proposalData?.monthlyPrice4 || "$1800"}
-                            </span>
-                          )}
+                            {proposalData?.monthlyPrice4 || "$1800"}
                         </div>
                         <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           <span className="font-medium">
@@ -3241,23 +2509,7 @@ export default function PublicCommercialProposalPage() {
                               ru: 'от'
                             })}
                           </span>{' '}<span className="font-semibold">
-                            {editingField === 'perUserPrice4' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.perUserPrice4 || "$1.80"}
-                                onSave={(value) => handleTextSave('perUserPrice4', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '14px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('perUserPrice4')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit per-user price"
-                              >
-                                {proposalData?.perUserPrice4 || "$1.80"}
-                              </span>
-                            )}
+                            {proposalData?.perUserPrice4 || "$1.80"}
                           </span>
                         </div>
                       </div>
@@ -3831,7 +3083,7 @@ export default function PublicCommercialProposalPage() {
           </div>
         )}
         
-        {serviceId === 'service4' && !deletedElements['service4'] && (
+        {serviceId === 'service4' && (
         <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"  style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}> 
           <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
 
@@ -3991,23 +3243,7 @@ export default function PublicCommercialProposalPage() {
               })}
             </span>
             <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">
-              {editingField === 'mainPriceMobile_service_4' ? (
-                <InlineEditor
-                  initialValue={proposalData?.mainPriceMobile_service_4 || "$750"}
-                  onSave={(value) => handleTextSave('mainPriceMobile_service_4', value)}
-                  onCancel={handleTextCancel}
-                  className="text-[#0F58F9] font-bold"
-                  style={{ fontSize: '60px' }}
-                />
-              ) : (
-                <span 
-                  onClick={() => startEditing('mainPriceMobile_service_4')}
-                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                  title="Click to edit main price"
-                >
-                  {proposalData?.mainPriceMobile_service_4 || "$750"}
-                </span>
-              )}
+                {proposalData?.mainPriceMobile_service_4 || "$750"}
               <span className="text-[26px] font-bold text-[#09090B] xl:hidden">
                 {getLocalizedText(proposalData?.language, {
                   en: '/month',
@@ -4019,41 +3255,9 @@ export default function PublicCommercialProposalPage() {
             </span>
     
             <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">
-              {editingField === 'mainPriceDesktop_service_4' ? (
-                <InlineEditor
-                  initialValue={proposalData?.mainPriceDesktop_service_4 || "$750"}
-                  onSave={(value) => handleTextSave('mainPriceDesktop_service_4', value)}
-                  onCancel={handleTextCancel}
-                  className="text-[#0F58F9] font-bold"
-                  style={{ fontSize: '60px' }}
-                />
-              ) : (
-                <span 
-                  onClick={() => startEditing('mainPriceDesktop_service_4')}
-                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                  title="Click to edit main price"
-                >
-                  {proposalData?.mainPriceDesktop_service_4 || "$750"}
-                </span>
-              )}{' '}
+              {proposalData?.mainPriceDesktop_service_4 || "$750"}{' '}
               <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]">
-                {editingField === 'hoursCount_service_4' ? (
-                  <InlineEditor
-                    initialValue={proposalData?.hoursCount_service_4 || "10"}
-                    onSave={(value) => handleTextSave('hoursCount_service_4', value)}
-                    onCancel={handleTextCancel}
-                    className="font-bold text-[#09090B]"
-                    style={{ fontSize: '26px' }}
-                  />
-                ) : (
-                  <span 
-                    onClick={() => startEditing('hoursCount_service_4')}
-                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                    title="Click to edit hours count"
-                  >
-                    {proposalData?.hoursCount_service_4 || "10"}
-                  </span>
-                )}{' '}
+                {proposalData?.hoursCount_service_4 || "10"}{' '}
                 {getLocalizedText(proposalData?.language, {
                   en: 'hrs/month',
                   es: 'hrs/mes',
@@ -4064,7 +3268,6 @@ export default function PublicCommercialProposalPage() {
             </span>
           </div>
     
-          {!deletedElements['pricingPackages'] && (
             <div className="flex flex-col gap-[20px] xl:gap-[40px]">
             <h4 className="text-[20px] font-semibold xl:font-medium">
               {getLocalizedText(proposalData?.language, {
@@ -4122,42 +3325,10 @@ export default function PublicCommercialProposalPage() {
                   <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                     <div className="grid grid-cols-4 gap-4 items-center">
                       <div className="text-[14px] xl:text-[22px] font-semibold">
-                        {editingField === 'packName1_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.packName1_service_4 || "Pack 1"}
-                            onSave={(value) => handleTextSave('packName1_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('packName1_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit pack name"
-                          >
-                            {proposalData?.packName1_service_4 || "Pack 1"}
-                          </span>
-                        )}
+                        {proposalData?.packName1_service_4 || "Pack 1"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'hours1_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.hours1_service_4 || "30"}
-                            onSave={(value) => handleTextSave('hours1_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('hours1_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit hours count"
-                          >
-                            {proposalData?.hours1_service_4 || "30"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.hours1_service_4 || "30"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: 'hours',
                           es: 'horas',
@@ -4166,42 +3337,10 @@ export default function PublicCommercialProposalPage() {
                         })}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'price1_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.price1_service_4 || "$2,250"}
-                            onSave={(value) => handleTextSave('price1_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('price1_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit price"
-                          >
-                            {proposalData?.price1_service_4 || "$2,250"}
-                          </span>
-                        )}
+                        {proposalData?.price1_service_4 || "$2,250"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'rate1_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.rate1_service_4 || "$75"}
-                            onSave={(value) => handleTextSave('rate1_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('rate1_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit rate"
-                          >
-                            {proposalData?.rate1_service_4 || "$75"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.rate1_service_4 || "$75"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: '/hour',
                           es: '/hora',
@@ -4216,42 +3355,10 @@ export default function PublicCommercialProposalPage() {
                   <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                     <div className="grid grid-cols-4 gap-4 items-center">
                       <div className="text-[14px] xl:text-[22px] font-semibold">
-                        {editingField === 'packName2_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.packName2_service_4 || "Pack 2"}
-                            onSave={(value) => handleTextSave('packName2_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('packName2_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit pack name"
-                          >
-                            {proposalData?.packName2_service_4 || "Pack 2"}
-                          </span>
-                        )}
+                        {proposalData?.packName2_service_4 || "Pack 2"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'hours2_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.hours2_service_4 || "50"}
-                            onSave={(value) => handleTextSave('hours2_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('hours2_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit hours count"
-                          >
-                            {proposalData?.hours2_service_4 || "50"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.hours2_service_4 || "50"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: 'hours',
                           es: 'horas',
@@ -4260,42 +3367,10 @@ export default function PublicCommercialProposalPage() {
                         })}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'price2_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.price2_service_4 || "$3,500"}
-                            onSave={(value) => handleTextSave('price2_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('price2_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit price"
-                          >
-                            {proposalData?.price2_service_4 || "$3,500"}
-                          </span>
-                        )}
+                        {proposalData?.price2_service_4 || "$3,500"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'rate2_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.rate2_service_4 || "$70"}
-                            onSave={(value) => handleTextSave('rate2_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('rate2_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit rate"
-                          >
-                            {proposalData?.rate2_service_4 || "$70"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.rate2_service_4 || "$70"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: '/hour',
                           es: '/hora',
@@ -4310,42 +3385,10 @@ export default function PublicCommercialProposalPage() {
                   <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
                     <div className="grid grid-cols-4 gap-4 items-center">
                       <div className="text-[14px] xl:text-[22px] font-semibold">
-                        {editingField === 'packName3_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.packName3_service_4 || "Pack 3"}
-                            onSave={(value) => handleTextSave('packName3_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('packName3_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit pack name"
-                          >
-                            {proposalData?.packName3_service_4 || "Pack 3"}
-                          </span>
-                        )}
+                        {proposalData?.packName3_service_4 || "Pack 3"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'hours3_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.hours3_service_4 || "100"}
-                            onSave={(value) => handleTextSave('hours3_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('hours3_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit hours count"
-                          >
-                            {proposalData?.hours3_service_4 || "100"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.hours3_service_4 || "100"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: 'hours',
                           es: 'horas',
@@ -4354,42 +3397,10 @@ export default function PublicCommercialProposalPage() {
                         })}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'price3_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.price3_service_4 || "$5,900"}
-                            onSave={(value) => handleTextSave('price3_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-semibold"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('price3_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit price"
-                          >
-                            {proposalData?.price3_service_4 || "$5,900"}
-                          </span>
-                        )}
+                        {proposalData?.price3_service_4 || "$5,900"}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                        {editingField === 'rate3_service_4' ? (
-                          <InlineEditor
-                            initialValue={proposalData?.rate3_service_4 || "$59"}
-                            onSave={(value) => handleTextSave('rate3_service_4', value)}
-                            onCancel={handleTextCancel}
-                            className="font-medium"
-                            style={{ fontSize: '14px' }}
-                          />
-                        ) : (
-                          <span 
-                            onClick={() => startEditing('rate3_service_4')}
-                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit rate"
-                          >
-                            {proposalData?.rate3_service_4 || "$59"}
-                          </span>
-                        )}{' '}
+                        {proposalData?.rate3_service_4 || "$59"}{' '}
                         {getLocalizedText(proposalData?.language, {
                           en: '/hour',
                           es: '/hora',
@@ -4964,7 +3975,6 @@ export default function PublicCommercialProposalPage() {
               </svg>
             </div>
           </div>
-          )}
           
           <div 
             className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
@@ -5077,42 +4087,14 @@ export default function PublicCommercialProposalPage() {
 
   // Fetch data on component mount
   useEffect(() => {
-    if (projectId) {
-      console.log('[COMPONENT MOUNT] DynamicAuditLandingPage component mounting');
-      console.log('[COMPONENT MOUNT] Project ID available:', projectId);
-      console.log('[COMPONENT MOUNT] Starting data fetch...');
-      console.log('[COMPONENT MOUNT] Timestamp:', new Date().toISOString());
+    if (shareToken) {
       fetchProposalPageData()
     } else {
-      console.error('Error: Project ID not found');
-      setError('Project ID not found')
+      console.error('Error: Share token not found');
+      setError('Share token not found')
       setLoading(false)
     }
-  }, [projectId]);
-
-  // Click outside handler to stop editing
-  useEffect(() => {
-    const handleGlobalClick = (event: MouseEvent) => {
-      if (editingField) {
-        // Check if click is outside any editing input
-        const target = event.target as HTMLElement;
-        if (!target.closest('input, textarea')) {
-          // Find the currently editing input/textarea and save its value before stopping
-          const editingElement = document.querySelector('input.inline-editor-input, textarea.inline-editor-textarea') as HTMLInputElement | HTMLTextAreaElement;
-          if (editingElement && editingElement.value !== undefined) {
-            handleTextSave(editingField, editingElement.value);
-          } else {
-            stopEditing();
-          }
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleGlobalClick);
-    return () => {
-      document.removeEventListener('mousedown', handleGlobalClick);
-    };
-  }, [editingField]);
+  }, [shareToken]);
 
   // Show loading state
   if (loading) {
@@ -5212,67 +4194,6 @@ export default function PublicCommercialProposalPage() {
           {/* First Section */}
           <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
 
-            {/* Navigation Buttons - positioned in top-right */}
-            <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20 flex gap-3">
-              {/* Return to Audits Button */}
-              <button
-                onClick={() => window.location.href = '/projects?tab=audits'}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
-                title={getLocalizedText(proposalData?.language, {
-                  en: 'Return to Audits',
-                  es: 'Volver a Auditorías',
-                  ua: 'Повернутися до Аудитів',
-                  ru: 'Вернуться к Аудитам'
-                })}
-              >
-                <svg 
-                  className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Back to Audits',
-                    es: 'Volver a Auditorías',
-                    ua: 'Повернутися до Аудитів',
-                    ru: 'Вернуться к Аудитам'
-                  })}
-                </span>
-              </button>
-
-              {/* Share Button */}
-              <button
-                onClick={() => setShowShareModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
-                title={getLocalizedText(proposalData?.language, {
-                  en: 'Share audit',
-                  es: 'Compartir auditoría',
-                  ua: 'Поділитися аудитом',
-                  ru: 'Поделиться аудитом'
-                })}
-              >
-                <svg 
-                  className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Share',
-                    es: 'Compartir',
-                    ua: 'Поділитися',
-                    ru: 'Поделиться'
-                  })}
-                </span>
-              </button>
-            </div>
-
             <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
               <svg className="hidden xl:block xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M47.6003 23.6794C47.6003 24.1541 47.6855 24.5562 47.8559 24.8858C48.0264 25.2154 48.2492 25.4857 48.5245 25.6967C48.8128 25.8945 49.1471 26.0461 49.5272 26.1516C49.9074 26.2439 50.3006 26.29 50.707 26.29C50.9823 26.29 51.2772 26.2702 51.5918 26.2307C51.9064 26.1779 52.2013 26.0857 52.4766 25.9538C52.7519 25.822 52.9813 25.644 53.1648 25.4198C53.3483 25.1825 53.44 24.8858 53.44 24.5298C53.44 24.1475 53.3155 23.8376 53.0665 23.6003C52.8305 23.363 52.5159 23.1652 52.1227 23.007C51.7294 22.8487 51.2837 22.7103 50.7856 22.5916C50.2875 22.473 49.7829 22.3411 49.2716 22.1961C48.7473 22.0642 48.2361 21.906 47.738 21.7214C47.2399 21.5237 46.7942 21.2731 46.4009 20.9699C46.0077 20.6666 45.6865 20.2909 45.4375 19.8426C45.2015 19.3811 45.0836 18.8273 45.0836 18.1813C45.0836 17.4561 45.2343 16.8298 45.5358 16.3024C45.8504 15.7618 46.2567 15.3135 46.7549 14.9575C47.253 14.6015 47.8166 14.3378 48.4458 14.1664C49.075 13.995 49.7042 13.9093 50.3334 13.9093C51.0675 13.9093 51.7687 13.995 52.4373 14.1664C53.1189 14.3247 53.7219 14.5884 54.2462 14.9575C54.7705 15.3267 55.1834 15.8014 55.4849 16.3815C55.7995 16.9485 55.9568 17.6407 55.9568 18.4581H52.9682C52.9419 18.0362 52.8502 17.6868 52.6929 17.4099C52.5487 17.1331 52.3521 16.9155 52.103 16.7573C51.854 16.5991 51.5656 16.487 51.2379 16.4211C50.9233 16.3551 50.5759 16.3222 50.1958 16.3222C49.9467 16.3222 49.6976 16.3485 49.4486 16.4013C49.1995 16.454 48.9701 16.5463 48.7604 16.6782C48.5638 16.81 48.3999 16.9748 48.2689 17.1726C48.1378 17.3704 48.0722 17.6209 48.0722 17.9242C48.0722 18.201 48.1247 18.4252 48.2295 18.5966C48.3344 18.768 48.5376 18.9262 48.8391 19.0712C49.1537 19.2163 49.5797 19.3613 50.1171 19.5063C50.6677 19.6514 51.3821 19.836 52.2603 20.0601C52.5225 20.1129 52.8829 20.2117 53.3417 20.3568C53.8136 20.4886 54.279 20.7062 54.7378 21.0094C55.1965 21.3127 55.5898 21.7214 55.9175 22.2356C56.2583 22.7367 56.4287 23.3827 56.4287 24.1738C56.4287 24.8199 56.3042 25.4198 56.0551 25.9736C55.8061 26.5274 55.4325 27.0086 54.9344 27.4173C54.4494 27.8129 53.8398 28.1227 53.1058 28.3469C52.3848 28.571 51.5459 28.6831 50.589 28.6831C49.8156 28.6831 49.0619 28.5842 48.3278 28.3864C47.6069 28.2018 46.9646 27.9052 46.4009 27.4964C45.8504 27.0877 45.4113 26.5669 45.0836 25.934C44.7558 25.3011 44.5985 24.5496 44.6117 23.6794H47.6003Z" fill="#0F58F9"/>
@@ -5306,56 +4227,13 @@ export default function PublicCommercialProposalPage() {
                     es: 'para el ',
                     ua: 'для ',
                     ru: 'для '
-                  })} {editingField === 'companyName' ? (
-                    <InlineEditor
-                      initialValue={proposalData?.companyName || ''}
-                      onSave={(value) => handleTextSave('companyName', value)}
-                      onCancel={handleTextCancel}
-                      className="inline-block"
-                      style={{ 
-                        fontSize: 'inherit',
-                        fontWeight: 'inherit',
-                        color: 'inherit',
-                        lineHeight: 'inherit'
-                      }}
-                    />
-                  ) : (
-                    <span 
-                      onClick={() => startEditing('companyName')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                      title="Click to edit company name"
-                    >
-                      {proposalData?.companyName}
-                    </span>
-                  )}
+                  })} {proposalData?.companyName}
                 </span>
               </h1>
               
               {/* Description text */}
               <p className="font-normal text-[18px] xl:text-[20px] text-[#71717A] tracking-[0%]">
-                {editingField === 'companyDescription' ? (
-                  <InlineEditor
-                    initialValue={proposalData?.companyDescription || ''}
-                    onSave={(value) => handleTextSave('companyDescription', value)}
-                    onCancel={handleTextCancel}
-                    multiline={true}
-                    style={{ 
-                      fontSize: 'inherit',
-                      fontWeight: 'inherit',
-                      color: 'inherit',
-                      lineHeight: 'inherit',
-                      width: '100%'
-                    }}
-                  />
-                ) : (
-                  <span 
-                    onClick={() => startEditing('companyDescription')}
-                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
-                    title="Click to edit company description"
-                  >
-                    {proposalData?.companyDescription}
-                  </span>
-                )}
+                {proposalData?.companyDescription}
               </p>
             </div>
             
@@ -5389,10 +4267,10 @@ export default function PublicCommercialProposalPage() {
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px]">
             {/* Draggable Services using @dnd-kit */}
             <ServiceList
-              serviceOrder={serviceOrder}
-              onServiceReorder={handleServiceReorder}
+              serviceOrder={[]}
+              onServiceReorder={() => {}}
               renderService={renderService}
-              deletedElements={deletedElements}
+              deletedElements={{}}
             />
           </section>
 
@@ -5460,23 +4338,7 @@ export default function PublicCommercialProposalPage() {
                             ru: 'Пробный пакет —'
                           })}{' '}
                           <span className="font-semibold">
-                            {editingField === 'trialHours' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.trialHours || "10"}
-                                onSave={(value) => handleTextSave('trialHours', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '16px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('trialHours')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit trial hours"
-                              >
-                                {proposalData?.trialHours || "10"}
-                              </span>
-                            )}{' '}
+                            {proposalData?.trialHours || "10"}{' '}
                             {getLocalizedText(proposalData?.language, {
                               en: 'hours of work',
                               es: 'horas de trabajo',
@@ -5510,23 +4372,7 @@ export default function PublicCommercialProposalPage() {
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
                         <span className="text-[16px] font-semibold">
-                          {editingField === 'methodologistPrice' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.methodologistPrice || "$750"}
-                              onSave={(value) => handleTextSave('methodologistPrice', value)}
-                              onCancel={handleTextCancel}
-                              className="font-semibold"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('methodologistPrice')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit methodologist price"
-                            >
-                              {proposalData?.methodologistPrice || "$750"}
-                            </span>
-                          )}{' '}
+                        {proposalData?.methodologistPrice || "$750"}{' '}
                           {getLocalizedText(proposalData?.language, {
                             en: 'one-time',
                             es: 'una sola vez',
@@ -5582,23 +4428,7 @@ export default function PublicCommercialProposalPage() {
                             ua: 'Включено',
                             ru: 'Включено'
                           })}{' '}
-                          {editingField === 'aiCreditsCount' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.aiCreditsCount || "500"}
-                              onSave={(value) => handleTextSave('aiCreditsCount', value)}
-                              onCancel={handleTextCancel}
-                              className="font-semibold"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('aiCreditsCount')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit AI credits count"
-                            >
-                              {proposalData?.aiCreditsCount || "500"}
-                            </span>
-                          )}{' '}
+                          {proposalData?.aiCreditsCount || "500"}{' '}
                           <span className="font-semibold">
                             {getLocalizedText(proposalData?.language, {
                               en: 'AI credits',
@@ -5614,23 +4444,7 @@ export default function PublicCommercialProposalPage() {
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
                         <span className="text-[16px] font-semibold">
-                          {editingField === 'contentBuilderPrice' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.contentBuilderPrice || "$100"}
-                              onSave={(value) => handleTextSave('contentBuilderPrice', value)}
-                              onCancel={handleTextCancel}
-                              className="font-semibold"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('contentBuilderPrice')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit ContentBuilder price"
-                            >
-                              {proposalData?.contentBuilderPrice || "$100"}
-                            </span>
-                          )}{' '}
+                            {proposalData?.contentBuilderPrice || "$100"}{' '}
                           {getLocalizedText(proposalData?.language, {
                             en: 'per month',
                             es: 'por mes',
@@ -5679,23 +4493,7 @@ export default function PublicCommercialProposalPage() {
                             ru: 'До'
                           })}{' '}
                           <span className="font-semibold">
-                            {editingField === 'smartExpertUsers' ? (
-                              <InlineEditor
-                                initialValue={proposalData?.smartExpertUsers || "200"}
-                                onSave={(value) => handleTextSave('smartExpertUsers', value)}
-                                onCancel={handleTextCancel}
-                                className="font-semibold"
-                                style={{ fontSize: '16px' }}
-                              />
-                            ) : (
-                              <span 
-                                onClick={() => startEditing('smartExpertUsers')}
-                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                                title="Click to edit user count"
-                              >
-                                {proposalData?.smartExpertUsers || "200"}
-                              </span>
-                            )}{' '}
+                            {proposalData?.smartExpertUsers || "200"}{' '}
                             {getLocalizedText(proposalData?.language, {
                               en: 'users',
                               es: 'usuarios',
@@ -5710,23 +4508,7 @@ export default function PublicCommercialProposalPage() {
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
                         <span className="text-[16px] font-semibold">
-                          {editingField === 'smartExpertPrice' ? (
-                            <InlineEditor
-                              initialValue={proposalData?.smartExpertPrice || "$250"}
-                              onSave={(value) => handleTextSave('smartExpertPrice', value)}
-                              onCancel={handleTextCancel}
-                              className="font-semibold"
-                              style={{ fontSize: '16px' }}
-                            />
-                          ) : (
-                            <span 
-                              onClick={() => startEditing('smartExpertPrice')}
-                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                              title="Click to edit SmartExpert price"
-                            >
-                              {proposalData?.smartExpertPrice || "$250"}
-                            </span>
-                          )}{' '}
+                            {proposalData?.smartExpertPrice || "$250"}{' '}
                           {getLocalizedText(proposalData?.language, {
                             en: 'per month',
                             es: 'por mes',
@@ -5787,23 +4569,7 @@ export default function PublicCommercialProposalPage() {
                 <div className="flex flex-col gap-[30px] relative z-10">
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
-                      {editingField === 'totalMethodologistPrice' ? (
-                        <InlineEditor
-                          initialValue={proposalData?.totalMethodologistPrice || "$750"}
-                          onSave={(value) => handleTextSave('totalMethodologistPrice', value)}
-                          onCancel={handleTextCancel}
-                          className="text-white font-semibold"
-                          style={{ fontSize: '46px' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('totalMethodologistPrice')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit total methodologist price"
-                        >
-                          {proposalData?.totalMethodologistPrice || "$750"}
-                        </span>
-                      )}
+                        {proposalData?.totalMethodologistPrice || "$750"}
                     </span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
                       {getLocalizedText(proposalData?.language, {
@@ -5817,23 +4583,7 @@ export default function PublicCommercialProposalPage() {
 
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
-                      {editingField === 'totalPlatformsPrice' ? (
-                        <InlineEditor
-                          initialValue={proposalData?.totalPlatformsPrice || "$350"}
-                          onSave={(value) => handleTextSave('totalPlatformsPrice', value)}
-                          onCancel={handleTextCancel}
-                          className="text-white font-semibold"
-                          style={{ fontSize: '46px' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('totalPlatformsPrice')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit total platforms price"
-                        >
-                          {proposalData?.totalPlatformsPrice || "$350"}
-                        </span>
-                      )}
+                        {proposalData?.totalPlatformsPrice || "$350"}
                     </span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
                       {getLocalizedText(proposalData?.language, {
@@ -5847,33 +4597,12 @@ export default function PublicCommercialProposalPage() {
 
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
-                      {editingField === 'timeline' ? (
-                        <InlineEditor
-                          initialValue={proposalData?.timeline || getLocalizedText(proposalData?.language, {
+                        {proposalData?.timeline || getLocalizedText(proposalData?.language, {
                             en: '7-14 days',
                             es: '7-14 días',
                             ua: '7-14 днів',
                             ru: '7-14 дней'
-                          })}
-                          onSave={(value) => handleTextSave('timeline', value)}
-                          onCancel={handleTextCancel}
-                          className="text-white font-semibold"
-                          style={{ fontSize: '46px' }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('timeline')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit timeline"
-                        >
-                          {proposalData?.timeline || getLocalizedText(proposalData?.language, {
-                            en: '7-14 days',
-                            es: '7-14 días',
-                            ua: '7-14 днів',
-                            ru: '7-14 дней'
-                          })}
-                        </span>
-                      )}
+                        })}
                     </span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">
                       {getLocalizedText(proposalData?.language, {
@@ -5942,165 +4671,6 @@ export default function PublicCommercialProposalPage() {
           </span>
         </footer>
       </div>
-
-      {/* Share Modal */}
-      {showShareModal && (
-          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
-              {/* Close button */}
-              <button
-                onClick={() => {
-                  setShowShareModal(false);
-                  setShareData(null);
-                  setShareError(null);
-                }}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              {/* Modal content */}
-              <div className="pr-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {getLocalizedText(proposalData?.language, {
-                    en: 'Share Commercial Proposal',
-                    es: 'Compartir Propuesta Comercial',
-                    ua: 'Поділитися Комерційною Пропозицією',
-                    ru: 'Поделиться Коммерческой Пропозицией'
-                  })}
-                </h3>
-
-                {!shareData ? (
-                  <div>
-                    <p className="text-gray-600 mb-6">
-                      {getLocalizedText(proposalData?.language, {
-                        en: 'Create a public link to share this commercial proposal with others. The link will expire in 30 days.',
-                        es: 'Crea un enlace público para compartir esta propuesta comercial con otros. El enlace expirará en 30 días.',
-                        ua: 'Створіть публічне посилання, щоб поділитися цією коммерційною пропозицією з іншими. Посилання діятиме 30 днів.',
-                        ru: 'Создайте публичную ссылку, чтобы поделиться этой коммерческой пропозицией с другими. Ссылка будет действительна 30 дней.'
-                      })}
-                    </p>
-
-                    {shareError && (
-                      <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-                        <p className="text-red-800 text-sm">{shareError}</p>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => {
-                          setShowShareModal(false);
-                          setShareError(null);
-                        }}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                      >
-                        {getLocalizedText(proposalData?.language, {
-                          en: 'Cancel',
-                          es: 'Cancelar',
-                          ua: 'Скасувати',
-                          ru: 'Отмена'
-                        })}
-                      </button>
-                      <button
-                        onClick={handleShare}
-                        disabled={isSharing}
-                        className="flex-1 px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-                      >
-                        {isSharing ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            {getLocalizedText(proposalData?.language, {
-                              en: 'Creating...',
-                              es: 'Creando...',
-                              ua: 'Створення...',
-                              ru: 'Создание...'
-                            })}
-                          </>
-                        ) : (
-                          getLocalizedText(proposalData?.language, {
-                            en: 'Create Share Link',
-                            es: 'Crear Enlace',
-                            ua: 'Створити Посилання',
-                            ru: 'Создать Ссылку'
-                          })
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-gray-600 mb-4">
-                      {getLocalizedText(proposalData?.language, {
-                        en: 'Your commercial proposal is now publicly accessible via this link:',
-                        es: 'Su propuesta comercial ahora es públicamente accesible a través de este enlace:',
-                        ua: 'Ваша коммерційна пропозиція тепер публічно доступна за цим посиланням:',
-                        ru: 'Ваша коммерческая пропозиция теперь публично доступна по этой ссылке:'
-                      })}
-                    </p>
-
-                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={shareData.publicUrl}
-                          readOnly
-                          className="flex-1 bg-transparent text-sm text-gray-800 outline-none"
-                        />
-                        <button
-                          onClick={() => copyToClipboard(shareData.publicUrl)}
-                          className="px-3 py-1 text-xs bg-[#0F58F9] text-white rounded hover:bg-[#0F58F9]/90 transition-colors"
-                          title={getLocalizedText(proposalData?.language, {
-                            en: 'Copy to clipboard',
-                            es: 'Copiar al portapapeles',
-                            ua: 'Копіювати в буфер обміну',
-                            ru: 'Копировать в буфер обмена'
-                          })}
-                        >
-                          {getLocalizedText(proposalData?.language, {
-                            en: 'Copy',
-                            es: 'Copiar',
-                            ua: 'Копіювати',
-                            ru: 'Копировать'
-                          })}
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-gray-500 mb-6">
-                      {getLocalizedText(proposalData?.language, {
-                        en: `Link expires on: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
-                        es: `El enlace expira el: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
-                        ua: `Посилання діє до: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
-                        ru: `Ссылка действительна до: ${new Date(shareData.expiresAt).toLocaleDateString()}`
-                      })}
-                    </p>
-
-                    <button
-                      onClick={() => {
-                        setShowShareModal(false);
-                        setShareData(null);
-                      }}
-                      className="w-full px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 transition-colors"
-                    >
-                      {getLocalizedText(proposalData?.language, {
-                        en: 'Done',
-                        es: 'Hecho',
-                        ua: 'Готово',
-                        ru: 'Готово'
-                      })}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
     </>
   );
 }
