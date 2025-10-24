@@ -473,13 +473,21 @@ export default function CommercialProposalPage() {
                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                   title="Click to edit service templates description"
                 >
-                  {proposalData?.serviceTemplatesDescription || 
-                    getLocalizedText(proposalData?.language, {
-                en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
-              })}
+                  {proposalData?.serviceTemplatesDescription || (
+                    <>
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Ready-made course templates for onboarding',
+                        es: 'Plantillas de cursos listas para incorporación',
+                        ua: 'Готові шаблони курсів для онбордингу',
+                        ru: 'Готовые шаблоны курсов для онбординга'
+                      })} <br className="xl:hidden"/> {getLocalizedText(proposalData?.language, {
+                        en: 'and training your employees:',
+                        es: 'y entrenamiento de sus empleados:',
+                        ua: 'та навчання ваших співробітників:',
+                        ru: 'и обучения Ваших сотрудников:'
+                      })}
+                    </>
+                  )}
                 </span>
               )}
             </h3>
