@@ -2,40 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-// All available FFmpeg xfade transitions from https://trac.ffmpeg.org/wiki/Xfade
-export type TransitionType = 
-  // Basic fades
-  | 'none' | 'fade' | 'fadeblack' | 'fadewhite' | 'fadegrays'
-  // Wipes (directional)
-  | 'wipeleft' | 'wiperight' | 'wipeup' | 'wipedown'
-  | 'wipetl' | 'wipetr' | 'wipebl' | 'wipebr'
-  // Slides (directional)
-  | 'slideleft' | 'slideright' | 'slideup' | 'slidedown'
-  // Smooth transitions (directional)
-  | 'smoothleft' | 'smoothright' | 'smoothup' | 'smoothdown'
-  // Circle transitions
-  | 'circlecrop' | 'circleclose' | 'circleopen'
-  // Rectangle/Shape transitions
-  | 'rectcrop'
-  // Horizontal/Vertical opens and closes
-  | 'horzclose' | 'horzopen' | 'vertclose' | 'vertopen'
-  // Diagonal transitions
-  | 'diagbl' | 'diagbr' | 'diagtl' | 'diagtr'
-  // Slice transitions
-  | 'hlslice' | 'hrslice' | 'vuslice' | 'vdslice'
-  // Wind transitions
-  | 'hlwind' | 'hrwind' | 'vuwind' | 'vdwind'
-  // Effects
-  | 'dissolve' | 'pixelize' | 'radial' | 'hblur' | 'distance'
-  // Squeeze transitions
-  | 'squeezeh' | 'squeezev'
-  // Cover transitions
-  | 'coverleft' | 'coverright' | 'coverup' | 'coverdown'
-  // Reveal transitions
-  | 'revealleft' | 'revealright' | 'revealup' | 'revealdown'
-  // Zoom
-  | 'zoomin';
-
+export type TransitionType = 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe' | 'wipeleft' | 'slideup' | 'circlecrop' | 'dissolve';
 export type TransitionVariant = 'circle' | 'horizontal-chevrons' | 'vertical-chevrons';
 
 export interface TransitionData {
@@ -321,227 +288,114 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
             <span className="text-gray-700 font-medium">No transition</span>
           </button>
 
-          {/* Transition options - scrollable container */}
-          <div className="mt-4 max-h-[500px] overflow-y-auto pr-2">
-            {/* Popular/Basic Fades */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Fades</h4>
-              <div className="grid grid-cols-3 gap-2">
-                {['fade', 'fadeblack', 'fadewhite', 'fadegrays', 'dissolve'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center capitalize">{type.replace(/([A-Z])/g, ' $1').trim()}</span>
-                  </div>
-                ))}
-              </div>
+          {/* Transition options grid */}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {/* Fade */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('fade')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Fade</span>
             </div>
 
-            {/* Wipes */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Wipes</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['wipeleft', 'wiperight', 'wipeup', 'wipedown', 'wipetl', 'wipetr', 'wipebl', 'wipebr'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace('wipe', '')}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Close */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('close')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Close</span>
             </div>
 
-            {/* Slides */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Slides</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['slideleft', 'slideright', 'slideup', 'slidedown'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace('slide', '')}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Crop */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('crop')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Crop</span>
             </div>
 
-            {/* Smooth */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Smooth</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['smoothleft', 'smoothright', 'smoothup', 'smoothdown'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace('smooth', '')}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Blur */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('blur')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Blur</span>
             </div>
 
-            {/* Circle & Shape */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Circle & Shape</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['circlecrop', 'circleclose', 'circleopen', 'rectcrop'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace(/circle|rect/, '')}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Open */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('open')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Open</span>
             </div>
 
-            {/* Open & Close */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Open & Close</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['horzclose', 'horzopen', 'vertclose', 'vertopen'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Slide */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('slide')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Slide</span>
             </div>
 
-            {/* Diagonal */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Diagonal</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['diagbl', 'diagbr', 'diagtl', 'diagtr'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Wipe */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('wipe')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Wipe</span>
             </div>
 
-            {/* Slices */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Slices</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['hlslice', 'hrslice', 'vuslice', 'vdslice'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Smooth wipe */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('smooth-wipe')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Smooth wipe</span>
             </div>
 
-            {/* Wind */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Wind</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['hlwind', 'hrwind', 'vuwind', 'vdwind'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Wipe Left */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('wipeleft')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Wipe Left</span>
             </div>
 
-            {/* Squeeze */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Squeeze</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['squeezeh', 'squeezev'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Slide Up */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('slideup')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Slide Up</span>
             </div>
 
-            {/* Cover */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Cover</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['coverleft', 'coverright', 'coverup', 'coverdown'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace('cover', '')}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Circle Crop */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('circlecrop')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Circle Crop</span>
             </div>
 
-            {/* Reveal */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Reveal</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['revealleft', 'revealright', 'revealup', 'revealdown'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type.replace('reveal', '')}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Effects */}
-            <div className="mb-6">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Effects</h4>
-              <div className="grid grid-cols-4 gap-2">
-                {['pixelize', 'radial', 'hblur', 'distance', 'zoomin'].map((type) => (
-                  <div 
-                    key={type}
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={() => handleTransitionSelect(type as TransitionType)}
-                  >
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg mb-1 hover:bg-gray-300 transition-colors"></div>
-                    <span className="text-xs text-gray-700 text-center">{type}</span>
-                  </div>
-                ))}
-              </div>
+            {/* Dissolve */}
+            <div 
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleTransitionSelect('dissolve')}
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-lg mb-2 hover:bg-gray-300 transition-colors"></div>
+              <span className="text-sm text-gray-700 text-center">Dissolve</span>
             </div>
           </div>
         </>
