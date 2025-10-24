@@ -761,7 +761,7 @@
         }
         
         .course-overview-slide .logo-text {
-            color: #ffffff;
+            color: #ffffff !important;
             font-size: 38px;
             font-weight: 500;
             font-family: 'Inter', sans-serif;
@@ -919,7 +919,7 @@
         
         .work-life-balance-slide .content {
             position: absolute;
-            top: 60%;
+            top: 50%;
             left: 96px;
             margin-top: 0px;
             margin-left: 10px;
@@ -928,7 +928,6 @@
             color: #ffffff;
             line-height: 1.6;
             font-family: 'Inter', sans-serif;
-            text-indent: 50px;
         }
         
         .work-life-balance-slide .page-number-container {
@@ -3549,9 +3548,9 @@
                         <!-- Logo in top-left corner -->
                         <div class="logo-container">
                             {% if logoPath %}
-                                <img src="{{ logoPath }}" alt="Logo" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+                                <img src="{{ logoPath }}" alt="Logo" class="logo-img">
                             {% else %}
-                                Your Logo
+                                <span class="logo-text">Your Logo</span>
                             {% endif %}
                         </div>
 
