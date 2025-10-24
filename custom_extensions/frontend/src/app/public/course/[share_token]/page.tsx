@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { TrainingPlanData, Lesson } from '@/types/trainingPlan';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { createPortal } from 'react-dom';
-import { XCircle, AlertTriangle, Check, Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -107,10 +107,6 @@ export default function PublicCourseViewerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Product viewing state
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [productLoading, setProductLoading] = useState(false);
-  const [productError, setProductError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -163,32 +159,11 @@ export default function PublicCourseViewerPage() {
     }
   }, [shareToken]);
 
-  const handleProductClick = async (product: any) => {
-    if (!product.id) return;
+  const handleProductClick = (productId: number) => {
+    if (!productId) return;
     
-    setProductLoading(true);
-    setProductError(null);
-    
-    try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/public/products/${product.id}?share_token=${shareToken}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load product: ${response.status}`);
-      }
-      
-      const productData = await response.json();
-      setSelectedProduct(productData);
-    } catch (err) {
-      console.error('Error loading product:', err);
-      setProductError(err instanceof Error ? err.message : 'Failed to load product');
-    } finally {
-      setProductLoading(false);
-    }
-  };
-
-  const handleCloseProduct = () => {
-    setSelectedProduct(null);
-    setProductError(null);
+    // Navigate to the product's view page
+    window.location.href = `/projects/view/${productId}`;
   };
 
   if (loading) {
@@ -245,20 +220,6 @@ export default function PublicCourseViewerPage() {
       }}
     >
       <div className="max-w-7xl mx-auto flex flex-col">
-        {/* Header */}
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-x-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{courseData.mainTitle}</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Shared course outline • Expires {new Date(courseData.expiresAt).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-500">Powered by ContentBuilder.ai</p>
-          </div>
-        </div>
 
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[200px]">
@@ -332,8 +293,8 @@ export default function PublicCourseViewerPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
                                       const product = lesson.attached_products?.find((p: any) => p.type === 'Slide Deck' || p.component_name === 'SlideDeckDisplay');
-                                      if (product) {
-                                        handleProductClick(product);
+                                      if (product && product.id) {
+                                        handleProductClick(product.id);
                                       }
                                     }}
                                   >
@@ -355,8 +316,8 @@ export default function PublicCourseViewerPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
                                       const product = lesson.attached_products?.find((p: any) => p.type === 'One Pager' || p.component_name === 'OnePagerDisplay');
-                                      if (product) {
-                                        handleProductClick(product);
+                                      if (product && product.id) {
+                                        handleProductClick(product.id);
                                       }
                                     }}
                                   >
@@ -378,8 +339,8 @@ export default function PublicCourseViewerPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
                                       const product = lesson.attached_products?.find((p: any) => p.type === 'Quiz' || p.component_name === 'QuizDisplay');
-                                      if (product) {
-                                        handleProductClick(product);
+                                      if (product && product.id) {
+                                        handleProductClick(product.id);
                                       }
                                     }}
                                   >
@@ -401,8 +362,8 @@ export default function PublicCourseViewerPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200"
                                     onClick={() => {
                                       const product = lesson.attached_products?.find((p: any) => p.type === 'Video Lesson' || p.component_name === 'VideoLessonDisplay');
-                                      if (product) {
-                                        handleProductClick(product);
+                                      if (product && product.id) {
+                                        handleProductClick(product.id);
                                       }
                                     }}
                                   >
@@ -430,61 +391,6 @@ export default function PublicCourseViewerPage() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="bg-white border-t border-gray-200 mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center text-sm text-gray-500">
-            <p>This course outline is shared publicly. To create your own course outlines, visit ContentBuilder.ai</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Product Modal */}
-      {selectedProduct && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">{selectedProduct.name}</h2>
-              <button
-                onClick={handleCloseProduct}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <XCircle size={24} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {productLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
-                  <span className="ml-3 text-gray-600">Loading product...</span>
-                </div>
-              ) : productError ? (
-                <div className="text-center py-8">
-                  <AlertTriangle className="text-red-500 mx-auto mb-4" size={48} />
-                  <p className="text-red-600 mb-4">{productError}</p>
-                  <button
-                    onClick={handleCloseProduct}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              ) : (
-                <div className="prose max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm text-gray-700">
-                    {JSON.stringify(selectedProduct.content, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </main>
   );
 }
