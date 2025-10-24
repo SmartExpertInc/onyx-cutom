@@ -301,6 +301,16 @@ export default function CommercialProposalPage() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null)
+  const [isSharing, setIsSharing] = useState(false)
+  const [shareError, setShareError] = useState<string | null>(null)
+
   // Loading and error states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -591,6 +601,62 @@ export default function CommercialProposalPage() {
 
   const handleTextCancel = () => {
     stopEditing();
+  };
+
+  const handleShare = async () => {
+    if (!projectId) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/commercial-proposal/${projectId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share audit: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      
+      console.log('[SHARE] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('[SHARE] Error sharing audit:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('[COPY] Link copied to clipboard');
+    } catch (error) {
+      console.error('[COPY] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
   };
 
   // Handle deletion of elements
@@ -5793,7 +5859,7 @@ export default function CommercialProposalPage() {
 
               {/* Share Button */}
               <button
-                onClick={() => {}}
+                onClick={() => setShowShareModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
                 title={getLocalizedText(proposalData?.language, {
                   en: 'Share audit',
@@ -6490,6 +6556,165 @@ export default function CommercialProposalPage() {
           </span>
         </footer>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareData(null);
+                  setShareError(null);
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Modal content */}
+              <div className="pr-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {getLocalizedText(proposalData?.language, {
+                    en: 'Share Commercial Proposal',
+                    es: 'Compartir Propuesta Comercial',
+                    ua: 'Поділитися Комерційною Пропозицією',
+                    ru: 'Поделиться Коммерческой Пропозицией'
+                  })}
+                </h3>
+
+                {!shareData ? (
+                  <div>
+                    <p className="text-gray-600 mb-6">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Create a public link to share this commercial proposal with others. The link will expire in 30 days.',
+                        es: 'Crea un enlace público para compartir esta propuesta comercial con otros. El enlace expirará en 30 días.',
+                        ua: 'Створіть публічне посилання, щоб поділитися цим коммерційною пропозицією з іншими. Посилання діятиме 30 днів.',
+                        ru: 'Создайте публичную ссылку, чтобы поделиться этой коммерческой пропозицией с другими. Ссылка будет действительна 30 дней.'
+                      })}
+                    </p>
+
+                    {shareError && (
+                      <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                        <p className="text-red-800 text-sm">{shareError}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowShareModal(false);
+                          setShareError(null);
+                        }}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {getLocalizedText(proposalData?.language, {
+                          en: 'Cancel',
+                          es: 'Cancelar',
+                          ua: 'Скасувати',
+                          ru: 'Отмена'
+                        })}
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        disabled={isSharing}
+                        className="flex-1 px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      >
+                        {isSharing ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {getLocalizedText(proposalData?.language, {
+                              en: 'Creating...',
+                              es: 'Creando...',
+                              ua: 'Створення...',
+                              ru: 'Создание...'
+                            })}
+                          </>
+                        ) : (
+                          getLocalizedText(proposalData?.language, {
+                            en: 'Create Share Link',
+                            es: 'Crear Enlace',
+                            ua: 'Створити Посилання',
+                            ru: 'Создать Ссылку'
+                          })
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-600 mb-4">
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Your commercial proposal is now publicly accessible via this link:',
+                        es: 'Su propuesta comercial ahora es públicamente accesible a través de este enlace:',
+                        ua: 'Ваша коммерційна пропозиція тепер публічно доступна за цим посиланням:',
+                        ru: 'Ваша коммерческая пропозиция теперь публично доступна по этой ссылке:'
+                      })}
+                    </p>
+
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={shareData.publicUrl}
+                          readOnly
+                          className="flex-1 bg-transparent text-sm text-gray-800 outline-none"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(shareData.publicUrl)}
+                          className="px-3 py-1 text-xs bg-[#0F58F9] text-white rounded hover:bg-[#0F58F9]/90 transition-colors"
+                          title={getLocalizedText(proposalData?.language, {
+                            en: 'Copy to clipboard',
+                            es: 'Copiar al portapapeles',
+                            ua: 'Копіювати в буфер обміну',
+                            ru: 'Копировать в буфер обмена'
+                          })}
+                        >
+                          {getLocalizedText(proposalData?.language, {
+                            en: 'Copy',
+                            es: 'Copiar',
+                            ua: 'Копіювати',
+                            ru: 'Копировать'
+                          })}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-6">
+                      {getLocalizedText(proposalData?.language, {
+                        en: `Link expires on: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        es: `El enlace expira el: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ua: `Посилання діє до: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ru: `Ссылка действительна до: ${new Date(shareData.expiresAt).toLocaleDateString()}`
+                      })}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        setShowShareModal(false);
+                        setShareData(null);
+                      }}
+                      className="w-full px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 transition-colors"
+                    >
+                      {getLocalizedText(proposalData?.language, {
+                        en: 'Done',
+                        es: 'Hecho',
+                        ua: 'Готово',
+                        ru: 'Готово'
+                      })}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </>
   );
 }

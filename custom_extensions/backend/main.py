@@ -17196,6 +17196,152 @@ async def get_public_audit(
         raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
 
 
+# Commercial proposal sharing models
+class ShareCommercialProposalRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareCommercialProposalResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/commercial-proposal/{commercial_proposal_id}/share")
+async def share_commercial_proposal(
+    commercial_proposal_id: int, 
+    request_data: ShareCommercialProposalRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareCommercialProposalResponse:
+    """
+    Generate a share token for a commercial proposal project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the commercial proposal belongs to the user and is a commercial proposal project
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND (project_name LIKE '%Commercial Proposal')
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, commercial_proposal_id, onyx_user_id)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Commercial proposal not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, commercial_proposal_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/commercial-proposal/{share_token}"
+        
+        logger.info(f"🔗 [COMMERCIAL PROPOSAL SHARING] Created share token for commercial proposal {commercial_proposal_id}: {share_token}")
+        
+        return ShareCommercialProposalResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share commercial proposal")
+
+@app.get("/api/custom/public/commercial-proposal/{share_token}")
+async def get_public_commercial_proposal(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get commercial proposal data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public commercial proposal by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE
+        """
+        
+        async with pool.acquire() as conn:
+            commercial_proposal = await conn.fetchrow(query, share_token)
+            
+        if not commercial_proposal:
+            raise HTTPException(status_code=404, detail="Shared commercial proposal not found")
+        
+        # Check if the share has expired
+        if commercial_proposal["expires_at"] and commercial_proposal["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared commercial proposal link has expired")
+        
+        content = commercial_proposal["microproduct_content"]
+        project_name = commercial_proposal["project_name"]
+        
+        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        logger.info(f"🎯 [PUBLIC COMMERCIAL PROPOSAL TABLE HEADERS] Project {commercial_proposal['id']} - content: {content}")
+        
+        # Return the same structure as the private endpoint but without sensitive info
+        response_data = {
+            "projectId": commercial_proposal["id"],
+            "projectName": project_name,
+            **content,
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": commercial_proposal["shared_at"].isoformat() if commercial_proposal["shared_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC COMMERCIAL PROPOSAL ACCESS] Served public commercial proposal with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public commercial proposal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
+
+
 async def _run_audit_generation(payload, request, pool, job_id):
     try:
         set_progress(job_id, "Scraping company website...")
