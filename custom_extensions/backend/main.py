@@ -34405,6 +34405,18 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     # Training Plan duplication - handle connected products
                     new_session_id = str(uuid4())
                     
+                    # Update microproduct_content to reflect the new course name
+                    new_content = orig['microproduct_content']
+                    if new_content:
+                        # Deep copy to avoid mutating original
+                        import copy
+                        new_content = copy.deepcopy(new_content)
+                        # Update mainTitle in the content
+                        if isinstance(new_content, dict) and 'mainTitle' in new_content:
+                            old_main_title = new_content['mainTitle']
+                            new_content['mainTitle'] = new_name
+                            logger.info(f"[DUPLICATE] Updated mainTitle: '{old_main_title}' -> '{new_name}'")
+                    
                     # Duplicate the main Training Plan with all fields
                     new_outline_id = await conn.fetchval(
                         """
@@ -34422,7 +34434,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                         orig['product_type'],
                         orig['microproduct_type'],
                         orig['microproduct_name'],
-                        orig['microproduct_content'],  # JSONB will be handled automatically by asyncpg
+                        new_content,  # Updated content with new mainTitle
                         orig['design_template_id'],
                         now,
                         new_session_id,

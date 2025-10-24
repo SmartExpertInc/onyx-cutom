@@ -130,6 +130,42 @@ Phase 1 is complete and ready for production use. The duplication bug is fixed f
 
 December 2024
 
+## Critical Bug Fix - mainTitle Update
+
+**Additional Issue Discovered**: The `microproduct_content.mainTitle` field wasn't being updated during duplication, causing both courses to reference the same products.
+
+### Root Cause
+When duplicating a course:
+- `project_name` was updated to "Copy of Course Name" ✅
+- BUT `microproduct_content.mainTitle` remained as "Course Name" ❌  
+- Product matching uses `mainTitle` from content, not `project_name`
+- Result: Both courses looked for products with the original name!
+
+### Solution Implemented
+**File:** `custom_extensions/backend/main.py` (lines 34408-34418)
+
+```python
+# Update microproduct_content to reflect the new course name
+new_content = orig['microproduct_content']
+if new_content:
+    # Deep copy to avoid mutating original
+    import copy
+    new_content = copy.deepcopy(new_content)
+    # Update mainTitle in the content
+    if isinstance(new_content, dict) and 'mainTitle' in new_content:
+        old_main_title = new_content['mainTitle']
+        new_content['mainTitle'] = new_name
+        logger.info(f"[DUPLICATE] Updated mainTitle: '{old_main_title}' -> '{new_name}'")
+```
+
+This ensures:
+- Duplicated course has updated `mainTitle` in its content
+- Product matching now correctly finds products with the new course name
+- Original and duplicated courses are fully independent
+
 ## Status
 
 ✅ **COMPLETE** - Ready for production deployment
+- Pattern-aware product duplication ✅
+- mainTitle synchronization in course content ✅
+- Comprehensive logging for debugging ✅
