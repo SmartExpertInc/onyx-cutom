@@ -1528,9 +1528,9 @@ const ProjectRowMenu: React.FC<{
                       disabled={isSharing}
                       className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none disabled:opacity-60"
                     >
-                      <Share2 size={16} className="text-gray-500" />
+                    <Share2 size={16} className="text-gray-500" />
                       <span>{isSharing ? t("actions.sharing", "Sharing...") : t("actions.share", "Share...")}</span>
-                    </Button>
+                  </Button>
                   )}
                   <Button
                     onClick={(e) => {
