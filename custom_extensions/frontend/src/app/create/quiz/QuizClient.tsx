@@ -1610,7 +1610,7 @@ export default function QuizClient() {
                          <Textarea
                            value={question.content}
                            onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
-                           className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                           className="w-full !text-sm font-light leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
                            placeholder="Add your content here..."
                          />
                        </div>
@@ -1626,10 +1626,8 @@ export default function QuizClient() {
                      <span className="text-lg">+</span>
                      <span>Add Question</span>
                    </button>
-                 </div>
-
-                 {/* Question count and character count footer */}
-                 <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 bg-[#FFFFFFE5] rounded-b-[8px]">
+                   
+                  <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 rounded-b-[8px]">
                    <span className="select-none">{questionList.length + additionalQuestions.length} question total</span>
                    <span className="flex items-center gap-1">
                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1644,13 +1642,17 @@ export default function QuizClient() {
                      {quizData.length}/50000
                    </span>
                  </div>
+                 </div>
+
+                 {/* Question count and character count footer */}
+                 
               </div>
             )}
           </section>
 
           {/* AI Agent section */}
           {streamDone && quizData && showAdvanced && (
-            <div className="rounded-lg pt-8 border border-[#CCCCCC] py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <div className="rounded-lg pt-8 border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}

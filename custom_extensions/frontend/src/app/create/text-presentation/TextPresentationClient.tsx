@@ -1757,7 +1757,7 @@ export default function TextPresentationClient() {
                           >
                             {(() => {
                               const fullContent = getContentForLesson(lesson, idx);
-                              const truncatedContent = fullContent.length > 200 ? fullContent.substring(0, 200) + '...' : fullContent;
+                              const truncatedContent = fullContent.length > 100 ? fullContent.substring(0, 100) + '...' : fullContent;
                               return renderContentWithCircles(truncatedContent);
                             })()}
                           </div>
@@ -1811,24 +1811,23 @@ export default function TextPresentationClient() {
                   <span className="text-lg">+</span>
                   <span>Add Section</span>
                 </button>
-              </div>
+                <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 rounded-b-[8px]">
+                  <span className="select-none">{wordCount} words</span>
+                  <span className="flex items-center gap-1">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
+                      <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
+                        strokeDasharray={`${2 * Math.PI * 7}`}
+                        strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(content.length / 50000, 1))}`}
+                        transform="rotate(-90 8 8)"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {content.length}/50000
+                  </span>
+                </div>
+            </div>
 
-              {/* Word count and character count footer */}
-              <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 bg-[#FFFFFFE5] rounded-b-[8px]">
-                <span className="select-none">{wordCount} words</span>
-                <span className="flex items-center gap-1">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
-                    <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
-                      strokeDasharray={`${2 * Math.PI * 7}`}
-                      strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(content.length / 50000, 1))}`}
-                      transform="rotate(-90 8 8)"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  {content.length}/50000
-                </span>
-              </div>
             </div>
           )}
           </section>
