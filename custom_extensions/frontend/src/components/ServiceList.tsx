@@ -22,7 +22,7 @@ import { CSS } from '@dnd-kit/utilities';
 interface ServiceListProps {
   serviceOrder: string[];
   onServiceReorder: (newOrder: string[]) => void;
-  renderService: (serviceId: string, index: number) => React.ReactNode;
+  renderService: (serviceId: string, index: number, dragProps?: any) => React.ReactNode;
   deletedElements: { [key: string]: boolean };
 }
 
@@ -55,11 +55,13 @@ function SortableService({ serviceId, children, isDeleted }: SortableServiceProp
     <div
       ref={setNodeRef}
       style={style}
-      className={`transition-all duration-200 hover:shadow-lg ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-      {...attributes}
-      {...listeners}
+      className="transition-all duration-200"
     >
-      {children}
+      {React.cloneElement(children as React.ReactElement, {
+        dragAttributes: attributes,
+        dragListeners: listeners,
+        isDragging
+      })}
     </div>
   );
 }

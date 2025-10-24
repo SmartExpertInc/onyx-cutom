@@ -16735,17 +16735,13 @@ async def generate_commercial_proposal(payload: CommercialProposalCreateRequest,
         commercial_proposal_content = {
             "projectId": payload.project_id,
             "projectName": f"{source_name} - Commercial Proposal",
-            "companyName": source_content.get("companyName", "MHE Group"),
-            "companyDescription": source_content.get("companyDescription", "Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment."),
+            "companyName": source_content.get("companyName", None),
+            "companyDescription": source_content.get("companyDescription", None),
             "courseOutlineModules": source_content.get("courseOutlineModules", []),
             "courseTemplates": source_content.get("courseTemplates", []),
-            "serviceTemplatesDescription": "Ready-made course templates for onboarding and training your employees:",
+            "serviceTemplatesDescription": "",
             "language": payload.language,
-            "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", {
-                "lessons": "Уроки в модуле",
-                "assessment": "Проверка знаний: тест / практика с куратором", 
-                "duration": "Длительность обучения"
-            })
+            "courseOutlineTableHeaders": source_content.get("courseOutlineTableHeaders", None)
         }
         
         logger.info(f"📝 [COMMERCIAL PROPOSAL] Created commercial proposal content:")
@@ -16834,8 +16830,8 @@ async def get_commercial_proposal_data(project_id: int, request: Request, pool: 
         logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Content keys: {list(content.keys()) if content else 'None'}")
         
         # Extract the commercial proposal data
-        company_name = content.get("companyName", "MHE Group")
-        company_description = content.get("companyDescription", "Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.")
+        company_name = content.get("companyName", None)
+        company_description = content.get("companyDescription", None)
         
         # Extract course outline modules
         course_outline_modules = content.get("courseOutlineModules", [])
@@ -16844,7 +16840,7 @@ async def get_commercial_proposal_data(project_id: int, request: Request, pool: 
         course_templates = content.get("courseTemplates", [])
         
         # Extract service templates description
-        service_templates_description = content.get("serviceTemplatesDescription", "Ready-made course templates for onboarding and training your employees:")
+        service_templates_description = content.get("serviceTemplatesDescription", None)
         
         # Extract table headers
         course_outline_table_headers = content.get("courseOutlineTableHeaders", None)
@@ -16858,7 +16854,7 @@ async def get_commercial_proposal_data(project_id: int, request: Request, pool: 
             "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates,
             "serviceTemplatesDescription": service_templates_description,
-            "language": content.get("language", "ru"),
+            "language": content.get("language", "en"),
             "courseOutlineTableHeaders": course_outline_table_headers
         }
         

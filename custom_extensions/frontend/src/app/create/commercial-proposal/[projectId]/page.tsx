@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DeletableWrapper from '@/components/DeletableWrapper';
 import DeletableDiv from '@/components/DeletableDiv';
 import { ServiceList } from '@/components/ServiceList';
+import { useContext } from 'react';
 
 // InlineEditor component for text editing
 interface InlineEditorProps {
@@ -30,6 +31,11 @@ function InlineEditor({
 }: InlineEditorProps) {
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
   // Focus the input when component mounts
   useEffect(() => {
@@ -365,15 +371,21 @@ export default function CommercialProposalPage() {
 
 
   // Service renderer function
-  const renderService = (serviceId: string, index: number) => {
+  const renderService = (serviceId: string, index: number, dragProps?: any) => {
     const serviceNumber = index + 1; // Use 1-based indexing for display
+    const { dragAttributes, dragListeners, isDragging } = dragProps || {};
     
     return (
       <>
         {/* Service content based on ID */}
         {serviceId === 'service1' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+            <div 
+              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+              {...dragAttributes}
+              {...dragListeners}
+            >
               <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                 {getLocalizedText(proposalData?.language, {
                   en: `Service ${serviceNumber}:`,
@@ -2356,7 +2368,12 @@ export default function CommercialProposalPage() {
         
         {serviceId === 'service2' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+            <div 
+              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+              {...dragAttributes}
+              {...dragListeners}
+            >
               <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                 {getLocalizedText(proposalData?.language, {
                   en: `Service ${serviceNumber}:`,
@@ -2787,7 +2804,12 @@ export default function CommercialProposalPage() {
         
         {serviceId === 'service3' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+            <div 
+              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+              {...dragAttributes}
+              {...dragListeners}
+            >
               <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                 {getLocalizedText(proposalData?.language, {
                   en: `Service ${serviceNumber}:`,
@@ -4103,7 +4125,12 @@ export default function CommercialProposalPage() {
           className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
           style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
         > 
-          <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+          <div 
+            className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+            style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+            {...dragAttributes}
+            {...dragListeners}
+          >
             <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
               {getLocalizedText(proposalData?.language, {
                 en: `Service ${serviceNumber}:`,
