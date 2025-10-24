@@ -332,14 +332,37 @@ export default function CommercialProposalPage() {
   };
 
   const handleTextSave = async (field: string, newValue: string) => {
-    // Update local state
-    setProposalData(prev => {
-      if (!prev) return prev; // Do nothing if prev is null
-      return {
-        ...prev,
+    // Check if this is a course template field
+    const isCourseTemplateField = field.startsWith('courseTemplate_') || field.startsWith('courseTemplateDescription_');
+    
+    let updatedData: ProposalPageData;
+    
+    if (isCourseTemplateField) {
+      // Handle course template field updates
+      const templateIndex = parseInt(field.split('_')[1]);
+      const isTitleField = field.startsWith('courseTemplate_') && !field.includes('Description');
+      
+      updatedData = {
+        ...proposalData,
+        courseTemplates: proposalData?.courseTemplates?.map((template, index) => {
+          if (index === templateIndex) {
+            return {
+              ...template,
+              [isTitleField ? 'title' : 'description']: newValue
+            };
+          }
+          return template;
+        }) || []
+      } as ProposalPageData;
+    } else {
+      // Handle regular field updates
+      updatedData = {
+        ...proposalData,
         [field]: newValue
       } as ProposalPageData;
-    });
+    }
+    
+    setProposalData(updatedData);
 
     // Save to backend
     try {
@@ -352,7 +375,7 @@ export default function CommercialProposalPage() {
       const response = await fetch(apiEndpoint, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ microProductContent: proposalData })
+        body: JSON.stringify({ microProductContent: updatedData })
       });
       
       if (response.ok) {
