@@ -1551,7 +1551,7 @@ export default function ProductViewNewPage() {
                     type="text"
                     value={shareData.publicUrl}
                     readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-900"
                   />
                   <button
                     onClick={() => copyToClipboard(shareData.publicUrl)}
