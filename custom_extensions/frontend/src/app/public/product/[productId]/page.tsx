@@ -97,16 +97,16 @@ function PublicProductViewerContent() {
         return <SmartSlideDeckViewer deck={content} isEditable={false} />;
       
       case 'QuizDisplay':
-        return <QuizDisplay data={content} projectName={name} />;
+        return <QuizDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'TextPresentationDisplay':
-        return <TextPresentationDisplay data={content} projectName={name} />;
+        return <TextPresentationDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'VideoLessonDisplay':
-        return <VideoLessonDisplay data={content} projectName={name} />;
+        return <VideoLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'PdfLessonDisplay':
-        return <PdfLessonDisplay data={content} projectName={name} />;
+        return <PdfLessonDisplay dataToDisplay={content} isEditing={false} parentProjectName={name} />;
       
       case 'EditorPage':
         // For slide decks that use EditorPage
