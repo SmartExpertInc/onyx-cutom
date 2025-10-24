@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -19,10 +19,25 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Create a context to pass drag props
+const DragContext = createContext<{
+  dragAttributes?: any;
+  dragListeners?: any;
+  isDragging?: boolean;
+}>({});
+
+// Hook to use drag context
+export const useDragContext = () => {
+  return useContext(DragContext);
+};
+
+// Export the context for external use
+export { DragContext };
+
 interface ServiceListProps {
   serviceOrder: string[];
   onServiceReorder: (newOrder: string[]) => void;
-  renderService: (serviceId: string, index: number, dragProps?: any) => React.ReactNode;
+  renderService: (serviceId: string, index: number) => React.ReactNode;
   deletedElements: { [key: string]: boolean };
 }
 
@@ -52,17 +67,15 @@ function SortableService({ serviceId, children, isDeleted }: SortableServiceProp
   if (isDeleted) return null;
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="transition-all duration-200"
-    >
-      {React.cloneElement(children as React.ReactElement, {
-        dragAttributes: attributes,
-        dragListeners: listeners,
-        isDragging
-      })}
-    </div>
+    <DragContext.Provider value={{ dragAttributes: attributes, dragListeners: listeners, isDragging }}>
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="transition-all duration-200"
+      >
+        {children}
+      </div>
+    </DragContext.Provider>
   );
 }
 

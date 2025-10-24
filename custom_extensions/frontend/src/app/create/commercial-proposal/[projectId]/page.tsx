@@ -6,8 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DeletableWrapper from '@/components/DeletableWrapper';
 import DeletableDiv from '@/components/DeletableDiv';
-import { ServiceList } from '@/components/ServiceList';
-import { useContext } from 'react';
+import { ServiceList, useDragContext } from '@/components/ServiceList';
 
 // InlineEditor component for text editing
 interface InlineEditorProps {
@@ -192,6 +191,29 @@ const getLocalizedText = (language: string | undefined, texts: { en: any; es: an
   }
 }
 
+// Service Number Component that uses drag context
+function ServiceNumberDiv({ serviceNumber, language }: { serviceNumber: number; language?: string }) {
+  const { dragAttributes, dragListeners, isDragging } = useDragContext();
+  
+  return (
+    <div 
+      className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+      style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
+      {...dragAttributes}
+      {...dragListeners}
+    >
+      <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+        {getLocalizedText(language, {
+          en: `Service ${serviceNumber}:`,
+          es: `Servicio ${serviceNumber}:`,
+          ua: `Послуга ${serviceNumber}:`,
+          ru: `Услуга ${serviceNumber}:`
+        })}
+      </span>
+    </div>
+  );
+}
+
 export default function CommercialProposalPage() {
   const { language, t } = useLanguage();
   const params = useParams()
@@ -371,30 +393,15 @@ export default function CommercialProposalPage() {
 
 
   // Service renderer function
-  const renderService = (serviceId: string, index: number, dragProps?: any) => {
+  const renderService = (serviceId: string, index: number) => {
     const serviceNumber = index + 1; // Use 1-based indexing for display
-    const { dragAttributes, dragListeners, isDragging } = dragProps || {};
     
     return (
       <>
         {/* Service content based on ID */}
         {serviceId === 'service1' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div 
-              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
-              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-              {...dragAttributes}
-              {...dragListeners}
-            >
-              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                {getLocalizedText(proposalData?.language, {
-                  en: `Service ${serviceNumber}:`,
-                  es: `Servicio ${serviceNumber}:`,
-                  ua: `Послуга ${serviceNumber}:`,
-                  ru: `Услуга ${serviceNumber}:`
-                })}
-              </span>
-            </div>
+            <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
 
             <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
               {editingField === 'serviceTemplatesDescription' ? (
@@ -2368,21 +2375,7 @@ export default function CommercialProposalPage() {
         
         {serviceId === 'service2' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div 
-              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
-              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-              {...dragAttributes}
-              {...dragListeners}
-            >
-              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                {getLocalizedText(proposalData?.language, {
-                  en: `Service ${serviceNumber}:`,
-                  es: `Servicio ${serviceNumber}:`,
-                  ua: `Послуга ${serviceNumber}:`,
-                  ru: `Услуга ${serviceNumber}:`
-                })}
-              </span>
-            </div>
+            <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
               ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(proposalData?.language, {
@@ -2804,21 +2797,7 @@ export default function CommercialProposalPage() {
         
         {serviceId === 'service3' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div 
-              className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
-              style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-              {...dragAttributes}
-              {...dragListeners}
-            >
-              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                {getLocalizedText(proposalData?.language, {
-                  en: `Service ${serviceNumber}:`,
-                  es: `Servicio ${serviceNumber}:`,
-                  ua: `Послуга ${serviceNumber}:`,
-                  ru: `Услуга ${serviceNumber}:`
-                })}
-              </span>
-            </div>
+            <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
               {getLocalizedText(proposalData?.language, {
@@ -4125,21 +4104,7 @@ export default function CommercialProposalPage() {
           className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
           style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
         > 
-          <div 
-            className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
-            style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
-            {...dragAttributes}
-            {...dragListeners}
-          >
-            <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-              {getLocalizedText(proposalData?.language, {
-                en: `Service ${serviceNumber}:`,
-                es: `Servicio ${serviceNumber}:`,
-                ua: `Послуга ${serviceNumber}:`,
-                ru: `Услуга ${serviceNumber}:`
-              })}
-            </span>
-          </div>
+          <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
 
           <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
             Expert-as-a-Service — {getLocalizedText(proposalData?.language, {
