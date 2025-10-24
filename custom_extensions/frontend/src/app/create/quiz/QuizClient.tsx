@@ -1207,8 +1207,8 @@ export default function QuizClient() {
         <div 
           className="absolute pointer-events-none"
           style={{
-            width: '1200px',
-            height: '1600px',
+            width: '800px',
+            height: '900px',
             top: '-500px',
             left: '-350px',
             borderRadius: '450px',
@@ -1221,9 +1221,9 @@ export default function QuizClient() {
         <div 
           className="absolute pointer-events-none"
           style={{
-            width: '1960px',
-            height: '2400px',
-            top: '1258px',
+            width: '1060px',
+            height: '1400px',
+            top: '658px',
             left: '433px',
             borderRadius: '450px',
             background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
