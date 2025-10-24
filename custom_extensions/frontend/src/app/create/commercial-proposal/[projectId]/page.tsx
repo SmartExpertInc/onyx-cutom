@@ -6119,6 +6119,7 @@ export default function CommercialProposalPage() {
               onServiceReorder={handleServiceReorder}
               renderService={renderService}
               deletedElements={deletedElements}
+              shared={false}
             />
           </section>
 
