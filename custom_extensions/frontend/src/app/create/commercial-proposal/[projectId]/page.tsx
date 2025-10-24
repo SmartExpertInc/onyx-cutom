@@ -1605,7 +1605,23 @@ export default function CommercialProposalPage() {
                                 <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
                                   <div className="grid grid-cols-3 gap-[20px] items-center">
                                     <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                      {editingField === `courseLesson_1_${index}` ? (
+                                        <InlineEditor
+                                          initialValue={lesson}
+                                          onSave={(value) => handleTextSave(`courseLesson_1_${index}`, value)}
+                                          onCancel={handleTextCancel}
+                                          className="font-medium"
+                                          style={{ fontSize: '14px', color: '#09090B' }}
+                                        />
+                                      ) : (
+                                        <span 
+                                          onClick={() => startEditing(`courseLesson_1_${index}`)}
+                                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                          title="Click to edit lesson name"
+                                        >
                                       {lesson}
+                                        </span>
+                                      )}
                                     </div>
                                     <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                       {assessment.type === 'нет' || assessment.type === 'none' ? (
@@ -1686,7 +1702,23 @@ export default function CommercialProposalPage() {
                           return (
                             <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
                               <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                {editingField === `courseLesson_1_${index}` ? (
+                                  <InlineEditor
+                                    initialValue={lesson}
+                                    onSave={(value) => handleTextSave(`courseLesson_1_${index}`, value)}
+                                    onCancel={handleTextCancel}
+                                    className="font-medium"
+                                    style={{ fontSize: '14px', color: '#09090B' }}
+                                  />
+                                ) : (
+                                  <span 
+                                    onClick={() => startEditing(`courseLesson_1_${index}`)}
+                                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                    title="Click to edit lesson name"
+                                  >
                                 {lesson}
+                                  </span>
+                                )}
                               </span>
                               <div className="flex items-center justify-between mb-[12px]">
                                 <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -1949,7 +1981,23 @@ export default function CommercialProposalPage() {
                                 <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
                                   <div className="grid grid-cols-3 gap-[20px] items-center">
                                     <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      {lesson}
+                                    {editingField === `courseLesson_2_${index}` ? (
+                                      <InlineEditor
+                                        initialValue={lesson}
+                                        onSave={(value) => handleTextSave(`courseLesson_2_${index}`, value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium"
+                                        style={{ fontSize: '14px', color: '#09090B' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing(`courseLesson_2_${index}`)}
+                                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                        title="Click to edit lesson name"
+                                      >
+                                    {lesson}
+                                      </span>
+                                    )}
                                     </div>
                                     <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                       {assessment.type === 'нет' || assessment.type === 'none' ? (
@@ -2030,7 +2078,23 @@ export default function CommercialProposalPage() {
                           return (
                             <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
                               <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                {editingField === `courseLesson_2_${index}` ? (
+                                  <InlineEditor
+                                    initialValue={lesson}
+                                    onSave={(value) => handleTextSave(`courseLesson_2_${index}`, value)}
+                                    onCancel={handleTextCancel}
+                                    className="font-medium"
+                                    style={{ fontSize: '14px', color: '#09090B' }}
+                                  />
+                                ) : (
+                                  <span 
+                                    onClick={() => startEditing(`courseLesson_2_${index}`)}
+                                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                    title="Click to edit lesson name"
+                                  >
                                 {lesson}
+                                  </span>
+                                )}
                               </span>
                               <div className="flex items-center justify-between mb-[12px]">
                                 <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -2293,7 +2357,23 @@ export default function CommercialProposalPage() {
                                 <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
                                   <div className="grid grid-cols-3 gap-[20px] items-center">
                                     <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                      {editingField === `courseLesson_3_${index}` ? (
+                                        <InlineEditor
+                                          initialValue={lesson}
+                                          onSave={(value) => handleTextSave(`courseLesson_3_${index}`, value)}
+                                          onCancel={handleTextCancel}
+                                          className="font-medium"
+                                          style={{ fontSize: '14px', color: '#09090B' }}
+                                        />
+                                      ) : (
+                                        <span 
+                                          onClick={() => startEditing(`courseLesson_3_${index}`)}
+                                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                          title="Click to edit lesson name"
+                                        >
                                       {lesson}
+                                        </span>
+                                      )}
                                     </div>
                                     <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                       {assessment.type === 'нет' || assessment.type === 'none' ? (
@@ -2374,7 +2454,23 @@ export default function CommercialProposalPage() {
                           return (
                             <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
                               <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                {editingField === `courseLesson_3_${index}` ? (
+                                  <InlineEditor
+                                    initialValue={lesson}
+                                    onSave={(value) => handleTextSave(`courseLesson_3_${index}`, value)}
+                                    onCancel={handleTextCancel}
+                                    className="font-medium"
+                                    style={{ fontSize: '14px', color: '#09090B' }}
+                                  />
+                                ) : (
+                                  <span 
+                                    onClick={() => startEditing(`courseLesson_3_${index}`)}
+                                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                    title="Click to edit lesson name"
+                                  >
                                 {lesson}
+                                  </span>
+                                )}
                               </span>
                               <div className="flex items-center justify-between mb-[12px]">
                                 <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
