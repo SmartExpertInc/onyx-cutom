@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface VideoPresentationRightPanelProps {
   // Music props
@@ -63,6 +64,7 @@ export default function VideoPresentationRightPanel({
   componentBasedSlideDeck,
   setActiveTransitionIndex,
 }: VideoPresentationRightPanelProps) {
+  const { t } = useLanguage();
   const musicDropdownRef = useRef<HTMLDivElement>(null);
   const transitionDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -91,7 +93,7 @@ export default function VideoPresentationRightPanel({
       <div className="space-y-3 flex-shrink-0">
         {/* Music Title and Toggle */}
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Music</h3>
+          <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('rightPanel.music', 'Music')}</h3>
           <button
             onClick={() => setIsMusicEnabled(!isMusicEnabled)}
             className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
@@ -159,7 +161,7 @@ export default function VideoPresentationRightPanel({
         <div className={`space-y-2 ${!isMusicEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
           {/* Volume Label and Percentage */}
           <div className="flex items-center justify-between">
-            <span className="text-xs" style={{ color: '#848485' }}>Volume</span>
+            <span className="text-xs" style={{ color: '#848485' }}>{t('rightPanel.volume', 'Volume')}</span>
             <span className="text-xs" style={{ color: '#848485' }}>{musicVolume}%</span>
           </div>
 
@@ -178,7 +180,7 @@ export default function VideoPresentationRightPanel({
                 e.target.style.background = `linear-gradient(to right, #1058F9 0%, #1058F9 ${percentage}, #18181B33 ${percentage}, #18181B33 100%)`;
               }}
               className="w-full h-0.5 bg-gray-200 rounded-full appearance-none cursor-pointer"
-              title={`Volume: ${musicVolume}%`}
+              title={`${t('rightPanel.volume', 'Volume')}: ${musicVolume}%`}
               style={{
                 background: `linear-gradient(to right, #1058F9 0%, #1058F9 ${musicVolume}%, #18181B33 ${musicVolume}%, #18181B33 100%)`
               }}
@@ -222,7 +224,7 @@ export default function VideoPresentationRightPanel({
         <div className="space-y-3 flex-shrink-0">
           {/* Background Title and Toggle */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>Background</h3>
+            <h3 className="text-sm font-medium" style={{ color: '#171718' }}>{t('rightPanel.background', 'Background')}</h3>
             <button
               onClick={() => setIsBackgroundEnabled(!isBackgroundEnabled)}
               className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
@@ -282,7 +284,7 @@ export default function VideoPresentationRightPanel({
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14 10L11.9427 7.94267C11.6926 7.69271 11.3536 7.55229 11 7.55229C10.6464 7.55229 10.3074 7.69271 10.0573 7.94267L4 14M3.33333 2H12.6667C13.403 2 14 2.59695 14 3.33333V12.6667C14 13.403 13.403 14 12.6667 14H3.33333C2.59695 14 2 13.403 2 12.6667V3.33333C2 2.59695 2.59695 2 3.33333 2ZM7.33333 6C7.33333 6.73638 6.73638 7.33333 6 7.33333C5.26362 7.33333 4.66667 6.73638 4.66667 6C4.66667 5.26362 5.26362 4.66667 6 4.66667C6.73638 4.66667 7.33333 5.26362 7.33333 6Z" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span style={{ color: '#848485' }}>None</span>
+                <span style={{ color: '#848485' }}>{t('rightPanel.none', 'None')}</span>
               </div>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 3V17M3 10H17" stroke="#848485" strokeLinecap="round" strokeLinejoin="round"/>
@@ -330,9 +332,9 @@ export default function VideoPresentationRightPanel({
                   setActiveSettingsPanel('transition');
                 }
               }}
-              title="Click to edit transitions"
+              title={t('rightPanel.clickToEditTransitions', 'Click to edit transitions')}
             >
-              Scene transition
+              {t('rightPanel.sceneTransition', 'Scene transition')}
             </h3>
             <button
               onClick={() => setIsTransitionEnabled(!isTransitionEnabled)}
@@ -376,11 +378,21 @@ export default function VideoPresentationRightPanel({
             {/* Dropdown menu */}
             {showTransitionDropdown && isTransitionEnabled && (
               <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-10 max-h-64 overflow-y-auto" style={{ borderColor: '#E0E0E0' }}>
-                {['None', 'Fade', 'Close', 'Crop', 'Blur', 'Open', 'Slide', 'Wipe', 'Smooth wipe'].map((transition) => (
+                {[
+                  { value: 'None', label: t('rightPanel.transitions.none', 'None') },
+                  { value: 'Fade', label: t('rightPanel.transitions.fade', 'Fade') },
+                  { value: 'Close', label: t('rightPanel.transitions.close', 'Close') },
+                  { value: 'Crop', label: t('rightPanel.transitions.crop', 'Crop') },
+                  { value: 'Blur', label: t('rightPanel.transitions.blur', 'Blur') },
+                  { value: 'Open', label: t('rightPanel.transitions.open', 'Open') },
+                  { value: 'Slide', label: t('rightPanel.transitions.slide', 'Slide') },
+                  { value: 'Wipe', label: t('rightPanel.transitions.wipe', 'Wipe') },
+                  { value: 'Smooth wipe', label: t('rightPanel.transitions.smoothWipe', 'Smooth wipe') }
+                ].map((transition) => (
                   <button
-                    key={transition}
+                    key={transition.value}
                     onClick={() => {
-                      setSelectedTransition(transition);
+                      setSelectedTransition(transition.value);
                       setShowTransitionDropdown(false);
                     }}
                     className="w-full flex items-center justify-between px-2 py-2 text-sm hover:bg-gray-50 transition-colors"
@@ -391,9 +403,9 @@ export default function VideoPresentationRightPanel({
                         <path d="M8.27148 3.79297L12.7662 8.28768L8.27148 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M10.5195 3.79297L15.0142 8.28768L10.5195 12.7824" stroke="#848485" strokeWidth="0.749119" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      <span style={{ color: '#848485' }}>{transition}</span>
+                      <span style={{ color: '#848485' }}>{transition.label}</span>
                     </div>
-                    {selectedTransition === transition && (
+                    {selectedTransition === transition.value && (
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.3346 4L6.0013 11.3333L2.66797 8" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>

@@ -2084,5 +2084,24 @@ export const uk = {
       searchPlaceholder: "Пошук у медіатеці",
       uploadToLibrary: "Завантажити до бібліотеки"
     }
+  },
+  rightPanel: {
+    music: "Музика",
+    volume: "Гучність",
+    background: "Фон",
+    none: "Немає",
+    sceneTransition: "Перехід між сценами",
+    clickToEditTransitions: "Натисніть, щоб редагувати переходи",
+    transitions: {
+      none: "Немає",
+      fade: "Затухання",
+      close: "Закрити",
+      crop: "Обрізати",
+      blur: "Розмиття",
+      open: "Відкрити",
+      slide: "Ковзання",
+      wipe: "Стерти",
+      smoothWipe: "Плавне стирання"
+    }
   }
 };

@@ -2079,5 +2079,24 @@ export const ru = {
       searchPlaceholder: "Поиск в медиатеке",
       uploadToLibrary: "Загрузить в библиотеку"
     }
+  },
+  rightPanel: {
+    music: "Музыка",
+    volume: "Громкость",
+    background: "Фон",
+    none: "Нет",
+    sceneTransition: "Переход между сценами",
+    clickToEditTransitions: "Нажмите, чтобы редактировать переходы",
+    transitions: {
+      none: "Нет",
+      fade: "Затухание",
+      close: "Закрыть",
+      crop: "Обрезать",
+      blur: "Размытие",
+      open: "Открыть",
+      slide: "Скольжение",
+      wipe: "Стереть",
+      smoothWipe: "Плавное стирание"
+    }
   }
 };

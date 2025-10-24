@@ -2104,5 +2104,24 @@ export const es = {
       searchPlaceholder: "Buscar en biblioteca de medios",
       uploadToLibrary: "Subir a biblioteca"
     }
+  },
+  rightPanel: {
+    music: "Música",
+    volume: "Volumen",
+    background: "Fondo",
+    none: "Ninguno",
+    sceneTransition: "Transición de escena",
+    clickToEditTransitions: "Haga clic para editar transiciones",
+    transitions: {
+      none: "Ninguno",
+      fade: "Desvanecer",
+      close: "Cerrar",
+      crop: "Recortar",
+      blur: "Desenfocar",
+      open: "Abrir",
+      slide: "Deslizar",
+      wipe: "Limpiar",
+      smoothWipe: "Limpiado suave"
+    }
   }
 };

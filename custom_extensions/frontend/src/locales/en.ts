@@ -1989,5 +1989,24 @@ export const en = {
       searchPlaceholder: "Search media library",
       uploadToLibrary: "Upload to Library"
     }
+  },
+  rightPanel: {
+    music: "Music",
+    volume: "Volume",
+    background: "Background",
+    none: "None",
+    sceneTransition: "Scene transition",
+    clickToEditTransitions: "Click to edit transitions",
+    transitions: {
+      none: "None",
+      fade: "Fade",
+      close: "Close",
+      crop: "Crop",
+      blur: "Blur",
+      open: "Open",
+      slide: "Slide",
+      wipe: "Wipe",
+      smoothWipe: "Smooth wipe"
+    }
   }
 };
