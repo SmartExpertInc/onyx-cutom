@@ -10899,8 +10899,8 @@ async def extract_file_context_from_onyx_with_progress(
         Dict with type 'progress' (progress update) or 'complete' (final context)
     """
     try:
-        # Create cache key
-        cache_key = f"{hash(tuple(sorted(file_ids)))}_{hash(tuple(sorted(folder_ids)))}"
+        # Create cache key - convert all IDs to strings to handle mixed int/str types from different sources
+        cache_key = f"{hash(tuple(sorted([str(fid) for fid in file_ids])))}_{hash(tuple(sorted([str(fid) for fid in folder_ids])))}"
         
         # Check cache first
         if cache_key in FILE_CONTEXT_CACHE:
