@@ -1874,5 +1874,17 @@ export const ru = {
         }
       }
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Медиатека",
+    videoPreview: "Предпросмотр видео",
+    video: "Видео",
+    menu: {
+      saveAsSceneLayout: "Сохранить как шаблон сцены",
+      duplicateScene: "Дублировать сцену",
+      insertScene: "Вставить сцену",
+      deleteSlide: "Удалить слайд",
+      deleteScene: "Удалить сцену"
+    }
   }
 };

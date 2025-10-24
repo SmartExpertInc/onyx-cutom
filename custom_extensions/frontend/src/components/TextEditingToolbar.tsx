@@ -37,13 +37,33 @@ export default function TextEditingToolbar({
   const fontFamilyDropdownRef = useRef<HTMLDivElement>(null);
   const fontSizeDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Helper function to convert RGB color to hex
+  const rgbToHex = (color: string): string => {
+    if (!color) return '#000000';
+    
+    // If already hex, return it
+    if (color.startsWith('#')) return color;
+    
+    // Parse rgb() or rgba()
+    const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+      const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+      const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+    
+    return '#000000';
+  };
+
   // Sync formatting state with active editor
   useEffect(() => {
     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
       try {
         // Get current text color from inline styles
         const inlineColor = activeEditor.getAttributes('textStyle').color;
-        const currentColor = inlineColor || computedStyles?.color || '#000000';
+        const rawColor = inlineColor || computedStyles?.color || '#000000';
+        const currentColor = rgbToHex(rawColor);
         setFontColor(currentColor);
         
         // Get current font family - prefer inline, fallback to computed
@@ -96,6 +116,10 @@ export default function TextEditingToolbar({
 
   // Handle font color button click
   const handleFontColorClick = (event: React.MouseEvent) => {
+    // Close other dropdowns
+    setShowFontFamilyDropdown(false);
+    setShowFontSizeDropdown(false);
+    
     const rect = event.currentTarget.getBoundingClientRect();
     const popupWidth = 280;
     const popupHeight = 280;

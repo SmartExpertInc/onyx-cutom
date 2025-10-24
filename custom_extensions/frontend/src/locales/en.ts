@@ -1784,5 +1784,17 @@ export const en = {
         }
       }
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Media Library",
+    videoPreview: "Video Preview",
+    video: "Video",
+    menu: {
+      saveAsSceneLayout: "Save as Scene Layout",
+      duplicateScene: "Duplicate Scene",
+      insertScene: "Insert Scene",
+      deleteSlide: "Delete Slide",
+      deleteScene: "Delete Scene"
+    }
   }
 };

@@ -33,12 +33,14 @@ import AvatarDataProvider from '../../../projects-2/view/components/AvatarDataSe
 import { VoiceProvider } from '@/contexts/VoiceContext';
 import VideoPresentationRightPanel from '../components/VideoPresentationRightPanel';
 import TextEditingToolbar from '@/components/TextEditingToolbar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 export default function Projects2ViewPage() {
   const params = useParams();
   const projectId = params?.projectId as string;
+  const { t } = useLanguage();
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
@@ -680,9 +682,6 @@ export default function Projects2ViewPage() {
     setActiveSettingsPanel(null);
   };
 
-  // Simple translation function for ProductViewHeader
-  const t = (key: string, fallback: string) => fallback;
-
   const handleShapesButtonClick = (position: { x: number; y: number }) => {
     setShapesPopupPosition(position);
     setIsShapesPopupOpen(true);
@@ -1030,7 +1029,7 @@ export default function Projects2ViewPage() {
           <Media 
             isOpen={isMediaPopupOpen} 
             onClose={() => setIsMediaPopupOpen(false)} 
-            title="Media Library"
+            title={t('videoEditor.mediaLibrary', 'Media Library')}
             displayMode="popup"
             className="w-full h-full"
           />
@@ -1068,14 +1067,14 @@ export default function Projects2ViewPage() {
       <PlayModal 
         isOpen={isPlayModalOpen} 
         onClose={() => setIsPlayModalOpen(false)} 
-        title={projectData?.name || 'Video Preview'}
+        title={projectData?.name || t('videoEditor.videoPreview', 'Video Preview')}
       />
 
       {/* Generate Modal */}
       <GenerateModal 
         isOpen={isGenerateModalOpen} 
         onClose={() => setIsGenerateModalOpen(false)} 
-        title={projectData?.name || 'Video'}
+        title={projectData?.name || t('videoEditor.video', 'Video')}
         onGenerationStart={handleVideoGeneration}
         generationStatus={generationStatus}
         generationError={generationError}
@@ -1085,7 +1084,7 @@ export default function Projects2ViewPage() {
       <GenerationCompletedModal 
         isOpen={isGenerationCompletedModalOpen} 
         onClose={() => setIsGenerationCompletedModalOpen(false)} 
-        videoTitle={projectData?.name || 'Video'}
+        videoTitle={projectData?.name || t('videoEditor.video', 'Video')}
       />
 
       {/* Portal Popup Menu */}
@@ -1105,7 +1104,7 @@ export default function Projects2ViewPage() {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24">
               <path d="M7.558 3.75H7.25a3.5 3.5 0 0 0-3.5 3.5v9.827a3.173 3.173 0 0 0 3.173 3.173v0m.635-16.5v2.442a2 2 0 0 0 2 2h2.346a2 2 0 0 0 2-2V3.75m-6.346 0h6.346m0 0h.026a3 3 0 0 1 2.122.879l3.173 3.173a3.5 3.5 0 0 1 1.025 2.475v6.8a3.173 3.173 0 0 1-3.173 3.173v0m-10.154 0V15a3 3 0 0 1 3-3h4.154a3 3 0 0 1 3 3v5.25m-10.154 0h10.154"/>
             </svg>
-            Save as Scene Layout
+            {t('videoEditor.menu.saveAsSceneLayout', 'Save as Scene Layout')}
           </button>
           <button 
             className="w-full px-2 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
@@ -1117,7 +1116,7 @@ export default function Projects2ViewPage() {
                 <path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"/>
               </g>
             </svg>
-            Duplicate Scene
+            {t('videoEditor.menu.duplicateScene', 'Duplicate Scene')}
           </button>
           <button 
             className="w-full px-2 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-1.5"
@@ -1126,7 +1125,7 @@ export default function Projects2ViewPage() {
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/>
             </svg>
-            Insert Scene
+            {t('videoEditor.menu.insertScene', 'Insert Scene')}
           </button>
           <div className="border-t border-gray-200 my-1"></div>
           <button 
@@ -1145,7 +1144,7 @@ export default function Projects2ViewPage() {
             <svg className="w-3 h-3" fill="currentColor" fillRule="evenodd" viewBox="0 0 16 16">
               <path d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
             </svg>
-            {isVideoLessonMode ? 'Delete Slide' : 'Delete Scene'}
+            {isVideoLessonMode ? t('videoEditor.menu.deleteSlide', 'Delete Slide') : t('videoEditor.menu.deleteScene', 'Delete Scene')}
           </button>
         </div>,
         document.body

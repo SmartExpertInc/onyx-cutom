@@ -1879,5 +1879,17 @@ export const uk = {
         }
       }
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Медіатека",
+    videoPreview: "Попередній перегляд відео",
+    video: "Відео",
+    menu: {
+      saveAsSceneLayout: "Зберегти як шаблон сцени",
+      duplicateScene: "Дублювати сцену",
+      insertScene: "Вставити сцену",
+      deleteSlide: "Видалити слайд",
+      deleteScene: "Видалити сцену"
+    }
   }
 };

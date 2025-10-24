@@ -1899,5 +1899,17 @@ export const es = {
         }
       }
     }
+  },
+  videoEditor: {
+    mediaLibrary: "Biblioteca de medios",
+    videoPreview: "Vista previa de vídeo",
+    video: "Vídeo",
+    menu: {
+      saveAsSceneLayout: "Guardar como plantilla de escena",
+      duplicateScene: "Duplicar escena",
+      insertScene: "Insertar escena",
+      deleteSlide: "Eliminar diapositiva",
+      deleteScene: "Eliminar escena"
+    }
   }
 };
