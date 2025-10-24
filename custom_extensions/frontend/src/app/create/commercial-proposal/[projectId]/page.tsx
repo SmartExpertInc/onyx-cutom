@@ -373,7 +373,68 @@ export default function CommercialProposalPage() {
         courseTemplates: data.courseTemplates || [],
         serviceTemplatesDescription: data.serviceTemplatesDescription || '',
         language: data.language || language,
-        courseOutlineTableHeaders: data.courseOutlineTableHeaders
+        courseOutlineTableHeaders: data.courseOutlineTableHeaders,
+        
+        // Service 1 fields
+        mainPrice: data.mainPrice,
+        courseCount1: data.courseCount1,
+        price1_service_1: data.price1_service_1,
+        total1_service_1: data.total1_service_1,
+        courseCount2: data.courseCount2,
+        price2_service_1: data.price2_service_1,
+        total2_service_1: data.total2_service_1,
+        courseCount3: data.courseCount3,
+        price3_service_1: data.price3_service_1,
+        total3_service_1: data.total3_service_1,
+        
+        // Service 2 fields
+        monthlyPrice: data.monthlyPrice,
+        aiCredits: data.aiCredits,
+        
+        // Service 3 fields
+        mainSmartExpertPrice: data.mainSmartExpertPrice,
+        monthlyPrice1: data.monthlyPrice1,
+        
+        // Service 2 pricing table fields
+        perUserPrice1: data.perUserPrice1,
+        userCount2: data.userCount2,
+        monthlyPrice2: data.monthlyPrice2,
+        perUserPrice2: data.perUserPrice2,
+        userCount3: data.userCount3,
+        monthlyPrice3: data.monthlyPrice3,
+        perUserPrice3: data.perUserPrice3,
+        userCount4: data.userCount4,
+        monthlyPrice4: data.monthlyPrice4,
+        perUserPrice4: data.perUserPrice4,
+        
+        // Service 4 fields
+        mainPriceMobile_service_4: data.mainPriceMobile_service_4,
+        mainPriceDesktop_service_4: data.mainPriceDesktop_service_4,
+        hoursCount_service_4: data.hoursCount_service_4,
+        
+        // Service 4 pack fields
+        packName1_service_4: data.packName1_service_4,
+        hours1_service_4: data.hours1_service_4,
+        price1_service_4: data.price1_service_4,
+        rate1_service_4: data.rate1_service_4,
+        packName2_service_4: data.packName2_service_4,
+        hours2_service_4: data.hours2_service_4,
+        price2_service_4: data.price2_service_4,
+        rate2_service_4: data.rate2_service_4,
+        packName3_service_4: data.packName3_service_4,
+        hours3_service_4: data.hours3_service_4,
+        price3_service_4: data.price3_service_4,
+        rate3_service_4: data.rate3_service_4,
+        
+        // Final section fields
+        trialHours: data.trialHours,
+        methodologistPrice: data.methodologistPrice,
+        aiCreditsCount: data.aiCreditsCount,
+        contentBuilderPrice: data.contentBuilderPrice,
+        smartExpertUsers: data.smartExpertUsers,
+        smartExpertPrice: data.smartExpertPrice,
+        totalPlatformsPrice: data.totalPlatformsPrice,
+        timeline: data.timeline
       };
       
       setProposalData(defaultData);
