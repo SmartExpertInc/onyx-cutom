@@ -31,6 +31,10 @@ function InlineEditor({
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
+  // Auto-detect if content has multiple lines
+  const isMultilineContent = value.includes('\n');
+  const shouldUseMultiline = multiline || isMultilineContent;
+
   // Sync internal state with prop changes
   useEffect(() => {
     setValue(initialValue);
@@ -45,10 +49,10 @@ function InlineEditor({
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
+    if (e.key === 'Enter' && !shouldUseMultiline) {
       e.preventDefault();
       onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+    } else if (e.key === 'Enter' && e.ctrlKey && shouldUseMultiline) {
       e.preventDefault();
       onSave(value);
     } else if (e.key === 'Escape') {
@@ -75,14 +79,14 @@ function InlineEditor({
 
   // Auto-resize textarea to fit content
   useEffect(() => {
-    if (multiline && inputRef.current) {
+    if (shouldUseMultiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
-  }, [value, multiline]);
+  }, [value, shouldUseMultiline]);
 
-  if (multiline) {
+  if (shouldUseMultiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
