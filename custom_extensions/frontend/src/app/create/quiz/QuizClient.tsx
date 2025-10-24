@@ -155,6 +155,9 @@ export default function QuizClient() {
   const [originalContents, setOriginalContents] = useState<{ [key: number]: string }>({});
   const nextEditingContentIdRef = useRef<number | null>(null);
 
+  // State for additional questions
+  const [additionalQuestions, setAdditionalQuestions] = useState<{ id: string; title: string; content: string }[]>([]);
+
   // NEW: Track user edits like in Course Outline
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalQuizData, setOriginalQuizData] = useState<string>("");
@@ -652,6 +655,76 @@ export default function QuizClient() {
     return editedContents[index] !== undefined ? editedContents[index] : question.content;
   };
 
+  // Handle adding new question
+  const handleAddQuestion = () => {
+    const newQuestion = {
+      id: `question_${Date.now()}`,
+      title: "New Question",
+      content: "Explanation:\nAdd your explanation here..."
+    };
+    setAdditionalQuestions(prev => [...prev, newQuestion]);
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional question title
+  const handleAdditionalQuestionTitleEdit = (questionId: string, newTitle: string) => {
+    setAdditionalQuestions(prev => prev.map(question => 
+      question.id === questionId ? { ...question, title: newTitle } : question
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle editing additional question content
+  const handleAdditionalQuestionContentEdit = (questionId: string, newContent: string) => {
+    setAdditionalQuestions(prev => prev.map(question => 
+      question.id === questionId ? { ...question, content: newContent } : question
+    ));
+    setHasUserEdits(true);
+  };
+
+  // Handle deleting additional question
+  const handleDeleteAdditionalQuestion = (questionId: string) => {
+    setAdditionalQuestions(prev => prev.filter(question => question.id !== questionId));
+    setHasUserEdits(true);
+  };
+
+  // Function to render question content with proper formatting
+  const renderQuestionContent = (content: string) => {
+    if (!content) return content;
+
+    // Split content into lines and process each line
+    const lines = content.split('\n');
+    const processedLines = lines.map((line, lineIndex) => {
+      const trimmedLine = line.trim();
+      
+      // Check if this is an "Explanation:" label line
+      if (trimmedLine === 'Explanation:' || trimmedLine === 'Explicación:' || 
+          trimmedLine === 'Explication:' || trimmedLine === 'Erklärung:' ||
+          trimmedLine === 'Spiegazione:' || trimmedLine === 'Explicação:' ||
+          trimmedLine === 'Пояснення:' || trimmedLine === 'Пояснение:') {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-sm font-bold leading-[140%] text-[#171718]">{trimmedLine}</span>
+          </div>
+        );
+      }
+      
+      // For regular lines, return as is
+      if (trimmedLine) {
+        return (
+          <div key={lineIndex} className="mb-2">
+            <span className="text-sm font-normal leading-[140%] text-[#171718]">{line}</span>
+          </div>
+        );
+      }
+      
+      // For empty lines, return a line break
+      return <br key={lineIndex} />;
+    });
+
+    return processedLines;
+  };
+
   const toggleExample = (ex: typeof quizExamples[number]) => {
     setSelectedExamples((prev) => {
       if (prev.includes(ex.short)) {
@@ -1056,6 +1129,15 @@ export default function QuizClient() {
         console.log("Sending clean questions for regeneration:", contentToSend);
       }
 
+      // Add additional questions to content
+      if (additionalQuestions.length > 0) {
+        const additionalContent = additionalQuestions.map((q, idx) => {
+          const questionNumber = questionList.length + idx + 1;
+          return `\n\n${questionNumber}. **${q.title}**\n\n${q.content}`;
+        }).join('');
+        contentToSend += additionalContent;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
@@ -1178,6 +1260,15 @@ export default function QuizClient() {
         contentToSend = createCleanQuestionsContent(quizData);
         isCleanContent = true;
         console.log("Sending clean questions for edit:", contentToSend);
+      }
+
+      // Add additional questions to content
+      if (additionalQuestions.length > 0) {
+        const additionalContent = additionalQuestions.map((q, idx) => {
+          const questionNumber = questionList.length + idx + 1;
+          return `\n\n${questionNumber}. **${q.title}**\n\n${q.content}`;
+        }).join('');
+        contentToSend += additionalContent;
       }
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
@@ -1372,7 +1463,7 @@ export default function QuizClient() {
               >
                 {/* Header with quiz title */}
                 <div 
-                  className="px-10 py-4 rounded-t-[8px] text-white text-lg font-medium"
+                  className="rounded-t-[8px] text-white text-lg font-medium"
                   style={{ backgroundColor: '#0F58F999' }}
                 >
                   {useExistingOutline === false && (
@@ -1397,8 +1488,8 @@ export default function QuizClient() {
                           }}
                           placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
                           rows={1}
-                          className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
-                          style={{ background: "#0F58F999"}}
+                          className="w-full px-7 py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                          style={{ background: "#6E9BFB"}}
                         />
                       </div>
                     </div>
@@ -1428,7 +1519,7 @@ export default function QuizClient() {
                                 type="text"
                                 value={editedTitles[idx] || question.title}
                                 onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                                className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                                 autoFocus
                                 onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                 onKeyDown={(e) => {
@@ -1450,7 +1541,7 @@ export default function QuizClient() {
                                   if (streamDone) setEditingQuestionId(idx);
                                 }}
                                 readOnly
-                                className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                                className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                                 disabled={!streamDone}
                               />
                             </div>
@@ -1475,7 +1566,7 @@ export default function QuizClient() {
                             />
                           ) : (
                             <div 
-                              className={`cursor-pointer text-sm rounded p-2 -m-2 hover:bg-gray-50 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                              className={`cursor-pointer rounded text-sm p-2 -m-2 hover:bg-gray-50 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
                               onMouseDown={() => {
                                 nextEditingContentIdRef.current = idx;
                               }}
@@ -1483,16 +1574,76 @@ export default function QuizClient() {
                                 if (streamDone) setEditingContentId(idx);
                               }}
                             >
-                              <div className="text-sm font-normal leading-[140%] text-[#171718] whitespace-pre-wrap">
-                                {getContentForQuestion(question, idx)}
-                              </div>
+                              {renderQuestionContent(getContentForQuestion(question, idx))}
                             </div>
                           )}
                         </div>
                       )}
-                    </div>
-                  ))}
+                     </div>
+                   ))}
+
+                   {/* Additional questions */}
+                   {additionalQuestions.map((question, idx: number) => (
+                     <div key={question.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
+                       {/* Question header with title */}
+                       <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                         <div className="flex-1">
+                           <Input
+                             type="text"
+                             value={question.title}
+                             onChange={(e) => handleAdditionalQuestionTitleEdit(question.id, e.target.value)}
+                             className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                             placeholder="Question title..."
+                           />
+                  </div>
+                  <button
+                    type="button"
+                           onClick={() => handleDeleteAdditionalQuestion(question.id)}
+                           className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                           Delete
+                  </button>
                 </div>
+
+                       {/* Question content */}
+                       <div className="px-5 pb-4">
+                         <Textarea
+                           value={question.content}
+                           onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
+                           className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                           placeholder="Add your content here..."
+                         />
+                       </div>
+                     </div>
+                   ))}
+
+                   {/* Add Question Button */}
+                      <button
+                        type="button"
+                     onClick={handleAddQuestion}
+                     className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
+                   >
+                     <span className="text-lg">+</span>
+                     <span>Add Question</span>
+                   </button>
+                 </div>
+
+                 {/* Question count and character count footer */}
+                 <div className="flex items-center justify-between text-sm text-[#858587] px-10 pb-5">
+                   <span className="select-none">{questionList.length + additionalQuestions.length} question total</span>
+                   <span className="flex items-center gap-1">
+                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                       <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
+                       <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
+                         strokeDasharray={`${2 * Math.PI * 7}`}
+                         strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(quizData.length / 50000, 1))}`}
+                         transform="rotate(-90 8 8)"
+                         strokeLinecap="round"
+                       />
+                     </svg>
+                     {quizData.length}/50000
+                   </span>
+                 </div>
               </div>
             )}
           </section>
