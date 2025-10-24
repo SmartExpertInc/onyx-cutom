@@ -754,8 +754,8 @@ export default function TextPresentationClient() {
   const handleAddSection = () => {
     const newSection = {
       id: `section_${Date.now()}`,
-      title: "New Section",
-      content: "Add your content here..."
+      title: t('interface.generate.newSection', 'New Section'),
+      content: t('interface.generate.addContentPlaceholder', 'Add your content here...')
     };
     setAdditionalSections(prev => [...prev, newSection]);
     setHasUserEdits(true);
@@ -1630,7 +1630,7 @@ export default function TextPresentationClient() {
       <div className="w-full max-w-4xl flex flex-col gap-0 text-gray-900 relative z-10">
 
           {/* Page title */}
-          <h1 className="text-center pb-6 text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">One-Pager outline preview</h1>
+          <h1 className="text-center pb-6 text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.onePagerOutlinePreview', 'One-Pager outline preview')}</h1>
 
           {/* Main content container - removed this div wrapper */}
           {/* Prompt input for standalone presentation */}
@@ -1778,7 +1778,7 @@ export default function TextPresentationClient() {
                           value={section.title}
                           onChange={(e) => handleAdditionalSectionTitleEdit(section.id, e.target.value)}
                           className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
-                          placeholder="Section title..."
+                          placeholder={t('interface.generate.sectionTitlePlaceholder', 'Section title...')}
                         />
                       </div>
                       <button
@@ -1786,7 +1786,7 @@ export default function TextPresentationClient() {
                         onClick={() => handleDeleteAdditionalSection(section.id)}
                         className="text-red-500 hover:text-red-700 text-sm"
                       >
-                        Delete
+                        {t('actions.delete', 'Delete')}
                       </button>
                     </div>
 
@@ -1796,7 +1796,7 @@ export default function TextPresentationClient() {
                         value={section.content}
                         onChange={(e) => handleAdditionalSectionContentEdit(section.id, e.target.value)}
                         className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
-                        placeholder="Add your content here..."
+                        placeholder={t('interface.generate.addContentPlaceholder', 'Add your content here...')}
                       />
                     </div>
                   </div>
@@ -1809,10 +1809,10 @@ export default function TextPresentationClient() {
                   className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">+</span>
-                  <span>Add Section</span>
+                  <span>{t('interface.generate.addSection', 'Add Section')}</span>
                 </button>
                 <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-4 rounded-b-[8px]">
-                  <span className="select-none">{wordCount} words</span>
+                  <span className="select-none">{wordCount} {t('interface.generate.words', 'words')}</span>
                   <span className="flex items-center gap-1">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>

@@ -1426,7 +1426,7 @@ export default function QuizClient() {
 
         <div className="w-full max-w-4xl flex flex-col gap-6 text-gray-900 relative z-10">
 
-          <h1 className="text-center text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">Quiz outline preview</h1>
+          <h1 className="text-center text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">{t('interface.generate.quizOutlinePreview', 'Quiz outline preview')}</h1>
 
           <section className="flex flex-col gap-3">
             {error && (
@@ -1510,7 +1510,7 @@ export default function QuizClient() {
                   {questionList.length > 0 && questionList.map((question, idx: number) => (
                     <div key={idx} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                       {/* Question header with number and title */}
-                      <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                      <div className="flex items-center gap-1 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
                         <span className="text-[#0D001B] font-bold text-base">{idx + 1}.</span>
                         <div className="flex-1">
                           {editingQuestionId === idx ? (
@@ -1586,7 +1586,7 @@ export default function QuizClient() {
                    {additionalQuestions.map((question, idx: number) => (
                      <div key={question.id} className="bg-[#FFFFFF] rounded-lg overflow-hidden transition-shadow duration-200" style={{ border: '1px solid #CCCCCC' }}>
                        {/* Question header with title */}
-                       <div className="flex items-center gap-3 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
+                       <div className="flex items-center gap-1 px-4 py-2 border-b border-[#CCCCCC] rounded-t-lg">
                          <span className="text-[#0D001B] font-semibold text-base">{questionList.length + idx + 1}.</span>
                          <div className="flex-1">
                            <Input
@@ -1594,7 +1594,7 @@ export default function QuizClient() {
                              value={question.title}
                              onChange={(e) => handleAdditionalQuestionTitleEdit(question.id, e.target.value)}
                              className="text-[#0D001B] font-bold !text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
-                             placeholder="Question title..."
+                             placeholder={t('interface.generate.questionTitlePlaceholder', 'Question title...')}
                            />
                   </div>
                   <button
@@ -1602,7 +1602,7 @@ export default function QuizClient() {
                            onClick={() => handleDeleteAdditionalQuestion(question.id)}
                            className="text-red-500 hover:text-red-700 text-sm"
                   >
-                           Delete
+                           {t('actions.delete', 'Delete')}
                   </button>
                 </div>
 
@@ -1612,7 +1612,7 @@ export default function QuizClient() {
                            value={question.content}
                            onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
                            className="w-full !text-sm font-light leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
-                           placeholder="Add your content here..."
+                           placeholder={t('interface.generate.addContentPlaceholder', 'Add your content here...')}
                          />
                        </div>
                      </div>
@@ -1625,11 +1625,11 @@ export default function QuizClient() {
                      className="w-full px-4 py-1 border border-gray-300 rounded-lg text-xs bg-[#FFFFFF] text-[#0F58F9] font-medium hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2"
                    >
                      <span className="text-lg">+</span>
-                     <span>Add Question</span>
+                     <span>{t('interface.generate.addQuestion', 'Add Question')}</span>
                    </button>
                    
                   <div className="flex items-center justify-between text-xs text-[#A5A5A5] py-4 rounded-b-[8px]">
-                   <span className="select-none">{questionList.length + additionalQuestions.length} question total</span>
+                   <span className="select-none">{questionList.length + additionalQuestions.length} {t('interface.generate.questionTotal', 'question total')}</span>
                    <span className="flex items-center gap-1">
                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                        <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
