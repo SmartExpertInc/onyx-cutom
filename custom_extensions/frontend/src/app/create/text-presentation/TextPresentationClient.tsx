@@ -1747,7 +1747,7 @@ export default function TextPresentationClient() {
                           />
                         ) : (
                           <div 
-                            className={`cursor-pointer !text-sm rounded p-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                            className={`cursor-pointer !text-sm rounded p-2`} // ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}
                             onMouseDown={() => {
                               nextEditingContentIdRef.current = idx;
                             }}
@@ -1755,7 +1755,11 @@ export default function TextPresentationClient() {
                               if (streamDone) setEditingContentId(idx);
                             }}
                           >
-                            {renderContentWithCircles(getContentForLesson(lesson, idx))}
+                            {(() => {
+                              const fullContent = getContentForLesson(lesson, idx);
+                              const truncatedContent = fullContent.length > 200 ? fullContent.substring(0, 200) + '...' : fullContent;
+                              return renderContentWithCircles(truncatedContent);
+                            })()}
                           </div>
                         )}
                       </div>
@@ -1810,7 +1814,7 @@ export default function TextPresentationClient() {
               </div>
 
               {/* Word count and character count footer */}
-              <div className="flex items-center justify-between text-sm text-[#A5A5A5] px-10 py-4 bg-[#F5F5F5] rounded-b-[8px]">
+              <div className="flex items-center justify-between text-xs text-[#A5A5A5] px-10 py-4 bg-[#FFFFFFE5] rounded-b-[8px]">
                 <span className="select-none">{wordCount} words</span>
                 <span className="flex items-center gap-1">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
