@@ -1997,7 +1997,22 @@ export const ru = {
       appearance: "Внешний вид",
       shoulder: "Плечи",
       fullBody: "Полное тело",
-      bubble: "Пузырь"
+      bubble: "Пузырь",
+      view: "Вид",
+      selectView: "Выберите вид...",
+      frontView: "Вид спереди",
+      sideView: "Вид сбоку",
+      backView: "Вид сзади",
+      position: "Позиция",
+      alignLeft: "Выровнять по левому краю",
+      alignCenter: "Выровнять по центру",
+      alignRight: "Выровнять по правому краю",
+      order: "Порядок",
+      sendToBack: "Отправить аватар назад",
+      sendBackward: "Отправить аватар на шаг назад",
+      bringForward: "Переместить аватар вперед",
+      sendToFront: "Отправить аватар на передний план",
+      chooseAvatar: "Выберите аватар"
     },
     shape: {
       format: "Формат",

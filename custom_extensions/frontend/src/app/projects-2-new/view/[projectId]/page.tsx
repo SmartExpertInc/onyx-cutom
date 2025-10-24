@@ -90,6 +90,7 @@ export default function Projects2ViewPage() {
   const [isTextColorPickerOpen, setIsTextColorPickerOpen] = useState<boolean>(false);
   const [textColorPickerPosition, setTextColorPickerPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [textRecentColors, setTextRecentColors] = useState<string[]>([]);
+  const [currentTextColor, setCurrentTextColor] = useState<string>('#000000');
   
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
@@ -845,16 +846,18 @@ export default function Projects2ViewPage() {
           closeMenu();
           // Hide text toolbar and color picker when clicking outside
           const target = e.target as HTMLElement;
-          const isOutsideToolbarArea = !target.closest('[data-textsettings-panel]') && 
-                                        !target.closest('.ProseMirror') && 
-                                        !target.closest('.text-editing-toolbar') &&
-                                        !target.closest('[data-color-palette-popup]');
           
-          if (isOutsideToolbarArea) {
-            console.log('🔍 Main container click - closing toolbar and color picker', {
-              targetClass: target.className,
-              isOutsideToolbarArea
-            });
+          // Check if clicking inside any protected areas
+          const isTextSettingsPanel = target.closest('[data-textsettings-panel]');
+          const isProseMirror = target.closest('.ProseMirror');
+          const isToolbar = target.closest('.text-editing-toolbar');
+          const isColorPalette = target.closest('[data-color-palette-popup]');
+          const isColorButton = target.closest('[data-color-picker-button]');
+          
+          const isProtectedArea = isTextSettingsPanel || isProseMirror || isToolbar || isColorPalette || isColorButton;
+          
+          if (!isProtectedArea) {
+            console.log('🔍 Main container click - closing toolbar and color picker');
             setIsTextToolbarVisible(false);
             setIsTextColorPickerOpen(false);
           }
@@ -939,6 +942,22 @@ export default function Projects2ViewPage() {
                     setActiveTextEditor(editor);
                     setComputedTextStyles(computedStyles || null);
                     // setActiveSettingsPanel('text'); // Disabled - only show toolbar
+                    
+                    // Update current text color
+                    const inlineColor = editor?.getAttributes?.('textStyle')?.color;
+                    const rawColor = inlineColor || computedStyles?.color || '#000000';
+                    // Convert RGB to hex if needed
+                    let hexColor = rawColor;
+                    if (rawColor.startsWith('rgb')) {
+                      const match = rawColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                      if (match) {
+                        const r = parseInt(match[1]).toString(16).padStart(2, '0');
+                        const g = parseInt(match[2]).toString(16).padStart(2, '0');
+                        const b = parseInt(match[3]).toString(16).padStart(2, '0');
+                        hexColor = `#${r}${g}${b}`;
+                      }
+                    }
+                    setCurrentTextColor(hexColor);
                     
                     // Calculate toolbar position above the text element
                     if (editor && editor.view && editor.view.dom) {
@@ -1186,40 +1205,38 @@ export default function Projects2ViewPage() {
         computedStyles={computedTextStyles}
         position={textToolbarPosition}
         isVisible={isTextToolbarVisible}
+        currentColor={currentTextColor}
         onColorPickerOpen={(pos) => {
           setTextColorPickerPosition(pos);
           setIsTextColorPickerOpen(true);
         }}
+        onColorPickerClose={() => setIsTextColorPickerOpen(false)}
       />
 
       {/* Text Color Picker - Rendered at page level */}
       <ColorPalettePopup
         isOpen={isTextColorPickerOpen}
-        onClose={() => setIsTextColorPickerOpen(false)}
+        onClose={() => {
+          console.log('🎨 Text color picker closing');
+          setIsTextColorPickerOpen(false);
+        }}
         onColorChange={(color) => {
+          console.log('🎨 Text color change:', color);
+          setCurrentTextColor(color);
           if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
             try {
               activeTextEditor.chain().focus().setColor(color).run();
               console.log('✅ Color applied to editor:', color);
+              // Close color picker after applying color
+              setIsTextColorPickerOpen(false);
             } catch (error) {
-              console.warn('Color change failed:', error);
+              console.warn('❌ Color change failed:', error);
             }
+          } else {
+            console.warn('❌ No active editor available');
           }
         }}
-        selectedColor={(() => {
-          // Convert RGB to hex if needed
-          const color = activeTextEditor?.getAttributes?.('textStyle')?.color || computedTextStyles?.color || '#000000';
-          if (color.startsWith('rgb')) {
-            const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (match) {
-              const r = parseInt(match[1]).toString(16).padStart(2, '0');
-              const g = parseInt(match[2]).toString(16).padStart(2, '0');
-              const b = parseInt(match[3]).toString(16).padStart(2, '0');
-              return `#${r}${g}${b}`;
-            }
-          }
-          return color;
-        })()}
+        selectedColor={currentTextColor}
         position={textColorPickerPosition}
         recentColors={textRecentColors}
         onRecentColorChange={setTextRecentColors}

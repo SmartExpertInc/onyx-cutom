@@ -1907,7 +1907,22 @@ export const en = {
       appearance: "Appearance",
       shoulder: "Shoulder",
       fullBody: "Full body",
-      bubble: "Bubble"
+      bubble: "Bubble",
+      view: "View",
+      selectView: "Select view...",
+      frontView: "Front View",
+      sideView: "Side View",
+      backView: "Back View",
+      position: "Position",
+      alignLeft: "Align left",
+      alignCenter: "Align center",
+      alignRight: "Align right",
+      order: "Order",
+      sendToBack: "Send avatar to back",
+      sendBackward: "Send avatar backward",
+      bringForward: "Bring avatar forward",
+      sendToFront: "Send avatar to front",
+      chooseAvatar: "Choose Avatar"
     },
     shape: {
       format: "Format",

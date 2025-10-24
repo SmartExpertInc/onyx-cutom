@@ -2002,7 +2002,22 @@ export const uk = {
       appearance: "Зовнішній вигляд",
       shoulder: "Плечі",
       fullBody: "Повне тіло",
-      bubble: "Бульбашка"
+      bubble: "Бульбашка",
+      view: "Вид",
+      selectView: "Виберіть вид...",
+      frontView: "Вид спереду",
+      sideView: "Вид збоку",
+      backView: "Вид ззаду",
+      position: "Позиція",
+      alignLeft: "Вирівняти по лівому краю",
+      alignCenter: "Вирівняти по центру",
+      alignRight: "Вирівняти по правому краю",
+      order: "Порядок",
+      sendToBack: "Відправити аватар назад",
+      sendBackward: "Відправити аватар на крок назад",
+      bringForward: "Перемістити аватар вперед",
+      sendToFront: "Відправити аватар на передній план",
+      chooseAvatar: "Виберіть аватар"
     },
     shape: {
       format: "Формат",

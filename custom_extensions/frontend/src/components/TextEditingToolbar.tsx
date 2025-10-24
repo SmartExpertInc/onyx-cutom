@@ -11,6 +11,8 @@ interface TextEditingToolbarProps {
   position: { x: number; y: number };
   isVisible: boolean;
   onColorPickerOpen?: (position: { x: number; y: number }) => void;
+  onColorPickerClose?: () => void;
+  currentColor?: string;
 }
 
 export default function TextEditingToolbar({ 
@@ -18,7 +20,9 @@ export default function TextEditingToolbar({
   computedStyles,
   position,
   isVisible,
-  onColorPickerOpen
+  onColorPickerOpen,
+  onColorPickerClose,
+  currentColor
 }: TextEditingToolbarProps) {
   // Format states
   const [fontFamily, setFontFamily] = useState('Arial');
@@ -56,11 +60,15 @@ export default function TextEditingToolbar({
   useEffect(() => {
     if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
       try {
-        // Get current text color from inline styles
-        const inlineColor = activeEditor.getAttributes('textStyle').color;
-        const rawColor = inlineColor || computedStyles?.color || '#000000';
-        const currentColor = rgbToHex(rawColor);
-        setFontColor(currentColor);
+        // Use currentColor prop if available, otherwise get from editor
+        if (currentColor) {
+          setFontColor(currentColor);
+        } else {
+          const inlineColor = activeEditor.getAttributes('textStyle').color;
+          const rawColor = inlineColor || computedStyles?.color || '#000000';
+          const hexColor = rgbToHex(rawColor);
+          setFontColor(hexColor);
+        }
         
         // Get current font family - prefer inline, fallback to computed
         const inlineFontFamily = activeEditor.getAttributes('textStyle').fontFamily;
@@ -87,7 +95,7 @@ export default function TextEditingToolbar({
         console.warn('Editor sync failed:', error);
       }
     }
-  }, [activeEditor, computedStyles]);
+  }, [activeEditor, computedStyles, currentColor]);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -191,9 +199,14 @@ export default function TextEditingToolbar({
         <button
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             handleFontColorClick(e);
           }}
-          data-color-palette-popup
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          data-color-picker-button
           className="w-7 h-7 rounded-md border border-gray-300 hover:border-gray-400 transition-all cursor-pointer shadow-sm relative overflow-hidden"
           style={{ backgroundColor: fontColor }}
           title={`Font color: ${fontColor}`}
@@ -211,6 +224,7 @@ export default function TextEditingToolbar({
             onClick={() => {
               setShowFontFamilyDropdown(!showFontFamilyDropdown);
               setShowFontSizeDropdown(false); // Close font size dropdown
+              onColorPickerClose?.(); // Close color picker
             }}
             className="flex items-center space-x-1 px-2 py-1.5 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none min-w-[100px]"
           >
@@ -259,6 +273,7 @@ export default function TextEditingToolbar({
             onClick={() => {
               setShowFontSizeDropdown(!showFontSizeDropdown);
               setShowFontFamilyDropdown(false); // Close font family dropdown
+              onColorPickerClose?.(); // Close color picker
             }}
             className="flex items-center space-x-1 px-2 py-1.5 text-xs border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none min-w-[60px]"
           >
@@ -304,6 +319,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()} 
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleBold().run();
@@ -324,6 +340,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleItalic().run();
@@ -344,6 +361,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleUnderline().run();
@@ -364,6 +382,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().toggleStrike().run();
@@ -390,6 +409,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('left').run();
@@ -413,6 +433,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('center').run();
@@ -436,6 +457,7 @@ export default function TextEditingToolbar({
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              onColorPickerClose?.(); // Close color picker
               if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
                 try {
                   activeEditor.chain().focus().setTextAlign('right').run();

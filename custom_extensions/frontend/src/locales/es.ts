@@ -2022,7 +2022,22 @@ export const es = {
       appearance: "Apariencia",
       shoulder: "Hombro",
       fullBody: "Cuerpo completo",
-      bubble: "Burbuja"
+      bubble: "Burbuja",
+      view: "Vista",
+      selectView: "Seleccionar vista...",
+      frontView: "Vista frontal",
+      sideView: "Vista lateral",
+      backView: "Vista trasera",
+      position: "Posición",
+      alignLeft: "Alinear a la izquierda",
+      alignCenter: "Alinear al centro",
+      alignRight: "Alinear a la derecha",
+      order: "Orden",
+      sendToBack: "Enviar avatar atrás",
+      sendBackward: "Enviar avatar un paso atrás",
+      bringForward: "Traer avatar adelante",
+      sendToFront: "Enviar avatar al frente",
+      chooseAvatar: "Elegir Avatar"
     },
     shape: {
       format: "Formato",
