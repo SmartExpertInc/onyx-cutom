@@ -1810,7 +1810,7 @@ export default function TextPresentationClient() {
               </div>
 
               {/* Word count and character count footer */}
-              <div className="flex items-center justify-between text-sm text-[#A5A5A5] px-10 pb-5">
+              <div className="flex items-center justify-between text-sm text-[#A5A5A5] px-10 py-4 bg-[#F5F5F5] rounded-b-[8px]">
                 <span className="select-none">{wordCount} words</span>
                 <span className="flex items-center gap-1">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
