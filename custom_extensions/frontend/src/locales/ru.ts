@@ -371,6 +371,52 @@ export const ru = {
       onePager: 'Ставка одностраничника',
       quiz: 'Ставка теста',
       videoLesson: 'Ставка видео-урока'
+    },
+    play: {
+      videoPreviewArea: "Область предпросмотра видео",
+      draft: "Черновик",
+      cancel: "Отменить",
+      generate: "Сгенерировать",
+      noLipMovements: "В предпросмотре нет движения губ.",
+      needGenerate: "Необходимо сгенерировать видео, чтобы увидеть его.",
+      rateQuality: "Как качество видео и голоса?",
+      helpImprove: "Помогите нам улучшить ContentBuilder"
+    },
+    generate: {
+      title: "Сгенерировать видео",
+      titleLabel: "Название",
+      titlePlaceholder: "Введите название видео",
+      subtitles: "Субтитры",
+      selectSubtitle: "Выберите опцию субтитров",
+      optionalSubtitles: "Опциональные субтитры (SRT/VTT)",
+      optionalSubtitlesDesc: "Могут быть включены зрителями по требованию",
+      burntInSubtitles: "Встроенные субтитры",
+      burntInSubtitlesDesc: "Встроены в видео, нельзя отключить",
+      resolution: "Разрешение",
+      location: "Местоположение",
+      library: "Библиотека",
+      cancel: "Отменить",
+      startGeneration: "Начать генерацию",
+      startingGeneration: "Начало генерации...",
+      generationInProgress: "Генерация выполняется...",
+      startVideoGeneration: "Начать генерацию видео"
+    },
+    completed: {
+      generatingProgress: "Генерация видео...",
+      download: "Скачать",
+      downloadMp4: "Скачать MP4",
+      copyLink: "Копировать ссылку",
+      exitTo: "Выйти в",
+      home: "Главная",
+      newDraft: "Новый черновик",
+      generatingVideo: "Генерация вашего видео...",
+      percentComplete: "завершено",
+      browserNotSupported: "Ваш браузер не поддерживает тег video.",
+      generationFailed: "Генерация не удалась",
+      firstSlide: "Первый слайд",
+      slideContentPlaceholder: "Содержание слайда будет отображено здесь",
+      firstSlideWillDisplay: "Первый слайд будет отображен здесь",
+      downloadFailed: "Загрузка не удалась. Пожалуйста, попробуйте снова."
     }
   },
   projects: {
@@ -1885,6 +1931,46 @@ export const ru = {
       insertScene: "Вставить сцену",
       deleteSlide: "Удалить слайд",
       deleteScene: "Удалить сцену"
+    },
+    aspectRatio: {
+      desktop: "Настольное видео, Youtube",
+      story: "История Instagram",
+      square: "Квадрат, пост Instagram",
+      custom: "установить пользовательский размер"
+    },
+    tools: {
+      script: "Скрипт",
+      avatar: "Аватар",
+      shape: "Фигура",
+      text: "Текст",
+      media: "Медиа"
+    },
+    actions: {
+      preview: "Предпросмотр",
+      debug: "Отладка",
+      debugTooltip: "Рендер слайдов только с переходами (без аватара) - для тестирования и отладки",
+      generate: "Сгенерировать"
     }
+  },
+  productViewHeader: {
+    aiImprove: "AI Улучшить",
+    export: "Экспорт",
+    exportToPdf: "Экспорт в PDF",
+    exportScorm: "Экспорт в SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Войти",
+    adminSettings: "Настройки администратора",
+    logOut: "Выйти"
+  },
+  scormDownload: {
+    preparing: "Подготовка пакета SCORM",
+    building: "Создание пакета SCORM 2004...",
+    ready: "SCORM готов",
+    downloadStarted: "Загрузка начата.",
+    exportFailed: "Экспорт не удался",
+    unexpectedError: "Неожиданная ошибка",
+    exporting: "Экспортируется…",
+    downloadScorm: "Скачать SCORM 2004"
   }
 };

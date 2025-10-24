@@ -96,15 +96,29 @@ export default function TextEditingToolbar({
   // Handle click outside to close dropdowns
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (showFontColorPicker) {
-        return;
-      }
+      const target = event.target as Node;
       
-      if (fontFamilyDropdownRef.current && !fontFamilyDropdownRef.current.contains(event.target as Node)) {
+      // Close font family dropdown if clicking outside
+      if (fontFamilyDropdownRef.current && !fontFamilyDropdownRef.current.contains(target)) {
         setShowFontFamilyDropdown(false);
       }
-      if (fontSizeDropdownRef.current && !fontSizeDropdownRef.current.contains(event.target as Node)) {
+      
+      // Close font size dropdown if clicking outside
+      if (fontSizeDropdownRef.current && !fontSizeDropdownRef.current.contains(target)) {
         setShowFontSizeDropdown(false);
+      }
+      
+      // Close color picker if clicking outside (but not on toolbar or color palette)
+      const isToolbarClick = toolbarRef.current?.contains(target);
+      const isColorPaletteClick = (target as HTMLElement).closest?.('[data-color-palette-popup]');
+      
+      if (showFontColorPicker && !isToolbarClick && !isColorPaletteClick) {
+        console.log('🎨 Closing color picker - clicked outside', {
+          isToolbarClick,
+          isColorPaletteClick,
+          targetElement: (target as HTMLElement).className
+        });
+        setShowFontColorPicker(false);
       }
     }
 
@@ -185,6 +199,8 @@ export default function TextEditingToolbar({
           left: `${position.x}px`,
           top: `${position.y}px`,
         }}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Font Color */}
         <button
@@ -470,12 +486,17 @@ export default function TextEditingToolbar({
       {/* Font Color Picker Popup */}
       <ColorPalettePopup
         isOpen={showFontColorPicker}
-        onClose={() => setShowFontColorPicker(false)}
+        onClose={() => {
+          console.log('🎨 ColorPalettePopup onClose called');
+          setShowFontColorPicker(false);
+        }}
         onColorChange={(color) => {
+          console.log('🎨 ColorPalettePopup onColorChange:', color);
           setFontColor(color);
           if (activeEditor && !activeEditor.isDestroyed && activeEditor.view) {
             try {
               activeEditor.chain().focus().setColor(color).run();
+              console.log('✅ Color applied to editor:', color);
             } catch (error) {
               console.warn('Color change failed:', error);
             }

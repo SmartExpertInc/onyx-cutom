@@ -144,7 +144,7 @@ export function UserDropdown({
               <DropdownOption
                 onClick={() => router.push("/auth/login")}
                 icon={<User size={16} className="my-auto" />}
-                label="Log In"
+                label={t('userDropdown.logIn', 'Log In')}
               />
             ) : (
               <>
@@ -166,14 +166,14 @@ export function UserDropdown({
                   <DropdownOption
                     href="/admin/main"
                     icon={<Settings size={16} className="my-auto" />}
-                    label="Admin Settings"
+                    label={t('userDropdown.adminSettings', 'Admin Settings')}
                   />
                 )}
                 {showLogout && (
                   <DropdownOption
                     onClick={handleLogout}
                     icon={<LogOut size={16} className="my-auto" />}
-                    label="Log out"
+                    label={t('userDropdown.logOut', 'Log out')}
                   />
                 )}
               </>

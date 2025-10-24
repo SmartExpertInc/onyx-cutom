@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PlayModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface PlayModalProps {
 }
 
 export default function PlayModal({ isOpen, onClose, title = 'Create your first AI video' }: PlayModalProps) {
+  const { t } = useLanguage();
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
   
   if (!isOpen) return null;
@@ -46,7 +48,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
           <div className="flex gap-4 mb-10">
             {/* Left div with grey background - 70% width */}
             <div className="flex-1 bg-gray-200 rounded-lg min-h-[450px] flex items-center justify-center">
-              <span className="text-gray-500">Video preview area</span>
+              <span className="text-gray-500">{t('modals.play.videoPreviewArea', 'Video preview area')}</span>
             </div>
             
             {/* Right div with content */}
@@ -57,7 +59,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.33301 7.66667V3.33333C1.33301 2.6 1.93301 2 2.66634 2H5.28634C5.50595 2.00114 5.72188 2.0565 5.91494 2.16117C6.10801 2.26585 6.27222 2.41659 6.39301 2.6L6.93967 3.4C7.06046 3.58341 7.22468 3.73415 7.41774 3.83883C7.6108 3.9435 7.82673 3.99886 8.04634 4H13.333C13.6866 4 14.0258 4.14048 14.2758 4.39052C14.5259 4.64057 14.6663 4.97971 14.6663 5.33333V12C14.6663 12.3536 14.5259 12.6928 14.2758 12.9428C14.0258 13.1929 13.6866 13.3333 13.333 13.3333H6.99967M5.61301 7.07333C5.74302 6.94332 5.89736 6.8402 6.06722 6.76984C6.23709 6.69948 6.41915 6.66326 6.60301 6.66326C6.78687 6.66326 6.96893 6.69948 7.13879 6.76984C7.30866 6.8402 7.463 6.94332 7.59301 7.07333C7.72302 7.20334 7.82614 7.35768 7.8965 7.52755C7.96687 7.69741 8.00308 7.87947 8.00308 8.06333C8.00308 8.24719 7.96687 8.42925 7.8965 8.59912C7.82614 8.76898 7.72302 8.92332 7.59301 9.05333L3.96634 12.6667L1.33301 13.3333L1.99301 10.7L5.61301 7.07333Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Draft
+                  {t('modals.play.draft', 'Draft')}
                 </span>
                 <span className="bg-gray-200 text-[#171718] px-3 py-2 rounded-sm text-[10px] font-medium flex items-center gap-2">
                   <svg width="17" height="10" viewBox="0 0 17 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,13 +74,13 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
               {/* Buttons */}
               <div className="flex gap-3 mb-4">
                 <button className="bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium text-xs whitespace-nowrap cursor-pointer" style={{ border: '1px solid #719AF5', color: '#719AF5' }}>
-                  Cancel
+                  {t('modals.play.cancel', 'Cancel')}
                 </button>
                 <button className="px-3 py-2 rounded-md transition-colors font-medium flex items-center justify-center gap-2 text-xs whitespace-nowrap text-white cursor-pointer" style={{ backgroundColor: '#0F58F9', border: '1px solid #0F58F9' }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.5423 11.3905C11.1071 11.557 10.8704 11.7949 10.702 12.2294C10.5353 11.7949 10.297 11.5586 9.86183 11.3905C10.297 11.2241 10.5337 10.9877 10.702 10.5517C10.8688 10.9861 11.1071 11.2224 11.5423 11.3905ZM10.7628 4.58943C11.1399 3.18725 11.6552 2.67169 13.0612 2.29471C11.6568 1.91825 11.1404 1.40376 10.7628 0C10.3858 1.40218 9.87044 1.91774 8.46442 2.29471C9.86886 2.67118 10.3852 3.18567 10.7628 4.58943ZM11.1732 7.48356C11.1732 7.35145 11.1044 7.19195 10.9118 7.13825C9.33637 6.69842 8.34932 6.19628 7.61233 5.4611C6.8754 4.72536 6.37139 3.73983 5.93249 2.1669C5.8787 1.97464 5.71894 1.9059 5.58662 1.9059C5.4543 1.9059 5.29454 1.97464 5.24076 2.1669C4.80022 3.73983 4.29727 4.7253 3.56092 5.4611C2.82291 6.19793 1.83688 6.70005 0.261415 7.13825C0.0688515 7.19195 0 7.35146 0 7.48356C0 7.61567 0.0688515 7.77518 0.261415 7.82888C1.83688 8.26871 2.82393 8.77085 3.56092 9.50602C4.29892 10.2428 4.80186 11.2273 5.24076 12.8002C5.29455 12.9925 5.45431 13.0612 5.58662 13.0612C5.71895 13.0612 5.87871 12.9925 5.93249 12.8002C6.37303 11.2273 6.87598 10.2418 7.61233 9.50602C8.35034 8.7692 9.33637 8.26707 10.9118 7.82888C11.1044 7.77517 11.1732 7.61567 11.1732 7.48356Z" fill="white"/>
                   </svg>
-                  Generate
+                  {t('modals.play.generate', 'Generate')}
                 </button>
               </div>
               
@@ -99,10 +101,10 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                   </div>
                   <div className="flex flex-col">
                     <p className="text-[#171718] text-sm font-medium">
-                      The preview has no lip movements.
+                      {t('modals.play.noLipMovements', 'The preview has no lip movements.')}
                     </p>
                     <p className="text-[#4D4D4D] text-sm leading-tight">
-                      You need to generate the video to<br/> make it visible.
+                      {t('modals.play.needGenerate', 'You need to generate the video to make it visible.')}
                     </p>
                   </div>
                 </div>
@@ -113,7 +115,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
           {/* Rating section */}
           <div className="flex flex-col items-center gap-3">
             <div className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-lg rounded-md px-3 py-3">
-              <span className="text-[#171718] text-xs">How's the video and voice quality?</span>
+              <span className="text-[#171718] text-xs">{t('modals.play.rateQuality', "How's the video and voice quality?")}</span>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -130,7 +132,7 @@ export default function PlayModal({ isOpen, onClose, title = 'Create your first 
                 ))}
               </div>
             </div>
-            <span className="text-[#878787] text-xs">Help us improve ContentBuilder</span>
+            <span className="text-[#878787] text-xs">{t('modals.play.helpImprove', 'Help us improve ContentBuilder')}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GenerationCompletedModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function GenerationCompletedModal({
   componentBasedSlideDeck,
   currentSlideId
 }: GenerationCompletedModalProps) {
+  const { t } = useLanguage();
   const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
 
@@ -65,7 +67,7 @@ export default function GenerationCompletedModal({
       
     } catch (error) {
       console.error('🎬 [GENERATION_MODAL] Download failed:', error);
-      alert('Download failed. Please try again.');
+      alert(t('modals.completed.downloadFailed', 'Download failed. Please try again.'));
     }
   };
 
@@ -141,7 +143,7 @@ export default function GenerationCompletedModal({
               {/* Generation progress text */}
               {generationStatus === 'generating' && (
                 <span className="text-xs mt-1" style={{ color: '#878787' }}>
-                  Generating video... ({generationProgress}%)
+                  {t('modals.completed.generatingProgress', 'Generating video...')} ({generationProgress}%)
                 </span>
               )}
             </div>
@@ -157,7 +159,7 @@ export default function GenerationCompletedModal({
                       className="generation-modal-clickable bg-white px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-xs flex items-center gap-2"
                       style={{ color: '#171718', borderColor: '#171718', border: '1px solid' }}
                     >
-                      Download
+                      {t('modals.completed.download', 'Download')}
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
@@ -176,7 +178,7 @@ export default function GenerationCompletedModal({
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Download MP4
+                            {t('modals.completed.downloadMp4', 'Download MP4')}
                           </button>
                         </div>
                       </div>
@@ -188,7 +190,7 @@ export default function GenerationCompletedModal({
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-white">
                   <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
                 </svg>
-                Copy link
+                {t('modals.completed.copyLink', 'Copy link')}
               </button>
               
               {/* More options button */}
@@ -210,7 +212,7 @@ export default function GenerationCompletedModal({
                     <div className="py-1">
                       {/* Exit to section */}
                       <div className="px-3 py-1">
-                        <span className="text-xs text-gray-700">Exit to</span>
+                        <span className="text-xs text-gray-700">{t('modals.completed.exitTo', 'Exit to')}</span>
                       </div>
                       
                       <button className="generation-modal-clickable w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-xs flex items-center gap-2 text-gray-700">
@@ -218,7 +220,7 @@ export default function GenerationCompletedModal({
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                           <polyline points="9,22 9,12 15,12 15,22"/>
                         </svg>
-                        Home
+                        {t('modals.completed.home', 'Home')}
                       </button>
                       
                       {/* Divider */}
@@ -228,7 +230,7 @@ export default function GenerationCompletedModal({
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14M5 12h14"/>
                         </svg>
-                        New draft
+                        {t('modals.completed.newDraft', 'New draft')}
                       </button>
                     </div>
                   </div>
@@ -247,8 +249,8 @@ export default function GenerationCompletedModal({
             {generationStatus === 'generating' && (
               <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
                 <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <span className="text-gray-700 text-sm font-medium mb-2">Generating your video...</span>
-                <span className="text-gray-500 text-xs">{generationProgress}% complete</span>
+                <span className="text-gray-700 text-sm font-medium mb-2">{t('modals.completed.generatingVideo', 'Generating your video...')}</span>
+                <span className="text-gray-500 text-xs">{generationProgress}% {t('modals.completed.percentComplete', 'complete')}</span>
               </div>
             )}
             
@@ -259,7 +261,7 @@ export default function GenerationCompletedModal({
                 preload="metadata"
               >
                 <source src={`/api/custom-projects-backend/presentations/${generationJobId}/video`} type="video/mp4" />
-                Your browser does not support the video tag.
+                {t('modals.completed.browserNotSupported', 'Your browser does not support the video tag.')}
               </video>
             )}
             
@@ -268,7 +270,7 @@ export default function GenerationCompletedModal({
                 <svg className="w-12 h-12 text-red-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span className="text-red-800 text-sm font-medium mb-2">Generation failed</span>
+                <span className="text-red-800 text-sm font-medium mb-2">{t('modals.completed.generationFailed', 'Generation failed')}</span>
                 {generationError && (
                   <span className="text-red-600 text-xs text-center px-4">{generationError}</span>
                 )}
@@ -281,11 +283,11 @@ export default function GenerationCompletedModal({
                 return (
                   <div className="w-full h-full bg-white p-4 flex flex-col">
                     <div className="text-lg font-semibold text-gray-800 mb-2 text-center">
-                      {firstSlide.props?.title || firstSlide.slideTitle || 'First Slide'}
+                      {firstSlide.props?.title || firstSlide.slideTitle || t('modals.completed.firstSlide', 'First Slide')}
                     </div>
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-gray-600 text-sm text-center">
-                        {firstSlide.props?.content || firstSlide.displayedText || 'Slide content will be displayed here'}
+                        {firstSlide.props?.content || firstSlide.displayedText || t('modals.completed.slideContentPlaceholder', 'Slide content will be displayed here')}
                       </div>
                     </div>
                   </div>
@@ -293,7 +295,7 @@ export default function GenerationCompletedModal({
               }
               return (
                 <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">First slide will be displayed here</span>
+                  <span className="text-gray-500 text-sm">{t('modals.completed.firstSlideWillDisplay', 'First slide will be displayed here')}</span>
                 </div>
               );
             })()}

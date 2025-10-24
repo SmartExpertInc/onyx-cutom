@@ -356,6 +356,52 @@ export const uk = {
       onePager: 'Ставка односторінки',
       quiz: 'Ставка тесту',
       videoLesson: 'Ставка відео-уроку'
+    },
+    play: {
+      videoPreviewArea: "Область попереднього перегляду відео",
+      draft: "Чернетка",
+      cancel: "Скасувати",
+      generate: "Згенерувати",
+      noLipMovements: "У попередньому перегляді немає руху губ.",
+      needGenerate: "Необхідно згенерувати відео, щоб побачити його.",
+      rateQuality: "Яка якість відео та голосу?",
+      helpImprove: "Допоможіть нам покращити ContentBuilder"
+    },
+    generate: {
+      title: "Згенерувати відео",
+      titleLabel: "Назва",
+      titlePlaceholder: "Введіть назву відео",
+      subtitles: "Субтитри",
+      selectSubtitle: "Виберіть опцію субтитрів",
+      optionalSubtitles: "Опціональні субтитри (SRT/VTT)",
+      optionalSubtitlesDesc: "Можуть бути увімкнені глядачами на вимогу",
+      burntInSubtitles: "Вбудовані субтитри",
+      burntInSubtitlesDesc: "Вбудовані у відео, не можна вимкнути",
+      resolution: "Роздільна здатність",
+      location: "Розташування",
+      library: "Бібліотека",
+      cancel: "Скасувати",
+      startGeneration: "Почати генерацію",
+      startingGeneration: "Початок генерації...",
+      generationInProgress: "Генерація виконується...",
+      startVideoGeneration: "Почати генерацію відео"
+    },
+    completed: {
+      generatingProgress: "Генерація відео...",
+      download: "Завантажити",
+      downloadMp4: "Завантажити MP4",
+      copyLink: "Копіювати посилання",
+      exitTo: "Вийти в",
+      home: "Головна",
+      newDraft: "Нова чернетка",
+      generatingVideo: "Генерація вашого відео...",
+      percentComplete: "завершено",
+      browserNotSupported: "Ваш браузер не підтримує тег video.",
+      generationFailed: "Генерація не вдалася",
+      firstSlide: "Перший слайд",
+      slideContentPlaceholder: "Вміст слайду буде відображено тут",
+      firstSlideWillDisplay: "Перший слайд буде відображено тут",
+      downloadFailed: "Завантаження не вдалося. Будь ласка, спробуйте знову."
     }
   },
   projects: {
@@ -1890,6 +1936,46 @@ export const uk = {
       insertScene: "Вставити сцену",
       deleteSlide: "Видалити слайд",
       deleteScene: "Видалити сцену"
+    },
+    aspectRatio: {
+      desktop: "Настільне відео, Youtube",
+      story: "Історія Instagram",
+      square: "Квадрат, пост Instagram",
+      custom: "встановити власний розмір"
+    },
+    tools: {
+      script: "Скрипт",
+      avatar: "Аватар",
+      shape: "Фігура",
+      text: "Текст",
+      media: "Медіа"
+    },
+    actions: {
+      preview: "Попередній перегляд",
+      debug: "Налагодження",
+      debugTooltip: "Рендер слайдів тільки з переходами (без аватара) - для тестування та налагодження",
+      generate: "Згенерувати"
     }
+  },
+  productViewHeader: {
+    aiImprove: "AI Покращити",
+    export: "Експорт",
+    exportToPdf: "Експорт у PDF",
+    exportScorm: "Експорт у SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Увійти",
+    adminSettings: "Налаштування адміністратора",
+    logOut: "Вийти"
+  },
+  scormDownload: {
+    preparing: "Підготовка пакету SCORM",
+    building: "Створення пакету SCORM 2004...",
+    ready: "SCORM готовий",
+    downloadStarted: "Завантаження розпочато.",
+    exportFailed: "Експорт не вдався",
+    unexpectedError: "Неочікувана помилка",
+    exporting: "Експортується…",
+    downloadScorm: "Завантажити SCORM 2004"
   }
 };

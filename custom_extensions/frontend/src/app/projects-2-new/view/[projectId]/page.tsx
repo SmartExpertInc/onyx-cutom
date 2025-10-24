@@ -838,12 +838,18 @@ export default function Projects2ViewPage() {
       <AvatarDataProvider>
         <div className="h-screen flex flex-col relative" style={{ backgroundColor: '#F2F2F4' }} onClick={(e) => {
           closeMenu();
-          // Hide text toolbar when clicking outside
+          // Hide text toolbar and color picker when clicking outside
           const target = e.target as HTMLElement;
-          if (!target.closest('[data-textsettings-panel]') && 
-              !target.closest('.ProseMirror') && 
-              !target.closest('.text-editing-toolbar') &&
-              !target.closest('[data-color-palette-popup]')) {
+          const isOutsideToolbarArea = !target.closest('[data-textsettings-panel]') && 
+                                        !target.closest('.ProseMirror') && 
+                                        !target.closest('.text-editing-toolbar') &&
+                                        !target.closest('[data-color-palette-popup]');
+          
+          if (isOutsideToolbarArea) {
+            console.log('🔍 Main container click - closing toolbar', {
+              targetClass: target.className,
+              isOutsideToolbarArea
+            });
             setIsTextToolbarVisible(false);
           }
         }}>
@@ -856,7 +862,6 @@ export default function Projects2ViewPage() {
         setShowSmartEditor={setShowSmartEditor}
         scormEnabled={false}
         componentName="VideoLessonPresentationDisplay"
-        t={t}
         showVideoEditorTools={true}
         activeSettingsPanel={activeSettingsPanel}
         onSettingsButtonClick={handleSettingsButtonClick}

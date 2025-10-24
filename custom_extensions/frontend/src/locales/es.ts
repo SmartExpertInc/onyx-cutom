@@ -332,6 +332,52 @@ export const es = {
       onePager: 'Tarifa de una página',
       quiz: 'Tarifa de cuestionario',
       videoLesson: 'Tarifa de lección de video'
+    },
+    play: {
+      videoPreviewArea: "Área de vista previa de vídeo",
+      draft: "Borrador",
+      cancel: "Cancelar",
+      generate: "Generar",
+      noLipMovements: "La vista previa no tiene movimientos de labios.",
+      needGenerate: "Necesitas generar el vídeo para hacerlo visible.",
+      rateQuality: "¿Cómo es la calidad del vídeo y la voz?",
+      helpImprove: "Ayúdanos a mejorar ContentBuilder"
+    },
+    generate: {
+      title: "Generar vídeo",
+      titleLabel: "Título",
+      titlePlaceholder: "Ingrese el título del vídeo",
+      subtitles: "Subtítulos",
+      selectSubtitle: "Seleccionar opción de subtítulos",
+      optionalSubtitles: "Subtítulos opcionales (SRT/VTT)",
+      optionalSubtitlesDesc: "Pueden ser activados por los espectadores bajo demanda",
+      burntInSubtitles: "Subtítulos integrados",
+      burntInSubtitlesDesc: "Integrados en el vídeo, no se pueden desactivar",
+      resolution: "Resolución",
+      location: "Ubicación",
+      library: "Biblioteca",
+      cancel: "Cancelar",
+      startGeneration: "Iniciar generación",
+      startingGeneration: "Iniciando generación...",
+      generationInProgress: "Generación en progreso...",
+      startVideoGeneration: "Iniciar generación de vídeo"
+    },
+    completed: {
+      generatingProgress: "Generando vídeo...",
+      download: "Descargar",
+      downloadMp4: "Descargar MP4",
+      copyLink: "Copiar enlace",
+      exitTo: "Salir a",
+      home: "Inicio",
+      newDraft: "Nuevo borrador",
+      generatingVideo: "Generando tu vídeo...",
+      percentComplete: "completado",
+      browserNotSupported: "Tu navegador no soporta la etiqueta de vídeo.",
+      generationFailed: "Generación fallida",
+      firstSlide: "Primera diapositiva",
+      slideContentPlaceholder: "El contenido de la diapositiva se mostrará aquí",
+      firstSlideWillDisplay: "La primera diapositiva se mostrará aquí",
+      downloadFailed: "Descarga fallida. Por favor, inténtalo de nuevo."
     }
   },
   projects: {
@@ -1910,6 +1956,46 @@ export const es = {
       insertScene: "Insertar escena",
       deleteSlide: "Eliminar diapositiva",
       deleteScene: "Eliminar escena"
+    },
+    aspectRatio: {
+      desktop: "Vídeo de escritorio, Youtube",
+      story: "Historia de Instagram",
+      square: "Cuadrado, publicación de Instagram",
+      custom: "establecer un tamaño personalizado"
+    },
+    tools: {
+      script: "Guión",
+      avatar: "Avatar",
+      shape: "Forma",
+      text: "Texto",
+      media: "Medios"
+    },
+    actions: {
+      preview: "Vista previa",
+      debug: "Depurar",
+      debugTooltip: "Renderizar diapositivas solo con transiciones (sin avatar) - para pruebas y depuración",
+      generate: "Generar"
     }
+  },
+  productViewHeader: {
+    aiImprove: "Mejorar con IA",
+    export: "Exportar",
+    exportToPdf: "Exportar a PDF",
+    exportScorm: "Exportar a SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Iniciar sesión",
+    adminSettings: "Configuración de administrador",
+    logOut: "Cerrar sesión"
+  },
+  scormDownload: {
+    preparing: "Preparando paquete SCORM",
+    building: "Construyendo paquete SCORM 2004...",
+    ready: "SCORM listo",
+    downloadStarted: "Descarga iniciada.",
+    exportFailed: "Exportación fallida",
+    unexpectedError: "Error inesperado",
+    exporting: "Exportando…",
+    downloadScorm: "Descargar SCORM 2004"
   }
 };

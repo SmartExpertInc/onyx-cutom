@@ -382,6 +382,52 @@ export const en = {
       onePager: 'One‑pager rate',
       quiz: 'Quiz rate',
       videoLesson: 'Video lesson rate'
+    },
+    play: {
+      videoPreviewArea: "Video preview area",
+      draft: "Draft",
+      cancel: "Cancel",
+      generate: "Generate",
+      noLipMovements: "The preview has no lip movements.",
+      needGenerate: "You need to generate the video to make it visible.",
+      rateQuality: "How's the video and voice quality?",
+      helpImprove: "Help us improve ContentBuilder"
+    },
+    generate: {
+      title: "Generate video",
+      titleLabel: "Title",
+      titlePlaceholder: "Enter video title",
+      subtitles: "Subtitles",
+      selectSubtitle: "Select subtitle option",
+      optionalSubtitles: "Optional subtitles (SRT/VTT)",
+      optionalSubtitlesDesc: "Can be turned on by viewers on demand",
+      burntInSubtitles: "Burnt-in subtitles",
+      burntInSubtitlesDesc: "Burnt into the video, can't be disabled",
+      resolution: "Resolution",
+      location: "Location",
+      library: "Library",
+      cancel: "Cancel",
+      startGeneration: "Start generation",
+      startingGeneration: "Starting generation...",
+      generationInProgress: "Generation in progress...",
+      startVideoGeneration: "Start video generation"
+    },
+    completed: {
+      generatingProgress: "Generating video...",
+      download: "Download",
+      downloadMp4: "Download MP4",
+      copyLink: "Copy link",
+      exitTo: "Exit to",
+      home: "Home",
+      newDraft: "New draft",
+      generatingVideo: "Generating your video...",
+      percentComplete: "complete",
+      browserNotSupported: "Your browser does not support the video tag.",
+      generationFailed: "Generation failed",
+      firstSlide: "First Slide",
+      slideContentPlaceholder: "Slide content will be displayed here",
+      firstSlideWillDisplay: "First slide will be displayed here",
+      downloadFailed: "Download failed. Please try again."
     }
   },
   projects: {
@@ -1795,6 +1841,46 @@ export const en = {
       insertScene: "Insert Scene",
       deleteSlide: "Delete Slide",
       deleteScene: "Delete Scene"
+    },
+    aspectRatio: {
+      desktop: "Desktop video, Youtube",
+      story: "Instagram story",
+      square: "Square, instagram post",
+      custom: "set a custom size"
+    },
+    tools: {
+      script: "Script",
+      avatar: "Avatar",
+      shape: "Shape",
+      text: "Text",
+      media: "Media"
+    },
+    actions: {
+      preview: "Preview",
+      debug: "Debug",
+      debugTooltip: "Render slides with transitions only (no avatar) - for testing and debugging",
+      generate: "Generate"
     }
+  },
+  productViewHeader: {
+    aiImprove: "AI Improve",
+    export: "Export",
+    exportToPdf: "Export to PDF",
+    exportScorm: "Export to SCORM 2004"
+  },
+  userDropdown: {
+    logIn: "Log In",
+    adminSettings: "Admin Settings",
+    logOut: "Log out"
+  },
+  scormDownload: {
+    preparing: "Preparing SCORM Package",
+    building: "Building SCORM 2004 package...",
+    ready: "SCORM Ready",
+    downloadStarted: "Download started.",
+    exportFailed: "Export Failed",
+    unexpectedError: "Unexpected error",
+    exporting: "Exporting…",
+    downloadScorm: "Download SCORM 2004"
   }
 };

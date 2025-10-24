@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Download } from 'lucide-react';
 import { useToast } from './ui/toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ScormDownloadButtonProps {
   courseOutlineId: number;
@@ -13,12 +14,13 @@ interface ScormDownloadButtonProps {
 
 const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutlineId, label, className, style }) => {
   const { addToast, updateToast } = useToast();
+  const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
 
   const handleDownload = async () => {
     if (isExporting) return;
     setIsExporting(true);
-    const toastId = addToast({ type: 'loading', title: 'Preparing SCORM Package', description: 'Building SCORM 2004 package...', duration: 0 });
+    const toastId = addToast({ type: 'loading', title: t('scormDownload.preparing', 'Preparing SCORM Package'), description: t('scormDownload.building', 'Building SCORM 2004 package...'), duration: 0 });
     try {
       const res = await fetch('/api/custom-projects-backend/lms/export/scorm', {
         method: 'POST',
@@ -42,9 +44,9 @@ const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutline
       a.remove();
       window.URL.revokeObjectURL(url);
 
-      updateToast(toastId, { type: 'success', title: 'SCORM Ready', description: 'Download started.', duration: 5000 });
+      updateToast(toastId, { type: 'success', title: t('scormDownload.ready', 'SCORM Ready'), description: t('scormDownload.downloadStarted', 'Download started.'), duration: 5000 });
     } catch (e: any) {
-      updateToast(toastId, { type: 'error', title: 'Export Failed', description: e?.message || 'Unexpected error', duration: 7000 });
+      updateToast(toastId, { type: 'error', title: t('scormDownload.exportFailed', 'Export Failed'), description: e?.message || t('scormDownload.unexpectedError', 'Unexpected error'), duration: 7000 });
     } finally {
       setIsExporting(false);
     }
@@ -58,7 +60,7 @@ const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutline
       style={style}
     >
       {isExporting ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Download size={18} />}
-      {label || (isExporting ? 'Exporting…' : 'Download SCORM 2004')}
+      {label || (isExporting ? t('scormDownload.exporting', 'Exporting…') : t('scormDownload.downloadScorm', 'Download SCORM 2004'))}
     </button>
   );
 };
