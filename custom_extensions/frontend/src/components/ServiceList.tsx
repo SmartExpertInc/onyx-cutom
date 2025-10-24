@@ -127,22 +127,31 @@ export function ServiceList({
     >
       <SortableContext items={serviceOrder} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-[30px] xl:gap-[50px]">
-          {serviceOrder.map((serviceId, index) => (
-            <SortableService
-              key={serviceId}
-              serviceId={serviceId}
-              isDeleted={deletedElements[serviceId] || false}
-            >
-              {renderService(serviceId, index)}
-            </SortableService>
-          ))}
+          {serviceOrder.map((serviceId, index) => {
+            // Calculate the visible index (excluding deleted services)
+            const visibleIndex = serviceOrder.slice(0, index + 1).filter(id => !deletedElements[id]).length - 1;
+            
+            return (
+              <SortableService
+                key={serviceId}
+                serviceId={serviceId}
+                isDeleted={deletedElements[serviceId] || false}
+              >
+                {renderService(serviceId, visibleIndex)}
+              </SortableService>
+            );
+          })}
         </div>
       </SortableContext>
       
       <DragOverlay>
         {activeId ? (
           <div className="opacity-95 rotate-1 scale-105 shadow-2xl">
-            {renderService(activeId, serviceOrder.indexOf(activeId))}
+            {(() => {
+              const activeIndex = serviceOrder.indexOf(activeId);
+              const visibleIndex = serviceOrder.slice(0, activeIndex + 1).filter(id => !deletedElements[id]).length - 1;
+              return renderService(activeId, visibleIndex);
+            })()}
           </div>
         ) : null}
       </DragOverlay>
