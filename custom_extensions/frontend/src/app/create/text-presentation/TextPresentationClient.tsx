@@ -1574,15 +1574,15 @@ export default function TextPresentationClient() {
       <div 
         className="absolute pointer-events-none"
         style={{
-          width: '1100px',
-          height: '1500px',
+          width: '1200px',
+          height: '1600px',
           top: '-500px',
           left: '-350px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(56, 23, 255, 0.9) 100%)',
           transform: 'rotate(-300deg)',
           filter: 'blur(200px)',
-          opacity: '40%',
+          opacity: '30%',
         }}
       />
       <div 
@@ -1590,7 +1590,7 @@ export default function TextPresentationClient() {
         style={{
           width: '1960px',
           height: '2400px',
-          top: '958px',
+          top: '1258px',
           left: '433px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
@@ -1616,7 +1616,7 @@ export default function TextPresentationClient() {
       <div className="w-full max-w-4xl flex flex-col gap-0 text-gray-900 relative z-10">
 
           {/* Page title */}
-          <h1 className="text-center text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">One-Pager outline preview</h1>
+          <h1 className="text-center pb-6 text-2xl sora-font-semibold leading-none text-[#4B4B51] mb-2">One-Pager outline preview</h1>
 
           {/* Main content container - removed this div wrapper */}
           {/* Prompt input for standalone presentation */}
@@ -1862,7 +1862,7 @@ export default function TextPresentationClient() {
                 </div>
 
                 {/* Content section */}
-                <div className="bg-white rounded-full border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="bg-white border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
                     <h2 className="text-base font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
                     <p className="text-[#A5A5A5] font-light text-xs">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
@@ -1873,7 +1873,7 @@ export default function TextPresentationClient() {
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                       <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-[#E0E0E0] bg-white text-sm text-[#171718] font-semibold cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="border-[#E0E0E0]" side="top">
@@ -1891,7 +1891,7 @@ export default function TextPresentationClient() {
 
           {/* AI Agent section */}
           {streamDone && content && showAdvanced && (
-            <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <div className="rounded-lg pt-8 border border-[#CCCCCC] py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}
