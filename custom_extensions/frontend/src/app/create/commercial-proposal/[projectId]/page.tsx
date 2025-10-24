@@ -369,21 +369,21 @@ export default function CommercialProposalPage() {
     const serviceNumber = index + 1; // Use 1-based indexing for display
     
     return (
-      <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px] relative" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-        <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-          <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-            {getLocalizedText(proposalData?.language, {
-              en: `Service ${serviceNumber}:`,
-              es: `Servicio ${serviceNumber}:`,
-              ua: `Послуга ${serviceNumber}:`,
-              ru: `Услуга ${serviceNumber}:`
-            })}
-          </span>
-        </div>
-        
+      <>
         {/* Service content based on ID */}
         {serviceId === 'service1' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                {getLocalizedText(proposalData?.language, {
+                  en: `Service ${serviceNumber}:`,
+                  es: `Servicio ${serviceNumber}:`,
+                  ua: `Послуга ${serviceNumber}:`,
+                  ru: `Услуга ${serviceNumber}:`
+                })}
+              </span>
+            </div>
+
             <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
               {editingField === 'serviceTemplatesDescription' ? (
                 <InlineEditor
@@ -2355,7 +2355,18 @@ export default function CommercialProposalPage() {
         )}
         
         {serviceId === 'service2' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>      
+          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                {getLocalizedText(proposalData?.language, {
+                  en: `Service ${serviceNumber}:`,
+                  es: `Servicio ${serviceNumber}:`,
+                  ua: `Послуга ${serviceNumber}:`,
+                  ru: `Услуга ${serviceNumber}:`
+                })}
+              </span>
+            </div>
+            
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
               ContentBuilder.ai — AI-<br className="xl:hidden"/>{getLocalizedText(proposalData?.language, {
                 en: 'platform for',
@@ -2775,7 +2786,18 @@ export default function CommercialProposalPage() {
         )}
         
         {serviceId === 'service3' && (
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>      
+          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+                {getLocalizedText(proposalData?.language, {
+                  en: `Service ${serviceNumber}:`,
+                  es: `Servicio ${serviceNumber}:`,
+                  ua: `Послуга ${serviceNumber}:`,
+                  ru: `Услуга ${serviceNumber}:`
+                })}
+              </span>
+            </div>
+            
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
               {getLocalizedText(proposalData?.language, {
                 en: 'LMS platform',
@@ -4081,6 +4103,17 @@ export default function CommercialProposalPage() {
           className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]"
           style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}
         > 
+          <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+            <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
+              {getLocalizedText(proposalData?.language, {
+                en: `Service ${serviceNumber}:`,
+                es: `Servicio ${serviceNumber}:`,
+                ua: `Послуга ${serviceNumber}:`,
+                ru: `Услуга ${serviceNumber}:`
+              })}
+            </span>
+          </div>
+
           <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
             Expert-as-a-Service — {getLocalizedText(proposalData?.language, {
               en: 'Methodologist:',
@@ -5283,7 +5316,7 @@ export default function CommercialProposalPage() {
           </div> 
         </DeletableWrapper>
         )}
-      </div>
+      </>
     );
   };
 
