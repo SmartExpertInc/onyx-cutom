@@ -6,6 +6,14 @@ import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
+
+export interface ComputedStyles {
+  fontSize?: string;
+  fontFamily?: string;
+  color?: string;
+  textAlign?: string;
+}
 
 export interface ControlledWysiwygEditorProps {
   initialValue: string;
@@ -14,7 +22,7 @@ export interface ControlledWysiwygEditorProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
-  onEditorReady?: (editor: Editor) => void;
+  onEditorReady?: (editor: Editor, computedStyles?: ComputedStyles) => void;
   onSelectionChange?: (hasSelection: boolean) => void;
 }
 
@@ -52,8 +60,46 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
           codeBlock: false,
           horizontalRule: false,
         }),
-        TextStyle,
+        TextStyle.configure({
+          HTMLAttributes: {
+            class: 'text-style',
+          },
+        }).extend({
+          addAttributes() {
+            return {
+              ...this.parent?.(),
+              fontFamily: {
+                default: null,
+                parseHTML: element => element.style.fontFamily || null,
+                renderHTML: attributes => {
+                  if (!attributes.fontFamily) {
+                    return {};
+                  }
+                  return {
+                    style: `font-family: ${attributes.fontFamily}`,
+                  };
+                },
+              },
+              fontSize: {
+                default: null,
+                parseHTML: element => element.style.fontSize || null,
+                renderHTML: attributes => {
+                  if (!attributes.fontSize) {
+                    return {};
+                  }
+                  return {
+                    style: `font-size: ${attributes.fontSize}`,
+                  };
+                },
+              },
+            };
+          },
+        }),
         Color,
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+          alignments: ['left', 'center', 'right', 'justify'],
+        }),
       ],
       content: initialValue || '',
       editorProps: {
@@ -77,7 +123,26 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       if (editor) {
         editor.commands.focus('end');
         editor.commands.selectAll();
-        onEditorReady?.(editor);
+        
+        // Read computed styles from the DOM
+        try {
+          const editorElement = editor.view.dom;
+          const computedStyles = window.getComputedStyle(editorElement);
+          
+          const extractedStyles: ComputedStyles = {
+            fontSize: computedStyles.fontSize,      // e.g., "40px" (computed from 2.5rem)
+            fontFamily: computedStyles.fontFamily,  // e.g., "Lora, serif"
+            color: computedStyles.color,            // e.g., "rgb(255, 255, 255)"
+            textAlign: computedStyles.textAlign,    // e.g., "left"
+          };
+          
+          console.log('📏 [ControlledEditor] Computed styles:', extractedStyles);
+          
+          onEditorReady?.(editor, extractedStyles);
+        } catch (error) {
+          console.warn('Failed to read computed styles:', error);
+          onEditorReady?.(editor);
+        }
       }
     }, [editor, onEditorReady]);
 
@@ -121,19 +186,25 @@ export const ControlledWysiwygEditor = forwardRef<ControlledWysiwygEditorRef, Co
       }
     };
 
-    // Add global styles for formatting tags to inherit font
+    // Add global styles for formatting tags
     useEffect(() => {
       const styleId = 'controlled-wysiwyg-formatting-styles';
       if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
+          /* Ensure formatting tags inherit font properties unless explicitly overridden */
           .controlled-wysiwyg-editor strong,
           .controlled-wysiwyg-editor em,
           .controlled-wysiwyg-editor u,
-          .controlled-wysiwyg-editor s,
-          .controlled-wysiwyg-editor span {
+          .controlled-wysiwyg-editor s {
             font-family: inherit !important;
+            font-size: inherit !important;
+          }
+          
+          /* Span tags can have inline styles for font-family, font-size, and color */
+          .controlled-wysiwyg-editor span {
+            /* Inline styles will override via specificity */
           }
         `;
         document.head.appendChild(style);

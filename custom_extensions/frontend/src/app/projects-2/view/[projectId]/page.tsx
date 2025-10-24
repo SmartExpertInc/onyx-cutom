@@ -74,6 +74,10 @@ export default function Projects2ViewPage() {
   
   // NEW: Track active text editor for TextSettings control
   const [activeTextEditor, setActiveTextEditor] = useState<any | null>(null);
+  const [computedTextStyles, setComputedTextStyles] = useState<any | null>(null);
+  
+  // NEW: Track active transition for Transition panel
+  const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -274,6 +278,49 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // NEW: Handle transition button click
+  const handleTransitionClick = (transitionIndex: number) => {
+    console.log('🎬 Transition clicked:', transitionIndex);
+    setActiveTransitionIndex(transitionIndex);
+    setActiveSettingsPanel('transition');
+  };
+
+  // NEW: Handle transition change
+  const handleTransitionChange = (transitionData: any) => {
+    if (!isComponentBasedVideoLesson || !componentBasedSlideDeck || activeTransitionIndex === null) return;
+    
+    console.log('🎬 Transition change:', { transitionIndex: activeTransitionIndex, transitionData });
+    
+    // Initialize transitions array if it doesn't exist
+    const transitions = componentBasedSlideDeck.transitions || [];
+    
+    // Ensure array is large enough (should be slides.length - 1)
+    const requiredLength = componentBasedSlideDeck.slides.length - 1;
+    while (transitions.length < requiredLength) {
+      transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
+    }
+    
+    // Check if "Apply to all" is enabled
+    if (transitionData.applyToAll) {
+      // Apply the same transition to ALL transition slots
+      for (let i = 0; i < transitions.length; i++) {
+        transitions[i] = { ...transitionData };
+      }
+    } else {
+      // Update only the specific transition
+      transitions[activeTransitionIndex] = { ...transitionData };
+    }
+    
+    // Update the deck with new transitions
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentBasedSlideDeck,
+      transitions: [...transitions]
+    };
+    
+    setComponentBasedSlideDeck(updatedDeck);
+    saveVideoLessonData(updatedDeck);
   };
 
   // NEW: Function to delete slide (following old interface pattern)
@@ -622,7 +669,7 @@ export default function Projects2ViewPage() {
     if (activeSettingsPanel) {
       switch (activeSettingsPanel) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -638,7 +685,7 @@ export default function Projects2ViewPage() {
     if (selectedElement) {
       switch (selectedElement) {
         case 'text':
-          return <TextSettings activeEditor={activeTextEditor} />;
+          return <TextSettings activeEditor={activeTextEditor} computedStyles={computedTextStyles} />;
         case 'image':
           return <ImageSettings />;
         case 'avatar':
@@ -676,7 +723,14 @@ export default function Projects2ViewPage() {
       case 'music':
         return <Music />;
       case 'transition':
-        return <Transition />;
+        const currentTransition = componentBasedSlideDeck?.transitions?.[activeTransitionIndex || 0] || null;
+        return (
+          <Transition 
+            transitionIndex={activeTransitionIndex}
+            currentTransition={currentTransition}
+            onTransitionChange={handleTransitionChange}
+          />
+        );
       case 'comments':
         return <Comments />;
       default:
@@ -843,9 +897,10 @@ export default function Projects2ViewPage() {
                           saveVideoLessonData(updatedDeck);
                         }
                       }}
-                      onEditorActive={(editor, field) => {
-                        console.log('✏️ Editor active:', { field, hasEditor: !!editor });
+                      onEditorActive={(editor, field, computedStyles) => {
+                        console.log('✏️ Editor active:', { field, hasEditor: !!editor, computedStyles });
                         setActiveTextEditor(editor);
+                        setComputedTextStyles(computedStyles || null);
                         setActiveSettingsPanel('text');
                       }}
                       theme="default"
@@ -878,6 +933,8 @@ export default function Projects2ViewPage() {
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}
             onOpenTemplateSelector={handleOpenTemplateSelector}
+            onTransitionClick={handleTransitionClick}
+            activeTransitionIndex={activeTransitionIndex}
           />
         </div>
       </div>

@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 import YourLogo from '../YourLogo';
+import { ControlledWysiwygEditor, ControlledWysiwygEditorRef } from '@/components/editors/ControlledWysiwygEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -125,6 +126,7 @@ function InlineEditor({
 
 export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   theme?: SlideTheme | string;
+  onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
 }> = ({
   slideId,
   title = 'Course',
@@ -140,7 +142,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   theme,
   voiceoverText,
   logoPath = '',
-  pageNumber = '01'
+  pageNumber = '01',
+  onEditorActive
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -148,6 +151,10 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  
+  // Editor refs
+  const titleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
+  const subtitleEditorRef = useRef<ControlledWysiwygEditorRef>(null);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -168,6 +175,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, title: newTitle });
     }
@@ -176,6 +184,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const handleSubtitleSave = (newSubtitle: string) => {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
+    onEditorActive?.(null as any, 'subtitle');
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, subtitle: newSubtitle });
     }
@@ -184,11 +193,13 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const handleTitleCancel = () => {
     setCurrentTitle(title);
     setEditingTitle(false);
+    onEditorActive?.(null as any, 'title');
   };
 
   const handleSubtitleCancel = () => {
     setCurrentSubtitle(subtitle);
     setEditingSubtitle(false);
+    onEditorActive?.(null as any, 'subtitle');
   };
 
   const handleImageUploaded = (newImagePath: string) => {
@@ -299,10 +310,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           gap: '2.5%'
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={titleEditorRef}
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
+              placeholder="Enter title..."
               className="course-overview-title-editor"
               style={{
                 fontSize: '5.26vw',
@@ -310,8 +323,13 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
                 userSelect: 'none',
-                position: 'relative'
+                position: 'relative',
+                padding: '8px 12px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'title', computedStyles)}
             />
           ) : (
             <div
@@ -325,16 +343,18 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 userSelect: 'none',
                 position: 'relative'
               }}
-            >
-              {currentTitle}
-            </div>
+              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
+              dangerouslySetInnerHTML={{ __html: currentTitle }}
+            />
           )}
 
           {isEditable && editingSubtitle ? (
-            <InlineEditor
+            <ControlledWysiwygEditor
+              ref={subtitleEditorRef}
               initialValue={currentSubtitle}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
+              placeholder="Enter subtitle..."
               className="course-overview-subtitle-editor"
               style={{
                 fontSize: '1.84vw',
@@ -342,8 +362,13 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
                 userSelect: 'none',
-                position: 'relative'
+                position: 'relative',
+                padding: '8px 12px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
               }}
+              onEditorReady={(editor, computedStyles) => onEditorActive?.(editor, 'subtitle', computedStyles)}
             />
           ) : (
             <div
@@ -357,9 +382,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 userSelect: 'none',
                 position: 'relative'
               }}
-            >
-              {currentSubtitle}
-            </div>
+              className={isEditable ? 'cursor-pointer hover:opacity-80' : ''}
+              dangerouslySetInnerHTML={{ __html: currentSubtitle }}
+            />
           )}
         </div>
       </div>

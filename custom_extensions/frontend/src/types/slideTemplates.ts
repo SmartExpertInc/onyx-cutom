@@ -84,9 +84,17 @@ export interface ComponentBasedSlide {
   };
 }
 
+export interface SlideTransition {
+  type: 'none' | 'fade' | 'close' | 'crop' | 'blur' | 'open' | 'slide' | 'wipe' | 'smooth-wipe';
+  duration: number; // Duration in seconds (0.5 - 3.0)
+  variant?: 'circle' | 'horizontal-chevrons' | 'vertical-chevrons'; // Variant for transition effect
+  applyToAll?: boolean; // If true, this transition applies to all slides
+}
+
 export interface ComponentBasedSlideDeck {
   lessonTitle: string;
   slides: ComponentBasedSlide[];
+  transitions?: SlideTransition[]; // Array of transitions (length = slides.length - 1)
   currentSlideId?: string | null;
   lessonNumber?: number | null;
   detectedLanguage?: string | null;
