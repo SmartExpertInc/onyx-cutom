@@ -1309,7 +1309,12 @@ export default function CommercialProposalPage() {
                                       </svg>
                                     )}
                                     <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      Проверка знаний: {assessment.type}
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: 'Knowledge check: ',
+                                        es: 'Verificación de conocimientos: ',
+                                        ua: 'Перевірка знань: ',
+                                        ru: 'Проверка знаний: '
+                                      })}: {assessment.type}
                                     </span>
                                   </div>
                                   
@@ -1328,7 +1333,12 @@ export default function CommercialProposalPage() {
                             // Fallback if no lessons available
                             <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                               <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                Основные этапы открытия салона
+                                {getLocalizedText(proposalData?.language, {
+                                  en: 'Main steps of opening a salon',
+                                  es: 'Pasos principales para abrir un salón',
+                                  ua: 'Основні кроки відкриття салону',
+                                  ru: 'Основные этапы открытия салона'
+                                })}
                               </span>
                               <div className="flex items-center justify-between mb-[12px]">
                                 <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -1349,7 +1359,12 @@ export default function CommercialProposalPage() {
                                     <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                   </svg>
                                   <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    5 мин
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: '5 minutes',
+                                      es: '5 minutos',
+                                      ua: '5 хвилин',
+                                      ru: '5 минут'
+                                    })}
                                   </span>
                                 </div>
                               </div>
@@ -1577,7 +1592,12 @@ export default function CommercialProposalPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                    Поиск и отбор сотрудников
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Search and selection of employees',
+                                      es: 'Búsqueda y selección de empleados',
+                                      ua: 'Пошук і відбір співробітників',
+                                      ru: 'Поиск и отбор сотрудников'
+                                    })}
                                   </div>
                                   <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1597,7 +1617,12 @@ export default function CommercialProposalPage() {
                                       <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                     </svg>
                                     <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      5 мин
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: '5 minutes',
+                                        es: '5 minutos',
+                                        ua: '5 хвилин',
+                                        ru: '5 минут'
+                                      })}
                                     </span>
                                   </div>
                                 </div>
@@ -1630,7 +1655,12 @@ export default function CommercialProposalPage() {
                                     </svg>
                                   )}
                                   <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    Проверка знаний: {assessment.type}
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: ',
+                                      es: 'Verificación de conocimientos: ',
+                                      ua: 'Перевірка знань: ',
+                                      ru: 'Проверка знаний: '
+                                    })} {assessment.type}
                                   </span>
                                 </div>
                                 
@@ -1649,7 +1679,12 @@ export default function CommercialProposalPage() {
                           // Fallback if no lessons available
                           <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                             <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Поиск и отбор сотрудников
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'Search and selection of employees',
+                                es: 'Búsqueda y selección de empleados',
+                                ua: 'Пошук і відбір співробітників',
+                                ru: 'Поиск и отбор сотрудников'
+                              })}
                             </span>
                             <div className="flex items-center justify-between mb-[12px]">
                               <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -1670,7 +1705,12 @@ export default function CommercialProposalPage() {
                                   <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                 </svg>
                                 <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  5 мин
+                                  {getLocalizedText(proposalData?.language, {
+                                    en: '5 minutes',
+                                    es: '5 minutos',
+                                    ua: '5 хвилин',
+                                    ru: '5 минут'
+                                  })}
                                 </span>
                               </div>
                             </div>
@@ -1896,7 +1936,12 @@ export default function CommercialProposalPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                    Стратегия продвижения
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Strategy of promotion',
+                                      es: 'Estrategia de promoción',
+                                      ua: 'Стратегія просування',
+                                      ru: 'Стратегия продвижения'
+                                    })}
                                   </div>
                                   <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1916,7 +1961,12 @@ export default function CommercialProposalPage() {
                                       <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                     </svg>
                                     <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      5 мин
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: '5 minutes',
+                                        es: '5 minutos',
+                                        ua: '5 хвилин',
+                                        ru: '5 минут'
+                                      })}
                                     </span>
                                   </div>
                                 </div>
@@ -1949,7 +1999,12 @@ export default function CommercialProposalPage() {
                                     </svg>
                                   )}
                                   <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    Проверка знаний: {assessment.type}
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: ',
+                                      es: 'Verificación de conocimientos: ',
+                                      ua: 'Перевірка знань: ',
+                                      ru: 'Проверка знаний: '
+                                    })} {assessment.type}
                                   </span>
                                 </div>
                                 
@@ -1968,7 +2023,12 @@ export default function CommercialProposalPage() {
                           // Fallback if no lessons available
                           <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                             <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Стратегия продвижения
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'Strategy of promotion',
+                                es: 'Estrategia de promoción',
+                                ua: 'Стратегія просування',
+                                ru: 'Стратегия продвижения'
+                              })}
                             </span>
                             <div className="flex items-center justify-between mb-[12px]">
                               <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -1989,7 +2049,12 @@ export default function CommercialProposalPage() {
                                   <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                 </svg>
                                 <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  5 мин
+                                  {getLocalizedText(proposalData?.language, {
+                                    en: '5 minutes',
+                                    es: '5 minutos',
+                                    ua: '5 хвилин',
+                                    ru: '5 минут'
+                                  })}
                                 </span>
                               </div>
                             </div>
@@ -2215,7 +2280,12 @@ export default function CommercialProposalPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                    Финансовое планирование
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Financial planning',
+                                      es: 'Planificación financiera',
+                                      ua: 'Фінансове планування',
+                                      ru: 'Финансовое планирование'
+                                    })}
                                   </div>
                                   <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2235,7 +2305,12 @@ export default function CommercialProposalPage() {
                                       <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                     </svg>
                                     <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      5 мин
+                                      {getLocalizedText(proposalData?.language, {
+                                        en: '5 minutes',
+                                        es: '5 minutos',
+                                        ua: '5 хвилин',
+                                        ru: '5 минут'
+                                      })}
                                     </span>
                                   </div>
                                 </div>
@@ -2268,7 +2343,12 @@ export default function CommercialProposalPage() {
                                     </svg>
                                   )}
                                   <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                    Проверка знаний: {assessment.type}
+                                    {getLocalizedText(proposalData?.language, {
+                                      en: 'Knowledge check: ',
+                                      es: 'Verificación de conocimientos: ',
+                                      ua: 'Перевірка знань: ',
+                                      ru: 'Проверка знаний: '
+                                    })} {assessment.type}
                                   </span>
                                 </div>
                                 
@@ -2287,7 +2367,12 @@ export default function CommercialProposalPage() {
                           // Fallback if no lessons available
                           <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                             <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Финансовое планирование
+                              {getLocalizedText(proposalData?.language, {
+                                en: 'Financial planning',
+                                es: 'Planificación financiera',
+                                ua: 'Фінансове планування',
+                                ru: 'Финансовое планирование'
+                              })}
                             </span>
                             <div className="flex items-center justify-between mb-[12px]">
                               <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -2308,7 +2393,12 @@ export default function CommercialProposalPage() {
                                   <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                 </svg>
                                 <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  5 мин
+                                  {getLocalizedText(proposalData?.language, {
+                                    en: '5 minutes',
+                                    es: '5 minutos',
+                                    ua: '5 хвилин',
+                                    ru: '5 минут'
+                                  })}
                                 </span>
                               </div>
                             </div>
