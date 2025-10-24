@@ -2037,10 +2037,10 @@ export default function DynamicAuditLandingPage() {
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
-                          en: 'AI Onboarding Implementation',
-                          es: 'Implementación de Incorporación IA',
-                          ua: 'Впровадження AI-онбордингу',
-                          ru: 'Внедрение AI-онбординг'
+                          en: 'Implement AI Onboarding',
+                          es: 'Implementar Incorporación IA',
+                          ua: 'Впровадити AI-онбординг',
+                          ru: 'Внедрить AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -3202,11 +3202,21 @@ export default function DynamicAuditLandingPage() {
                         </svg>
                         
                         <span className="font-medium text-[12px] text-white">
-                          {landingPageData?.language === 'en' ? `Modules (${getTotalModulesAndLessons().modules})` : `Модулей (${getTotalModulesAndLessons().modules})`}
+                          {getLocalizedText(landingPageData?.language, {
+                            en: `Modules (${getTotalModulesAndLessons().modules})`,
+                            es: `Módulos (${getTotalModulesAndLessons().modules})`,
+                            ua: `Модулі (${getTotalModulesAndLessons().modules})`,
+                            ru: `Модулей (${getTotalModulesAndLessons().modules})`
+                          })}
                         </span>
-                        
+
                         <span className="font-medium text-[12px] text-white">
-                          {landingPageData?.language === 'en' ? `Lessons (${getTotalModulesAndLessons().lessons})` : `Уроков (${getTotalModulesAndLessons().lessons})`}
+                          {getLocalizedText(landingPageData?.language, {
+                            en: `Lessons (${getTotalModulesAndLessons().lessons})`,
+                            es: `Lecciones (${getTotalModulesAndLessons().lessons})`,
+                            ua: `Уроки (${getTotalModulesAndLessons().lessons})`,
+                            ru: `Уроков (${getTotalModulesAndLessons().lessons})`
+                          })}
                         </span>
                       </div>
                       

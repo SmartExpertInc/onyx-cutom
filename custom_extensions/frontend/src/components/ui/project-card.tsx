@@ -26,7 +26,8 @@ import {
   FolderMinus,
   Trash2,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -182,6 +183,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
   const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
+  
+  // Share state for course outlines
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  
   const menuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -361,6 +373,65 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       }
     } catch (error) {
       alert("Failed to duplicate project: " + (error as Error).message);
+    }
+  };
+
+  // Share handler for course outlines
+  const handleShareCourse = async () => {
+    if (!project.id) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    setMenuOpen(false);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/course-outlines/${project.id}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share course: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      setShowShareModal(true);
+      
+      console.log('✅ [COURSE SHARING] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('❌ [COURSE SHARING] Error sharing course:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('✅ [COURSE SHARING] Link copied to clipboard');
+    } catch (error) {
+      console.error('❌ [COURSE SHARING] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
     }
   };
 
@@ -561,10 +632,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </>
                 ) : (
                   <>
-                    <DropdownMenuItem>
-                      <Share2 size={16} className="text-gray-500" />
-                      <span>{t("actions.share", "Share...")}</span>
-                    </DropdownMenuItem>
+                    {/* Share button - only for course outlines */}
+                    {isOutline && (
+                      <DropdownMenuItem onClick={handleShareCourse} disabled={isSharing}>
+                        <Share2 size={16} className="text-gray-500" />
+                        <span>{isSharing ? t("actions.sharing", "Sharing...") : t("actions.share", "Share...")}</span>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
@@ -927,6 +1001,97 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             console.log("Project tier changed to:", tier);
           }}
         />
+      )}
+
+      {/* Share Success Modal */}
+      {showShareModal && shareData && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {t("interface.share.success", "Share Link Created")}
+              </h3>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                {t("interface.share.description", "Your course outline is now publicly accessible. Anyone with this link can view it.")}
+              </p>
+              <p className="text-xs text-gray-500 mb-3">
+                {t("interface.share.expires", "Expires")}: {new Date(shareData.expiresAt).toLocaleDateString()}
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t("interface.share.publicUrl", "Public URL")}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={shareData.publicUrl}
+                  readOnly
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm bg-gray-50 text-gray-900"
+                />
+                <button
+                  onClick={() => copyToClipboard(shareData.publicUrl)}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
+                >
+                  {t("interface.share.copy", "Copy")}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                {t("actions.close", "Close")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Error Modal */}
+      {shareError && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-red-600">
+                {t("interface.share.error", "Share Error")}
+              </h3>
+              <button
+                onClick={() => setShareError(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600">
+                {shareError}
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShareError(null)}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                {t("actions.close", "Close")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </Card>
   );

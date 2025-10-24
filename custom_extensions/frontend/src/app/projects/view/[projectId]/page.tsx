@@ -33,7 +33,7 @@ import workspaceService, {
   ProductAccessCreate 
 } from '../../../../services/workspaceService';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
+import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette, XCircle } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
@@ -273,7 +273,6 @@ export default function ProjectInstanceViewPage() {
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
-
 
 
   // State for the absolute chat URL
@@ -1674,7 +1673,6 @@ export default function ProjectInstanceViewPage() {
   };
 
 
-
   if (pageState === 'initial_loading' || pageState === 'fetching') {
     return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-lg text-gray-600">{t('interface.projectView.loadingProject', 'Loading project details...')}</div></div>;
   }
@@ -2105,6 +2103,7 @@ export default function ProjectInstanceViewPage() {
                 />
               </ToastProvider>
             )}
+
 
             {/* Theme Picker button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
@@ -2680,6 +2679,7 @@ export default function ProjectInstanceViewPage() {
         onDownload={handleDownloadPdf}
         onClose={handleClosePdfModal}
       />
+
     </main>
   );
 }
