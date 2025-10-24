@@ -333,25 +333,87 @@ export default function CommercialProposalPage() {
 
   const handleTextSave = async (field: string, newValue: string) => {
     // Check if this is a course template field
-    const isCourseTemplateField = field.startsWith('courseTemplate_') || field.startsWith('courseTemplateDescription_');
+    const isCourseTemplateField = field.startsWith('courseTemplate_') || field.startsWith('courseTemplateDescription_') || field === 'onboardingCourseTitle';
+    
+    // Check if this is a course module field
+    const isCourseModuleField = field.startsWith('courseModule_');
+    
+    // Check if this is a course lesson field
+    const isCourseLessonField = field.startsWith('courseLesson_');
     
     let updatedData: ProposalPageData;
     
     if (isCourseTemplateField) {
       // Handle course template field updates
-      const templateIndex = parseInt(field.split('_')[1]);
-      const isTitleField = field.startsWith('courseTemplate_') && !field.includes('Description');
+      if (field === 'onboardingCourseTitle') {
+        // Special case for onboarding course title (courseTemplates[0].title)
+        updatedData = {
+          ...proposalData,
+          courseTemplates: proposalData?.courseTemplates?.map((template, index) => {
+            if (index === 0) {
+              return {
+                ...template,
+                title: newValue
+              };
+            }
+            return template;
+          }) || []
+        } as ProposalPageData;
+      } else {
+        // Handle other course template fields
+        const templateIndex = parseInt(field.split('_')[1]);
+        const isTitleField = field.startsWith('courseTemplate_') && !field.includes('Description');
+        
+        updatedData = {
+          ...proposalData,
+          courseTemplates: proposalData?.courseTemplates?.map((template, index) => {
+            if (index === templateIndex) {
+              return {
+                ...template,
+                [isTitleField ? 'title' : 'description']: newValue
+              };
+            }
+            return template;
+          }) || []
+        } as ProposalPageData;
+      }
+    } else if (isCourseModuleField) {
+      // Handle course module field updates
+      const moduleIndex = parseInt(field.split('_')[1]);
       
       updatedData = {
         ...proposalData,
-        courseTemplates: proposalData?.courseTemplates?.map((template, index) => {
-          if (index === templateIndex) {
+        courseOutlineModules: proposalData?.courseOutlineModules?.map((module, index) => {
+          if (index === moduleIndex) {
             return {
-              ...template,
-              [isTitleField ? 'title' : 'description']: newValue
+              ...module,
+              title: newValue
             };
           }
-          return template;
+          return module;
+        }) || []
+      } as ProposalPageData;
+    } else if (isCourseLessonField) {
+      // Handle course lesson field updates
+      const parts = field.split('_');
+      const moduleIndex = parseInt(parts[1]);
+      const lessonIndex = parseInt(parts[2]);
+      
+      updatedData = {
+        ...proposalData,
+        courseOutlineModules: proposalData?.courseOutlineModules?.map((module, modIndex) => {
+          if (modIndex === moduleIndex) {
+            return {
+              ...module,
+              lessons: module.lessons?.map((lesson, lesIndex) => {
+                if (lesIndex === lessonIndex) {
+                  return newValue;
+                }
+                return lesson;
+              }) || []
+            };
+          }
+          return module;
         }) || []
       } as ProposalPageData;
     } else {
