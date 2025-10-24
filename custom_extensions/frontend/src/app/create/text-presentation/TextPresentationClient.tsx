@@ -14,6 +14,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { AiAgent } from "@/components/ui/ai-agent";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -202,10 +203,25 @@ export default function TextPresentationClient() {
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+  const advancedSectionRef = useRef<HTMLDivElement>(null);
+  const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
+  const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
+  
+  // Auto-scroll to AI Agent section when it's shown
+  useEffect(() => {
+    if (showAdvanced && advancedSectionRef.current) {
+      advancedSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }
+  }, [showAdvanced]);
+
   const [selectedTheme, setSelectedTheme] = useState<string>("wine");
   const [textDensity, setTextDensity] = useState("medium");
   const [imageSource, setImageSource] = useState("ai");
   const [aiModel, setAiModel] = useState("flux-fast");
+  const [selectedImageSource, setSelectedImageSource] = useState("ai");
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
@@ -1572,9 +1588,9 @@ export default function TextPresentationClient() {
       <div 
         className="absolute pointer-events-none"
         style={{
-          width: '1260px',
-          height: '1800px',
-          top: '358px',
+          width: '1660px',
+          height: '2100px',
+          top: '758px',
           left: '433px',
           borderRadius: '450px',
           background: 'linear-gradient(180deg, rgba(144, 237, 229, 0.9) 0%, rgba(216, 23, 255, 0.9) 100%)',
@@ -1626,7 +1642,7 @@ export default function TextPresentationClient() {
                   }}
                   placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                   rows={1}
-                  className="w-full px-7 py-5 rounded-t-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                  className="w-full px-7 py-5 !rounded-t-lg bg-white text-lg text-[#FFFFFF] resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
                   style={{ background: "#6E9BFB", border: "#CCCCCC" }}
                 />
               </div>
@@ -1670,7 +1686,7 @@ export default function TextPresentationClient() {
                               type="text"
                               value={editedTitles[idx] || lesson.title}
                               onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                              className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                               autoFocus
                               onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                               onKeyDown={(e) => {
@@ -1692,7 +1708,7 @@ export default function TextPresentationClient() {
                                 if (streamDone) setEditingLessonId(idx);
                               }}
                               readOnly
-                              className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                              className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                               disabled={!streamDone}
                             />
                           </div>
@@ -1707,7 +1723,7 @@ export default function TextPresentationClient() {
                           <Textarea
                             value={getContentForLesson(lesson, idx)}
                             onChange={(e) => handleContentEdit(idx, e.target.value)}
-                            className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                            className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
                             autoFocus
                             onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
                             onKeyDown={(e) => {
@@ -1717,7 +1733,7 @@ export default function TextPresentationClient() {
                           />
                         ) : (
                           <div 
-                            className={`cursor-pointer text-sm rounded p-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                            className={`cursor-pointer !text-sm rounded p-2 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
                             onMouseDown={() => {
                               nextEditingContentIdRef.current = idx;
                             }}
@@ -1743,7 +1759,7 @@ export default function TextPresentationClient() {
                           type="text"
                           value={section.title}
                           onChange={(e) => handleAdditionalSectionTitleEdit(section.id, e.target.value)}
-                          className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                          className="text-[#0D001B] font-bold text-sm leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                           placeholder="Section title..."
                         />
                       </div>
@@ -1761,7 +1777,7 @@ export default function TextPresentationClient() {
                       <Textarea
                         value={section.content}
                         onChange={(e) => handleAdditionalSectionContentEdit(section.id, e.target.value)}
-                        className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                        className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
                         placeholder="Add your content here..."
                       />
                     </div>
@@ -1785,18 +1801,18 @@ export default function TextPresentationClient() {
           {/* Theme section */}
           {streamDone && content && (
             <section className="flex flex-col gap-3">
-              <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-                <div className="bg-white rounded-lg pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="rounded-lg border border-[#CCCCCC] px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
                     <div className="flex flex-col">
-                      <h2 className="text-md font-medium text-[#0D001BCC]">{t('interface.generate.themes', 'Themes')}</h2>
-                      <p className="text-[#434343CC] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                      <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.themes', 'Themes')}</h2>
+                      <p className="text-[#A5A5A5] text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
                     </div>
                     <button
                       type="button"
-                      className="flex items-center gap-1 text-sm text-[#71717AB2] hover:opacity-80 transition-opacity border border-[#71717AB2] rounded-lg px-3 py-2"
+                      className="flex items-center gap-1 text-sm text-[#CCCCCC] hover:opacity-80 transition-opacity border border-[#CCCCCC] rounded-lg px-3 py-2"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717AB2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCCCCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="#71717AB2" /><circle cx="17.5" cy="10.5" r=".5" fill="#71717AB2" /><circle cx="6.5" cy="12.5" r=".5" fill="#71717AB2" /><circle cx="8.5" cy="7.5" r=".5" fill="#71717AB2" /></svg>
                       <span>{t('interface.generate.viewMore', 'View more')}</span>
                     </button>
                   </div>
@@ -1834,7 +1850,7 @@ export default function TextPresentationClient() {
                               <ThemeSvgComponent />
                             </div>
                             <div className="flex items-center justify-left px-3">
-                              <span className="text-sm text-[#20355D] font-medium select-none">
+                              <span className={`text-lg ${isSelected ? 'text-[#171718]' : 'text-[#4D4D4D]'} font-medium select-none`}>
                                 {theme.label}
                               </span>
                             </div>
@@ -1844,55 +1860,58 @@ export default function TextPresentationClient() {
                     </div>
                   </div>
                 </div>
+
+                {/* Content section */}
+                <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4 mt-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <div className="flex flex-col py-4 border-b border-[#E0E0E0] px-6">
+                    <h2 className="text-md font-semibold text-[#171718]">{t('interface.generate.content', 'Content')}</h2>
+                    <p className="text-[#A5A5A5] text-sm">{t('interface.generate.adjustImageStyles', 'Adjust image styles')}</p>
+                  </div>
+
+                  <div className="flex flex-col gap-4 px-6">
+                    {/* Image source dropdown */}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-[#171718] select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                      <Select value={selectedImageSource} onValueChange={setSelectedImageSource}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-sm text-[#171718] cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-[#E0E0E0]" side="top">
+                          <SelectItem value="ai">{t('interface.generate.aiImages', 'Ai images')}</SelectItem>
+                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
           )}
 
-          {/* Inline Advanced section & button */}
-          {streamDone && content && (
-            <>
-              {showAdvanced && (
-                <div className="rounded-lg px-10 py-5" style={{ animation: 'fadeInDown 0.25s ease-out both', background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
-                  <Textarea
-                    value={editPrompt}
-                    onChange={(e) => setEditPrompt(e.target.value)}
-                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
-                    style={{ background: "rgba(255,255,255,0.95)", border: "1px solid #E0E0E0" }}
-                  />
-
-                  {/* Example prompts */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
-                    {onePagerExamples.map((ex) => (
-                      <button
-                        key={ex.short}
-                        type="button"
-                        onClick={() => toggleExample(ex)}
-                        className={`relative text-left rounded-lg px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-white hover:shadow-lg'
-                          }`}
-                        style={{ border: '1px solid #E0E0E0' }}
-                      >
-                        {ex.short}
-                        <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <button
-                      type="button"
-                      disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={() => {
-                        handleApplyEdit();
-                        setAdvancedModeState("Used");
-                      }}
-                      className="px-6 py-2 rounded-full bg-[#0F58F9] text-white text-lg font-semibold hover:bg-[#0D4AD1] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
+          {/* AI Agent section */}
+          {streamDone && content && showAdvanced && (
+            <div className="rounded-lg px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+              <AiAgent
+                editPrompt={editPrompt}
+                setEditPrompt={setEditPrompt}
+                examples={onePagerExamples}
+                selectedExamples={selectedExamples}
+                toggleExample={toggleExample}
+                loadingEdit={loadingEdit}
+                onApplyEdit={() => {
+                  handleApplyEdit();
+                  setAdvancedModeState("Used");
+                }}
+                advancedSectionRef={advancedSectionRef}
+                placeholder={t('interface.generate.describeImprovements', "Describe what you'd like to improve...")}
+                buttonText={t('interface.edit', 'Edit')}
+                hasStartedChat={aiAgentChatStarted}
+                setHasStartedChat={setAiAgentChatStarted}
+                lastUserMessage={aiAgentLastMessage}
+                setLastUserMessage={setAiAgentLastMessage}
+              />
+            </div>
           )}
 
           {streamDone && content && (
@@ -2024,11 +2043,14 @@ export default function TextPresentationClient() {
           <div className="flex items-center gap-[10px]">
             <button
               type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
+              onClick={() => {
+                setShowAdvanced(!showAdvanced);
+                handleAdvancedModeClick();
+              }}
               className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.1986 4.31106L9.99843 6.11078M2.79912 3.71115V6.11078M11.1983 8.51041V10.91M5.79883 1.31152V2.51134M3.99901 4.91097H1.59924M12.3982 9.71022H9.99843M6.39877 1.91143H5.19889M12.7822 2.29537L12.0142 1.52749C11.9467 1.45929 11.8664 1.40515 11.7778 1.3682C11.6893 1.33125 11.5942 1.31223 11.4983 1.31223C11.4023 1.31223 11.3073 1.33125 11.2188 1.3682C11.1302 1.40515 11.0498 1.45929 10.9823 1.52749L1.21527 11.294C1.14707 11.3615 1.09293 11.4418 1.05598 11.5304C1.01903 11.6189 1 11.7139 1 11.8099C1 11.9059 1.01903 12.0009 1.05598 12.0894C1.09293 12.178 1.14707 12.2583 1.21527 12.3258L1.9832 13.0937C2.05029 13.1626 2.13051 13.2174 2.21912 13.2548C2.30774 13.2922 2.40296 13.3115 2.49915 13.3115C2.59534 13.3115 2.69056 13.2922 2.77918 13.2548C2.86779 13.2174 2.94801 13.1626 3.0151 13.0937L12.7822 3.32721C12.8511 3.26013 12.9059 3.17991 12.9433 3.0913C12.9807 3.00269 13 2.90748 13 2.81129C13 2.7151 12.9807 2.61989 12.9433 2.53128C12.9059 2.44267 12.8511 2.36245 12.7822 2.29537Z" stroke="#0F58F9" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span>AI Improve</span>
             </button>
