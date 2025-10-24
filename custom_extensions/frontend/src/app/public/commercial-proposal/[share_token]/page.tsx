@@ -108,7 +108,7 @@ const getLocalizedText = (language: string | undefined, texts: { en: any; es: an
 function ServiceNumberDiv({ serviceNumber, language }: { serviceNumber: number; language?: string }) {  
   return (
     <div 
-      className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px] cursor-grab hover:cursor-grab active:cursor-grabbing" 
+      className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" 
       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
     >
       <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
@@ -1605,7 +1605,6 @@ export default function PublicCommercialProposalPage() {
         
         {serviceId === 'service2' && (
           <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             <ServiceNumberDiv serviceNumber={serviceNumber} language={proposalData?.language} />
             
             <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
