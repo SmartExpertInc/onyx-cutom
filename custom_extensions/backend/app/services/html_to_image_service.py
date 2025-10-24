@@ -169,8 +169,15 @@ class HTMLToImageService:
             logger.info("Using Playwright for HTML to PNG conversion")
             
             async with async_playwright() as p:
-                # Launch browser
-                browser = await p.chromium.launch(headless=True)
+                # Launch browser with optimized settings
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=[
+                        '--disable-web-security',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-blink-features=AutomationControlled'
+                    ]
+                )
 
                 # Determine a base URL so root-relative assets like "/static_design_images/..." resolve
                 base_url = (
@@ -178,15 +185,22 @@ class HTMLToImageService:
                     or os.getenv("PUBLIC_BASE_URL")
                     or "http://localhost:8000"
                 )
-                logger.info(f"Using base URL for HTML rendering: {base_url}")
+                logger.info(f"🎬 [PLAYWRIGHT] Using base URL for HTML rendering: {base_url}")
 
                 context = await browser.new_context(
-                    viewport={'width': 1000, 'height': 1000},
-                    base_url=base_url
+                    viewport={'width': self.video_width, 'height': self.video_height},
+                    base_url=base_url,
+                    device_scale_factor=1
                 )
                 page = await context.new_page()
                 
-                # Set content and wait for load
+                # Set longer timeouts for content loading
+                page.set_default_timeout(60000)  # 60 seconds
+                page.set_default_navigation_timeout(60000)
+                
+                logger.info(f"🎬 [PLAYWRIGHT] Setting page content (HTML length: {len(html_content)} chars)...")
+                
+                # Set content and wait for load with timeout
                 # Inject <base> tag if not present so relative URLs resolve to base_url
                 html_with_base = html_content
                 try:
@@ -198,66 +212,109 @@ class HTMLToImageService:
                 except Exception:
                     html_with_base = html_content
 
-                await page.set_content(html_with_base, wait_until='load')
-                # Ensure network settles and images decode
-                await page.wait_for_load_state('networkidle')
-                # Wait for all <img> to finish loading (or error) before screenshot
-                await page.evaluate(
-                    """
-                    async () => {
-                      const imgs = Array.from(document.images || []);
-                      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise((res) => {
-                        img.addEventListener('load', res, { once: true });
-                        img.addEventListener('error', res, { once: true });
-                      })));
-                    }
-                    """
-                )
-                # Additionally ensure CSS background-images are loaded (not tracked by document.images)
-                await page.evaluate(
-                    """
-                    async () => {
-                      const elements = Array.from(document.querySelectorAll('*'));
-                      const bgUrls = [];
-                      for (const el of elements) {
-                        const style = getComputedStyle(el);
-                        const bg = style.backgroundImage;
-                        if (!bg || bg === 'none') continue;
-                        const matches = Array.from(bg.matchAll(/url\(("|')?([^"')]+)("|')?\)/g));
-                        for (const m of matches) {
-                          if (m[2]) bgUrls.push(m[2]);
-                        }
-                      }
-                      await Promise.all(bgUrls.map(src => new Promise((resolve) => {
-                        try {
-                          const img = new Image();
-                          img.onload = () => resolve(true);
-                          img.onerror = () => resolve(false);
-                          img.src = src;
-                        } catch {
-                          resolve(false);
-                        }
-                      })));
-                    }
-                    """
-                )
+                # CRITICAL FIX: Use 'domcontentloaded' to avoid external resource timeouts
+                try:
+                    # Use 'domcontentloaded' instead of 'load' to avoid waiting for external resources like Google Fonts
+                    await page.set_content(html_with_base, wait_until='domcontentloaded', timeout=15000)
+                    logger.info(f"🎬 [PLAYWRIGHT] Page content set successfully (DOM ready)")
+                    
+                    # DO NOT wait for networkidle - it causes timeouts with external fonts
+                    # Instead, give a small delay for initial rendering
+                    import asyncio
+                    await asyncio.sleep(2)  # 2 seconds for initial render
+                    logger.info(f"🎬 [PLAYWRIGHT] Initial render delay completed")
+                    
+                except Exception as content_error:
+                    logger.error(f"🎬 [PLAYWRIGHT] Failed to set content: {content_error}")
+                    await context.close()
+                    await browser.close()
+                    return False
+                # CRITICAL FIX: Wait for images with proper error handling and timeout
+                logger.info(f"🎬 [PLAYWRIGHT] Waiting for images to load...")
+                try:
+                    # Set a timeout for image loading
+                    await asyncio.wait_for(
+                        page.evaluate(
+                            """
+                            async () => {
+                              const imgs = Array.from(document.images || []);
+                              if (imgs.length === 0) return;
+                              await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise((res) => {
+                                setTimeout(() => res(), 5000);  // 5 second max wait per image
+                                img.addEventListener('load', res, { once: true });
+                                img.addEventListener('error', res, { once: true });
+                              })));
+                            }
+                            """
+                        ),
+                        timeout=8.0  # 8 seconds total for all images
+                    )
+                    logger.info(f"🎬 [PLAYWRIGHT] Images loaded successfully")
+                except asyncio.TimeoutError:
+                    logger.warning(f"🎬 [PLAYWRIGHT] Image loading timed out after 8s (proceeding anyway)")
+                except Exception as img_error:
+                    logger.warning(f"🎬 [PLAYWRIGHT] Image loading check failed (non-critical): {img_error}")
                 
-                # Take screenshot (fixed API - no width/height parameters)
+                # Wait for fonts to load with aggressive timeout
+                logger.info(f"🎬 [PLAYWRIGHT] Waiting for fonts to load...")
+                try:
+                    # Add timeout to font loading - don't wait forever for Google Fonts
+                    await asyncio.wait_for(
+                        page.evaluate("document.fonts.ready"),
+                        timeout=5.0  # 5 seconds max for fonts
+                    )
+                    logger.info(f"🎬 [PLAYWRIGHT] Fonts loaded successfully")
+                except asyncio.TimeoutError:
+                    logger.warning(f"🎬 [PLAYWRIGHT] Font loading timed out after 5s (using system fonts as fallback)")
+                except Exception as font_error:
+                    logger.warning(f"🎬 [PLAYWRIGHT] Font loading failed (non-critical): {font_error}")
+                
+                # Give extra time for final rendering (CSS animations, transitions, etc.)
+                await asyncio.sleep(1)
+                logger.info(f"🎬 [PLAYWRIGHT] Final render delay completed")
+                
+                # Take screenshot with proper dimensions
+                logger.info(f"🎬 [PLAYWRIGHT] Taking screenshot at {self.video_width}x{self.video_height}...")
                 await page.screenshot(
                     path=output_path,
                     type='png',
-                    full_page=True
+                    full_page=False,  # Use viewport size, not full page
+                    clip={
+                        'x': 0,
+                        'y': 0,
+                        'width': self.video_width,
+                        'height': self.video_height
+                    }
                 )
+                logger.info(f"🎬 [PLAYWRIGHT] Screenshot captured successfully")
                 
+                logger.info(f"🎬 [PLAYWRIGHT] Closing browser context...")
                 await context.close()
                 await browser.close()
+                logger.info(f"🎬 [PLAYWRIGHT] Browser closed successfully")
                 
+            # Verify output file
             if os.path.exists(output_path):
                 file_size = os.path.getsize(output_path)
-                logger.info(f"Playwright conversion successful: {file_size} bytes")
-                return file_size > 100  # Ensure reasonable file size
+                logger.info(f"🎬 [PLAYWRIGHT] ✅ Conversion successful: {file_size} bytes")
+                
+                # Verify it's a valid PNG with reasonable size
+                if file_size < 100:
+                    logger.error(f"🎬 [PLAYWRIGHT] ❌ File too small ({file_size} bytes), likely corrupted")
+                    return False
+                    
+                # Check PNG signature
+                with open(output_path, 'rb') as f:
+                    header = f.read(8)
+                    is_valid_png = header == b'\x89PNG\r\n\x1a\n'
+                    if is_valid_png:
+                        logger.info(f"🎬 [PLAYWRIGHT] ✅ Valid PNG signature confirmed")
+                        return True
+                    else:
+                        logger.error(f"🎬 [PLAYWRIGHT] ❌ Invalid PNG signature: {header.hex()}")
+                        return False
             else:
-                logger.error("Playwright failed to create output file")
+                logger.error(f"🎬 [PLAYWRIGHT] ❌ Output file not created: {output_path}")
                 return False
                 
         except ImportError:
@@ -268,67 +325,143 @@ class HTMLToImageService:
             return False
 
     async def convert_html_to_png_simple(self, html_content: str, output_path: str) -> bool:
-        """Enhanced fallback conversion method using built-in libraries."""
+        """Enhanced fallback conversion method - now properly renders HTML with styling."""
         import time
         simple_start = time.time()
         simple_id = f"simple-{int(time.time())}"
         
         try:
-            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] === SIMPLE FALLBACK METHOD STARTED ===")
-            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Using enhanced fallback method for HTML to PNG conversion")
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] === ENHANCED HTML RENDERING FALLBACK ===")
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Attempting proper HTML rendering with weasyprint/cairosvg")
             logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] HTML content length: {len(html_content)} characters")
             logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Output path: {output_path}")
             
-            # Try using Pillow with HTML rendering (basic approach)
-            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Attempting Pillow-based rendering...")
+            # CRITICAL FIX: Try weasyprint first (it can render complex CSS/HTML properly)
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Attempting weasyprint rendering...")
+            weasy_start = time.time()
+            
+            try:
+                from weasyprint import HTML as WeasyHTML
+                import io
+                
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Weasyprint imported successfully")
+                
+                # Render HTML to PNG with proper styling
+                html_doc = WeasyHTML(string=html_content, base_url='')
+                png_bytes = html_doc.write_png(resolution=96)
+                
+                # Write PNG bytes to file
+                with open(output_path, 'wb') as f:
+                    f.write(png_bytes)
+                
+                weasy_end = time.time()
+                weasy_duration = (weasy_end - weasy_start) * 1000
+                
+                if os.path.exists(output_path):
+                    file_size = os.path.getsize(output_path)
+                    logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ✅ Weasyprint rendering successful in {weasy_duration:.2f}ms: {file_size} bytes")
+                    return file_size > 100
+                else:
+                    logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ❌ Weasyprint failed - file not created")
+                    return False
+                    
+            except ImportError as weasy_error:
+                weasy_end = time.time()
+                weasy_duration = (weasy_end - weasy_start) * 1000
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Weasyprint not available after {weasy_duration:.2f}ms: {weasy_error}")
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Trying PIL-based rendering (degraded quality)...")
+            except Exception as weasy_ex:
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Weasyprint rendering failed: {weasy_ex}")
+                logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Trying PIL-based rendering (degraded quality)...")
+            
+            # Fallback to PIL with IMPROVED text extraction
+            logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Attempting improved PIL-based rendering...")
             pillow_start = time.time()
             
             try:
                 from PIL import Image, ImageDraw, ImageFont
                 import textwrap
+                import re
+                from html.parser import HTMLParser
                 
                 logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] PIL modules imported successfully")
                 
-                # Create a white background image
-                img = Image.new('RGB', (1000, 1000), color='white')
-                draw = ImageDraw.Draw(img)
-                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Created 1000x1000 white background image")
-                
-                # Try to use a system font
+                # CRITICAL FIX: Extract background color from CSS variables
+                bg_color = (17, 12, 53)  # Default dark purple #110c35
                 try:
-                    font_large = ImageFont.truetype("arial.ttf", 40)
-                    font_medium = ImageFont.truetype("arial.ttf", 24)
-                    font_small = ImageFont.truetype("arial.ttf", 16)
+                    # Try to extract --bg-color from CSS
+                    bg_match = re.search(r'--bg-color:\s*#([0-9a-fA-F]{6})', html_content)
+                    if bg_match:
+                        hex_color = bg_match.group(1)
+                        bg_color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+                        logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Extracted background color: {bg_color} (#{hex_color})")
                 except:
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Could not extract bg color, using default")
+                
+                # Create image with proper background color
+                img = Image.new('RGB', (1920, 1080), color=bg_color)
+                draw = ImageDraw.Draw(img)
+                logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Created 1920x1080 image with background: {bg_color}")
+                
+                # Try to load better fonts
+                try:
+                    font_title = ImageFont.truetype("arial.ttf", 72)
+                    font_large = ImageFont.truetype("arial.ttf", 48)
+                    font_medium = ImageFont.truetype("arial.ttf", 32)
+                    font_small = ImageFont.truetype("arial.ttf", 24)
+                except:
+                    font_title = ImageFont.load_default()
                     font_large = ImageFont.load_default()
                     font_medium = ImageFont.load_default()
                     font_small = ImageFont.load_default()
                 
-                # Extract basic text content from HTML (very simple parsing)
-                import re
+                # CRITICAL FIX: Extract meaningful title from slide
+                title = "Slide Content"
+                try:
+                    # Try to find the slide title from various possible locations
+                    title_patterns = [
+                        r'<h1[^>]*>(.*?)</h1>',
+                        r'<h2[^>]*>(.*?)</h2>',
+                        r'class="slide-title"[^>]*>(.*?)</',
+                        r'class="title"[^>]*>(.*?)</',
+                        r'"title"\s*:\s*"([^"]+)"'
+                    ]
+                    for pattern in title_patterns:
+                        title_match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+                        if title_match:
+                            title = re.sub(r'<[^>]+>', '', title_match.group(1)).strip()
+                            if title and len(title) < 200:  # Reasonable title length
+                                break
+                    logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Extracted title: {title}")
+                except:
+                    logger.warning(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Could not extract title, using default")
                 
-                # Remove HTML tags and extract text content
-                clean_text = re.sub(r'<[^>]+>', '', html_content)
+                # Extract text content properly (remove scripts, styles, comments)
+                clean_html = re.sub(r'<script[^>]*>.*?</script>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+                clean_html = re.sub(r'<style[^>]*>.*?</style>', '', clean_html, flags=re.DOTALL | re.IGNORECASE)
+                clean_html = re.sub(r'<!--.*?-->', '', clean_html, flags=re.DOTALL)
+                clean_text = re.sub(r'<[^>]+>', '', clean_html)
                 clean_text = re.sub(r'\s+', ' ', clean_text).strip()
                 
-                # Draw a basic poster layout
-                y_pos = 50
+                # IMPROVED: Draw slide with proper layout
+                y_pos = 200
+                text_color = (255, 255, 255)  # White text for dark backgrounds
                 
-                # Title
-                title_lines = textwrap.wrap("Event Poster", width=30)
-                for line in title_lines:
-                    draw.text((50, y_pos), line, fill='black', font=font_large)
+                # Draw title (centered, large)
+                title_lines = textwrap.wrap(title, width=40)
+                for line in title_lines[:3]:  # Max 3 lines for title
+                    bbox = draw.textbbox((0, 0), line, font=font_title)
+                    text_width = bbox[2] - bbox[0]
+                    x_centered = (1920 - text_width) // 2
+                    draw.text((x_centered, y_pos), line, fill=text_color, font=font_title)
+                    y_pos += 100
+                
+                # Draw content (with better formatting)
+                y_pos += 100
+                content_lines = textwrap.wrap(clean_text[:500], width=80)
+                for line in content_lines[:10]:  # Limit to 10 lines
+                    draw.text((150, y_pos), line, fill=text_color, font=font_medium)
                     y_pos += 50
-                
-                # Add some content
-                y_pos += 50
-                content_lines = textwrap.wrap(clean_text[:200] + "...", width=50)
-                for line in content_lines[:15]:  # Limit to 15 lines
-                    draw.text((50, y_pos), line, fill='black', font=font_small)
-                    y_pos += 25
-                
-                # Add watermark
-                draw.text((50, 950), "Generated Poster", fill='gray', font=font_medium)
                 
                 # Save the image
                 logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] Saving image to: {output_path}")
@@ -339,10 +472,10 @@ class HTMLToImageService:
                 
                 if os.path.exists(output_path):
                     file_size = os.path.getsize(output_path)
-                    logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ✅ Pillow fallback conversion successful in {pillow_duration:.2f}ms: {file_size} bytes")
+                    logger.info(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ✅ Improved PIL fallback successful in {pillow_duration:.2f}ms: {file_size} bytes")
                     return file_size > 100
                 else:
-                    logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ❌ Pillow conversion failed - file not created")
+                    logger.error(f"🖼️ [HTML_TO_IMAGE_SIMPLE] [{simple_id}] ❌ PIL conversion failed - file not created")
                     return False
                 
             except ImportError as pil_error:
@@ -630,7 +763,8 @@ class HTMLToImageService:
                                  template_id: str,
                                  props: Dict[str, Any],
                                  theme: str,
-                                 output_path: str) -> bool:
+                                 output_path: str,
+                                 metadata: Dict[str, Any] = None) -> bool:
         """
         Convert a slide with props to PNG image.
         
@@ -639,6 +773,7 @@ class HTMLToImageService:
             props: Slide properties
             theme: Theme name
             output_path: Where to save PNG
+            metadata: Slide metadata (contains elementPositions for drag-and-drop)
             
         Returns:
             True if successful, False otherwise
@@ -650,6 +785,7 @@ class HTMLToImageService:
             logger.info(f"  - Theme: {theme}")
             logger.info(f"  - Output path: {output_path}")
             logger.info(f"  - Props keys: {list(props.keys())}")
+            logger.info(f"  - Metadata: {metadata}")
             
             # Store props for fallback access
             self._last_props = props
@@ -667,7 +803,7 @@ class HTMLToImageService:
             # Generate clean HTML
             logger.info(f"🎬 [HTML_TO_IMAGE] Generating HTML content...")
             html_content = html_template_service.generate_clean_html_for_video(
-                template_id, props, theme
+                template_id, props, theme, metadata=metadata
             )
             
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")

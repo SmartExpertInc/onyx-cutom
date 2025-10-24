@@ -386,7 +386,10 @@ export const DefaultDropdown = forwardRef<HTMLDivElement, DefaultDropdownProps>(
           rounded-lg 
           border 
           border-border 
-          cursor-pointer`}
+          cursor-pointer
+          shadow-md
+          hover:shadow-xl
+          transition-shadow`}
       >
         <p className="line-clamp-1">
           {selectedOption?.name ||
@@ -410,7 +413,10 @@ export const DefaultDropdown = forwardRef<HTMLDivElement, DefaultDropdownProps>(
         bg-background
         ${maxHeight || "max-h-96"}
         overflow-y-auto 
-        overscroll-contain`}
+        overscroll-contain
+        shadow-md
+        hover:shadow-xl
+        transition-shadow`}
       >
         {includeDefault && (
           <DefaultDropdownElement

@@ -120,32 +120,34 @@ function InlineEditor({
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
-  title = 'Revenue Distribution Analysis',
+  title = 'Pie chart',
   chartData = {
     segments: [
-      { label: 'Cloud Services', percentage: 35, color: '#3B82F6', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.' },
-      { label: 'Mobile Applications', percentage: 28, color: '#10B981', description: 'Mobile app development showing consistent growth and expanding market penetration.' },
-      { label: 'Data Analytics', percentage: 22, color: '#F59E0B', description: 'Data analytics services contributing substantial recurring revenue streams.' },
-      { label: 'AI Solutions', percentage: 15, color: '#EF4444', description: 'AI and machine learning solutions providing additional revenue diversification.' },
-      { label: 'Security Tools', percentage: 12, color: '#8B5CF6', description: 'Cybersecurity tools and services addressing critical market needs.' },
-      { label: 'Integration Services', percentage: 8, color: '#EC4899', description: 'System integration and consulting services rounding out our portfolio.' }
+      { label: 'Headline', percentage: 16.67, color: '#ED8E8C', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#FFBF55', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#993EFB', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#0F58F9', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#DC6D17', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#0F4C97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' }
     ]
   },
   monthlyData = [
-    { month: 'Cloud Services', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.', color: '#3B82F6', percentage: '35%' },
-    { month: 'Mobile Applications', description: 'Mobile app development showing consistent growth and expanding market penetration.', color: '#10B981', percentage: '28%' },
-    { month: 'Data Analytics', description: 'Data analytics services contributing substantial recurring revenue streams.', color: '#F59E0B', percentage: '22%' },
-    { month: 'AI Solutions', description: 'AI and machine learning solutions providing additional revenue diversification.', color: '#EF4444', percentage: '15%' },
-    { month: 'Security Tools', description: 'Cybersecurity tools and services addressing critical market needs.', color: '#8B5CF6', percentage: '12%' },
-    { month: 'Integration Services', description: 'System integration and consulting services rounding out our portfolio.', color: '#EC4899', percentage: '8%' }
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#ED8E8C', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FFBF55', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#993EFB', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F58F9', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#DC6D17', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F4C97', percentage: '16.67%' }
   ],
-  descriptionText = 'Click on elements to edit chart data and customize the visualization',
+  descriptionText = 'Editable infographic',
   theme,
   onUpdate,
   isEditable = false
 }: PieChartInfographicsTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
+  const currentTheme = getSlideTheme('dark-purple');
+  const { contentColor: themeContent } = currentTheme.colors;
+  const themeBg = '#ffffff'; // Белый фон для dark-purple темы
+  const themeTitle = '#000000'; // Черный цвет заголовка
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
@@ -154,7 +156,6 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingDescText, setEditingDescText] = useState(false);
   const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
   const [editingColor, setEditingColor] = useState<{index: number, position: {x: number, y: number}} | null>(null);
-  const [editingPieChart, setEditingPieChart] = useState<{index: number, position: {x: number, y: number}} | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -253,7 +254,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     const newMonthlyData = [...monthlyData];
     newMonthlyData[segmentIndex] = {
       ...newMonthlyData[segmentIndex],
-      percentage: `${newPercentage.toFixed(1)}%`
+      percentage: `${newPercentage.toFixed(2)}%`
     };
     
     const newData = { 
@@ -267,6 +268,31 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
   const handlePercentageCancel = (segmentIndex: number) => {
     setEditingPercentage(null);
+  };
+
+  const startEditingTitle = () => {
+    setEditingTitle(true);
+  };
+
+  const startEditingDescText = () => {
+    setEditingDescText(true);
+  };
+
+  const startEditingSegment = (index: number) => {
+    setEditingSegment(index);
+  };
+
+  const startEditingSegmentDesc = (index: number) => {
+    setEditingSegmentDesc(index);
+  };
+
+  const startEditingColor = (index: number, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    setEditingColor({ index, position });
   };
 
   const handleColorSave = (segmentIndex: number, newColor: string) => {
@@ -297,104 +323,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingColor(null);
   };
 
-  const startEditingTitle = () => {
-    setEditingTitle(true);
-  };
-
-  const startEditingDescText = () => {
-    setEditingDescText(true);
-  };
-
-  const startEditingSegment = (index: number) => {
-    setEditingSegment(index);
-  };
-
-  const startEditingSegmentDesc = (index: number) => {
-    setEditingSegmentDesc(index);
-  };
-
-  const startEditingPercentage = (index: number) => {
-    setEditingPercentage(index);
-  };
-
-  const startEditingColor = (index: number, event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const pieChartContainer = event.currentTarget.closest('.pie-chart-container');
-    const containerRect = pieChartContainer?.getBoundingClientRect();
-    
-    if (containerRect) {
-      const position = {
-        x: rect.left - containerRect.left + rect.width / 2,
-        y: rect.top - containerRect.top + rect.height / 2
-      };
-      setEditingColor({ index, position });
-    } else {
-      // Fallback to viewport positioning
-      const position = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      };
-      setEditingColor({ index, position });
-    }
-  };
-
-  const startEditingPieChart = (segmentIndex: number, event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const pieChartContainer = event.currentTarget.closest('.pie-chart-container');
-    const containerRect = pieChartContainer?.getBoundingClientRect();
-    
-    if (containerRect) {
-      const position = {
-        x: rect.left - containerRect.left + rect.width / 2,
-        y: rect.top - containerRect.top + rect.height / 2
-      };
-      setEditingPieChart({ index: segmentIndex, position });
-    } else {
-      // Fallback to viewport positioning
-      const position = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-      };
-      setEditingPieChart({ index: segmentIndex, position });
-    }
-  };
-
-  const handlePieChartSave = (segmentIndex: number, newPercentage: number) => {
-    setEditingPieChart(null);
-    
-    const newSegments = [...chartData.segments];
-    const newMonthlyData = [...monthlyData];
-    
-    // Update the specific segment
-    newSegments[segmentIndex] = {
-      ...newSegments[segmentIndex],
-      percentage: newPercentage
-    };
-    
-    newMonthlyData[segmentIndex] = {
-      ...newMonthlyData[segmentIndex],
-      percentage: `${newPercentage.toFixed(1)}%`
-    };
-    
-    const newData = { 
-      title, 
-      chartData: { segments: newSegments }, 
-      monthlyData: newMonthlyData,
-      descriptionText
-    };
-    scheduleAutoSave(newData);
-  };
-
-  const handlePieChartCancel = () => {
-    setEditingPieChart(null);
-  };
-
   // Create conic gradient for pie chart
-  const createConicGradient = () => {
+  const generatePieChartGradient = () => {
     const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
     let cumulativePercentage = 0;
     
-    const gradientStops = chartData.segments.map((segment, index) => {
+    const gradientStops = chartData.segments.map((segment) => {
       const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
       const endAngle = ((cumulativePercentage + segment.percentage) / (totalPercentage || 1)) * 360;
       cumulativePercentage += segment.percentage;
@@ -405,11 +339,46 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     return `conic-gradient(${gradientStops.join(', ')})`;
   };
 
+  // Handle clicking on a pie chart segment
+  const handleSegmentClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isEditable) return;
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const clickX = event.clientX - rect.left - centerX;
+    const clickY = event.clientY - rect.top - centerY;
+    
+    // Check if click is outside center circle (radius 64px = w-32/2)
+    const distanceFromCenter = Math.sqrt(clickX * clickX + clickY * clickY);
+    if (distanceFromCenter < 64) return; // Don't trigger on center circle
+    
+    // Calculate angle from click position
+    let angle = Math.atan2(clickY, clickX) * (180 / Math.PI);
+    angle = (angle + 90 + 360) % 360; // Normalize to 0-360, starting from top
+    
+    // Find which segment was clicked
+    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
+    let cumulativePercentage = 0;
+    
+    for (let i = 0; i < chartData.segments.length; i++) {
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + chartData.segments[i].percentage) / (totalPercentage || 1)) * 360;
+      
+      if (angle >= startAngle && angle < endAngle) {
+        setEditingPercentage(i);
+        break;
+      }
+      
+      cumulativePercentage += chartData.segments[i].percentage;
+    }
+  };
+
   return (
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBg,
+        background: themeBg,
         minHeight: '600px'
       }}
     >
@@ -472,74 +441,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Left Column - Segments 1-3 */}
           <div className="flex flex-col gap-8">
             {monthlyData.slice(0, 3).map((item, index) => (
-              <div key={index} className="flex flex-col gap-3 max-w-xs">
-                <div className="flex items-center gap-3">
-                  {/* Color indicator - clickable for editing */}
-                  <div 
-                    className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{ backgroundColor: item.color }}
-                                                onClick={(e) => isEditable && startEditingColor(index, e)}
-                    title="Click to change color"
-                  />
-                  
-                  {/* Segment name with percentage */}
-                  <div 
-                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
-                    style={{ backgroundColor: item.color }}
-                  >
-                    {editingSegment === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.month}
-                        onSave={(value) => handleSegmentSave(index, value)}
-                        onCancel={() => handleSegmentCancel(index)}
-                        style={{
-                          color: '#ffffff',
-                          textAlign: 'center',
-                          fontWeight: 'bold',
-                          fontSize: '1.125rem'
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingSegment(index)}
-                      >
-                        {item.month}
-                      </span>
-                    )}
-                    
-                    {/* Percentage badge on segment name */}
-                    <div className="absolute -top-1 -right-1 bg-white text-gray-900 text-xs font-bold px-2 py-1 rounded-full shadow-md border border-gray-200">
-                      {editingPercentage === index && isEditable ? (
-                        <InlineEditor
-                          initialValue={item.percentage.replace('%', '')}
-                          onSave={(value) => handlePercentageSave(index, value)}
-                          onCancel={() => handlePercentageCancel(index)}
-                          style={{
-                            color: '#1f2937',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            minWidth: '30px',
-                            background: 'transparent',
-                            border: 'none',
-                            outline: 'none'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          className="cursor-pointer hover:opacity-80"
-                          onClick={() => isEditable && startEditingPercentage(index)}
-                        >
-                          {item.percentage}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+              <div key={index} className="flex flex-col gap-2 max-w-xs">
+                {/* Headline */}
+                <div 
+                  className="font-bold text-lg cursor-pointer hover:opacity-80"
+                  style={{ color: item.color }}
+                >
+                  {editingSegment === index && isEditable ? (
+                    <InlineEditor
+                      initialValue={item.month}
+                      onSave={(value) => handleSegmentSave(index, value)}
+                      onCancel={() => handleSegmentCancel(index)}
+                      style={{
+                        color: item.color,
+                        fontWeight: 'bold',
+                        fontSize: '1.125rem'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => isEditable && startEditingSegment(index)}
+                    >
+                      {item.month}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Description */}
-                <div className="text-base leading-relaxed ml-7">
+                <div className="text-gray-600 text-sm leading-relaxed">
                   {editingSegmentDesc === index && isEditable ? (
                     <InlineEditor
                       initialValue={item.description}
@@ -547,179 +476,97 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                       onCancel={() => handleSegmentDescCancel(index)}
                       multiline={true}
                       style={{
-                        color: themeContent,
-                        fontSize: '1rem',
-                        lineHeight: '1.5'
+                        color: '#6B7280',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.6',
+                        width: '100%',
+                        minHeight: '60px'
                       }}
                     />
                   ) : (
-                    <p 
+                    <div 
                       className="cursor-pointer hover:opacity-80"
-                      style={{ color: themeContent }}
                       onClick={() => isEditable && startEditingSegmentDesc(index)}
                     >
                       {item.description}
-                    </p>
+                    </div>
                   )}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Center - Pie Chart */}
-          <div className="flex flex-col items-center pie-chart-container relative">
+          {/* Pie Chart Container */}
+          <div className="relative flex-shrink-0">
             <div 
-              className="relative w-[320px] h-[320px] rounded-full shadow-2xl"
-              style={{
-                background: createConicGradient(),
-                boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
+              className="pie-chart-container relative rounded-full cursor-pointer"
+              style={{ 
+                width: '400px', 
+                height: '400px',
+                background: generatePieChartGradient()
               }}
+              onClick={handleSegmentClick}
             >
-              {/* Clickable segments overlay */}
-              {isEditable && chartData.segments.map((segment, index) => {
-                const totalPercentage = chartData.segments.reduce((sum, s) => sum + s.percentage, 0);
-                let cumulativePercentage = 0;
-                
-                // Calculate start and end angles for this segment
-                for (let i = 0; i < index; i++) {
-                  cumulativePercentage += chartData.segments[i].percentage;
-                }
-                
-                const startAngle = (cumulativePercentage / totalPercentage) * 360;
-                const endAngle = ((cumulativePercentage + segment.percentage) / totalPercentage) * 360;
-                
-                // Create clip path for this segment
-                const clipPath = `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos(startAngle * Math.PI / 180)}% ${50 + 50 * Math.sin(startAngle * Math.PI / 180)}%, ${50 + 50 * Math.cos(endAngle * Math.PI / 180)}% ${50 + 50 * Math.sin(endAngle * Math.PI / 180)}%)`;
-                
-                return (
-                  <div
-                    key={index}
-                    className="absolute inset-0 cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{
-                      clipPath: clipPath,
-                      WebkitClipPath: clipPath
-                    }}
-                    onClick={(e) => startEditingPieChart(index, e)}
-                    title={`Click to edit segment "${segment.label}"`}
-                  />
-                );
-              })}
-              
-              {/* Inner circle - much smaller */}
-              <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full pointer-events-none"
-                style={{
-                  backgroundColor: themeBg
-                }}
-              />
-            </div>
-            
-            {/* Color picker modal for editing colors - контекстный */}
-            {editingColor !== null && isEditable && (
-              <div 
-                className="bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl border border-gray-200 absolute"
-                style={{ 
-                  left: `${editingColor.position.x}px`, 
-                  top: `${editingColor.position.y}px`,
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 51
-                }}
-              >
-                <h3 className="text-lg font-bold mb-4">Choose color for segment</h3>
-                <div className="grid grid-cols-6 gap-2 mb-4">
-                  {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#67E8F9', '#0891B2', '#F97316', '#FB923C', '#FBBF24', '#34D399', '#059669', '#047857', '#F87171', '#DC2626', '#B91C1C', '#A855F7', '#7C3AED', '#6D28D9', '#F472B6', '#DB2777', '#BE185D', '#6366F1', '#8B5CF6', '#A855F7', '#7C3AED'].map((color) => (
-                    <button
-                      key={color}
-                      className="w-8 h-8 rounded border-2 border-gray-300 hover:border-gray-500 transition-colors"
-                      style={{ backgroundColor: color }}
-                      onClick={() => handleColorSave(editingColor.index, color)}
-                      title={color}
-                    />
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-                    onClick={() => handleColorCancel(editingColor.index)}
-                  >
-                    Cancel
-                  </button>
+              {/* Center Circle */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-800">Total</div>
+                    <div className="text-lg text-gray-600">amount</div>
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Pie Chart Editor Modal - контекстный */}
-            {editingPieChart !== null && isEditable && (
+            {/* Percentage Editor Modal */}
+            {editingPercentage !== null && isEditable && (
               <div 
-                className="bg-white rounded-lg p-6 max-w-sm w-full shadow-2xl border border-gray-200 absolute"
-                style={{ 
-                  left: `${editingPieChart.position.x}px`, 
-                  top: `${editingPieChart.position.y}px`,
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 51
-                }}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 shadow-2xl border border-gray-200 z-50"
+                style={{ minWidth: '300px' }}
               >
-                <h3 className="text-lg font-bold mb-4 text-gray-900">Edit Segment</h3>
-                <p className="text-sm text-gray-700 mb-4">Change the percentage for the selected segment.</p>
-                
-                <div className="flex items-center gap-3 mb-4">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: chartData.segments[editingPieChart.index].color }}
-                  />
-                  <span className="flex-1 text-sm font-medium text-gray-900">{chartData.segments[editingPieChart.index].label}</span>
-                </div>
-                
-                <div className="flex items-center gap-3 mb-4">
-                  <label className="text-sm font-medium text-gray-900">Percentage:</label>
+                <h3 className="text-lg font-bold mb-4">Edit Segment</h3>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Percentage (%)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     step="0.1"
-                    className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-gray-900"
-                    value={chartData.segments[editingPieChart.index].percentage}
-                    onChange={(e) => {
-                      const newValue = parseFloat(e.target.value) || 0;
-                      const newSegments = [...chartData.segments];
-                      newSegments[editingPieChart.index] = { ...newSegments[editingPieChart.index], percentage: newValue };
-                      
-                      // Update the chart data immediately for preview
-                      const newData = { 
-                        title, 
-                        chartData: { segments: newSegments }, 
-                        monthlyData,
-                        descriptionText
-                      };
-                      if (onUpdate) {
-                        onUpdate(newData);
+                    defaultValue={chartData.segments[editingPercentage].percentage}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = (e.target as HTMLInputElement).value;
+                        handlePercentageSave(editingPercentage, value);
+                      } else if (e.key === 'Escape') {
+                        handlePercentageCancel(editingPercentage);
                       }
                     }}
+                    autoFocus
                   />
-                  <span className="text-sm text-gray-700">%</span>
                 </div>
-                
                 <div className="flex gap-2">
                   <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                    onClick={() => handlePieChartSave(editingPieChart.index, chartData.segments[editingPieChart.index].percentage)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      const input = e.currentTarget.parentElement?.parentElement?.querySelector('input');
+                      if (input) {
+                        handlePercentageSave(editingPercentage, input.value);
+                      }
+                    }}
                   >
                     Save
                   </button>
                   <button
                     className="px-4 py-2 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 transition-colors"
-                    onClick={handlePieChartCancel}
+                    onClick={() => handlePercentageCancel(editingPercentage)}
                   >
                     Cancel
                   </button>
                 </div>
               </div>
-            )}
-            
-            {isEditable && (
-              <p className="text-sm text-gray-500 mt-2 text-center">
-                Click on segment or field to edit percentages
-              </p>
             )}
           </div>
 
@@ -728,74 +575,34 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             {monthlyData.slice(3, 6).map((item, index) => {
               const actualIndex = index + 3;
               return (
-                <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
-                  <div className="flex items-center gap-3">
-                    {/* Color indicator - clickable for editing */}
-                    <div 
-                      className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                      style={{ backgroundColor: item.color }}
-                      onClick={(e) => isEditable && startEditingColor(actualIndex, e)}
-                      title="Click to change color"
-                    />
-                    
-                    {/* Segment name with percentage */}
-                    <div 
-                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
-                      style={{ backgroundColor: item.color }}
-                    >
-                      {editingSegment === actualIndex && isEditable ? (
-                        <InlineEditor
-                          initialValue={item.month}
-                          onSave={(value) => handleSegmentSave(actualIndex, value)}
-                          onCancel={() => handleSegmentCancel(actualIndex)}
-                          style={{
-                            color: '#ffffff',
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            fontSize: '1.125rem'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          className="cursor-pointer hover:opacity-80"
-                          onClick={() => isEditable && startEditingSegment(actualIndex)}
-                        >
-                          {item.month}
-                        </span>
-                      )}
-                      
-                      {/* Percentage badge on segment name */}
-                      <div className="absolute -top-1 -right-1 bg-white text-gray-900 text-xs font-bold px-2 py-1 rounded-full shadow-md border border-gray-200">
-                        {editingPercentage === actualIndex && isEditable ? (
-                          <InlineEditor
-                            initialValue={item.percentage.replace('%', '')}
-                            onSave={(value) => handlePercentageSave(actualIndex, value)}
-                            onCancel={() => handlePercentageCancel(actualIndex)}
-                            style={{
-                              color: '#1f2937',
-                              fontSize: '0.75rem',
-                              fontWeight: 'bold',
-                              textAlign: 'center',
-                              minWidth: '30px',
-                              background: 'transparent',
-                              border: 'none',
-                              outline: 'none'
-                            }}
-                          />
-                        ) : (
-                          <span 
-                            className="cursor-pointer hover:opacity-80"
-                            onClick={() => isEditable && startEditingPercentage(actualIndex)}
-                          >
-                            {item.percentage}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                <div key={actualIndex} className="flex flex-col gap-2 max-w-xs">
+                  {/* Headline */}
+                  <div 
+                    className="font-bold text-lg cursor-pointer hover:opacity-80"
+                    style={{ color: item.color }}
+                  >
+                    {editingSegment === actualIndex && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.month}
+                        onSave={(value) => handleSegmentSave(actualIndex, value)}
+                        onCancel={() => handleSegmentCancel(actualIndex)}
+                        style={{
+                          color: item.color,
+                          fontWeight: 'bold',
+                          fontSize: '1.125rem'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => isEditable && startEditingSegment(actualIndex)}
+                      >
+                        {item.month}
+                      </span>
+                    )}
                   </div>
                   
                   {/* Description */}
-                  <div className="text-base leading-relaxed ml-7">
+                  <div className="text-gray-600 text-sm leading-relaxed">
                     {editingSegmentDesc === actualIndex && isEditable ? (
                       <InlineEditor
                         initialValue={item.description}
@@ -803,19 +610,20 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                         onCancel={() => handleSegmentDescCancel(actualIndex)}
                         multiline={true}
                         style={{
-                          color: themeContent,
-                          fontSize: '1rem',
-                          lineHeight: '1.5'
+                          color: '#6B7280',
+                          fontSize: '0.875rem',
+                          lineHeight: '1.6',
+                          width: '100%',
+                          minHeight: '60px'
                         }}
                       />
                     ) : (
-                      <p 
+                      <div 
                         className="cursor-pointer hover:opacity-80"
-                        style={{ color: themeContent }}
                         onClick={() => isEditable && startEditingSegmentDesc(actualIndex)}
                       >
                         {item.description}
-                      </p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -824,15 +632,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           </div>
         </div>
       </div>
-      
-
     </div>
   );
 };
-
-// Helper function to sum array
-function sum(arr: number[]): number {
-  return arr.reduce((a, b) => a + b, 0);
-}
 
 export default PieChartInfographicsTemplate;

@@ -1,21 +1,14 @@
 import base64
 import smtplib
 from datetime import datetime
-from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from email.utils import make_msgid
 
 import sendgrid  # type: ignore
-from sendgrid.helpers.mail import Attachment  # type: ignore
-from sendgrid.helpers.mail import Content
-from sendgrid.helpers.mail import ContentId
-from sendgrid.helpers.mail import Disposition
+from sendgrid.helpers.mail import Content  # type: ignore
 from sendgrid.helpers.mail import Email
-from sendgrid.helpers.mail import FileContent
-from sendgrid.helpers.mail import FileName
-from sendgrid.helpers.mail import FileType
 from sendgrid.helpers.mail import Mail
 from sendgrid.helpers.mail import To
 
@@ -29,15 +22,20 @@ from onyx.configs.app_configs import SMTP_USER
 from onyx.configs.app_configs import WEB_DOMAIN
 from onyx.configs.constants import AuthType
 from onyx.configs.constants import ONYX_DEFAULT_APPLICATION_NAME
-from onyx.configs.constants import ONYX_SLACK_URL
 from onyx.db.models import User
-from onyx.server.runtime.onyx_runtime import OnyxRuntime
 from onyx.utils.logger import setup_logger
 from onyx.utils.url import add_url_params
 from onyx.utils.variable_functionality import fetch_versioned_implementation
 from shared_configs.configs import MULTI_TENANT
 
 logger = setup_logger()
+
+# Helper to enforce branding in emails
+
+def _normalize_app_name(name: str | None) -> str:
+    if not name:
+        return "ContentBuilder"
+    return name.replace("Onyx", "ContentBuilder")
 
 HTML_EMAIL_TEMPLATE = """\
 <!DOCTYPE html>
@@ -75,14 +73,8 @@ HTML_EMAIL_TEMPLATE = """\
       background-color: #000000;
       padding: 20px;
       text-align: center;
-    }}
-    .header img {{
-      max-width: 140px;
-      width: 140px;
-      height: auto;
-      filter: brightness(1.1) contrast(1.2);
-      border-radius: 8px;
-      padding: 5px;
+      color: #ffffff;
+      font-weight: 700;
     }}
     .body-content {{
       padding: 20px 30px;
@@ -126,11 +118,7 @@ HTML_EMAIL_TEMPLATE = """\
   <table role="presentation" class="email-container" cellpadding="0" cellspacing="0">
     <tr>
       <td class="header">
-        <img
-          style="background-color: #ffffff; border-radius: 8px;"
-          src="cid:logo.png"
-          alt="{application_name} Logo"
-        >
+        {application_name}
       </td>
     </tr>
     <tr>
@@ -162,8 +150,6 @@ def build_html_email(
     cta_link: str | None = None,
 ) -> str:
     slack_fragment = ""
-    if application_name == ONYX_DEFAULT_APPLICATION_NAME:
-        slack_fragment = f'<br>Have questions? Join our Slack community <a href="{ONYX_SLACK_URL}">here</a>.'
 
     if cta_text and cta_link:
         cta_block = f'<a class="cta-button" href="{cta_link}">{cta_text}</a>'
@@ -193,12 +179,12 @@ def send_email(
 
     if SENDGRID_API_KEY:
         send_email_with_sendgrid(
-            user_email, subject, html_body, text_body, mail_from, inline_png
+            user_email, subject, html_body, text_body, mail_from, None
         )
         return
 
     send_email_with_smtplib(
-        user_email, subject, html_body, text_body, mail_from, inline_png
+        user_email, subject, html_body, text_body, mail_from, None
     )
 
 
@@ -210,7 +196,7 @@ def send_email_with_sendgrid(
     mail_from: str = EMAIL_FROM,
     inline_png: tuple[str, bytes] | None = None,
 ) -> None:
-    from_email = Email(mail_from) if mail_from else Email("noreply@onyx.app")
+    from_email = Email(mail_from) if mail_from else Email("noreply@contentbuilder.app")
     to_email = To(user_email)
 
     mail = Mail(
@@ -223,19 +209,7 @@ def send_email_with_sendgrid(
     # Add HTML content
     mail.add_content(Content("text/html", html_body))
 
-    if inline_png:
-        image_name, image_data = inline_png
-
-        # Create attachment
-        encoded_image = base64.b64encode(image_data).decode()
-        attachment = Attachment()
-        attachment.file_content = FileContent(encoded_image)
-        attachment.file_name = FileName(image_name)
-        attachment.file_type = FileType("image/png")
-        attachment.disposition = Disposition("inline")
-        attachment.content_id = ContentId(image_name)
-
-        mail.add_attachment(attachment)
+    # Do not attach inline images
 
     # Get a JSON-ready representation of the Mail object
     mail_json = mail.get()
@@ -262,32 +236,15 @@ def send_email_with_smtplib(
     if mail_from:
         msg["From"] = mail_from
     msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid(domain="onyx.app")
+    msg["Message-ID"] = make_msgid(domain="contentbuilder.app")
 
     # Add text part first (lowest priority)
     text_part = MIMEText(text_body, "plain")
     msg.attach(text_part)
 
-    if inline_png:
-        # For HTML with images, create a multipart/related container
-        related = MIMEMultipart("related")
-
-        # Add the HTML part to the related container
-        html_part = MIMEText(html_body, "html")
-        related.attach(html_part)
-
-        # Add image with proper Content-ID to the related container
-        img = MIMEImage(inline_png[1], _subtype="png")
-        img.add_header("Content-ID", f"<{inline_png[0]}>")
-        img.add_header("Content-Disposition", "inline", filename=inline_png[0])
-        related.attach(img)
-
-        # Add the related part to the message (higher priority than text)
-        msg.attach(related)
-    else:
-        # No images, just add HTML directly (higher priority than text)
-        html_part = MIMEText(html_body, "html")
-        msg.attach(html_part)
+    # No images, just add HTML directly (higher priority than text)
+    html_part = MIMEText(html_body, "html")
+    msg.attach(html_part)
 
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
         s.starttls()
@@ -304,11 +261,9 @@ def send_subscription_cancellation_email(user_email: str) -> None:
             "onyx.server.enterprise_settings.store", "load_runtime_settings"
         )
         settings = load_runtime_settings_fn()
-        application_name = settings.application_name
+        application_name = _normalize_app_name(settings.application_name)
     except ModuleNotFoundError:
-        application_name = ONYX_DEFAULT_APPLICATION_NAME
-
-    onyx_file = OnyxRuntime.get_emailable_logo()
+        application_name = _normalize_app_name(ONYX_DEFAULT_APPLICATION_NAME)
 
     subject = f"Your {application_name} Subscription Has Been Canceled"
     heading = "Subscription Canceled"
@@ -318,7 +273,7 @@ def send_subscription_cancellation_email(user_email: str) -> None:
         "<p>If you change your mind, you can always come back!</p>"
     )
     cta_text = "Renew Subscription"
-    cta_link = "https://www.onyx.app/pricing"
+    cta_link = f"{WEB_DOMAIN}/pricing"
     html_content = build_html_email(
         application_name,
         heading,
@@ -329,14 +284,13 @@ def send_subscription_cancellation_email(user_email: str) -> None:
     text_content = (
         "We're sorry to see you go.\n"
         "Your subscription has been canceled and will end on your next billing date.\n"
-        "If you change your mind, visit https://www.onyx.app/pricing"
+        f"If you change your mind, visit {WEB_DOMAIN}/pricing"
     )
     send_email(
         user_email,
         subject,
         html_content,
         text_content,
-        inline_png=("logo.png", onyx_file.data),
     )
 
 
@@ -402,11 +356,9 @@ def send_user_email_invite(
             "onyx.server.enterprise_settings.store", "load_runtime_settings"
         )
         settings = load_runtime_settings_fn()
-        application_name = settings.application_name
+        application_name = _normalize_app_name(settings.application_name)
     except ModuleNotFoundError:
-        application_name = ONYX_DEFAULT_APPLICATION_NAME
-
-    onyx_file = OnyxRuntime.get_emailable_logo()
+        application_name = _normalize_app_name(ONYX_DEFAULT_APPLICATION_NAME)
 
     subject = f"Invitation to Join {application_name} Organization"
 
@@ -419,7 +371,6 @@ def send_user_email_invite(
         subject,
         html_content,
         text_content,
-        inline_png=("logo.png", onyx_file.data),
     )
 
 
@@ -435,11 +386,9 @@ def send_forgot_password_email(
             "onyx.server.enterprise_settings.store", "load_runtime_settings"
         )
         settings = load_runtime_settings_fn()
-        application_name = settings.application_name
+        application_name = _normalize_app_name(settings.application_name)
     except ModuleNotFoundError:
-        application_name = ONYX_DEFAULT_APPLICATION_NAME
-
-    onyx_file = OnyxRuntime.get_emailable_logo()
+        application_name = _normalize_app_name(ONYX_DEFAULT_APPLICATION_NAME)
 
     subject = f"Reset Your {application_name} Password"
     heading = "Reset Your Password"
@@ -455,7 +404,7 @@ def send_forgot_password_email(
         cta_link,
     )
     text_content = (
-        f"Please click the following link to reset your password. This link will expire in 24 hours.\n"
+        "Please click the following link to reset your password. This link will expire in 24 hours.\n"
         f"{WEB_DOMAIN}/auth/reset-password?token={token}{tenant_param}"
     )
     send_email(
@@ -464,7 +413,6 @@ def send_forgot_password_email(
         html_content,
         text_content,
         mail_from,
-        inline_png=("logo.png", onyx_file.data),
     )
 
 
@@ -480,11 +428,9 @@ def send_user_verification_email(
             "onyx.server.enterprise_settings.store", "load_runtime_settings"
         )
         settings = load_runtime_settings_fn()
-        application_name = settings.application_name
+        application_name = _normalize_app_name(settings.application_name)
     except ModuleNotFoundError:
-        application_name = ONYX_DEFAULT_APPLICATION_NAME
-
-    onyx_file = OnyxRuntime.get_emailable_logo()
+        application_name = _normalize_app_name(ONYX_DEFAULT_APPLICATION_NAME)
 
     subject = f"{application_name} Email Verification"
     link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
@@ -505,5 +451,4 @@ def send_user_verification_email(
         html_content,
         text_content,
         mail_from,
-        inline_png=("logo.png", onyx_file.data),
     )

@@ -55,7 +55,7 @@ export function Label({
 }) {
   return (
     <label
-      className={`block font-medium text-text-700 dark:text-neutral-100 ${className} ${
+      className={`block font-medium text-gray-900 ${className} ${
         small ? "text-sm" : "text-base"
       }`}
     >
@@ -205,6 +205,7 @@ export function TextFormField({
   width,
   vertical,
   className,
+  style,
 }: {
   name: string;
   removeLabel?: boolean;
@@ -232,6 +233,7 @@ export function TextFormField({
   width?: string;
   vertical?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -294,16 +296,18 @@ export function TextFormField({
           className={`
             ${small && sizeClass.input}
             flex
-            h-10
             w-full
-            rounded-md
+            rounded-full
             border
             border-neutral-200
             bg-white
-            px-3
-            py-2
+            px-4
+            py-3
             mt-1
             text-base
+            shadow-md
+            hover:shadow-xl
+            transition-shadow
 
             file:border-0
             file:bg-transparent
@@ -315,17 +319,11 @@ export function TextFormField({
             placeholder:${sizeClass.placeholder}
             caret-accent
             focus-visible:outline-none
-            focus-visible:ring-1
-            focus-visible:ring-lighter-agent
-            focus-visible:ring-offset-1
+            focus-visible:ring-2
+            focus-visible:ring-blue-700/50
             disabled:cursor-not-allowed
             disabled:opacity-50
             md:text-sm
-            dark:border-neutral-700
-            dark:bg-transparent
-            dark:ring-offset-neutral-950
-            dark:file:text-neutral-50
-            dark:placeholder:text-neutral-400
 
             ${heightString}
             ${sizeClass.input}
@@ -333,6 +331,7 @@ export function TextFormField({
             ${isCode ? "font-mono" : ""}
             ${className}
           `}
+          style={style}
           disabled={disabled}
           placeholder={placeholder}
           autoComplete={autoCompleteDisabled ? "off" : undefined}

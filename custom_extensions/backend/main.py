@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -69,6 +69,9 @@ from app.services.workspace_service import WorkspaceService
 from app.services.role_service import RoleService
 from app.services.product_access_service import ProductAccessService
 
+# Product JSON indexing service (for products-as-context feature)
+from app.services.product_json_indexer import upload_product_json_to_onyx
+
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -93,6 +96,7 @@ COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay"
 COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay"
 COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
+COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay"  # New component for generated video products
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay"  # New component for lesson plans
@@ -113,6 +117,74 @@ LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/comple
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
+# Stripe configuration (custom extensions only)
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_BILLING_RETURN_URL = os.getenv("STRIPE_BILLING_RETURN_URL")
+
+# Price ID mappings from env (optional but recommended)
+PRICE_TO_TIER: dict[str, str] = {}
+TIER_TO_CREDITS: dict[str, int] = {
+    "pro_monthly": 600,
+    "business_monthly": 2000,
+    "pro_yearly": 7200,
+    "business_yearly": 24000,
+}
+
+def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
+    """Load price id → addon mapping and tier mapping from env once."""
+    addon_map: dict[str, dict] = {}
+    def _reg(price_id: Optional[str], addon_type: str, units: int):
+        if price_id:
+            addon_map[price_id] = {"type": addon_type, "units": units}
+
+    # Connectors recurring (merge env with provided price IDs)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_1"), "connectors", 1)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_5"), "connectors", 5)
+    _reg(os.getenv("STRIPE_PRICE_CONNECTORS_10"), "connectors", 10)
+    # Storage recurring (GB)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_1GB"), "storage", 1)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_5GB"), "storage", 5)
+    _reg(os.getenv("STRIPE_PRICE_STORAGE_10GB"), "storage", 10)
+    # One-time credits packs (units = credits amount)
+    _reg(os.getenv("STRIPE_PRICE_CREDITS_100"), "credits", 100)
+    _reg(os.getenv("STRIPE_PRICE_CREDITS_300"), "credits", 300)
+    # Provided mapping (explicit IDs)
+    provided_map = {
+        # credits
+        "price_1SGHlMH2U2KQUmUhkXKhj4g3": ("credits", 100),
+        "price_1SGHm0H2U2KQUmUhG5utzGFf": ("credits", 300),
+        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 1000),
+        # storage (monthly)
+        "price_1SGHjIH2U2KQUmUhpWRcRxxH": ("storage", 1),
+        "price_1SGHk9H2U2KQUmUhLrwnk2tQ": ("storage", 5),
+        "price_1SGHkgH2U2KQUmUh0hI2Mp07": ("storage", 10),
+        # connectors (monthly)
+        "price_1SGHegH2U2KQUmUh4guOuoV7": ("connectors", 1),
+        "price_1SGHgFH2U2KQUmUhS0Blys9w": ("connectors", 5),
+        "price_1SGHgZH2U2KQUmUhSuFJ6SOi": ("connectors", 10),
+    }
+    for pid, (ptype, units) in provided_map.items():
+        addon_map[pid] = {"type": ptype, "units": units}
+
+    # Hard-wired tier price IDs
+    price_to_tier: dict[str, str] = {
+        "price_1SEBM4H2U2KQUmUhkn6A7Hlm": "pro_monthly",      # Pro
+        "price_1SEBTeH2U2KQUmUhi02e1uC9": "business_monthly", # Business
+        "price_1SEBUCH2U2KQUmUhkym5Q9TS": "pro_yearly",       # Pro Yearly
+        "price_1SEBUoH2U2KQUmUhMktbhCsm": "business_yearly",  # Business Yearly
+    }
+    # Also support env vars as fallback
+    def _tier(price_id: Optional[str], tier: str):
+        if price_id:
+            price_to_tier[price_id] = tier
+    _tier(os.getenv("STRIPE_PRICE_PRO_MONTHLY"), "pro_monthly")
+    _tier(os.getenv("STRIPE_PRICE_BUSINESS_MONTHLY"), "business_monthly")
+    _tier(os.getenv("STRIPE_PRICE_PRO_YEARLY"), "pro_yearly")
+    _tier(os.getenv("STRIPE_PRICE_BUSINESS_YEARLY"), "business_yearly")
+    return addon_map, price_to_tier
+
+PRICE_TO_ADDON, PRICE_TO_TIER = _load_price_maps_once()
+
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
@@ -129,67 +201,6 @@ def get_openai_client():
             raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
-
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -618,6 +629,9 @@ class UserCredits(BaseModel):
     id: int
     onyx_user_id: str
     name: str
+    # Optional identity fields for richer admin display
+    email: Optional[str] = None
+    display_identity: Optional[str] = None
     credits_balance: int
     total_credits_used: int
     credits_purchased: int
@@ -626,6 +640,11 @@ class UserCredits(BaseModel):
     created_at: datetime
     updated_at: datetime
     model_config = {"from_attributes": True}
+
+# Response model for admin credits list with enriched identity fields
+class AdminUserCredits(UserCredits):
+    email: Optional[str] = None
+    display_identity: Optional[str] = None
 
 class CreditTransactionRequest(BaseModel):
     user_email: str
@@ -904,7 +923,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -1084,496 +1103,552 @@ DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM = """
 
 DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
 {
-  "lessonTitle": "Advanced Data Science Mastery: From Theory to Production",
+  "lessonTitle": "Project Management Fundamentals: From Planning to Delivery",
   "slides": [
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Advanced Data Science Mastery",
-      "templateId": "hero-title-slide",
-      "previewKeyPoints": [
-        "Comprehensive data science training program covering theory and practical applications",
-        "Advanced techniques for real-world data challenges and production deployment",
-        "Industry-standard tools and methodologies for professional data scientists",
-        "Career development pathways and specialization opportunities in data science"
-      ],
-      "props": {
-        "title": "Advanced Data Science Mastery",
-        "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
-        "author": "Data Science Excellence Institute",
-        "date": "2024",
-        "backgroundColor": "#1e40af",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
-      }
-    },
-    {
-      "slideId": "slide_2_statistical_foundations",
-      "slideNumber": 2,
-      "slideTitle": "Statistical Foundations and Mathematical Prerequisites",
-      "templateId": "two-column",
-      "previewKeyPoints": [
-        "Essential statistical concepts including probability distributions and hypothesis testing",
-        "Linear algebra fundamentals for machine learning algorithms and dimensionality reduction",
-        "Calculus applications in optimization and gradient-based learning methods",
-        "Practical implementation using Python libraries like NumPy, SciPy, and statsmodels"
-      ],
-      "props": {
-        "title": "Core Mathematical and Statistical Foundations",
-        "leftTitle": "Statistical Concepts",
-        "leftContent": "• Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\n• Hypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\n• Bayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
-        "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "• Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\n• Calculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\n• Discrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
-      }
-    },
-    {
-      "slideId": "slide_3_data_pipeline_architecture",
-      "slideNumber": 3,
-      "slideTitle": "Enterprise Data Pipeline Architecture and ETL Processes",
-      "templateId": "process-steps",
-      "previewKeyPoints": [
-        "End-to-end data pipeline design from ingestion to serving predictions at scale",
-        "ETL and ELT processes with modern tools like Apache Airflow and dbt for workflow orchestration",
-        "Data quality monitoring and validation frameworks to ensure reliable model inputs",
-        "Scalable architecture patterns for handling big data processing and real-time streaming"
-      ],
-      "props": {
-        "title": "Building Production-Ready Data Pipelines",
-        "steps": [
-          "Ingest data from databases, APIs, streams, and files with retries, validation, and error handling to ensure completeness and reliability at scale",
-          "Transform and clean data using outlier handling, imputation, feature engineering, and normalization with Spark, Pandas, or dbt for reusable pipelines",
-          "Monitor data quality via profiling, schema checks, statistical tests, and drift detection to catch issues early and maintain trustworthy inputs",
-          "Serve models with Docker/Kubernetes and ML platforms (e.g., MLflow, Seldon) for reliable real-time and batch prediction endpoints",
-          "Track latency, accuracy, throughput, and business KPIs with dashboards and alerts to keep pipelines healthy and actionable"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_4_machine_learning_algorithms",
-      "slideNumber": 4,
-      "slideTitle": "Advanced Machine Learning Algorithms and Model Selection",
-      "templateId": "bullet-points-right",
-      "previewKeyPoints": [
-        "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
-        "Unsupervised learning techniques for clustering, dimensionality reduction, and anomaly detection",
-        "Deep learning architectures including CNNs, RNNs, and Transformers for various data types",
-        "Model selection strategies, hyperparameter tuning, and cross-validation best practices"
-      ],
-      "props": {
-        "title": "Comprehensive Machine Learning Algorithm Toolkit",
-        "bullets": [
-          "Supervised learning from linear/logistic regression to ensembles (Random Forest, XGBoost, LightGBM, SVM) with guidance on when to use which and key tradeoffs",
-          "Unsupervised learning: clustering (K-means, DBSCAN, hierarchical), dimensionality reduction (PCA, t-SNE, UMAP), and anomaly detection for EDA and features",
-          "Deep learning: CNNs for vision, RNNs/Transformers for NLP, plus transfer learning and attention to tackle complex patterns and limited labeled data",
-          "Model selection and evaluation: proper cross-validation, hyperparameter tuning (grid/random/Bayesian), and metrics for classification, regression, ranking",
-          "Ensembles and stacking to boost accuracy and robustness via voting, bagging, boosting, and layered learners that combine model strengths"
-        ],
-        "imagePrompt": "Realistic cinematic scene of data scientists collaborating in a modern machine learning lab with multiple monitors displaying algorithm visualizations, code, and model performance metrics. The scene features diverse professionals analyzing complex data patterns on large screens while discussing model architectures. Monitors and visualizations are [COLOR1], data scientists and workstations are [COLOR2], and lab environment is [COLOR3]. Cinematic photography with natural lighting, 50mm lens, three-quarter view, shallow depth of field.",
-        "imageAlt": "Data scientists working on machine learning algorithms"
-      }
-    },
-    {
-      "slideId": "slide_5_feature_engineering",
-      "slideNumber": 5,
-      "slideTitle": "Advanced Feature Engineering and Selection Techniques",
-      "templateId": "big-image-top",
-      "previewKeyPoints": [
-        "Systematic approaches to creating meaningful features from raw data across different domains",
-        "Automated feature engineering tools and techniques for scaling feature creation processes",
-        "Feature selection methods to identify most relevant variables and reduce dimensionality",
-        "Domain-specific feature engineering for text, images, time series, and categorical data"
-      ],
-      "props": {
-        "title": "Mastering Feature Engineering for Maximum Model Performance",
-        "subtitle": "Feature engineering often separates good from great models. Use systematic methods, automated generation, selection, and domain-specific transforms to improve accuracy and interpretability while managing complexity and overfitting risks.",
-        "imagePrompt": "Realistic cinematic scene of a feature engineering workflow in a modern data science workspace. Multiple screens display data transformations, correlation matrices, and feature importance plots while data scientists analyze patterns and create new variables. The workspace includes whiteboards with feature engineering diagrams and notebooks with code. Data visualizations and screens are [COLOR1], professionals and workstations are [COLOR2], workspace and equipment are [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide angle, shallow depth of field.",
-        "imageAlt": "Feature engineering workflow in data science workspace",
-        "imageSize": "large"
-      }
-    },
-    {
-      "slideId": "slide_6_model_performance_metrics",
-      "slideNumber": 6,
-      "slideTitle": "Comprehensive Model Evaluation and Performance Metrics",
-      "templateId": "big-numbers",
-      "previewKeyPoints": [
-        "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
-        "Regression evaluation methods with RMSE, MAE, and R-squared for different use cases",
-        "Advanced metrics for imbalanced datasets and multi-class classification problems"
-      ],
-      "props": {
-        "title": "Critical Performance Metrics for Model Evaluation",
-        "steps": [
-          {
-            "value": "95%+",
-            "label": "Model Accuracy Threshold",
-            "description": "Accuracy targets with attention to precision–recall balance, class imbalance, and business costs; ensure consistent performance across segments and time."
-          },
-          {
-            "value": "0.85+",
-            "label": "AUC-ROC Score Target",
-            "description": "Excellent class separation for binary tasks like fraud or churn. >0.85 is strong; >0.9 is exceptional for high-stakes applications."
-          },
-          {
-            "value": "<5%",
-            "label": "Acceptable Error Rate",
-            "description": "Error budgets vary by domain. Critical systems demand <1%; recommendations can tolerate more. Consider FP/FN costs in tradeoffs."
-          }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_7_deployment_strategies",
-      "slideNumber": 7,
-      "slideTitle": "Model Deployment Strategies and MLOps Best Practices",
-      "templateId": "four-box-grid",
-      "previewKeyPoints": [
-        "Containerization and orchestration strategies for scalable model deployment",
-        "A/B testing frameworks for gradual model rollouts and performance monitoring",
-        "Continuous integration and deployment pipelines for machine learning workflows",
-        "Model versioning, monitoring, and automated retraining processes"
-      ],
-      "props": {
-        "title": "Production Deployment and MLOps Excellence",
-        "boxes": [
-          {
-            "heading": "Containerized Deployment",
-            "text": "Docker + Kubernetes for scalable, reproducible serving with autoscaling, health checks, and zero-downtime rollouts."
-          },
-          {
-            "heading": "A/B Testing Framework",
-            "text": "Controlled rollouts with significance testing and KPI tracking to validate model impact before full deployment."
-          },
-          {
-            "heading": "CI/CD Pipelines",
-            "text": "Automated testing, validation, and deployments (e.g., GitHub Actions, Jenkins, MLflow) with safe rollback."
-          },
-          {
-            "heading": "Monitoring & Alerting",
-            "text": "Track performance, drift, latency, and health with dashboards and alerts for quick remediation."
-          }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_8_industry_challenges",
-      "slideNumber": 8,
-      "slideTitle": "Common Industry Challenges and Proven Solutions",
-      "templateId": "challenges-solutions",
-      "previewKeyPoints": [
-        "Data quality issues and systematic approaches to data validation and cleaning",
-        "Scalability challenges when moving from prototype to production systems",
-        "Model interpretability requirements for regulated industries and stakeholder buy-in",
-        "Talent acquisition and team building strategies for successful data science organizations"
-      ],
-      "props": {
-        "title": "Overcoming Real-World Data Science Obstacles",
-        "challengesTitle": "Industry Challenges",
-        "solutionsTitle": "Proven Solutions",
-        "challenges": [
-          "Inconsistent, drifting, or missing data across sources can degrade model reliability and decisions",
-          "Scaling prototypes to high-throughput, low-latency production systems is difficult",
-          "Regulatory and stakeholder needs require interpretable, explainable models"
-        ],
-        "solutions": [
-          "Adopt data validation, profiling, lineage, and automated quality checks throughout pipelines",
-          "Design with cloud-native patterns, efficient algorithms, and performance testing from the start",
-          "Use XAI tools (LIME, SHAP), document decisions, and provide clear visual explanations"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_9_career_advancement",
-      "slideNumber": 9,
-      "slideTitle": "Data Science Career Paths and Specialization Areas",
-      "templateId": "timeline",
-      "previewKeyPoints": [
-        "Career progression from junior data scientist to senior leadership roles",
-        "Specialization opportunities in machine learning engineering, research, and business analytics",
-        "Skills development roadmap for advancing in different data science career tracks",
-        "Industry trends and emerging roles in artificial intelligence and data science"
-      ],
-      "props": {
-        "title": "Professional Development Timeline and Career Specializations",
-        "events": [
-          {
-            "date": "Year 1-2",
-            "title": "Foundation Building",
-            "description": "Build stats, Python/R, and ML basics; complete projects and assemble a strong portfolio."
-          },
-          {
-            "date": "Year 2-4",
-            "title": "Specialization Focus",
-            "description": "Choose ML eng., data eng., or analytics; deepen algorithms, cloud, and domain expertise."
-          },
-          {
-            "date": "Year 4-6",
-            "title": "Senior Individual Contributor",
-            "description": "Lead complex projects, mentor others, and drive MLOps and cross-functional outcomes."
-          },
-          {
-            "date": "Year 6+",
-            "title": "Leadership and Strategy",
-            "description": "Move into management, research, or senior technical leadership; scale teams and impact."
-          }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_10_emerging_technologies",
-      "slideNumber": 10,
-      "slideTitle": "Emerging Technologies and Future Trends",
-      "templateId": "big-image-left",
-      "previewKeyPoints": [
-        "Latest developments in artificial intelligence including large language models and generative AI",
-        "Quantum computing applications in machine learning and optimization problems",
-        "Edge computing and federated learning for distributed AI systems",
-        "Ethical AI considerations and responsible machine learning practices"
-      ],
-      "props": {
-        "title": "Cutting-Edge Innovations Shaping Data Science Future",
-        "subtitle": "The field evolves quickly with breakthroughs in models, compute, and deployment. Large language models, quantum-inspired methods, federated learning, and responsible AI will shape the next generation of solutions.",
-        "imagePrompt": "Realistic cinematic scene of a futuristic AI research laboratory with scientists working on cutting-edge technologies. Multiple large screens display neural network architectures, quantum computing visualizations, and advanced AI models. Researchers collaborate around holographic displays and high-tech workstations with quantum computers and advanced GPUs visible. Laboratory equipment and displays are [COLOR1], researchers and workstations are [COLOR2], futuristic lab environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, low angle, shallow depth of field.",
-        "imageAlt": "Futuristic AI research laboratory with advanced technologies",
-        "imageSize": "large"
-      }
-    },
-    {
-      "slideId": "slide_11_metrics_analytics",
-      "slideNumber": 11,
-      "slideTitle": "Operational Analytics Dashboard Highlights",
-      "templateId": "metrics-analytics",
-      "previewKeyPoints": [
-        "Key performance indicators tracked in day-to-day operations",
-        "Link between analytics and business actions taken",
-        "Alert thresholds and on-call procedures for anomalies",
-        "Ownership and review cadence for metrics dashboards"
-      ],
-      "props": {
-        "title": "Daily Metrics and Operational Insights",
-        "metrics": [
-          { "number": "12.3k", "text": "Daily active users across core products with 7-day rolling trend monitoring and threshold alerts for significant deviations from expected usage patterns." },
-          { "number": "98.6%", "text": "Uptime for model-serving endpoints measured via synthetic probes, SLO mapping, and automatic incident creation when SLAs are breached." },
-          { "number": "320ms", "text": "Median prediction latency for real-time inference with p95 and p99 tracked and auto-scaling triggers configured based on sustained load." },
-          { "number": "0.7%", "text": "Error rate on requests including timeouts and failed responses; categorized by cause and mitigated via retry logic and circuit breakers." },
-          { "number": "0.3", "text": "Data drift score computed nightly using PSI/KS metrics; alerts fire when exceeding thresholds prompting retraining investigations." },
-          { "number": "42", "text": "Open data quality issues prioritized by severity, assigned owners, and target resolution dates to ensure pipeline reliability." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_12_market_share",
-      "slideNumber": 12,
-      "slideTitle": "Market Share by Segment and Year",
-      "templateId": "market-share",
-      "previewKeyPoints": [
-        "Year-over-year changes in market penetration by segment",
-        "Competitive positioning relative to primary rivals",
-        "Regions and products driving overall growth"
-      ],
-      "props": {
-        "title": "Market Share Overview",
-        "subtitle": "Comparative view across segments and years",
-        "chartData": [
-          { "label": "Segment A", "description": "Enterprise customers in regulated industries", "percentage": 37, "color": "#3b82f6", "year": 2024 },
-          { "label": "Segment B", "description": "Mid-market technology companies", "percentage": 28, "color": "#8b5cf6", "year": 2024 },
-          { "label": "Segment C", "description": "SMB retail and services", "percentage": 22, "color": "#10b981", "year": 2024 },
-          { "label": "Other", "description": "Long-tail customers", "percentage": 13, "color": "#f59e0b", "year": 2024 }
-        ],
-        "bottomText": "Expanding presence in enterprise while maintaining growth in mid-market."
-      }
-    },
-    {
-      "slideId": "slide_13_comparison",
-      "slideNumber": 13,
-      "slideTitle": "Solution Comparison Matrix",
-      "templateId": "comparison-slide",
-      "previewKeyPoints": [
-        "Side-by-side evaluation of key features",
-        "Pricing and support considerations",
-        "Recommended options by use case"
-      ],
-      "props": {
-        "title": "Feature Comparison",
-        "subtitle": "Selecting the right approach by capability",
-        "tableData": {
-          "headers": ["Capability", "Option A", "Option B"],
-          "rows": [
-            ["Deployment Model", "Managed cloud service", "Self-hosted Kubernetes"],
-            ["Latency (p95)", "< 400 ms", "< 250 ms"],
-            ["Maintenance", "Low (SaaS managed)", "Medium (DevOps required)"],
-            ["Cost Profile", "Usage-based pricing", "Fixed infra + ops"],
-            ["Best For", "Fast time-to-value", "Full control & customization"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_14_table_dark",
-      "slideNumber": 14,
-      "slideTitle": "Security Controls (Dark Theme)",
-      "templateId": "table-dark",
-      "previewKeyPoints": [
-        "Core security measures across the platform",
-        "Ownership and audit frequency",
-        "Compliance mapping overview"
-      ],
-      "props": {
-        "title": "Security Controls Overview",
-        "tableData": {
-          "headers": ["Control", "Owner", "Audit"],
-          "rows": [
-            ["Access Control", "Security Team", "Quarterly"],
-            ["Encryption at Rest", "Infra Team", "Bi-annually"],
-            ["Network Segmentation", "Ops Team", "Annually"],
-            ["Secrets Management", "Platform Team", "Quarterly"]
-          ]
-        },
-        "showCheckmarks": true,
-        "colors": {
-          "headerBg": "#0f172a",
-          "rowAltBg": "#111827"
-        }
-      }
-    },
-    {
-      "slideId": "slide_15_table_light",
-      "slideNumber": 15,
-      "slideTitle": "Project Milestones (Light Theme)",
-      "templateId": "table-light",
-      "previewKeyPoints": [
-        "Upcoming deliverables and responsible teams",
-        "Dependencies and risk notes",
-        "Tentative timelines"
-      ],
-      "props": {
-        "title": "Milestone Plan",
-        "tableData": {
-          "headers": ["Milestone", "Owner", "Due"],
-          "rows": [
-            ["MVP Release", "Platform", "2024-11-15"],
-            ["Security Review", "SecOps", "2024-12-01"],
-            ["GA Launch", "Go-To-Market", "2025-01-10"]
-          ]
-        },
-        "colors": {
-          "headerBg": "#f3f4f6",
-          "rowAltBg": "#ffffff"
-        }
-      }
-    },
-    {
-      "slideId": "slide_16_event_list",
-      "slideNumber": 16,
-      "slideTitle": "Upcoming Events and Key Dates",
-      "templateId": "event-list",
-      "previewKeyPoints": [
-        "Major internal and external events in the next quarter",
-        "Deadlines that impact delivery timelines",
-        "Engagement opportunities with stakeholders"
-      ],
-      "props": {
-        "events": [
-          { "date": "2024-11-05", "description": "Architecture review with platform council to validate scalability and security design decisions." },
-          { "date": "2024-11-20", "description": "Customer advisory board session to gather feedback on beta features and onboarding experience." },
-          { "date": "2024-12-03", "description": "Internal enablement workshop for support and success teams on new workflows and tooling." },
-          { "date": "2024-12-17", "description": "Public webinar on best practices and lessons learned from early adopters across industries." }
-        ],
-        "titleColor": "#ffffff",
-        "descriptionColor": "#d1d5db",
-        "backgroundColor": "#111827"
-      }
-    },
-    {
-      "slideId": "slide_17_pyramid",
-      "slideNumber": 17,
-      "slideTitle": "Capability Maturity Pyramid",
-      "templateId": "pyramid",
-      "previewKeyPoints": [
-        "Progression from foundational to advanced capabilities",
-        "Focus areas by maturity level",
-        "Recommended next steps for improvement"
-      ],
-      "props": {
-        "title": "Maturity Stages",
-        "levels": [
-          { "text": "Strategic Optimization", "description": "Automated retraining, causal inference, and decision optimization integrated with business processes and KPIs." },
-          { "text": "Production Excellence", "description": "Robust MLOps practices, monitoring, alerting, and governance across multiple teams and models." },
-          { "text": "Operationalization", "description": "Reliable pipelines, CI/CD, and standardized feature stores enabling consistent deployments." },
-          { "text": "Prototyping", "description": "Experimentation, evaluation, and iteration with reproducible research workflows and documentation." },
-          { "text": "Foundations", "description": "Data quality, access controls, and core statistical/ML competencies across the team." }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_18_pie_chart",
-      "slideNumber": 18,
-      "slideTitle": "Resource Allocation Breakdown",
-      "templateId": "pie-chart-infographics",
-      "previewKeyPoints": [
-        "Distribution of time and budget across activities",
-        "Monthly movement and seasonal trends",
-        "Areas for optimization and rebalancing"
-      ],
-      "props": {
-        "title": "Team Allocation Overview",
-        "chartData": {
-          "segments": [
-            { "label": "Data Engineering", "value": 35, "color": "#3b82f6" },
-            { "label": "Modeling", "value": 30, "color": "#8b5cf6" },
-            { "label": "MLOps", "value": 20, "color": "#10b981" },
-            { "label": "Enablement", "value": 15, "color": "#f59e0b" }
-          ]
-        },
-        "monthlyData": [62, 70, 65, 68, 72, 75, 73, 78, 80, 77, 74, 79],
-        "chartSize": "large"
-      }
-    },
-    {
-      "slideId": "slide_19_comparison_table_dark",
-      "slideNumber": 19,
-      "slideTitle": "Feature Parity (Dark)",
-      "templateId": "comparison-slide",
-      "previewKeyPoints": [
-        "Detailed parity view across vendors",
-        "Critical features for shortlisting",
-        "Notes for follow-up demos"
-      ],
-      "props": {
-        "title": "Vendor Feature Parity",
-        "tableData": {
-          "headers": ["Feature", "Vendor X", "Vendor Y"],
-          "rows": [
-            ["RBAC", "Yes", "Partial"],
-            ["Audit Logs", "Yes", "Yes"],
-            ["SLA", "99.9%", "99.5%"],
-            ["Hybrid Deploy", "No", "Yes"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_20_title",
-      "slideNumber": 20,
-      "slideTitle": "Section Transition: Case Studies",
+      "slideTitle": "Section: Project Management Fundamentals",
       "templateId": "title-slide",
       "previewKeyPoints": [
-        "Transition into applied examples",
-        "What the audience will gain from case studies"
+        "Learning Outcome: You will be able to plan and execute projects using structured methodologies",
+        "Learning Outcome: You will be able to identify and mitigate common project risks before they occur",
+        "Learning Outcome: You will be able to apply time management frameworks to meet project deadlines",
+        "Practical Focus: Real workplace scenarios with step-by-step implementation guides"
       ],
       "props": {
-        "title": "Case Studies",
-        "subtitle": "Applying the principles to real-world scenarios",
-        "author": "Data Science Excellence Institute",
-        "backgroundColor": "#1e293b",
-        "titleColor": "#ffffff",
-        "subtitleColor": "#bfdbfe"
+        "title": "Project Management Fundamentals",
+        "subtitle": "Learn to plan, execute, and deliver successful projects in any industry",
+        "author": "Professional Development Institute"
+      }
+    },
+    {
+      "slideId": "slide_2_learning_objectives",
+      "slideNumber": 2,
+      "slideTitle": "Project Management Fundamentals — What You Will Be Able To Do",
+      "templateId": "two-column",
+      "previewKeyPoints": [
+        "After this lesson, you will identify project scope and create work breakdown structures",
+        "After this lesson, you will apply risk assessment frameworks to predict potential issues",
+        "After this lesson, you will evaluate progress using key performance metrics",
+        "After this lesson, you will create action plans for common project challenges"
+      ],
+      "props": {
+        "title": "Your Learning Outcomes: Skills You Will Develop",
+        "leftTitle": "Planning Skills",
+        "leftContent": "You will learn to define project scope, create detailed timelines, and allocate resources effectively. These skills apply to any project in any industry.",
+        "rightTitle": "Execution Skills",
+        "rightContent": "You will learn to track progress, identify risks early, and adjust plans when circumstances change. You will practice these skills through real scenarios."
+      }
+    },
+    {
+      "slideId": "slide_3_project_planning_steps",
+      "slideNumber": 3,
+      "slideTitle": "Project Management Fundamentals — How To Plan Your Project in 5 Steps",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Step 1: Define clear project goals that are specific and measurable",
+        "Step 2: Break down work into manageable tasks using proven techniques",
+        "Step 3: Estimate time and resources needed for each task",
+        "Step 4: Identify potential risks and create backup plans",
+        "Step 5: Set up tracking system to monitor progress against goals"
+      ],
+      "props": {
+        "title": "Your Step-by-Step Project Planning Guide",
+        "steps": [
+          "Define Project Goals: Write down what success looks like using the SMART framework (Specific, Measurable, Achievable, Relevant, Time-bound). Start by identifying the business problem your project solves and the value it will create. Example: Instead of 'improve online presence', write 'Launch new website with 5 core pages (Home, About, Services, Portfolio, Contact) by March 15, 2024, achieving 25% increase in lead generation within 3 months of launch.' Include success metrics that can be measured objectively, such as user engagement rates, conversion rates, or performance benchmarks. Consider both quantitative metrics (numbers, percentages, timeframes) and qualitative outcomes (user satisfaction, brand perception, operational efficiency). Document assumptions and constraints that could affect goal achievement, such as budget limitations, resource availability, or external dependencies. Review goals with key stakeholders to ensure alignment and obtain buy-in before proceeding to planning.",
+          "Create Work Breakdown Structure: List all tasks needed by starting with major phases (Planning, Development, Testing, Launch) and then breaking each phase into smaller, manageable tasks that take 2-5 days each. This hierarchical approach makes the project less overwhelming and easier to track progress. For each task, include: a clear description of what needs to be accomplished, the expected deliverable or outcome, the person responsible for completion, and any dependencies on other tasks. Use action verbs to describe tasks (e.g., 'Design user interface mockups' rather than 'UI design'). Group related tasks into work packages that can be assigned to specific team members or departments. Include administrative tasks like status meetings, documentation updates, and stakeholder reviews. Review the breakdown with team members to ensure nothing is missed and that task descriptions are clear and actionable.",
+          "Estimate Time and Resources: For each task, estimate the hours needed and identify who will do the work based on their skills, availability, and current workload. Consider the complexity of the task, the experience level of the person assigned, and any learning curve required. Add buffer time (typically 20-30% extra) for unexpected issues, learning curves, and quality assurance activities. Factor in dependencies between tasks and potential delays from external sources. Track your estimates against actual time spent to improve accuracy over time and identify patterns in estimation errors. Include resource costs, equipment needs, and external dependencies in your estimates. Create a resource allocation matrix showing who is working on what and when, to identify potential conflicts or bottlenecks early.",
+          "Identify Risks: Ask 'What could go wrong?' for each phase and create a comprehensive risk register. List the top 5-10 risks that could significantly impact your project's success, including their likelihood (High/Medium/Low) and impact (High/Medium/Low). For each risk, develop a specific backup plan with clear actions, responsible parties, and timelines. Example: Risk 'Key team member becomes unavailable' → Mitigation 'Cross-train second person on critical tasks, maintain documentation of processes, establish external contractor relationships for key skills.' Include both internal risks (team availability, skill gaps, resource constraints) and external risks (market changes, technology failures, regulatory changes). Assign risk owners who are responsible for monitoring and responding to specific risks. Review and update the risk register regularly as the project progresses and new risks emerge.",
+          "Set Up Tracking: Choose a simple tracking method that works for your team size and complexity (spreadsheet, project board, or digital tool like Trello, Asana, or Microsoft Project). Update progress weekly and ensure all team members have access to current information. Track key metrics: tasks completed vs. planned, upcoming deadlines and milestones, current blockers and issues, resource utilization, and budget status. Hold brief weekly check-ins (15-30 minutes) that focus on: what was accomplished since last meeting, what's planned for next week, any blockers or dependencies, and coordination needs. Use a consistent format for status updates that includes: completed work, in-progress tasks, upcoming priorities, risks and issues, and support needed. Create a communication plan that specifies who needs what information, when, and in what format to maintain alignment and prevent surprises."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_common_challenges",
+      "slideNumber": 4,
+      "slideTitle": "Project Management Fundamentals — Common Challenges You Will Face",
+      "templateId": "bullet-points-right",
+      "previewKeyPoints": [
+        "Challenge: Project scope grows beyond original plan (scope creep)",
+        "Challenge: Team members have conflicting schedules and priorities",
+        "Challenge: Unexpected problems delay progress and consume resources",
+        "Challenge: Stakeholders change requirements mid-project",
+        "How to Apply: Recognize these patterns early and use proven response strategies"
+      ],
+      "props": {
+        "title": "Typical Project Challenges and How to Address Them",
+        "bullets": [
+          "Scope Creep: New features get added during execution without formal approval, often through casual conversations or 'quick additions' that seem minor but accumulate into major delays. This happens because stakeholders don't understand the full impact of changes, or because project managers want to please everyone. Response: Document all changes formally using a standardized change request form that includes: description of the change, business justification, impact on timeline and resources, cost implications, and approval signatures. Before accepting any change, conduct a thorough impact analysis showing how it affects the critical path, resource allocation, and budget. Present this analysis to stakeholders with clear options: accept the change and extend timeline/budget, defer the change to a future phase, or reject the change to maintain original scope. This process creates accountability and helps stakeholders make informed decisions about trade-offs.",
+          "Resource Conflicts: Team members have other commitments, competing priorities, or availability constraints that weren't accounted for during initial planning. This often occurs when team members are shared across multiple projects, have personal commitments, or when organizational priorities shift mid-project. Response: Identify critical dependencies early by mapping out which team members are essential for each project phase and creating a resource allocation matrix. Communicate proactively with other project leads to coordinate schedules and avoid double-booking key resources. Negotiate priorities with management by presenting a clear business case for your project's importance and the consequences of resource conflicts. Keep backup resources identified by cross-training team members on critical tasks, maintaining relationships with external contractors, or developing internal expertise in key areas. Create a resource conflict escalation process that includes clear decision-making criteria and authority levels.",
+          "Unexpected Delays: Technical issues, external dependencies, or unforeseen circumstances cause setbacks that weren't anticipated during planning. These delays often cascade through the project timeline, affecting multiple subsequent tasks and potentially the entire project completion date. Response: Build buffer time into your schedule by adding 20-30% extra time to critical path activities and maintaining a project buffer at the end. Maintain a comprehensive risk log that identifies potential delay sources, their likelihood, and impact. Communicate delays immediately to stakeholders with a revised timeline that includes: what caused the delay, how it affects the overall project, what actions are being taken to mitigate the impact, and the new realistic completion date. Develop contingency plans for common delay scenarios and have them ready to implement quickly when issues arise.",
+          "Changing Requirements: Stakeholders revise what they want based on new information, market changes, or evolving business needs. These changes often come after significant work has already been completed, requiring rework and potentially invalidating previous decisions. Response: Establish a formal change approval process that includes: a standardized change request form, impact assessment by the project team, cost-benefit analysis, stakeholder review and approval, and implementation planning. Show the impact on deadline and budget for each change request with specific numbers and dates. Prioritize changes together with stakeholders by ranking them based on business value, implementation complexity, and project impact. Create a change control board with decision-making authority and clear criteria for approving or rejecting changes. Document all approved changes and their impact on the project baseline.",
+          "Communication Gaps: Team members work in silos without proper alignment, leading to duplicated effort, conflicting approaches, or missed dependencies. This often occurs in distributed teams, complex projects with multiple workstreams, or when team members have different communication preferences and tools. Response: Hold regular brief check-ins (15-30 minutes) that focus on: what was accomplished since last meeting, what's planned for next period, any blockers or dependencies, and coordination needs. Use a shared project tracker that's visible to all team members and updated in real-time. Create a simple status update format that everyone follows, including: completed tasks, in-progress work, upcoming milestones, risks and issues, and coordination needs. Establish clear communication protocols for different types of information (urgent issues, routine updates, decisions needed) and ensure everyone knows how to escalate problems quickly."
+        ],
+        "imagePrompt": "Professional office environment showing diverse team members collaborating around a project planning board with sticky notes and timelines. Team includes people of different backgrounds working together on project strategy. Natural office lighting, realistic workplace setting with laptops and planning materials. Planning board is [COLOR1], team and workspace is [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Team members collaborating on project planning"
+      }
+    },
+    {
+      "slideId": "slide_5_essential_tools",
+      "slideNumber": 5,
+      "slideTitle": "Project Management Fundamentals — Four Essential Tools You Will Use Daily",
+      "templateId": "four-box-grid",
+      "previewKeyPoints": [
+        "Tool 1: Project Charter - Document that defines project purpose and authority",
+        "Tool 2: Task Board - Visual system to track work progress and identify blockers",
+        "Tool 3: Risk Register - Living document of potential problems and response plans",
+        "Tool 4: Status Report - Regular communication format to keep stakeholders informed"
+      ],
+      "props": {
+        "title": "Your Project Management Toolkit: What to Use When",
+        "boxes": [
+          {
+            "heading": "Project Charter (Use at Start)",
+            "text": "One-page document defining project goals, scope, key stakeholders, and success criteria that serves as the foundation for all project decisions. Use this to get formal approval before starting work and prevent misunderstandings about what you are building. The charter should include: project title and description, business case and expected benefits, project scope and boundaries, key stakeholders and their roles, success criteria and acceptance criteria, high-level timeline and budget, assumptions and constraints, and decision-making authority. This document becomes your reference point when scope creep occurs or when stakeholders have conflicting expectations. It should be signed by the project sponsor and key stakeholders to ensure everyone is aligned on the project's purpose and boundaries. Review and update the charter if significant changes occur during the project lifecycle."
+          },
+          {
+            "heading": "Task Board (Use Daily)",
+            "text": "Visual board with columns like 'To Do', 'In Progress', 'Blocked', 'Done' that provides real-time visibility into work progress and bottlenecks. Each task is represented as a card that moves through the columns as work progresses. This makes bottlenecks visible immediately and helps identify where work is getting stuck. The board can be physical (whiteboard with sticky notes) or digital (Trello, Asana, Jira). Include additional columns for 'In Review' or 'Waiting for Approval' if your workflow requires it. Each card should contain: task description, assigned person, due date, priority level, and any dependencies. Use color coding to indicate task types, priorities, or team members. Update the board daily during team standup meetings to maintain accuracy and ensure everyone has current information about project status."
+          },
+          {
+            "heading": "Risk Register (Review Weekly)",
+            "text": "Comprehensive spreadsheet listing potential problems, their likelihood (High/Medium/Low), impact (High/Medium/Low), and detailed response plans for each risk. Update when new risks appear or when existing risks change in likelihood or impact. This helps the team prepare rather than react to problems. Example entry: 'Vendor delay - High likelihood - Medium impact - Response: Order 2 weeks early, maintain backup vendor relationships, include penalty clauses in contracts.' Include columns for: risk description, category (technical, business, external), likelihood, impact, risk score, owner, mitigation strategy, contingency plan, and status. Review the register weekly during project meetings and update based on new information or changing circumstances. Assign risk owners who are responsible for monitoring specific risks and implementing mitigation strategies."
+          },
+          {
+            "heading": "Status Report (Send Weekly)",
+            "text": "Brief update template that includes: accomplishments this week with specific deliverables completed, plans for next week with key milestones and deadlines, blockers needing help with clear description of what's needed, budget status and any cost concerns, timeline status and any schedule changes, and risks and issues that need attention. Keep to one page maximum and send on the same day each week to maintain consistency. This keeps everyone informed without requiring additional meetings and builds trust through transparency. Use a consistent format that stakeholders can quickly scan and understand. Include visual indicators (red/yellow/green) for project health and highlight any decisions that need to be made or approvals that are required. Attach detailed information as appendices for those who need more depth."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_6_success_indicators",
+      "slideNumber": 6,
+      "slideTitle": "Project Management Fundamentals — Signs Your Project Is On Track",
+      "templateId": "big-numbers",
+      "previewKeyPoints": [
+        "Indicator 1: Tasks are being completed consistently each week without major delays",
+        "Indicator 2: Team members know their responsibilities and communicate proactively",
+        "Indicator 3: Stakeholders receive regular updates and provide timely feedback"
+      ],
+      "props": {
+        "title": "Key Indicators of Project Health: What to Monitor",
+        "subtitle": "These qualitative indicators help you assess whether your project is progressing well. Most successful projects demonstrate these patterns consistently.",
+        "steps": [
+          {
+            "value": "Regular",
+            "label": "Task Completion Pattern",
+            "description": "You complete planned tasks most weeks. When delays occur, you identify them early and adjust the schedule. Consistent progress matters more than speed."
+          },
+          {
+            "value": "Clear",
+            "label": "Team Communication",
+            "description": "Team members raise blockers before they become critical. Everyone knows who is doing what. People respond to questions within expected timeframes. Confusion is addressed immediately."
+          },
+          {
+            "value": "Engaged",
+            "label": "Stakeholder Involvement",
+            "description": "Stakeholders attend scheduled reviews. They provide feedback when requested. They express confidence in project direction. No surprises emerge late in the project."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_real_scenario_exercise",
+      "slideNumber": 7,
+      "slideTitle": "Project Management Fundamentals — Project Planning Pyramid: Priority Layers",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Understand the hierarchical structure of project planning priorities",
+        "Foundation layer: Clear goals and success criteria form the base",
+        "Middle layers: Planning, resources, and risk management build upward",
+        "Top layer: Execution and monitoring complete the project structure"
+      ],
+      "props": {
+        "title": "The Project Planning Pyramid: Building Success Layer by Layer",
+        "subtitle": "Each layer supports the next - skip one and your project becomes unstable",
+        "levels": [
+          {
+            "label": "Foundation: Define Clear Goals",
+            "description": "Bottom layer - most critical. Write SMART goals that specify exactly what success looks like. Example: 'Migrate 50,000 customer records to new cloud system by March 15 with zero data loss and 99.9% accuracy.' This foundation supports everything above it. Without clear goals, your project has no direction."
+          },
+          {
+            "label": "Layer 2: Break Down Work & Estimate",
+            "description": "Create detailed task list with time estimates. Identify dependencies between tasks. Assign resources to each task based on skills and availability. Add 20-30% buffer for unexpected issues. This layer translates goals into actionable work packages."
+          },
+          {
+            "label": "Layer 3: Identify Risks & Create Plans",
+            "description": "List potential problems with likelihood and impact ratings. Develop specific mitigation strategies for high-priority risks. Assign risk owners responsible for monitoring. Create contingency plans for critical risks. This layer protects your project from derailment."
+          },
+          {
+            "label": "Top: Execute, Monitor & Adjust",
+            "description": "Track progress against plan using task board and status reports. Hold regular check-ins to identify blockers early. Communicate status to stakeholders weekly. Adjust plans based on actual progress and new information. This layer turns plans into delivered results."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_stakeholder_communication",
+      "slideNumber": 8,
+      "slideTitle": "Project Management Fundamentals — How to Communicate Effectively with Stakeholders",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Challenge: Stakeholders don't read long status reports or attend all meetings",
+        "Challenge: Different stakeholders need different levels of detail and frequency",
+        "Challenge: Bad news must be delivered but you don't want to damage trust",
+        "Solution: Use the 3-tier communication framework for different audience needs"
+      ],
+      "props": {
+        "title": "Mastering Stakeholder Communication in Project Management",
+        "challengesTitle": "Communication Challenges",
+        "solutionsTitle": "How to Address Them",
+        "challenges": [
+          "Stakeholders ignore lengthy status reports and skip update meetings because they are overwhelmed with information, don't have time to read through detailed documents, or find the format difficult to digest. This leads to stakeholders making decisions without current information, missing critical project updates, and losing confidence in project management capabilities. The problem is compounded when status reports are inconsistent in format, sent at irregular intervals, or contain too much technical detail for the audience's needs.",
+          "Executives want high-level summaries that focus on business impact and strategic implications, while technical leads need detailed information about implementation challenges, resource requirements, and technical dependencies. This creates a communication gap where neither audience gets the information they need to make informed decisions. Executives become frustrated with technical jargon and implementation details, while technical teams feel that business context and strategic priorities aren't being communicated effectively.",
+          "Delivering bad news about delays or budget overruns without losing credibility requires careful communication strategy that balances transparency with maintaining stakeholder confidence. The challenge is that stakeholders often react emotionally to bad news, may question the project manager's competence, or may make hasty decisions that could make the situation worse. Project managers must communicate problems early while still maintaining trust and demonstrating control over the situation."
+        ],
+        "solutions": [
+          "Use one-page visual dashboards with red/yellow/green status indicators that immediately communicate project health at a glance. Put the most critical information in the first 3 bullets: current status, key accomplishments, and upcoming milestones. Include a simple risk indicator and budget status. Details go in an appendix that stakeholders can reference if needed. Use consistent formatting and color coding so stakeholders can quickly scan multiple projects. Include a brief narrative section that explains the 'why' behind the status indicators and any actions being taken to address issues. Send these dashboards at regular intervals (weekly or bi-weekly) so stakeholders can track trends over time.",
+          "Create 3 versions of the same update tailored to different audience needs: a 30-second elevator pitch for executives that focuses on business impact and strategic implications, a 5-minute summary for project sponsors that includes key metrics and decision points, and a 30-minute deep dive for technical stakeholders that covers implementation details, technical challenges, and resource requirements. Each version should be self-contained but reference the others for additional detail. Use executive summaries that highlight business value and ROI, sponsor updates that focus on budget, timeline, and risk management, and technical updates that cover implementation challenges and solutions.",
+          "Use the situation-impact-action format for delivering bad news: State what happened using only facts without blame or excuses, explain the business impact in terms of timeline, budget, and strategic objectives, and present your mitigation plan with specific dates, responsible parties, and success criteria. Never hide problems or delay communication - stakeholders appreciate early warning and proactive problem-solving. Include lessons learned and process improvements to prevent similar issues in the future. Maintain a positive but realistic tone that demonstrates competence and control while acknowledging the challenges. Follow up with regular updates on mitigation progress to rebuild confidence."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_project_timeline_phases",
+      "slideNumber": 9,
+      "slideTitle": "Project Management Fundamentals — Typical Project Timeline and Key Milestones",
+      "templateId": "timeline",
+      "previewKeyPoints": [
+        "Standard project phases from initiation through closure",
+        "What happens in each phase and how long each typically takes",
+        "Key deliverables and decision points at each milestone",
+        "When to involve which stakeholders throughout the lifecycle"
+      ],
+      "props": {
+        "title": "Your Project Journey: From Kickoff to Completion",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Initiation Phase",
+            "description": "Create project charter defining goals, scope, stakeholders, and success criteria. Get formal approval to proceed. Assemble team and assign roles. Set up project workspace and communication channels. Deliverable: Approved project charter and kickoff meeting."
+          },
+          {
+            "date": "Week 2-4",
+            "title": "Planning Phase",
+            "description": "Break down work into tasks with time estimates. Create detailed schedule with dependencies. Identify risks and create mitigation plans. Define quality standards and acceptance criteria. Deliverable: Comprehensive project plan with schedule, risk register, and resource allocation."
+          },
+          {
+            "date": "Week 4-10",
+            "title": "Execution Phase",
+            "description": "Team performs actual work according to plan. Hold regular stand-ups and check-ins. Track progress against schedule and budget. Address blockers and manage changes. Maintain stakeholder communication. Deliverable: Completed project tasks and intermediate work products."
+          },
+          {
+            "date": "Week 10-12",
+            "title": "Closure Phase",
+            "description": "Verify all deliverables meet acceptance criteria. Conduct final testing and stakeholder sign-off. Document lessons learned and best practices. Archive project materials and celebrate success. Release team members. Deliverable: Final deliverables, project closeout report, and lessons learned document."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_managing_change_requests",
+      "slideNumber": 10,
+      "slideTitle": "Project Management Fundamentals — Change Request Evaluation Framework",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Change requests are inevitable - stakeholders will ask for new features or modifications",
+        "Poor change management causes scope creep and project failure",
+        "Use structured evaluation framework to assess and respond to change requests",
+        "Protect your project timeline while maintaining stakeholder relationships"
+      ],
+      "props": {
+        "title": "Change Request Evaluation Framework: Questions to Ask Before Approving",
+        "tableData": {
+          "headers": ["Evaluation Category", "Key Questions to Ask", "What to Document"],
+          "rows": [
+            ["Business Justification", "What business problem does this solve? What is the expected ROI or benefit? Who is requesting this and why now?", "Business case, expected benefits, urgency level, requester name and role"],
+            ["Scope Impact", "Does this add new features or change existing ones? How does it affect project boundaries? What work is added?", "Detailed description of changes, new tasks required, work breakdown additions"],
+            ["Schedule Impact", "How many additional days/weeks will this add? Which tasks are affected? Does it push the deadline?", "Time estimates per task, impact on critical path, new completion date"],
+            ["Resource Impact", "Do we need additional people, budget, or tools? Are current team members available? What skills are needed?", "Resource requirements, budget increase needed, team capacity analysis"],
+            ["Risk Assessment", "What new risks does this introduce? How does it affect existing risks? What could go wrong?", "New risk entries, risk probability and impact, mitigation strategies"],
+            ["Decision Options", "Can we add it to current scope? Should we defer to phase 2? Can we swap it for lower-priority work?", "3 options with trade-offs, recommendation, stakeholder decision and approval"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_11_team_motivation",
+      "slideNumber": 11,
+      "slideTitle": "Project Management Fundamentals — How to Keep Your Team Motivated and Productive",
+      "templateId": "big-image-top",
+      "previewKeyPoints": [
+        "Team motivation directly impacts project success and timeline adherence",
+        "Common demotivators: unclear expectations, lack of recognition, poor communication",
+        "Five practical techniques you can apply immediately to boost team engagement",
+        "Create an environment where team members take ownership and deliver their best work"
+      ],
+      "props": {
+        "title": "Building and Maintaining High-Performing Project Teams",
+        "imagePrompt": "Realistic cinematic scene of a diverse project team having an engaged discussion around a conference table in a modern office. A confident Asian woman in business attire stands presenting project updates on a large screen while a Black male colleague in a suit reviews project documents on a tablet, and a Hispanic woman in a blazer takes notes on a laptop. Other team members are actively participating, some pointing at documents, others contributing ideas. The conference room features floor-to-ceiling windows with natural daylight, a large wooden table, executive chairs, and visible project materials including laptops, tablets, planning boards, and coffee cups. Natural office lighting illuminates the collaborative atmosphere. The presentation screen and project materials are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field",
+        "imageAlt": "Project team engaged in productive planning meeting",
+        "content": "Set Clear Individual Responsibilities: Every team member should know exactly what they own and when it is due. Create a responsibility matrix (RACI chart) showing who is Responsible, Accountable, Consulted, and Informed for each task. Update this weekly. When people know their specific contribution matters, they engage more deeply. Provide Regular Recognition: Acknowledge good work publicly in team meetings and status updates. Be specific - say 'Great job troubleshooting that database issue yesterday, it saved us 2 days' rather than just 'good work'. Recognition costs nothing but dramatically improves morale and effort. Remove Blockers Quickly: When team members report obstacles (waiting for approvals, need access to tools, unclear requirements), act within 24 hours. Your job as project manager is to clear the path so they can work effectively. Track blockers in your project log and follow up until resolved. Hold Brief Daily Check-ins: 15-minute daily stand-ups where each person shares what they completed yesterday, what they will work on today, and any blockers they face. This keeps everyone aligned, identifies issues early, and builds team cohesion. Use same time daily and keep it focused. Share the Why Behind Decisions: When priorities change or you make project decisions, explain the business rationale. People work harder when they understand how their work contributes to organizational goals. Example: 'We are prioritizing the mobile feature because customer research shows this drives adoption and revenue growth by 40% based on our analysis'."
+      }
+    },
+    {
+      "slideId": "slide_12_project_recovery",
+      "slideNumber": 12,
+      "slideTitle": "Project Management Fundamentals — Critical Project Recovery Milestones",
+      "templateId": "event-dates",
+      "previewKeyPoints": [
+        "Most projects encounter delays - knowing how to recover is a critical skill",
+        "Follow a structured 4-week recovery timeline to get back on track",
+        "Week 1: Assessment and triage of current situation",
+        "Weeks 2-3: Implementation of recovery actions and quality controls",
+        "Week 4: Verification and stakeholder communication of revised plan"
+      ],
+      "props": {
+        "title": "Project Recovery Timeline: 4-Week Plan to Get Back on Track",
+        "subtitle": "When your project falls behind, follow this structured recovery schedule",
+        "events": [
+          {
+            "date": "Week 1: Days 1-2",
+            "title": "Conduct Rapid Triage Assessment",
+            "description": "Stop all new work immediately. List every remaining task with realistic time estimates. Identify which deliverables are must-have vs. nice-to-have. Create priority matrix plotting tasks by Impact (High/Low) vs. Effort (High/Low). Focus only on high-impact items. Document current project health: how many tasks behind, budget status, team capacity, and quality metrics."
+          },
+          {
+            "date": "Week 1: Days 3-5",
+            "title": "Develop Recovery Options",
+            "description": "Create 3 options for stakeholders: (Option 1) Extend deadline by X weeks with same scope, (Option 2) Reduce scope to meet original deadline, (Option 3) Add resources to accelerate delivery. Include specific trade-offs, costs, and risks for each option. Calculate the realistic revised timeline for each scenario. Prepare presentation showing current status, causes of delay, and recovery options with recommendations."
+          },
+          {
+            "date": "Week 2: Days 1-2",
+            "title": "Get Stakeholder Decision & Approval",
+            "description": "Present recovery options to project sponsor and key stakeholders. Walk through impact analysis for each option. Get formal written approval of chosen recovery path. Update project charter, timeline, and budget to reflect approved changes. Communicate the new plan to entire team with clear priorities and expectations. Hold team meeting to address concerns and ensure alignment."
+          },
+          {
+            "date": "Week 2: Days 3-7",
+            "title": "Implement Quality Gates",
+            "description": "Stop accepting new feature requests - focus on completing existing work. Add mandatory code review checkpoints before any task is marked complete. Implement daily standup meetings (15 minutes) to identify blockers early. Create 'definition of done' checklist that includes testing and documentation requirements. Sometimes slowing down to fix issues properly gets you to finish line faster than rushing with poor quality."
+          },
+          {
+            "date": "Week 3: Full Week",
+            "title": "Execute Recovery Plan with Daily Monitoring",
+            "description": "Team works ONLY on high-priority items from the approved recovery plan. Project manager removes blockers within 24 hours of being reported. Hold brief daily reviews of top 5 priorities to ensure progress. Track actual progress vs. recovery timeline daily. Escalate any new issues immediately to stakeholders. Maintain team morale through recognition of progress and quick wins."
+          },
+          {
+            "date": "Week 4: Days 1-3",
+            "title": "Verify Progress & Adjust Course",
+            "description": "Compare actual progress to recovery timeline projections. Identify any remaining gaps between current state and recovery goals. Make final adjustments to priorities or resources if needed. Conduct quality checks on completed work to ensure standards are maintained. Document lessons learned about what caused the delays and how to prevent similar issues in future projects."
+          },
+          {
+            "date": "Week 4: Days 4-5",
+            "title": "Communicate Updated Status",
+            "description": "Prepare comprehensive status update showing recovery progress, remaining work, and confidence level in revised timeline. Present to stakeholders with evidence of improved velocity and quality. Update all project documentation to reflect current reality. Send formal status report to all stakeholders with revised timeline and next milestones. Build trust through transparency about both successes and remaining challenges."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_13_decision_making_framework",
+      "slideNumber": 13,
+      "slideTitle": "Project Management Fundamentals — How to Make Good Project Decisions Quickly",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Projects require constant decision-making under uncertainty and time pressure",
+        "Compare options systematically using the decision matrix framework",
+        "Evaluate technical approaches, vendor selections, and priority trade-offs",
+        "Document your decisions to build organizational knowledge"
+      ],
+      "props": {
+        "title": "Decision Matrix: Comparing Options Objectively",
+        "subtitle": "Example: Choosing Between Two Technical Approaches for Data Migration",
+        "tableData": {
+          "headers": ["Evaluation Criteria", "Big Bang Migration", "Phased Rollout"],
+          "rows": [
+            ["Implementation Time", "Fast (2 weeks)", "Slower (6 weeks)"],
+            ["Risk Level", "High - all data moves at once", "Low - can test and adjust"],
+            ["Rollback Difficulty", "Very difficult if issues arise", "Easy - can revert one phase"],
+            ["Team Resource Needs", "Intense for 2 weeks", "Steady over 6 weeks"],
+            ["User Disruption", "One weekend downtime", "Minimal ongoing disruption"],
+            ["Recommended For", "Simple data, tight deadline", "Complex data, risk-averse stakeholders"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_14_lessons_learned",
+      "slideNumber": 14,
+      "slideTitle": "Project Management Fundamentals — Conducting Effective Lessons Learned Sessions",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Capture what worked and what did not work to improve future projects",
+        "Hold lessons learned session within 2 weeks of project completion while memories are fresh",
+        "Focus on actionable improvements, not blame or vague observations",
+        "Document and share learnings with other project teams across organization"
+      ],
+      "props": {
+        "title": "Your Lessons Learned Template: Questions to Ask Your Team",
+        "tableData": {
+          "headers": ["Question Category", "Specific Questions to Ask", "What to Document"],
+          "rows": [
+            ["What Went Well", "Which practices helped us succeed? What should we repeat?", "Specific techniques that delivered results"],
+            ["What Went Wrong", "What slowed us down? What would we avoid next time?", "Concrete problems with root causes identified"],
+            ["Unexpected Issues", "What surprised us? What did we not plan for?", "Gaps in initial planning or risk assessment"],
+            ["Process Improvements", "How could we work more efficiently? What tools would help?", "Actionable changes for next project"],
+            ["Team Feedback", "What did team members find frustrating or helpful?", "Insights on team dynamics and communication"],
+            ["Key Takeaways", "What are the top 3 lessons for future projects?", "Prioritized list shared with organization"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_15_agile_vs_waterfall",
+      "slideNumber": 15,
+      "slideTitle": "Project Management Fundamentals — When to Use Agile vs Waterfall Methodology",
+      "templateId": "table-dark",
+      "previewKeyPoints": [
+        "Different project types need different management approaches",
+        "Agile works best when requirements are uncertain and may change",
+        "Waterfall works best when requirements are clear and unlikely to change",
+        "Choose based on your specific project characteristics and constraints"
+      ],
+      "props": {
+        "title": "Agile vs Waterfall: Choosing the Right Approach for Your Project",
+        "tableData": {
+          "headers": ["Project Characteristic", "Use Agile When", "Use Waterfall When"],
+          "rows": [
+            ["Requirements Clarity", "Requirements evolving or unclear", "Requirements well-defined upfront"],
+            ["Stakeholder Availability", "Stakeholders can provide frequent feedback", "Limited stakeholder interaction needed"],
+            ["Project Complexity", "High uncertainty, need to experiment", "Clear path to solution, proven approach"],
+            ["Team Structure", "Cross-functional team co-located or well-connected", "Specialized teams work sequentially"],
+            ["Change Tolerance", "Changes expected and welcomed", "Changes costly and discouraged"],
+            ["Delivery Preference", "Deliver working increments every 2-4 weeks", "Deliver complete solution at end"],
+            ["Example Projects", "New product development, software apps", "Construction, manufacturing, compliance projects"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_16_virtual_team_management",
+      "slideNumber": 16,
+      "slideTitle": "Project Management Fundamentals — Managing Remote and Distributed Project Teams",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Remote work is now standard - learn to manage distributed teams effectively",
+        "Challenges: time zones, communication gaps, lack of informal interaction",
+        "Four-step framework for remote team success",
+        "Build trust and accountability without physical presence"
+      ],
+      "props": {
+        "title": "Your Remote Team Management Framework",
+        "steps": [
+          "Establish Communication Norms: Define how team communicates. Examples: Urgent issues via instant message with response expected in 2 hours. Status updates via email by 10am daily. Video calls for complex discussions. Document questions in shared workspace. Everyone knows where to post what and expected response times.",
+          "Create Shared Visibility: Use collaborative tools where everyone sees project status in real-time. Examples: Shared task board updated daily, centralized document repository, visible project timeline. No information should live only in someone's local files or email. This replaces the visibility you would have in an office.",
+          "Schedule Regular Face-Time: Hold video calls (cameras on) at recurring times. Daily 15-minute check-in for immediate coordination. Weekly 1-hour team meeting for deeper discussions. Monthly virtual team lunch for social connection. Seeing faces builds trust that chat alone cannot create. Respect time zones - rotate meeting times if team spans continents.",
+          "Document Everything: What would happen in hallway conversations in office must now be written down. Decisions made in calls should be summarized in email. Context should be explained in task descriptions. Meeting notes should be shared. This creates transparency and helps new team members get up to speed quickly."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_17_project_manager_maturity",
+      "slideNumber": 17,
+      "slideTitle": "Project Management Fundamentals — Your Growth Path as a Project Manager",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Project management is a skill that develops through experience and practice",
+        "Five maturity levels from beginner to strategic leader",
+        "Each level builds on previous capabilities and adds new responsibilities",
+        "Understand where you are now and what skills to develop next"
+      ],
+      "props": {
+        "title": "Project Manager Capability Maturity Levels",
+        "steps": [
+          { "heading": "Strategic Portfolio Leader: Manage multiple high-impact projects, mentor other PMs, shape organizational strategy", "number": "01" },
+          { "heading": "Senior PM: Lead complex projects with multiple teams, manage stakeholder expectations proactively, navigate organizational politics", "number": "02" },
+          { "heading": "Competent PM: Handle mid-size projects independently, anticipate issues, adapt plans effectively, build strong team relationships", "number": "03" },
+          { "heading": "Developing PM: Execute project plans with guidance, learn from mistakes, follow established processes, build basic PM skills", "number": "04" },
+          { "heading": "Beginner PM: Learn project management fundamentals, assist experienced PMs, manage small low-risk projects with close supervision", "number": "05" }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_18_budget_management",
+      "slideNumber": 18,
+      "slideTitle": "Project Management Fundamentals — Tracking and Managing Project Budget",
+      "templateId": "bullet-points-right",
+      "previewKeyPoints": [
+        "Most projects have budget constraints - you must track spending carefully",
+        "Common budget categories: labor costs, external vendors, software/tools, travel",
+        "How to forecast remaining costs and identify budget overruns early",
+        "Communicating budget status to financial stakeholders"
+      ],
+      "props": {
+        "title": "Your Project Budget Management Guide",
+        "bullets": [
+          "Create Budget Baseline: At project start, document your approved budget broken down by category (labor, contractors, software licenses, hardware, travel, contingency). Example: Total $100k budget split as: $60k labor, $20k contractors, $10k software, $5k travel, $5k contingency. Get stakeholder sign-off on this baseline.",
+          "Track Actuals Weekly: Every week, record actual spending in each category. Compare to planned spending for that time period. Calculate burn rate (spending per week) and project if you will finish over or under budget. Use simple spreadsheet or project management tool to track this. Update takes 30 minutes weekly.",
+          "Monitor Labor Costs: Labor is usually largest expense. Track hours team members spend on project. Multiply hours by their hourly rate to calculate labor cost consumed. Example: Developer working 40 hours at $75/hour rate = $3,000 labor cost that week. Sum across all team members to get total labor spend.",
+          "Identify Variances Early: If any budget category is trending 10% over plan, investigate immediately. Examples: Contractor work taking longer than estimated, team needs additional software license, unanticipated travel required. Calculate impact on total budget and present options to stakeholders before money is spent.",
+          "Maintain Contingency Reserve: Set aside 5-10% of budget for unexpected costs. Only use contingency with project sponsor approval. Document what contingency was used for. Common uses: scope changes, quality issues requiring rework, team member turnover requiring contractor help."
+        ],
+        "imagePrompt": "Professional photograph of a project manager reviewing financial reports and budget spreadsheets at their desk. Person is focused on laptop screen showing charts and numbers, with printed budget documents and calculator nearby. Clean, organized workspace with natural office lighting. The workspace is [COLOR1], documents and screens are [COLOR2], office environment is [COLOR3].",
+        "imageAlt": "Project manager reviewing budget and financial reports"
+      }
+    },
+    {
+      "slideId": "slide_19_conflict_resolution",
+      "slideNumber": 19,
+      "slideTitle": "Project Management Fundamentals — Resolving Team Conflicts and Disagreements",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Conflict on projects is normal - different perspectives on priorities and approaches",
+        "Unresolved conflict damages team morale and derails project progress",
+        "Address conflicts quickly before they escalate and affect other team members",
+        "Use structured conflict resolution techniques to find win-win solutions"
+      ],
+      "props": {
+        "title": "Handling Team Conflicts: Your Facilitation Framework",
+        "challengesTitle": "Common Project Conflicts",
+        "solutionsTitle": "Your Resolution Approach",
+        "challenges": [
+          "Two team members disagree on technical approach and tensions are rising in meetings",
+          "Team member feels overloaded while another has lighter workload creating resentment",
+          "Stakeholder keeps changing requirements and team is frustrated and complaining"
+        ],
+        "solutions": [
+          "Meet privately with each person separately first to understand their perspective fully. Then facilitate joint discussion focused on project goals, not personal positions. Use data to evaluate options objectively. Example: 'Let us test both approaches on small scale and measure performance before deciding'. Focus on finding solution that serves project, not winning argument.",
+          "Privately review workload distribution with facts: actual tasks and time required for each person. Rebalance if needed. If workload is truly equal but perceived as unfair, make task assignments more visible to entire team so everyone sees the distribution. Sometimes perception issue rather than real imbalance.",
+          "Schedule meeting with stakeholder to establish change management process. Explain impact of frequent changes on team morale and timeline. Propose: changes documented formally, evaluated for impact, approved by sponsor before implementation. Protect your team's time while accommodating legitimate business needs."
+        ]
+      }
+    },
+    {
+      "slideId": "slide_20_next_steps_application",
+      "slideNumber": 20,
+      "slideTitle": "Project Management Fundamentals — Your Next Steps: Applying What You Learned",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "You now have the fundamental frameworks and tools to manage projects successfully",
+        "Move from learning to doing: apply these concepts to real projects immediately",
+        "Start with small projects to build confidence and refine your approach",
+        "Continue learning from each project experience to develop mastery over time"
+      ],
+      "props": {
+        "title": "From Learning to Doing: Your Action Plan This Week",
+        "steps": [
+          "Identify Your First Project: Choose a small, low-risk project to practice these skills. Ideal first project: 4-8 weeks duration, 3-5 team members, clear deliverable, supportive stakeholder. Examples: process improvement initiative, internal tool development, department event planning. Avoid choosing your organization's most critical strategic project for your first application.",
+          "Create Your Project Documents: This week, create your basic project management toolkit for this project: (1) One-page project charter defining goals, scope, and success criteria, (2) Simple work breakdown structure with tasks and time estimates, (3) Basic risk register with top 5 risks and mitigation plans, (4) Weekly status report template. Use templates from this lesson.",
+          "Set Up Your Tracking System: Choose your project tracking method: simple spreadsheet, free project management tool, or physical task board. Set it up this week with all your tasks. Update it every Friday. Schedule 15-minute weekly review with your team. The system does not need to be fancy - it needs to be used consistently.",
+          "Find a Mentor: Identify someone who has managed projects successfully in your organization. Ask them to review your project plan and provide feedback. Schedule monthly 30-minute coffee chats to discuss challenges you are facing. Learn from their experiences. Most experienced project managers are happy to mentor and share what they have learned."
+        ]
       }
     }
   ],
   "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
-}
+} 
 """
 
 DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
@@ -1581,156 +1656,91 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
   "lessonTitle": "Example Video Lesson with Voiceover",
   "slides": [
     {
-      "slideId": "slide_1_intro",
+      "slideId": "slide_1_course_overview",
       "slideNumber": 1,
-      "slideTitle": "Introduction",
-      "templateId": "big-image-left",
-      "voiceoverText": "Welcome to this comprehensive lesson. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This introduction sets the stage for what you're about to learn.",
+      "slideTitle": "Course Overview",
+      "templateId": "course-overview-slide",
+      "voiceoverText": "Welcome to this comprehensive course. Today we'll explore the fundamentals of our topic, breaking down complex concepts into easy-to-understand segments. This overview sets the stage for what you're about to learn.",
       "props": {
-          "title": "Welcome to the Lesson",
-          "subtitle": "This slide introduces the main topic.",
-          "imageUrl": "https://via.placeholder.com/600x400?text=Your+Image",
-          "imageAlt": "Descriptive alt text",
-          "imagePrompt": "A high-quality illustration that visually represents the lesson introduction",
-          "imageSize": "large"
+        "title": "Welcome to the Course",
+        "subtitle": "This course introduces the main topic and learning objectives",
+        "imagePath": "https://via.placeholder.com/600x400?text=Course+Image",
+        "imageAlt": "Course overview illustration",
+        "logoPath": "",
+        "pageNumber": 1
       }
     },
     {
-      "slideId": "slide_2_main",
+      "slideId": "slide_2_impact_statements",
       "slideNumber": 2,
-      "slideTitle": "Main Concepts",
-      "templateId": "content-slide",
-      "voiceoverText": "Now let's dive into the core concepts. These fundamental ideas form the foundation of our understanding. We'll explore each concept in detail, ensuring you have a solid grasp before moving forward.",
+      "slideTitle": "Impact Statistics",
+      "templateId": "impact-statements-slide",
+      "voiceoverText": "Let's look at some impressive statistics that demonstrate the real-world impact of what we're learning. These numbers show the tangible benefits and results you can expect to achieve.",
       "props": {
-        "title": "Core Ideas",
-        "content": "These concepts form the foundation of understanding.\n\n• First important concept\n• Second important concept\n• Third important concept",
-        "alignment": "left"
+        "title": "Impact Statistics",
+        "statements": [
+          { "number": "95%", "description": "Success rate in implementation" },
+          { "number": "3x", "description": "Increase in productivity" },
+          { "number": "50%", "description": "Reduction in time spent" }
+        ],
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 2,
+        "logoNew": "https://via.placeholder.com/100x50?text=Logo"
       }
     },
     {
-      "slideId": "slide_3_bullets",
+      "slideId": "slide_3_phishing_definition",
       "slideNumber": 3,
-      "slideTitle": "Key Points",
-      "templateId": "bullet-points",
-      "voiceoverText": "Here are the key takeaways from our lesson. Each of these points represents a critical insight that you should remember. Let me walk you through each one to ensure you understand their significance.",
+      "slideTitle": "Key Definitions",
+      "templateId": "phishing-definition-slide",
+      "voiceoverText": "Now let's define the key concepts we'll be working with. Understanding these definitions is crucial for building a solid foundation of knowledge.",
       "props": {
-        "title": "Key Points",
-        "bullets": [
-          "First important point",
-          "Second key insight",
-          "Third critical element"
+        "title": "Key Definitions",
+        "definitions": [
+          "First important definition with detailed explanation",
+          "Second key concept with comprehensive description",
+          "Third critical term with thorough explanation"
         ],
-        "maxColumns": 2,
-        "bulletStyle": "dot",
-        "imagePrompt": "A relevant illustration for the bullet points, e.g. 'Checklist, modern flat style, purple and yellow accents'",
-        "imageAlt": "Illustration for bullet points"
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "rightImagePath": "https://via.placeholder.com/300x200?text=Definition+Image",
+        "pageNumber": 3,
+        "logoPath": ""
       }
     },
     {
-      "slideId": "slide_4_two_column",
+      "slideId": "slide_4_soft_skills_assessment",
       "slideNumber": 4,
-      "slideTitle": "Comparison Analysis",
-      "templateId": "two-column",
-      "voiceoverText": "Let's examine this topic from two different perspectives. On the left, we have one approach, and on the right, we have another. Both perspectives are valuable and complement each other to give you a complete understanding.",
+      "slideTitle": "Assessment Tips",
+      "templateId": "soft-skills-assessment-slide",
+      "voiceoverText": "Here are some essential tips for your assessment. These practical guidelines will help you prepare effectively and demonstrate your understanding of the material.",
       "props": {
-        "title": "Two Column Layout",
-        "leftTitle": "Left Column Title",
-        "leftContent": "Content for the left side with detailed explanations",
-        "rightTitle": "Right Column Title",
-        "rightContent": "Content for the right side with detailed information",
-        "columnRatio": "50-50"
-      }
-    },
-    {
-      "slideId": "slide_5_four_box",
-      "slideNumber": 5,
-      "slideTitle": "Four Key Areas",
-      "templateId": "four-box-grid",
-      "voiceoverText": "Now we'll explore four essential areas that are crucial to understanding this topic. Each box represents a different aspect, and together they provide a comprehensive overview of the subject matter.",
-      "props": {
-        "title": "Main Title for Four Boxes",
-        "boxes": [
-          { "heading": "Box 1 Heading", "text": "Detailed description for the first box" },
-          { "heading": "Box 2 Heading", "text": "Comprehensive explanation for the second box" },
-          { "heading": "Box 3 Heading", "text": "Thorough description for the third box" },
-          { "heading": "Box 4 Heading", "text": "In-depth explanation for the fourth box" }
-        ]
-      }
-    },
-    {
-      "slideId": "slide_6_challenges",
-      "slideNumber": 6,
-      "slideTitle": "Problem Solving",
-      "templateId": "challenges-solutions",
-      "voiceoverText": "Every field has its challenges, but for every challenge, there's a solution. Let's examine the common obstacles you might face and the proven strategies to overcome them effectively.",
-      "props": {
-        "title": "Challenges and Solutions",
-        "challengesTitle": "Common Challenges",
-        "solutionsTitle": "Effective Solutions",
-        "challenges": [
-          "Challenge 1 with detailed explanation of the problem",
-          "Challenge 2 with comprehensive analysis of the issue"
+        "title": "Assessment Tips",
+        "tips": [
+          { "text": "First important tip for success", "isHighlighted": true },
+          { "text": "Second key recommendation for better results", "isHighlighted": false }
         ],
-        "solutions": [
-          "Solution 1 with detailed approach and implementation strategy",
-          "Solution 2 with comprehensive methodology and practical steps"
-        ]
+        "profileImagePath": "https://via.placeholder.com/200x200?text=Avatar",
+        "pageNumber": 4,
+        "logoPath": "",
+        "logoText": "Assessment Guide"
       }
     },
     {
-      "slideId": "slide_7_process",
-      "slideNumber": 7,
-      "slideTitle": "Step-by-Step Process",
-      "templateId": "process-steps",
-      "voiceoverText": "Finally, let's look at the practical implementation. This step-by-step process shows you exactly how to apply what you've learned. Follow along carefully as we go through each step together.",
-      "props": {
-        "title": "Implementation Steps",
-        "steps": [
-          "Analyze the requirements carefully",
-          "Design the solution architecture",
-          "Implement core functionality",
-          "Test and validate results"
-        ]
-      }
-    },
-    {
-      "slideId": "slide_5_table_dark",
+      "slideId": "slide_5_work_life_balance",
       "slideNumber": 5,
-      "slideTitle": "Technology Comparison",
-      "templateId": "table-dark",
-      "voiceoverText": "Let's examine the technology comparison table. This table shows us the key differences between various technologies in terms of performance, security, and cost. Understanding these comparisons helps us make informed decisions.",
+      "slideTitle": "Conclusion",
+      "templateId": "work-life-balance-slide",
+      "voiceoverText": "As we conclude this lesson, remember that applying what you've learned requires balance and practical implementation. These final thoughts will help you integrate the knowledge into your daily practice.",
       "props": {
-        "title": "Technology Comparison",
-        "tableData": {
-          "headers": ["Technology", "Performance", "Security", "Cost"],
-          "rows": [
-            ["React", "High", "Good", "Free"],
-            ["Vue.js", "Medium", "Excellent", "Free"],
-            ["Angular", "High", "Excellent", "Free"]
-          ]
-        }
-      }
-    },
-    {
-      "slideId": "slide_6_table_light",
-      "slideNumber": 6,
-      "slideTitle": "Product Features",
-      "templateId": "table-light",
-      "voiceoverText": "Now let's look at the product features comparison. This table clearly shows the differences between our various subscription plans, helping you understand what each tier offers.",
-      "props": {
-        "title": "Product Features Comparison",
-        "tableData": {
-          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
-          "rows": [
-            ["Storage", "10GB", "100GB", "Unlimited"],
-            ["Users", "5", "25", "Unlimited"],
-            ["Support", "Email", "Priority", "24/7"]
-          ]
-        }
+        "title": "Conclusion and Next Steps",
+        "content": "This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.",
+        "imagePath": "https://via.placeholder.com/400x300?text=Conclusion+Image",
+        "pageNumber": 5,
+        "logoPath": ""
       }
     }
   ],
-  "currentSlideId": "slide_1_intro",
+  "currentSlideId": "slide_1_course_overview",
   "detectedLanguage": "en",
   "hasVoiceover": true
 }
@@ -1816,16 +1826,16 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 content_lower = content_sample.lower()
                 
                 if 'tool' in title_lower or 'software' in content_lower or 'application' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a developer using programming tools at a clean workstation. The scene features a young Asian woman sitting at a modern desk with a single laptop displaying simple code interface elements (no readable text) and one external monitor showing basic geometric development tool mockups. A wireless keyboard and mouse are positioned on the desk alongside a coffee cup. The laptop screen and coding interface are [COLOR1], the external monitor and keyboard are [COLOR2], and the desk and accessories are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table. A Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
                 elif 'trend' in title_lower or 'future' in title_lower or 'innovation' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of futuristic technology concepts in a clean tech environment. The scene features a Hispanic male scientist in a white lab coat standing next to a single large holographic display showing simple geometric patterns and flowing data visualizations (no readable text). A modern desk with a tablet displaying basic technology interface elements sits nearby. The holographic display and data flows are [COLOR1], the scientist's lab coat and tablet are [COLOR2], and the desk and lab environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of innovation researchers in a modern technology laboratory. A Hispanic male scientist in a white lab coat stands at a large holographic display showing complex data visualizations and research findings, while a young Asian woman in business attire reviews research data on a tablet. A Black female researcher in a blazer examines prototype devices at a nearby workstation. Natural laboratory lighting illuminates the high-tech research environment with advanced equipment, holographic displays, and research materials visible. The holographic displays and research equipment are [COLOR1], the team's professional attire and devices are [COLOR2], and the laboratory environment and furniture are [COLOR3]."
                 elif 'learn' in title_lower or 'education' in title_lower or 'skill' in content_lower or 'training' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of modern learning in a clean educational environment. The scene features a young Black female student sitting at a modern desk using a tablet displaying simple educational interface elements and geometric learning modules (no readable text). A single interactive whiteboard in the background shows basic diagrams with simple shapes and connecting lines. Educational materials like a notebook and digital stylus are positioned on the desk. The tablet interface and learning modules are [COLOR1], the interactive whiteboard and educational tools are [COLOR2], and the desk and educational environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in collaborative learning in a modern educational environment. A young Black female student in business attire sits at a modern desk using a tablet displaying educational content and learning modules, while a Hispanic male instructor in a blazer stands at an interactive whiteboard explaining concepts to the group. A Caucasian female colleague in casual attire takes notes on a laptop while reviewing educational materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive whiteboard and learning displays are [COLOR1], the team's clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]."
                 elif 'business' in title_lower or 'strategy' in content_lower or 'management' in content_lower:
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of professional business strategy and management in a modern corporate environment. The scene features a contemporary conference room with three business professionals engaged in strategic planning. A confident Latina businesswoman in a navy blazer stands at the left presenting to a large wall display showing simple business charts, process flows, and strategic diagrams with geometric shapes (no readable text). In the center, a Black male executive sits at a glass conference table reviewing documents and tablets displaying abstract business analytics as simple bar charts and pie segments. On the right, a Caucasian female manager takes notes while sitting in an ergonomic chair, with a laptop showing business interface mockups with geometric layouts. Business materials like documents, tablets, coffee cups, and strategic planning boards are arranged throughout the professional space. The presentation displays and business interfaces are [COLOR1], conference furniture and professional devices are [COLOR2], documents and planning materials are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of business professionals engaged in strategic planning in a modern corporate conference room. A confident Latina businesswoman in a navy blazer stands at a large wall display presenting business charts and strategic diagrams, while a Black male executive in a suit sits at a glass conference table reviewing documents and tablets displaying business analytics. A Caucasian female manager in a blazer takes notes on a laptop while reviewing strategic planning materials. Natural office lighting illuminates the professional conference room with laptops, tablets, documents, coffee cups, and presentation materials visible. The presentation displays and business interfaces are [COLOR1], the team's professional attire and devices are [COLOR2], and the conference room furniture and environment are [COLOR3]."
                 else:
                     # General professional/educational fallback
-                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of professional collaboration and knowledge sharing in a modern educational environment. The scene features three diverse professionals working together in a bright, contemporary workspace. A young Hispanic woman in business attire sits at a modern desk on the left, using a laptop displaying simple interface elements and geometric data visualizations (no readable text). In the center, a Black male professional stands presenting to a wall-mounted display showing abstract concepts as interconnected nodes, flowcharts, and simple diagrams with geometric shapes. On the right, a Caucasian female colleague sits in a comfortable chair reviewing materials on a tablet, with documents and notebooks arranged on a side table. Professional tools like laptops, tablets, notebooks, coffee cups, and presentation materials are positioned throughout the collaborative workspace. The digital displays and interface elements are [COLOR1], professional devices and presentation tools are [COLOR2], furniture and workspace accessories are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals engaged in collaborative work in a modern office environment. A young Hispanic woman in business attire sits at a modern desk using a laptop displaying work interfaces and data visualizations, while a Black male professional stands presenting to a wall-mounted display showing project concepts and workflow diagrams. A Caucasian female colleague sits in a comfortable chair reviewing materials on a tablet, with documents and notebooks arranged on a side table. Natural office lighting illuminates the collaborative workspace with laptops, tablets, notebooks, coffee cups, and presentation materials visible. The digital displays and work interfaces are [COLOR1], the team's professional attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]."
                 
                 normalized_props['imageAlt'] = f"Professional illustration for {title}"
             
@@ -1953,6 +1963,31 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 logger.info(f"Final Props: {normalized_props}")
                 logger.info(f"=== END FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
                     
+            # Fix timeline template props
+            elif template_id == 'timeline':
+                # Convert steps[] to events[] if AI generated wrong format
+                if 'steps' in normalized_props and 'events' not in normalized_props:
+                    steps = normalized_props.pop('steps')
+                    events = []
+                    for step in steps:
+                        if isinstance(step, dict):
+                            # Convert step format to event format
+                            event = {
+                                'date': step.get('date') or step.get('heading') or step.get('title') or 'Event',
+                                'title': step.get('title') or step.get('heading') or 'Event Title',
+                                'description': step.get('description') or ''
+                            }
+                            events.append(event)
+                    normalized_props['events'] = events
+                    logger.info(f"Converted steps[] to events[] for timeline slide {slide_index + 1}")
+                    
+            # Fix process-steps template props
+            elif template_id == 'process-steps':
+                # Remove subtitle as process-steps template doesn't use it
+                if 'subtitle' in normalized_props:
+                    normalized_props.pop('subtitle')
+                    logger.info(f"Removed subtitle from process-steps slide {slide_index + 1}")
+                    
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
                 boxes = normalized_props.get('boxes', [])
@@ -2020,47 +2055,71 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                 if not normalized_props.get('leftImagePrompt') and normalized_props.get('leftContent'):
                     left_content_sample = normalized_props.get('leftContent', '')[:100].lower()
                     if 'network' in left_content_sample or 'event' in left_content_sample or 'meeting' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} showing people networking and collaborating. The scene features a group of diverse professionals in business attire engaging in conversations, exchanging ideas, and building connections in a modern corporate environment. People are positioned throughout the scene in small groups, with some standing and others sitting around tables. Professional networking activities are highlighted with [COLOR1], conversation indicators in [COLOR2], and background elements in [COLOR3]. NO text, labels, or readable content on any surfaces or documents. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals networking and collaborating at a modern corporate event. A confident Asian woman in a navy blazer engages in conversation with a Black male executive in a suit while exchanging business cards, while a Hispanic woman in a blazer takes notes on a tablet and a Caucasian man in a button-down shirt reviews documents. The networking event features high-top tables, professional lighting, and modern corporate decor with people positioned throughout the scene in small groups. Natural event lighting illuminates the professional networking environment with business cards, tablets, coffee cups, and presentation materials visible. The networking materials and business cards are [COLOR1], the professionals' attire and devices are [COLOR2], and the event furniture and environment are [COLOR3]. No readable text on any surfaces or documents. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'technology' in left_content_sample or 'digital' in left_content_sample or 'system' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} featuring modern technology and digital systems. The scene shows interconnected technological components, digital interfaces, and system architectures with detailed visual elements. Main technology components are [COLOR1], connecting elements are [COLOR2], and supporting details are [COLOR3]. All screens and displays show abstract geometric patterns with NO readable text or labels. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'process' in left_content_sample or 'step' in left_content_sample or 'method' in left_content_sample:
-                        normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of {left_title.lower()} showing a detailed process workflow. The scene features sequential steps connected by arrows, with clear visual indicators for each stage of the process. Process elements are rendered in [COLOR1], connecting arrows in [COLOR2], and step indicators in [COLOR3]. Use symbols and geometric shapes instead of text labels. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing a structured workflow process in a modern office environment. A confident Asian woman in a navy blazer stands at a large whiteboard mapping out process steps with a Black male colleague in a suit reviewing documentation on a tablet, while a Hispanic woman in a blazer takes detailed notes on a laptop and a Caucasian man in a button-down shirt points to specific workflow elements. The office features collaborative workspaces with multiple monitors, process documentation, and workflow tools. Natural office lighting illuminates the professional setting with laptops, tablets, whiteboards, and process materials visible. The whiteboard and process documentation are [COLOR1], the team's professional attire and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     else:
                         # Create specific, contextual scene based on content
                         left_content_lower = normalized_props.get('leftContent', '').lower()
                         title_lower = title.lower()
                         
                         if 'learn' in left_content_lower or 'education' in left_content_lower or 'student' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of students learning in a modern classroom setting. The scene features diverse students sitting at desks with laptops, a teacher presenting at the front, and educational materials around the room. Students are engaged and taking notes, with some raising hands to ask questions. Student laptops and materials are [COLOR1], the teacher and presentation board are [COLOR2], and classroom furniture is [COLOR3]. No readable text on any surfaces. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'business' in left_content_lower or 'meeting' in left_content_lower or 'team' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of professionals collaborating in a modern office meeting room. The scene features a diverse group of business people sitting around a conference table, engaged in discussion, with one person presenting ideas. Laptops and documents are on the table, and a presentation screen shows charts. Conference table and laptops are [COLOR1], people and presentation screen are [COLOR2], and office furniture is [COLOR3]. No readable text anywhere. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'data' in left_content_lower or 'analysis' in left_content_lower or 'research' in left_content_lower:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of a data analyst working with information in a modern office. The scene features a focused professional at a desk with multiple monitors displaying charts and graphs, surrounded by organized workspace elements. The person is analyzing data patterns on screen while taking notes. Computer monitors and data visualizations are [COLOR1], the analyst and desk setup are [COLOR2], and office environment is [COLOR3]. All screens show abstract geometric patterns without text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of data analysts and researchers collaborating in a modern office environment. A focused Asian woman in business casual attire sits at a desk with multiple monitors displaying charts and graphs while analyzing data patterns, while a Black male colleague in a button-down shirt reviews research documents on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The office features organized workspace elements with laptops, tablets, research materials, and data visualization tools. Natural office lighting illuminates the professional setting with computer monitors, research documents, and analytical tools visible. The computer monitors and data visualizations are [COLOR1], the analysts' clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         else:
-                            normalized_props['leftImagePrompt'] = f"Minimalist flat design illustration of people working together in a professional environment related to {left_title.lower()}. The scene features diverse professionals engaged in relevant activities, using modern tools and technology. The setting shows a clean, organized workspace with people collaborating effectively. Primary work elements are [COLOR1], people and main activities are [COLOR2], and environmental details are [COLOR3]. No readable text on any surfaces or screens. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            # Create specific, contextual scene based on the actual content and title
+                            content_keywords = left_content_lower.split()[:10]  # Get first 10 words for context
+                            title_keywords = title_lower.split()[:5]  # Get first 5 words from title
+                            
+                            # Determine specific professional context
+                            if any(word in left_content_lower for word in ['management', 'leadership', 'supervision']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in left_content_lower for word in ['training', 'education', 'learning', 'development']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in left_content_lower for word in ['technology', 'software', 'digital', 'system']):
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            else:
+                                normalized_props['leftImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing solutions in a modern workplace related to {left_title.lower()}. The scene features a confident Latina businesswoman in a navy blazer presenting strategic plans to a group of colleagues, while a Black male executive in a suit reviews documents and takes notes on a tablet, and a Caucasian woman in a blazer collaborates on a laptop. The professional environment shows organized, efficient operations with people engaged in meaningful work using contemporary tools and methods. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                 
                 # Generate right image prompt if missing using detailed format
                 if not normalized_props.get('rightImagePrompt') and normalized_props.get('rightContent'):
                     right_content_sample = normalized_props.get('rightContent', '')[:100].lower()
                     if 'association' in right_content_sample or 'professional' in right_content_sample or 'group' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} showing professional associations and industry connections. The scene features business professionals in formal attire attending conferences, participating in panel discussions, and engaging in professional development activities. A large conference hall setting with speakers, audience members, and networking areas. Association activities are highlighted in [COLOR1], professional interactions in [COLOR2], and venue elements in [COLOR3]. NO visible text on presentations, banners, or displays - use abstract symbols instead. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of business professionals attending a high-level industry conference in a modern convention center. A confident Asian woman in a navy blazer presents to a seated audience while a Black male executive in a suit takes notes on a tablet, and a Hispanic woman in a blazer reviews conference materials on a laptop. The conference hall features professional lighting, presentation screens, and networking areas with business professionals in formal attire engaging in professional development activities. Natural event lighting illuminates the professional conference environment with presentation materials, tablets, laptops, and networking materials visible. The presentation screens and conference materials are [COLOR1], the professionals' attire and devices are [COLOR2], and the conference venue and environment are [COLOR3]. No readable text on any surfaces or displays. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'technology' in right_content_sample or 'digital' in right_content_sample or 'system' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} featuring advanced technology and digital innovation. The scene shows cutting-edge technological solutions, modern interfaces, and innovative systems with comprehensive visual details. Technology components are [COLOR1], interface elements are [COLOR2], and innovation indicators are [COLOR3]. All digital displays show abstract geometric patterns with NO readable text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     elif 'strategy' in right_content_sample or 'approach' in right_content_sample or 'solution' in right_content_sample:
-                        normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of {right_title.lower()} showing strategic planning and solution implementation. The scene features strategic diagrams, planning documents, and implementation frameworks with detailed visual representations. Strategic elements are [COLOR1], planning components are [COLOR2], and implementation details are [COLOR3]. Documents and charts show abstract shapes and symbols with NO readable text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                     else:
                         # Create specific, contextual scene based on content
                         right_content_lower = normalized_props.get('rightContent', '').lower()
                         title_lower = title.lower()
                         
                         if 'learn' in right_content_lower or 'education' in right_content_lower or 'student' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of students using technology for learning. The scene features diverse students in a modern computer lab, working on individual projects with tablets and laptops. Some students are collaborating on assignments while others focus independently. A teacher walks among them providing guidance. Student devices and work materials are [COLOR1], students and teacher are [COLOR2], and lab environment is [COLOR3]. No readable text on any screens or materials. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'business' in right_content_lower or 'meeting' in right_content_lower or 'team' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of business professionals in a client presentation meeting. The scene features a confident presenter explaining concepts to seated clients, with visual aids displayed on a large screen. The atmosphere is professional and engaging, with participants actively listening and taking notes. Presentation equipment and materials are [COLOR1], presenter and clients are [COLOR2], and meeting room elements are [COLOR3]. No readable text on presentations or documents. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         elif 'data' in right_content_lower or 'analysis' in right_content_lower or 'research' in right_content_lower:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of researchers collaborating on data analysis in a modern lab setting. The scene features scientists and analysts working together around computer workstations, discussing findings and sharing insights. Multiple screens display data visualizations while team members point to specific patterns. Computer equipment and data displays are [COLOR1], researchers and team members are [COLOR2], and lab environment is [COLOR3]. All screens show abstract patterns without text. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of data analysts and researchers collaborating in a modern office environment. A focused Asian woman in business casual attire sits at a desk with multiple monitors displaying charts and graphs while analyzing data patterns, while a Black male colleague in a button-down shirt reviews research documents on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The office features organized workspace elements with laptops, tablets, research materials, and data visualization tools. Natural office lighting illuminates the professional setting with computer monitors, research documents, and analytical tools visible. The computer monitors and data visualizations are [COLOR1], the analysts' clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                         else:
-                            normalized_props['rightImagePrompt'] = f"Minimalist flat design illustration of professionals implementing solutions in a modern workplace related to {right_title.lower()}. The scene features a diverse team actively working on practical applications, using contemporary tools and methods. The environment shows organized, efficient operations with people engaged in meaningful work. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                            # Create specific, contextual scene based on the actual content and title
+                            content_keywords = right_content_lower.split()[:10]  # Get first 10 words for context
+                            title_keywords = title_lower.split()[:5]  # Get first 5 words from title
+                            
+                            # Determine specific professional context
+                            if any(word in right_content_lower for word in ['management', 'leadership', 'supervision']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse management team conducting a strategic planning session in a modern corporate boardroom. A confident Asian woman in a navy blazer stands at a large whiteboard presenting quarterly results and strategic initiatives, while a Black male executive in a suit reviews financial reports on a tablet, and a Hispanic woman in a blazer takes detailed notes on a laptop. The boardroom features floor-to-ceiling windows with city views, a mahogany conference table with executive chairs, and multiple presentation screens displaying charts and graphs. Natural office lighting illuminates the professional setting with laptops, documents, coffee cups, and presentation materials visible. The whiteboard and presentation screens are [COLOR1], the team's professional attire and devices are [COLOR2], and the boardroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in right_content_lower for word in ['training', 'education', 'learning', 'development']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse group of professionals engaged in hands-on training in a modern learning environment. A young Hispanic woman in business casual attire practices with interactive software on a laptop while a Black male instructor in a button-down shirt demonstrates techniques on a large touchscreen display, and a Caucasian woman in a blazer takes notes on a tablet. The training room features multiple workstations with computers, interactive whiteboards, and learning materials. Natural classroom lighting illuminates the collaborative learning space with laptops, tablets, notebooks, and educational materials visible. The interactive displays and learning tools are [COLOR1], the participants' clothing and devices are [COLOR2], and the classroom furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            elif any(word in right_content_lower for word in ['technology', 'software', 'digital', 'system']):
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of software developers and IT professionals collaborating in a modern tech office. A young Asian woman in casual business attire sits at a standing desk with dual monitors displaying code interfaces and development tools, while a Black man in a hoodie reviews code on a laptop at a nearby table, and a Hispanic woman in a blazer stands at a whiteboard discussing architecture diagrams with the team. The tech office features open workspaces with multiple monitors, ergonomic chairs, and modern equipment. Natural office lighting illuminates the collaborative workspace with laptops, tablets, coffee cups, and development materials visible. The computer screens and development tools are [COLOR1], the team's clothing and devices are [COLOR2], and the office furniture and environment are [COLOR3]. No readable text on any surfaces or screens. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
+                            else:
+                                normalized_props['rightImagePrompt'] = f"Realistic cinematic scene of a diverse team of professionals implementing solutions in a modern workplace related to {right_title.lower()}. The scene features a confident Latina businesswoman in a navy blazer presenting strategic plans to a group of colleagues, while a Black male executive in a suit reviews documents and takes notes on a tablet, and a Caucasian woman in a blazer collaborates on a laptop. The professional environment shows organized, efficient operations with people engaged in meaningful work using contemporary tools and methods. Implementation tools and equipment are [COLOR1], team members and activities are [COLOR2], and workplace environment is [COLOR3]. No readable text on any surfaces or equipment. The style is cinematic photography with natural lighting, real-world objects and surfaces, and physically-based materials and textures. The background is [BACKGROUND], completely clean and isolated. — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field"
                 
                 # Handle case where AI used leftContent/rightContent but missing titles
                 if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
@@ -2323,6 +2382,128 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                             ['Characteristic 2', 'Value A2', 'Value B2']
                         ]
                     }
+
+                        # NEW TEMPLATES: Handle new 5-template system for video lesson presentations
+            elif template_id == 'course-overview-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Course Overview'
+                if not normalized_props.get('subtitle'):
+                    normalized_props['subtitle'] = 'Course introduction and objectives'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/600x400?text=Course+Image'
+                if not normalized_props.get('imageAlt'):
+                    normalized_props['imageAlt'] = 'Course overview illustration'
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                    
+            elif template_id == 'impact-statements-slide':
+                # Ensure statements array exists and is properly formatted
+                statements = normalized_props.get('statements', [])
+                if not isinstance(statements, list) or len(statements) < 3:
+                    normalized_props['statements'] = [
+                        { "number": "95%", "description": "Success rate in implementation" },
+                        { "number": "3x", "description": "Increase in productivity" },
+                        { "number": "50%", "description": "Reduction in time spent" }
+                    ]
+                else:
+                    # Ensure each statement has required fields
+                    fixed_statements = []
+                    for stmt in statements[:3]:  # Limit to 3 statements
+                        if isinstance(stmt, dict):
+                            fixed_stmt = {
+                                'number': str(stmt.get('number', '0%')),
+                                'description': str(stmt.get('description', 'No description'))
+                            }
+                            fixed_statements.append(fixed_stmt)
+                        else:
+                            fixed_statements.append({'number': '0%', 'description': str(stmt)})
+                    normalized_props['statements'] = fixed_statements
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                # Don't set logoNew - let it be empty so the "Your Logo" placeholder shows
+                    
+            elif template_id == 'phishing-definition-slide':
+                # Ensure definitions array exists and is properly formatted
+                definitions = normalized_props.get('definitions', [])
+                if not isinstance(definitions, list) or len(definitions) < 3:
+                    normalized_props['definitions'] = [
+                        "First important definition with detailed explanation",
+                        "Second key concept with comprehensive description", 
+                        "Third critical term with thorough explanation"
+                    ]
+                else:
+                    # Ensure definitions are strings
+                    fixed_definitions = []
+                    for defn in definitions:
+                        if isinstance(defn, str) and defn.strip():
+                            fixed_definitions.append(defn.strip())
+                        elif isinstance(defn, dict):
+                            # Extract text from dict if needed
+                            text = defn.get('text') or defn.get('description') or defn.get('content', '')
+                            if text.strip():
+                                fixed_definitions.append(str(text).strip())
+                    # Pad to at least 3 definitions
+                    while len(fixed_definitions) < 3:
+                        fixed_definitions.append(f"Definition {len(fixed_definitions) + 1}")
+                    normalized_props['definitions'] = fixed_definitions[:6]  # Max 6 definitions
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('rightImagePath'):
+                    normalized_props['rightImagePath'] = 'https://via.placeholder.com/300x200?text=Definition+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                    
+            elif template_id == 'soft-skills-assessment-slide':
+                # Ensure tips array exists and is properly formatted
+                tips = normalized_props.get('tips', [])
+                if not isinstance(tips, list) or len(tips) < 2:
+                    normalized_props['tips'] = [
+                        { "text": "First important tip for success", "isHighlighted": True },
+                        { "text": "Second key recommendation for better results", "isHighlighted": False }
+                    ]
+                else:
+                    # Ensure each tip has required fields
+                    fixed_tips = []
+                    for tip in tips[:2]:  # Limit to 2 tips
+                        if isinstance(tip, dict):
+                            fixed_tip = {
+                                'text': str(tip.get('text', 'No tip text')),
+                                'isHighlighted': bool(tip.get('isHighlighted', False))
+                            }
+                            fixed_tips.append(fixed_tip)
+                        else:
+                            fixed_tips.append({'text': str(tip), 'isHighlighted': False})
+                    normalized_props['tips'] = fixed_tips
+                
+                # Ensure other required props
+                if not normalized_props.get('profileImagePath'):
+                    normalized_props['profileImagePath'] = 'https://via.placeholder.com/200x200?text=Avatar'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
+                if not normalized_props.get('logoText'):
+                    normalized_props['logoText'] = 'Assessment Guide'
+                    
+            elif template_id == 'work-life-balance-slide':
+                # Ensure required props exist
+                if not normalized_props.get('title'):
+                    normalized_props['title'] = 'Conclusion and Next Steps'
+                if not normalized_props.get('content'):
+                    normalized_props['content'] = 'This comprehensive lesson has covered the essential concepts and practical applications. Moving forward, focus on implementing these strategies in your daily work while maintaining a healthy balance between learning and application.'
+                if not normalized_props.get('imagePath'):
+                    normalized_props['imagePath'] = 'https://via.placeholder.com/400x300?text=Conclusion+Image'
+                if not normalized_props.get('pageNumber'):
+                    normalized_props['pageNumber'] = slide_index + 1
+                # Don't set logoPath - let it be empty so the "Your Logo" placeholder shows
         
             normalized_slide['props'] = normalized_props
 
@@ -2740,14 +2921,14 @@ class TextPresentationDetails(BaseModel):
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -2825,67 +3006,6 @@ def get_openai_client():
             raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
-
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -3385,7 +3505,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -3921,14 +4041,14 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -4006,67 +4126,6 @@ def get_openai_client():
             raise ValueError("No OpenAI API key configured. Set OPENAI_API_KEY environment variable.")
         OPENAI_CLIENT = AsyncOpenAI(api_key=api_key)
     return OPENAI_CLIENT
-
-async def stream_openai_response(prompt: str, model: str = None):
-    """
-    Stream response directly from OpenAI API.
-    Yields dictionaries with 'type' and 'text' fields compatible with existing frontend.
-    """
-    try:
-        client = get_openai_client()
-        model = model or LLM_DEFAULT_MODEL
-        
-        logger.info(f"[OPENAI_STREAM] Starting direct OpenAI streaming with model {model}")
-        logger.info(f"[OPENAI_STREAM] Prompt length: {len(prompt)} chars")
-        
-        # Read the full ContentBuilder.ai assistant instructions
-        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
-        try:
-            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
-                system_prompt = f.read()
-        except FileNotFoundError:
-            logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
-            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
-        
-        # Create the streaming chat completion
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
-            temperature=0.2
-        )
-        
-        logger.info(f"[OPENAI_STREAM] Stream created successfully")
-        
-        # DEBUG: Collect full response for logging
-        full_response = ""
-        chunk_count = 0
-        
-        async for chunk in stream:
-            chunk_count += 1
-            logger.debug(f"[OPENAI_STREAM] Chunk {chunk_count}: {chunk}")
-            
-            if chunk.choices and len(chunk.choices) > 0:
-                choice = chunk.choices[0]
-                if choice.delta and choice.delta.content:
-                    content = choice.delta.content
-                    full_response += content  # DEBUG: Accumulate full response
-                    yield {"type": "delta", "text": content}
-                    
-                # Check for finish reason
-                if choice.finish_reason:
-                    logger.info(f"[OPENAI_STREAM] Stream finished with reason: {choice.finish_reason}")
-                    logger.info(f"[OPENAI_STREAM] Total chunks received: {chunk_count}")
-                    logger.info(f"[OPENAI_STREAM] FULL RESPONSE:\n{full_response}")
-                    break
-                    
-    except Exception as e:
-        logger.error(f"[OPENAI_STREAM] Error in OpenAI streaming: {e}", exc_info=True)
-        yield {"type": "error", "text": f"OpenAI streaming error: {str(e)}"}
 
 def should_use_openai_direct(payload) -> bool:
     """
@@ -4566,7 +4625,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5071,14 +5130,14 @@ AnyQuizQuestion = Union[
 
 # --- End: Add New Quiz Models ---
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -5177,16 +5236,61 @@ async def stream_openai_response(prompt: str, model: str = None):
         except FileNotFoundError:
             logger.warning(f"[OPENAI_STREAM] Assistant instructions file not found: {assistant_instructions_path}")
             system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+
+                # Check for preservation mode instructions
+        enhanced_message = add_preservation_mode_if_needed(prompt, {"prompt": prompt})
+        
+        # Add educational depth requirements for non-file generation
+        educational_enhancement = """
+
+**EDUCATIONAL CONTENT REQUIREMENTS:**
+
+Your content must provide deep educational value suitable for corporate training:
+
+**BLOOM'S TAXONOMY PROGRESSION:**
+• REMEMBER: Define key terms with precise definitions
+• UNDERSTAND: Explain WHY concepts work and provide mental models
+• APPLY: Show HOW to use concepts with step-by-step procedures
+• ANALYZE: Compare approaches, identify common mistakes, show trade-offs
+
+**CORPORATE TRAINING STANDARDS:**
+• Every major concept needs: Definition → Explanation → Application → Common Pitfalls
+• Include realistic scenarios with decision points
+• Provide mental models and frameworks learners can remember
+• Add "what would you do?" reflection prompts
+• Show both correct and incorrect examples with analysis
+
+**ANTI-HALLUCINATION PROTOCOL:**
+• IF creating illustrative examples: Clearly label as [ILLUSTRATIVE EXAMPLE]
+• NEVER present made-up examples as if they were real case studies
+• NEVER invent statistics, company names, or specific details
+• Use generic placeholders: "a manufacturing company" not "Acme Manufacturing"
+
+**BULLET POINT DEPTH (for presentations):**
+Each bullet point MUST contain 60-100 words structured as:
+1. Core concept statement (15-20 words)
+2. Explanation of WHY/HOW it matters (20-30 words)  
+3. Practical application or example (20-30 words)
+4. Key takeaway or implication (10-20 words)
+
+**ONE-PAGER PEDAGOGICAL ELEMENTS:**
+1. MENTAL MODELS: Provide 2-3 frameworks learners can use
+2. WORKED EXAMPLES: Include 2+ complete examples with step-by-step reasoning
+3. COMMON MISTAKES: List 3-5 frequent errors with why they happen and how to avoid them
+4. DECISION FRAMEWORKS: When multiple approaches exist, provide decision criteria
+5. SKILL PRACTICE: Include 3-5 scenario-based practice items
+
+        """
         
         # Create the streaming chat completion
         stream = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system_prompt + educational_enhancement},
                 {"role": "user", "content": prompt}
             ],
             stream=True,
-            max_tokens=10000,  # Increased from 4000 to handle larger course outlines
+            max_tokens=16000,  # Increased to match gpt-4o-mini's 16,384 token limit (supports ~60KB JSON)
             temperature=0.2
         )
         
@@ -5716,7 +5820,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Tuple
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable, Tuple
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -6011,6 +6115,32 @@ async def startup_event():
                                                 format='text'
                                             ))
         async with DB_POOL.acquire() as connection:
+            # --- Ensure user_billing table for Stripe linkage ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    stripe_customer_id TEXT,
+                    subscription_status TEXT,
+                    subscription_id TEXT,
+                    current_price_id TEXT,
+                    current_plan TEXT,
+                    current_interval TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_customer ON user_billing(stripe_customer_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_subscription ON user_billing(subscription_id);")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS initial_questionnaire (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    data JSONB NOT NULL
+                );
+            """)
+            
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS slide_creation_errors (
                     id SERIAL PRIMARY KEY,
@@ -6094,6 +6224,11 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_parent_outline_id ON projects(parent_outline_id);")
             logger.info("'projects' table updated with lesson plan columns.")
 
+            # --- Add product-as-context column (Onyx document ID for product JSON) ---
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS product_json_onyx_id TEXT;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_product_json_onyx_id ON projects(product_json_onyx_id);")
+            logger.info("'projects' table updated with product_json_onyx_id column for products-as-context feature.")
+
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
@@ -6130,6 +6265,78 @@ async def startup_event():
             """)
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
             logger.info("'user_credits' table ensured.")
+
+            # --- Ensure entitlement overrides table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_overrides (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER,
+                    storage_gb INTEGER,
+                    slides_max INTEGER,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_user ON user_entitlement_overrides(onyx_user_id);")
+            logger.info("'user_entitlement_overrides' table ensured.")
+
+            # --- Ensure user_connectors table for quota tracking ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_connectors (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    onyx_connector_id INTEGER UNIQUE,
+                    status TEXT DEFAULT 'active',
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_user ON user_connectors(onyx_user_id);")
+            logger.info("'user_connectors' table ensured.")
+
+            # --- Ensure base entitlements table (derived from Stripe plan/features) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_base (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER NOT NULL DEFAULT 0,
+                    storage_gb INTEGER NOT NULL DEFAULT 1,
+                    slides_max INTEGER NOT NULL DEFAULT 20,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_base_user ON user_entitlement_base(onyx_user_id);")
+            logger.info("'user_entitlement_base' table ensured.")
+
+            # --- Ensure user email cache (for admin listing) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_email_cache (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    email TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_email_cache_user ON user_email_cache(onyx_user_id);")
+            logger.info("'user_email_cache' table ensured.")
+
+            # --- Ensure user storage usage table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_storage_usage (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    used_bytes BIGINT NOT NULL DEFAULT 0,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_storage_usage_user ON user_storage_usage(onyx_user_id);")
+            logger.info("'user_storage_usage' table ensured.")
 
             # NEW: Ensure credit transactions table for analytics/timeline
             await connection.execute(
@@ -6168,6 +6375,106 @@ async def startup_event():
                 logger.warning(f"Could not update credit_transactions constraint: {e}")
             
             logger.info("'credit_transactions' table ensured.")
+
+            # Ensure user_billing_addons table (recurring add-ons)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing_addons (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    stripe_customer_id TEXT,
+                    stripe_subscription_id TEXT,
+                    stripe_subscription_item_id TEXT,
+                    stripe_price_id TEXT,
+                    addon_type TEXT CHECK (addon_type IN ('connectors','storage')),
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    status TEXT,
+                    current_period_end TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_user ON user_billing_addons(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_sub ON user_billing_addons(stripe_subscription_id);")
+            logger.info("'user_billing_addons' table ensured.")
+
+            # Ensure credit_grant_events table (audit)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credit_grant_events (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    source TEXT CHECK (source IN ('tier_renewal','one_time_pack')),
+                    amount INTEGER NOT NULL,
+                    stripe_invoice_id TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_grant_user ON credit_grant_events(onyx_user_id);")
+            logger.info("'credit_grant_events' table ensured.")
+
+            # Ensure processed_stripe_events for idempotency
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS processed_stripe_events (
+                    event_id TEXT PRIMARY KEY,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            logger.info("'processed_stripe_events' table ensured.")
+
+            # Ensure user_billing_addons table (recurring add-ons)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing_addons (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    stripe_customer_id TEXT,
+                    stripe_subscription_id TEXT,
+                    stripe_subscription_item_id TEXT,
+                    stripe_price_id TEXT,
+                    addon_type TEXT CHECK (addon_type IN ('connectors','storage')),
+                    quantity INTEGER NOT NULL DEFAULT 1,
+                    status TEXT,
+                    current_period_end TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_user ON user_billing_addons(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_addons_sub ON user_billing_addons(stripe_subscription_id);")
+            logger.info("'user_billing_addons' table ensured.")
+
+            # Ensure credit_grant_events table (audit)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS credit_grant_events (
+                    id TEXT PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    source TEXT CHECK (source IN ('tier_renewal','one_time_pack')),
+                    amount INTEGER NOT NULL,
+                    stripe_invoice_id TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_credit_grant_user ON credit_grant_events(onyx_user_id);")
+            logger.info("'credit_grant_events' table ensured.")
+
+            # Ensure processed_stripe_events for idempotency
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS processed_stripe_events (
+                    event_id TEXT PRIMARY KEY,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            logger.info("'processed_stripe_events' table ensured.")
 
             # Note: User migration is now available only via admin interface
             # Automatic migration on startup has been disabled
@@ -6550,7 +6857,7 @@ async def startup_event():
                     id SERIAL PRIMARY KEY,
                     onyx_user_id VARCHAR(255) NOT NULL,
                     name VARCHAR(255) NOT NULL,
-                    source VARCHAR(100) NOT NULL,
+                    source VARCHAR(100),
                     config JSONB DEFAULT '{}',
                     credentials_encrypted TEXT,
                     status VARCHAR(50) DEFAULT 'active',
@@ -6563,6 +6870,14 @@ async def startup_event():
                     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+
+            # Add new columns to existing tables (migration-safe)
+            try:
+                await connection.execute("ALTER TABLE user_connectors ADD COLUMN IF NOT EXISTS source VARCHAR(100);")
+            except Exception as e:
+                logger.info(f"Column 'source' may already exist in user_connectors: {e}")
+                pass
+
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_onyx_user_id ON user_connectors(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_source ON user_connectors(source);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_status ON user_connectors(status);")
@@ -6676,6 +6991,23 @@ async def startup_event():
                     ('is_us_lms', 'LMS: Use US (.io)', 'If enabled (and DEV disabled), use https://app.smartexpert.io for LMS requests', 'LMS'),
                     ('is_dev_lms', 'LMS: Use DEV (.net dev)', 'If enabled, always use https://dev.smartexpert.net for LMS requests (overrides US/EU)', 'LMS'),
                     ('is_chudomaket', 'LMS: Use Chudomaket', 'Override and use https://lms.toliman.com.ua for all LMS requests', 'LMS'),
+                    # SmartDrive Connector visibility flags (hidden by default unless enabled per user)
+                    ('connector_s3', 'Amazon S3 (SmartDrive)', 'Show Amazon S3 connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_r2', 'Cloudflare R2 (SmartDrive)', 'Show Cloudflare R2 connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_google_cloud_storage', 'Google Cloud Storage (SmartDrive)', 'Show Google Cloud Storage connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_oci_storage', 'Oracle Cloud Storage (SmartDrive)', 'Show Oracle Cloud Storage connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_sharepoint', 'SharePoint (SmartDrive)', 'Show SharePoint connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_teams', 'Microsoft Teams (SmartDrive)', 'Show Microsoft Teams connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_discourse', 'Discourse (SmartDrive)', 'Show Discourse connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_gong', 'Gong (SmartDrive)', 'Show Gong connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_axero', 'Axero (SmartDrive)', 'Show Axero connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_mediawiki', 'MediaWiki (SmartDrive)', 'Show MediaWiki connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_bookstack', 'BookStack (SmartDrive)', 'Show BookStack connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_guru', 'Guru (SmartDrive)', 'Show Guru connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_slab', 'Slab (SmartDrive)', 'Show Slab connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_linear', 'Linear (SmartDrive)', 'Show Linear connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_highspot', 'Highspot (SmartDrive)', 'Show Highspot connector card on SmartDrive', 'SmartDrive Connectors'),
+                    ('connector_loopio', 'Loopio (SmartDrive)', 'Show Loopio connector card on SmartDrive', 'SmartDrive Connectors'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
@@ -6901,6 +7233,18 @@ class SlideGenerationError(BaseModel):
 class SlidesErrorsAnalyticsResponse(BaseModel):
     errors: List[SlideGenerationError]
 
+class QuestionnaireAnswer(BaseModel):
+    question: str
+    answer: str
+
+class UserQuestionnaire(BaseModel):
+    onyx_user_id: str
+    answers: List[QuestionnaireAnswer]
+
+class UserQuestionnaireInsertRequest(BaseModel):
+    onyx_user_id: str
+    answers: List[QuestionnaireAnswer]
+
 class TimelineActivity(BaseModel):
     id: str
     type: Literal['purchase', 'product_generation', 'admin_removal']
@@ -7106,7 +7450,7 @@ class AIAuditLandingDetails(BaseModel):
     model_config = {"from_attributes": True}
 # +++ END NEW MODEL +++
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, None]
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, Dict[str, Any], None]
 
 class DesignTemplateBase(BaseModel):
     template_name: str
@@ -7859,7 +8203,7 @@ def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Opti
     ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
 
     # Choose the best combo that doesn’t fully collide with existing content
-    chosen: list[str] | None = None
+    chosen: Optional[List[str]] = None
     for idx in ranked:
         c = combos[idx]
         # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
@@ -8532,7 +8876,122 @@ async def auto_provision_nextcloud_user(onyx_user_id: str, pool: asyncpg.Pool) -
         return False
 
 
-async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool) -> UserCredits:
+async def provision_smartdrive_for_new_user(onyx_user_id: str, user_name: str, pool: asyncpg.Pool):
+    """Background task to provision SmartDrive account for a new user"""
+    try:
+        async with pool.acquire() as conn:
+            # Create SmartDrive account placeholder for new user
+            try:
+                await conn.execute(
+                    """
+                    INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (onyx_user_id) DO NOTHING
+                    """,
+                    onyx_user_id,
+                    '{}',  # Empty JSON cursor
+                    datetime.now(timezone.utc),
+                    datetime.now(timezone.utc)
+                )
+                logger.info(f"Created SmartDrive account placeholder for new user: {onyx_user_id}")
+                
+                # Auto-provision Nextcloud user account and clean up default files
+                # This used to happen when users first visited SmartDrive tab, now happens during registration
+                base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
+                nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
+                nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
+                
+                if nc_admin_user and nc_admin_pass:
+                    import secrets
+                    import re as _re
+                    
+                    # Generate Nextcloud user ID and password
+                    raw_id = str(onyx_user_id)
+                    sanitized = _re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
+                    userid = f"sd_{sanitized[:24]}"
+                    new_password = secrets.token_urlsafe(16)
+
+                    # Normalize base URL to https if needed
+                    from urllib.parse import urlparse
+                    parsed = urlparse(base_url)
+                    if parsed.scheme == "http":
+                        base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
+                    else:
+                        base_url = (base_url or "").rstrip("/")
+                    ocs_base = base_url
+
+                    # Create Nextcloud user
+                    headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
+                    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                        create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
+                        create_resp = await client.post(
+                            create_url,
+                            data={"userid": userid, "password": new_password},
+                            headers=headers,
+                            auth=(nc_admin_user, nc_admin_pass)
+                        )
+                        
+                        # Parse OCS response
+                        ocs_ok = False
+                        reset_needed = False
+                        try:
+                            j = create_resp.json()
+                            sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
+                            if sc == 100:
+                                ocs_ok = True
+                            elif sc == 102:
+                                reset_needed = True
+                        except Exception:
+                            pass
+                            
+                        if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
+                            # User exists, reset password
+                            update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
+                            update_resp = await client.put(
+                                update_url,
+                                data={"key": "password", "value": new_password},
+                                headers=headers,
+                                auth=(nc_admin_user, nc_admin_pass)
+                            )
+                            if update_resp.status_code not in (200, 201, 204):
+                                logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code}")
+                        elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
+                            logger.error(f"Failed to create Nextcloud user: {create_resp.status_code}")
+                            raise Exception("Failed to create Nextcloud user")
+
+                    # Save encrypted credentials
+                    encrypted = encrypt_password(new_password)
+                    await conn.execute(
+                        """
+                        UPDATE smartdrive_accounts
+                        SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                        WHERE onyx_user_id = $1
+                        """,
+                        onyx_user_id, userid, encrypted, base_url, datetime.now(timezone.utc)
+                    )
+
+                    # Clean default skeleton files using comprehensive cleanup function
+                    try:
+                        deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
+                    except Exception as cleanup_error:
+                        logger.error(f"[SmartDrive] Failed to cleanup default files for user {userid}: {cleanup_error}")
+                        # Don't fail the whole process if cleanup fails
+
+                    logger.info(f"[SmartDrive] Auto-provisioned Nextcloud account for new user: {onyx_user_id} -> {userid}")
+                else:
+                    logger.warning(f"Nextcloud admin credentials not configured, SmartDrive account will need manual setup for user: {onyx_user_id}")
+                    
+            except Exception as e:
+                logger.error(f"Error creating/provisioning SmartDrive account for new user {onyx_user_id}: {e}")
+                # Don't raise exception to avoid blocking user creation
+            
+            logger.info(f"[SmartDrive Background] Completed SmartDrive provisioning for user {onyx_user_id} ({user_name})")
+    except Exception as e:
+        logger.error(f"[SmartDrive Background] Fatal error in SmartDrive provisioning for {onyx_user_id}: {e}")
+
+
+async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: asyncpg.Pool, background_tasks: BackgroundTasks = None) -> UserCredits:
     """Get user credits or create if doesn't exist"""
     async with pool.acquire() as conn:
         # Try to get existing credits
@@ -8549,118 +9008,21 @@ async def get_or_create_user_credits(onyx_user_id: str, user_name: str, pool: as
             INSERT INTO user_credits (onyx_user_id, name, credits_balance, credits_purchased)
             VALUES ($1, $2, $3, $3)
             RETURNING *
-        """, onyx_user_id, user_name, 100, 100)  # Default 100 credits for new users
+        """, onyx_user_id, user_name, 100)  # Default 100 credits for new users
         
         # Assign default "Normal (HR)" user type to new users
         await assign_default_user_type(onyx_user_id, conn)
         
-        # Create SmartDrive account placeholder for new user
-        try:
-            await conn.execute(
-                """
-                INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (onyx_user_id) DO NOTHING
-                """,
-                onyx_user_id,
-                '{}',  # Empty JSON cursor
-                datetime.now(timezone.utc),
-                datetime.now(timezone.utc)
-            )
-            logger.info(f"Created SmartDrive account placeholder for new user: {onyx_user_id}")
-            
-            # Auto-provision Nextcloud user account and clean up default files
-            # This used to happen when users first visited SmartDrive tab, now happens during registration
-            base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
-            nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
-            nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
-            
-            if nc_admin_user and nc_admin_pass:
-                import secrets
-                import re as _re
-                
-                # Generate Nextcloud user ID and password
-                raw_id = str(onyx_user_id)
-                sanitized = _re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
-                userid = f"sd_{sanitized[:24]}"
-                new_password = secrets.token_urlsafe(16)
-
-                # Normalize base URL to https if needed
-                from urllib.parse import urlparse
-                parsed = urlparse(base_url)
-                if parsed.scheme == "http":
-                    base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
-                else:
-                    base_url = (base_url or "").rstrip("/")
-                ocs_base = base_url
-
-                # Create Nextcloud user
-                headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
-                async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-                    create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
-                    create_resp = await client.post(
-                        create_url,
-                        data={"userid": userid, "password": new_password},
-                        headers=headers,
-                        auth=(nc_admin_user, nc_admin_pass)
-                    )
-                    
-                    # Parse OCS response
-                    ocs_ok = False
-                    reset_needed = False
-                    try:
-                        j = create_resp.json()
-                        sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
-                        if sc == 100:
-                            ocs_ok = True
-                        elif sc == 102:
-                            reset_needed = True
-                    except Exception:
-                        pass
-                        
-                    if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
-                        # User exists, reset password
-                        update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
-                        update_resp = await client.put(
-                            update_url,
-                            data={"key": "password", "value": new_password},
-                            headers=headers,
-                            auth=(nc_admin_user, nc_admin_pass)
-                        )
-                        if update_resp.status_code not in (200, 201, 204):
-                            logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code}")
-                    elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
-                        logger.error(f"Failed to create Nextcloud user: {create_resp.status_code}")
-                        raise Exception("Failed to create Nextcloud user")
-
-                # Save encrypted credentials
-                encrypted = encrypt_password(new_password)
-                await conn.execute(
-                    """
-                    UPDATE smartdrive_accounts
-                    SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
-                    WHERE onyx_user_id = $1
-                    """,
-                    onyx_user_id, userid, encrypted, base_url, datetime.now(timezone.utc)
-                )
-
-                # Clean default skeleton files using comprehensive cleanup function
-                try:
-                    deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                    logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
-                except Exception as cleanup_error:
-                    logger.error(f"[SmartDrive] Failed to cleanup default files for user {userid}: {cleanup_error}")
-                    # Don't fail the whole process if cleanup fails
-
-                logger.info(f"[SmartDrive] Auto-provisioned Nextcloud account for new user: {onyx_user_id} -> {userid}")
-            else:
-                logger.warning(f"Nextcloud admin credentials not configured, SmartDrive account will need manual setup for user: {onyx_user_id}")
-                
-        except Exception as e:
-            logger.error(f"Error creating/provisioning SmartDrive account for new user {onyx_user_id}: {e}")
-            # Don't raise exception to avoid blocking user creation
+        logger.info(f"Created credits and assigned user type for new user {onyx_user_id} ({user_name}) with 100 credits")
         
-        logger.info(f"Auto-migrated new user {onyx_user_id} ({user_name}) with 100 credits, Normal (HR) user type, and SmartDrive account")
+        # Schedule SmartDrive provisioning in background if BackgroundTasks available
+        if background_tasks:
+            background_tasks.add_task(provision_smartdrive_for_new_user, onyx_user_id, user_name, pool)
+            logger.info(f"[SmartDrive] Scheduled background provisioning for new user: {onyx_user_id}")
+        else:
+            # Fallback: provision inline if no background tasks (e.g., during migration)
+            await provision_smartdrive_for_new_user(onyx_user_id, user_name, pool)
+        
         return UserCredits(**dict(new_credits_row))
 
 def calculate_product_credits(product_type: str, content_data: dict = None) -> int:
@@ -8914,6 +9276,12 @@ async def migrate_onyx_users_to_credits_table() -> int:
                             user['onyx_user_id']
                         )
                         
+                        # Ensure default user type is assigned immediately after credits
+                        try:
+                            await assign_default_user_type(user['onyx_user_id'], custom_conn)
+                        except Exception as user_type_error:
+                            logger.warning(f"Failed to assign user type to {user['onyx_user_id']}: {user_type_error}")
+
                         if existing_smartdrive and existing_smartdrive.get('nextcloud_username') and existing_smartdrive.get('nextcloud_password_encrypted'):
                             logger.info(f"User {user['onyx_user_id']} already has full SmartDrive provisioning, skipping")
                         else:
@@ -9018,11 +9386,7 @@ async def migrate_onyx_users_to_credits_table() -> int:
                                 logger.error(f"[SmartDrive Migration] Failed to provision Nextcloud for user {user['onyx_user_id']}: {smartdrive_error}")
                                 # Don't fail the whole migration if SmartDrive provisioning fails
                         
-                        # Also assign default user type to users who don't have it yet
-                        try:
-                            await assign_default_user_type(user['onyx_user_id'], custom_conn)
-                        except Exception as user_type_error:
-                            logger.warning(f"Failed to assign user type to {user['onyx_user_id']}: {user_type_error}")
+                        # (User type assignment moved earlier to occur before SmartDrive provisioning)
                         
                         migrated_count += 1
                         logger.info(f"Processed user {user['onyx_user_id']} ({user['name']}) - migration complete")
@@ -10188,16 +10552,350 @@ async def create_virtual_text_file(text_content: str, cookies: Dict[str, str]) -
         logger.error(f"Error creating virtual text file: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail=f"Failed to create virtual text file: {str(e)}")
 
+# --- Helper Functions ---
+
+def add_preservation_mode_if_needed(wizard_message: str, wiz_payload: dict) -> str:
+    """Add preservation mode instructions if user requests text preservation."""
+    prompt_text = wiz_payload.get("prompt", "").lower()
+    if any(phrase in prompt_text for phrase in ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]):
+        preservation_instruction = """
+
+🔒 PRESERVATION MODE ACTIVATED 🔒
+
+The user has explicitly instructed you NOT to modify their text.
+You are in READ-ONLY mode except for the specific changes they request.
+
+STRICT RULES:
+• Make ONLY the changes explicitly requested
+• Do NOT fix grammar, spelling, or phrasing
+• Do NOT improve or enhance language
+• Do NOT restructure or reorganize
+• Do NOT translate anything
+• Preserve exact wording, even if it seems improvable
+
+Think of yourself as a precise text editor, not a content improver.
+"""
+        return wizard_message + preservation_instruction
+    return wizard_message
+
+def validate_edit_preservation(original_content: str, edited_content: str, edit_instructions: str) -> tuple[bool, str]:
+    """
+    Validates that only requested changes were made during editing.
+    Returns (is_valid, error_message)
+    """
+    try:
+        # Extract what should have changed from instructions
+        instructions_lower = edit_instructions.lower()
+        
+        # Check for preservation instructions
+        preservation_phrases = ["не коригуй", "do not correct", "don't modify", "don't change", "preserve text"]
+        is_preservation_mode = any(phrase in instructions_lower for phrase in preservation_phrases)
+        
+        if not is_preservation_mode:
+            # Not in preservation mode, allow normal editing
+            return True, ""
+        
+        # Calculate similarity ratio
+        from difflib import SequenceMatcher
+        similarity_ratio = SequenceMatcher(None, original_content, edited_content).ratio()
+        
+        # In preservation mode, content should be very similar (90%+ identical)
+        if similarity_ratio < 0.9:
+            return False, f"Content changed too much (similarity: {similarity_ratio:.2f}). In preservation mode, only specific requested changes should be made."
+        
+        # Check for specific preservation violations
+        violations = []
+        
+        # Check for Ukrainian text preservation
+        ukrainian_headers = ["Оц. час завершення", "Час", "Джерело", "Покриття контенту", "Оцінка знань"]
+        for header in ukrainian_headers:
+            if header in original_content and header not in edited_content:
+                violations.append(f"Ukrainian header '{header}' was removed or modified")
+        
+        # Check for module ID preservation
+        import re
+        original_module_ids = re.findall(r'## (?:Module|#)\s*\d+', original_content)
+        edited_module_ids = re.findall(r'## (?:Module|#)\s*\d+', edited_content)
+        
+        if len(original_module_ids) != len(edited_module_ids):
+            violations.append("Module IDs were added or removed")
+        
+        # Check for table header preservation
+        if "table" in original_content.lower() and "table" in edited_content.lower():
+            # Extract table headers and check if they changed
+            original_headers = re.findall(r'\|([^|]+)\|', original_content)
+            edited_headers = re.findall(r'\|([^|]+)\|', edited_content)
+            
+            if original_headers and edited_headers:
+                if len(original_headers) != len(edited_headers):
+                    violations.append("Table structure was modified")
+        
+        if violations:
+            return False, f"Preservation violations detected: {'; '.join(violations)}"
+        
+        return True, ""
+        
+    except Exception as e:
+        logger.error(f"[VALIDATION_ERROR] Error validating edit preservation: {e}")
+        return True, ""  # Don't block on validation errors
+
+async def stream_hybrid_response(message: str, file_context: Any, product_type: str = "Course Outline", temperature: float = 0.7):
+    """
+    Stream response from OpenAI using extracted file context as PRIMARY knowledge source.
+    
+    This function intelligently handles large files:
+    - Counts tokens to stay within limits (100k tokens max for context)
+    - Uses full content when possible
+    - Falls back to enhanced summaries for large files
+    - Prioritizes file data over general internet knowledge
+    
+    Args:
+        message: The base wizard message/request
+        file_context: Extracted context from Onyx files (dict with summaries, contents, topics)
+        product_type: Type of product being generated
+        temperature: Temperature for response generation
+        
+    Yields:
+        Dict with type 'delta' (text chunk) or 'error'
+    """
+    try:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            logger.error("[HYBRID_STREAM] No OpenAI API key found")
+            yield {"type": "error", "text": "OpenAI API key not configured"}
+            return
+        
+        client = AsyncOpenAI(api_key=openai_api_key)
+        
+        # Token limits for GPT-4 Turbo (128k total, reserve 28k for response)
+        MAX_CONTEXT_TOKENS = 100000  # Conservative limit for context
+        TOKENS_PER_CHAR_ESTIMATE = 0.25  # Rough estimate: 1 token ≈ 4 characters
+        
+        # Build enhanced prompt that prioritizes file content
+        file_content_section = ""
+        
+        if isinstance(file_context, dict):
+            # Extract file contents and summaries
+            file_contents = file_context.get("file_contents", [])
+            file_summaries = file_context.get("file_summaries", [])
+            key_topics = file_context.get("key_topics", [])
+            
+            logger.info(f"[HYBRID_STREAM] File context: {len(file_contents)} contents, {len(file_summaries)} summaries, {len(key_topics)} topics")
+            
+            if file_contents or file_summaries:
+                file_content_section = "\n\n" + "="*80 + "\n"
+                file_content_section += "📚 SOURCE DOCUMENTS - YOUR ONLY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                file_content_section += "⚠️ CRITICAL INSTRUCTION ⚠️\n"
+                file_content_section += "The documents below are YOUR COMPLETE KNOWLEDGE BASE.\n"
+                file_content_section += "You MUST:\n"
+                file_content_section += "  ✓ Use ONLY information from these documents\n"
+                file_content_section += "  ✓ Quote specific passages and reference document sections\n"
+                file_content_section += "  ✓ Use examples, data, and cases ONLY from these documents\n"
+                file_content_section += "  ✓ State 'not provided in source materials' if information is missing\n"
+                file_content_section += "  ✗ NEVER use general knowledge or make assumptions\n"
+                file_content_section += "  ✗ NEVER hallucinate examples not in the documents\n\n"
+                
+                # Add key topics if available
+                if key_topics:
+                    file_content_section += f"**Key Topics from Documents**: {', '.join(key_topics[:20])}\n\n"
+                
+                # Calculate total content size
+                total_content_chars = sum(len(content) for content in file_contents if content)
+                estimated_tokens = total_content_chars * TOKENS_PER_CHAR_ESTIMATE
+                
+                logger.info(f"[HYBRID_STREAM] Total content size: {total_content_chars} chars, estimated {int(estimated_tokens)} tokens")
+                
+                # Decide whether to use full content or enhanced summaries
+                if estimated_tokens < MAX_CONTEXT_TOKENS:
+                    # Use FULL CONTENT - files are small enough
+                    logger.info(f"[HYBRID_STREAM] Using FULL CONTENT (within token limit)")
+                    
+                    # Add document structure with clear markers
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"\n{'='*80}\n"
+                            file_content_section += f"📄 SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                            file_content_section += f"{content}\n\n"
+                            file_content_section += f"{'='*80}\n"
+                            file_content_section += f"END OF SOURCE DOCUMENT #{i}\n"
+                            file_content_section += f"{'='*80}\n\n"
+                else:
+                    # Use ENHANCED SUMMARIES - files are too large
+                    logger.info(f"[HYBRID_STREAM] Using ENHANCED SUMMARIES (content exceeds token limit)")
+                    
+                    # Calculate how much content we can include per file
+                    max_chars_per_file = int((MAX_CONTEXT_TOKENS / TOKENS_PER_CHAR_ESTIMATE) / len(file_contents))
+                    
+                    file_content_section += "---\n**DOCUMENT CONTENT** (Enhanced excerpts from large documents):\n---\n\n"
+                    file_content_section += f"**Note**: Documents were too large to include in full. Below are key excerpts and summaries.\n\n"
+                    
+                    for i, content in enumerate(file_contents, 1):
+                        if content and len(content.strip()) > 0:
+                            file_content_section += f"### Document {i}:\n\n"
+                            
+                            # Include summary if available
+                            if i <= len(file_summaries) and file_summaries[i-1]:
+                                file_content_section += f"**Summary**: {file_summaries[i-1]}\n\n"
+                            
+                            # Include beginning excerpt
+                            if len(content) > max_chars_per_file:
+                                excerpt = content[:max_chars_per_file]
+                                # Try to cut at sentence boundary
+                                last_period = excerpt.rfind('.')
+                                if last_period > max_chars_per_file * 0.8:  # If we can find a period in last 20%
+                                    excerpt = excerpt[:last_period + 1]
+                                file_content_section += f"**Key Content Excerpt** (first ~{len(excerpt)} chars of {len(content)}):\n{excerpt}\n\n"
+                                file_content_section += f"*[Document continues with {len(content) - len(excerpt)} more characters]*\n\n"
+                            else:
+                                file_content_section += f"**Full Content**:\n{content}\n\n"
+                            
+                            file_content_section += "---\n\n"
+                
+                # Add summaries if we only have those (no content)
+                if not file_contents and file_summaries:
+                    file_content_section += "**Document Summaries**:\n\n"
+                    for i, summary in enumerate(file_summaries, 1):
+                        if summary and len(summary.strip()) > 0:
+                            file_content_section += f"{i}. {summary}\n\n"
+                
+                file_content_section += "="*80 + "\n"
+                file_content_section += "END OF SOURCE DOCUMENTS - USE THIS AS YOUR PRIMARY KNOWLEDGE BASE\n"
+                file_content_section += "="*80 + "\n\n"
+                
+                # Add validation checkpoint reminder
+                file_content_section += "⚠️ FINAL REMINDER ⚠️\n"
+                file_content_section += "Before generating your response, confirm:\n"
+                file_content_section += "• Have I used ONLY the source documents above?\n"
+                file_content_section += "• Have I quoted or referenced specific document content?\n"
+                file_content_section += "• Have I avoided general knowledge and assumptions?\n\n"
+        elif isinstance(file_context, str):
+            # Handle string context (fallback case)
+            file_content_section = f"\n\n**SOURCE DOCUMENT CONTENT**:\n{file_context}\n\n"
+            file_content_section += "**Note**: Base your content on the above document content.\n\n"
+        
+        # Combine with original message
+        enhanced_message = file_content_section + message
+        
+        logger.info(f"[HYBRID_STREAM] Enhanced message length: {len(enhanced_message)} (original: {len(message)}, file context: {len(file_content_section)})")
+        logger.info(f"[HYBRID_STREAM] Starting streaming for product type: {product_type}")
+        
+        stream = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{
+                "role": "system",
+                "content": """You are an EDUCATIONAL CONTENT CREATOR with STRICT SOURCE FIDELITY.
+
+ABSOLUTE RULES:
+1. SOURCE DOCUMENTS ARE YOUR ONLY KNOWLEDGE BASE - You must ONLY use information explicitly present in the source documents provided below
+2. NEVER use general internet knowledge, common knowledge, or assumptions
+3. If information is not in the source documents, state "This information is not provided in the source materials"
+4. DIRECTLY QUOTE and reference specific sections from source documents
+5. Every claim, example, statistic, or case study MUST come from the source documents
+6. Mark any illustrative examples you create as [ILLUSTRATIVE EXAMPLE - not from source]
+
+VERIFICATION: Before finalizing your response, verify that every piece of information traces back to the source documents."""
+            }, {
+                "role": "user",
+                "content": enhanced_message
+            }],
+            temperature=temperature,
+            stream=True
+        )
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield {"type": "delta", "text": chunk.choices[0].delta.content}
+                
+    except Exception as e:
+        logger.error(f"[HYBRID_STREAM] Error: {e}", exc_info=True)
+        yield {"type": "error", "text": str(e)}
+
 # --- Enhanced Hybrid Approach Functions ---
 
 # Cache for file contexts to avoid repeated extraction
 FILE_CONTEXT_CACHE: Dict[str, Dict[str, Any]] = {}
 FILE_CONTEXT_CACHE_TTL = 3600  # 1 hour cache
 
-async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+async def process_file_batch_with_progress(
+    file_ids: List[int],
+    cookies: Dict[str, str],
+    batch_size: int = 8,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+) -> List[Optional[Dict[str, Any]]]:
     """
-    Extract relevant context from files and folders using Onyx's capabilities.
-    Returns structured context that can be used with OpenAI.
+    Process files in batches to avoid overwhelming the system.
+    Sends progress updates to keep frontend connection alive.
+    
+    Args:
+        file_ids: List of file IDs to process
+        cookies: Authentication cookies
+        batch_size: Number of files to process concurrently
+        progress_callback: Optional async callback for progress updates
+        
+    Returns:
+        List of file contexts in same order as input file_ids.
+    """
+    all_results = []
+    total_files = len(file_ids)
+    
+    for i in range(0, len(file_ids), batch_size):
+        batch = file_ids[i:i + batch_size]
+        batch_num = i//batch_size + 1
+        total_batches = (total_files + batch_size - 1) // batch_size
+        
+        logger.info(f"[FILE_CONTEXT] Processing batch {batch_num}/{total_batches}: files {i+1} to {i+len(batch)}")
+        
+        # Send progress update to keep connection alive
+        if progress_callback:
+            progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+            await progress_callback(progress_msg)
+        
+        # Create tasks for this batch
+        tasks = [extract_single_file_context(file_id, cookies) for file_id in batch]
+        
+        # Execute batch in parallel
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Process results
+        for file_id, result in zip(batch, batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"[FILE_CONTEXT] Error processing file {file_id}: {result}")
+                all_results.append(None)
+            else:
+                all_results.append(result)
+        
+        # Send progress update after batch completion
+        if progress_callback:
+            completed = min(i + batch_size, total_files)
+            progress_msg = f"Completed {completed}/{total_files} files"
+            await progress_callback(progress_msg)
+        
+        # Brief pause between batches to be gentle on the system
+        if i + batch_size < len(file_ids):
+            await asyncio.sleep(0.5)
+    
+    return all_results
+
+async def extract_file_context_from_onyx_with_progress(
+    file_ids: List[int], 
+    folder_ids: List[int], 
+    cookies: Dict[str, str],
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+):
+    """
+    Extract relevant context from files and folders using Onyx's capabilities with progress updates.
+    Yields progress messages during extraction to keep connections alive.
+    
+    Args:
+        file_ids: List of file IDs to extract
+        folder_ids: List of folder IDs to extract
+        cookies: Authentication cookies
+        progress_callback: Optional callback for progress updates
+        
+    Yields:
+        Dict with type 'progress' (progress update) or 'complete' (final context)
     """
     try:
         # Create cache key
@@ -10208,9 +10906,12 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             cached_data = FILE_CONTEXT_CACHE[cache_key]
             if time.time() - cached_data["timestamp"] < FILE_CONTEXT_CACHE_TTL:
                 logger.info(f"[FILE_CONTEXT] Using cached context for key: {cache_key[:16]}...")
-                return cached_data["context"]
+                yield {"type": "progress", "message": "Using cached file context..."}
+                yield {"type": "complete", "context": cached_data["context"]}
+                return
         
         logger.info(f"[FILE_CONTEXT] Extracting context from {len(file_ids)} files and {len(folder_ids)} folders")
+        yield {"type": "progress", "message": f"Extracting context from {len(file_ids)} files and {len(folder_ids)} folders..."}
         
         extracted_context = {
             "file_summaries": [],
@@ -10224,54 +10925,121 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             }
         }
         
-        # Extract file contexts with enhanced retry mechanism
+        # Extract file contexts with batch parallel processing
         successful_extractions = 0
-        for file_id in file_ids:
-            file_context = None
-            for retry_attempt in range(3):  # Up to 3 attempts per file
-                try:
-                    file_context = await extract_single_file_context(file_id, cookies)
-                    if file_context and (file_context.get("summary") or file_context.get("content")):
-                        # Check if this was a successful extraction (not a generic response or error)
-                        content = file_context.get("content", "")
-                        if any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
-                            logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues (attempt {retry_attempt + 1})")
-                            if retry_attempt < 2:  # Don't sleep on the last attempt
-                                await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                                continue
-                        
+        
+        if file_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(file_ids)} files")
+            
+            # Process files in batches and yield progress for each batch
+            # Batch size balances speed vs API stability
+            batch_size = 5
+            all_file_results = []
+            total_files = len(file_ids)
+            
+            for i in range(0, len(file_ids), batch_size):
+                batch = file_ids[i:i + batch_size]
+                batch_num = i//batch_size + 1
+                total_batches = (total_files + batch_size - 1) // batch_size
+                
+                progress_msg = f"Processing files batch {batch_num}/{total_batches} ({i+1}-{i+len(batch)} of {total_files})..."
+                logger.info(f"[FILE_CONTEXT] {progress_msg}")
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Create tasks for this batch, maintaining file_id -> task mapping
+                task_to_file_id = {}
+                for file_id in batch:
+                    task = asyncio.create_task(extract_single_file_context(file_id, cookies))
+                    task_to_file_id[task] = file_id
+                
+                tasks_set = set(task_to_file_id.keys())
+                
+                # Execute batch in parallel with periodic keep-alive heartbeats
+                task_results = {}  # Map task to result
+                heartbeat_count = 1
+                start_time = time.time()
+                
+                while tasks_set:
+                    # Wait for tasks with a 10-second timeout
+                    done, tasks_set = await asyncio.wait(
+                        tasks_set, 
+                        timeout=10.0,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+                    
+                    # Collect completed results
+                    for task in done:
+                        try:
+                            task_results[task] = task.result()
+                        except Exception as e:
+                            task_results[task] = e
+                    
+                    # If there are still pending tasks, send a keep-alive heartbeat
+                    if tasks_set:
+                        elapsed = int(time.time() - start_time)
+                        heartbeat_msg = f"Processing batch {batch_num}/{total_batches}... ({elapsed}s elapsed, {len(task_results)}/{len(batch)} files analyzed)"
+                        logger.info(f"[FILE_CONTEXT_HEARTBEAT] {heartbeat_msg}")
+                        yield {"type": "progress", "message": heartbeat_msg}
+                        heartbeat_count += 1
+                
+                # Reorder results to match original file_id order
+                for file_id in batch:
+                    task = [t for t, fid in task_to_file_id.items() if fid == file_id][0]
+                    result = task_results.get(task)
+                    if isinstance(result, Exception):
+                        all_file_results.append(None)
+                    else:
+                        all_file_results.append(result)
+                
+                # Yield progress after batch completion
+                completed = min(i + batch_size, total_files)
+                progress_msg = f"Analyzed {completed}/{total_files} files"
+                yield {"type": "progress", "message": progress_msg}
+                
+                # Brief pause between batches
+                if i + batch_size < len(file_ids):
+                    await asyncio.sleep(0.5)
+            
+            file_results = all_file_results
+            
+            # Process results
+            for file_id, file_context in zip(file_ids, file_results):
+                if file_context and (file_context.get("summary") or file_context.get("content")):
+                    # Check if this was a successful extraction
+                    content = file_context.get("content", "")
+                    if not any(phrase in content.lower() for phrase in ["file access issue", "not indexed", "could not access", "file_access_error"]):
                         # Success - add to context
                         extracted_context["file_summaries"].append(file_context["summary"])
                         extracted_context["file_contents"].append(file_context["content"])
                         extracted_context["key_topics"].extend(file_context.get("topics", []))
                         successful_extractions += 1
-                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id} (attempt {retry_attempt + 1})")
-                        break  # Success, no need for more retries
+                        logger.info(f"[FILE_CONTEXT] Successfully extracted context from file {file_id}")
                     else:
-                        logger.warning(f"[FILE_CONTEXT] No valid context extracted from file {file_id} (attempt {retry_attempt + 1})")
-                        if retry_attempt < 2:  # Don't sleep on the last attempt
-                            await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-                except Exception as e:
-                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from file {file_id} (attempt {retry_attempt + 1}): {e}")
-                    if retry_attempt < 2:  # Don't sleep on the last attempt
-                        await asyncio.sleep(2 * (retry_attempt + 1))  # Exponential backoff
-            
-            if not file_context or not (file_context.get("summary") or file_context.get("content")):
-                logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
+                        logger.warning(f"[FILE_CONTEXT] File {file_id} has access issues")
+                else:
+                    logger.error(f"[FILE_CONTEXT] Failed to extract context from file {file_id}")
         
-        # Extract folder contexts
-        for folder_id in folder_ids:
-            try:
-                folder_context = await extract_folder_context(folder_id, cookies)
-                if folder_context and folder_context.get("summary"):
+        # Extract folder contexts with batch parallel processing
+        if folder_ids:
+            logger.info(f"[FILE_CONTEXT] Starting batch parallel processing for {len(folder_ids)} folders")
+            yield {"type": "progress", "message": f"Processing {len(folder_ids)} folders..."}
+            
+            # Process folders in parallel
+            folder_tasks = [extract_folder_context(folder_id, cookies) for folder_id in folder_ids]
+            folder_results = await asyncio.gather(*folder_tasks, return_exceptions=True)
+            
+            for folder_id, folder_context in zip(folder_ids, folder_results):
+                if isinstance(folder_context, Exception):
+                    logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {folder_context}")
+                elif folder_context and folder_context.get("summary"):
                     extracted_context["folder_contexts"].append(folder_context)
                     extracted_context["key_topics"].extend(folder_context.get("topics", []))
                     successful_extractions += 1
                     logger.info(f"[FILE_CONTEXT] Successfully extracted context from folder {folder_id}")
                 else:
                     logger.warning(f"[FILE_CONTEXT] No valid context extracted from folder {folder_id}")
-            except Exception as e:
-                logger.warning(f"[FILE_CONTEXT] Failed to extract context from folder {folder_id}: {e}")
+            
+            yield {"type": "progress", "message": f"Completed processing {len(folder_ids)} folders"}
         
         # If no context was extracted successfully, provide a fallback
         if successful_extractions == 0:
@@ -10291,17 +11059,39 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         
         logger.info(f"[FILE_CONTEXT] Successfully extracted context: {len(extracted_context['file_summaries'])} file summaries, {len(extracted_context['key_topics'])} key topics")
         
-        return extracted_context
+        # Yield final complete result
+        yield {"type": "complete", "context": extracted_context}
         
     except Exception as e:
         logger.error(f"[FILE_CONTEXT] Error extracting file context: {e}", exc_info=True)
-        return {
+        yield {"type": "error", "message": f"Error extracting file context: {str(e)}"}
+        yield {"type": "complete", "context": {
             "file_summaries": [],
             "file_contents": [],
             "folder_contexts": [],
             "key_topics": [],
             "metadata": {"error": str(e)}
-        }
+        }}
+
+async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[int], cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract relevant context from files and folders using Onyx's capabilities.
+    Returns structured context that can be used with OpenAI.
+    This is a backward-compatible wrapper around the progress-enabled version.
+    """
+    file_context = None
+    async for update in extract_file_context_from_onyx_with_progress(file_ids, folder_ids, cookies):
+        if update["type"] == "complete":
+            file_context = update["context"]
+            break
+    
+    return file_context or {
+        "file_summaries": [],
+        "file_contents": [],
+        "folder_contexts": [],
+        "key_topics": [],
+        "metadata": {"error": "No context extracted"}
+    }
 
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -10971,7 +11761,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         analysis_prompt = f"""        
         Please describe:
         1. What is this file? (image, document, etc.)
-        2. What does it contain or show? (max 200 words)
+        2. What does it contain or show? (min 500 words)
         3. What are the main topics, concepts, or subjects?
         4. What information would be most relevant for lesson planning or content creation?
         
@@ -10981,33 +11771,24 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         KEY_INFO: [most educational/relevant information]
         """
         
-        # Step 4: Multiple retry attempts with different strategies
-        for attempt in range(3):
-            try:
-                result = await attempt_file_analysis_with_retry(
-                    temp_chat_id, file_id, analysis_prompt, cookies, attempt
-                )
-                if result and not is_generic_response(result):
-                    return parse_analysis_result(file_id, result)
-                elif attempt < 2:
-                    logger.warning(f"[FILE_CONTEXT] Attempt {attempt + 1} failed for file {file_id}, retrying...")
-                    await asyncio.sleep(1)  # Brief delay before retry
-                else:
-                    logger.error(f"[FILE_CONTEXT] All attempts failed for file {file_id}")
-                    break
-            except Exception as e:
-                logger.error(f"[FILE_CONTEXT] Attempt {attempt + 1} error for file {file_id}: {e}")
-                if attempt < 2:
-                    await asyncio.sleep(1)
-                else:
-                    raise
+        # Step 4: Single attempt - skip file if it fails (no retries)
+        try:
+            result = await attempt_file_analysis_with_retry(
+                temp_chat_id, file_id, analysis_prompt, cookies, 0
+            )
+            if result and not is_generic_response(result):
+                return parse_analysis_result(file_id, result)
+            else:
+                logger.warning(f"[FILE_CONTEXT] File {file_id} analysis failed, skipping...")
+        except Exception as e:
+            logger.error(f"[FILE_CONTEXT] File {file_id} analysis error: {e}, skipping...")
         
-        # Step 5: Fallback response if all attempts fail
+        # Step 5: Fallback response if attempt fails (file will be skipped)
         return {
             "file_id": file_id,
-            "summary": f"File analysis failed after multiple attempts (ID: {file_id})",
+            "summary": f"File analysis failed, skipped (ID: {file_id})",
             "topics": ["analysis error", "file processing"],
-            "key_info": "File may need manual review or re-upload",
+            "key_info": "File skipped due to processing error",
             "content": f"Analysis failed for file {file_id} ({file_info.get('name', 'Unknown')})"
         }
             
@@ -11512,7 +12293,6 @@ async def get_allowed_microproduct_types_list_for_design_templates():
     return ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS
 
 # --- Project and MicroProduct Endpoints ---
-@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     """
     Build source context type and data from a finalize payload.
@@ -11574,7 +12354,7 @@ async def save_slide_creation_error(
         json.dumps(props, ensure_ascii=False),
         error_message
     )
-
+@app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
@@ -11879,7 +12659,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "steps" array with value/label/description
-            - For timeline: parse chronological content into "steps" array
+            - For timeline: parse chronological content into "events" array with date, title, and description fields
             - For pyramid: parse hierarchical content into "steps" array
             
             **CRITICAL IMAGE PROMPT EXTRACTION - PRESENTATION ILLUSTRATIONS:**
@@ -12214,12 +12994,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               "challengesTitle": "Challenges",
               "solutionsTitle": "Solutions",
               "challenges": [
-                "Challenge 1 with detailed explanation of the problem",
-                "Challenge 2 with comprehensive analysis of the issue"
+                "Brief five to six word challenge",
+                "Another concise problem statement here"
               ],
               "solutions": [
-                "Solution 1 with detailed approach and implementation strategy",
-                "Solution 2 with comprehensive methodology and practical steps"
+                "Brief five to six word solution",
+                "Another concise implementation approach here"
               ]
             }
             ```
@@ -12280,15 +13060,15 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            12. **`timeline`** - Horizontal timeline with 4 steps:
+            12. **`timeline`** - Horizontal timeline with 4 events:
             ```json
             "props": {
               "title": "History and Evolution",
-              "steps": [
-                { "heading": "Step 1", "description": "Detailed description of the first phase" },
-                { "heading": "Step 2", "description": "Comprehensive explanation of the second phase" },
-                { "heading": "Step 3", "description": "Thorough description of the third phase" },
-                { "heading": "Step 4", "description": "In-depth explanation of the final phase" }
+              "events": [
+                { "date": "2020", "title": "Phase 1", "description": "Detailed description of the first phase" },
+                { "date": "2021", "title": "Phase 2", "description": "Comprehensive explanation of the second phase" },
+                { "date": "2022", "title": "Phase 3", "description": "Thorough description of the third phase" },
+                { "date": "2023", "title": "Phase 4", "description": "In-depth explanation of the final phase" }
               ]
             }
             ```
@@ -12326,7 +13106,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "items" array with value/label/description
-            - For timeline: parse chronological content into "steps" array
+            - For timeline: parse chronological content into "events" array with date, title, and description fields
             - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
@@ -12558,6 +13338,31 @@ Return ONLY the JSON object.
             llm_json_example = ""  # Not used for lesson plans
             component_specific_instructions = ""  # Not used for lesson plans
             
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, we don't need LLM parsing since the content is already structured
+            # The aiResponse contains the video metadata as JSON
+            try:
+                video_metadata = json.loads(project_data.aiResponse)
+                # Store the video metadata directly without LLM parsing
+                parsed_content_model_instance = video_metadata
+                logger.info(f"Video product created with metadata: {video_metadata.get('videoJobId', 'unknown')}")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse video metadata JSON: {e}")
+                # Create a fallback structure
+                parsed_content_model_instance = {
+                    "videoJobId": "unknown",
+                    "videoUrl": "",
+                    "thumbnailUrl": "",
+                    "generatedAt": datetime.now().isoformat(),
+                    "sourceSlides": [],
+                    "component_name": "VideoProductDisplay"
+                }
+            
+            # Skip LLM parsing for video products
+            target_content_model = None
+            default_error_instance = None
+            llm_json_example = ""
+            component_specific_instructions = ""
         else:
             logger.warning(f"Unknown component_name '{selected_design_template.component_name}' for DT ID {selected_design_template.id}. Defaulting to TrainingPlanDetails for parsing.")
             target_content_model = TrainingPlanDetails
@@ -12566,13 +13371,27 @@ Return ONLY the JSON object.
             component_specific_instructions = "Parse the content according to the JSON example provided."
 
 
-        if hasattr(default_error_instance, 'detectedLanguage'):
-                default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
-
-        # Skip LLM parsing for lesson plans
-        if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+        # Skip LLM parsing for video products since they already have structured content
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # parsed_content_model_instance is already set in the video product case above (line 12625)
+            logger.info(f"Video product created, skipping LLM parsing - using direct JSON metadata")
+            # Skip all LLM parsing - parsed_content_model_instance is already set
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # Skip LLM parsing for lesson plans
             logger.info("Lesson plan detected - skipping LLM parsing entirely")
             parsed_content_model_instance = None  # Will not be used
+        else:
+            # Set detected language if the error instance supports it
+            if hasattr(default_error_instance, 'detectedLanguage'):
+                default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
+
+        # LLM parsing flow (skipped for video products and lesson plans)
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # Already handled above - skip LLM parsing entirely
+            pass
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # Already handled above - skip LLM parsing entirely
+            pass
         elif selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
             # Fast path: Check if aiResponse is already valid JSON with sections (from preview)
             try:
@@ -12624,11 +13443,55 @@ Return ONLY the JSON object.
         # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
             try:
+                # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Raw AI response for presentation:")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Response length: {len(project_data.aiResponse)} characters")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] First 500 chars: {project_data.aiResponse[:500]}")
+                logger.info(f"🔍 [PRESENTATION_AI_RESPONSE] Last 500 chars: {project_data.aiResponse[-500:]}")
+                
                 logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
                 cached_json = json.loads(project_data.aiResponse.strip())
                 logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
                 if isinstance(cached_json, dict) and "slides" in cached_json:
-                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(cached_json.get('slides', []))} slides")
+                    slides = cached_json.get('slides', [])
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(slides)} slides")
+                    
+                    # 🔍 CRITICAL DEBUG: Log each slide before parser processing
+                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slides before parser processing:")
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            slide_number = slide.get('slideNumber', 'NO_NUMBER')
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}', slideNumber={slide_number}")
+                            
+                            # Log props structure
+                            props = slide.get('props', {})
+                            if props:
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} props keys: {list(props.keys())}")
+                                # Log specific props for new templates
+                                if template_id == 'course-overview-slide':
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}'")
+                                elif template_id == 'impact-statements-slide':
+                                    statements = props.get('statements', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                                elif template_id == 'phishing-definition-slide':
+                                    definitions = props.get('definitions', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                                elif template_id == 'soft-skills-assessment-slide':
+                                    tips = props.get('tips', [])
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                                elif template_id == 'work-life-balance-slide':
+                                    content = props.get('content', '')
+                                    logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
+                            
+                            # Log voiceover if present
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                        else:
+                            logger.info(f"🔍 [PRESENTATION_SLIDES_BEFORE_PARSER] Slide {i+1}: Not a dict, type={type(slide)}")
+                    
                     logger.info(f"[FAST_PATH] Presentation JSON detected, bypassing LLM parsing for {project_data.projectName}")
                     
                     # Strip preview-only fields before model construction
@@ -12674,6 +13537,10 @@ Return ONLY the JSON object.
 
         if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             logger.info("Lesson plan detected - using raw data without parsing")
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            logger.info("Video product detected - using direct JSON metadata without LLM parsing")
+            logger.info(f"Video Product Content Type: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"Video Product Metadata: {json.dumps(parsed_content_model_instance)[:200]}")
         else:    
             logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
             logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
@@ -12719,11 +13586,53 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
+            
+            # 🔍 CRITICAL DEBUG: Log slides before normalization
+            logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slides before normalize_slide_props:")
+            for i, slide in enumerate(slides_dict):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_BEFORE_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+            
             normalized_slides = await normalize_slide_props(slides_dict, selected_design_template.component_name)
+            
+            # 🔍 CRITICAL DEBUG: Log slides after normalization
+            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slides after normalize_slide_props:")
+            for i, slide in enumerate(normalized_slides):
+                if isinstance(slide, dict):
+                    template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                    slide_title = slide.get('slideTitle', 'NO_TITLE')
+                    logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                    props = slide.get('props', {})
+                    if props:
+                        logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} props keys: {list(props.keys())}")
+                        # Log specific props for new templates after normalization
+                        if template_id == 'course-overview-slide':
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} course-overview-slide props: title='{props.get('title', 'NO_TITLE')}', subtitle='{props.get('subtitle', 'NO_SUBTITLE')}', imagePath='{props.get('imagePath', 'NO_IMAGE')}'")
+                        elif template_id == 'impact-statements-slide':
+                            statements = props.get('statements', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} impact-statements-slide: {len(statements)} statements")
+                        elif template_id == 'phishing-definition-slide':
+                            definitions = props.get('definitions', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} phishing-definition-slide: {len(definitions)} definitions")
+                        elif template_id == 'soft-skills-assessment-slide':
+                            tips = props.get('tips', [])
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} soft-skills-assessment-slide: {len(tips)} tips")
+                        elif template_id == 'work-life-balance-slide':
+                            content = props.get('content', '')
+                            logger.info(f"🔍 [SLIDES_AFTER_NORMALIZATION] Slide {i+1} work-life-balance-slide content: {content[:100]}{'...' if len(content) > 100 else ''}")
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             content_dict['slides'] = normalized_slides
+            
+            # ✅ NEW: Set templateVersion='v2' for all newly created presentations
+            content_dict['templateVersion'] = 'v2'
+            logger.info("Set templateVersion='v2' for newly created presentation")
             
             # Remove hasVoiceover flag for regular slide decks
             if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
@@ -12737,6 +13646,10 @@ Return ONLY the JSON object.
         elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             # For lesson plans, content_to_store_for_db was already set earlier - don't overwrite it
             logger.info("Lesson plan - using pre-set content_to_store_for_db")
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, the content is already a dictionary
+            content_to_store_for_db = parsed_content_model_instance
+            logger.info(f"Video product content prepared for DB storage")
         else:
             content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             
@@ -12820,6 +13733,10 @@ Return ONLY the JSON object.
                     # For lesson plans, preserve the original structure without parsing
                     logger.info("Re-parsing lesson plan - preserving original structure.")
                     final_content_for_response = db_content_dict
+                elif component_name_from_db == COMPONENT_NAME_VIDEO_PRODUCT:
+                    # For video products, return the raw dictionary data
+                    final_content_for_response = db_content_dict
+                    logger.info("Re-parsed as VideoProductDisplay (raw dictionary).")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
@@ -13220,17 +14137,27 @@ async def get_project_instance_detail(
             try:
                 # Parse JSON string to dict
                 details_dict = json.loads(details_data)
-                # Round hours to integers before returning
-                details_dict = round_hours_in_content(details_dict)
-                parsed_details = details_dict
-                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
+                # For video products, preserve the original structure without rounding hours
+                if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product parsed from JSON string (preserving structure): {json.dumps(parsed_details, indent=2)}")
+                else:
+                    # Round hours to integers before returning for other content types
+                    details_dict = round_hours_in_content(details_dict)
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
             except (json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
                 parsed_details = None
         else:
-            # Already a dict, just round hours
-            parsed_details = round_hours_in_content(details_data)
-            logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+            # For video products, preserve the original structure without rounding hours
+            if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                parsed_details = details_data
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product already dict (preserving structure): {json.dumps(parsed_details, indent=2)}")
+            else:
+                # Already a dict, just round hours for other content types
+                parsed_details = round_hours_in_content(details_data)
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:
@@ -13251,19 +14178,70 @@ async def get_project_instance_detail(
             logger.error(f"Failed to parse lesson_plan_data JSON for project {project_id}: {e}")
             lesson_plan_data = None
     
-    return MicroProductApiResponse(
-        name=project_instance_name, slug=project_slug, project_id=project_id,
-        design_template_id=row_dict["design_template_id"], component_name=component_name,
-        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
-        sourceChatSessionId=row_dict.get("source_chat_session_id"),
-        parentProjectName=row_dict.get('project_name'),
-        custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier"),
-        is_advanced=row_dict.get("is_advanced"),
-        advanced_rates=row_dict.get("advanced_rates"),
-        lesson_plan_data=lesson_plan_data
-        # folder_id is not in MicroProductApiResponse, but can be added if needed
-    )
+    # 🔍 CRITICAL DEBUG: Log the exact response being sent to frontend
+    # For video products and video lesson presentations, ensure we preserve the raw dictionary without Pydantic validation
+    if (component_name in [COMPONENT_NAME_VIDEO_PRODUCT, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]) and parsed_details:
+        # Create response with raw video/slide metadata to avoid Pydantic validation issues
+        # This prevents the slides array from being corrupted to contentBlocks
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates"),
+            lesson_plan_data=lesson_plan_data
+        )
+        # Override the details field to ensure it remains as raw dict
+        response_data.details = parsed_details
+        logger.info(f"🔍 [DATA INTEGRITY] Project {project_id} - Preserved raw dict for {component_name} to prevent slides→contentBlocks corruption")
+    else:
+        # For other content types, use normal processing
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates")
+        )
+    
+    # 🔍 CRITICAL DEBUG: For video products and slide-based components, log the exact response being sent
+    if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+        logger.info(f"🎬 [CRITICAL DEBUG] Sending response to frontend for Project {project_id}:")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details content: {response_data.details}")
+        if hasattr(response_data.details, 'videoUrl'):
+            logger.info(f"🎬 [CRITICAL DEBUG] Response has videoUrl: {response_data.details.videoUrl}")
+        elif isinstance(response_data.details, dict) and 'videoUrl' in response_data.details:
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoUrl: {response_data.details['videoUrl']}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoJobId: {response_data.details.get('videoJobId', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has thumbnailUrl: {response_data.details.get('thumbnailUrl', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!")
+        else:
+            logger.info(f"🎬 [CRITICAL DEBUG] ❌ Response has NO videoUrl!")
+    elif component_name in [COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]:
+        logger.info(f"📊 [CRITICAL DEBUG] Sending slide-based response to frontend for Project {project_id}:")
+        logger.info(f"📊 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"📊 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        if isinstance(response_data.details, dict):
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has slides: {'slides' in response_data.details}")
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has contentBlocks: {'contentBlocks' in response_data.details}")
+            if 'slides' in response_data.details:
+                logger.info(f"📊 [CRITICAL DEBUG] ✅ FIXED: Slides array preserved with {len(response_data.details['slides'])} slides")
+            elif 'contentBlocks' in response_data.details:
+                logger.error(f"📊 [CRITICAL DEBUG] ❌ BUG: Data corrupted to contentBlocks instead of slides!")
+        else:
+            logger.warning(f"📊 [CRITICAL DEBUG] Response details is not a dict: {type(response_data.details)}")
+    
+    return response_data
 
 @app.get("/api/custom/pdf/folder/{folder_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_folder_as_pdf(
@@ -13512,6 +14490,10 @@ async def stream_slide_deck_pdf_generation(
                 yield f"data: {json.dumps({'error': 'Invalid slide deck content'})}\n\n"
                 return
 
+            # Extract templateVersion from content for version-aware PDF rendering
+            deck_template_version = content_json.get('templateVersion') or content_json.get('template_version') or 'v1'
+            logger.info(f"🎯 STREAMING PDF - Extracted templateVersion from content: {deck_template_version}")
+            
             # Prepare slide deck data
             slide_deck_data = {
                 'slides': content_json.get('slides', []),
@@ -13534,11 +14516,13 @@ async def stream_slide_deck_pdf_generation(
             import asyncio
             
             # Start PDF generation in background and send periodic updates
+            # CRITICAL FIX: Pass deck_template_version for version-aware rendering
             pdf_task = asyncio.create_task(generate_slide_deck_pdf_with_dynamic_height(
                 slides_data=slide_deck_data['slides'],
                 theme=theme,
                 output_filename=unique_output_filename,
-                use_cache=True
+                use_cache=True,
+                deck_template_version=deck_template_version  # ← Pass version for v1/v2 template selection
             ))
             
             # Send progress updates while PDF is generating
@@ -15091,63 +16075,162 @@ class OutlineWizardFinalize(BaseModel):
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
+
+@app.post("/api/custom/products/{project_id}/ensure-json")
+async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Ensure the product has a JSON uploaded to Onyx and return its document id.
+    Uses the current user's Onyx session to perform the upload if needed.
+    """
+    logger.info(f"[ensure_product_json] === START for product_id={project_id} ===")
+    try:
+        # Verify access and fetch product
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        logger.info(f"[ensure_product_json] User: uuid={user_uuid}, email={user_email}")
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT p.id, p.onyx_user_id, p.product_json_onyx_id, p.microproduct_content, p.project_name
+                FROM projects p
+                WHERE p.id = $1 AND (
+                    p.onyx_user_id = $2 OR EXISTS (
+                        SELECT 1 FROM product_access pa
+                        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                        WHERE pa.product_id = p.id AND wm.user_id = $3 AND wm.status = 'active'
+                    )
+                )
+                """,
+                project_id, user_uuid, user_email,
+            )
+        
+        if not row:
+            logger.warning(f"[ensure_product_json] Product {project_id} not found or access denied for user {user_uuid}")
+            raise HTTPException(status_code=404, detail="Product not found or access denied")
+
+        logger.info(f"[ensure_product_json] Product found: id={row['id']}, name={row.get('project_name')}, existing_onyx_id={row.get('product_json_onyx_id')}")
+
+        if row.get("product_json_onyx_id"):
+            logger.info(f"[ensure_product_json] Product {project_id} already has Onyx ID: {row['product_json_onyx_id']}")
+            return {"product_json_onyx_id": row["product_json_onyx_id"]}
+
+        # Build JSON bytes
+        content = row.get("microproduct_content") or {}
+        logger.info(f"[ensure_product_json] Building JSON from content (keys: {list(content.keys()) if isinstance(content, dict) else 'not-dict'})")
+        try:
+            product_json = json.dumps(content, ensure_ascii=False).encode("utf-8")
+            logger.info(f"[ensure_product_json] JSON size: {len(product_json)} bytes")
+        except Exception as e:
+            logger.error(f"[ensure_product_json] Failed to serialize content: {e}, using empty dict")
+            product_json = json.dumps({}, ensure_ascii=False).encode("utf-8")
+
+        # Upload directly to Onyx using current user's cookies
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie_value:
+            logger.error(f"[ensure_product_json] No session cookie found for product {project_id}")
+            raise HTTPException(status_code=401, detail="Authentication required")
+        cookies = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+        logger.info(f"[ensure_product_json] Session cookie present: {bool(session_cookie_value)}")
+
+        file_name = f"product_{project_id}.json"
+        logger.info(f"[ensure_product_json] Uploading to Onyx: file_name={file_name}, url={ONYX_API_SERVER_URL}")
+        
+        onyx_id = await upload_product_json_to_onyx(ONYX_API_SERVER_URL, cookies, file_name, product_json)
+        logger.info(f"[ensure_product_json] Upload successful, received Onyx ID: {onyx_id}")
+
+        # Persist
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE projects SET product_json_onyx_id=$1 WHERE id=$2",
+                onyx_id, project_id,
+            )
+        logger.info(f"[ensure_product_json] Persisted Onyx ID {onyx_id} to product {project_id}")
+
+        logger.info(f"[ensure_product_json] === SUCCESS for product_id={project_id}, onyx_id={onyx_id} ===")
+        return {"product_json_onyx_id": onyx_id}
+    except HTTPException as he:
+        logger.error(f"[ensure_product_json] HTTPException for product {project_id}: {he.status_code} - {he.detail}")
+        raise
+    except Exception as e:
+        logger.error(f"[ensure_product_json] Unexpected error for product {project_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to ensure product JSON: {str(e)}")
+
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
 async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_id: str) -> List[int]:
     """
     Map SmartDrive file paths to corresponding Onyx file IDs.
+    Also handles direct Onyx file IDs (numeric strings) from products-as-context feature.
     
     Args:
-        smartdrive_paths: List of SmartDrive file paths to map
+        smartdrive_paths: List of SmartDrive file paths OR Onyx file IDs (as strings) to map
         user_id: Onyx user ID for context filtering
     
     Returns:
-        List of Onyx file IDs that correspond to the SmartDrive paths
+        List of Onyx file IDs that correspond to the SmartDrive paths or direct IDs
     """
     if not smartdrive_paths:
         return []
     
-    try:
-        pool = await get_db_pool()
-        async with pool.acquire() as connection:
-            # Query the smartdrive_imports table to find matching Onyx file IDs
-            placeholders = ','.join(f'${i+2}' for i in range(len(smartdrive_paths)))
-            query = f"""
-                SELECT onyx_file_id, smartdrive_path 
-                FROM smartdrive_imports 
-                WHERE onyx_user_id = $1 
-                AND smartdrive_path IN ({placeholders})
-                AND onyx_file_id IS NOT NULL
-            """
-            
-            params = [user_id] + smartdrive_paths
-            rows = await connection.fetch(query, *params)
-            
-            onyx_file_ids = [row['onyx_file_id'] for row in rows]
-            mapped_paths = [row['smartdrive_path'] for row in rows]
-            
-            logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(onyx_file_ids)} file IDs from {len(smartdrive_paths)} paths for user {user_id}")
-            
-            # Enhanced debugging: Show what we found vs what we were looking for
-            logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {smartdrive_paths}")
-            logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
-            
-            # Log any unmapped paths for debugging
-            unmapped_paths = [path for path in smartdrive_paths if path not in mapped_paths]
-            if unmapped_paths:
-                logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+    # Separate direct Onyx IDs from SmartDrive paths
+    direct_onyx_ids = []
+    actual_paths = []
+    
+    for item in smartdrive_paths:
+        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
+        if item.strip().isdigit():
+            direct_onyx_ids.append(int(item.strip()))
+            logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
+        else:
+            actual_paths.append(item)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Processing {len(direct_onyx_ids)} direct Onyx IDs and {len(actual_paths)} SmartDrive paths")
+    
+    # Start with direct Onyx IDs
+    onyx_file_ids = direct_onyx_ids.copy()
+    
+    # Map SmartDrive paths if any
+    if actual_paths:
+        try:
+            pool = await get_db_pool()
+            async with pool.acquire() as connection:
+                # Query the smartdrive_imports table to find matching Onyx file IDs
+                placeholders = ','.join(f'${i+2}' for i in range(len(actual_paths)))
+                query = f"""
+                    SELECT onyx_file_id, smartdrive_path 
+                    FROM smartdrive_imports 
+                    WHERE onyx_user_id = $1 
+                    AND smartdrive_path IN ({placeholders})
+                    AND onyx_file_id IS NOT NULL
+                """
                 
-                # Show what paths ARE available in the database for this user
-                debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
-                debug_rows = await connection.fetch(debug_query, user_id)
-                available_paths = [row['smartdrive_path'] for row in debug_rows]
-                logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
-            
-            return onyx_file_ids
-            
-    except Exception as e:
-        logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
-        return []
+                params = [user_id] + actual_paths
+                rows = await connection.fetch(query, *params)
+                
+                mapped_file_ids = [row['onyx_file_id'] for row in rows]
+                mapped_paths = [row['smartdrive_path'] for row in rows]
+                
+                onyx_file_ids.extend(mapped_file_ids)
+                
+                logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(mapped_file_ids)} file IDs from {len(actual_paths)} SmartDrive paths for user {user_id}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {actual_paths}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
+                
+                # Log any unmapped paths for debugging
+                unmapped_paths = [path for path in actual_paths if path not in mapped_paths]
+                if unmapped_paths:
+                    logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+                    
+                    # Show what paths ARE available in the database for this user
+                    debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
+                    debug_rows = await connection.fetch(debug_query, user_id)
+                    available_paths = [row['smartdrive_path'] for row in debug_rows]
+                    logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
+                
+        except Exception as e:
+            logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Total Onyx file IDs: {len(onyx_file_ids)} (direct: {len(direct_onyx_ids)}, mapped: {len(onyx_file_ids) - len(direct_onyx_ids)})")
+    return onyx_file_ids
 
 async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
     """Return persona id of the default ContentBuilder assistant (cached).
@@ -15654,6 +16737,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     
     logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
     # Force JSON-ONLY preview output for Course Outline to enable immediate parsed preview
     try:
         json_preview_instructions = f"""
@@ -15725,8 +16809,21 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -15833,9 +16930,26 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -16891,9 +18005,10 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content}")
             
             if 'courseOutlineTableHeaders' in content:
+                headers_value = content['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ✅ courseOutlineTableHeaders EXISTS in database!")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {content['courseOutlineTableHeaders']}")
-                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(content['courseOutlineTableHeaders'])}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {headers_value}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(headers_value)}")
             else:
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ courseOutlineTableHeaders NOT in database")
                 logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Available keys: {list(content.keys())}")
@@ -16901,6 +18016,23 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             logger.error(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ Content is not a dict or is None!")
         
         logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ==========================================")
+        
+        # 🎯 CRITICAL INSTRUMENTATION: Check assessment data in database
+        if content and isinstance(content, dict) and 'courseOutlineModules' in content:
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Project {project_id} - courseOutlineModules EXISTS in database!")
+            logger.info(f"🎯 [ASSESSMENT DB READ] Number of modules: {len(content['courseOutlineModules'])}")
+            for idx, module in enumerate(content.get('courseOutlineModules', [])):
+                if isinstance(module, dict):
+                    has_assessments = 'lessonAssessments' in module
+                    logger.info(f"🎯 [ASSESSMENT DB READ] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                    logger.info(f"🎯 [ASSESSMENT DB READ] - Has lessonAssessments: {has_assessments}")
+                    if has_assessments:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                    else:
+                        logger.info(f"🎯 [ASSESSMENT DB READ] - ❌ NO lessonAssessments in database for module {idx}")
+            logger.info(f"🎯 [ASSESSMENT DB READ] This data WILL BE sent to frontend")
+            logger.info(f"🎯 [ASSESSMENT DB READ] ==========================================")
         
         # 📊 DETAILED LOGGING: Language preference in retrieved data
         language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
@@ -17166,8 +18298,15 @@ async def get_public_audit(
         course_templates = content.get("courseTemplates", [])
         course_outline_table_headers = content.get("courseOutlineTableHeaders", None)  # 🔧 CRITICAL FIX: Extract table headers
         
-        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        # 🎯 INSTRUMENTATION: Log table headers and assessment data for public audits
         logger.info(f"🎯 [PUBLIC AUDIT TABLE HEADERS] Project {audit['id']} - courseOutlineTableHeaders: {course_outline_table_headers}")
+        logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Project {audit['id']} - Number of modules: {len(course_outline_modules)}")
+        for idx, module in enumerate(course_outline_modules):
+            if isinstance(module, dict):
+                has_assessments = 'lessonAssessments' in module
+                logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: Has lessonAssessments: {has_assessments}")
+                if has_assessments:
+                    logger.info(f"🎯 [PUBLIC AUDIT ASSESSMENTS] Module {idx}: lessonAssessments count: {len(module.get('lessonAssessments', []))}")
         
         # Return the same structure as the private endpoint but without sensitive info
         response_data = {
@@ -17750,6 +18889,7 @@ COURSE REQUIREMENTS:
 - DO NOT add module numbers in titles (e.g., 'Module 1:', 'Module 2:', etc.)
 - Use only descriptive module names without prefixes
 - Generate ALL content EXCLUSIVELY in English
+- CRITICAL: Do NOT use Russian, Spanish, or Ukrainian words
 
 RESPONSE FORMAT (JSON only):
 [
@@ -17781,6 +18921,7 @@ REQUISITOS DEL CURSO:
 - NO agregues números de módulos en los títulos (ej., 'Módulo 1:', 'Módulo 2:', etc.)
 - Usa solo nombres descriptivos de módulos sin prefijos
 - Genera TODO el contenido EXCLUSIVAMENTE en español
+- CRÍTICO: NO uses palabras en ruso, inglés o ucraniano
 
 FORMATO DE RESPUESTA (solo JSON):
 [
@@ -17812,6 +18953,7 @@ RESPUESTA (solo JSON):"""
 - НЕ додавайте номери модулів у назви (наприклад, 'Модуль 1:', 'Модуль 2:' тощо)
 - Використовуйте лише описові назви модулів без префіксів
 - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+- КРИТИЧНО: НЕ використовуйте російські, іспанські або англійські слова
 
 ФОРМАТ ВІДПОВІДІ (тільки JSON):
 [
@@ -17822,32 +18964,38 @@ RESPUESTA (solo JSON):"""
 ]
 
 ВІДПОВІДЬ (тільки JSON):"""
-        else:
-            wizard_request = {
-                "product": "Course Outline",
-                "prompt": (
-                    f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
-                    f"КОНТЕКСТ КОМПАНИИ:\n"
-                    f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
-                    f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
-                    f"- Должность: {position_title}\n"
-                    f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
-                    f"ТРЕБОВАНИЯ К КУРСУ:\n"
-                    f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
-                    f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
-                    f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
-                    f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
-                    f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
-                    f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
-                    f"- Избегай повторяющихся формулировок\n"
-                    f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
-                    f"- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)\n"
-                    f"- Используй только описательные названия модулей без префиксов\n"
-                ),
-                "modules": 4,
-                "lessonsPerModule": "5-7",
-                "language": language
-            }
+        else:  # Russian
+            prompt = f"""Создай детальный план курса 'Онбординг для должности {position_title}' для новых сотрудников на этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'.
+
+КОНТЕКСТ КОМПАНИИ:
+- Название компании: {getattr(payload, 'companyName', 'Company Name')}
+- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+- Должность: {position_title}
+- Дополнительная информация о компании: {duckduckgo_summary}
+
+ТРЕБОВАНИЯ К КУРСУ:
+- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}
+- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании
+- Учитывай специфику отрасли и корпоративную культуру
+- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями
+- В каждом модуле должно быть ОТ 5 ДО 7 уроков
+- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ
+- Избегай повторяющихся формулировок
+- Каждый урок должен быть конкретным и практичным для данной должности
+- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)
+- Используй только описательные названия модулей без префиксов
+- Генерируй ВЕСЬ контент ИСКЛЮЧИТЕЛЬНО на русском языке
+- КРИТИЧНО: НЕ используй английские, испанские или украинские слова
+
+ФОРМАТ ОТВЕТА (только JSON):
+[
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Название модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+]
+
+ОТВЕТ (только JSON):"""
         
         # Generate the course outline
         outline_text = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
@@ -17877,8 +19025,18 @@ RESPUESTA (solo JSON):"""
         course_modules = []
         for i, module in enumerate(parsed_outline):
             if i < 4:  # Limit to 4 modules as per UI design
+                # Generate language-appropriate default title
+                if language == "en":
+                    default_title = f'Module {i+1}'
+                elif language == "es":
+                    default_title = f'Módulo {i+1}'
+                elif language == "ua":
+                    default_title = f'Модуль {i+1}'
+                else:  # Russian
+                    default_title = f'Модуль {i+1}'
+                
                 module_data = {
-                    "title": module.get('title', f'Модуль {i+1}'),
+                    "title": module.get('title', default_title),
                     "lessons": module.get('lessons', [])
                 }
                 course_modules.append(module_data)
@@ -17909,14 +19067,40 @@ RESPUESTA (solo JSON):"""
                     "lessons": []
                 })
         
-        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons for landing page")
+        # Generate assessment data for each lesson based on language
+        logger.info(f"[COURSE OUTLINE] Generating assessment data for lessons")
+        for module_idx, module in enumerate(course_modules):
+            module['lessonAssessments'] = []
+            for lesson_idx, lesson in enumerate(module.get('lessons', [])):
+                # Generate random assessment type and duration based on language
+                if language == "en":
+                    assessment_types = ['none', 'test', 'practice']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "es":
+                    assessment_types = ['ninguno', 'prueba', 'práctica']
+                    durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+                elif language == "ua":
+                    assessment_types = ['немає', 'тест', 'практика']
+                    durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+                else:  # Russian
+                    assessment_types = ['нет', 'тест', 'практика']
+                    durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+                
+                assessment = {
+                    'type': random.choice(assessment_types),
+                    'duration': random.choice(durations)
+                }
+                module['lessonAssessments'].append(assessment)
+                logger.info(f"[COURSE OUTLINE] - Assessment for '{lesson}': {assessment['type']}, {assessment['duration']}")
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons and assessments for landing page")
         return course_modules
         
     except Exception as e:
         logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
         # Return default modules as fallback
         if language == "en":
-            return [
+            fallback_modules = [
                 {
                     "title": "Company Introduction and Corporate Culture",
                     "lessons": ["Company Overview", "Corporate Values and Standards", "Organizational Structure", "Policies and Procedures", "Communication Systems"]
@@ -17934,8 +19118,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['none', 'test', 'practice']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "es":
-            return [
+            fallback_modules = [
                 {
                     "title": "Introducción a la Empresa y Cultura Corporativa",
                     "lessons": ["Visión General de la Empresa", "Valores y Estándares Corporativos", "Estructura Organizacional", "Políticas y Procedimientos", "Sistemas de Comunicación"]
@@ -17953,8 +19146,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Establecimiento de Objetivos", "Planificación del Desarrollo", "Evaluación del Rendimiento", "Oportunidades de Crecimiento", "Aprendizaje Continuo"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['ninguno', 'prueba', 'práctica']
+            durations = ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
         elif language == "ua":
-            return [
+            fallback_modules = [
                 {
                     "title": "Введення в компанію та корпоративну культуру",
                     "lessons": ["Огляд компанії", "Корпоративні цінності та стандарти", "Організаційна структура", "Політики та процедури", "Системи комунікації"]
@@ -17972,8 +19174,17 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка цілей", "Планування розвитку", "Оцінка продуктивності", "Можливості зростання", "Безперервне навчання"]
                 }
             ]
-        else:
-            return [
+            # Add assessment data to fallback modules
+            assessment_types = ['немає', 'тест', 'практика']
+            durations = ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
+        else:  # Russian
+            fallback_modules = [
                 {
                     "title": "Введение в компанию и корпоративную культуру",
                     "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
@@ -17991,6 +19202,15 @@ RESPUESTA (solo JSON):"""
                     "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
                 }
             ]
+            # Add assessment data to fallback modules
+            assessment_types = ['нет', 'тест', 'практика']
+            durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+            for module in fallback_modules:
+                module['lessonAssessments'] = [
+                    {'type': random.choice(assessment_types), 'duration': random.choice(durations)}
+                    for _ in module['lessons']
+                ]
+            return fallback_modules
 
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None, language: str = "ru") -> list:
@@ -21099,6 +22319,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             wiz_payload["userText"] = payload.userText
 
         wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
         logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
         logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
 
@@ -21580,6 +22801,431 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
 
 
+# -------- Course Context Helper Functions ---------
+
+async def get_course_outline_structure(outline_id: int, onyx_user_id: str, pool: asyncpg.Pool) -> Optional[Dict[str, Any]]:
+    """
+    Fetch and parse course outline structure for providing context to lesson product generation.
+    
+    Returns a dictionary containing:
+    - courseTitle: The main title of the course
+    - modules: List of modules with their lessons
+    - detectedLanguage: Language of the course
+    """
+    import json
+    
+    try:
+        logger.info(f"[COURSE_CONTEXT] Fetching outline structure | outline_id={outline_id}")
+        
+        async with pool.acquire() as conn:
+            outline_row = await conn.fetchrow(
+                "SELECT project_name, microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                outline_id, onyx_user_id
+            )
+        
+        if not outline_row:
+            logger.warning(f"[COURSE_CONTEXT] Outline not found | outline_id={outline_id}")
+            return None
+        
+        course_title = outline_row['project_name']
+        content = outline_row['microproduct_content']
+        
+        # Parse the outline content
+        if isinstance(content, str):
+            content = json.loads(content)
+        
+        if not isinstance(content, dict):
+            logger.warning(f"[COURSE_CONTEXT] Outline content is not a dictionary | outline_id={outline_id}")
+            return None
+        
+        # Extract structure
+        sections = content.get('sections', [])
+        detected_language = content.get('detectedLanguage', 'en')
+        
+        modules = []
+        total_lesson_count = 0
+        
+        for section in sections:
+            if not isinstance(section, dict):
+                continue
+            
+            module_title = section.get('title', 'Untitled Module')
+            lessons = section.get('lessons', [])
+            
+            lesson_list = []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    lesson_title = lesson.get('title', 'Untitled Lesson')
+                elif isinstance(lesson, str):
+                    lesson_title = lesson
+                else:
+                    lesson_title = str(lesson)
+                
+                lesson_list.append(lesson_title)
+                total_lesson_count += 1
+            
+            modules.append({
+                'moduleTitle': module_title,
+                'lessons': lesson_list
+            })
+        
+        logger.info(f"[COURSE_CONTEXT] Outline fetched: \"{course_title}\" | {len(modules)} modules | {total_lesson_count} lessons")
+        
+        return {
+            'courseTitle': course_title,
+            'modules': modules,
+            'detectedLanguage': detected_language
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching outline structure | outline_id={outline_id} | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
+async def get_adjacent_lesson_content(
+    outline_id: int,
+    current_lesson_title: str,
+    current_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> Dict[str, Any]:
+    """
+    Find previous and next lessons relative to the current lesson, and fetch their content.
+    
+    Product Type Priority (when multiple products exist for a lesson):
+    1. Same product type as current (e.g., presentation for presentation)
+    2. Fallback hierarchy: Presentation > Onepager > Quiz
+    
+    Args:
+        outline_id: The course outline ID
+        current_lesson_title: Title of the lesson being generated
+        current_product_type: Type of product being generated (presentation, quiz, onepager)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        Dict containing previousLesson, nextLesson, and lessonPosition
+    """
+    try:
+        logger.info(f"[COURSE_CONTEXT] Finding adjacent lessons | lesson=\"{current_lesson_title}\" | product_type={current_product_type}")
+        
+        # First, get the outline structure
+        outline_structure = await get_course_outline_structure(outline_id, onyx_user_id, pool)
+        if not outline_structure:
+            logger.warning(f"[COURSE_CONTEXT] Could not fetch outline structure for adjacent lesson lookup")
+            return {}
+        
+        # Find current lesson position
+        modules = outline_structure.get('modules', [])
+        current_module_idx = None
+        current_lesson_idx = None
+        total_modules = len(modules)
+        
+        for mod_idx, module in enumerate(modules):
+            lessons = module.get('lessons', [])
+            for les_idx, lesson_title in enumerate(lessons):
+                if lesson_title.strip().lower() == current_lesson_title.strip().lower():
+                    current_module_idx = mod_idx
+                    current_lesson_idx = les_idx
+                    break
+            if current_module_idx is not None:
+                break
+        
+        if current_module_idx is None:
+            logger.warning(f"[COURSE_CONTEXT] Current lesson not found in outline structure | lesson=\"{current_lesson_title}\"")
+            return {}
+        
+        # Calculate position
+        current_module = modules[current_module_idx]
+        lessons_in_current_module = current_module.get('lessons', [])
+        total_lessons_in_module = len(lessons_in_current_module)
+        lesson_position_str = f"Lesson {current_lesson_idx + 1} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+        
+        logger.info(f"[COURSE_CONTEXT] Position: {lesson_position_str}")
+        
+        # Find previous lesson
+        previous_lesson = None
+        if current_lesson_idx > 0:
+            # Previous lesson is in same module
+            prev_lesson_title = lessons_in_current_module[current_lesson_idx - 1]
+            previous_lesson = await _fetch_lesson_product_content(
+                outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx > 0:
+            # Previous lesson is last lesson of previous module
+            prev_module = modules[current_module_idx - 1]
+            prev_module_lessons = prev_module.get('lessons', [])
+            if prev_module_lessons:
+                prev_lesson_title = prev_module_lessons[-1]
+                previous_lesson = await _fetch_lesson_product_content(
+                    outline_id, prev_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson {len(prev_module_lessons)} of {len(prev_module_lessons)} in Module {current_module_idx} of {total_modules}"
+                )
+        
+        # Find next lesson
+        next_lesson = None
+        if current_lesson_idx < total_lessons_in_module - 1:
+            # Next lesson is in same module
+            next_lesson_title = lessons_in_current_module[current_lesson_idx + 1]
+            next_lesson = await _fetch_lesson_product_content(
+                outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                f"Lesson {current_lesson_idx + 2} of {total_lessons_in_module} in Module {current_module_idx + 1} of {total_modules}"
+            )
+        elif current_module_idx < total_modules - 1:
+            # Next lesson is first lesson of next module
+            next_module = modules[current_module_idx + 1]
+            next_module_lessons = next_module.get('lessons', [])
+            if next_module_lessons:
+                next_lesson_title = next_module_lessons[0]
+                next_lesson = await _fetch_lesson_product_content(
+                    outline_id, next_lesson_title, current_product_type, onyx_user_id, pool,
+                    f"Lesson 1 of {len(next_module_lessons)} in Module {current_module_idx + 2} of {total_modules}"
+                )
+        
+        result = {
+            'lessonPosition': lesson_position_str
+        }
+        
+        if previous_lesson:
+            result['previousLesson'] = previous_lesson
+            logger.info(f"[COURSE_CONTEXT] Previous lesson context added | title=\"{previous_lesson.get('title')}\" | type={previous_lesson.get('productType')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No previous lesson available")
+        
+        if next_lesson:
+            result['nextLesson'] = next_lesson
+            logger.info(f"[COURSE_CONTEXT] Next lesson context added | title=\"{next_lesson.get('title')}\" | type={next_lesson.get('productType', 'not generated')}")
+        else:
+            logger.info(f"[COURSE_CONTEXT] No next lesson available")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error finding adjacent lessons | error={e}", exc_info=not IS_PRODUCTION)
+        return {}
+
+
+async def _fetch_lesson_product_content(
+    outline_id: int,
+    lesson_title: str,
+    preferred_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool,
+    position_str: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Fetch content for a specific lesson, applying product type priority logic.
+    
+    Priority:
+    1. Same product type as currently being generated
+    2. Presentation (rich narrative content)
+    3. Onepager (rich narrative content)
+    4. Quiz (question-focused, less preferred for context)
+    """
+    import json
+    
+    try:
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                ORDER BY p.created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[COURSE_CONTEXT] No products found for lesson | title=\"{lesson_title}\"")
+            return None
+        
+        # Map product types
+        product_type_map = {
+            'presentation': [],
+            'onepager': [],
+            'quiz': []
+        }
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            
+            # Classify product type
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type_map['presentation'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type_map['onepager'].append(content)
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type_map['quiz'].append(content)
+        
+        available_types = [ptype for ptype, prods in product_type_map.items() if prods]
+        logger.info(f"[COURSE_CONTEXT] Products found for \"{lesson_title}\" | {position_str}: {available_types}")
+        
+        # Apply priority logic
+        selected_content = None
+        selected_type = None
+        
+        # Normalize preferred type
+        preferred_normalized = preferred_product_type.lower()
+        if 'presentation' in preferred_normalized or 'slide' in preferred_normalized:
+            preferred_normalized = 'presentation'
+        elif 'onepager' in preferred_normalized or 'text' in preferred_normalized:
+            preferred_normalized = 'onepager'
+        elif 'quiz' in preferred_normalized:
+            preferred_normalized = 'quiz'
+        
+        # Priority 1: Same type
+        if preferred_normalized in product_type_map and product_type_map[preferred_normalized]:
+            selected_content = product_type_map[preferred_normalized][0]
+            selected_type = preferred_normalized
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (same type match)")
+        # Priority 2: Presentation
+        elif product_type_map['presentation']:
+            selected_content = product_type_map['presentation'][0]
+            selected_type = 'presentation'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 3: Onepager
+        elif product_type_map['onepager']:
+            selected_content = product_type_map['onepager'][0]
+            selected_type = 'onepager'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        # Priority 4: Quiz
+        elif product_type_map['quiz']:
+            selected_content = product_type_map['quiz'][0]
+            selected_type = 'quiz'
+            logger.info(f"[COURSE_CONTEXT] Selected product type: {selected_type} (fallback hierarchy)")
+        
+        if not selected_content:
+            return None
+        
+        # Parse and extract content
+        if isinstance(selected_content, str):
+            selected_content = json.loads(selected_content)
+        
+        content_str = json.dumps(selected_content, ensure_ascii=False)
+        content_size = len(content_str)
+        
+        logger.info(f"[COURSE_CONTEXT] Content extracted | size={content_size} chars")
+        
+        return {
+            'title': lesson_title,
+            'position': position_str,
+            'productType': selected_type,
+            'content': selected_content,
+            'contentSize': content_size
+        }
+        
+    except Exception as e:
+        logger.error(f"[COURSE_CONTEXT] Error fetching lesson product | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return None
+
+
+async def get_same_lesson_products(
+    outline_id: int,
+    lesson_title: str,
+    exclude_product_type: str,
+    onyx_user_id: str,
+    pool: asyncpg.Pool
+) -> List[Dict[str, Any]]:
+    """
+    Fetch all generated products for the same lesson to provide as context.
+    Useful for quiz generation - can quiz on content from presentation/onepager.
+    
+    Args:
+        outline_id: The course outline ID
+        lesson_title: Title of the current lesson
+        exclude_product_type: Product type being generated (to avoid fetching incomplete product)
+        onyx_user_id: User ID
+        pool: Database connection pool
+    
+    Returns:
+        List of products with their content: [{title, productType, content, contentSize}]
+    """
+    import json
+    
+    try:
+        logger.info(f"[SAME_LESSON_PRODUCTS] Fetching products for lesson | lesson=\"{lesson_title}\" | exclude_type={exclude_product_type}")
+        
+        # Query all products for this lesson
+        async with pool.acquire() as conn:
+            products = await conn.fetch(
+                """
+                SELECT p.microproduct_content, p.microproduct_type, dt.component_name, p.project_name
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.course_id = $1
+                  AND p.onyx_user_id = $2
+                  AND LOWER(p.project_name) LIKE '%' || $3 || '%'
+                  AND p.microproduct_content IS NOT NULL
+                ORDER BY p.created_at DESC
+                """,
+                outline_id, onyx_user_id, lesson_title.lower()
+            )
+        
+        if not products:
+            logger.info(f"[SAME_LESSON_PRODUCTS] No products found for lesson | title=\"{lesson_title}\"")
+            return []
+        
+        # Classify and collect products
+        result = []
+        exclude_normalized = exclude_product_type.lower()
+        
+        for product in products:
+            content = product['microproduct_content']
+            microproduct_type = (product['microproduct_type'] or '').lower()
+            component_name = (product['component_name'] or '').lower()
+            project_name = product['project_name']
+            
+            # Classify product type
+            product_type = None
+            if any(keyword in microproduct_type or keyword in component_name 
+                   for keyword in ['presentation', 'slide', 'video_lesson']):
+                product_type = 'presentation'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['onepager', 'text_presentation', 'pdflesson']):
+                product_type = 'onepager'
+            elif any(keyword in microproduct_type or keyword in component_name
+                     for keyword in ['quiz']):
+                product_type = 'quiz'
+            
+            # Skip if this is the type being generated or if we can't classify it
+            if not product_type or product_type in exclude_normalized:
+                continue
+            
+            # Parse content if string
+            if isinstance(content, str):
+                content = json.loads(content)
+            
+            content_str = json.dumps(content, ensure_ascii=False)
+            content_size = len(content_str)
+            
+            result.append({
+                'projectName': project_name,
+                'productType': product_type,
+                'content': content,
+                'contentSize': content_size
+            })
+            
+            logger.info(f"[SAME_LESSON_PRODUCTS] Found {product_type} | name=\"{project_name}\" | size={content_size} chars")
+        
+        logger.info(f"[SAME_LESSON_PRODUCTS] Total products found: {len(result)} (excluding {exclude_product_type})")
+        return result
+        
+    except Exception as e:
+        logger.error(f"[SAME_LESSON_PRODUCTS] Error fetching products | lesson=\"{lesson_title}\" | error={e}", exc_info=not IS_PRODUCTION)
+        return []
+
+
 # -------- Lesson Presentation (PDF Lesson) Wizard ---------
 
 class LessonWizardPreview(BaseModel):
@@ -21646,6 +23292,8 @@ class LessonWizardFinalize(BaseModel):
 
 @app.post("/api/custom/lesson-presentation/preview")
 async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    import json
+    
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     if not cookies[ONYX_SESSION_COOKIE_NAME]:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -21672,7 +23320,7 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.outlineProjectId is not None:
         wizard_dict["outlineProjectId"] = payload.outlineProjectId
         
-        # Fetch outline name to include in wizard request
+        # Fetch outline name and course context to include in wizard request
         try:
             # Get current user ID to fetch the outline
             onyx_user_id = await get_current_onyx_user_id(request)
@@ -21685,9 +23333,72 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
                 )
                 if outline_row:
                     wizard_dict["outlineName"] = outline_row["project_name"]
+            
+            # Add course context for better lesson progression
+            if payload.lessonTitle:
+                logger.info(f"[COURSE_CONTEXT] Fetching course context | outline_id={payload.outlineProjectId} | lesson=\"{payload.lessonTitle}\"")
+                
+                # Get full course structure
+                course_structure = await get_course_outline_structure(payload.outlineProjectId, onyx_user_id, pool)
+                if course_structure:
+                    wizard_dict["courseStructure"] = course_structure
+                    logger.info(f"[COURSE_CONTEXT] Course structure added to wizard request")
+                    # Log full course structure
+                    logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
+                
+                # Get adjacent lesson content with product type priority
+                product_type = "presentation"  # This is a presentation/slide deck
+                adjacent_context = await get_adjacent_lesson_content(
+                    payload.outlineProjectId,
+                    payload.lessonTitle,
+                    product_type,
+                    onyx_user_id,
+                    pool
+                )
+                
+                if adjacent_context:
+                    # Add lesson position
+                    if 'lessonPosition' in adjacent_context:
+                        wizard_dict["lessonPosition"] = adjacent_context['lessonPosition']
+                        logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                    
+                    # Add previous lesson context
+                    if 'previousLesson' in adjacent_context:
+                        wizard_dict["previousLesson"] = adjacent_context['previousLesson']
+                        prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                        prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                        logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                        # Log full previous lesson content
+                        logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
+                    
+                    # Add next lesson title to avoid covering topics meant for next lesson
+                    if 'nextLesson' in adjacent_context:
+                        next_lesson = adjacent_context['nextLesson']
+                        # Include title and position to help AI understand what topics to avoid
+                        wizard_dict["nextLesson"] = {
+                            'title': next_lesson.get('title'),
+                            'position': next_lesson.get('position')
+                        }
+                        logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                        logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wizard_dict['nextLesson'], ensure_ascii=False, indent=2)}")
+                    
+                    context_summary = []
+                    if 'courseStructure' in wizard_dict:
+                        context_summary.append('courseStructure✓')
+                    if 'lessonPosition' in wizard_dict:
+                        context_summary.append('lessonPosition✓')
+                    if 'previousLesson' in wizard_dict:
+                        context_summary.append('previousLesson✓')
+                    if 'nextLesson' in wizard_dict:
+                        context_summary.append('nextLesson✓')
+                    else:
+                        context_summary.append('nextLesson✗')
+                    
+                    logger.info(f"[COURSE_CONTEXT] Context added to wizard: {' | '.join(context_summary)}")
+                
         except Exception as e:
-            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
-            # Continue without outline name - not critical for preview
+            logger.warning(f"Failed to fetch course context for project {payload.outlineProjectId}: {e}")
+            # Continue without course context - not critical for preview
             
     if payload.lessonTitle:
         wizard_dict["lessonTitle"] = payload.lessonTitle
@@ -21776,7 +23487,28 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             logger.error(f"Failed to decompress lesson text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
+    course_context_instructions = ""
+    if 'courseStructure' in wizard_dict or 'previousLesson' in wizard_dict:
+        course_context_instructions = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, explanations, or scenarios already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "As we learned in the previous lesson...")
+3. **Adjust Complexity**: Use lessonPosition to gauge depth - early lessons need more fundamentals, later lessons can assume knowledge
+4. **Maintain Terminology**: Use the same key terms as previous lessons - extract core terminology from previousLesson and maintain it
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate fresh examples and case studies - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wizard_dict)
     
     # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
     try:
@@ -21810,7 +23542,33 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Randomly select one example to reduce over-reliance on a single pattern
             json_example = random.choice(example_files)
         
-        json_preview_instructions = f"""
+
+        json_preview_instructions = ""  
+        if not is_video_lesson:
+            json_preview_instructions += f"""
+
+⚠️⚠️⚠️ CRITICAL VIOLATIONS TO AVOID (READ THIS FIRST) ⚠️⚠️⚠️
+
+VIOLATION #1 - NEVER INVENT STATISTICS OR NUMBERS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: Any percentages or metrics you make up: "100%", "75%", "50%", "30%", "95%", "85%", "3x", "2.5x"
+❌ FORBIDDEN in big-numbers: {{"value": "85%"}} or {{"value": "100%"}} or {{"value": "50%"}} → ALL PERCENTAGES ARE FORBIDDEN
+❌ FORBIDDEN everywhere: Invented statistics, fake success rates, made-up adoption numbers, fabricated metrics
+✅ REQUIRED for big-numbers: {{"value": "Strong"}}, {{"value": "High"}}, {{"value": "Growing"}}, {{"value": "Active"}}
+✅ REQUIRED: Use ONLY qualitative words: Strong, High, Regular, Growing, Active, Consistent, Steady, Frequent, Common
+
+VIOLATION #2 - NEVER USE GENERIC LABELS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: "Company A", "Company B", "Approach A", "Approach B", "Option A/B", "Method X/Y"
+❌ FORBIDDEN: "Product 1/2", "Tool A/B", "System X", "Solution A", "Platform Y", ANY generic letter/number labels
+✅ REQUIRED: Use specific descriptive names: "Big Bang Migration vs Phased Rollout", "Cloud vs On-Premise"
+✅ REQUIRED: Make comparisons concrete and topic-specific, never use placeholder labels
+
+VIOLATION #3 - NEVER COPY EXAMPLE TOPICS (INSTANT REJECTION IF VIOLATED):
+❌ ABSOLUTELY FORBIDDEN: Slides about budget, conflict resolution, team motivation when teaching technical topics
+❌ FORBIDDEN: Reusing project management examples when teaching NextCloud, Python, Marketing, etc.
+✅ REQUIRED: Create 100% unique slides specifically for the ACTUAL lesson topic
+✅ THINK: "What does someone need to learn to DO [this specific topic]?" Create THOSE slides only
+
+═══════════════════════════════════════════════════════════════════════════════
 
 CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
 You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
@@ -21825,7 +23583,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
-- Generate exact amout of slides you asked to generate.
+- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -21834,26 +23592,227 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
 
-CONTENT DENSITY AND LEARNING REQUIREMENTS:
-- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
-- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
-- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
-- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
-- Ensure learners gain deep understanding of the topic after reading the complete presentation.
+🎯 EDUCATIONAL PRESENTATION REQUIREMENTS (CRITICAL - NOT PRODUCT MARKETING):
+
+Your presentation must TEACH skills, not describe features. Follow these mandatory principles:
+
+**1. FOCUS ON "HOW TO DO" NOT "WHAT EXISTS":**
+- ❌ BAD: "File Sharing Features" with bullet list of feature names
+- ✅ GOOD: "How to Set Up Secure File Sharing in 4 Steps" with detailed step-by-step process
+- ❌ BAD: "Project Management Tools Overview" 
+- ✅ GOOD: "How to Track Your Project Progress Using These Specific Tools"
+- Every slide title should answer "How do I..." or "What will I be able to do..."
+
+**2. PROVIDE COMPREHENSIVE EXPLANATIONS (60-100 WORDS):**
+- Each bullet point, process step, or content block must be 60-100 words
+- Include: WHAT it is, WHY it matters, HOW to apply it, WHEN to use it, concrete EXAMPLES
+- ❌ BAD: "Use Gantt charts for scheduling" (7 words)
+- ✅ GOOD: "Use Gantt charts to visualize your project timeline by creating bars for each task showing start date, duration, and dependencies. This helps you identify scheduling conflicts early - for example, if Task B requires completion of Task A, the chart shows this dependency visually. Update your Gantt chart weekly to track actual progress against plan. Free tools like Excel or ProjectLibre work well for projects under 50 tasks." (70 words)
+
+**3. INCLUDE REAL WORKPLACE SCENARIOS:**
+- Every concept must be paired with concrete application example
+- Use realistic scenarios: "When managing a database migration project..." or "If your team member reports a blocker..."
+- Provide specific contexts, not abstract theory
+- Show before/after, common mistakes, troubleshooting steps
+
+**4. BUILD PRACTICAL SKILLS PROGRESSIVELY:**
+- Slide 1-2: What will learners be able to DO after this lesson (action verbs)
+- Slides 3-8: Core concepts with HOW-TO guidance
+- Slides 9-15: Advanced techniques and troubleshooting
+- Slides 16-20: Application exercises, decision frameworks, next steps
+- Each slide builds on previous slides - reference earlier concepts
+
+**5. AVOID FEATURE-LIST PRESENTATIONS:**
+- Do NOT create slides that just list features, capabilities, or components
+- Do NOT create "Overview of X" slides without actionable guidance  
+- Do NOT use business/marketing language like "benefits", "value proposition", "key advantages"
+- This is EDUCATION not SALES - teach practical skills
+
+**6. USE APPROPRIATE TEMPLATES FOR EDUCATION:**
+- process-steps: for sequential how-to guidance
+- challenges-solutions: for common problems and how to solve them
+- two-column: for comparison or before/after scenarios
+- bullet-points-right: for detailed explanations with examples
+- comparison-slide/table: for decision frameworks (when to use option A vs option B)
+- Avoid using metrics-analytics, market-share, pie-chart unless teaching data analysis skills
+
+**7. NEVER INVENT STATISTICS OR PERCENTAGES (CRITICAL - MOST COMMON VIOLATION):**
+- ❌ ABSOLUTELY FORBIDDEN: "100%", "75%", "50%", "95% success rate", "3x improvement", "2.5x faster"
+- ❌ FORBIDDEN: Any specific numbers, percentages, or metrics you did not receive in the source materials
+- ❌ FORBIDDEN: "User Role Management: 100%, 75%, 50%" or similar fake data visualizations
+- ✅ REQUIRED for big-numbers slides: Use qualitative descriptors ONLY
+  - Examples: "High", "Strong", "Regular", "Growing", "Consistent", "Active", "Steady", "Improving"
+  - Examples: "Frequent", "Occasional", "Rare", "Common", "Widespread", "Limited", "Emerging"
+- ✅ REQUIRED: Use descriptive language instead of invented numbers
+  - Instead of "95% of teams" → "Most teams" or "The majority of teams"
+  - Instead of "3x productivity increase" → "Substantial productivity improvement" or "Significant gains"
+  - Instead of "50% reduction" → "Considerable reduction" or "Significant decrease"
+- ✅ For big-numbers template: The "value" field MUST contain qualitative words (High, Strong, etc), NEVER percentages or numbers
+- This is a MANDATORY requirement - violating this makes the content factually inaccurate and untrustworthy
+
+**8. CREATE UNIQUE CONTENT FOR EACH TOPIC (DO NOT COPY THE EXAMPLE):**
+- The JSON example shows "Project Management Fundamentals" - this is ONLY an example of structure and depth
+- ❌ DO NOT copy slide topics from the example (budget management, conflict resolution, change requests, etc.)
+- ❌ DO NOT reuse the example's specific scenarios or frameworks verbatim
+- ✅ CREATE completely new content relevant to the actual lesson topic
+- ✅ ADAPT the depth and structure approach to your specific topic
+- ✅ GENERATE unique scenarios, examples, and frameworks appropriate for your subject
+- Example: If teaching "NextCloud Customization", do NOT include slides about project budgets or team conflicts
+- Example: If teaching "Digital Marketing", create marketing-specific scenarios, not generic project management examples
+- Think: "What does someone need to learn to DO this specific topic?" then create slides teaching those skills
+
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
-- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- **CRITICAL**: Generate EXACTLY the requested number of slides (slidesCount parameter). Do NOT generate fewer slides. If 20 slides are requested, you MUST create all 20 slides with substantial educational content. Add more detailed content to reach the exact count if needed.
+- STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
+- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content. Do not end with title slides or resources slides; end on substantive content.
+- Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
+
+MANDATORY TEMPLATE DIVERSITY (CRITICAL - REPETITION IS FAILURE):
+- ❌ FORBIDDEN: Using the same template 3+ times in a single presentation
+- ❌ FORBIDDEN: Defaulting to bullet-points-right for every slide - this is lazy and boring
+- ❌ FORBIDDEN: Using only 3-4 different templates when you have 20+ available
+- ✅ REQUIRED: Use a WIDE VARIETY of templates. Mix and match for visual interest
+- ✅ REQUIRED: For 10-15 slides, use AT LEAST 8-10 different template types
+- ✅ Template budget for 10-15 slides:
+  - title-slide (1x), bullet-points-right (MAX 2x), two-column (1-2x), process-steps (1-2x)
+  - four-box-grid (1x), timeline (1x), big-numbers (1x), challenges-solutions (1x)
+  - comparison-slide or tables (1x), pyramid or big-image variants (1x)
+- ✅ Strategy: Choose template that BEST expresses each specific slide's content
+  - Teaching sequential steps? → process-steps
+  - Comparing two options? → comparison-slide or table
+  - Showing problems + solutions? → challenges-solutions
+  - Need detailed explanations? → bullet-points-right or two-column
+- COUNT YOUR TEMPLATES before finalizing - if you used bullet-points-right 5 times, you failed
+
+PROFESSIONAL IMAGE GENERATION GUIDELINES (AUTHENTIC WORKPLACE PHOTOGRAPHY):
+Create professional photographs showing people actively working in authentic environments relevant to the slide topic.
+
+IMAGE PROMPT STRUCTURE - Use this exact format:
+"A professional photograph of [PROFESSIONAL ROLE] actively working [WORKPLACE CONTEXT]. 
+
+SCENE: The person is engaged in their typical work activities in an authentic workplace environment appropriate for [ROLE]. Show them using professional tools, equipment, or technology relevant to their role. The composition should capture both the person (from waist up or full body) and their work environment.
+
+ACTIVITY: Include specific work processes that match the slide content - for example:
+- If data science: analyzing data on multiple monitors, coding machine learning models, presenting findings to team
+- If marketing: reviewing campaign analytics dashboards, creating content, strategizing with team over brand materials
+- If software development: coding at workstation with multiple monitors, debugging, collaborating in code review
+- If business analysis: examining financial data, creating presentations, meeting with stakeholders over reports
+- If project management: coordinating with team, reviewing project timelines, facilitating planning sessions
+- If design: working in creative software, sketching concepts, reviewing designs with colleagues
+
+ENVIRONMENT: Authentic workplace setting that matches the role - not just a generic office. Include relevant background elements, tools, equipment, and work materials that tell the story of what this person does professionally.
+
+STYLE: High-quality professional photography with good natural lighting that shows both the person and their work context. The person should be wearing appropriate professional attire for their specific role.
+
+COMPOSITION: Environmental portrait style that captures the essence of the work, showing the professional genuinely engaged in their tasks within their authentic work environment."
+
+CORE PRINCIPLES:
+1. SHOW REAL WORK ACTIVITIES: People must be actively doing their jobs, not posing or looking at camera
+2. AUTHENTIC ENVIRONMENTS: Real workplaces with actual tools, equipment, and materials visible
+3. SPECIFIC TO SLIDE CONTENT: Match the professional role and activity to the slide's actual topic
+4. NO STOCK PHOTO CLICHÉS: Avoid handshakes, pointing at charts, lightbulbs, chess pieces, staged meetings
+5. ENVIRONMENTAL PORTRAITS: Capture both the person and their workspace to tell the full professional story
+6. NATURAL MOMENTS: Show genuine work activities, not overly staged or posed scenarios
+
+EXAMPLES FOR COMMON SLIDE TYPES:
+- Business Strategy: "Business strategists collaborating around conference table with laptops, market analysis documents, and whiteboards showing strategic frameworks visible in background"
+- Data Analysis: "Data analysts working at multi-monitor workstations with data visualizations, dashboards, and statistical reports displayed, taking notes and discussing insights"
+- Technology: "Software engineers coding at workstations with multiple monitors showing code editors and terminal windows, reviewing pull requests and debugging together"
+- Marketing: "Marketing professionals analyzing campaign data on screens, reviewing creative assets, planning content calendar with brand materials visible"
+- Finance: "Financial analysts examining market data on trading terminals, reviewing financial models on spreadsheets, discussing investment strategies"
+
+Always specify: realistic workplace, professional attire, authentic tools/equipment, natural lighting, environmental portrait composition.
+
+🚨 FINAL REMINDER - EXACT SLIDE COUNT IS MANDATORY 🚨
+Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
+If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
+After generation, verify your slides[] array has the correct length. This is a critical requirement.
+
+Template Catalog with required props and usage:
+- title-slide: title, subtitle, [author], [date]
+  • Usage: ONLY for the first slide of the presentation; opening/section title with heading and short subtitle.
+- big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
+  • Usage: DO NOT USE except for first slide. Use other templates instead.
+- big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
+  • Usage: hero image across top; explanatory text below.
+- bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
+  • Usage: key takeaways with bullets on left and image area on right; supports brief intro text. Do not use the deprecated bullet-points template. In examples, write each bullet as 2–3 sentences with concrete details.
+- two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
+  • Usage: compare/contrast or split content; balanced two columns. CRITICAL: leftContent and rightContent must be plain text (NO bullet points •), exactly 1-2 sentences each.
+- process-steps: title, steps[]
+  • Usage: sequential workflow; 3–5 labeled steps in a row.
+- four-box-grid: title, boxes[] (heading,text or title,content)
+  • Usage: 2×2 grid of highlights; four concise boxes.
+- timeline: title, events[] (date,title,description)
+  • Usage: chronological milestones; left-to-right progression. Do not use event-list.
+- big-numbers: title, subtitle, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
+  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance. The subtitle should provide context for the metrics (2-3 sentences). Each step's description should be 2–3 concise sentences.
+- pyramid: title, steps[] (EXACTLY: heading,number - NOT levels, NOT description)
+  • Usage: hierarchical structure; 3-5 level pyramid visual. Each step must have "heading" (the text) and "number" (like "01", "02", etc). Do NOT include "levels" or "description" fields.
+- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[] (strings), solutions[] (strings)
+  • Usage: problem/solution mapping; two facing columns. Each challenge/solution should be 5-6 words maximum for clean display.
+- metrics-analytics: title, metrics[] (number,text)
+  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use ONLY when you have specific, meaningful KPIs, measurements, or operational metrics with concrete numbers (percentages, counts, times, etc). Each metric MUST have context explaining what the number means. DO NOT use for generic lists. DO NOT convert to bullet-points.
+- market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
+  • Usage: bar/ratio comparison for market distribution or category breakdown. CRITICAL: percentage values MUST represent actual percentages (0-100) that together sum to approximately 100%, or represent meaningful standalone metrics like "market share: 35%", "adoption rate: 67%". DO NOT use arbitrary numbers. The subtitle and description fields MUST clearly explain what the percentages represent (e.g., "Market share by vendor", "Customer segmentation by size", "Technology adoption rates").
+- [Removed] comparison-slide is deprecated. Use table-light or table-dark with tableData.headers[] and tableData.rows[][] instead.
+- table-dark: title, tableData: headers[],rows[][]
+  • Usage: comparison matrix with checkbox columns (like feature comparison tables). Structure: The FIRST column in each row is the row label (e.g., "Retention Rate", "Conversion Rate"). All subsequent columns are checkbox cells - use "✓" for checked, "" (empty string) or "✗" for unchecked. Headers should describe what each column represents (e.g., "Before Mapping", "After Mapping"). Example row: ["Customer Satisfaction", "✓", "", "✓"] where first cell is the label and others are checkboxes.
+- table-light: title, tableData: headers[],rows[][]
+  • Usage: dense tabular data (light theme) with consistent column structure. Each row must have EXACTLY the same number of elements as headers[] (not headers.length + 1). Example: if headers has 3 items, each row must also have exactly 3 items.
+- pie-chart-infographics: title, chartData.segments[] (label,value,color), monthlyData[], [chartSize], [colors]
+  • Usage: distribution breakdown showing proportional parts of a whole. CRITICAL: segment values MUST sum to 100 (representing percentages) or represent actual quantities that are part of a total. Each segment needs label (category name), value (the number/percentage), and color (hex code like #2563eb). The title MUST clearly explain what distribution is being shown (e.g., "Budget Allocation by Department", "Customer Demographics by Age Group").
+
+CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
+- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
+- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points-right).
+- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
+- Prioritize variety: use different templates for different content types to maintain visual interest.
+- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
+- NEVER use big-image-left or big-image-top templates after slide 1. Use bullet-points-right, four-box-grid, or other content-rich templates instead.
+"""
+        else:
+            json_preview_instructions += f"""
+
+
+
+
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
+{json_example}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+This enables immediate parsing without additional LLM calls during finalization.
+
+MANDATORY PREVIEW UI REQUIREMENT:
+- EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
+- Include 4-6 content-rich bullets (10–18 words each), specific and informative.
+- These previewKeyPoints are for preview only and will be ignored/stripped on save.
+- Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- **MANDATORY SLIDE COUNT**: You MUST generate EXACTLY the requested number of slides. This is NON-NEGOTIABLE. If 20 slides are requested, the output MUST contain precisely 20 slides in the slides[] array. If 15 slides are requested, generate exactly 15. Count your slides before finishing to ensure you have the exact number.
+- Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
+- The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
+- Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
+- Preserve original language across all text.
+
+CRITICAL TABLE RULE:
+- If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
+
+NOTE: Educational quality standards (outcome-based learning, cultural neutrality, factual accuracy, terminology consistency, practical content, structured progression) are defined in the system prompt and apply to all content generation.
+
+General Rules:
+- Do NOT duplicate title and subtitle content; keep them distinct.
+- **CRITICAL**: Generate EXACTLY the requested number of slides (slidesCount parameter). Do NOT generate fewer slides. If 20 slides are requested, you MUST create all 20 slides with substantial educational content. Add more detailed content to reach the exact count if needed.
 - STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
-MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
-- You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
-- For 10-15 slides, use each template AT MOST ONCE, preferring: hero-title-slide (1), bullet-points variants (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline OR event-list (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), comparison-slide OR table variants (1), pyramid (1).
-- Prioritize templates that best express your content; avoid defaulting to bullet-points for everything.
-- Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
+
 
 PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
 Based on presentation design best practices, follow these rules for selecting appropriate images:
@@ -21888,90 +23847,66 @@ Based on presentation design best practices, follow these rules for selecting ap
    - Transportation for journey/progress concepts, but make them specific and realistic
    - Avoid abstract or overused metaphors; prefer specific, actionable imagery
 
-UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
-- Style must be realistic scenes (cinematic photography or high-quality documentary style), not minimalist flat illustrations.
-- Describe SPECIFIC SUBJECT performing RELEVANT ACTION in APPROPRIATE ENVIRONMENT with PROFESSIONAL LIGHTING, CAMERA ANGLE (lens mm, perspective), DEPTH OF FIELD, MATERIALS/TEXTURES, and subtle MOTION.
-- Examples for different contexts:
-  * Business: "Professional business analysts collaborating around multiple monitors displaying real financial dashboards and KPI metrics in a modern open office. Natural lighting from large windows, diverse team members pointing at specific data points on screens, coffee cups and notebooks visible. Shot with 35mm lens, three-quarter view, shallow depth of field focusing on the data displays."
-  * Technology: "Software engineers debugging code on ultra-wide monitors in a tech company office at evening, ambient keyboard lighting, multiple code editors and terminal windows visible, one developer explaining a solution to another. Natural office lighting mixed with screen glow, 50mm lens, over-shoulder perspective, realistic depth of field."
-  * Marketing: "Marketing team analyzing campaign performance data on large wall-mounted displays in a creative agency space, colorful brand materials and mood boards on walls, team members discussing conversion metrics while reviewing mobile app interfaces. Natural studio lighting, 28mm wide-angle lens, environmental portrait style."
-- Keep prompts specific to slide content; avoid generic business imagery.
-- Never include readable text on screens; use realistic but abstract UI patterns.
-- Include authentic environmental details that support the professional context.
 
-SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
-- Treat hero-title-slide, big-image-top, and big-image-left as SECTION START slides.
-- After any SECTION START slide, include 3–5 immediately following slides that DEEPEN THAT SAME TOPIC before moving to a new section.
-- Use a clear naming convention so users see continuity:
-  • On the section start slide, set slideTitle to "Section: <Section Name>".
-  • On the next 3–5 slides in that section, prefix slideTitle with "<Section Name> — <Subtopic>".
-- Recommended per-section progression (adapt as appropriate):
-  1) SECTION START (hero-title-slide or big-image-* introducing the topic)
-  2) bullet-points or two-column to frame the problem/opportunity
-  3) process-steps or four-box-grid to explain how/strategy/components
-  4) metrics-analytics, table-*, market-share, or pie-chart-infographics to quantify
-  5) challenges-solutions or comparison/table to address tradeoffs/alternatives
-- Do not insert unrelated slides immediately after a section start.
-- Never end a presentation with a section start. A section must include its 3–5 child slides.
-- Micro-summaries are allowed BETWEEN sections using four-box-grid or two-column, but NOT a global closing slide.
 
-Template Catalog with required props and usage:
-- hero-title-slide: title, subtitle, [author], [date]
-  • Usage: opening/section title; large title with supporting subtitle.
-- title-slide: title, subtitle, [author], [date]
-  • Usage: simple title/introduction; heading + short subtitle.
-- big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: narrative with large image on the left; text on the right.
-- big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
-  • Usage: hero image across top; explanatory text below.
-- bullet-points: title, bullets[], imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: key takeaways; 1–2 columns of bullets with supporting image.
-- bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
-  • Usage: bullets with brief intro; list on left, image area on right.
-- two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
-  • Usage: compare/contrast or split content; balanced two columns.
-- process-steps: title, steps[]
-  • Usage: sequential workflow; 3–5 labeled steps in a row.
-- four-box-grid: title, boxes[] (heading,text or title,content)
-  • Usage: 2×2 grid of highlights; four concise boxes.
-- timeline: title, steps[] (heading,description) or events[] (date,title,description)
-  • Usage: chronological milestones; left-to-right progression.
-- event-list: events[] (date,description), [titleColor], [descriptionColor], [backgroundColor]
-  • Usage: dated event list; stacked date + description.
-- big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
-  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance.
-- pyramid: title, [subtitle], steps[] (heading,description)
-  • Usage: hierarchical structure; 3-level pyramid visual.
-- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
-  • Usage: problem/solution mapping; two facing columns.
-- metrics-analytics: title, metrics[] (number,text)
-  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
-- market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
-  • Usage: bar/ratio comparison; legend-style notes.
-- comparison-slide: title, [subtitle], tableData: headers[],rows[]
-  • Usage: side-by-side comparison; multi-column table.
-- table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
-  • Usage: dense tabular data (dark theme); optional checkmarks.
-- table-light: title, tableData: headers[],rows[][], [colors]
-  • Usage: dense tabular data (light theme).
-- pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
-  • Usage: distribution breakdown; pie with segment list and monthly notes.
+🚨 FINAL REMINDER - EXACT SLIDE COUNT IS MANDATORY 🚨
+Before you start generating slides, note the slidesCount parameter. You MUST generate that EXACT number of slides.
+If slidesCount=20, generate 20 slides. If slidesCount=15, generate 15 slides. NO EXCEPTIONS.
+After generation, verify your slides[] array has the correct length. This is a critical requirement.
 
-CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
-- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
-- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
-- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
-- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
-- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
-CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
-- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
-- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
-- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
-- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
-- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
-"""
-        if is_video_lesson:
-            json_preview_instructions += """
+EXCLUSIVE VIDEO LESSON TEMPLATE CATALOG (ONLY 5 TEMPLATES ALLOWED):
+
+- course-overview-slide: title, subtitle, imagePath, [imageAlt], [logoPath], [pageNumber]
+  • Purpose: Opening slide for course introduction with strong visual impact
+  • Structure: Split-panel design with title/subtitle on gradient background and large avatar display
+  • Required props: title (main heading), subtitle (course description and learning objectives)
+  • Visual elements: imagePath (professional avatar/instructor image), logoPath (course branding)
+  • Usage: MUST be used as the first slide to welcome learners and set course expectations
+  • Content guidelines: Title should be welcoming and engaging; subtitle should outline what learners will achieve
+
+- impact-statements-slide: title, statements[] (array of {{number, description}}), profileImagePath, [pageNumber], [logoNew]
+  • Purpose: Showcase key statistics, metrics, or impact data with visual emphasis
+  • Structure: Three prominent cards displaying numerical achievements with descriptive context
+  • Required props: title (section heading), statements (EXACTLY 3 items with 'number' field like "95%" or "3x" and 'description' field explaining significance)
+  • Visual elements: profileImagePath (avatar reinforcing credibility), logoNew (branding element)
+  • Usage: Present compelling data, success rates, performance metrics, or quantifiable outcomes
+  • Content guidelines: Numbers should be impactful (percentages, multipliers, large numbers); descriptions should explain real-world meaning
+
+- phishing-definition-slide: title, definitions[] (array of strings), profileImagePath, [rightImagePath], [pageNumber], [logoPath]
+  • Purpose: Present multiple key definitions, concepts, or educational points in organized list format
+  • Structure: Left panel with title and definition points; right panel with full avatar image
+  • Required props: title (main topic heading), definitions (array of 3-6 detailed definition strings)
+  • Visual elements: profileImagePath (instructor/expert avatar), rightImagePath (supporting visual illustration)
+  • Usage: Define critical terminology, explain key concepts, list important principles or guidelines
+  • Content guidelines: Each definition should be comprehensive (2-3 sentences); use clear, educational language; maintain consistent depth across all definitions
+
+- soft-skills-assessment-slide: title, tips[] (array of {{text, isHighlighted}}), profileImagePath, [logoPath], [logoText], [pageNumber]
+  • Purpose: Highlight exactly two critical tips, recommendations, or assessment criteria with different visual emphasis
+  • Structure: Large prominent title, avatar display, and two tip cards with contrasting styles (one highlighted, one standard)
+  • Required props: title (assessment or tip category), tips (EXACTLY 2 items with 'text' field containing the tip and 'isHighlighted' boolean)
+  • Visual elements: profileImagePath (expert/instructor image), logoPath (branding), logoText (contextual label like "Assessment Guide")
+  • Usage: Present key success tips, critical assessment criteria, important recommendations, or strategic guidance
+  • Content guidelines: First tip (isHighlighted: true) should be most critical; second tip provides complementary guidance; each tip should be actionable and specific
+
+- work-life-balance-slide: title, content, imagePath, [logoPath], [pageNumber]
+  • Purpose: Deliver comprehensive narrative content, conclusions, or detailed explanations
+  • Structure: Content-rich slide with gradient background, visual arch design, and avatar display for lengthy text
+  • Required props: title (conclusion or section heading), content (2-4 paragraphs of detailed narrative text)
+  • Visual elements: imagePath (relevant thematic or conclusion image), logoPath (branding)
+  • Usage: MUST be used as conclusion slide; also suitable for detailed explanations requiring substantial text
+  • Content guidelines: Content should synthesize key learnings, provide actionable next steps, or deliver comprehensive explanations; maintain professional, encouraging tone
+
+MANDATORY 5-SLIDE VIDEO LESSON STRUCTURE (CRITICAL - EXACT ORDER REQUIRED):
+- Video lessons MUST contain EXACTLY 5 slides using the 5 templates in this specific order:
+  1. FIRST SLIDE: course-overview-slide (Welcome and course introduction)
+  2. SECOND SLIDE: impact-statements-slide (Key statistics and impact metrics)
+  3. THIRD SLIDE: phishing-definition-slide (Core definitions and concepts)
+  4. FOURTH SLIDE: soft-skills-assessment-slide (Critical tips and recommendations)
+  5. FIFTH SLIDE: work-life-balance-slide (Conclusion and next steps)
+- NO template repetition allowed - each template used EXACTLY ONCE
+- NO additional slides beyond these 5 - maintain strict 5-slide structure
+- NO substitutions - you must use these exact 5 templates in this exact order
+- This structure ensures comprehensive coverage: Introduction → Data → Education → Application → Conclusion
 
 VIDEO LESSON SPECIFIC REQUIREMENTS:
 - Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.
@@ -22036,8 +23971,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         
                         if file_ids:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract file context and combine with connector context
-                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                            file_context_from_smartdrive = None
+                            
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -22107,8 +24055,21 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -22134,14 +24095,32 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
                         file_ids_list.append(wizard_dict["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
                 chunks_received = 0
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -22181,7 +24160,8 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
                 chunks_received = 0
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -22225,7 +24205,47 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
         # Send completion packet with the parsed outline.
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
 
-        print("FULL RESPOSE:", assistant_reply)
+        # 🔍 CRITICAL DEBUG: Log the raw AI response before parser processing
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Raw AI response for video lesson presentation:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Response length: {len(assistant_reply)} characters")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Full response content:")
+        logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] {assistant_reply}")
+        
+        # Try to extract and log JSON structure if present
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', assistant_reply, re.DOTALL)
+            if json_match:
+                json_text = json_match.group()
+                parsed_json = json.loads(json_text)
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Extracted JSON structure:")
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] JSON keys: {list(parsed_json.keys()) if isinstance(parsed_json, dict) else 'Not a dict'}")
+                if isinstance(parsed_json, dict) and 'slides' in parsed_json:
+                    slides = parsed_json['slides']
+                    actual_count = len(slides)
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Number of slides: {actual_count}")
+                    
+                    # Validate slide count matches request
+                    requested_count = wizard_dict.get('slidesCount', 5)
+                    if actual_count != requested_count:
+                        logger.warning(f"⚠️ [SLIDE_COUNT_MISMATCH] AI generated {actual_count} slides but {requested_count} were requested! This is a critical issue that needs attention.")
+                    else:
+                        logger.info(f"✅ [SLIDE_COUNT_MATCH] AI correctly generated {actual_count} slides as requested.")
+                    
+                    for i, slide in enumerate(slides):
+                        if isinstance(slide, dict):
+                            template_id = slide.get('templateId', 'NO_TEMPLATE_ID')
+                            slide_title = slide.get('slideTitle', 'NO_TITLE')
+                            logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1}: templateId='{template_id}', slideTitle='{slide_title}'")
+                            if 'voiceoverText' in slide:
+                                voiceover = slide['voiceoverText']
+                                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Slide {i+1} voiceover: {voiceover[:100]}{'...' if len(voiceover) > 100 else ''}")
+                else:
+                    logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No 'slides' key found in JSON")
+            else:
+                logger.info(f"🔍 [VIDEO_LESSON_AI_RESPONSE] No JSON structure found in response")
+        except Exception as e:
+            logger.warning(f"🔍 [VIDEO_LESSON_AI_RESPONSE] Failed to parse JSON from response: {e}")
 
         yield (json.dumps(done_packet) + "\n").encode()
 
@@ -23901,6 +25921,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
             }
 
             wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+            wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
             assistant_reply: str = ""
             last_send = asyncio.get_event_loop().time()
@@ -24940,16 +26961,37 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             logger.info(f"🎯 [TABLE HEADER BACKEND] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content_to_store_for_db}")
             
             if 'courseOutlineTableHeaders' in content_to_store_for_db:
+                headers_value = content_to_store_for_db['courseOutlineTableHeaders']
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ✅ courseOutlineTableHeaders FOUND in payload!")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(content_to_store_for_db['courseOutlineTableHeaders'], indent=2)}")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{content_to_store_for_db['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{content_to_store_for_db['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
-                logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{content_to_store_for_db['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(headers_value, indent=2)}")
+                if headers_value and isinstance(headers_value, dict):
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{headers_value.get('lessons', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{headers_value.get('assessment', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{headers_value.get('duration', 'NOT SET')}'")
+                else:
+                    logger.info(f"🎯 [TABLE HEADER BACKEND] - Value is None or not a dict")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] This data WILL BE stored in database")
             else:
                 logger.info(f"🎯 [TABLE HEADER BACKEND] ❌ courseOutlineTableHeaders NOT FOUND in payload")
                 logger.info(f"🎯 [TABLE HEADER BACKEND] Payload contains: {list(content_to_store_for_db.keys())}")
             logger.info(f"🎯 [TABLE HEADER BACKEND] ==========================================")
+            
+            # 🎯 CRITICAL INSTRUMENTATION: Assessment data in courseOutlineModules
+            if 'courseOutlineModules' in content_to_store_for_db:
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Project {project_id} - courseOutlineModules FOUND in payload!")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] Number of modules: {len(content_to_store_for_db['courseOutlineModules'])}")
+                for idx, module in enumerate(content_to_store_for_db.get('courseOutlineModules', [])):
+                    if isinstance(module, dict):
+                        has_assessments = 'lessonAssessments' in module
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] Module {idx}: '{module.get('title', 'NO TITLE')}'")
+                        logger.info(f"🎯 [ASSESSMENT BACKEND] - Has lessonAssessments: {has_assessments}")
+                        if has_assessments:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - lessonAssessments: {json.dumps(module['lessonAssessments'], indent=2)}")
+                        else:
+                            logger.info(f"🎯 [ASSESSMENT BACKEND] - ❌ NO lessonAssessments found in module {idx}")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] This data WILL BE stored in database")
+                logger.info(f"🎯 [ASSESSMENT BACKEND] ==========================================")
         
         # 🚨 CRITICAL: Validate that the data structure matches the component type
         if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
@@ -26877,6 +28919,8 @@ class QuizWizardFinalize(BaseModel):
     originalContent: Optional[str] = None
     # NEW: indicate if content is clean (questions only, no options/answers)
     isCleanContent: Optional[bool] = False
+    # NEW: indices of edited questions for selective regeneration (comma-separated: "0,2,5")
+    editedQuestionIndices: Optional[str] = None
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -26934,6 +28978,8 @@ async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
 @app.post("/api/custom/quiz/generate")
 async def quiz_generate(payload: QuizWizardPreview, request: Request):
     """Generate quiz content with streaming response"""
+    import json
+    
     logger.info(f"[QUIZ_PREVIEW_START] Quiz preview initiated")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[QUIZ_PREVIEW_PARAMS] questionTypes={payload.questionTypes} lang={payload.language}")
@@ -26975,6 +29021,97 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for quiz | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to quiz wizard request")
+                # Log full course structure
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "quiz"  # This is a quiz
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
+                
+                # Add next lesson title to avoid covering topics meant for next lesson
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to quiz wizard: {' | '.join(context_summary)}")
+            
+            # IMPORTANT: Fetch all products for the SAME lesson to quiz on covered content
+            if payload.lesson:
+                same_lesson_products = await get_same_lesson_products(
+                    payload.outlineId,
+                    payload.lesson,
+                    "quiz",  # Exclude quiz type (being generated)
+                    onyx_user_id,
+                    pool
+                )
+                
+                if same_lesson_products:
+                    wiz_payload["sameLessonProducts"] = same_lesson_products
+                    product_summary = ', '.join([f"{p['productType']} ({p['contentSize']} chars)" for p in same_lesson_products])
+                    logger.info(f"[SAME_LESSON_PRODUCTS] Added to quiz wizard | products: {product_summary}")
+                    # Log full content
+                    import json
+                    for product in same_lesson_products:
+                        logger.info(f"[SAME_LESSON_PRODUCTS] FULL {product['productType'].upper()} CONTENT: {json.dumps(product['content'], ensure_ascii=False, indent=2)[:3000]}...")
+                else:
+                    logger.info(f"[SAME_LESSON_PRODUCTS] No other products found for this lesson yet")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for quiz | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -27086,7 +29223,58 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     except Exception as e:
         logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
+    # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
+    course_context_instructions_quiz = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload or 'sameLessonProducts' in wiz_payload:
+        course_context_instructions_quiz = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Quiz on Covered Content**: If sameLessonProducts is provided, these are products (presentations, onepagers) already created for THIS lesson. Base your quiz questions PRIMARILY on the content covered in these products. Test understanding of concepts, examples, and procedures taught in them.
+2. **Avoid Repetition**: Review previousLesson content and do NOT create questions testing the same concepts/examples already covered
+3. **Build Upon Previous Knowledge**: Create questions that test understanding across lessons - reference previous topics when appropriate
+4. **Adjust Difficulty**: Use lessonPosition to gauge difficulty - early lessons need foundational questions, later lessons can test synthesis
+5. **Maintain Terminology**: Use the same key terms as previous lessons and same-lesson products - extract and reuse core terminology
+6. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT create questions about topics that clearly belong to that lesson. Keep questions focused on the current lesson's scope only.
+7. **Progressive Assessment**: For later lessons, include questions that require knowledge from multiple previous lessons
+8. **Unique Scenarios**: Generate fresh examples and scenarios for questions - never reuse examples from previous lesson quizzes
+
+CRITICAL - SAME LESSON PRODUCTS:
+If sameLessonProducts is provided (e.g., presentation and onepager for this lesson):
+- These products contain the ACTUAL content taught in this lesson
+- Your quiz MUST test understanding of THIS specific content
+- Extract key concepts, procedures, examples, and frameworks from these products
+- Create questions that verify the student understood the material in these products
+- Do NOT create generic questions - make them specific to what was taught
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT ask about advanced configuration
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT test deep knowledge of data types
+- Keep quiz questions focused on the current lesson only"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "") + course_context_instructions_quiz 
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)  
+
+    # Force JSON-ONLY preview output for Quiz to enable immediate parsed preview (like Presentations/Outline)
+    try:
+        json_preview_instructions_quiz = f"""
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Quiz preview, strictly following this example structure:
+{DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Include exact fields: quizTitle, questions[], detectedLanguage.
+- Each question MUST include: question_type, question_text, and appropriate fields based on type
+  (options[] + correct_option_id | options[] + correct_option_ids[] | prompts[] + options[] + correct_matches{{}} | items_to_sort[] + correct_order[] | acceptable_answers[]), and explanation.
+- Use exact field names and value shapes as in the example. Preserve original language across all text.
+"""
+        wizard_message = wizard_message + json_preview_instructions_quiz
+        logger.info("[QUIZ_PREVIEW] Added JSON-only preview instructions")
+    except Exception as e:
+        logger.warning(f"[QUIZ_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -27171,8 +29359,21 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -27198,13 +29399,31 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -27237,7 +29456,8 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
             logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -27333,6 +29553,7 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         wiz_payload["textMode"] = payload.textMode
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -27498,8 +29719,23 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
+        # Fast-path: check if aiResponse is already JSON (like presentations)
+        try:
+            candidate = json.loads(payload.aiResponse)
+            # Basic schema checks for QuizData
+            if isinstance(candidate, dict) and 'quizTitle' in candidate and 'questions' in candidate:
+                logger.info("[QUIZ_FINALIZE_FASTPATH] aiResponse is valid JSON, using directly without AI parsing")
+                parsed_quiz = QuizData(**candidate)  # type: ignore
+                use_direct_parser = False
+                use_ai_parser = False
+                # Proceed to save with parsed_quiz below
+            else:
+                logger.info("[QUIZ_FINALIZE_FASTPATH] aiResponse is JSON but missing required fields; falling back to AI parser")
+        except Exception as e:
+            logger.info(f"[QUIZ_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
+
         # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
+        if use_direct_parser and 'parsed_quiz' not in locals():
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
             logger.info("Using direct parser path for quiz finalization")
             
@@ -27551,37 +29787,62 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
             )
             logger.info("Direct parser path completed successfully")
-        else:
+        elif use_ai_parser and 'parsed_quiz' not in locals():
             # AI PARSER PATH: Use AI for parsing (original behavior)
             logger.info("Using AI parser path for quiz finalization")
             
             # NEW: Handle clean content (questions only) differently
             if payload.isCleanContent:
-                logger.info("Processing clean content (questions only) - will generate options and answers")
+                # Parse edited question indices if provided
+                edited_indices = set()
+                if payload.editedQuestionIndices:
+                    try:
+                        edited_indices = set(int(idx.strip()) for idx in payload.editedQuestionIndices.split(',') if idx.strip())
+                        logger.info(f"✅ [QUIZ_SELECTIVE_REGEN] Selective regeneration enabled for questions at indices: {sorted(edited_indices)}")
+                    except Exception as e:
+                        logger.warning(f"[QUIZ_SELECTIVE_REGEN] Failed to parse editedQuestionIndices: {e}, will regenerate all")
+                
+                if edited_indices:
+                    logger.info(f"✅ [QUIZ_SELECTIVE_REGEN] Processing {len(edited_indices)} edited questions - will preserve unchanged ones")
+                else:
+                    logger.info("✅ [QUIZ_CLEAN_CONTENT] Processing clean content (questions only) - will generate NEW options AND answers for ALL")
+                
+                logger.info(f"[QUIZ_CLEAN_CONTENT] Input content preview: {payload.aiResponse[:200]}...")
+                logger.info(f"[QUIZ_CLEAN_CONTENT] Language: {payload.language}, Question Types: {payload.questionTypes}")
                 # For clean content, we need to generate complete quiz with options and answers
                 dynamic_instructions = f"""
                 CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
 
-                The AI response contains ONLY quiz questions without options or answers. You need to generate a complete quiz with:
-                1. Multiple choice options (A, B, C, D) for each question
-                2. Correct answers
-                3. Explanations for each answer
+                IMPORTANT: The AI response contains ONLY quiz questions WITHOUT any options, answers, or explanations. You MUST generate ALL of these components from scratch:
+                1. NEW Multiple choice options (A, B, C, D) for EVERY question - create completely new options that fit the question
+                2. NEW Correct answers - determine which option should be correct
+                3. NEW Explanations - write detailed explanations for each answer
 
                 REQUIREMENTS:
                 1. Extract the quiz title from the content or use the lesson name
-                2. For each question, generate:
-                   - "question_type": "multiple-choice" (default)
-                   - "question_text": The question text
-                   - "options": Array with {{"id": "A", "text": "option text"}} for 4 options
-                   - "correct_option_id": "A" (or appropriate letter)
-                   - "explanation": Detailed explanation for the correct answer
+                2. For EACH question, you MUST generate COMPLETELY NEW:
+                   - "question_type": Determine appropriate type based on question (default to "multiple-choice")
+                   - "question_text": Use the exact question text from the input
+                   - "options": Create a BRAND NEW array with 4 options that are:
+                     * Relevant to the specific question being asked
+                     * Plausible but with only one correct answer
+                     * Formatted as {{"id": "A", "text": "option text"}}, {{"id": "B", "text": "option text"}}, etc.
+                   - "correct_option_id": Choose which option letter (A, B, C, or D) is the correct answer
+                   - "explanation": Write a NEW detailed explanation explaining why the correct answer is right and why other options are wrong
 
-                CRITICAL RULES:
-                - Generate realistic and relevant options for each question
-                - Make sure only one option is correct
-                - Provide detailed explanations
-                - Language: {payload.language}
-                - Question types: {payload.questionTypes}
+                CRITICAL RULES FOR OPTION GENERATION:
+                - DO NOT preserve any existing options - generate completely new ones
+                - Each option must be unique and relevant to the question
+                - Only one option should be correct
+                - Options should be challenging but fair
+                - Make distractors (wrong answers) plausible but clearly incorrect
+                - Ensure options are in the correct language: {payload.language}
+                - Question types allowed: {payload.questionTypes}
+                
+                EXAMPLE - If question is "What is the capital of France?":
+                - Generate NEW options like: A) Paris, B) London, C) Berlin, D) Madrid
+                - Set correct_option_id: "A"
+                - Write explanation: "Paris is the capital of France. London is the capital of England, Berlin is the capital of Germany, and Madrid is the capital of Spain."
                 """
             else:
                 # Regular content with options and answers
@@ -27636,6 +29897,78 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
+        
+        # NEW: Selective regeneration - merge original unchanged questions with newly generated edited ones
+        if payload.isCleanContent and payload.editedQuestionIndices and payload.originalContent:
+            try:
+                edited_indices = set(int(idx.strip()) for idx in payload.editedQuestionIndices.split(',') if idx.strip())
+                if edited_indices and len(edited_indices) < len(parsed_quiz.questions):
+                    logger.info(f"[QUIZ_SELECTIVE_MERGE] Starting selective merge for {len(edited_indices)} edited questions")
+                    
+                    # Parse original content to extract original questions
+                    original_quiz = None
+                    try:
+                        # Try parsing as JSON first
+                        original_parsed = json.loads(payload.originalContent)
+                        if isinstance(original_parsed, dict) and 'quizTitle' in original_parsed and 'questions' in original_parsed:
+                            original_quiz = QuizData(**original_parsed)
+                            logger.info(f"[QUIZ_SELECTIVE_MERGE] Parsed original content as JSON: {len(original_quiz.questions)} questions")
+                    except:
+                        # If not JSON, try parsing with LLM
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] Original content not JSON, parsing with LLM")
+                        original_quiz = await parse_ai_response_with_llm(
+                            ai_response=payload.originalContent,
+                            project_name=project_name,
+                            target_model=QuizData,
+                            default_error_model_instance=QuizData(quizTitle=project_name, questions=[], detectedLanguage=payload.language),
+                            dynamic_instructions=f"Parse this quiz content into structured JSON. Preserve all options, answers, and explanations exactly as they are.",
+                            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+                        )
+                    
+                    if original_quiz and len(original_quiz.questions) == len(parsed_quiz.questions):
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] Original quiz has {len(original_quiz.questions)} questions, merging...")
+                        
+                        # Merge: use original options/explanations for unchanged questions
+                        for i in range(len(parsed_quiz.questions)):
+                            if i not in edited_indices:
+                                # This question wasn't edited - restore original options/explanations
+                                if hasattr(original_quiz.questions[i], 'options'):
+                                    parsed_quiz.questions[i].options = original_quiz.questions[i].options
+                                if hasattr(original_quiz.questions[i], 'correct_option_id'):
+                                    parsed_quiz.questions[i].correct_option_id = original_quiz.questions[i].correct_option_id
+                                if hasattr(original_quiz.questions[i], 'correct_option_ids'):
+                                    parsed_quiz.questions[i].correct_option_ids = original_quiz.questions[i].correct_option_ids
+                                if hasattr(original_quiz.questions[i], 'explanation'):
+                                    parsed_quiz.questions[i].explanation = original_quiz.questions[i].explanation
+                                if hasattr(original_quiz.questions[i], 'correct_matches'):
+                                    parsed_quiz.questions[i].correct_matches = original_quiz.questions[i].correct_matches
+                                if hasattr(original_quiz.questions[i], 'correct_order'):
+                                    parsed_quiz.questions[i].correct_order = original_quiz.questions[i].correct_order
+                                if hasattr(original_quiz.questions[i], 'acceptable_answers'):
+                                    parsed_quiz.questions[i].acceptable_answers = original_quiz.questions[i].acceptable_answers
+                                if hasattr(original_quiz.questions[i], 'prompts'):
+                                    parsed_quiz.questions[i].prompts = original_quiz.questions[i].prompts
+                                if hasattr(original_quiz.questions[i], 'items_to_sort'):
+                                    parsed_quiz.questions[i].items_to_sort = original_quiz.questions[i].items_to_sort
+                                
+                                logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Q{i+1}: Preserved original options/explanations (unchanged)")
+                            else:
+                                logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Q{i+1}: Using newly generated options/explanations (edited)")
+                        
+                        logger.info(f"[QUIZ_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(parsed_quiz.questions) - len(edited_indices)} preserved")
+                    else:
+                        logger.warning(f"[QUIZ_SELECTIVE_MERGE] Cannot merge: original has {len(original_quiz.questions) if original_quiz else 0} questions vs current {len(parsed_quiz.questions)}")
+            except Exception as e:
+                logger.error(f"[QUIZ_SELECTIVE_MERGE] Error during selective merge: {e}", exc_info=True)
+                logger.warning(f"[QUIZ_SELECTIVE_MERGE] Falling back to using all newly generated content")
+        
+        # Log details about generated options if this was clean content
+        if payload.isCleanContent and len(parsed_quiz.questions) > 0:
+            logger.info(f"[QUIZ_CLEAN_CONTENT_RESULT] ✅ Generated complete quiz from clean questions")
+            for i, q in enumerate(parsed_quiz.questions[:3]):  # Log first 3 questions
+                has_options = hasattr(q, 'options') and q.options
+                has_explanation = hasattr(q, 'explanation') and q.explanation
+                logger.info(f"[QUIZ_CLEAN_CONTENT_RESULT] Q{i+1}: {q.question_text[:50]}... | Has options: {has_options} ({len(q.options) if has_options else 0}) | Has explanation: {has_explanation}")
         
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
@@ -27858,59 +30191,218 @@ CRITICAL REQUIREMENTS:
 - The "question_type" field is MANDATORY for every question
 """
 
-# Default text presentation JSON example for LLM parsing
+# Perfect educational one-pager example demonstrating 90+ quality score
+# This example shows proper structure with:
+# - Paragraphs (60%): For explanations, context, narrative flow
+# - Bullet lists (20%): For key points structured as 60-100 words each
+# - Worked examples (10%): Complete scenarios with analysis
+# - Recommendations (5%): Action plans
+# - Alerts (5%): Warnings and critical points
+# Bloom's Taxonomy: Remember → Understand → Apply → Analyze
+# Pedagogical elements: Mental models, worked examples, common mistakes, decision frameworks
 DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
 {
-  "textTitle": "Example Text Presentation with Nested Lists",
+  "textTitle": "Steps to Conduct Effective Market Analysis",
   "contentBlocks": [
-    { "type": "headline", "level": 2, "text": "Main Title of the Presentation" },
-    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
-    {
-      "type": "bullet_list",
-      "items": [
-        "Top level item 1, demonstrating a simple string item.",
-        {
-          "type": "bullet_list",
-          "iconName": "chevronRight",
-          "items": [
-            "Nested item A: This is a sub-item.",
-            "Nested item B: Another sub-item to show structure.",
-            {
-              "type": "numbered_list",
-              "items": [
-                "Further nested numbered item 1.",
-                "Further nested numbered item 2."
-              ]
-            }
-          ]
-        },
-        "Top level item 2, followed by a nested numbered list.",
-        {
-          "type": "numbered_list",
-          "items": [
-            "Nested numbered 1: First point in nested ordered list.",
-            "Nested numbered 2: Second point."
-          ]
-        },
-        "Top level item 3."
-      ]
-    },
-    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    { "type": "headline", "level": 2, "text": "📊 INTRODUCTION TO MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Market analysis is a crucial skill in the corporate world, enabling businesses to make informed decisions, understand their competitors, and identify new opportunities. It involves collecting, analyzing, and interpreting data about the market, including sales growth, trends, and patterns. By mastering market analysis, businesses can make informed decisions, identify new opportunities, understand their competitors, and anticipate future market conditions. This presentation delves into the steps necessary for effective market analysis, incorporating Bloom's Taxonomy to ensure a deep, actionable learning experience." },
+    { "type": "paragraph", "text": "The fundamental challenge every business faces is understanding not just what the market looks like today, but how it will evolve and where the best opportunities lie. Market analysis transforms raw data and observations into strategic insights that drive decision-making. By the end of this guide, you'll have a systematic framework for conducting thorough market analysis that uncovers opportunities others miss." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 DEFINING KEY TERMS" },
+    { "type": "paragraph", "text": "Before diving into the steps, let's establish a common vocabulary. Market Analysis is the process of gathering, interpreting, and utilizing information about a market, including trends, competitor behavior, and customer preferences. Understanding this concept helps stakeholders align on objectives and methodology. Market Size refers to the volume or value of a specific market, indicating potential sales opportunities. This metric helps businesses assess whether a market is worth entering and how much they can realistically capture. Market Growth is the rate at which a market's size is increasing over time, reflecting industry health and future potential. High-growth markets attract more investment but also more competition, making timing critical." },
+    
+    { "type": "headline", "level": 3, "text": "Market Trends" },
+    { "type": "paragraph", "text": "Market Trends are patterns of change in consumer behavior, technology, and regulations that shape how markets evolve. For example, the shift toward remote work created trends in collaboration software, home office equipment, and cybersecurity. Understanding trends allows businesses to anticipate changes rather than react to them. Trends can be short-term fads or long-term structural shifts—distinguishing between them is crucial for strategy. A common mistake is conflating a temporary spike in demand with a lasting trend, leading to overinvestment in capacity that won't be needed long-term." },
+    
+    { "type": "headline", "level": 3, "text": "Competitive Landscape" },
+    { "type": "paragraph", "text": "The Competitive Landscape is a detailed examination of how a business's competitors operate within the same market, including their strengths, weaknesses, strategies, and market positions. This isn't just about knowing who your competitors are—it's about understanding their business models, pricing strategies, customer segments, and strategic priorities. By understanding this, companies can differentiate themselves and exploit competitors' weaknesses. For instance, if all major competitors focus on enterprise customers, a gap may exist in serving small businesses with simpler, more affordable solutions." },
+    
+    { "type": "headline", "level": 2, "text": "💡 MENTAL MODELS FOR MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Mental models are frameworks that help simplify complex information into understandable and usable forms. For market analysis, several proven models provide structured approaches to evaluating markets systematically." },
+    
+    { "type": "headline", "level": 3, "text": "PESTLE Analysis Framework" },
+    { "type": "paragraph", "text": "PESTLE Analysis evaluates **external factors across six dimensions** that shape your market environment. Understanding these forces helps you anticipate changes before they become critical threats or missed opportunities. The six dimensions are:" },
     {
       "type": "numbered_list",
       "items": [
-        "Main numbered point 1.",
-        {
-          "type": "bullet_list",
-          "items": [
-            "Sub-bullet C under numbered list.",
-            "Sub-bullet D, also useful for breaking down complex points."
-          ]
-        },
-        "Main numbered point 2."
+        "**Political factors**: Government policies, trade regulations, political stability, and policy changes that affect market access and operations. For example, new data privacy laws can require significant compliance investments.",
+        "**Economic factors**: GDP growth, interest rates, inflation, exchange rates, and consumer spending power. Rising interest rates increase your capital costs while decreasing customer purchasing power.",
+        "**Social factors**: Demographics, cultural trends, consumer attitudes, and lifestyle changes. The shift to remote work created massive demand for collaboration tools and home office equipment.",
+        "**Technological factors**: Innovation rates, automation trends, R&D investment, and emerging technologies. Cloud computing transformed software delivery from licenses to subscriptions.",
+        "**Legal factors**: Employment law, health and safety regulations, intellectual property rights, and industry-specific regulations. Healthcare providers face strict HIPAA requirements affecting their technology choices.",
+        "**Environmental factors**: Climate change regulations, sustainability trends, resource scarcity, and green business practices. Carbon taxes are changing transportation and logistics economics."
       ]
     },
-    { "type": "section_break", "style": "dashed" }
+    { "type": "paragraph", "text": "**How to apply PESTLE systematically**: Start by listing all factors in each category that could impact your market. Then, assess each factor's current state, direction of change, and potential impact on your business. Prioritize the top 3-5 factors that have the **highest impact** and **highest likelihood**. For example, a food delivery company might identify Social factors (changing dining habits), Technological factors (GPS and mobile payment adoption), and Legal factors (gig economy regulations) as their top three priorities. This focused analysis prevents paralysis from trying to track everything and directs attention to what actually matters for strategic decisions." },
+    
+    { "type": "headline", "level": 3, "text": "Five Forces Analysis by Michael Porter" },
+    { "type": "paragraph", "text": "Porter's Five Forces helps assess **industry attractiveness** and **competitive intensity** by examining five structural factors that determine profitability. Each force either increases or decreases your ability to capture value:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Threat of New Entrants**: How easy is it for new competitors to enter your market? **High barriers** like capital requirements or regulatory hurdles protect incumbents and preserve margins. **Low barriers** mean constant new competition and pressure on pricing.",
+        "**Bargaining Power of Suppliers**: Can suppliers dictate terms? If you have few supplier options or switching costs are high, they can squeeze your margins. Multiple supplier options give you **negotiating leverage**.",
+        "**Bargaining Power of Buyers**: Can customers demand lower prices? Large customers or commoditized products increase buyer power. When buyers are fragmented and your product is differentiated, you maintain **pricing power**.",
+        "**Threat of Substitutes**: Can customers solve their problem differently? Substitutes don't have to be direct competitors—video conferencing substituted for business travel. **Strong substitutes** limit how much you can charge before customers switch to alternatives.",
+        "**Competitive Rivalry**: How intense is competition among existing players? High rivalry leads to price wars and margin erosion. Industries with **few large players** and differentiated products have healthier margins than crowded markets with commodity products."
+      ]
+    },
+    { "type": "paragraph", "text": "These models offer structured approaches for analyzing markets, ensuring comprehensive evaluation rather than ad-hoc guesswork. Use PESTLE when evaluating macro-environmental factors and market entry decisions. Use Five Forces when assessing industry profitability and competitive positioning. Combine both for a complete picture: PESTLE shows you which markets are attractive from a macro perspective, while Five Forces reveals whether you can actually make money in those markets given competitive dynamics." },
+    
+    { "type": "headline", "level": 2, "text": "🎬 STEP-BY-STEP PROCEDURES FOR MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "Now that you understand key concepts and frameworks, let's walk through the actual process of conducting market analysis. Each step builds on the previous one, creating a comprehensive understanding of your market." },
+    
+    { "type": "headline", "level": 3, "text": "Step 1: Define the Market Scope" },
+    { "type": "paragraph", "text": "Begin by clearly defining the market you wish to analyze. This involves identifying the geographic region, product categories, and customer segments you intend to examine. A precise definition ensures the relevance of your analysis and prevents scope creep that dilutes insights. For example, instead of analyzing 'the software market,' narrow it to 'project management software for remote teams of 10-50 people in North America.' This specificity makes data collection manageable and insights actionable." },
+    { "type": "paragraph", "text": "Why this matters: Without clear boundaries, you'll collect irrelevant data and draw misleading conclusions. A company analyzing 'the healthcare market' might include everything from hospital equipment to consumer vitamins—markets with completely different dynamics, customers, and competitors. The narrower your initial scope, the more actionable your insights. You can always expand later once you understand one segment deeply. Common pitfall: Defining the market too broadly to make the opportunity look bigger for stakeholders, then realizing you can't actually serve that entire market." },
+    
+    { "type": "headline", "level": 3, "text": "Step 2: Collect Data from Multiple Sources" },
+    { "type": "paragraph", "text": "Gather both **quantitative** and **qualitative data** from various sources. **Primary data** comes directly from the market via surveys, interviews, or social media—expensive and time-consuming but highly relevant to your specific questions. **Secondary data** can be found in existing reports or databases like industry reports from Gartner or Forrester, government statistics, trade association publications, or competitor financial filings. A mix of both types provides a comprehensive view while balancing cost and relevance." },
+    { "type": "paragraph", "text": "**Best practices for systematic data collection** follow this prioritized sequence:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Start with secondary research** to understand the overall landscape: Read 2-3 recent industry reports, study competitor websites and case studies, analyze government statistics or trade association data. This gives you context before talking to people.",
+        "**Conduct customer interviews** (20-30 minimum) to understand real needs: Talk to current customers, potential customers, AND non-customers who chose alternatives. Understanding **why people didn't choose you** is as valuable as understanding why they did. Record and transcribe interviews to identify patterns.",
+        "**Survey for quantification** after interviews reveal key themes: Use surveys to test how widespread the patterns are. **Quality matters more than quantity**—500 responses from your actual target segment beat 5,000 responses from a generic audience.",
+        "**Observe actual behavior** where possible: Watch how customers use existing solutions, attend industry events, analyze publicly available usage data. People's **revealed preferences** (what they do) often differ from **stated preferences** (what they say).",
+        "**Document sources meticulously**: Create a reference database linking every insight to its source. You'll need this when stakeholders question your conclusions or when you need to update analysis later."
+      ]
+    },
+    
+    { "type": "headline", "level": 3, "text": "Step 3: Analyze Market Size and Growth" },
+    { "type": "paragraph", "text": "Use collected data to estimate the market's current size and project future growth. This step involves financial analysis, trend identification, and forecasting techniques. Calculate TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) to understand the full opportunity, the portion you can realistically serve, and the portion you can actually capture given competition and your capabilities. For example, the global CRM software market might be $50B (TAM), but if you only serve small businesses in Europe, your SAM might be $2B, and your realistic SOM in year three might be $50M based on expected market share." },
+    { "type": "paragraph", "text": "Why three different numbers matter: TAM shows the theoretical maximum if you had infinite resources and no competition—useful for understanding market potential but misleading for planning. SAM shows what's realistically addressable given your go-to-market constraints—this is what you should use for strategic planning. SOM shows what you can actually capture—this is what you should use for revenue forecasting and resource allocation. Decision criterion: Only pursue markets where your realistic SOM can support your business model. If you need $10M revenue to be sustainable but can only capture $5M, the market is too small regardless of how large the TAM appears." },
+    
+    { "type": "headline", "level": 3, "text": "Step 4: Identify Market Trends" },
+    { "type": "paragraph", "text": "Analyze data to spot patterns and trends in consumer behavior, technology adoptions, and regulatory changes. Trends offer insights into market direction, helping businesses anticipate changes rather than merely reacting. Look for convergence of multiple signals—a real trend will show up in customer interviews, industry reports, and competitor behavior simultaneously. For instance, the shift to subscription models appeared in customer preferences for predictable costs, analyst reports on recurring revenue valuations, and competitor launches of subscription offerings." },
+    { "type": "paragraph", "text": "**Key indicators to identify genuine trends** follow this systematic approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Multiple independent signals**: A real trend appears in customer interviews, industry reports, competitor behavior, and technology adoption simultaneously. If only one source shows the trend, it might be an outlier or temporary spike.",
+        "**Durable underlying drivers**: Trends are driven by fundamental changes in technology, demographics, or economics that build gradually over years. Ask: What underlying force drives this change? Is it reversible? Are multiple independent factors pointing the same direction?",
+        " **Convergence of evidence**: Look for the same pattern across different data sources—customer preferences, analyst reports, competitor strategies, and market behavior all pointing in the same direction.",
+        "**Timeline consistency**: Real trends develop over months or years, not days or weeks. They show consistent directional movement rather than sudden spikes followed by crashes.",
+        "**Cross-industry validation**: Genuine trends often appear across multiple industries or sectors, not just in one specific market or use case."
+      ]
+    },
+    { "type": "paragraph", "text": "Distinguishing trends from fads: Trends are driven by fundamental changes in technology, demographics, or economics and build gradually over years. Fads are driven by social dynamics and novelty, peaking quickly then disappearing. For example, remote work is a trend driven by technology (collaboration tools), economics (real estate costs), and demographics (millennial preferences)—all durable factors. Cryptocurrency adoption in 2021 showed fad characteristics—driven primarily by speculation and social contagion rather than fundamental utility, leading to a crash when sentiment shifted." },
+    
+    { "type": "headline", "level": 3, "text": "Step 5: Conduct Competitive Analysis" },
+    { "type": "paragraph", "text": "Examine your competitors' strengths, weaknesses, market share, strategies, and weaknesses. Understanding competition is key to differentiation and gaining competitive advantage. Create a detailed competitor matrix documenting: pricing models, target segments, key features, strengths/weaknesses, recent funding or strategic moves, and estimated market share. Don't limit analysis to direct competitors—include substitute products and potential new entrants. For example, a taxi company should analyze not just other taxi companies but also Uber, Lyft, public transit, bicycle sharing, and any other way customers solve the transportation problem." },
+    { "type": "paragraph", "text": "**Systematic competitive analysis** follows this structured approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Map all competitive alternatives**: Include direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). Don't limit analysis to companies that look like you.",
+        "**Categorize competitors into strategic groups**: Group competitors by approach (premium vs. budget, enterprise vs. SMB, product-led vs. sales-led). Within each group, identify the leader and understand their strategy and positioning.",
+        "**Analyze competitive gaps**: Look for underserved segments where customer needs aren't being met. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental.",
+        "**Assess switching costs**: For each competitive alternative, understand what it costs, what's good enough about it, and what the switching cost would be for customers to move to your solution.",
+        "**Identify competitive advantages**: Determine whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war but lose the value war."
+      ]
+    },
+    { "type": "paragraph", "text": "Porter's Five Forces is particularly useful here—it reveals not just who your competitors are, but the structural factors that determine how intense competition will be. The most valuable insights come from understanding why customers choose competitors over you and whether those reasons are fixable or fundamental. If customers choose a competitor because they prefer a feature you can build, that's fixable. If they choose competitors because they need enterprise-scale support you can't economically provide at your size, that reveals a segment you should avoid until you're larger." },
+    
+    { "type": "headline", "level": 3, "text": "Step 6: Evaluate Customer Needs and Preferences" },
+    { "type": "paragraph", "text": "Use your data to identify what your potential customers need and want. Customer insights drive product development, marketing, and customer service strategies. Go beyond what customers say they want to understand their underlying jobs-to-be-done. People don't want a quarter-inch drill, they want a quarter-inch hole—or actually, they want to hang a picture to make their home feel complete. Understanding these layers helps you identify non-obvious solutions. Use techniques like focus groups for exploratory research, surveys for quantifying preferences across larger groups, and observational research to see what customers actually do versus what they say they do." },
+    { "type": "paragraph", "text": "**Effective customer needs analysis** requires this multi-layered approach:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Surface-level needs (what they say)**: Use surveys and interviews to capture stated preferences, feature requests, and explicit feedback. This gives you the 'what' but not necessarily the 'why' behind customer behavior.",
+        "**Behavioral needs (what they do)**: Observe actual customer behavior through usage analytics, purchase patterns, and real-world interactions. People's revealed preferences often differ significantly from their stated preferences.",
+        "**Jobs-to-be-done (what they're trying to accomplish)**: Dig deeper to understand the underlying job customers are hiring your product to do. This reveals non-obvious solutions and helps you identify adjacent opportunities.",
+        "**Emotional needs (how they want to feel)**: Understand the emotional outcomes customers seek—confidence, security, status, convenience, or peace of mind. These often drive purchasing decisions more than functional features.",
+        "**Unmet needs (gaps in current solutions)**: Identify needs that are important to customers, unsatisfied by current solutions, and feasible for you to address profitably. The intersection of these three criteria defines your opportunity space."
+      ]
+    },
+    { "type": "paragraph", "text": "The biggest insight often comes from understanding the gap between stated and revealed preferences. Customers might say they want more features, but behavioral data shows they primarily use three core functions and find additional features confusing. They might say price is their top priority, but they consistently choose premium options when the value proposition is clear. This is why combining surveys (stated preferences), interviews (deeper context), and behavioral data (revealed preferences) gives you the complete picture." },
+    
+    { "type": "headline", "level": 3, "text": "Step 7: Synthesize Insights and Draw Conclusions" },
+    { "type": "paragraph", "text": "Combine all findings to draw conclusions about market opportunities, challenges, and strategic directions. This synthesis guides decision-making, ensuring strategies are data-driven rather than based on assumptions or intuition alone. Create a clear narrative that connects your findings: What is the market opportunity? Who are the customers? What do they need? Who else serves them and how? Where are the gaps? What trends are creating new opportunities or threats? This narrative becomes your strategic foundation." },
+    { "type": "paragraph", "text": "**Effective synthesis** requires answering these critical questions systematically:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Market attractiveness assessment**: Should we enter/remain in this market? Base this on market size, growth rate, profitability potential, and competitive dynamics. Consider both current conditions and future projections.",
+        "**Competitive advantage evaluation**: Can we win in this market? Assess your unique strengths, resources, and capabilities against competitive requirements and customer needs. Be honest about gaps and limitations.",
+        "**Target segment prioritization**: If yes to entering, what segments should we target? Prioritize based on segment attractiveness (size, growth, profitability) and your ability to serve them profitably given your constraints.",
+        "**Positioning strategy development**: How should we position ourselves? Based on competitive gaps, customer needs, and your unique value proposition. Define your differentiation and messaging strategy.",
+        "**Risk and confidence assessment**: Present findings with clear confidence levels—distinguish between facts you're certain about and assumptions you're testing. This transparency helps stakeholders understand risks and make informed decisions."
+      ]
+    },
+    { "type": "paragraph", "text": "Present findings with clear recommendations and confidence levels—distinguish between facts you're certain about and assumptions you're testing. For example: 'The market is growing at 15% annually (high confidence, based on three independent reports). We believe 60% of potential customers would switch to a solution that solves problem X (medium confidence, based on 25 interviews but not yet validated at scale).' This transparency helps stakeholders understand risks and make informed decisions." },
+    
+    { "type": "headline", "level": 2, "text": "📝 WORKED EXAMPLE: SaaS Company Analyzing Healthcare Market" },
+    { "type": "paragraph", "text": "Let's walk through a complete market analysis example to see how these steps work in practice." },
+    
+    { "type": "headline", "level": 3, "text": "Background and Situation" },
+    { "type": "paragraph", "text": "TechFlow is a SaaS company with $10M annual revenue, currently selling project management software to technology companies. They're considering entering the healthcare vertical. Their board wants analysis to support a go/no-go decision within three months. The team has $50K budget for research and two analysts dedicated to the project." },
+    
+    { "type": "headline", "level": 3, "text": "Step-by-Step Analysis" },
+    { "type": "paragraph", "text": "Step 1 - Define Market Scope: The team initially considered 'healthcare project management' but realized this was too broad—hospitals have completely different needs than medical practices or pharmaceutical companies. After preliminary research, they narrowed to: 'Project management software for clinical research teams at mid-size pharmaceutical and biotech companies (500-5000 employees) in North America.' This specificity made the analysis manageable and insights actionable." },
+    { "type": "paragraph", "text": "Step 2 - Collect Data: Secondary research included three industry reports ($15K total) showing clinical trial management market dynamics, FDA databases showing number of clinical trials and sponsors, and competitor websites and case studies. Primary research included 30 interviews with clinical research managers, attending two industry conferences, and surveying 120 clinical research professionals on LinkedIn. Total research cost: $45K (under budget)." },
+    { "type": "paragraph", "text": "Step 3 - Analyze Market Size: TAM (all clinical trial project management globally): $2.3B. SAM (mid-size pharma/biotech, North America only): $380M. SOM (realistic capture in 3 years given competition): $15-25M. This SOM was calculated by estimating 200 target companies, 40% reachable through their channels, 25% conversion rate (based on their historical performance in tech), at $30K average annual contract value. The SOM range ($15-25M) accounts for uncertainty in conversion rates." },
+    { "type": "paragraph", "text": "Step 4 - Identify Trends: Three major trends identified: (1) FDA increasing scrutiny of clinical trial data management, creating demand for better documentation and audit trails (regulatory driver). (2) Rise of decentralized clinical trials requiring coordination across more dispersed teams (technology and COVID-driven). (3) Growing emphasis on trial speed as cost of delays increases, particularly for biotech companies with finite runway (economic driver). These trends converged to increase willingness-to-pay for better project management tools." },
+    { "type": "paragraph", "text": "Step 5 - Competitive Analysis: Four main competitors identified: TrialMaster (market leader, enterprise-focused, $100K+ deals, strong with large pharma), Medidata (comprehensive suite, expensive, long implementation), SmallPharma PM (budget option, limited features, $10K/year), and Excel + Email (surprisingly common among mid-size companies, free but inefficient). Gap identified: No solution optimized for mid-size companies that want more than Excel but can't afford or don't need enterprise solutions like Medidata. TechFlow's sweet spot—they've built a business on serving the mid-market that enterprises ignore and startups can't profitably serve." },
+    { "type": "paragraph", "text": "Step 6 - Customer Needs: Interviews revealed clinical research managers' biggest frustrations: (1) Compliance burden—every project change requires extensive documentation for FDA audits, (2) Cross-functional coordination—clinical trials involve medical, regulatory, data management, and operations teams that don't communicate well, (3) Visibility—leadership constantly asks 'when will the trial complete?' but answering requires manually aggregating data from multiple systems. Current solutions either don't address these needs (Excel) or are overkill with features they don't need (enterprise systems). TechFlow's existing strength in visual project timelines and stakeholder communication directly addresses needs #2 and #3." },
+    
+    { "type": "headline", "level": 3, "text": "Synthesis and Decision" },
+    { "type": "paragraph", "text": "Market Attractiveness: High. Growing market ($380M SAM, 12% annual growth), strong willingness-to-pay driven by regulatory and economic pressures, clear competitive gap in the mid-market segment. Competitive Advantage: Medium-High. TechFlow's core strengths (visual project management, cross-functional collaboration, mid-market focus) align well with identified needs. However, they lack healthcare domain expertise and compliance features. Risk: Entering a regulated industry requires compliance investment and longer sales cycles than their current tech market. Recommendation: Enter the market with a focused pilot—target 5-10 mid-size biotech customers to validate assumptions before full launch. Build compliance features (audit trails, user permissions, data retention) into roadmap. Hire one clinical research expert as product advisor. Budget $2M for year-one investment with expectation of $3-5M revenue by year three. This staged approach allows learning while limiting risk." },
+    
+    { "type": "headline", "level": 3, "text": "Key Lessons from This Example" },
+    { "type": "paragraph", "text": "First, market definition narrowing was crucial. 'Healthcare' → 'Clinical Research' → 'Mid-size Pharma/Biotech' → 'North America' transformed an impossibly broad analysis into an actionable one. Second, primary research revealed insights secondary research couldn't—the Excel + Email finding only emerged from customer interviews, yet it was critical for understanding the actual competition. Third, connecting customer needs to existing strengths is how you identify genuine competitive advantages rather than wishful thinking. TechFlow didn't need to be better at everything, just better at what mattered most to their target segment. Finally, staged entry reduces risk—the pilot approach lets them test assumptions with limited investment before full commitment." },
+    
+    { "type": "headline", "level": 2, "text": "❌ ANALYZING COMMON MISTAKES IN DEPTH" },
+    { "type": "paragraph", "text": "Understanding what NOT to do is as valuable as knowing best practices. Let's examine the most frequent and costly mistakes in market analysis with detailed analysis of why they happen and how to avoid them." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #1: Relying Solely on Secondary Data" },
+    { "type": "paragraph", "text": "Why it happens: Secondary research (industry reports, market studies, published data) is faster, cheaper, and feels more 'objective' than primary research. Companies rationalize that professional analysts have done the work, so why duplicate it? It's also more comfortable—reading reports doesn't require the vulnerability of talking to customers who might tell you your idea won't work." },
+    { "type": "paragraph", "text": "Real consequence: A B2B software company analyzed Gartner and Forrester reports showing strong demand in their category. Market reports showed $5B market size growing at 20% annually. They raised $10M, built the product, and launched to crickets. Post-mortem interviews revealed that while the aggregate market was growing, their specific use case wasn't a priority—customers had workarounds they were satisfied with. The reports averaged across many use cases, hiding this critical nuance. They burned through $8M before pivoting. The $50K they saved by not doing primary research cost them $8M in wasted development." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: Warning signs include: You can't name 10 potential customers by name and describe their specific pain points. Your pitch deck has a 'market size' slide but no 'customer quotes' slide. When asked 'How do you know customers want this?' your answer starts with 'Research shows...' instead of 'When I talked to customers...'. You're using three-year-old industry reports as your primary source. You haven't personally talked to at least 20 people in your target market." },
+    { "type": "paragraph", "text": "How to correct it: Implement a 70/30 rule—70% of your analysis time should be primary research (talking to customers, observing their behavior, testing assumptions), 30% secondary research (industry reports, market data, competitive intelligence). Start every market analysis by talking to people before reading reports. Use secondary data to size the market you've already validated through primary research, not to validate whether the market exists. Require every market analysis deliverable to include customer quotes and observed behaviors, not just statistics. Make customer interviews non-negotiable—if you can't get 20-30 interviews, you don't understand the market well enough to make major decisions." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #2: Confusing Market Size with Market Opportunity" },
+    { "type": "paragraph", "text": "Why it happens: Large TAM numbers are exciting and make pitch decks impressive. There's social pressure to show you're pursuing a 'big' opportunity. Founders and product managers selectively attend to information that makes their opportunity look bigger (confirmation bias). It's also easier to calculate TAM than to realistically assess what you can actually capture (SOM), so people stop at the easy metric." },
+    { "type": "paragraph", "text": "Real consequence: A startup raised money to build productivity software, citing a $30B productivity software TAM. What they didn't account for: (1) Their solution only worked for knowledge workers in specific industries (reducing TAM to $5B), (2) they could only reach SMBs through their go-to-market channels (reducing to $800M SAM), (3) in SMB productivity software, typical market leaders capture 5-8% share (reducing to $40-64M realistic SOM). They raised $5M expecting to build a $100M+ business but ran out of money after capturing $3M in revenue—their realistic SOM for years 1-3 was $5-8M, not enough to justify their cost structure. The business failed not because the market was 'too small' in absolute terms, but because they built for the wrong market size assumption." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: You talk about TAM but haven't calculated SAM and SOM. Your revenue projections assume you'll capture an unrealistic market share (>10% in a competitive market). You can't explain why customers would switch from current solutions to yours. Your 'market size' analysis focuses on how many potential customers exist rather than how many you can realistically reach, convert, and serve profitably. Your go-to-market strategy doesn't align with your market size claims (e.g., claiming a $10B opportunity but planning to use only inbound marketing to reach customers)." },
+    { "type": "paragraph", "text": "How to correct it: Always calculate all three numbers: TAM (total market), SAM (what you can serve given your constraints), and SOM (what you can realistically capture given competition). Use SOM for business planning and resource allocation, not TAM. Calculate SOM bottom-up: How many target customers exist? → What % can you reach through your channels? → What conversion rate can you achieve? → What's your average deal size? → Multiply these to get realistic revenue potential. Validate your SOM assumptions by looking at comparable companies—if you're assuming 15% market share but leaders in similar markets only capture 8%, you're being unrealistic. Be honest about constraints: geographic limitations, channel limitations, product limitations, competitive disadvantages. Strategy is as much about what you won't do as what you will do." },
+    
+    { "type": "headline", "level": 3, "text": "Mistake #3: Ignoring the Competitive Substitutes" },
+    { "type": "paragraph", "text": "Why it happens: People naturally focus on direct competitors (other companies doing the same thing) while overlooking indirect competitors and substitutes (different ways customers solve the same problem). This happens because direct competitors are visible and easy to identify, while substitutes require understanding customer jobs-to-be-done at a deeper level. There's also an optimistic tendency to think 'our solution is so obviously better that customers will definitely switch' without considering switching costs and the 'good enough' problem." },
+    { "type": "paragraph", "text": "Real consequence: A startup built sophisticated AI-powered meal planning software, analyzing direct competitors (other meal planning apps) but ignoring substitutes. When they launched, they discovered their actual competition was: manually browsing Pinterest, asking family members for recipe ideas, ordering from the same three restaurants customers already knew, and simply eating whatever was in the fridge. These 'free' substitutes worked 'good enough' that customers didn't feel enough pain to pay $10/month for optimization. The company built a feature-rich product solving a problem customers had learned to live with. They spent $2M achieving $200K ARR before shutting down. The competition wasn't other apps—it was customer inertia and free alternatives." },
+    { "type": "paragraph", "text": "How to recognize you're making this mistake: Your competitive analysis only lists companies that look like you. When you describe competitors, you focus on their features rather than how customers use them. You haven't mapped out all the ways customers currently solve the problem you're addressing, including 'do nothing' and manual/informal solutions. You're surprised when customers say they 'aren't really looking for a solution right now' despite having the problem you solve. Your win rate against direct competitors is good, but your overall conversion rate is low (meaning you win when customers decide to buy something, but most customers decide not to buy anything)." },
+    { "type": "paragraph", "text": "How to correct it: Reframe competitive analysis around customer jobs-to-be-done instead of product categories. Ask: 'What are all the ways customers currently solve this problem?' not just 'Who else sells this type of product?'. In customer interviews, always ask: 'What do you do today when you encounter this problem?' and 'What would you do if our product didn't exist?'. The answers reveal your real competition. Create a comprehensive competitor map including: direct competitors (same solution), indirect competitors (different solution, same job), substitutes (different job that serves similar need), and the status quo (doing nothing or manual processes). For each alternative, understand: What does it cost? What's good enough about it? What's the switching cost from it to you? What would have to be true for customers to switch? This reveals whether you're competing on features (against direct competitors), value proposition (against substitutes), or urgency (against status quo). Most startups fail because they win the feature war against direct competitors but lose the value war against substitutes and status quo." },
+    
+    { "type": "headline", "level": 2, "text": "✅ RECOMMENDATIONS FOR EFFECTIVE MARKET ANALYSIS" },
+    { "type": "paragraph", "text": "**Best practices for ongoing market analysis** follow this prioritized sequence:" },
+    {
+      "type": "numbered_list",
+      "items": [
+        "**Use a combination of data sources to ensure a comprehensive view of the market**: Relying on a single data source creates blind spots and biases in your analysis. Primary research gives you specific insights about your target customers that no report can provide, revealing nuances like workflow details, political dynamics, and unspoken pain points. Secondary research provides market sizing, trend validation, and competitive benchmarking that would take years to gather yourself. This approach mitigates the risk of bias and provides a solid basis for a more reliable analysis that combines the depth of primary research with the breadth of secondary data.",
+        "**Regularly update your market analysis to reflect current conditions**: Markets are dynamic—what was true last year may not be true today. Customer preferences shift, new competitors emerge, regulations change, and technological innovations disrupt established patterns. Schedule quarterly reviews of key metrics and assumptions to catch changes early when you can still adapt. Regular updates help strategies remain relevant and responsive to market changes, preventing you from optimizing for yesterday's market. Assign someone ownership of market intelligence—if it's everyone's job, it's no one's job. This person should maintain competitor tracking, customer feedback loops, and industry monitoring.",
+        "**Engage directly with customers through surveys and feedback mechanisms to understand their evolving needs and preferences**: Direct engagement offers real-time insights and fosters customer loyalty by showing you value their input. Use multiple engagement mechanisms: quarterly surveys for broad trends (what's changing?), monthly user interviews for deep dives (why is it changing?), ongoing support ticket analysis (where are pain points?), and user behavior analytics (what do they actually do vs. what they say?). The combination reveals both stated and revealed preferences. Make feedback actionable—close the loop by telling customers how their input shaped decisions, and you'll increase future participation rates.",
+        "**Incorporate scenario planning into your market analysis to anticipate various future states based on different variables**: The future is uncertain, but it's not random—it will be shaped by identifiable drivers. Scenario planning helps you prepare for multiple futures rather than betting everything on one forecast. Identify key uncertainties (regulation, technology adoption, economic conditions), create 3-4 distinct scenarios showing how these might play out (e.g., 'rapid adoption', 'slow adoption', 'regulatory backlash'), and develop strategic responses for each. This helps in preparing for unexpected changes in the market or industry, making your strategy more resilient. Focus on preparedness rather than prediction—you can't know which future will happen, but you can prepare to thrive in multiple scenarios rather than being optimized for only one."
+      ]
+    },
+    
+    { "type": "headline", "level": 2, "text": "🎓 SKILL PRACTICE: Apply Your Learning" },
+    { "type": "paragraph", "text": "Now let's test your understanding with a realistic scenario. Work through this analysis using the frameworks and steps you've learned." },
+    
+    { "type": "paragraph", "text": "**Scenario**: GlobalSensors Inc. manufactures industrial sensors ($500/unit) primarily for automotive manufacturing (70% of revenue) and aerospace (30% of revenue). Total revenue: $25M annually. They're considering entering the agricultural technology market. Your task is to conduct a preliminary market analysis." },
+    
+    { "type": "paragraph", "text": "**Available Data**: (1) Agricultural technology market size: $12B globally, growing at 8% annually. (2) Three major competitors control 60% combined market share: AgriTech Solutions, FarmSense, and CropMonitor. Pricing ranges from $300-$800 per unit. (3) Your sensors have tighter tolerances (0.1mm vs. industry standard 0.2mm) but most agricultural applications don't require that precision. (4) GlobalSensors has zero existing agricultural customer relationships or distribution channels. (5) Sales cycles: Current business 3-6 months, agricultural sector typically 6-12 months. (6) Agricultural customers are highly price-sensitive and seasonal in their purchasing." },
+    
+    { "type": "paragraph", "text": "**Your Analysis Tasks**: (1) How would you define the specific target market (don't just say 'agriculture')? (2) What data would you collect first and why? List your top 5 priorities. (3) What are the 3 biggest risks you identify for this market entry? (4) Using Five Forces analysis, assess two forces that concern you most. (5) What conditions would make you recommend NOT entering this market?" },
+    
+    { "type": "paragraph", "text": "**Expert Analysis**: Let's walk through how an experienced analyst would approach this scenario. **Market Definition**: Don't target 'agriculture' broadly—too diverse. Instead, focus on 'precision agriculture for large commercial farms (1,000+ acres) in North America growing commodity crops (corn, soybeans, wheat).' Why this narrowing? Large farms have budget for optimization technology, commodity crops have thin margins making efficiency gains valuable, and North America allows leveraging existing geographic footprint. Exclude: small farms (can't afford), specialty crops (different needs), and international markets initially (different regulations, distribution complexity). **Data Collection Priorities**: (1) Interview 20-30 large farm operators to understand their sensor needs, buying process, and pain points—this primary research is critical since you know nothing about this customer segment. (2) Analyze competitors' positioning and customer segments from their websites, case studies, and customer reviews—understand where they're strong and where gaps exist. (3) Talk to 5-10 agricultural equipment distributors to understand channel dynamics—you'll need distribution and don't have it. (4) Attend two agricultural technology conferences to observe buying behavior and network with potential customers. (5) Commission a focused industry report on precision agriculture sensor adoption rates and barriers—validates market size within your target segment. **Top 3 Risks**: (1) Channel risk—you have no agricultural distribution relationships and building them takes 12-18 months. Competitors have established relationships making customer acquisition very difficult. (2) Product-market fit risk—your differentiator (tighter tolerances) isn't valued in this market; customers optimize for price and durability, not precision. You'd be selling premium features no one wants to pay for. (3) Sales cycle risk—6-12 month sales cycles are twice your current length, while agricultural seasonality means customers only buy during narrow windows. This strains cash flow and makes iteration slower. **Five Forces Concerns**: Bargaining Power of Buyers is HIGH—commodity farmers are extremely price-sensitive with thin margins, they see sensors as commoditized, and they can easily switch between suppliers. This leads to price pressure and low margins. Threat of Substitutes is MEDIUM-HIGH—farmers have used traditional methods for decades and many still do. Free/manual alternatives (observation, experience, simple instruments) work 'good enough' for many. You're competing against inertia and the mindset of 'we've always done it this way.' **Conditions for No-Go**: Recommend NOT entering if: (1) Customer interviews reveal farmers don't value your precision advantage and won't pay a premium for it. (2) Distribution partners require exclusivity or minimum volumes you can't commit to without abandoning current business. (3) Realistic SOM calculation shows less than $5M capturable revenue in three years—not enough to justify the channel investment and organizational distraction. (4) Competitors are engaging in price wars with margin compression—entering a race to the bottom is value-destructive. (5) Regulatory or liability requirements (sensor failures affecting crop yields) create risk exposure your current insurance doesn't cover. **Recommendation**: Likely NO-GO unless a specific niche emerges. The core issues are: your key differentiator isn't valued, you lack distribution channels, and market dynamics favor price competition where you don't want to compete. However, one possible pivot: Target agricultural research institutions and university agricultural programs instead of commercial farms—they value precision, have different buying processes, and might serve as a beachhead before commercial expansion. This would require a separate analysis of that segment." },
+    
+    { "type": "alert", "alertType": "info", "title": "Key Takeaway", "text": "Market analysis is an ongoing process, not a one-time task. Regularly revisiting and updating your analysis ensures that your business strategies remain aligned with market realities and ahead of competitive forces. The most successful companies treat market analysis as a continuous learning system that informs every major decision." },
+    
+    { "type": "headline", "level": 2, "text": "🎯 CONCLUSION" },
+    { "type": "paragraph", "text": "Effective market analysis is pivotal for making informed strategic decisions and staying competitive in today's dynamic business environment. By following a structured approach and avoiding common pitfalls, businesses can gain valuable insights into their competitive landscape, customer preferences, and the broader market environment. This isn't merely about collecting data—it's about transforming information into actionable intelligence that drives strategic decision-making." },
+    { "type": "paragraph", "text": "Remember that market analysis is not a one-time event but an ongoing process of learning and adaptation. The most successful companies build market intelligence into their organizational DNA, continuously gathering signals, testing assumptions, and adjusting strategy. The frameworks and processes you've learned—PESTLE analysis, Five Forces, systematic data collection, synthesizing insights into decisions—provide a foundation for this continuous learning. Start by applying these methods to one specific market or decision, learn from the process, then expand to other areas of your business. With practice, rigorous market analysis becomes not just a planning exercise, but a competitive advantage that helps you see opportunities others miss and avoid risks others overlook." }
   ],
   "detectedLanguage": "en"
 }
@@ -27954,6 +30446,8 @@ class TextPresentationWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     isCleanContent: Optional[bool] = False
+    # NEW: indices of edited sections for selective regeneration (comma-separated: "0,2,5")
+    editedSectionIndices: Optional[str] = None
     # Connector context fields
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None
@@ -27969,6 +30463,8 @@ class TextPresentationEditRequest(BaseModel):
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
     """Generate text presentation content with streaming response"""
+    import json
+    
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
     logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
@@ -28013,6 +30509,76 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         wiz_payload["lesson"] = payload.lesson
     if payload.courseName:
         wiz_payload["courseName"] = payload.courseName
+    
+    # Add course context for better lesson progression
+    if payload.outlineId and payload.lesson:
+        try:
+            logger.info(f"[COURSE_CONTEXT] Fetching course context for onepager | outline_id={payload.outlineId} | lesson=\"{payload.lesson}\"")
+            
+            # Get user ID
+            onyx_user_id = await get_current_onyx_user_id(request)
+            pool = await get_db_pool()
+            
+            # Get full course structure
+            course_structure = await get_course_outline_structure(payload.outlineId, onyx_user_id, pool)
+            if course_structure:
+                wiz_payload["courseStructure"] = course_structure
+                logger.info(f"[COURSE_CONTEXT] Course structure added to onepager wizard request")
+                # Log full course structure
+                logger.info(f"[COURSE_CONTEXT] FULL COURSE STRUCTURE: {json.dumps(course_structure, ensure_ascii=False, indent=2)}")
+            
+            # Get adjacent lesson content with product type priority
+            product_type = "onepager"  # This is a text presentation/onepager
+            adjacent_context = await get_adjacent_lesson_content(
+                payload.outlineId,
+                payload.lesson,
+                product_type,
+                onyx_user_id,
+                pool
+            )
+            
+            if adjacent_context:
+                # Add lesson position
+                if 'lessonPosition' in adjacent_context:
+                    wiz_payload["lessonPosition"] = adjacent_context['lessonPosition']
+                    logger.info(f"[COURSE_CONTEXT] Lesson position: {adjacent_context['lessonPosition']}")
+                
+                # Add previous lesson context
+                if 'previousLesson' in adjacent_context:
+                    wiz_payload["previousLesson"] = adjacent_context['previousLesson']
+                    prev_size = adjacent_context['previousLesson'].get('contentSize', 0)
+                    prev_title = adjacent_context['previousLesson'].get('title', 'Unknown')
+                    logger.info(f"[COURSE_CONTEXT] Previous lesson added | title=\"{prev_title}\" | {prev_size} chars")
+                    # Log full previous lesson content
+                    logger.info(f"[COURSE_CONTEXT] FULL PREVIOUS LESSON: {json.dumps(adjacent_context['previousLesson'], ensure_ascii=False, indent=2)[:5000]}...")
+                
+                # Add next lesson title to avoid covering topics meant for next lesson
+                if 'nextLesson' in adjacent_context:
+                    next_lesson = adjacent_context['nextLesson']
+                    wiz_payload["nextLesson"] = {
+                        'title': next_lesson.get('title'),
+                        'position': next_lesson.get('position')
+                    }
+                    logger.info(f"[COURSE_CONTEXT] Next lesson info added | title=\"{next_lesson.get('title')}\" | position=\"{next_lesson.get('position')}\"")
+                    logger.info(f"[COURSE_CONTEXT] FULL NEXT LESSON INFO: {json.dumps(wiz_payload['nextLesson'], ensure_ascii=False, indent=2)}")
+                
+                context_summary = []
+                if 'courseStructure' in wiz_payload:
+                    context_summary.append('courseStructure✓')
+                if 'lessonPosition' in wiz_payload:
+                    context_summary.append('lessonPosition✓')
+                if 'previousLesson' in wiz_payload:
+                    context_summary.append('previousLesson✓')
+                if 'nextLesson' in wiz_payload:
+                    context_summary.append('nextLesson✓')
+                else:
+                    context_summary.append('nextLesson✗')
+                
+                logger.info(f"[COURSE_CONTEXT] Context added to onepager wizard: {' | '.join(context_summary)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch course context for onepager | outline_id={payload.outlineId} | error={e}")
+            # Continue without course context - not critical for preview
 
     # Add file context if provided
     if payload.fromFiles:
@@ -28094,7 +30660,243 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    # Add course context instructions if context is present
+    # Educational quality standards are now in system prompt (content_builder_ai.txt)
+    course_context_instructions_onepager = ""
+    if 'courseStructure' in wiz_payload or 'previousLesson' in wiz_payload:
+        course_context_instructions_onepager = """
+
+**COURSE CONTEXT INSTRUCTIONS:**
+You have been provided with course context information. You MUST use this context to:
+1. **Avoid Repetition**: Review previousLesson content and do NOT repeat examples, case studies, or explanations already covered
+2. **Build Upon Previous Content**: Reference concepts from previous lessons when appropriate (e.g., "Building on what we covered earlier...")
+3. **Adjust Depth**: Use lessonPosition to gauge appropriate depth - early lessons need comprehensive fundamentals, later lessons can assume foundation
+4. **Maintain Terminology**: Use the same key terms, frameworks, and mental models as previous lessons - extract and maintain core vocabulary
+5. **Respect Next Lesson Scope**: If nextLesson is provided, examine its title carefully and do NOT cover topics that clearly belong to that lesson. Keep content focused on the current lesson's scope only.
+6. **Content Uniqueness**: Generate completely fresh examples, case studies, and scenarios - never reuse content from previous lessons
+
+CRITICAL: Pay special attention to the nextLesson title if provided. For example:
+- If current lesson is "Installing NextCloud" and nextLesson is "Configuring Advanced Features", do NOT cover advanced configuration in the current lesson
+- If current lesson is "Introduction to Python" and nextLesson is "Python Data Types", do NOT dive deep into data types
+- Keep the current lesson focused and leave appropriate topics for the next lesson"""
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations." + course_context_instructions_onepager
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
+
+    # Force JSON-ONLY preview output for Text Presentation with EDUCATIONAL QUALITY REQUIREMENTS
+    try:
+        json_preview_instructions_text = f"""
+
+🎓 EDUCATIONAL CONTENT QUALITY REQUIREMENTS (TARGET: 90+/100 SCORE):
+
+**CONTENT STRUCTURE DISTRIBUTION (CRITICAL):**
+- Paragraphs: 60% - Use for explanations, context, WHY/HOW, narrative flow
+- Bullet Lists: 20% - Each item MUST be 60-100 words with: concept + explanation + example + takeaway
+- Worked Examples: 10% - Complete scenarios with situation → analysis → decision → outcome → lesson
+- Recommendations/Alerts: 10% - Action plans, warnings, decision frameworks
+
+**BLOOM'S TAXONOMY PROGRESSION (MANDATORY):**
+1. REMEMBER: Define key terms with clear definitions (use paragraphs)
+2. UNDERSTAND: Explain WHY concepts work, mechanisms, relationships (use paragraphs with examples)
+3. APPLY: Show HOW to use with step-by-step procedures, decision criteria (use numbered lists or paragraphs)
+4. ANALYZE: Compare approaches, identify trade-offs, common mistakes (use paragraphs or specialized blocks)
+
+**PEDAGOGICAL ELEMENTS (MUST INCLUDE - NON-NEGOTIABLE):**
+
+1. **Mental Models (2-3 REQUIRED)**:
+   - NOT just mentioned by name - MUST show HOW to apply them
+   - Include step-by-step application guidance
+   - Example: "PESTLE Analysis: (1) List factors in each category, (2) Assess impact, (3) Prioritize top 3-5"
+   - Provide a worked example of using the framework
+
+2. **Worked Examples (2-3 COMPLETE SCENARIOS REQUIRED)**:
+   - MUST follow this structure for EACH example:
+     * Background/Situation (who, what, context)
+     * Step-by-Step Analysis (walking through the process)
+     * Decision Made (what was chosen and why)
+     * Outcome (what happened)
+     * Key Lessons (what to learn from this)
+   - Use 300-500 words per worked example
+   - Make them realistic and detailed, not superficial
+
+3. **Common Mistakes Analysis (3-5 DEEP DIVES REQUIRED)**:
+   - For EACH mistake, you MUST include ALL of these:
+     * WHY it happens (psychology, incentives, biases)
+     * Real consequence (specific example of the cost)
+     * How to recognize you're making it (warning signs)
+     * How to correct it (actionable steps)
+   - Use 150-200 words per mistake analysis
+   - NOT just listing mistakes - provide deep analysis
+
+4. **Decision Frameworks (REQUIRED)**:
+   - Specific criteria: "Use X when [condition 1], [condition 2], [condition 3]"
+   - NOT vague guidance - give clear decision rules
+   - Include trade-offs between options
+
+5. **Skill Practice Section (REQUIRED)**:
+   - Present a detailed scenario (100+ words with specific data points)
+   - Ask 3-5 analytical questions
+   - Provide expert analysis (200-300 words) showing reasoning
+
+**CONTENT DEPTH REQUIREMENTS:**
+- Target 3,000-5,000 words for comprehensive learning
+- Each major concept needs: Definition → Explanation → Application → Common Pitfalls
+- Use real-world implications, not just facts
+- Provide actionable insights learners can immediately implement
+
+**ANTI-HALLUCINATION PROTOCOL:**
+- If creating illustrative examples: Use generic language ("a manufacturing company", "imagine a scenario")
+- NEVER invent specific company names, statistics, or present made-up examples as real
+- Label clearly: "For example, consider a situation where..." or "[ILLUSTRATIVE EXAMPLE]"
+
+**STRUCTURE EXAMPLES:**
+❌ BAD (list-only, shallow):
+- "Use agile methodology for faster development"
+
+✅ GOOD (paragraph with depth):
+"Implement Agile methodology with 2-week sprints to accelerate development cycles. Agile's iterative approach allows teams to gather user feedback early and adjust course, reducing the risk of building unwanted features. In practice, teams hold daily standups, sprint planning, and retrospectives to maintain alignment. This approach typically reduces time-to-market by 30-40% while improving product-market fit because you're validating assumptions continuously rather than at project end. The key trade-off is that Agile requires more frequent communication and can feel chaotic to teams accustomed to traditional waterfall methods."
+
+**HEADING HIERARCHY RULES (CRITICAL FOR READABILITY):**
+
+⚠️ PROBLEM: Too many large section headers with small content makes content look fragmented and unprofessional.
+
+✅ SOLUTION: Use hierarchical structure properly:
+
+**Level 2 Headers (## or "level": 2)** - ONLY for MAJOR sections:
+- Use for 4-6 main sections that organize the entire document
+- Each level 2 section should contain 300-500+ words of content
+- Examples: "Introduction", "Core Concepts", "Application Strategies", "Common Mistakes", "Conclusion"
+- Should have emoji icons for visual appeal
+
+**Level 3 Headers (### or "level": 3)** - For subsections within major sections:
+- Use to organize content WITHIN a level 2 section
+- Group related paragraphs and examples
+- Should contain 150-300 words of content
+- Examples: "Cost-Plus Pricing", "Value-Based Pricing" (under a "Pricing Models" level 2 section)
+
+❌ BAD Structure (too many top-level headers):
+- ## Introduction (1 paragraph)
+- ## Cost-Plus Pricing (1 paragraph)
+- ## Value-Based Pricing (1 paragraph)
+- ## Competition-Based Pricing (1 paragraph)
+- ## Psychological Pricing (1 paragraph)
+[Result: Looks like a disconnected list, no flow]
+
+✅ GOOD Structure (proper hierarchy):
+- ## 📊 Core Pricing Models (level 2)
+  - Paragraph introducing the three main models
+  - ### Cost-Plus Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Value-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+  - ### Competition-Based Pricing (level 3)
+    - Definition paragraph
+    - When to use paragraph
+    - Example paragraph
+[Result: Organized, flows well, looks professional]
+
+**CONTENT GROUPING RULES:**
+1. Combine related concepts under ONE level 2 header, use level 3 for specifics
+2. A level 2 section should feel like a "chapter" with multiple subsections
+3. If a header only has 1-2 paragraphs under it, it should probably be level 3, not level 2
+4. Aim for 4-6 level 2 sections in a complete one-pager
+5. Each level 2 section can have 2-5 level 3 subsections
+
+⚠️ CRITICAL FORMATTING FEATURES YOU MUST USE ⚠️
+
+**1. NUMBERED LISTS (numbered_list) - USE FOR SEQUENTIAL/ORDERED CONTENT:**
+- ✅ USE for: Steps in a process, ranked priorities, ordered procedures, chronological events, hierarchical levels, systematic approaches, decision frameworks, analysis methods, implementation sequences
+- ❌ DON'T USE for: Random collection of related points (use bullet_list instead)
+- Structure: {{"type": "numbered_list", "items": ["First item...", "Second item...", "Third item..."]}}
+- **INCLUDE AT LEAST 4-6 NUMBERED LISTS** in every onepager where sequential content exists
+- **MANDATORY**: Every onepager MUST have numbered lists for any sequential content
+- Examples of when to use:
+  * "Five Steps to Conduct Market Analysis" → numbered_list (it's a process)
+  * "Three Phases of Product Development" → numbered_list (it's sequential)
+  * "PESTLE Six Dimensions" → numbered_list (it's a defined framework with ordered components)
+  * "Key indicators to identify trends" → numbered_list (it's a systematic approach)
+  * "Systematic competitive analysis" → numbered_list (it's a structured method)
+  * "Effective customer needs analysis" → numbered_list (it's a multi-layered approach)
+  * "Best practices for ongoing market analysis" → numbered_list (it's a prioritized sequence)
+
+**2. BULLET LISTS (bullet_list) - USE FOR NON-SEQUENTIAL RELATED POINTS:**
+- ✅ USE for: Benefits, features, characteristics, recommendations, tips, considerations
+- ❌ DON'T USE for: Sequential steps or ranked priorities (use numbered_list instead)
+- Structure: {{"type": "bullet_list", "items": ["Point A...", "Point B...", "Point C..."]}}
+
+**3. BOLD TEXT WITH ASTERISKS - EMPHASIZE KEY TERMS:**
+- ✅ **REQUIRED**: Use **asterisks** around important terms throughout all content
+- Format: **term** (asterisks on both sides, no spaces inside)
+- **Each list item should have 3-5 bold terms** highlighting key concepts
+- Use bold for: Technical terms, key concepts, critical actions, important names, emphasis points
+- Examples:
+  * "**Primary data** comes from direct market research" (term definition)
+  * "Calculate **TAM**, **SAM**, and **SOM** for market sizing" (key concepts)
+  * "Use **qualitative research** before **quantitative validation**" (process steps)
+  * "The **biggest risk** is ignoring **competitive substitutes**" (emphasis)
+
+❌ COMMON MISTAKES TO AVOID:
+1. Writing "1. First step, 2. Second step" in a paragraph instead of using numbered_list
+2. No bold text anywhere → Makes content look flat and unprofessional
+3. Using bullet_list for sequential steps → Should be numbered_list
+4. Using numbered_list for random related points → Should be bullet_list
+5. Missing numbered lists for systematic approaches → Every "how to" or "steps to" should be numbered_list
+6. Not using numbered lists for frameworks → PESTLE, Five Forces, SWOT, etc. should be numbered_list
+7. Converting sequential content to paragraphs → Any ordered process MUST be numbered_list
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Text Presentation preview, strictly following this example structure:
+{DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM}
+
+The example above demonstrates 90+ quality score with:
+- Proper paragraph-heavy structure (not list-heavy)
+- Bloom's Taxonomy progression
+- Worked examples with complete reasoning
+- Decision frameworks
+- 60-100 word bullet points when used
+
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Include exact fields: textTitle, contentBlocks[], detectedLanguage
+- contentBlocks is an ordered array. Each block MUST include type and associated fields per spec (headline|paragraph|bullet_list|numbered_list|table, alert, etc.)
+- Use "paragraph" type liberally (60% of content) - this is where deep learning happens
+- **LIST USAGE RULES (CRITICAL)**:
+  - Use **numbered_list** for: Sequential steps, ranked priorities, ordered procedures, chronological events, hierarchical levels
+  - Use **bullet_list** for: Related but non-sequential points, benefits/features, characteristics, recommendations
+  - Example numbered_list: {{"type": "numbered_list", "items": ["**Step 1**: Do this first...", "**Step 2**: Then do this...", "**Step 3**: Finally do this..."]}}
+  - Example bullet_list: {{"type": "bullet_list", "items": ["**Benefit A**: Detailed explanation...", "**Benefit B**: Another point...", "**Benefit C**: Third point..."]}}
+- Make each list item 60-100 words with **bold text** for emphasis on key terms/concepts
+- **BOLD TEXT FORMATTING**: Use asterisks to emphasize important terms: **important term**, **key concept**, **critical point**
+- Include alert blocks for warnings/recommendations with alertType: "warning"|"info"|"success"
+- Preserve original language across all text
+
+**VALIDATION CHECKLIST - VERIFY BEFORE FINALIZING:**
+✅ Word count: 3,000-5,000 words total?
+✅ Paragraph usage: ~60% of content blocks are paragraphs?
+✅ Bullet points: Each item is 60-100 words (not 20-30 words)?
+✅ **Numbered lists**: Used for sequential/ordered content (steps, priorities, procedures)? At least 4-6 numbered lists included? Every sequential process MUST use numbered_list format?
+✅ **Bold text**: Key terms and concepts emphasized with **asterisks** throughout? Each list item has 3-5 bold terms?
+✅ Heading hierarchy: 4-6 level 2 sections, each with 2-5 level 3 subsections? (NOT 10+ level 2 headers!)
+✅ Content grouping: Related concepts grouped under ONE level 2 header?
+✅ Mental models: 2-3 frameworks with HOW to apply them?
+✅ Worked examples: 2-3 complete scenarios (Background → Analysis → Decision → Outcome → Lessons)?
+✅ Common mistakes: 3-5 deep analyses (WHY → Consequence → Recognition → Correction)?
+✅ Skill practice: Detailed scenario + questions + expert analysis included?
+✅ Bloom's Taxonomy: Progresses through Remember → Understand → Apply → Analyze?
+✅ Decision frameworks: Specific criteria provided (not vague)?
+✅ JSON structure: Valid JSON with all required fields?
+
+IF ANY CHECKLIST ITEM IS ❌, DO NOT FINALIZE - ADD THE MISSING ELEMENT
+"""
+        wizard_message = wizard_message + json_preview_instructions_text
+        logger.info("[TEXT_PRESENTATION_PREVIEW] Added educational quality requirements and JSON-only preview instructions")
+    except Exception as e:
+        logger.warning(f"[TEXT_PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -28179,8 +30981,21 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                     
                     if file_ids:
                         logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                        # Extract file context from SmartDrive files
-                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                        # Extract file context from SmartDrive files WITH PROGRESS UPDATES
+                        file_context = None
+                        
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from SmartDrive files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -28206,13 +31021,31 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx
+                    # Extract context from Onyx WITH PROGRESS UPDATES
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                    file_context = None
+                    
+                    # Stream progress updates during file extraction
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
+                            # Send keep-alive with progress message
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            
+                            # Update last_send time to prevent additional keep-alive
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
-                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation", model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -28245,7 +31078,8 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
             logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                async for chunk_data in stream_openai_response(wizard_message):
+                # Use gpt-4o-mini for larger output limit (16,384 tokens vs 4,096 for gpt-4-turbo-preview)
+                async for chunk_data in stream_openai_response(wizard_message, model="gpt-4o-mini"):
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
@@ -28317,6 +31151,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    wizard_message = add_preservation_mode_if_needed(wizard_message, wiz_payload)
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
@@ -28454,6 +31289,8 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {getattr(payload, 'hasUserEdits', False)}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] editedSectionIndices: {getattr(payload, 'editedSectionIndices', None)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse preview: {payload.aiResponse[:200]}")
         
         # NEW: Check for user edits and decide strategy (like in Quiz)
         use_direct_parser = False
@@ -28479,32 +31316,75 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             use_ai_parser = True
             logger.info("No edit information available - using AI parser path")
         
-        # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
-            # DIRECT PARSER PATH: Use cached content directly since no changes were made
-            logger.info("Using direct parser path for text presentation finalization")
-            
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
-        else:
-            # AI PARSER PATH: Use the provided content (which may be clean titles only)
-            logger.info("Using AI parser path for text presentation finalization")
-            
-            # NEW: Check if we have clean content (only titles without descriptions)
-            if getattr(payload, 'isCleanContent', False):
-                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
-                
-                # Parse the clean content to identify sections that need content generation
-                content_to_parse = await _generate_content_for_clean_titles(
-                    clean_content=payload.aiResponse,
-                    original_content=payload.originalContent,
-                    language=payload.language
-                )
-            else:
-                content_to_parse = payload.aiResponse
+        # Fast-path: check if aiResponse is already JSON (like presentations)
+        # CRITICAL: Skip fast-path if isCleanContent is true (should be clean titles, not JSON)
+        parsed_text_presentation_from_fastpath = None
         
-        # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
+        if getattr(payload, 'isCleanContent', False):
+            logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Skipping fast-path because isCleanContent=True (expecting clean titles)")
+        else:
+            try:
+                candidate = json.loads(payload.aiResponse)
+                # Basic schema checks for TextPresentationDetails
+                if isinstance(candidate, dict) and 'textTitle' in candidate and 'contentBlocks' in candidate:
+                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is valid JSON, using directly without AI parsing")
+                    parsed_text_presentation_from_fastpath = TextPresentationDetails(**candidate)  # type: ignore
+                    use_direct_parser = False
+                    use_ai_parser = False
+                    # Proceed to save with parsed_text_presentation below
+                else:
+                    logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is JSON but missing required fields; falling back to AI parser")
+            except Exception as e:
+                logger.info(f"[TEXT_PRESENTATION_FINALIZE_FASTPATH] aiResponse is not JSON ({type(e).__name__}), will use AI parser")
+
+        # NEW: Check if we should skip all parsing and go straight to selective merge
+        doing_selective_merge = (getattr(payload, 'isCleanContent', False) and 
+                                getattr(payload, 'editedSectionIndices', None) and 
+                                payload.originalContent)
+        
+        if doing_selective_merge:
+            logger.info("[TEXT_PRESENTATION_FINALIZE_SELECTIVE] Skipping full AI parsing, will do selective merge with targeted generation")
+            # Create a dummy parsed presentation - will be replaced by selective merge below
+            parsed_text_presentation = TextPresentationDetails(
+                textTitle=project_name or "Untitled",
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            )
+        elif parsed_text_presentation_from_fastpath:
+            # Fast-path succeeded, use it directly
+            logger.info("[TEXT_PRESENTATION_FINALIZE_FASTPATH] Using parsed JSON from fast-path")
+            parsed_text_presentation = parsed_text_presentation_from_fastpath
+        else:
+            # Need to parse with AI
+            if use_direct_parser:
+                # DIRECT PARSER PATH: Use cached content directly since no changes were made
+                logger.info("Using direct parser path for text presentation finalization")
+                
+                # Use the original content for parsing since no changes were made
+                content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            elif use_ai_parser:
+                # AI PARSER PATH: Use the provided content (which may be clean titles only)
+                logger.info("Using AI parser path for text presentation finalization")
+                
+                # NEW: Check if we have clean content (only titles without descriptions)
+                if getattr(payload, 'isCleanContent', False):
+                    logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                    
+                    # Parse the clean content to identify sections that need content generation
+                    content_to_parse = await _generate_content_for_clean_titles(
+                        clean_content=payload.aiResponse,
+                        original_content=payload.originalContent,
+                        language=payload.language
+                    )
+                else:
+                    content_to_parse = payload.aiResponse
+            else:
+                # Fallback - shouldn't happen but just in case
+                logger.warning("No parsing path selected, using aiResponse as fallback")
+                content_to_parse = payload.aiResponse
+            
+            # Parse the text presentation data using LLM - only call once with consistent project name
+            parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
             ai_response=content_to_parse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
@@ -28601,6 +31481,140 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
 
         logger.info(parsed_text_presentation.contentBlocks)
+        
+        # NEW: SELECTIVE SECTION REGENERATION - Generate JSON blocks directly and merge manually
+        # If user edited only specific sections, we preserve unchanged sections
+        if payload.isCleanContent and payload.editedSectionIndices and payload.originalContent:
+            try:
+                # Parse edited section indices
+                edited_indices = set(int(idx.strip()) for idx in payload.editedSectionIndices.split(',') if idx.strip())
+                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Edited section indices: {edited_indices}")
+                
+                # Parse clean content to get section titles
+                clean_sections = []
+                lines = payload.aiResponse.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
+                    if header_match:
+                        clean_sections.append(header_match.group(2).strip())
+                
+                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(clean_sections)} sections in clean content")
+                
+                # Only proceed if we have specific edited sections
+                if edited_indices and len(edited_indices) < len(clean_sections):
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Starting selective merge for {len(edited_indices)} edited sections")
+                    
+                    # Parse original content to extract original JSON (fast-path first, AI fallback)
+                    original_json = None
+                    try:
+                        # First try to parse originalContent as JSON
+                        original_json = json.loads(payload.originalContent)
+                        if isinstance(original_json, dict) and 'contentBlocks' in original_json:
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Parsed original as JSON directly (no AI needed)")
+                        else:
+                            original_json = None
+                    except:
+                        pass
+                    
+                    # If not JSON, parse with AI (only if needed)
+                    if not original_json:
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Original content is not JSON, parsing with AI")
+                        original_presentation = await parse_ai_response_with_llm(
+                            ai_response=payload.originalContent,
+                            project_name=project_name,
+                            target_model=TextPresentationDetails,
+                            default_error_model_instance=TextPresentationDetails(
+                                textTitle=project_name,
+                                contentBlocks=[],
+                                detectedLanguage=payload.language
+                            ),
+                            dynamic_instructions=f"Parse this text presentation content into structured JSON. Preserve all sections and content exactly as they are.",
+                            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+                        )
+                        original_json = json.loads(original_presentation.json())
+                    
+                    # Group original content blocks by section
+                    original_sections = []
+                    current_section_blocks = []
+                    
+                    for block in original_json['contentBlocks']:
+                        if block.get('type') == 'headline' and block.get('level') == 2:
+                            if current_section_blocks:
+                                original_sections.append(current_section_blocks)
+                            current_section_blocks = [block]
+                        else:
+                            current_section_blocks.append(block)
+                    
+                    if current_section_blocks:
+                        original_sections.append(current_section_blocks)
+                    
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Found {len(original_sections)} sections in original")
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Need to regenerate sections: {edited_indices}")
+                    
+                    # Generate new JSON blocks for edited sections only (no AI parsing needed!)
+                    new_section_blocks = {}
+                    for idx in edited_indices:
+                        if idx < len(clean_sections):
+                            section_title = clean_sections[idx]
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] 🔄 Generating JSON blocks for section {idx}: {section_title}")
+                            
+                            # Generate JSON blocks directly (1 AI call per edited section)
+                            blocks = await _generate_content_blocks_for_section(
+                                section_title=section_title,
+                                all_section_titles=clean_sections,
+                                language=payload.language
+                            )
+                            new_section_blocks[idx] = blocks
+                            logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Generated {len(blocks)} blocks for section {idx}")
+                    
+                    # Manual merge: no AI needed, just array manipulation
+                    if len(original_sections) == len(clean_sections):
+                        merged_blocks = []
+                        
+                        for i in range(len(clean_sections)):
+                            if i not in edited_indices:
+                                # Use original section blocks
+                                merged_blocks.extend(original_sections[i])
+                                logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Preserved original ({len(original_sections[i])} blocks)")
+                            else:
+                                # Use newly generated blocks
+                                if i in new_section_blocks:
+                                    merged_blocks.extend(new_section_blocks[i])
+                                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Section {i}: Using newly generated ({len(new_section_blocks[i])} blocks)")
+                        
+                        # Convert merged blocks to proper objects
+                        # First, ensure all blocks are dicts for uniform processing
+                        unified_blocks = []
+                        for b in merged_blocks:
+                            if isinstance(b, dict):
+                                unified_blocks.append(b)
+                            elif hasattr(b, 'dict'):
+                                unified_blocks.append(b.dict())
+                            else:
+                                logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Unknown block type: {type(b)}")
+                                unified_blocks.append(b)
+                        
+                        # Parse unified blocks into proper Pydantic models
+                        temp_presentation = TextPresentationDetails.parse_obj({
+                            'textTitle': original_json.get('textTitle', project_name or 'Untitled'),
+                            'contentBlocks': unified_blocks,
+                            'detectedLanguage': payload.language
+                        })
+                        parsed_text_presentation.contentBlocks = temp_presentation.contentBlocks
+                        parsed_text_presentation.textTitle = temp_presentation.textTitle
+                        
+                        logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] ✅ Merge complete: {len(edited_indices)} regenerated, {len(clean_sections) - len(edited_indices)} preserved")
+                    else:
+                        logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Cannot merge: section count mismatch (original={len(original_sections)}, clean={len(clean_sections)})")
+                        logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Falling back to full regeneration")
+                else:
+                    logger.info(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] All sections edited or none specified, using all new content")
+            except Exception as e:
+                logger.error(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Error during selective merge: {e}", exc_info=True)
+                logger.warning(f"[TEXT_PRESENTATION_SELECTIVE_MERGE] Falling back to using all newly generated content")
         
         # Detect language if not provided
         if not parsed_text_presentation.detectedLanguage:
@@ -28765,6 +31779,7 @@ async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), o
 @app.get("/api/custom/credits/me", response_model=UserCredits)
 async def get_my_credits(
     request: Request,
+    background_tasks: BackgroundTasks,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Get current user's credit balance (auto-creates if new user)"""
@@ -28772,13 +31787,1659 @@ async def get_my_credits(
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # This will auto-create the user if they don't exist yet
-        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        # SmartDrive provisioning happens in background to return credits faster
+        credits = await get_or_create_user_credits(onyx_user_id, "User", pool, background_tasks)
         return credits
     except Exception as e:
         logger.error(f"Error getting user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve credits")
 
-@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
+# ============================
+# BILLING (Stripe) ENDPOINTS
+# ============================
+
+@app.get("/api/custom/billing/me")
+async def get_billing_info(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Return current subscription info for the logged-in user.
+    Reads from our user_billing table and, if needed, fetches live status from Stripe.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT * FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        if not record:
+            return {
+                "plan": "starter",
+                "status": "inactive",
+                "interval": None,
+                "priceId": None,
+                "subscriptionId": None,
+            }
+
+        # Start with DB values
+        plan = record.get("current_plan") or "starter"
+        status = record.get("subscription_status") or "inactive"
+        interval = record.get("current_interval")
+        price_id = record.get("current_price_id")
+        subscription_id = record.get("subscription_id")
+
+        # If explicitly requested (refresh=1), optionally refresh live status from Stripe
+        refresh = request.query_params.get("refresh")
+        should_refresh = str(refresh).lower() in ("1", "true", "yes")
+        if should_refresh and STRIPE_SECRET_KEY and subscription_id:
+            try:
+                import stripe  # type: ignore
+                stripe.api_key = STRIPE_SECRET_KEY
+                sub = stripe.Subscription.retrieve(subscription_id, expand=["items.data.price.product"])
+                status = sub.get("status") or getattr(sub, "status", None)
+                items = sub.get("items") or sub["items"] if isinstance(sub, dict) else sub["items"]
+                data_list = items.get("data") if isinstance(items, dict) else getattr(items, "data", None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]["price"]
+                    price_id = price.get("id") or getattr(price, "id", None)
+                    interval = (price.get("recurring", {}) or getattr(price, "recurring", None) or {}).get("interval")
+                    # Infer plan from product name if available
+                    product = price.get("product") if isinstance(price, dict) else getattr(price, "product", None)
+                    product_name = (product.get("name") if isinstance(product, dict) else getattr(product, "name", "")) if product else ""
+                    lowered = (product_name or "").lower()
+                    if "business" in lowered:
+                        plan = "business"
+                    elif "pro" in lowered:
+                        plan = "pro"
+                    # Yearly/Monthly kept via interval
+            except Exception as e:
+                logger.warning(f"Could not refresh subscription from Stripe: {e}")
+
+        return {
+            "plan": plan,
+            "status": status,
+            "interval": interval,
+            "priceId": price_id,
+            "subscriptionId": subscription_id,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting billing info: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to retrieve billing info")
+
+
+# ============================
+# ENTITLEMENTS ENDPOINTS
+# ============================
+
+async def _fetch_effective_entitlements(onyx_user_id: str, pool: asyncpg.Pool) -> dict:
+    """Compute effective entitlements from base + overrides. Fallback to plan defaults."""
+    # Defaults for Starter
+    result = {"connectors_limit": 0, "storage_gb": 1, "slides_max": 20, "plan": "starter", "slides_options": [20]}
+    async with pool.acquire() as conn:
+        # Plan from billing
+        billing = await conn.fetchrow("SELECT current_plan FROM user_billing WHERE onyx_user_id = $1", onyx_user_id)
+        plan = (billing and (billing.get("current_plan") or "starter")) or "starter"
+        result["plan"] = plan
+        # Base (Stripe-derived)
+        base = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_base WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if base:
+            result.update({
+                "connectors_limit": int(base["connectors_limit"] or 0),
+                "storage_gb": int(base["storage_gb"] or 1),
+                "slides_max": int(base["slides_max"] or 20),
+            })
+        else:
+            # Fallback to plan defaults if no base
+            if plan == "pro":
+                result.update({"connectors_limit": 2, "storage_gb": 5, "slides_max": 40})
+            elif plan == "business":
+                result.update({"connectors_limit": 5, "storage_gb": 10, "slides_max": 40})
+        # Overrides
+        overrides = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if overrides:
+            if overrides["connectors_limit"] is not None:
+                result["connectors_limit"] = int(overrides["connectors_limit"])  # type: ignore
+            if overrides["storage_gb"] is not None:
+                result["storage_gb"] = int(overrides["storage_gb"])  # type: ignore
+            if overrides["slides_max"] is not None:
+                result["slides_max"] = int(overrides["slides_max"])  # type: ignore
+
+        # Add-ons (connectors/storage) aggregation from user_billing_addons
+        try:
+            rows = await conn.fetch(
+                """
+                SELECT addon_type, COALESCE(quantity,1) AS qty, stripe_price_id, status
+                FROM user_billing_addons
+                WHERE onyx_user_id = $1 AND status IN ('active','trialing')
+                """,
+                onyx_user_id
+            )
+            logger.info(f"[ENTITLEMENTS] Found {len(rows)} active addon(s) for user {onyx_user_id}")
+            add_connectors = 0
+            add_storage = 0
+            for r in rows:
+                addon = PRICE_TO_ADDON.get(r['stripe_price_id'] or '', None)
+                units = int(addon.get('units', 0)) if addon else 0
+                qty = int(r['qty'] or 1)
+                logger.info(f"[ENTITLEMENTS] Addon: type={r['addon_type']}, units={units}, qty={qty}, status={r['status']}, price_id={r['stripe_price_id']}")
+                if r['addon_type'] == 'connectors':
+                    add_connectors += units * qty
+                elif r['addon_type'] == 'storage':
+                    add_storage += units * qty
+            logger.info(f"[ENTITLEMENTS] Base limits: connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
+            result['connectors_limit'] = int(result['connectors_limit']) + add_connectors
+            result['storage_gb'] = int(result['storage_gb']) + add_storage
+            logger.info(f"[ENTITLEMENTS] Final limits (with addons): connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
+        except Exception as e:
+            logger.error(f"[ENTITLEMENTS] Failed to aggregate addons: {e}", exc_info=True)
+
+        # Slides options for UI (Pro/Business can choose 25-40)
+        if result["slides_max"] > 20 or plan in ("pro", "business"):
+            result["slides_options"] = [25, 30, 35, 40]
+        else:
+            result["slides_options"] = [20]
+    return result
+
+
+@app.get("/api/custom/entitlements/me")
+async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        ent = await _fetch_effective_entitlements(onyx_user_id, pool)
+        
+        # Add usage information
+        async with pool.acquire() as conn:
+            # Connector count - Call Onyx API to get real connector count
+            conn_count = 0
+            try:
+                # Get session cookie from request to authenticate with Onyx API
+                session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+                if session_cookie:
+                    connector_status_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/status"
+                    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(connector_status_url, cookies=cookies_to_forward)
+                        if response.status_code == 200:
+                            connectors_data = response.json()
+                            # Count only private connectors (same as frontend logic)
+                            conn_count = len([c for c in connectors_data if c.get('access_type') == 'private'])
+                            logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors from Onyx API for user {onyx_user_id}")
+                else:
+                            logger.warning(f"[ENTITLEMENTS] Failed to fetch connectors from Onyx API: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Error fetching connectors from Onyx API: {e}")
+            
+            # Storage usage
+            storage_row = await conn.fetchval(
+                "SELECT used_bytes FROM user_storage_usage WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            ent["connectors_used"] = int(conn_count)
+            ent["storage_used_bytes"] = int(storage_row or 0)
+            ent["storage_used_gb"] = round((storage_row or 0) / (1024 * 1024 * 1024), 2)
+            
+            logger.info(f"[ENTITLEMENTS] User {onyx_user_id}: connectors={conn_count}, storage_bytes={storage_row}, entitlements={ent}")
+        
+        return ent
+    except Exception as e:
+        logger.error(f"Error getting entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve entitlements")
+
+
+class EntitlementOverrideUpdate(BaseModel):
+    connectors_limit: Optional[int] = None
+    storage_gb: Optional[int] = None
+    slides_max: Optional[int] = None
+
+
+class BatchEntitlementUpdate(BaseModel):
+    user_ids: List[str]
+    connectors_limit: Optional[int] = None
+    storage_gb: Optional[int] = None
+    slides_max: Optional[int] = None
+
+
+@app.get("/api/custom/admin/entitlements")
+async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    await verify_admin_user(request)
+    try:
+        # Fetch user emails from Onyx API (robust mapping)
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                # Try various id/email key names
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+                        logger.info(f"[ENTITLEMENTS] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[ENTITLEMENTS] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[ENTITLEMENTS] Error fetching user emails from Onyx API: {e}")
+        
+        async with pool.acquire() as conn:
+            # Persist any newly fetched emails into cache for future requests
+            try:
+                if user_emails_map:
+                    for _uid, _email in user_emails_map.items():
+                        await conn.execute(
+                            """
+                            INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                            VALUES ($1, $2, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                            """,
+                            _uid,
+                            _email,
+                        )
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Failed to upsert user_email_cache: {e}")
+
+            rows = await conn.fetch(
+                """
+                SELECT uc.onyx_user_id,
+                       uc.name AS user_name,
+                       uec.email AS cached_email,
+                       COALESCE(ub.current_plan, 'starter') AS plan,
+                       eb.connectors_limit AS base_connectors,
+                       eb.storage_gb AS base_storage_gb,
+                       eb.slides_max AS base_slides_max,
+                       eo.connectors_limit AS override_connectors,
+                       eo.storage_gb AS override_storage_gb,
+                       eo.slides_max AS override_slides_max
+                FROM user_credits uc
+                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                ORDER BY uc.updated_at DESC
+                """
+            )
+            out = []
+            for r in rows:
+                eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
+                # Get email from map, fallback to cached email, then onyx_user_id
+                cached_email = dict(r).get("cached_email")
+                user_email = user_emails_map.get(r["onyx_user_id"], cached_email or r["onyx_user_id"]) 
+                out.append({
+                    "onyx_user_id": r["onyx_user_id"],
+                    "user_name": r["user_name"] or "Unknown",
+                    "user_email": user_email,
+                    "email": user_email,
+                    "plan": r["plan"],
+                    "base": {
+                        "connectors_limit": int(r["base_connectors"] or 0),
+                        "storage_gb": int(r["base_storage_gb"] or 1),
+                        "slides_max": int(r["base_slides_max"] or 20),
+                    },
+                    "overrides": {
+                        "connectors_limit": r["override_connectors"],
+                        "storage_gb": r["override_storage_gb"],
+                        "slides_max": r["override_slides_max"],
+                    },
+                    "effective": eff,
+                })
+            return out
+    except Exception as e:
+        logger.error(f"Error listing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list entitlements")
+
+
+@app.post("/api/custom/admin/entitlements/{target_user_id}")
+async def admin_update_entitlements(
+    target_user_id: str,
+    payload: EntitlementOverrideUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Upsert overrides, keeping unspecified fields unchanged
+            existing = await conn.fetchrow(
+                "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+                target_user_id,
+            )
+            new_vals = {
+                "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else (existing and existing["connectors_limit"]),
+                "storage_gb": payload.storage_gb if payload.storage_gb is not None else (existing and existing["storage_gb"]),
+                "slides_max": payload.slides_max if payload.slides_max is not None else (existing and existing["slides_max"]),
+            }
+            await conn.execute(
+                """
+                INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                VALUES ($1, $2, $3, $4, now())
+                ON CONFLICT (onyx_user_id)
+                DO UPDATE SET connectors_limit = EXCLUDED.connectors_limit,
+                              storage_gb = EXCLUDED.storage_gb,
+                              slides_max = EXCLUDED.slides_max,
+                              updated_at = now()
+                """,
+                target_user_id,
+                new_vals["connectors_limit"],
+                new_vals["storage_gb"],
+                new_vals["slides_max"],
+            )
+        eff = await _fetch_effective_entitlements(target_user_id, pool)
+        return {"updated": True, "effective": eff}
+    except Exception as e:
+        logger.error(f"Error updating entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update entitlements")
+
+
+@app.post("/api/custom/admin/entitlements-batch")
+async def admin_batch_update_entitlements(
+    payload: BatchEntitlementUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    """Update entitlements for multiple users in batch."""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Get all existing overrides for the batch of users in one query
+            existing_overrides = await conn.fetch(
+                """
+                SELECT onyx_user_id, connectors_limit, storage_gb, slides_max 
+                FROM user_entitlement_overrides 
+                WHERE onyx_user_id = ANY($1)
+                """,
+                payload.user_ids
+            )
+            
+            # Create a lookup map for existing overrides
+            existing_map = {
+                row['onyx_user_id']: {
+                    'connectors_limit': row['connectors_limit'],
+                    'storage_gb': row['storage_gb'],
+                    'slides_max': row['slides_max']
+                }
+                for row in existing_overrides
+            }
+            
+            # Prepare batch data for upsert
+            batch_data = []
+            for user_id in payload.user_ids:
+                existing = existing_map.get(user_id, {})
+                
+                # Prepare new values, keeping unspecified fields unchanged
+                new_vals = {
+                    "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else existing.get("connectors_limit"),
+                    "storage_gb": payload.storage_gb if payload.storage_gb is not None else existing.get("storage_gb"),
+                    "slides_max": payload.slides_max if payload.slides_max is not None else existing.get("slides_max"),
+                }
+                
+                batch_data.append((
+                    user_id,
+                    new_vals["connectors_limit"],
+                    new_vals["storage_gb"],
+                    new_vals["slides_max"]
+                ))
+            
+            # Execute batch upsert using executemany
+            await conn.executemany(
+                """
+                INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                VALUES ($1, $2, $3, $4, now())
+                ON CONFLICT (onyx_user_id)
+                DO UPDATE SET connectors_limit = EXCLUDED.connectors_limit,
+                              storage_gb = EXCLUDED.storage_gb,
+                              slides_max = EXCLUDED.slides_max,
+                              updated_at = now()
+                """,
+                batch_data
+            )
+            
+            return {
+                "updated": True,
+                "updated_count": len(payload.user_ids),
+                "total_requested": len(payload.user_ids)
+            }
+    except Exception as e:
+        logger.error(f"Error in batch updating entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to batch update entitlements")
+
+
+@app.post("/api/custom/admin/entitlements/refresh-all")
+async def admin_refresh_all_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Refresh base entitlements for all users based on their current plan."""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Get all users with billing records
+            users = await conn.fetch("SELECT onyx_user_id, current_plan FROM user_billing WHERE current_plan IS NOT NULL")
+            
+            updated_count = 0
+            for user in users:
+                onyx_user_id = user['onyx_user_id']
+                plan = user['current_plan'] or 'starter'
+                
+                # Set base entitlements by plan
+                if plan == 'pro':
+                    base_connectors, base_storage, base_slides = 2, 5, 40
+                elif plan == 'business':
+                    base_connectors, base_storage, base_slides = 5, 10, 40
+                else:
+                    base_connectors, base_storage, base_slides = 0, 1, 20
+                
+                await conn.execute(
+                    """
+                    INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                    VALUES ($1, $2, $3, $4, now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                    """,
+                    onyx_user_id, base_connectors, base_storage, base_slides
+                )
+                updated_count += 1
+            
+            logger.info(f"Refreshed entitlements for {updated_count} users")
+            return {"success": True, "updated_count": updated_count}
+    except Exception as e:
+        logger.error(f"Error refreshing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to refresh entitlements")
+
+
+@app.post("/api/custom/billing/portal")
+async def create_billing_portal_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Billing Portal session for the current user.
+    Requires STRIPE_SECRET_KEY and STRIPE_BILLING_RETURN_URL env vars.
+    """
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        # Determine return URL: prefer WEB_DOMAIN, then CUSTOM_FRONTEND_URL, else default to docker hostname
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        default_return = f"{(preferred_domain or 'http://custom_frontend:3001').rstrip('/')}/custom-projects-ui/payments"
+        return_url = STRIPE_BILLING_RETURN_URL or default_return
+
+        session = stripe.billing_portal.Session.create(
+            customer=stripe_customer_id,
+            return_url=return_url,
+        )
+        return {"url": session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating billing portal session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create billing portal session")
+
+
+class CreateCheckoutRequest(BaseModel):
+    priceId: str
+    planName: Optional[str] = None
+    upgradeFromSubscriptionId: Optional[str] = None
+
+
+@app.post("/api/custom/billing/checkout")
+async def create_checkout_session(
+    request: Request,
+    payload: CreateCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Checkout session for purchasing a new subscription."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        # Determine return URLs
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        # Create checkout session
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=[{
+                'price': payload.priceId,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                'onyx_user_id': onyx_user_id,
+                'plan_name': payload.planName or 'Unknown Plan',
+                'upgrade_from_subscription_id': payload.upgradeFromSubscriptionId or ''
+            }
+        )
+        
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating checkout session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+
+
+# ============================
+# ADD-ONS CHECKOUT/LIST/CANCEL/ONE-TIME CREDITS
+# ============================
+
+class AddonItem(BaseModel):
+    priceId: Optional[str] = None
+    sku: Optional[str] = None  # e.g., connectors_1, storage_5gb, credits_300
+    quantity: int = 1
+
+class AddonsCheckoutRequest(BaseModel):
+    items: List[AddonItem]
+
+def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
+    if not sku:
+        return None
+    key = sku.lower()
+    # Direct mapping to provided price IDs
+    sku_map = {
+        'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
+        'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
+        'credits_1000': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
+        'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
+        'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
+        'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
+        'connectors_1': 'price_1SGHegH2U2KQUmUh4guOuoV7',
+        'connectors_5': 'price_1SGHgFH2U2KQUmUhS0Blys9w',
+        'connectors_10': 'price_1SGHgZH2U2KQUmUhSuFJ6SOi',
+    }
+    # Fallback to env if present
+    env_overrides = {
+        'connectors_1': os.getenv('STRIPE_PRICE_CONNECTORS_1'),
+        'connectors_5': os.getenv('STRIPE_PRICE_CONNECTORS_5'),
+        'connectors_10': os.getenv('STRIPE_PRICE_CONNECTORS_10'),
+        'storage_1gb': os.getenv('STRIPE_PRICE_STORAGE_1GB'),
+        'storage_5gb': os.getenv('STRIPE_PRICE_STORAGE_5GB'),
+        'storage_10gb': os.getenv('STRIPE_PRICE_STORAGE_10GB'),
+        'credits_100': os.getenv('STRIPE_PRICE_CREDITS_100'),
+        'credits_300': os.getenv('STRIPE_PRICE_CREDITS_300'),
+        'credits_1000': os.getenv('STRIPE_PRICE_CREDITS_1000'),
+    }
+    return env_overrides.get(key) or sku_map.get(key)
+
+@app.post("/api/custom/billing/addons/checkout")
+async def addons_checkout(
+    request: Request,
+    payload: AddonsCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Checkout session for recurring add-ons (subscription mode)."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+        logger.info(f"[BILLING] Addon checkout request from user {onyx_user_id}, items: {len(payload.items)}")
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id, subscription_id, current_plan FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        existing_subscription_id = record.get("subscription_id") if record else None
+        current_plan = record.get("current_plan") if record else None
+        
+        logger.info(f"[BILLING] User {onyx_user_id} current plan: {current_plan}, has subscription: {bool(existing_subscription_id)}")
+        
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(email=user_email or None, metadata={"onyx_user_id": onyx_user_id})
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        line_items = []
+        for it in payload.items:
+            pid = it.priceId or _sku_to_price_id(it.sku)
+            if not pid:
+                raise HTTPException(status_code=400, detail="Missing or invalid priceId/sku")
+            line_items.append({'price': pid, 'quantity': max(1, it.quantity)})
+
+        # If user has an existing active subscription, add items to it instead of creating new subscription
+        if existing_subscription_id:
+            try:
+                logger.info(f"[BILLING] Attempting to add addons to existing subscription {existing_subscription_id}")
+                existing_sub = stripe.Subscription.retrieve(existing_subscription_id)
+                logger.info(f"[BILLING] Existing subscription status: {existing_sub.status}, items count: {len(existing_sub.get('items', {}).get('data', []))}")
+                
+                if existing_sub.status in ['active', 'trialing']:
+                    # Get current_period_end safely from subscription object
+                    current_period_end = (existing_sub.get('current_period_end') if isinstance(existing_sub, dict) 
+                                        else getattr(existing_sub, 'current_period_end', None))
+                    
+                    # Debug: log the subscription object structure
+                    if not current_period_end:
+                        logger.warning(f"[BILLING] current_period_end not found! Subscription type: {type(existing_sub)}, has attr: {hasattr(existing_sub, 'current_period_end')}")
+                        # Try accessing as dict
+                        if hasattr(existing_sub, '__dict__'):
+                            logger.warning(f"[BILLING] Subscription __dict__ keys: {list(existing_sub.__dict__.keys())}")
+                        # Fallback to 0 for now
+                        current_period_end = 0
+                    
+                    logger.info(f"[BILLING] Subscription current_period_end: {current_period_end}")
+                    
+                    # Build map of existing subscription items by price_id
+                    existing_items = existing_sub.get('items', {}).get('data', []) if isinstance(existing_sub, dict) else getattr(existing_sub, 'items', {}).get('data', [])
+                    existing_items_map = {}
+                    for sub_item in existing_items:
+                        price = sub_item.get('price') if isinstance(sub_item, dict) else getattr(sub_item, 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        item_id = sub_item.get('id') if isinstance(sub_item, dict) else getattr(sub_item, 'id', None)
+                        if price_id and item_id:
+                            existing_items_map[price_id] = {
+                                'id': item_id,
+                                'quantity': sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', 1)
+                            }
+                    
+                    logger.info(f"[BILLING] Existing subscription items: {list(existing_items_map.keys())}")
+                    
+                    # Add or update items in existing subscription and sync to DB immediately
+                    addons_updated = []
+                    addons_added = []
+                    async with pool.acquire() as conn:
+                        for idx, item in enumerate(line_items):
+                            logger.info(f"[BILLING] Processing addon item {idx+1}/{len(line_items)}: price_id={item['price']}, quantity={item['quantity']}")
+                            
+                            # Check if item already exists
+                            if item['price'] in existing_items_map:
+                                # Update existing item quantity
+                                existing_item = existing_items_map[item['price']]
+                                new_quantity = int(existing_item['quantity']) + int(item['quantity'])
+                                logger.info(f"[BILLING] Addon already exists (item_id={existing_item['id']}), updating quantity from {existing_item['quantity']} to {new_quantity}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for quantity increase")
+                                
+                                sub_item = stripe.SubscriptionItem.modify(
+                                    existing_item['id'],
+                                    quantity=new_quantity,
+                                )
+                                sub_item_id = existing_item['id']
+                                addons_updated.append(item['price'])
+                            else:
+                                # Create new item
+                                logger.info(f"[BILLING] Adding new addon item: price_id={item['price']}, quantity={item['quantity']}")
+                                logger.info(f"[BILLING] NOTE: Stripe will charge prorated amount immediately for new addon")
+                                sub_item = stripe.SubscriptionItem.create(
+                                    subscription=existing_subscription_id,
+                                    price=item['price'],
+                                    quantity=item['quantity'],
+                                )
+                                sub_item_id = sub_item.id
+                                addons_added.append(item['price'])
+                            
+                            # Immediately sync to user_billing_addons
+                            addon = PRICE_TO_ADDON.get(item['price'], None)
+                            if addon and addon.get('type') in ('connectors', 'storage'):
+                                final_quantity = sub_item.get('quantity') if isinstance(sub_item, dict) else getattr(sub_item, 'quantity', item['quantity'])
+                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={final_quantity}, period_end={current_period_end}")
+                                await conn.execute(
+                                    """
+                                    INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                        stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                    ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                    """,
+                                    sub_item_id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item_id, item['price'],
+                                    addon['type'], final_quantity, existing_sub.status, int(current_period_end)
+                                )
+                    
+                    action = "updated" if addons_updated else "added"
+                    logger.info(f"[BILLING] Successfully processed {len(line_items)} add-on items: {len(addons_added)} added, {len(addons_updated)} updated")
+                    return {
+                        "url": f"{base_url}/custom-projects-ui/payments?addon_{action}=true",
+                        "message": f"Addon(s) {action}. You will be charged prorated amount immediately.",
+                        "immediate_charge": True
+                    }
+                else:
+                    logger.warning(f"[BILLING] Existing subscription status is {existing_sub.status}, not active/trialing. Will create new checkout.")
+            except Exception as e:
+                logger.error(f"[BILLING] Failed to add to existing subscription: {e}, creating new checkout", exc_info=True)
+
+        # Fallback: create new subscription checkout (for users without active subscription)
+        logger.warning(f"[BILLING] Creating NEW subscription checkout for addons (user has no active subscription). Current plan: {current_plan}")
+        logger.warning(f"[BILLING] WARNING: This may create an addon-only subscription! Items: {[item['price'] for item in line_items]}")
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={'onyx_user_id': onyx_user_id, 'purpose': 'addons'}
+        )
+        logger.info(f"[BILLING] Created checkout session: {checkout_session.id}")
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[BILLING] Error creating addons checkout: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create addons checkout session")
+
+class CreditsCheckoutRequest(BaseModel):
+    priceId: Optional[str] = None
+    sku: Optional[str] = None
+    quantity: int = 1
+
+@app.post("/api/custom/billing/credits/checkout")
+async def credits_checkout(
+    request: Request,
+    payload: CreditsCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create Checkout session in payment mode for one-time credits packs."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow("SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1", onyx_user_id)
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(email=user_email or None, metadata={"onyx_user_id": onyx_user_id})
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id) DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id, stripe_customer_id
+                )
+
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        price_id = payload.priceId or _sku_to_price_id(payload.sku)
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Missing or invalid priceId/sku")
+
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=[{'price': price_id, 'quantity': max(1, payload.quantity)}],
+            mode='payment',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={'onyx_user_id': onyx_user_id, 'purpose': 'credits_pack'}
+        )
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating credits checkout: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create credits checkout session")
+
+@app.get("/api/custom/billing/addons")
+async def list_my_addons(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT id, addon_type, quantity, status, current_period_end, stripe_subscription_id, stripe_subscription_item_id, stripe_price_id
+                FROM user_billing_addons
+                WHERE onyx_user_id = $1
+                ORDER BY updated_at DESC
+                """,
+                onyx_user_id
+            )
+        out = []
+        for r in rows:
+            out.append({
+                'id': r['id'],
+                'type': r['addon_type'],
+                'quantity': int(r['quantity'] or 1),
+                'status': r['status'],
+                'next_billing_at': (r['current_period_end'].isoformat() if r['current_period_end'] else None),
+                'stripe_subscription_id': r['stripe_subscription_id'],
+                'stripe_subscription_item_id': r['stripe_subscription_item_id'],
+                'stripe_price_id': r['stripe_price_id'],
+            })
+        return out
+    except Exception as e:
+        logger.error(f"Error listing add-ons: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list add-ons")
+
+class CancelAddonRequest(BaseModel):
+    subscriptionId: Optional[str] = None
+    subscriptionItemId: Optional[str] = None
+    immediate: Optional[bool] = True
+
+@app.post("/api/custom/billing/addons/cancel")
+async def cancel_addon(
+    request: Request,
+    payload: CancelAddonRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+        onyx_user_id = await get_current_onyx_user_id(request)
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        if payload.subscriptionItemId:
+            item = stripe.SubscriptionItem.delete(payload.subscriptionItemId)
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "UPDATE user_billing_addons SET status='canceled', updated_at=now() WHERE id=$1 AND onyx_user_id=$2",
+                    payload.subscriptionItemId, onyx_user_id
+                )
+            return {'status': item.get('deleted') and 'canceled' or 'updated'}
+        elif payload.subscriptionId:
+            if payload.immediate:
+                sub = stripe.Subscription.delete(payload.subscriptionId)
+            else:
+                sub = stripe.Subscription.modify(payload.subscriptionId, cancel_at_period_end=True)
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "UPDATE user_billing_addons SET status='canceled', updated_at=now() WHERE stripe_subscription_id=$1 AND onyx_user_id=$2",
+                    payload.subscriptionId, onyx_user_id
+                )
+            return {'status': sub['status']}
+        else:
+            raise HTTPException(status_code=400, detail="Provide subscriptionItemId or subscriptionId")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error canceling add-on: {e}")
+        raise HTTPException(status_code=500, detail="Failed to cancel add-on")
+
+@app.get("/api/custom/billing/credits/history")
+async def credits_history(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT amount, stripe_invoice_id, created_at
+                FROM credit_grant_events
+                WHERE onyx_user_id = $1 AND source = 'one_time_pack'
+                ORDER BY created_at DESC
+                """,
+                onyx_user_id
+            )
+        return [{ 'amount': int(r['amount'] or 0), 'invoice_id': r['stripe_invoice_id'], 'created_at': r['created_at'].isoformat() } for r in rows]
+    except Exception as e:
+        logger.error(f"Error fetching credits history: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch credits history")
+
+@app.get("/api/custom/billing/catalog")
+async def get_billing_catalog():
+    """Return Stripe price info for our SKUs to show correct prices in UI."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        # List of SKUs we support
+        skus = [
+            'credits_100','credits_300','credits_1000',
+            'storage_1gb','storage_5gb','storage_10gb',
+            'connectors_1','connectors_5','connectors_10',
+        ]
+        out = []
+        for sku in skus:
+            pid = _sku_to_price_id(sku)
+            if not pid:
+                continue
+            try:
+                price = stripe.Price.retrieve(pid)
+                unit_amount = getattr(price, 'unit_amount', None)
+                currency = getattr(price, 'currency', 'usd')
+                recurring = getattr(price, 'recurring', None)
+                interval = (recurring and recurring.get('interval')) or None
+                out.append({
+                    'sku': sku,
+                    'price_id': pid,
+                    'unit_amount': unit_amount,
+                    'currency': currency,
+                    'interval': interval,
+                })
+            except Exception as e:
+                logger.warning(f"Failed to retrieve price {pid} for sku {sku}: {e}")
+        return out
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error building billing catalog: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load billing catalog")
+
+@app.post("/api/custom/billing/webhook")
+async def stripe_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Stripe webhooks to update subscription status."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        # Get the raw body and signature
+        body = await request.body()
+        signature = request.headers.get('stripe-signature')
+        
+        if not signature:
+            raise HTTPException(status_code=400, detail="Missing Stripe signature")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        
+        # You'll need to set STRIPE_WEBHOOK_SECRET in your environment
+        webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+        if not webhook_secret:
+            logger.warning("STRIPE_WEBHOOK_SECRET not set, skipping signature verification")
+            event = stripe.Event.construct_from(json.loads(body), stripe.api_key)
+        else:
+            try:
+                event = stripe.Webhook.construct_event(body, signature, webhook_secret)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid payload")
+            except stripe.SignatureVerificationError:
+                raise HTTPException(status_code=400, detail="Invalid signature")
+
+        # Helper: derive base entitlements from subscription items
+        def _derive_entitlements_from_subscription(sub_obj) -> dict:
+            base = {"connectors": 0, "storage_gb": 1, "slides_max": 20}
+            try:
+                items = sub_obj.get('items') if isinstance(sub_obj, dict) else getattr(sub_obj, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if not data_list:
+                    return base
+                # Walk items to find features
+                for it in data_list:
+                    price = it.get('price') if isinstance(it, dict) else getattr(it, 'price', None)
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    # Expand already requested above in retrieve where needed
+                    name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                    metadata = (product.get('metadata') if isinstance(product, dict) else getattr(product, 'metadata', {})) or {}
+                    lname = (name or '').lower()
+                    # Connectors
+                    if 'connectors_2' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 2) or 2))
+                    if 'connectors_5' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 5) or 5))
+                    # Storage
+                    if 'storage_5gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 5) or 5))
+                    if 'storage_10gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 10) or 10))
+                    # Slides feature (treat unlimited_slides as higher caps for Pro/Business handled via plan below)
+                    if 'unlimited_slides' in lname:
+                        # We'll not set unlimited; caps handled per plan later
+                        pass
+                return base
+            except Exception:
+                return base
+
+        # Idempotency: skip already processed events
+        async with pool.acquire() as conn:
+            if await conn.fetchval("SELECT 1 FROM processed_stripe_events WHERE event_id=$1", event['id']):
+                return {"status": "ignored"}
+
+        # Handle the event
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            logger.info(f"[BILLING] checkout.session.completed for user {onyx_user_id}, mode={session.get('mode')}, session_id={session.get('id')}")
+            
+            if onyx_user_id and session.get('mode') == 'subscription':
+                subscription_id = session.get('subscription')
+                customer_id = session.get('customer')
+                
+                # Get subscription details
+                subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+                
+                # Get existing user plan before making any changes
+                existing_plan = None
+                async with pool.acquire() as conn:
+                    existing_record = await conn.fetchrow(
+                        "SELECT current_plan FROM user_billing WHERE onyx_user_id = $1",
+                        onyx_user_id
+                    )
+                    if existing_record:
+                        existing_plan = existing_record['current_plan']
+                
+                logger.info(f"[BILLING] User {onyx_user_id} existing plan: {existing_plan}, subscription items count: {len(subscription.get('items', {}).get('data', []))}")
+                
+                # Extract plan info - LOOP through ALL items to find tier price (not just first!)
+                plan = None
+                interval = None
+                price_id = None
+                
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                
+                # Check metadata to see if this is an addon-only purchase
+                is_addon_purchase = session.get('metadata', {}).get('purpose') == 'addons'
+                
+                if data_list:
+                    # Log all items for debugging
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        logger.info(f"[BILLING] Item {idx}: price_id={item_price_id}")
+                    
+                    # Look for base tier price among all items
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            break
+                    
+                    # If no tier price found, try product name fallback on first item
+                    if not plan and len(data_list) > 0:
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                        
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] No tier price found, checking product name: {product_name}")
+                        if 'business' in lowered:
+                            plan = 'business'
+                            price_id = item_price_id
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+                            price_id = item_price_id
+                
+                # CRITICAL FIX: If no plan found (addon-only subscription) and user has existing plan, preserve it
+                if not plan and is_addon_purchase and existing_plan:
+                    logger.warning(f"[BILLING] Addon-only subscription detected for user {onyx_user_id}. Preserving existing plan: {existing_plan}")
+                    plan = existing_plan
+                elif not plan:
+                    logger.warning(f"[BILLING] No tier price found for user {onyx_user_id}, defaulting to starter")
+                    plan = "starter"
+                
+                # Update user billing - preserve plan if this was addon-only purchase
+                async with pool.acquire() as conn:
+                    if is_addon_purchase and not price_id:
+                        # Addon-only purchase: only update subscription_id and status, preserve plan
+                        logger.info(f"[BILLING] Updating billing for addon-only purchase, preserving plan {plan}")
+                        await conn.execute(
+                            """
+                            INSERT INTO user_billing (
+                                onyx_user_id, stripe_customer_id, subscription_status, 
+                                subscription_id, current_plan, updated_at
+                            )
+                            VALUES ($1, $2, $3, $4, $5, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET 
+                                subscription_status = EXCLUDED.subscription_status,
+                                subscription_id = EXCLUDED.subscription_id,
+                                updated_at = now()
+                            """,
+                            onyx_user_id, customer_id, subscription.status,
+                            subscription_id, plan
+                        )
+                        
+                        # Sync addon items to user_billing_addons for addon-only subscriptions
+                        try:
+                            logger.info(f"[BILLING] Syncing addon items from addon-only subscription to database")
+                            current_period_end = (subscription.get('current_period_end') if isinstance(subscription, dict) 
+                                                else getattr(subscription, 'current_period_end', 0)) or 0
+                            
+                            if data_list:
+                                for item_data in data_list:
+                                    price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                                    item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                                    item_id = item_data.get('id') if isinstance(item_data, dict) else getattr(item_data, 'id', None)
+                                    item_quantity = item_data.get('quantity') if isinstance(item_data, dict) else getattr(item_data, 'quantity', 1)
+                                    
+                                    addon = PRICE_TO_ADDON.get(item_price_id, None)
+                                    if addon and addon.get('type') in ('connectors', 'storage'):
+                                        logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item_quantity}, price_id={item_price_id}")
+                                        await conn.execute(
+                                            """
+                                            INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                                stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                            ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                            """,
+                                            item_id, onyx_user_id, customer_id, subscription_id, item_id, item_price_id,
+                                            addon['type'], item_quantity, subscription.status, int(current_period_end)
+                                        )
+                                logger.info(f"[BILLING] Successfully synced {len(data_list)} addon items to database")
+                        except Exception as addon_sync_err:
+                            logger.error(f"[BILLING] Failed to sync addon items from addon-only subscription: {addon_sync_err}", exc_info=True)
+                    else:
+                        # Normal plan purchase: update everything including plan
+                        logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
+                    await conn.execute(
+                        """
+                        INSERT INTO user_billing (
+                            onyx_user_id, stripe_customer_id, subscription_status, 
+                            subscription_id, current_price_id, current_plan, 
+                            current_interval, updated_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                        ON CONFLICT (onyx_user_id)
+                        DO UPDATE SET 
+                            subscription_status = EXCLUDED.subscription_status,
+                            subscription_id = EXCLUDED.subscription_id,
+                            current_price_id = EXCLUDED.current_price_id,
+                            current_plan = EXCLUDED.current_plan,
+                            current_interval = EXCLUDED.current_interval,
+                            updated_at = now()
+                        """,
+                        onyx_user_id, customer_id, subscription.status,
+                        subscription_id, price_id, plan, interval
+                    )
+
+                # If this was an upgrade, cancel the previous subscription
+                try:
+                    prev_sub_id = session.get('metadata', {}).get('upgrade_from_subscription_id')
+                    if prev_sub_id:
+                        stripe.Subscription.delete(prev_sub_id)
+                except Exception as cancel_err:
+                    logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
+                
+                # Compute and persist entitlements based on plan tier
+                # Only update base entitlements if this is NOT an addon-only purchase
+                if not is_addon_purchase or price_id:
+                    try:
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
+                            logger.info(f"[BILLING] Setting base entitlements for plan {plan}: connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                                VALUES ($1, $2, $3, $4, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                                """,
+                                onyx_user_id, base_connectors, base_storage, base_slides
+                            )
+                    except Exception as e:
+                            logger.error(f"[BILLING] Failed to persist base entitlements: {e}")
+                else:
+                    logger.info(f"[BILLING] Skipping base entitlements update for addon-only purchase")
+                
+                logger.info(f"[BILLING] Updated billing for user {onyx_user_id}: plan={plan}, interval={interval}, is_addon_purchase={is_addon_purchase}")
+
+            # One-time credits purchase via Checkout Session (mode=payment)
+            if onyx_user_id and session.get('mode') == 'payment':
+                try:
+                    line_items = stripe.checkout.Session.list_line_items(session['id'])
+                    total_credits = 0
+                    for li in line_items.data:
+                        price_id = getattr(getattr(li, 'price', None), 'id', None)
+                        qty = int(getattr(li, 'quantity', 1) or 1)
+                        addon = PRICE_TO_ADDON.get(price_id or '', None)
+                        if addon and addon.get('type') == 'credits':
+                            total_credits += int(addon.get('units', 0)) * qty
+                    if total_credits > 0:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                UPDATE user_credits
+                                SET credits_balance = credits_balance + $2,
+                                    credits_purchased = credits_purchased + $2,
+                                    updated_at = now()
+                                WHERE onyx_user_id = $1
+                                """,
+                                onyx_user_id, total_credits
+                            )
+                            await conn.execute(
+                                """
+                                INSERT INTO credit_grant_events (id, onyx_user_id, source, amount, stripe_invoice_id, created_at)
+                                VALUES ($1, $2, 'one_time_pack', $3, NULL, now())
+                                """,
+                                str(uuid.uuid4()), onyx_user_id, total_credits
+                            )
+                except Exception as ce:
+                    logger.error(f"Failed to grant one-time credits: {ce}")
+
+        elif event['type'] == 'customer.subscription.updated':
+            subscription_obj = event['data']['object']
+            subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
+            customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
+            
+            logger.info(f"[BILLING] customer.subscription.updated event: subscription_id={subscription_id}, customer_id={customer_id}")
+            
+            # Re-fetch subscription with expanded product data to ensure we have all info
+            subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+            logger.info(f"[BILLING] Subscription status: {subscription.get('status')}, items count: {len(subscription.get('items', {}).get('data', []))}")
+            
+            # Find user by customer ID
+            async with pool.acquire() as conn:
+                user_record = await conn.fetchrow(
+                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
+                    customer_id
+                )
+            
+            if user_record:
+                onyx_user_id = user_record['onyx_user_id']
+                existing_plan = user_record['current_plan']
+                logger.info(f"[BILLING] Found user {onyx_user_id} with existing plan: {existing_plan}")
+                try:
+                    # Cache email if present in customer object
+                    cust = stripe.Customer.retrieve(customer_id)
+                    user_email = (cust.get('email') if isinstance(cust, dict) else getattr(cust, 'email', '')) or ''
+                    if user_email:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id) DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                                """,
+                                onyx_user_id,
+                                user_email,
+                            )
+                except Exception as e:
+                    logger.warning(f"Failed to cache user email: {e}")
+                
+                # Extract updated plan info - find base tier price (not add-ons)
+                plan = None
+                interval = None
+                price_id = None
+                
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list:
+                    # Log all items for debugging
+                    logger.info(f"[BILLING] Subscription items:")
+                    for idx, item_data in enumerate(data_list):
+                        item_price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = item_price.get('id') if isinstance(item_price, dict) else getattr(item_price, 'id', None)
+                        is_tier = item_price_id in PRICE_TO_TIER
+                        is_addon = item_price_id in PRICE_TO_ADDON
+                        logger.info(f"[BILLING]   Item {idx}: price_id={item_price_id}, is_tier={is_tier}, is_addon={is_addon}")
+                    
+                    # Look for base tier price among all items
+                    for item_data in data_list:
+                        price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                        item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        
+                        # Check if this is a base tier price
+                        tier_key = PRICE_TO_TIER.get(item_price_id, '')
+                        if tier_key:
+                            price_id = item_price_id
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                            interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                            logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
+                            break
+                    
+                    # If no tier price found, try product name fallback on first item
+                    if not plan and len(data_list) > 0:
+                        logger.info(f"[BILLING] No tier price found among items, trying product name fallback")
+                        price = data_list[0].get('price') if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                        price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                        recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                        interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                        
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        logger.info(f"[BILLING] Product name: '{product_name}'")
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
+                        
+                        if plan:
+                            logger.info(f"[BILLING] Inferred plan from product name: {plan}")
+                        else:
+                            logger.warning(f"[BILLING] Could not infer plan from product name")
+                
+                # Only update user_billing if we found a base tier plan (don't overwrite with add-ons)
+                if plan:
+                    logger.info(f"[BILLING] Found base tier plan '{plan}', updating user_billing")
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE user_billing 
+                            SET subscription_status = $2, current_price_id = $3, 
+                                current_plan = $4, current_interval = $5, updated_at = now()
+                            WHERE onyx_user_id = $1
+                            """,
+                            onyx_user_id, subscription['status'], price_id, plan, interval
+                        )
+                    logger.info(f"[BILLING] Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
+                else:
+                    # No base tier found - this is likely just add-ons being added
+                    # Only update status, preserve existing plan
+                    logger.info(f"[BILLING] No base tier found in subscription update for user {onyx_user_id}, preserving existing plan '{existing_plan}'")
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE user_billing 
+                            SET subscription_status = $2, updated_at = now()
+                            WHERE onyx_user_id = $1
+                            """,
+                            onyx_user_id, subscription['status']
+                        )
+                    plan = existing_plan  # Use existing plan for entitlements update below
+                    logger.info(f"[BILLING] Using existing plan '{plan}' for entitlements calculation")
+                
+                # Refresh base entitlements on subscription update (for both cases)
+                if plan:
+                    try:
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
+                        logger.info(f"[BILLING] Updating base entitlements for plan '{plan}': connectors={base_connectors}, storage={base_storage}GB, slides={base_slides}")
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                                VALUES ($1, $2, $3, $4, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                                """,
+                                onyx_user_id, base_connectors, base_storage, base_slides
+                            )
+                        logger.info(f"[BILLING] Successfully updated base entitlements for user {onyx_user_id}")
+                    except Exception as e:
+                        logger.error(f"[BILLING] Failed to persist base entitlements on update: {e}", exc_info=True)
+
+        elif event['type'] == 'invoice.paid':
+            invoice = event['data']['object']
+            customer_id = invoice.get('customer')
+            async with pool.acquire() as conn:
+                rec = await conn.fetchrow("SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1", customer_id)
+            if rec:
+                onyx_user_id = rec['onyx_user_id']
+                # Grant credits for base tier renewal
+                try:
+                    total_tier_credits = 0
+                    for li in invoice.get('lines', {}).get('data', []):
+                        price = (li.get('price') or {})
+                        pid = price.get('id')
+                        tier_key = PRICE_TO_TIER.get(pid or '', '')
+                        if tier_key:
+                            total_tier_credits += TIER_TO_CREDITS.get(tier_key, 0)
+                    if total_tier_credits > 0:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                UPDATE user_credits
+                                SET credits_balance = credits_balance + $2,
+                                    credits_purchased = credits_purchased + $2,
+                                    updated_at = now()
+                                WHERE onyx_user_id = $1
+                                """,
+                                onyx_user_id, total_tier_credits
+                            )
+                            await conn.execute(
+                                """
+                                INSERT INTO credit_grant_events (id, onyx_user_id, source, amount, stripe_invoice_id, created_at)
+                                VALUES ($1, $2, 'tier_renewal', $3, $4, now())
+                                """,
+                                str(uuid.uuid4()), onyx_user_id, total_tier_credits, invoice.get('id')
+                            )
+                except Exception as te:
+                    logger.error(f"Failed to grant tier renewal credits: {te}")
+
+                # Sync recurring add-ons status from subscription
+                try:
+                    sub_id = invoice.get('subscription')
+                    if sub_id:
+                        sub = stripe.Subscription.retrieve(sub_id, expand=['items.data.price'])
+                        async with pool.acquire() as conn:
+                            for it in sub['items']['data']:
+                                price_id = it['price']['id']
+                                addon = PRICE_TO_ADDON.get(price_id, None)
+                                if addon and addon.get('type') in ('connectors','storage'):
+                                    await conn.execute(
+                                        """
+                                        INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                            stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                        ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                        """,
+                                        it['id'], onyx_user_id, customer_id, sub_id, it['id'], price_id,
+                                        addon['type'], int(it.get('quantity') or 1), sub['status'], int(sub.get('current_period_end') or 0)
+                                    )
+                except Exception as ae:
+                    logger.error(f"Failed to sync add-ons: {ae}")
+
+        elif event['type'] == 'customer.subscription.deleted':
+            subscription = event['data']['object']
+            customer_id = subscription.get('customer')
+            
+            # Find user by customer ID and mark as cancelled
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    UPDATE user_billing 
+                    SET subscription_status = 'canceled', current_plan = 'starter',
+                        current_price_id = NULL, current_interval = NULL, updated_at = now()
+                    WHERE stripe_customer_id = $1
+                    """,
+                    customer_id
+                )
+            
+            logger.info(f"Cancelled subscription for customer {customer_id}")
+
+        # Mark processed
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("INSERT INTO processed_stripe_events (event_id, created_at) VALUES ($1, now()) ON CONFLICT DO NOTHING", event['id'])
+        except Exception:
+            pass
+        return {"status": "success"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Webhook processing failed")
+
+
+class CancelSubscriptionRequest(BaseModel):
+    subscriptionId: Optional[str] = None
+
+
+@app.post("/api/custom/billing/cancel")
+async def cancel_subscription(
+    request: Request,
+    payload: CancelSubscriptionRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Cancel user's active subscription now in Stripe and update our user_billing table."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT subscription_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        subscription_id = payload.subscriptionId or (record and record.get("subscription_id"))
+        if not subscription_id:
+            raise HTTPException(status_code=404, detail="No active subscription found")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Cancel immediately (or set cancel_at_period_end=True for end-of-term)
+        canceled = stripe.Subscription.delete(subscription_id)
+
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE user_billing
+                SET subscription_status = $2,
+                    updated_at = now()
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                canceled.status,
+            )
+
+        return {"status": canceled.status}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error canceling subscription: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to cancel subscription")
+
+@app.get("/api/custom/admin/credits/users", response_model=List[AdminUserCredits])
 async def list_all_user_credits(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
@@ -28787,12 +33448,206 @@ async def list_all_user_credits(
     await verify_admin_user(request)
     
     try:
+        # Build a map of Onyx user IDs to emails from Onyx API; fallback to local cache
+        user_emails_map: dict[str, str] = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Log top-level keys and shape for troubleshooting
+                        try:
+                            if isinstance(users_data, dict):
+                                logger.info(f"[CREDITS] Onyx /manage/users keys: {list(users_data.keys())}")
+                            else:
+                                logger.info(f"[CREDITS] Onyx /manage/users returned list of len={len(users_data)}")
+                        except Exception:
+                            pass
+
+                        # Normalize to a flat list of user snapshots
+                        users_iterable: list[dict] = []
+                        if isinstance(users_data, dict):
+                            if 'users' in users_data and isinstance(users_data['users'], list):
+                                users_iterable = users_data['users']
+                            else:
+                                accepted = users_data.get('accepted', []) or []
+                                slack_users = users_data.get('slack_users', []) or []
+                                invited = users_data.get('invited', []) or []
+                                # We only map accepted + slack user emails
+                                users_iterable = []
+                                if isinstance(accepted, list):
+                                    users_iterable += accepted
+                                if isinstance(slack_users, list):
+                                    users_iterable += slack_users
+                                # invited is email strings; skip
+                        elif isinstance(users_data, list):
+                            users_iterable = users_data
+
+                        # Build id->email map (handles different field names)
+                        for user in users_iterable:
+                            try:
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+
+                        # Log a small sample of the mapping for debugging
+                        try:
+                            sample_items = list(user_emails_map.items())[:5]
+                            logger.info(f"[CREDITS] Onyx users mapped: count={len(user_emails_map)}, sample={sample_items}")
+                        except Exception:
+                            pass
+        except Exception:
+            # Non-fatal; we'll fallback to cache
+            pass
+
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
-            return [UserCredits(**dict(row)) for row in rows]
+            # Attempt 1: join to Onyx users table named "user" (FastAPI Users default)
+            try:
+                rows = await conn.fetch(
+                    """
+                    SELECT 
+                        uc.id,
+                        uc.onyx_user_id,
+                        uc.name,
+                        u1.email AS db_email,
+                        uec.email AS cached_email,
+                        uc.credits_balance,
+                        uc.total_credits_used,
+                        uc.credits_purchased,
+                        uc.last_purchase_date,
+                        -- prefer real plan from billing; default to 'starter' when missing
+                        COALESCE(ub.current_plan, 'starter') ||
+                        CASE WHEN ub.current_interval IS NOT NULL THEN
+                            ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                        ELSE '' END AS subscription_tier,
+                        uc.created_at,
+                        uc.updated_at
+                    FROM user_credits uc
+                    LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                    LEFT JOIN "user" u1 ON (u1.id::text = uc.onyx_user_id OR u1.email = uc.onyx_user_id)
+                    ORDER BY uc.updated_at DESC
+                    """
+                )
+                db_join_table = '"user"'
+            except Exception as e_user_table:
+                logger.warning(f"[CREDITS] Join to table 'user' failed, trying 'users': {e_user_table}")
+                # Attempt 2: join to Onyx users table named users
+                try:
+                    rows = await conn.fetch(
+                        """
+                        SELECT 
+                            uc.id,
+                            uc.onyx_user_id,
+                            uc.name,
+                            u2.email AS db_email,
+                            uec.email AS cached_email,
+                            uc.credits_balance,
+                            uc.total_credits_used,
+                            uc.credits_purchased,
+                            uc.last_purchase_date,
+                            COALESCE(ub.current_plan, 'starter') ||
+                            CASE WHEN ub.current_interval IS NOT NULL THEN
+                                ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                            ELSE '' END AS subscription_tier,
+                            uc.created_at,
+                            uc.updated_at
+                        FROM user_credits uc
+                        LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN users u2 ON (u2.id::text = uc.onyx_user_id OR u2.email = uc.onyx_user_id)
+                        ORDER BY uc.updated_at DESC
+                        """
+                    )
+                    db_join_table = 'users'
+                except Exception as e_users_table:
+                    logger.warning(f"[CREDITS] Join to table 'users' also failed; falling back to API/cache only: {e_users_table}")
+                    # Fallback: query without joining any users table
+                    rows = await conn.fetch(
+                        """
+                        SELECT 
+                            uc.id,
+                            uc.onyx_user_id,
+                            uc.name,
+                            NULL::text AS db_email,
+                            uec.email AS cached_email,
+                            uc.credits_balance,
+                            uc.total_credits_used,
+                            uc.credits_purchased,
+                            uc.last_purchase_date,
+                            COALESCE(ub.current_plan, 'starter') ||
+                            CASE WHEN ub.current_interval IS NOT NULL THEN
+                                ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                            ELSE '' END AS subscription_tier,
+                            uc.created_at,
+                            uc.updated_at
+                        FROM user_credits uc
+                        LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                        LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
+                        ORDER BY uc.updated_at DESC
+                        """
+                    )
+                    db_join_table = None
+
+            enriched: list[AdminUserCredits] = []
+            stats_total = 0
+            stats_from_db = 0
+            stats_from_api = 0
+            stats_from_cache = 0
+            unresolved: list[str] = []
+            for row in rows:
+                d = dict(row)
+                # Determine email: Onyx API map, then cached, else None
+                resolved_email = d.get("db_email") or user_emails_map.get(d["onyx_user_id"], d.get("cached_email"))
+                # Compute display identity: email → meaningful name → onyx_user_id
+                name_val = (d.get("name") or "").strip()
+                display_identity = (
+                    resolved_email
+                    or (name_val if name_val and name_val.lower() != "user" else None)
+                    or d["onyx_user_id"]
+                )
+                d["email"] = resolved_email
+                d["display_identity"] = display_identity
+                # Remove helper
+                d.pop("cached_email", None)
+                d.pop("db_email", None)
+                stats_total += 1
+                if resolved_email:
+                    if resolved_email == user_emails_map.get(d["onyx_user_id"], None):
+                        stats_from_api += 1
+                    elif resolved_email:
+                        # came from DB join or cache; prefer to count DB explicitly
+                        stats_from_db += 1 if display_identity == resolved_email else stats_from_cache
+                else:
+                    unresolved.append(d["onyx_user_id"])
+                enriched.append(AdminUserCredits(**d))
+
+            try:
+                logger.info(
+                    f"[CREDITS] Users listed: total={stats_total}, from_db_join={stats_from_db}, from_api={stats_from_api}, from_cache={stats_from_cache}, unresolved={len(unresolved)}, db_table={db_join_table or 'none'}"
+                )
+                if unresolved:
+                    logger.debug(f"[CREDITS] Unresolved user identifiers (sample): {unresolved[:10]}")
+            except Exception:
+                pass
+
+            return enriched
     except Exception as e:
         logger.error(f"Error listing user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
@@ -28822,6 +33677,76 @@ async def get_usage_analytics(
     except Exception as e:
         logger.error(f"Error fetching usage analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
+# get Questionnaire answers for each user
+@app.get("/api/custom/admin/questionnaire/all", response_model=List[UserQuestionnaire])
+async def list_all_user_questionnaires(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to list all users' initial questionnaire answers"""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT onyx_user_id, data
+                FROM initial_questionnaire
+            """)
+            result = []
+            for row in rows:
+                answers = []
+                if isinstance(row["data"], list):
+                    for item in row["data"]:
+                        q = item.get("question")
+                        a = item.get("answer")
+                        if isinstance(q, str) and isinstance(a, str):
+                            answers.append(QuestionnaireAnswer(question=q, answer=a))
+                result.append(UserQuestionnaire(onyx_user_id=row["onyx_user_id"], answers=answers))
+            return result
+    except Exception as e:
+        logger.error(f"Error listing user questionnaires: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user questionnaires")
+
+@app.post("/api/custom/questionnaires/add")
+async def add_user_questionnaire(
+    questionnaire_request: UserQuestionnaireInsertRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Admin endpoint to insert a user's initial questionnaire answers.
+    If user already has answers, this will overwrite them.
+    """
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO initial_questionnaire (onyx_user_id, data)
+                VALUES ($1, $2)
+                ON CONFLICT (onyx_user_id) DO UPDATE SET data = EXCLUDED.data
+            """, questionnaire_request.onyx_user_id, [answer.dict() for answer in questionnaire_request.answers])
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Error inserting user questionnaire: {e}")
+        raise HTTPException(status_code=500, detail="Failed to insert user questionnaire")
+
+@app.get("/api/custom/questionnaires/{user_id}/completion")
+async def check_user_questionnaire_completion(
+    user_id: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Returns True if the user with the given id has completed the questionnaire, otherwise False.
+    """
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT 1 FROM initial_questionnaire WHERE onyx_user_id = $1",
+                user_id
+            )
+            return {"completed": bool(row)}
+    except Exception as e:
+        logger.error(f"Error checking questionnaire completion for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to check questionnaire completion")
 
 # Slide analytics across all users
 @app.get("/api/custom/admin/analytics/slides", response_model=SlidesAnalyticsResponse)
@@ -29159,12 +34084,53 @@ async def get_users_with_features(
     await verify_admin_user(request)
     
     try:
+        # Fetch user emails from Onyx API (robust mapping)
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+                        logger.info(f"[FEATURES] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[FEATURES] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[FEATURES] Error fetching user emails from Onyx API: {e}")
+        
         async with pool.acquire() as conn:
             rows = await conn.fetch("""
                 SELECT 
                     uc.onyx_user_id AS user_id,
-                    uc.onyx_user_id AS user_display_id,
                     uc.name AS user_name,
+                    uec.email AS cached_email,
                     uf.feature_name,
                     uf.is_enabled,
                     uf.created_at,
@@ -29176,6 +34142,7 @@ async def get_users_with_features(
                 LEFT JOIN user_features uf ON uc.onyx_user_id = uf.user_id
                 LEFT JOIN feature_definitions fd 
                     ON uf.feature_name = fd.feature_name AND fd.is_active = true
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.onyx_user_id, fd.category, fd.display_name
             """)
             
@@ -29183,9 +34150,12 @@ async def get_users_with_features(
             for row in rows:
                 user_id = row['user_id']
                 if user_id not in users_features:
+                    # Get email from map, fallback to cache, then user_id
+                    cached_email = dict(row).get('cached_email')
+                    user_email = user_emails_map.get(user_id, cached_email or user_id)
                     users_features[user_id] = {
                         'user_id': user_id,
-                        'user_email': row['user_display_id'] or user_id,
+                        'user_email': user_email,
                         'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }
@@ -30070,7 +35040,12 @@ async def create_presentation(request: Request):
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
+        # NEW: Extract voice parameters
+        voice_id = body.get("voiceId")
+        voice_provider = body.get("voiceProvider")
+        
         # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] ========== PRESENTATION REQUEST RECEIVED ==========")
         logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
         logger.info(f"  - slide_url: {slide_url}")
         logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
@@ -30084,6 +35059,12 @@ async def create_presentation(request: Request):
         logger.info(f"  - resolution: {resolution}")
         logger.info(f"  - project_name: {project_name}")
         
+        # NEW: Log voice parameters
+        logger.info("🎤 [MAIN_ENDPOINT] Voice parameters received:")
+        logger.info(f"  - voice_id: {voice_id}")
+        logger.info(f"  - voice_provider: {voice_provider}")
+        logger.info("🎤 [MAIN_ENDPOINT] ========== VOICE PARAMETERS LOGGED ==========")
+        
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
         if not slide_url and not slides_data:
@@ -30091,6 +35072,20 @@ async def create_presentation(request: Request):
         
         if not voiceover_texts or len(voiceover_texts) == 0:
             return {"success": False, "error": "voiceoverTexts is required"}
+        
+        # Enforce slides-per-presentation limit via entitlements
+        try:
+            onyx_user_id = await get_current_onyx_user_id(request)
+            ent = await _fetch_effective_entitlements(onyx_user_id, DB_POOL)
+            max_slides = int(ent.get("slides_max", 20))
+            slides_count = len(slides_data or []) if isinstance(slides_data, list) else 0
+            if slides_count == 0 and slide_url:
+                # Single slide fallback counts as 1
+                slides_count = 1
+            if slides_count > max_slides:
+                return {"success": False, "error": f"Slide limit exceeded: {slides_count} > {max_slides}"}
+        except Exception as _e:
+            logger.warning(f"Entitlements check failed, proceeding with defaults: {_e}")
         
         # Validate layout
         allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
@@ -30110,9 +35105,12 @@ async def create_presentation(request: Request):
             layout=layout,
             quality=quality,
             resolution=tuple(resolution),
-            project_name=project_name
+            project_name=project_name,
+            voice_id=voice_id,  # NEW: Pass voice ID
+            voice_provider=voice_provider  # NEW: Pass voice provider
         )
         logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
+        logger.info(f"🎤 [MAIN_ENDPOINT] PresentationRequest created with voice_id: {presentation_request.voice_id}, voice_provider: {presentation_request.voice_provider}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
@@ -30170,7 +35168,8 @@ async def get_presentation_status(job_id: str):
             "thumbnailUrl": job.thumbnail_url,
             "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
             "createdAt": job.created_at.isoformat() if job.created_at else None,
-            "completedAt": job.completed_at.isoformat() if job.completed_at else None
+            "completedAt": job.completed_at.isoformat() if job.completed_at else None,
+            "lastHeartbeat": job.last_heartbeat.isoformat() if job.last_heartbeat else None
         }
         
     except Exception as e:
@@ -30365,8 +35364,12 @@ async def preview_slide_html(request: Request):
         # Get the first slide
         slide_props = slides_data[0]
         template_id = slide_props.get("templateId")
+        slide_id = slide_props.get("slideId")
+        metadata = slide_props.get("metadata", {})
         
         logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
         logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
@@ -30376,6 +35379,33 @@ async def preview_slide_html(request: Request):
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
         logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # CRITICAL: Log text element positioning data at endpoint level
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"  - Slide ID: {slide_id}")
+        logger.info(f"  - Metadata: {metadata}")
+        logger.info(f"  - Metadata type: {type(metadata)}")
+        
+        if metadata and isinstance(metadata, dict):
+            element_positions = metadata.get('elementPositions', {})
+            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"  - Element positions: {element_positions}")
+            logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+            
+            # Log each text element position at endpoint level
+            if element_positions:
+                for element_id, position in element_positions.items():
+                    if 'draggable' in element_id:  # Text elements use draggable IDs
+                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"    - Element ID: {element_id}")
+                        logger.info(f"    - Position: {position}")
+                        logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
+                        logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
+            else:
+                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+        else:
+            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
@@ -30387,10 +35417,10 @@ async def preview_slide_html(request: Request):
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
-        # Generate clean HTML
+        # Generate clean HTML with slideId and metadata
         logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
-            template_id, actual_props, theme
+            template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
         logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
@@ -30541,10 +35571,100 @@ def _any_text_presentation_changes_made(original_content: str, edited_content: s
         logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
         return True
 
-async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
-    """Generate content for clean titles (titles without descriptions)"""
+async def _generate_content_blocks_for_section(section_title: str, all_section_titles: list, language: str) -> list:
+    """
+    Generate content blocks (in JSON format) for a single section.
+    Returns a list of content block dictionaries ready to merge.
+    """
     try:
-        logger.info("Starting content generation for clean titles")
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Generating JSON blocks for section: {section_title}")
+        
+        # Build context of all section titles
+        context_info = "\n".join([f"- {title}" for title in all_section_titles])
+        
+        # Create prompt to generate JSON content blocks directly
+        prompt = f"""You are generating content blocks for a One-Pager document section. Generate the content as a JSON array of content blocks.
+
+**ALL SECTIONS IN THIS DOCUMENT:**
+{context_info}
+
+**YOUR TASK: Generate content blocks for this section:**
+**Section Title:** {section_title}
+
+**CRITICAL REQUIREMENTS:**
+1. Output ONLY a valid JSON array of content blocks
+2. Start with a headline block (level 2) with the section title
+3. Follow with content blocks: paragraphs, bullet_list, numbered_list, etc.
+4. The content MUST be:
+   - Comprehensive and detailed (aim for 200-300 words total)
+   - Educational and informative
+   - Well-structured with multiple blocks
+   - Written in {language} language
+5. Keep in mind the other sections to avoid repetition
+
+**OUTPUT FORMAT (JSON array):**
+```json
+[
+  {{"type": "headline", "level": 2, "text": "Section Title Here"}},
+  {{"type": "paragraph", "text": "Comprehensive paragraph with detailed information..."}},
+  {{"type": "bullet_list", "items": ["Point 1", "Point 2", "Point 3"]}},
+  {{"type": "paragraph", "text": "Another paragraph..."}}
+]
+```
+
+**Available block types:**
+- headline: {{"type": "headline", "level": 2, "text": "..."}}
+- paragraph: {{"type": "paragraph", "text": "...", "isRecommendation": false}}
+- bullet_list: {{"type": "bullet_list", "items": ["...", "..."]}}
+- numbered_list: {{"type": "numbered_list", "items": ["...", "..."]}}
+
+Generate ONLY the JSON array for "{section_title}" section:"""
+        
+        # Get response from OpenAI
+        response = await stream_openai_response_direct(prompt)
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Generated {len(response)} characters")
+        logger.info(f"[GENERATE_SECTION_BLOCKS] Response preview: {response[:200]}")
+        
+        # Parse the JSON response
+        try:
+            # Clean up response - remove markdown code blocks if present
+            cleaned = response.strip()
+            if cleaned.startswith('```'):
+                # Remove ```json or ``` from start
+                lines = cleaned.split('\n')
+                cleaned = '\n'.join(lines[1:-1] if lines[-1].strip() == '```' else lines[1:])
+            
+            blocks = json.loads(cleaned)
+            
+            if not isinstance(blocks, list):
+                logger.error(f"[GENERATE_SECTION_BLOCKS] Response is not a list: {type(blocks)}")
+                raise ValueError("Expected JSON array")
+            
+            logger.info(f"[GENERATE_SECTION_BLOCKS] ✅ Successfully parsed {len(blocks)} content blocks")
+            return blocks
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"[GENERATE_SECTION_BLOCKS] Failed to parse JSON: {e}")
+            logger.error(f"[GENERATE_SECTION_BLOCKS] Raw response: {response[:500]}")
+            
+            # Fallback: create basic blocks manually
+            return [
+                {{"type": "headline", "level": 2, "text": section_title}},
+                {{"type": "paragraph", "text": f"Content for {section_title}. Please refer to the original for detailed information.", "isRecommendation": False}}
+            ]
+            
+    except Exception as e:
+        logger.error(f"[GENERATE_SECTION_BLOCKS] Error generating blocks: {e}", exc_info=True)
+        # Fallback
+        return [
+            {{"type": "headline", "level": 2, "text": section_title}},
+            {{"type": "paragraph", "text": f"Content for {section_title}.", "isRecommendation": False}}
+        ]
+
+async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
+    """Generate content for clean titles (titles without descriptions) - DEPRECATED, kept for compatibility"""
+    try:
+        logger.info("Starting content generation for clean titles (DEPRECATED PATH)")
         
         # Parse the clean content to identify sections
         sections = []
@@ -30581,22 +35701,40 @@ async def _generate_content_for_clean_titles(clean_content: str, original_conten
         logger.info(f"Found {len(sections)} sections, {sum(1 for s in sections if s['needs_content'])} need content generation")
         
         # Generate content for sections that need it
+        # Build context of all section titles for consistency
+        all_section_titles = [s['title'] for s in sections]
+        context_info = "\n".join([f"- {title}" for title in all_section_titles])
+        
         for section in sections:
             if section['needs_content']:
                 logger.info(f"Generating content for section: {section['title']}")
                 
-                # Create prompt for content generation
-                prompt = f"""Generate comprehensive content for the following section title in {language} language:
+                # Create prompt for content generation with full context
+                prompt = f"""You are generating content for a One-Pager document. This document has multiple sections, and you must generate content for one specific section while being aware of the other sections to ensure consistency and avoid repetition.
 
-Title: {section['title']}
+**ALL SECTIONS IN THIS DOCUMENT:**
+{context_info}
 
-Please provide detailed, informative content that explains the topic thoroughly. The content should be:
-- Educational and informative
-- Well-structured with paragraphs
-- Include relevant examples or explanations
-- Match the tone and style of a professional presentation
+**YOUR TASK: Generate content ONLY for this section:**
+**Section Title:** {section['title']}
 
-Generate the content:"""
+**CRITICAL REQUIREMENTS:**
+1. Generate COMPLETELY NEW content from scratch for this section
+2. The content MUST be:
+   - Comprehensive and detailed (aim for at least 200-300 words)
+   - Educational and informative
+   - Well-structured with multiple paragraphs
+   - Include relevant examples, explanations, or specific details
+   - Written in {language} language
+3. Keep in mind the other sections to:
+   - Avoid repeating content that belongs in other sections
+   - Ensure this section complements the overall document flow
+   - Match the overall tone and depth of the document
+4. The content should match the tone and style of a professional, educational one-pager document
+
+**Format:** Provide ONLY the text content (paragraphs), without including the section title or any markdown headers.
+
+Generate the comprehensive content for "{section['title']}" section:"""
                 
                 try:
                     # Use OpenAI to generate content
@@ -31651,6 +36789,12 @@ async def get_smartdrive_login_credentials(
             if row["expires_at"] < datetime.now(timezone.utc):
                 raise HTTPException(status_code=400, detail="Token expired")
 
+            # Ensure credits exist before any SmartDrive provisioning
+            try:
+                await get_or_create_user_credits(row["onyx_user_id"], "User", DB_POOL)
+            except Exception as _e:
+                logger.warning(f"[SmartDrive] Failed to ensure credits before provisioning: {_e}")
+
             account = await conn.fetchrow(
                 """
                 SELECT nextcloud_username, nextcloud_password_encrypted, nextcloud_base_url
@@ -31733,22 +36877,10 @@ async def get_smartdrive_login_credentials(
                         row["onyx_user_id"], userid, encrypted, base_url, datetime.now(timezone.utc)
                     )
 
-                    # Clean default skeleton files immediately after account creation using comprehensive cleanup
+                    # Clean default skeleton files with a single comprehensive pass
                     try:
                         deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
-                        
-                        # Wait briefly and run cleanup again to catch any files that might get recreated
-                        import asyncio
-                        await asyncio.sleep(2)
-                        additional_deleted = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        if additional_deleted > 0:
-                            logger.info(f"[SmartDrive] Second cleanup: removed {additional_deleted} additional files that were recreated")
-                        else:
-                            logger.info(f"[SmartDrive] ✅ Account completely clean - no additional files found")
-                        
-                        total_deleted = deleted_count + additional_deleted
-                        logger.info(f"[SmartDrive] TOTAL CLEANUP: Removed {total_deleted} default files for user {userid}")
+                        logger.info(f"[SmartDrive] Cleanup: removed {deleted_count} default files for new user {userid}")
                     except Exception as cleanup_err:
                         logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
 
@@ -31799,6 +36931,11 @@ async def bootstrap_smartdrive_session(
         logger.info(f"Bootstrapping SmartDrive session for user: {onyx_user_id}")
 
         async with pool.acquire() as conn:
+            # Ensure credits exist before any SmartDrive account actions
+            try:
+                await get_or_create_user_credits(onyx_user_id, "User", DB_POOL)
+            except Exception as _e:
+                logger.warning(f"[SmartDrive] Failed to ensure credits before session bootstrap: {_e}")
             # Check if user already has SmartDrive account
             account = await conn.fetchrow(
                 "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
@@ -31871,40 +37008,6 @@ async def set_smartdrive_credentials(
                 nextcloud_base_url,
                 datetime.now(timezone.utc)
             )
-            
-        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
-        return {"success": True, "message": "Nextcloud credentials saved successfully"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error setting SmartDrive credentials: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/custom/smartdrive/credentials")
-async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Set or update user's Nextcloud credentials"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        
-        nextcloud_username = data.get('nextcloud_username', '').strip()
-        nextcloud_password = data.get('nextcloud_password', '').strip()
-        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
-        
-        if not nextcloud_username or not nextcloud_password:
-            raise HTTPException(status_code=400, detail="Username and password are required")
-        
-        # Encrypt password
-        encrypted_password = encrypt_password(nextcloud_password)
-        
-        async with pool.acquire() as conn:
-            await conn.execute("""
-                UPDATE smartdrive_accounts 
-                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
-                WHERE onyx_user_id = $1
-            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
             
         logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
         return {"success": True, "message": "Nextcloud credentials saved successfully"}
@@ -32072,7 +37175,8 @@ async def list_smartdrive_files(
 
             # Use Nextcloud WebDAV API to list files with the user's individual credentials
             username, password, base_url, _ = await _get_nextcloud_credentials(conn, onyx_user_id)
-            webdav_url = f"{base_url}/remote.php/dav/files/{username}{path}"
+            # Encode DAV path segments to handle special characters like '#'
+            webdav_url = f"{base_url}/remote.php/dav/files/{username}{_encode_dav_path(path)}"
             auth = (username, password)
             
             try:
@@ -32158,8 +37262,20 @@ async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
             else:
                 relative_path = file_path
                 
+            # Decode relative path for human-readable output
+            try:
+                from urllib.parse import unquote as _unquote
+                relative_path = _unquote(relative_path)
+            except Exception:
+                pass
             # Extract file name
             name = relative_path.split('/')[-1] if not relative_path.endswith('/') else relative_path.split('/')[-2]
+            # Ensure name is decoded
+            try:
+                from urllib.parse import unquote as _unquote
+                name = _unquote(name)
+            except Exception:
+                pass
             if not name:
                 continue
                 
@@ -32307,31 +37423,35 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
                         except Exception as e:
                             logger.warning(f"[SmartDrive] Exception deleting {h}: {e}")
                     
-                    # Also try to delete common Nextcloud skeleton files by name (in case PROPFIND missed some)
+                    # Also try to delete common Nextcloud skeleton files by name in parallel
                     common_skeleton_items = [
-                        "Documents", "Photos", "Templates", "Music", "Videos", 
-                        "welcome.txt", "Readme.md", "Nextcloud intro.mp4",
-                        "Nextcloud Manual.pdf", "Example.md", "Example.odt",
-                        # Additional files that commonly appear in Nextcloud
-                        "Nextcloud.png", "Reasons to use Nextcloud.pdf", 
-                        "Templates credits.md", "Nextcloud.pdf",
-                        "Talk", "Contacts", "Calendar", "Tasks",
-                        "Deck", "Notes", "Flow", "Forms"
+                        "Documents", "Photos", "Templates",
+                        "Readme.md", "Nextcloud intro.mp4", "Nextcloud Manual.pdf",
+                        "Nextcloud.png", "Reasons to use Nextcloud.pdf", "Templates credits.md"
                     ]
                     
-                    for item_name in common_skeleton_items:
-                        try:
-                            del_url = f"{webdav_base}/{item_name}"
-                            delete_resp = await cleanup_client.delete(del_url, auth=(userid, password))
-                            if delete_resp.status_code == 204:  # Successfully deleted
-                                deleted_count += 1
-                                logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {item_name}")
-                            elif delete_resp.status_code == 404:
-                                logger.debug(f"[SmartDrive] Skeleton item not found (expected): {item_name}")
-                            else:
-                                logger.warning(f"[SmartDrive] Failed to delete skeleton item {item_name}: HTTP {delete_resp.status_code}")
-                        except Exception as e:
-                            logger.warning(f"[SmartDrive] Exception deleting skeleton item {item_name}: {e}")
+                    import asyncio as _asyncio
+                    sem = _asyncio.Semaphore(8)
+                    async def _del_item(_name: str) -> int:
+                        async with sem:
+                            try:
+                                _del_url = f"{webdav_base}/{_name}"
+                                _resp = await cleanup_client.delete(_del_url, auth=(userid, password))
+                                if _resp.status_code == 204:
+                                    logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {_name}")
+                                    return 1
+                                elif _resp.status_code == 404:
+                                    logger.debug(f"[SmartDrive] Skeleton item not found (expected): {_name}")
+                                    return 0
+                                else:
+                                    logger.warning(f"[SmartDrive] Failed to delete skeleton item {_name}: HTTP {_resp.status_code}")
+                                    return 0
+                            except Exception as _e:
+                                logger.warning(f"[SmartDrive] Exception deleting skeleton item {_name}: {_e}")
+                                return 0
+
+                    _results = await _asyncio.gather(*(_del_item(n) for n in common_skeleton_items))
+                    deleted_count += sum(_results)
 
                     # Final verification: do another PROPFIND to check what remains
                     try:
@@ -32530,7 +37650,7 @@ async def smartdrive_mkdir(
         await _ensure_folder_tree(webdav_user_base, user_root_prefix + path, auth=(username, password))
 
         # Create target folder (MKCOL)
-        target = _ensure_trailing_slash(user_root_prefix + path)
+        target = _ensure_trailing_slash(_encode_dav_path(user_root_prefix + path))
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.request("MKCOL", f"{webdav_user_base}{target}", auth=(username, password))
         if resp.status_code in (201, 405):  # created or already exists
@@ -32559,23 +37679,30 @@ async def smartdrive_upload(
         webdav_user_base = f"{base_url}/remote.php/dav/files/{username}"
 
         # Ensure destination folder exists
-        await _ensure_folder_tree(webdav_user_base, _ensure_trailing_slash(user_root_prefix + norm_dir), auth=(username, password))
+        await _ensure_folder_tree(webdav_user_base, _ensure_trailing_slash(_encode_dav_path(user_root_prefix + norm_dir)), auth=(username, password))
 
         results: List[Dict[str, Any]] = []
         async with httpx.AsyncClient(timeout=None) as client:
             for f in files:
                 safe_name = _sanitize_filename(f.filename or "upload.bin")
-                dest_url = f"{webdav_user_base}{_ensure_trailing_slash(user_root_prefix + norm_dir)}{safe_name}"
+                # Encode destination path and filename for WebDAV
+                from urllib.parse import quote as _quote
+                dest_dir = _ensure_trailing_slash(_encode_dav_path(user_root_prefix + norm_dir))
+                dest_url = f"{webdav_user_base}{dest_dir}{_quote(safe_name, safe='')}"
 
+                # Track file size during streaming
+                file_size = 0
                 async def aiter():
+                    nonlocal file_size
                     while True:
                         chunk = await f.read(1024 * 64)
                         if not chunk:
                             break
+                        file_size += len(chunk)
                         yield chunk
 
                 resp = await client.put(dest_url, auth=(username, password), content=aiter())
-                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code}
+                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code, "size": file_size}
                 if not entry["success"]:
                     entry["error"] = _dav_error(resp)
                     results.append(entry)
@@ -32607,6 +37734,24 @@ async def smartdrive_upload(
                                 )
                     except Exception as import_err:
                         logger.warning(f"Post-upload Onyx import failed for {safe_name}: {import_err}")
+                    
+                    # Update storage usage tracking
+                    try:
+                        async with pool.acquire() as conn2:
+                            await conn2.execute(
+                                """
+                                INSERT INTO user_storage_usage (onyx_user_id, used_bytes, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET used_bytes = user_storage_usage.used_bytes + EXCLUDED.used_bytes, updated_at = now()
+                                """,
+                                str(onyx_user_id),
+                                file_size,
+                            )
+                            logger.info(f"[STORAGE] Updated usage for {onyx_user_id}: +{file_size} bytes")
+                    except Exception as storage_err:
+                        logger.warning(f"Failed to update storage usage: {storage_err}")
+                    
                     results.append(entry)
                 await f.close()
 
@@ -32717,6 +37862,287 @@ async def smartdrive_indexing_status(
         return {"statuses": {p: None for p in paths}}
 
 
+def _estimate_tokens_from_file_info(file_path: str, file_size_bytes: int, mime_type: str) -> int:
+    """Estimate token count based on file type, size, and MIME type."""
+    file_path_lower = file_path.lower()
+    mime_type_lower = mime_type.lower()
+    
+    # Token estimation ratios (tokens per byte) based on file type
+    if file_path_lower.endswith('.pdf') or 'pdf' in mime_type_lower:
+        # PDFs: ~1 token per 2-3 bytes (2x faster processing)
+        # Larger PDFs tend to have more images/formatting, so lower ratio
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(250, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.doc', '.docx')) or 'word' in mime_type_lower or 'document' in mime_type_lower:
+        # Word docs: ~1 token per 1.5-2 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/1.75  # 1 token per 1.75 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        return max(150, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.txt', '.md', '.rtf')) or 'text' in mime_type_lower:
+        # Plain text: ~1 token per 1-1.5 bytes (2x faster processing)
+        if file_size_bytes < 10_000:  # < 10KB
+            ratio = 1/1  # 1 token per 1 byte (2x faster)
+        elif file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/1.25  # 1 token per 1.25 bytes (2x faster)
+        else:  # >= 100KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        return max(50, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.ppt', '.pptx')) or 'presentation' in mime_type_lower:
+        # PowerPoint: ~1 token per 2.5-3.5 bytes (2x faster processing)
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3.5  # 1 token per 3.5 bytes (2x faster)
+        return max(200, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.xls', '.xlsx')) or 'spreadsheet' in mime_type_lower or 'excel' in mime_type_lower:
+        # Excel: ~1 token per 2-3 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.html', '.htm')) or 'html' in mime_type_lower:
+        # HTML: ~1 token per 1.75 bytes (2x faster processing)
+        ratio = 1/1.75
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.json', '.xml')) or 'json' in mime_type_lower or 'xml' in mime_type_lower:
+        # JSON/XML: ~1 token per 1.25 bytes (2x faster processing)
+        ratio = 1/1.25
+        return max(50, int(file_size_bytes * ratio))
+    
+    else:
+        # Unknown file type: conservative estimate
+        # Assume it's mostly binary with some text content
+        ratio = 1/4  # 1 token per 4 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+
+
+def _estimate_tokens_from_file_type(file_path: str) -> int:
+    """Fallback token estimation based on file type only (when size is unknown)."""
+    file_path_lower = file_path.lower()
+    
+    if file_path_lower.endswith('.pdf'):
+        return 2500  # Average PDF (2x faster)
+    elif file_path_lower.endswith(('.doc', '.docx')):
+        return 1500  # Average Word doc (2x faster)
+    elif file_path_lower.endswith(('.txt', '.md')):
+        return 500   # Average text file (2x faster)
+    elif file_path_lower.endswith(('.ppt', '.pptx')):
+        return 2000  # Average PowerPoint (2x faster)
+    elif file_path_lower.endswith(('.xls', '.xlsx')):
+        return 1000  # Average Excel (2x faster)
+    elif file_path_lower.endswith(('.html', '.htm')):
+        return 750   # Average HTML (2x faster)
+    elif file_path_lower.endswith(('.json', '.xml')):
+        return 400   # Average JSON/XML (2x faster)
+    else:
+        return 1000  # Default for unknown types (2x faster)
+
+
+@app.get("/api/custom/smartdrive/indexing-progress")
+async def smartdrive_indexing_progress(
+    request: Request,
+    paths: List[str] = Query([]),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get detailed indexing progress for SmartDrive files using IndexAttempt data."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"[SmartDrive] IndexingProgress: user_id={onyx_user_id}, raw_paths={paths}")
+        
+        # Normalize paths
+        norm_paths: List[str] = []
+        for p in paths:
+            try:
+                norm_p = await _normalize_smartdrive_path(p)
+                norm_paths.append(norm_p)
+                logger.info(f"[SmartDrive] IndexingProgress: normalized '{p}' -> '{norm_p}'")
+            except Exception as e:
+                logger.error(f"[SmartDrive] IndexingProgress: failed to normalize path '{p}': {e}")
+                continue
+        
+        if not norm_paths:
+            logger.warning(f"[SmartDrive] IndexingProgress: no valid normalized paths")
+            return {"progress": {}}
+
+        # Lookup Onyx file IDs and get token estimates
+        path_to_file_id: Dict[str, str] = {}
+        path_to_tokens: Dict[str, int] = {}
+        
+        async with pool.acquire() as conn:
+            logger.info(f"[SmartDrive] IndexingProgress: querying database for user_id={onyx_user_id}, paths={norm_paths}")
+            rows = await conn.fetch(
+                """
+                SELECT smartdrive_path, onyx_file_id
+                FROM smartdrive_imports
+                WHERE onyx_user_id = $1 AND smartdrive_path = ANY($2::text[])
+                """,
+                str(onyx_user_id),
+                norm_paths,
+            )
+            logger.info(f"[SmartDrive] IndexingProgress: found {len(rows)} records in database")
+            
+        for r in rows:
+            path = r["smartdrive_path"]
+            file_id = str(r["onyx_file_id"])
+            path_to_file_id[path] = file_id
+            logger.info(f"[SmartDrive] IndexingProgress: mapping path='{path}' -> onyx_file_id='{file_id}'")
+
+        if not path_to_file_id:
+            logger.warning(f"[SmartDrive] IndexingProgress: no file mappings found")
+            return {"progress": {p: None for p in norm_paths}}
+
+        # Get token estimates for all files
+        for path in path_to_file_id.keys():
+            try:
+                # Use the existing token-estimate endpoint logic
+                file_id = path_to_file_id[path]
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{ONYX_API_SERVER_URL}/user/file/token-estimate",
+                        params={"file_ids": file_id},
+                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+                    )
+                if resp.is_success:
+                    data = resp.json() or {}
+                    total_tokens = int(data.get("total_tokens") or 0)
+                    path_to_tokens[path] = total_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: path='{path}' tokens={total_tokens}")
+                else:
+                    logger.warning(f"[SmartDrive] IndexingProgress: token estimate request failed for path='{path}': {resp.status_code}")
+                    path_to_tokens[path] = 0
+            except Exception as e:
+                logger.warning(f"[SmartDrive] IndexingProgress: failed to get tokens for path='{path}': {e}")
+                path_to_tokens[path] = 0
+            
+            # If we still have 0 tokens, estimate based on file type and size
+            if path_to_tokens[path] == 0:
+                try:
+                    # Get file size from WebDAV HEAD request
+                    async with pool.acquire() as conn:
+                        username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+                    
+                    base = f"{base_url}/remote.php/dav/files/{username}"
+                    file_url = f"{base}{user_root_prefix}{path}"
+                    
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        head = await client.head(file_url, auth=(username, password))
+                    
+                    if head.is_success:
+                        content_length = head.headers.get("content-length")
+                        mime_type = head.headers.get("content-type", "")
+                        
+                        if content_length and content_length.isdigit():
+                            file_size_bytes = int(content_length)
+                            estimated_tokens = _estimate_tokens_from_file_info(path, file_size_bytes, mime_type)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: estimated tokens for path='{path}' (size={file_size_bytes} bytes, type={mime_type}): {estimated_tokens}")
+                        else:
+                            # Fallback to file type only
+                            estimated_tokens = _estimate_tokens_from_file_type(path)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                    else:
+                        # Fallback to file type only
+                        estimated_tokens = _estimate_tokens_from_file_type(path)
+                        path_to_tokens[path] = estimated_tokens
+                        logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                        
+                except Exception as e:
+                    logger.warning(f"[SmartDrive] IndexingProgress: failed to get file size for path='{path}': {e}")
+                    # Final fallback to file type only
+                    estimated_tokens = _estimate_tokens_from_file_type(path)
+                    path_to_tokens[path] = estimated_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: final fallback token estimate for path='{path}': {estimated_tokens}")
+
+        # First, get the basic indexing status using the existing endpoint
+        file_ids = list(path_to_file_id.values())
+        query_params = []
+        for fid in file_ids:
+            query_params.append(("file_ids", fid))
+        
+        onyx_status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status"
+        logger.info(f"[SmartDrive] IndexingProgress: querying Onyx indexing status at {onyx_status_url} with file_ids={file_ids}")
+        
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                onyx_status_url,
+                params=query_params,
+                cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+            )
+        
+        if not resp.is_success:
+            logger.error(f"[SmartDrive] IndexingProgress: Onyx indexing status request failed: {resp.status_code}")
+            return {"progress": {p: None for p in norm_paths}}
+        
+        status_map = resp.json()  # {file_id: bool}
+        logger.info(f"[SmartDrive] IndexingProgress: Onyx indexing status response: {status_map}")
+
+        # Build progress data based on indexing status
+        progress_data = {}
+        for path, file_id in path_to_file_id.items():
+            is_indexed = bool(status_map.get(str(file_id)))
+            estimated_tokens = path_to_tokens.get(path, 0)
+            
+            if is_indexed:
+                # File is fully indexed
+                progress_data[path] = {
+                    "status": "success",
+                    "time_started": None,
+                    "time_updated": None,
+                    "total_docs_indexed": 1,  # Single file = 1 document
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": True
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is fully indexed")
+            else:
+                # File is still being indexed - provide enhanced progress data
+                # For now, we'll use a simple status with token-based estimation
+                progress_data[path] = {
+                    "status": "in_progress",
+                    "time_started": None,  # We don't have this from the basic endpoint
+                    "time_updated": None,
+                    "total_docs_indexed": 0,
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": False
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is still being indexed")
+
+        # Fill in missing paths
+        for p in norm_paths:
+            if p not in progress_data:
+                progress_data[p] = None
+                logger.info(f"[SmartDrive] IndexingProgress: no data for path='{p}' -> None")
+        
+        logger.info(f"[SmartDrive] IndexingProgress: returning progress data for {len(progress_data)} paths")
+        return {"progress": progress_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] indexing-progress error: {e}", exc_info=True)
+        return {"progress": {p: None for p in paths}}
+
+
 @app.post("/api/custom/smartdrive/move")
 async def smartdrive_move(
     request: Request,
@@ -32728,15 +38154,90 @@ async def smartdrive_move(
         onyx_user_id = await get_current_onyx_user_id(request)
         src = await _normalize_smartdrive_path(payload.get("from") or "/")
         dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        
+        logger.info(f"[SmartDrive] MOVE request: from={src} to={dst}")
+        
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        
+        # Ensure destination parent directory exists to avoid 403
+        try:
+            dst_parent = dst.rsplit("/", 1)[0] or "/"
+            # Don't encode here - _ensure_folder_tree will encode internally
+            await _ensure_folder_tree(base, _ensure_trailing_slash(user_root_prefix + dst_parent), auth=(username, password))
+        except Exception as _e:
+            logger.debug(f"[SmartDrive] ensure parent for MOVE failed (non-fatal): {_e}")
+        
+        # Build source and destination URLs
+        source_url = f"{base}{_encode_dav_path(user_root_prefix + src)}"
+        dest_url = f"{base}{_encode_dav_path(user_root_prefix + dst)}"
+        
+        headers = {"Destination": dest_url, "Overwrite": "T"}
+        
+        logger.info(f"[SmartDrive] MOVE: {source_url} -> Destination: {dest_url}")
+        
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("MOVE", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
-        if resp.status_code in (201, 204):
+            resp = await client.request("MOVE", source_url, auth=(username, password), headers=headers)
+        
+        logger.info(f"[SmartDrive] MOVE response: status={resp.status_code}")
+        
+        # WebDAV MOVE success codes: 201 (Created), 204 (No Content), 200 (OK)
+        if resp.status_code in (200, 201, 204):
+            # Update the file path mapping in smartdrive_imports table
+            try:
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        UPDATE smartdrive_imports 
+                        SET smartdrive_path = $1, imported_at = NOW()
+                        WHERE onyx_user_id = $2 AND smartdrive_path = $3
+                        """,
+                        dst, onyx_user_id, src
+                    )
+                    logger.info(f"[SmartDrive] Updated file mapping: {src} -> {dst}")
+            except Exception as map_err:
+                logger.warning(f"[SmartDrive] Failed to update file mapping: {map_err}")
             return {"success": True}
-        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+        
+        # If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
+        if resp.status_code == 403 and "/smartdrive" in resp.text and "out of base uri" in resp.text:
+            logger.info(f"[SmartDrive] MOVE 403 - trying with /smartdrive prefix in Destination")
+            # Extract just the path and add /smartdrive prefix
+            from urllib.parse import urlparse
+            parsed_dest = urlparse(dest_url)
+            adjusted_dest = f"/smartdrive{parsed_dest.path}"
+            headers_retry = {"Destination": adjusted_dest, "Overwrite": "T"}
+            logger.info(f"[SmartDrive] MOVE retry: {source_url} -> Destination: {adjusted_dest}")
+            
+            async with httpx.AsyncClient(timeout=60.0) as client2:
+                resp2 = await client2.request("MOVE", source_url, auth=(username, password), headers=headers_retry)
+            
+            logger.info(f"[SmartDrive] MOVE retry response: status={resp2.status_code}")
+            if resp2.status_code in (200, 201, 204):
+                # Update the file path mapping in smartdrive_imports table
+                try:
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE smartdrive_imports 
+                            SET smartdrive_path = $1, imported_at = NOW()
+                            WHERE onyx_user_id = $2 AND smartdrive_path = $3
+                            """,
+                            dst, onyx_user_id, src
+                        )
+                        logger.info(f"[SmartDrive] Updated file mapping (retry): {src} -> {dst}")
+                except Exception as map_err:
+                    logger.warning(f"[SmartDrive] Failed to update file mapping (retry): {map_err}")
+                return {"success": True}
+            error_detail = _dav_error(resp2)
+            logger.error(f"[SmartDrive] MOVE retry failed: status={resp2.status_code}, detail={error_detail}")
+            raise HTTPException(status_code=_map_webdav_status(resp2.status_code), detail=error_detail)
+        
+        error_detail = _dav_error(resp)
+        logger.error(f"[SmartDrive] MOVE failed: status={resp.status_code}, detail={error_detail}")
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=error_detail)
     except HTTPException:
         raise
     except Exception as e:
@@ -32755,15 +38256,62 @@ async def smartdrive_copy(
         onyx_user_id = await get_current_onyx_user_id(request)
         src = await _normalize_smartdrive_path(payload.get("from") or "/")
         dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        
+        logger.info(f"[SmartDrive] COPY request: from={src} to={dst}")
+        
         async with pool.acquire() as conn:
             username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        
         base = f"{base_url}/remote.php/dav/files/{username}"
-        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        
+        # Ensure destination parent directory exists to avoid 403
+        try:
+            dst_parent = dst.rsplit("/", 1)[0] or "/"
+            # Don't encode here - _ensure_folder_tree will encode internally
+            await _ensure_folder_tree(base, _ensure_trailing_slash(user_root_prefix + dst_parent), auth=(username, password))
+        except Exception as _e:
+            logger.debug(f"[SmartDrive] ensure parent for COPY failed (non-fatal): {_e}")
+        
+        # Build source and destination URLs
+        source_url = f"{base}{_encode_dav_path(user_root_prefix + src)}"
+        dest_url = f"{base}{_encode_dav_path(user_root_prefix + dst)}"
+        
+        headers = {"Destination": dest_url, "Overwrite": "T"}
+        
+        logger.info(f"[SmartDrive] COPY: {source_url} -> Destination: {dest_url}")
+        
         async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.request("COPY", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
-        if resp.status_code in (201, 204):
+            resp = await client.request("COPY", source_url, auth=(username, password), headers=headers)
+        
+        logger.info(f"[SmartDrive] COPY response: status={resp.status_code}")
+        
+        # WebDAV COPY success codes: 201 (Created), 204 (No Content), 200 (OK)
+        if resp.status_code in (200, 201, 204):
             return {"success": True}
-        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+        
+        # If 403 and error mentions "out of base uri" with "/smartdrive", retry with adjusted Destination
+        if resp.status_code == 403 and "/smartdrive" in resp.text and "out of base uri" in resp.text:
+            logger.info(f"[SmartDrive] COPY 403 - trying with /smartdrive prefix in Destination")
+            # Extract just the path and add /smartdrive prefix
+            from urllib.parse import urlparse
+            parsed_dest = urlparse(dest_url)
+            adjusted_dest = f"/smartdrive{parsed_dest.path}"
+            headers_retry = {"Destination": adjusted_dest, "Overwrite": "T"}
+            logger.info(f"[SmartDrive] COPY retry: {source_url} -> Destination: {adjusted_dest}")
+            
+            async with httpx.AsyncClient(timeout=60.0) as client2:
+                resp2 = await client2.request("COPY", source_url, auth=(username, password), headers=headers_retry)
+            
+            logger.info(f"[SmartDrive] COPY retry response: status={resp2.status_code}")
+            if resp2.status_code in (200, 201, 204):
+                return {"success": True}
+            error_detail = _dav_error(resp2)
+            logger.error(f"[SmartDrive] COPY retry failed: status={resp2.status_code}, detail={error_detail}")
+            raise HTTPException(status_code=_map_webdav_status(resp2.status_code), detail=error_detail)
+        
+        error_detail = _dav_error(resp)
+        logger.error(f"[SmartDrive] COPY failed: status={resp.status_code}, detail={error_detail}")
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=error_detail)
     except HTTPException:
         raise
     except Exception as e:
@@ -32790,7 +38338,7 @@ async def smartdrive_delete(
         results: List[Dict[str, Any]] = []
         async with httpx.AsyncClient(timeout=60.0) as client:
             for p in norm_paths:
-                resp = await client.delete(f"{base}{user_root_prefix}{p}", auth=(username, password))
+                resp = await client.delete(f"{base}{_encode_dav_path(user_root_prefix + p)}", auth=(username, password))
                 ok = resp.status_code in (200, 204)
                 results.append({"path": p, "success": ok, "status": resp.status_code, "error": None if ok else _dav_error(resp)})
         if any(not r["success"] for r in results):
@@ -32846,7 +38394,7 @@ async def smartdrive_token_estimate(
                 pass
         # Otherwise use HEAD to get Content-Length and approximate
         base = f"{base_url}/remote.php/dav/files/{username}"
-        file_url = f"{base}{user_root_prefix}{norm_path}"
+        file_url = f"{base}{_encode_dav_path(user_root_prefix + norm_path)}"
         async with httpx.AsyncClient(timeout=15.0) as client:
             head = await client.head(file_url, auth=(username, password))
         if not head.is_success:
@@ -32880,39 +38428,27 @@ async def smartdrive_download(
     path: str = Query(..., description="File path to download"),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Download a file by streaming from WebDAV to client."""
+    """Create a public download link for the file (like LMS export approach)."""
     try:
+        from app.services.nextcloud_share import create_public_download_link
+        
         onyx_user_id = await get_current_onyx_user_id(request)
         norm_path = await _normalize_smartdrive_path(path)
-        async with pool.acquire() as conn:
-            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
-        base = f"{base_url}/remote.php/dav/files/{username}"
-        source_url = f"{base}{user_root_prefix}{norm_path}"
-
-        client = httpx.AsyncClient(timeout=None)
-        resp = await client.get(source_url, auth=(username, password), stream=True)
-        if resp.status_code != 200:
-            await client.aclose()
-            raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
-
-        filename = _guess_filename_from_path(norm_path)
-        media_type = resp.headers.get("content-type", "application/octet-stream")
-        headers = {
-            "Content-Disposition": f"attachment; filename=\"{filename}\"",
-            "ETag": resp.headers.get("etag", ""),
-        }
-
-        async def stream_body():
-            async for chunk in resp.aiter_bytes():
-                yield chunk
-            await client.aclose()
-
-        return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
+        
+        logger.info(f"[SmartDrive] Creating download link for path={norm_path}")
+        
+        # Create public download link with short expiry (1 day for direct downloads)
+        download_link = await create_public_download_link(onyx_user_id, norm_path, expiry_days=1)
+        
+        logger.info(f"[SmartDrive] Download link created: {download_link}")
+        
+        # Return the download link for the frontend to open
+        return {"downloadUrl": download_link}
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"[SmartDrive] download error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to download file")
+        raise HTTPException(status_code=500, detail="Failed to create download link")
 
 
 # --------- Helpers: auth, paths, rate limiting, dav utils ---------
@@ -33002,6 +38538,22 @@ async def _normalize_smartdrive_path(p: str) -> str:
     return normalized if normalized != "" else "/"
 
 
+def _encode_dav_path(path: str) -> str:
+    """Percent-encode each path segment for WebDAV URLs, preserving slashes.
+    Ensures leading/trailing slash semantics are kept.
+    """
+    try:
+        from urllib.parse import quote
+        if path is None:
+            return "/"
+        is_abs = path.startswith("/")
+        is_dir = path.endswith("/")
+        parts = [seg for seg in path.split("/") if seg != ""]
+        encoded = "/".join(quote(seg, safe="") for seg in parts)
+        return ("/" if is_abs else "") + encoded + ("/" if is_dir and encoded else "")
+    except Exception:
+        return path
+
 async def _ensure_folder_tree(base: str, full_path: str, auth: Tuple[str, str]) -> None:
     """Ensure the full folder tree exists using MKCOL on each segment."""
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -33011,7 +38563,7 @@ async def _ensure_folder_tree(base: str, full_path: str, auth: Tuple[str, str]) 
         cumulative = ""
         for seg in segments:
             cumulative += f"/{seg}"
-            url = f"{base}{_ensure_trailing_slash(cumulative)}"
+            url = f"{base}{_ensure_trailing_slash(_encode_dav_path(cumulative))}"
             try:
                 r = await client.request("MKCOL", url, auth=auth)
                 if r.status_code in (201, 405):
@@ -33670,6 +39222,7 @@ async def create_smartdrive_connector(
         connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
         credential_id = connector_data.get('credential_id')  # ID of existing credential to use
         name = connector_data.get('name', f'Smart Drive {connector_id}')
+        indexing_start = connector_data.get('indexing_start', None)
         
         if not connector_id:
             raise HTTPException(status_code=400, detail="Connector ID is required")
@@ -33711,6 +39264,9 @@ async def create_smartdrive_connector(
             'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
             'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
         }
+
+        # Connectors that support only load_state input type
+        load_connectors = ['airtable', 'google_sites', 'xenforo', 'web']
         
         # Separate credential fields from connector config fields
         connector_credential_fields = credential_fields.get(connector_id, [])
@@ -33739,16 +39295,14 @@ async def create_smartdrive_connector(
                 'retrieve_blocks', 'include_people', 'include_databases'
             ],
             'slack': [
-                'channel_ids', 'include_public_channels', 'include_private_channels',
-                'include_direct_messages', 'include_thread_replies', 'message_limit'
+                'channels', 'channel_regex_enabled'
             ],
             'github': [
                 'repo_owner', 'repositories', 'include_prs', 'include_issues',
                 'include_code', 'include_releases', 'include_wikis'
             ],
             'confluence': [
-                'confluence_url', 'space_keys', 'include_attachments',
-                'include_archived', 'include_drafts'
+                'is_cloud', 'wiki_base', 'space', 'page_id', 'index_recursively', 'cql_query'
             ],
             'web': [
                 'base_url', 'web_connector_type', 'scroll_before_scraping',
@@ -33761,7 +39315,8 @@ async def create_smartdrive_connector(
             'indexing_scope', 'everything', 'specific_folders',  # Tab structure parameters
             'tabs', 'fields', 'sections',  # Form structure parameters
             'file_types', 'folder_ids',  # Legacy/unsupported parameters
-            'submitEndpoint', 'oauthSupported', 'oauthConfig'  # Form config parameters
+            'submitEndpoint', 'oauthSupported', 'oauthConfig',  # Form config parameters
+            'indexing_start' # Universal indexing start field
         }
         
         # Remove frontend-only parameters
@@ -33793,12 +39348,12 @@ async def create_smartdrive_connector(
         connector_payload = {
             "name": name,
             "source": connector_id,
-            "input_type": "poll",
+            "input_type": "poll" if connector_id not in load_connectors else "load_state",
             "access_type": "private",  # Required field for Smart Drive connectors
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
             "prune_freq": 86400,   # 1 day
-            "indexing_start": None
+            "indexing_start": indexing_start if indexing_start else None
         }
         
         # Helper function to ensure HTTPS for production domains
@@ -34124,6 +39679,494 @@ async def create_credential(request: Request):
     except Exception as e:
         logger.error(f"Error creating credential: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
+
+@app.get("/api/custom/connector/google-drive/authorize/{credential_id}")
+async def google_drive_authorize(credential_id: str, request: Request):
+    """
+    Proxy endpoint to get Google Drive authorization URL.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive authorization endpoint
+            auth_url = ensure_https_url(f"/api/manage/connector/google-drive/authorize/{credential_id}")
+            
+            response = await client.get(
+                auth_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                # Create response with JSON data
+                from fastapi.responses import JSONResponse
+                json_response = JSONResponse(content=response.json())
+                
+                # Forward all Set-Cookie headers from the original response
+                for cookie_header in response.headers.get_list("set-cookie"):
+                    # Parse the cookie header to extract name, value, and attributes
+                    cookie_parts = cookie_header.split(";")
+                    cookie_name_value = cookie_parts[0].strip()
+                    if "=" in cookie_name_value:
+                        cookie_name, cookie_value = cookie_name_value.split("=", 1)
+                        
+                        # Extract cookie attributes
+                        cookie_attrs = {}
+                        for part in cookie_parts[1:]:
+                            part = part.strip()
+                            if "=" in part:
+                                attr_name, attr_value = part.split("=", 1)
+                                cookie_attrs[attr_name.lower()] = attr_value
+                            else:
+                                cookie_attrs[part.lower()] = True
+                        
+                        # Set the cookie with proper attributes
+                        json_response.set_cookie(
+                            key=cookie_name,
+                            value=cookie_value,
+                            httponly=cookie_attrs.get("httponly", False),
+                            secure=cookie_attrs.get("secure", False),
+                            samesite=cookie_attrs.get("samesite", "lax"),
+                            max_age=int(cookie_attrs.get("max-age", 0)) if cookie_attrs.get("max-age") else None
+                        )
+                
+                return json_response
+            else:
+                logger.error(f"Failed to get Google Drive authorization URL: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Google Drive authorization URL: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Google Drive authorization URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Google Drive authorization URL: {str(e)}")
+
+
+@app.put("/api/custom/connector/google-drive/app-credential")
+async def google_drive_put_app_credential(request: Request):
+    """
+    Proxy endpoint to save Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get request body
+        body = await request.body()
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.put(
+                app_cred_url,
+                headers=auth_headers,
+                content=body
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to save Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to save Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error saving Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving Google Drive app credentials: {str(e)}")
+
+@app.get("/api/custom/connector/google-drive/app-credential")
+async def google_drive_get_app_credential(request: Request):
+    """
+    Proxy endpoint to get Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential GET endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.get(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to get Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Google Drive app credentials: {str(e)}")
+
+@app.delete("/api/custom/connector/google-drive/app-credential")
+async def google_drive_delete_app_credential(request: Request):
+    """
+    Proxy endpoint to delete Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential DELETE endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.delete(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to delete Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to delete Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error deleting Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting Google Drive app credentials: {str(e)}")
+
+@app.get("/api/custom/connector/gmail/authorize/{credential_id}")
+async def gmail_authorize(credential_id: str, request: Request):
+    """
+    Proxy endpoint to get Gmail authorization URL.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Gmail authorization endpoint
+            auth_url = ensure_https_url(f"/api/manage/connector/gmail/authorize/{credential_id}")
+            
+            response = await client.get(
+                auth_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                # Create response with JSON data
+                from fastapi.responses import JSONResponse
+                json_response = JSONResponse(content=response.json())
+                
+                # Forward all Set-Cookie headers from the original response
+                for cookie_header in response.headers.get_list("set-cookie"):
+                    # Parse the cookie header to extract name, value, and attributes
+                    cookie_parts = cookie_header.split(";")
+                    cookie_name_value = cookie_parts[0].strip()
+                    if "=" in cookie_name_value:
+                        cookie_name, cookie_value = cookie_name_value.split("=", 1)
+                        
+                        # Extract cookie attributes
+                        cookie_attrs = {}
+                        for part in cookie_parts[1:]:
+                            part = part.strip()
+                            if "=" in part:
+                                attr_name, attr_value = part.split("=", 1)
+                                cookie_attrs[attr_name.lower()] = attr_value
+                            else:
+                                cookie_attrs[part.lower()] = True
+                        
+                        # Set the cookie with proper attributes
+                        json_response.set_cookie(
+                            key=cookie_name,
+                            value=cookie_value,
+                            httponly=cookie_attrs.get("httponly", False),
+                            secure=cookie_attrs.get("secure", False),
+                            samesite=cookie_attrs.get("samesite", "lax"),
+                            max_age=int(cookie_attrs.get("max-age", 0)) if cookie_attrs.get("max-age") else None
+                        )
+                
+                return json_response
+            else:
+                logger.error(f"Failed to get Gmail authorization URL: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Gmail authorization URL: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Gmail authorization URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Gmail authorization URL: {str(e)}")
+
+@app.put("/api/custom/connector/gmail/app-credential")
+async def gmail_put_app_credential(request: Request):
+    """
+    Proxy endpoint to save Gmail app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get request body
+        body = await request.body()
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Gmail app credential endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/gmail/app-credential")
+            
+            response = await client.put(
+                app_cred_url,
+                headers=auth_headers,
+                content=body
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to save Gmail app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to save Gmail app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error saving Gmail app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving Gmail app credentials: {str(e)}")
+
+@app.get("/api/custom/connector/gmail/app-credential")
+async def gmail_get_app_credential(request: Request):
+    """
+    Proxy endpoint to get Gmail app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Gmail app credential GET endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/gmail/app-credential")
+            
+            response = await client.get(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to get Gmail app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Gmail app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Gmail app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Gmail app credentials: {str(e)}")
+
+
+@app.delete("/api/custom/connector/gmail/app-credential")
+async def gmail_delete_app_credential(request: Request):
+    """
+    Proxy endpoint to delete Gmail app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Gmail app credential DELETE endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/gmail/app-credential")
+            
+            response = await client.delete(
+                app_cred_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to delete Gmail app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to delete Gmail app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error deleting Gmail app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting Gmail app credentials: {str(e)}")
 
 # --- Offers API Endpoints ---
 
@@ -35682,39 +41725,65 @@ async def export_scorm_package(
     http_request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline."""
-    try:
-        # Resolve user identity
-        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
-        onyx_user_id = user_uuid
+    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline with progress updates."""
+    
+    async def generate_with_progress():
+        try:
+            # Resolve user identity
+            user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+            onyx_user_id = user_uuid
 
-        # Validate access: ensure the course is a Training Plan owned by the user
-        async with pool.acquire() as connection:
-            row = await connection.fetchrow(
-                """
-                SELECT p.id
-                FROM projects p
-                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
-                """,
-                request.courseOutlineId, onyx_user_id
-            )
-            if not row:
-                raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
+            # Validate access: ensure the course is a Training Plan owned by the user
+            async with pool.acquire() as connection:
+                row = await connection.fetchrow(
+                    """
+                    SELECT p.id
+                    FROM projects p
+                    LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                    WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+                    """,
+                    request.courseOutlineId, onyx_user_id
+                )
+                if not row:
+                    raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
 
-        # Build SCORM package
-        from app.services.scorm_packager import build_scorm_package_zip
-        filename, zip_bytes = await build_scorm_package_zip(request.courseOutlineId, onyx_user_id)
+                # Build SCORM package with progress updates
+                from app.services.scorm_packager import build_scorm_package_zip_with_progress
+                
+                async for update in build_scorm_package_zip_with_progress(request.courseOutlineId, onyx_user_id):
+                    if update["type"] == "progress":
+                        # Send progress update as keep-alive
+                        progress_packet = {"type": "progress", "message": update["message"]}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        logger.info(f"[SCORM_EXPORT_PROGRESS] {update['message']}")
+                    elif update["type"] == "complete":
+                        # Send the actual ZIP file
+                        filename = update["filename"]
+                        zip_bytes = update["zip_bytes"]
+                        
+                        # Send completion message with filename
+                        completion_packet = {"type": "complete", "filename": filename, "size": len(zip_bytes)}
+                        yield (json.dumps(completion_packet) + "\n").encode()
+                        
+                        # Send the ZIP bytes
+                        yield zip_bytes
+                        logger.info(f"[SCORM_EXPORT_COMPLETE] {filename} ({len(zip_bytes)} bytes)")
+                        break
+                    
+        except HTTPException as he:
+            error_packet = {"type": "error", "message": he.detail}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[API:SCORM] Export HTTP error: {he.detail}")
+        except Exception as e:
+            error_packet = {"type": "error", "message": "Failed to export SCORM package"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[API:SCORM] Export failed: {e}")
 
-        return StreamingResponse(
-            content=io.BytesIO(zip_bytes),
-            media_type="application/zip",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}"
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"[API:SCORM] Export failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to export SCORM package")
+    return StreamingResponse(
+    content=generate_with_progress(),
+    media_type="application/octet-stream",
+        headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no"
+        }
+    )

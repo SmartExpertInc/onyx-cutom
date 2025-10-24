@@ -1,0 +1,330 @@
+Script - videoLessonData: undefined
+1963-6f507b5731b497b7.js:1 Script - componentBasedSlideDeck: {slides: Array(2), lessonTitle: 'Step to analyze the market', hasVoiceover: true, currentSlideId: 'slide-1760113581774-qa5zdt2gl', detectedLanguage: 'en'}
+1963-6f507b5731b497b7.js:1 Script - currentSlideId: slide-1760113581774-qa5zdt2gl
+1963-6f507b5731b497b7.js:1 Script - currentSlide: {props: {…}, slideId: 'slide-1760113581774-qa5zdt2gl', metadata: {…}, slideTitle: 'Клиентский сервис - это основа успеха', templateId: 'avatar-service-slide', …}
+1963-6f507b5731b497b7.js:1 Script - voiceoverText: undefined
+1963-6f507b5731b497b7.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_fallback {ts: 1760359460006, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', size: 'LARGE', templateId: 'bullet-points-right', …}
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_fallback {ts: 1760359460007, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', size: 'LARGE', templateId: 'bullet-points-right', …}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1760359460008, isOpen: false, portalContainerExists: false}
+1963-6f507b5731b497b7.js:1 🔍 [SLIDE_DATA_EXPOSURE] Exposed slide data to window for HTML preview: {slideCount: 2, theme: undefined, currentSlideId: 'slide-1760113581774-qa5zdt2gl'}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | portalContainerSet {ts: 1760359460025, container: 'document.body'}
+6146-f6491b26a0b39490.js:1 🔍 [ComponentLifecycle] MOUNTED {elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', displayedImage: false, isEditable: true, cropMode: 'contain', …}
+6146-f6491b26a0b39490.js:1 🔍 [SpinnerState] isGenerating changed {elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', isGenerating: false, timestamp: 1760359460026}
+6146-f6491b26a0b39490.js:1 🔍 [ImageSync] Syncing displayed image with prop {elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', imagePath: undefined, hasImagePath: false, currentDisplayedImage: undefined, …}
+6146-f6491b26a0b39490.js:1 🔍 [ImageSync] Cleared displayed image {elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', cropMode: 'contain', timestamp: 1760359460028}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1760359460031, isOpen: false, portalContainerExists: true}
+6146-f6491b26a0b39490.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+6146-f6491b26a0b39490.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+6146-f6491b26a0b39490.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+6146-f6491b26a0b39490.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: {avatar: {…}, selectedVariant: {…}}
+6146-f6491b26a0b39490.js:1 🎭 [AVATAR_MANAGER] Restored saved avatar: Gia
+1963-6f507b5731b497b7.js:1 🎬 [VIDEO_GENERATION] Avatar context updated: {hasDefaultAvatar: true, avatarName: 'Gia', avatarCode: 'gia', variantName: 'Business', variantCode: 'business'}
+1261-4dfd17c06a3b6bf7.js:1 📐 [CANVAS_DIMENSIONS] Drag started on canvas
+1261-4dfd17c06a3b6bf7.js:1   🖼️ Canvas Element: DIV relative positioning-enabled-slide 
+1261-4dfd17c06a3b6bf7.js:1   📏 Canvas Dimensions: {width: 719.9999389648438, height: 404.9999694824219, left: 593.9109497070312, top: 296.95074462890625}
+1261-4dfd17c06a3b6bf7.js:1   📍 Mouse Position (viewport): {clientX: 738, clientY: 568}
+1261-4dfd17c06a3b6bf7.js:1   🎯 Canvas-Relative Position: {canvasX: '144.09', canvasY: '271.05'}
+layout-0ef307ad6fe53cb6.js:1 ✅ Mont regular font preloaded successfully
+1261-4dfd17c06a3b6bf7.js:1 🎯 [DRAG_COMPLETE] Element drag finished
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-0
+1261-4dfd17c06a3b6bf7.js:1   📊 Final Position: {x: -43, y: 130}
+1261-4dfd17c06a3b6bf7.js:1   📏 Drag Distance: 11.18 px
+1261-4dfd17c06a3b6bf7.js:1   🎨 Element: DIV 
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions at completion: {width: 719.9999389648438, height: 404.9999694824219, aspectRatio: '1.778'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Position State: {transform: 'translate(-43px, 130px)', savedInState: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ➡️ Calling onPositionChange callback...
+1261-4dfd17c06a3b6bf7.js:1 💾 [POSITION_SAVE] Saving position to slide metadata
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-0
+1261-4dfd17c06a3b6bf7.js:1   📊 Position: {x: -43, y: 130}
+1261-4dfd17c06a3b6bf7.js:1   🎬 Slide ID: slide-1760113581774-qa5zdt2gl
+1261-4dfd17c06a3b6bf7.js:1   🎨 Template ID: avatar-service-slide
+1261-4dfd17c06a3b6bf7.js:1   🎯 AVATAR-SERVICE SLIDE DETECTED!
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions:
+1261-4dfd17c06a3b6bf7.js:1     ACTUAL Editor Canvas (measured):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 720.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Height: 405.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (720:405)
+1261-4dfd17c06a3b6bf7.js:1     Design Editor Canvas (hardcoded):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1174px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 600px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.957 (1.957:1)
+1261-4dfd17c06a3b6bf7.js:1     Video Canvas:
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1920px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 1080px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (1.778:1 - 16:9)
+1261-4dfd17c06a3b6bf7.js:1   📏 Scale Factors (using ACTUAL canvas):
+1261-4dfd17c06a3b6bf7.js:1     CORRECT Scale Factors: {scaleX: '2.666667 (1920/720)', scaleY: '2.666667 (1080/405)'}
+1261-4dfd17c06a3b6bf7.js:1     ❌ OLD (WRONG) Scale Factors: {scaleX: '1.635434 (1920/1174)', scaleY: '1.800000 (1080/600)'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Expected Scaled Position (using ACTUAL canvas): {scaledX: '-114.67', scaledY: '346.67'}
+1261-4dfd17c06a3b6bf7.js:1   ⚠️ CRITICAL: Canvas size mismatch detected! {designWidth: 1174, actualWidth: '720.00', widthError: '-38.67%', impactOnScaling: 'Scale factor will be 63.06% off'}
+1261-4dfd17c06a3b6bf7.js:1   📦 Updated Metadata: {previousPositions: {…}, newPositions: {…}, totalElementsPositioned: 2, canvasDimensions: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ✅ Position saved successfully (with actual canvas dimensions)
+page-86e35710bd570ec3.js:1 💾 Saving video lesson data: {projectId: '182', dataType: 'Object', slideCount: 2}
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Toolbar component initialized
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 Script - videoLessonData: undefined
+1963-6f507b5731b497b7.js:1 Script - componentBasedSlideDeck: {slides: Array(2), lessonTitle: 'Step to analyze the market', hasVoiceover: true, currentSlideId: 'slide-1760113581774-qa5zdt2gl', detectedLanguage: 'en'}
+1963-6f507b5731b497b7.js:1 Script - currentSlideId: slide-1760113581774-qa5zdt2gl
+1963-6f507b5731b497b7.js:1 Script - currentSlide: {props: {…}, slideId: 'slide-1760113581774-qa5zdt2gl', metadata: {…}, slideTitle: 'Клиентский сервис - это основа успеха', templateId: 'avatar-service-slide', …}
+1963-6f507b5731b497b7.js:1 Script - voiceoverText: undefined
+1963-6f507b5731b497b7.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359461859, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359461859, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1760359461860, isOpen: false, portalContainerExists: true}
+1963-6f507b5731b497b7.js:1 🔍 [SLIDE_DATA_EXPOSURE] Exposed slide data to window for HTML preview: {slideCount: 2, theme: undefined, currentSlideId: 'slide-1760113581774-qa5zdt2gl'}
+layout-0ef307ad6fe53cb6.js:1 ✅ Mont thin font preloaded successfully
+1261-4dfd17c06a3b6bf7.js:1 📐 [CANVAS_DIMENSIONS] Drag started on canvas
+1261-4dfd17c06a3b6bf7.js:1   🖼️ Canvas Element: DIV relative positioning-enabled-slide 
+1261-4dfd17c06a3b6bf7.js:1   📏 Canvas Dimensions: {width: 719.9999389648438, height: 404.9999694824219, left: 593.9109497070312, top: 296.95074462890625}
+1261-4dfd17c06a3b6bf7.js:1   📍 Mouse Position (viewport): {clientX: 773, clientY: 373}
+1261-4dfd17c06a3b6bf7.js:1   🎯 Canvas-Relative Position: {canvasX: '179.09', canvasY: '76.05'}
+page-86e35710bd570ec3.js:1 ✅ Video lesson data saved successfully
+layout-0ef307ad6fe53cb6.js:1 ✅ Mont bold font preloaded successfully
+layout-0ef307ad6fe53cb6.js:1 🎉 All Mont fonts preloaded successfully
+layout-0ef307ad6fe53cb6.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+1261-4dfd17c06a3b6bf7.js:1 🎯 [DRAG_COMPLETE] Element drag finished
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+1261-4dfd17c06a3b6bf7.js:1   📊 Final Position: {x: -6, y: -186}
+1261-4dfd17c06a3b6bf7.js:1   📏 Drag Distance: 92.23 px
+1261-4dfd17c06a3b6bf7.js:1   🎨 Element: DIV 
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions at completion: {width: 719.9999389648438, height: 404.9999694824219, aspectRatio: '1.778'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Position State: {transform: 'translate(-6px, -186px)', savedInState: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ➡️ Calling onPositionChange callback...
+1261-4dfd17c06a3b6bf7.js:1 💾 [POSITION_SAVE] Saving position to slide metadata
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+1261-4dfd17c06a3b6bf7.js:1   📊 Position: {x: -6, y: -186}
+1261-4dfd17c06a3b6bf7.js:1   🎬 Slide ID: slide-1760113581774-qa5zdt2gl
+1261-4dfd17c06a3b6bf7.js:1   🎨 Template ID: avatar-service-slide
+1261-4dfd17c06a3b6bf7.js:1   🎯 AVATAR-SERVICE SLIDE DETECTED!
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions:
+1261-4dfd17c06a3b6bf7.js:1     ACTUAL Editor Canvas (measured):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 720.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Height: 405.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (720:405)
+1261-4dfd17c06a3b6bf7.js:1     Design Editor Canvas (hardcoded):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1174px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 600px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.957 (1.957:1)
+1261-4dfd17c06a3b6bf7.js:1     Video Canvas:
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1920px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 1080px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (1.778:1 - 16:9)
+1261-4dfd17c06a3b6bf7.js:1   📏 Scale Factors (using ACTUAL canvas):
+1261-4dfd17c06a3b6bf7.js:1     CORRECT Scale Factors: {scaleX: '2.666667 (1920/720)', scaleY: '2.666667 (1080/405)'}
+1261-4dfd17c06a3b6bf7.js:1     ❌ OLD (WRONG) Scale Factors: {scaleX: '1.635434 (1920/1174)', scaleY: '1.800000 (1080/600)'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Expected Scaled Position (using ACTUAL canvas): {scaledX: '-16.00', scaledY: '-496.00'}
+1261-4dfd17c06a3b6bf7.js:1   ⚠️ CRITICAL: Canvas size mismatch detected! {designWidth: 1174, actualWidth: '720.00', widthError: '-38.67%', impactOnScaling: 'Scale factor will be 63.06% off'}
+1261-4dfd17c06a3b6bf7.js:1   📦 Updated Metadata: {previousPositions: {…}, newPositions: {…}, totalElementsPositioned: 2, canvasDimensions: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ✅ Position saved successfully (with actual canvas dimensions)
+page-86e35710bd570ec3.js:1 💾 Saving video lesson data: {projectId: '182', dataType: 'Object', slideCount: 2}
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Toolbar component initialized
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 Script - videoLessonData: undefined
+1963-6f507b5731b497b7.js:1 Script - componentBasedSlideDeck: {slides: Array(2), lessonTitle: 'Step to analyze the market', hasVoiceover: true, currentSlideId: 'slide-1760113581774-qa5zdt2gl', detectedLanguage: 'en'}
+1963-6f507b5731b497b7.js:1 Script - currentSlideId: slide-1760113581774-qa5zdt2gl
+1963-6f507b5731b497b7.js:1 Script - currentSlide: {props: {…}, slideId: 'slide-1760113581774-qa5zdt2gl', metadata: {…}, slideTitle: 'Клиентский сервис - это основа успеха', templateId: 'avatar-service-slide', …}
+1963-6f507b5731b497b7.js:1 Script - voiceoverText: undefined
+1963-6f507b5731b497b7.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359463345, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359463346, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1760359463346, isOpen: false, portalContainerExists: true}
+1963-6f507b5731b497b7.js:1 🔍 [SLIDE_DATA_EXPOSURE] Exposed slide data to window for HTML preview: {slideCount: 2, theme: undefined, currentSlideId: 'slide-1760113581774-qa5zdt2gl'}
+page-86e35710bd570ec3.js:1 ✅ Video lesson data saved successfully
+12The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Starting HTML preview generation...
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Extracting slide data from current project...
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Found slide data in window object: 2 slides
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Slide data extracted successfully
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Slides count: 2
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Theme: dark-purple
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Request payload: {slides: Array(2), theme: 'dark-purple'}
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML preview generated successfully
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Template ID: avatar-service-slide
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Theme: dark-purple
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML length: 29817
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML preview opened in new window
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Success: HTML preview opened in new window for template: avatar-service-slide
+1261-4dfd17c06a3b6bf7.js:1 📐 [CANVAS_DIMENSIONS] Drag started on canvas
+1261-4dfd17c06a3b6bf7.js:1   🖼️ Canvas Element: DIV relative positioning-enabled-slide 
+1261-4dfd17c06a3b6bf7.js:1   📏 Canvas Dimensions: {width: 719.9999389648438, height: 404.9999694824219, left: 593.9109497070312, top: 296.95074462890625}
+1261-4dfd17c06a3b6bf7.js:1   📍 Mouse Position (viewport): {clientX: 783, clientY: 431}
+1261-4dfd17c06a3b6bf7.js:1   🎯 Canvas-Relative Position: {canvasX: '189.09', canvasY: '134.05'}
+1261-4dfd17c06a3b6bf7.js:1 🎯 [DRAG_COMPLETE] Element drag finished
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+1261-4dfd17c06a3b6bf7.js:1   📊 Final Position: {x: -41, y: 188}
+1261-4dfd17c06a3b6bf7.js:1   📏 Drag Distance: 375.63 px
+1261-4dfd17c06a3b6bf7.js:1   🎨 Element: DIV 
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions at completion: {width: 719.9999389648438, height: 404.9999694824219, aspectRatio: '1.778'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Position State: {transform: 'translate(-41px, 188px)', savedInState: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ➡️ Calling onPositionChange callback...
+1261-4dfd17c06a3b6bf7.js:1 💾 [POSITION_SAVE] Saving position to slide metadata
+1261-4dfd17c06a3b6bf7.js:1   📍 Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+1261-4dfd17c06a3b6bf7.js:1   📊 Position: {x: -41, y: 188}
+1261-4dfd17c06a3b6bf7.js:1   🎬 Slide ID: slide-1760113581774-qa5zdt2gl
+1261-4dfd17c06a3b6bf7.js:1   🎨 Template ID: avatar-service-slide
+1261-4dfd17c06a3b6bf7.js:1   🎯 AVATAR-SERVICE SLIDE DETECTED!
+1261-4dfd17c06a3b6bf7.js:1   📐 Canvas Dimensions:
+1261-4dfd17c06a3b6bf7.js:1     ACTUAL Editor Canvas (measured):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 720.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Height: 405.00px ⚠️ DIFFERENT FROM DESIGN
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (720:405)
+1261-4dfd17c06a3b6bf7.js:1     Design Editor Canvas (hardcoded):
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1174px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 600px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.957 (1.957:1)
+1261-4dfd17c06a3b6bf7.js:1     Video Canvas:
+1261-4dfd17c06a3b6bf7.js:1       - Width: 1920px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Height: 1080px (defined)
+1261-4dfd17c06a3b6bf7.js:1       - Aspect Ratio: 1.778 (1.778:1 - 16:9)
+1261-4dfd17c06a3b6bf7.js:1   📏 Scale Factors (using ACTUAL canvas):
+1261-4dfd17c06a3b6bf7.js:1     CORRECT Scale Factors: {scaleX: '2.666667 (1920/720)', scaleY: '2.666667 (1080/405)'}
+1261-4dfd17c06a3b6bf7.js:1     ❌ OLD (WRONG) Scale Factors: {scaleX: '1.635434 (1920/1174)', scaleY: '1.800000 (1080/600)'}
+1261-4dfd17c06a3b6bf7.js:1   🔢 Expected Scaled Position (using ACTUAL canvas): {scaledX: '-109.33', scaledY: '501.33'}
+1261-4dfd17c06a3b6bf7.js:1   ⚠️ CRITICAL: Canvas size mismatch detected! {designWidth: 1174, actualWidth: '720.00', widthError: '-38.67%', impactOnScaling: 'Scale factor will be 63.06% off'}
+1261-4dfd17c06a3b6bf7.js:1   📦 Updated Metadata: {previousPositions: {…}, newPositions: {…}, totalElementsPositioned: 2, canvasDimensions: {…}}
+1261-4dfd17c06a3b6bf7.js:1   ✅ Position saved successfully (with actual canvas dimensions)
+page-86e35710bd570ec3.js:1 💾 Saving video lesson data: {projectId: '182', dataType: 'Object', slideCount: 2}
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+1963-6f507b5731b497b7.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Toolbar component initialized
+1963-6f507b5731b497b7.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 51, processedAvatarsCount: 98, isLoading: false, error: null}
+1963-6f507b5731b497b7.js:1 Script - videoLessonData: undefined
+1963-6f507b5731b497b7.js:1 Script - componentBasedSlideDeck: {slides: Array(2), lessonTitle: 'Step to analyze the market', hasVoiceover: true, currentSlideId: 'slide-1760113581774-qa5zdt2gl', detectedLanguage: 'en'}
+1963-6f507b5731b497b7.js:1 Script - currentSlideId: slide-1760113581774-qa5zdt2gl
+1963-6f507b5731b497b7.js:1 Script - currentSlide: {props: {…}, slideId: 'slide-1760113581774-qa5zdt2gl', metadata: {…}, slideTitle: 'Клиентский сервис - это основа успеха', templateId: 'avatar-service-slide', …}
+1963-6f507b5731b497b7.js:1 Script - voiceoverText: undefined
+1963-6f507b5731b497b7.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359475906, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEdit] ClickableImagePlaceholder | getPlaceholderDimensions_actual {ts: 1760359475906, elementId: 'slide-1760119424570-pv3sfgxp9-image', instanceId: 'slide-1760119424570-pv3sfgxp9-image-jkhpgzc7b', containerRef: true, rect: DOMRect, …}
+6146-f6491b26a0b39490.js:1 [ImageEditModal] ImageEditModal | notRendering {ts: 1760359475906, isOpen: false, portalContainerExists: true}
+1963-6f507b5731b497b7.js:1 🔍 [SLIDE_DATA_EXPOSURE] Exposed slide data to window for HTML preview: {slideCount: 2, theme: undefined, currentSlideId: 'slide-1760113581774-qa5zdt2gl'}
+page-86e35710bd570ec3.js:1 ✅ Video lesson data saved successfully
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Starting HTML preview generation...
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Extracting slide data from current project...
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Found slide data in window object: 2 slides
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Slide data extracted successfully
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Slides count: 2
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Theme: dark-purple
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Request payload: {slides: Array(2), theme: 'dark-purple'}
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML preview generated successfully
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Template ID: avatar-service-slide
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Theme: dark-purple
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML length: 29814
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] HTML preview opened in new window
+1963-6f507b5731b497b7.js:1 🔍 [HTML_PREVIEW] Success: HTML preview opened in new window for template: avatar-service-slide
+
+
+<div class="left-content" style="background-color: transparent;" bis_skin_checked="1">
+                            <!-- Title with positioning support -->
+                            
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 TITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: draggable-slide-1760113581774-qa5zdt2gl-0
+                                    Has Position Data: YES
+                                    Has Text Data: YES
+                                    Original Position (Editor Canvas):
+                                      x: -43px
+                                      y: 130px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = -43 × 2.66666689272282 = -114.66667638708125px
+                                      scaledY = 130 × 2.6666668676054677 = 346.6666927887108px
+                                    
+                                    Final Transform: translate(-114.66667638708125px, 346.6666927887108px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h1 class="slide-title positioned-element" style="transform: translate(-114.66667638708125px, 346.6666927887108px);">Клиентский сервис - это основа успеха</h1>
+
+                            <!-- Subtitle with positioning support -->
+                            
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 SUBTITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+                                    Has Position Data: YES
+                                    Has Text Data: NO (rendering anyway due to position data)
+                                    Original Position (Editor Canvas):
+                                      x: -41px
+                                      y: 188px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = -41 × 2.66666689272282 = -109.33334260163562px
+                                      scaledY = 188 × 2.6666668676054677 = 501.3333711098279px
+                                    
+                                    Final Transform: translate(-109.33334260163562px, 501.3333711098279px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h2 class="slide-subtitle positioned-element" style="transform: translate(-109.33334260163562px, 501.3333711098279px);"></h2>
+
+                            <!-- Content with positioning support -->
+                            
+                                    <!-- 📍 CONTENT: Text present but no custom position, using default layout -->
+                                    <p class="content-text">Сегодня разберём, как сделать сервис тёплым, профессиональным и запоминающимся</p>
+                        </div>
+
+
+
+
+
+
+
+
+
+                        <div class="left-content" style="background-color: transparent;" bis_skin_checked="1">
+                            <!-- Title with positioning support -->
+                            
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 TITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: draggable-slide-1760113581774-qa5zdt2gl-0
+                                    Has Position Data: YES
+                                    Has Text Data: YES
+                                    Original Position (Editor Canvas):
+                                      x: -43px
+                                      y: 130px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = -43 × 2.66666689272282 = -114.66667638708125px
+                                      scaledY = 130 × 2.6666668676054677 = 346.6666927887108px
+                                    
+                                    Final Transform: translate(-114.66667638708125px, 346.6666927887108px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h1 class="slide-title positioned-element" style="transform: translate(-114.66667638708125px, 346.6666927887108px);">Клиентский сервис - это основа успеха</h1>
+
+                            <!-- Subtitle with positioning support -->
+                            
+                                    <!-- 
+                                    ───────────────────────────────────────────────────────────────
+                                    📍 SUBTITLE POSITIONING
+                                    ───────────────────────────────────────────────────────────────
+                                    Element ID: draggable-slide-1760113581774-qa5zdt2gl-1
+                                    Has Position Data: YES
+                                    Has Text Data: NO (rendering anyway due to position data)
+                                    Original Position (Editor Canvas):
+                                      x: -41px
+                                      y: 188px
+                                    
+                                    Scaling Calculation:
+                                      scaledX = -41 × 2.66666689272282 = -109.33334260163562px
+                                      scaledY = 188 × 2.6666668676054677 = 501.3333711098279px
+                                    
+                                    Final Transform: translate(-109.33334260163562px, 501.3333711098279px)
+                                    ───────────────────────────────────────────────────────────────
+                                    -->
+                                    <h2 class="slide-subtitle positioned-element" style="transform: translate(-109.33334260163562px, 501.3333711098279px);"></h2>
+
+                            <!-- Content with positioning support -->
+                            
+                                    <!-- 📍 CONTENT: Text present but no custom position, using default layout -->
+                                    <p class="content-text">Hello</p>
+                        </div>

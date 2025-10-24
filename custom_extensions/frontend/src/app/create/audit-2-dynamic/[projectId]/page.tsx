@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
-import { capitalize } from '@/lib/utils'
 
 // InlineEditor component for text editing
 interface InlineEditorProps {
@@ -264,6 +263,7 @@ interface CourseTemplate {
 interface CourseModule {
   title: string
   lessons: string[]
+  lessonAssessments?: { type: string; duration: string }[]
 }
 
 interface LandingPageData {
@@ -589,6 +589,16 @@ export default function DynamicAuditLandingPage() {
           const moduleIndex = parseInt(parts[1])
           const lessonIndex = parseInt(parts[2])
           currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessons?.[lessonIndex] || '';
+        } else if (field.startsWith('assessmentType_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessonAssessments?.[lessonIndex]?.type || '';
+        } else if (field.startsWith('assessmentDuration_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessonAssessments?.[lessonIndex]?.duration || '';
         }
         break
     }
@@ -825,6 +835,44 @@ export default function DynamicAuditLandingPage() {
           if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessons) {
             updatedData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue
             console.log('✅ [TEXT SAVE] Successfully updated course lesson', moduleIndex, lessonIndex);
+          }
+        } else if (field.startsWith('assessmentType_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
+            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
+              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
+              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                type: 'test',
+                duration: '5 min'
+              }));
+            }
+            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue
+              console.log('✅ [TEXT SAVE] Successfully updated assessment type', moduleIndex, lessonIndex);
+            }
+          }
+        } else if (field.startsWith('assessmentDuration_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]) {
+            // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+            if (!updatedData.courseOutlineModules[moduleIndex].lessonAssessments) {
+              console.log('⚠️ [TEXT SAVE] lessonAssessments not found, initializing array for module', moduleIndex);
+              const lessonsCount = updatedData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                type: 'test',
+                duration: '5 min'
+              }));
+            }
+            if (updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+              updatedData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue
+              console.log('✅ [TEXT SAVE] Successfully updated assessment duration', moduleIndex, lessonIndex);
+            }
           }
         }
         break
@@ -1081,6 +1129,40 @@ export default function DynamicAuditLandingPage() {
                 if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessons) {
                   recoveredData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue;
                 }
+              } else if (field.startsWith('assessmentType_')) {
+                const parts = field.split('_');
+                const moduleIndex = parseInt(parts[1]);
+                const lessonIndex = parseInt(parts[2]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
+                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
+                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                      type: 'test',
+                      duration: '5 min'
+                    }));
+                  }
+                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].type = newValue;
+                  }
+                }
+              } else if (field.startsWith('assessmentDuration_')) {
+                const parts = field.split('_');
+                const moduleIndex = parseInt(parts[1]);
+                const lessonIndex = parseInt(parts[2]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]) {
+                  // Initialize lessonAssessments array if it doesn't exist (backward compatibility)
+                  if (!recoveredData.courseOutlineModules[moduleIndex].lessonAssessments) {
+                    const lessonsCount = recoveredData.courseOutlineModules[moduleIndex].lessons?.length || 0;
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments = Array(lessonsCount).fill(null).map(() => ({
+                      type: 'test',
+                      duration: '5 min'
+                    }));
+                  }
+                  if (recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex]) {
+                    recoveredData.courseOutlineModules[moduleIndex].lessonAssessments[lessonIndex].duration = newValue;
+                  }
+                }
               }
               break;
           }
@@ -1154,6 +1236,17 @@ export default function DynamicAuditLandingPage() {
       console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
     }
     
+    // 🔍 CRITICAL LOGGING: Verify assessment data is in the payload
+    if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
+      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Saving assessment field:', field);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] New value:', newValue);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] courseOutlineModules in updatedData:', updatedData.courseOutlineModules);
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Full courseOutlineModules:', JSON.stringify(updatedData.courseOutlineModules, null, 2));
+      console.log('🎯 [ASSESSMENT PERSISTENCE] Will be included in API payload: YES');
+      console.log('🎯 [ASSESSMENT PERSISTENCE] ==========================================');
+    }
+    
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
@@ -1172,6 +1265,19 @@ export default function DynamicAuditLandingPage() {
       // 🔍 EXTRA LOGGING: Table headers in payload
       if (field.startsWith('tableHeader')) {
         console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
+      }
+      
+      // 🔍 EXTRA LOGGING: Assessment data in payload
+      if (field.startsWith('assessmentType_') || field.startsWith('assessmentDuration_')) {
+        console.log('🎯 [ASSESSMENT API] ==========================================');
+        console.log('🎯 [ASSESSMENT API] Field being saved:', field);
+        console.log('🎯 [ASSESSMENT API] courseOutlineModules in payload:', requestPayload.microProductContent.courseOutlineModules);
+        if (requestPayload.microProductContent.courseOutlineModules) {
+          requestPayload.microProductContent.courseOutlineModules.forEach((module: any, idx: number) => {
+            console.log(`🎯 [ASSESSMENT API] Module ${idx} lessonAssessments:`, module.lessonAssessments);
+          });
+        }
+        console.log('🎯 [ASSESSMENT API] ==========================================');
       }
       
       console.log('📤 [SENDING TO BACKEND] ==========================================');
@@ -1341,41 +1447,19 @@ export default function DynamicAuditLandingPage() {
     };
   }, [editingField]);
 
-  // Helper function to generate random assessment type and duration
-  const getRandomAssessment = () => {
-    // 📊 DETAILED LOGGING: Language parameter usage in conditional rendering
-    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "${landingPageData?.language}"`)
-    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${landingPageData?.language === 'en'}`)
-    
-    const assessments = getLocalizedText(landingPageData?.language, {
-      en: ['none', 'test', 'practice'],
-      es: ['ninguno', 'prueba', 'práctica'],
-      ua: ['немає', 'тест', 'практика'],
-      ru: ['нет', 'тест', 'практика']
-    })
-    
-    const durations = getLocalizedText(landingPageData?.language, {
-      en: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
-      es: ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'],
-      ua: ['3 хв', '4 хв', '5 хв', '6 хв', '7 хв', '8 хв'],
-      ru: ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
-    })
-    
-    return {
-      type: assessments[Math.floor(Math.random() * assessments.length)],
-      duration: durations[Math.floor(Math.random() * durations.length)]
-    }
-  }
-
-  // Generate stable assessment data for all modules
+  // Use assessment data from backend instead of generating randomly
   const generateAssessmentData = () => {
     if (!landingPageData?.courseOutlineModules) return {}
     
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
-    landingPageData.courseOutlineModules.forEach((module, moduleIndex) => {
-      if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+    landingPageData.courseOutlineModules.forEach((module: any, moduleIndex: number) => {
+      // Use backend-generated assessment data if available, otherwise use fallback
+      if (module.lessonAssessments && module.lessonAssessments.length > 0) {
+        data[`module-${moduleIndex}`] = module.lessonAssessments
+      } else if (module.lessons) {
+        // Fallback: generate default assessments if backend data is missing
+        data[`module-${moduleIndex}`] = module.lessons.map(() => ({ type: 'test', duration: '5 min' }))
       }
     })
     
@@ -1979,21 +2063,15 @@ export default function DynamicAuditLandingPage() {
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
                           es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ua: <>Зменшити плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ru: <>Сократить текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
+                          ua: <>Зменшіть плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ru: <>Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
                         })}
                       </h3>
                     </div>
                   </div>
                   <div className="pt-[13.26px] xl:pt-[16px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[19px] border-t border-[#E0E0E0]">
                     <Image 
-                      src={
-                        landingPageData?.language === 'ua'
-                          ? '/custom-projects-ui/images/audit-section-2-card-1-mobile-ua.png'
-                          : landingPageData?.language === 'ru'
-                          ? '/custom-projects-ui/images/audit-section-2-card-1-mobile-ru.png'
-                          : '/custom-projects-ui/images/audit-section-2-card-1-mobile-en.png'
-                      }
+                      src="/custom-projects-ui/images/audit-section-2-card-1-mobile.png"
                       alt="Card 1"
                       width={290}
                       height={203}
@@ -2013,21 +2091,15 @@ export default function DynamicAuditLandingPage() {
                         {getLocalizedText(landingPageData?.language, {
                           en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ua: <>Підвищити продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ru: <>Поднять продуктивность <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
+                          ua: <>Підвищіть продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ru: <>Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
                         })}
                       </h3>
                     </div>
                   </div>
                     <div className="pt-[13.26px] xl:pt-[31px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[36px] border-t border-[#E0E0E0]">
                       <Image 
-                        src={
-                          landingPageData?.language === 'ua'
-                            ? '/custom-projects-ui/images/audit-section-2-card-2-mobile-ua.png'
-                            : landingPageData?.language === 'ru'
-                            ? '/custom-projects-ui/images/audit-section-2-card-2-mobile-ru.png'
-                            : '/custom-projects-ui/images/audit-section-2-card-2-mobile-en.png'
-                        }
+                        src="/custom-projects-ui/images/audit-section-2-card-2-mobile.png"
                         alt="Card 2"
                         width={290}
                         height={203}
@@ -2045,10 +2117,10 @@ export default function DynamicAuditLandingPage() {
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(landingPageData?.language, {
-                          en: 'Implement AI Onboarding',
-                          es: 'Implementar Incorporación IA',
-                          ua: 'Впровадити AI-онбординг',
-                          ru: 'Внедрить AI-онбординг'
+                          en: 'AI Onboarding Implementation',
+                          es: 'Implementación de Incorporación IA',
+                          ua: 'Впровадження AI-онбордингу',
+                          ru: 'Внедрение AI-онбординга'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(landingPageData?.language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -2060,13 +2132,7 @@ export default function DynamicAuditLandingPage() {
                   </div>
                     <div className="pt-[13.26px] xl:pt-[20px] px-[14.88px] xl:px-[20px] pb-[3.85px] xl:pb-[20px] border-t border-[#E0E0E0]">
                       <Image 
-                        src={
-                          landingPageData?.language === 'ua'
-                            ? '/custom-projects-ui/images/audit-section-2-card-3-mobile-ua.png'
-                            : landingPageData?.language === 'ru'
-                            ? '/custom-projects-ui/images/audit-section-2-card-3-mobile-ru.png'
-                            : '/custom-projects-ui/images/audit-section-2-card-3-mobile-en.png'
-                        }
+                        src="/custom-projects-ui/images/audit-section-2-card-3-mobile.png"
                         alt="Card 3"
                         width={290}
                         height={203}
@@ -2081,10 +2147,10 @@ export default function DynamicAuditLandingPage() {
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
                 {getLocalizedText(landingPageData?.language, {
-                  en: 'Open Positions in',
-                  es: 'Posiciones Abiertas en',
-                  ua: 'Відкриті вакансії у',
-                  ru: 'Открытые вакансии в'
+                  en: 'Open Positions',
+                  es: 'Posiciones Abiertas',
+                  ua: 'Відкриті вакансії',
+                  ru: 'Открытые вакансии'
                 })} <br className="xl:hidden"/> {companyName}
               </h2>
               
@@ -2317,12 +2383,12 @@ export default function DynamicAuditLandingPage() {
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
                 {editingField === 'workforceCrisisFullTitle' ? (
                   <InlineEditor
-                    initialValue=                    {landingPageData?.workforceCrisis?.fullTitle || 
+                    initialValue={landingPageData?.workforceCrisis?.fullTitle || 
                       getLocalizedText(landingPageData?.language, {
-                        en: `Workforce Crisis in ${capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')} Industry`,
-                        es: `Crisis de Personal en la Industria ${capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}`,
-                        ua: `Кадрова криза в ${capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}-галузі`,
-                        ru: `Кадровый кризис в ${capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}-отрасли`
+                        en: `Workforce Crisis in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry`,
+                        es: `Crisis de Personal en la Industria ${landingPageData?.workforceCrisis?.industry || 'HVAC'}`,
+                        ua: `Кадрова криза в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі`,
+                        ru: `Кадровый кризис в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли`
                       })}
                     onSave={(value) => handleTextSave('workforceCrisisFullTitle', value)}
                     onCancel={handleTextCancel}
@@ -2338,10 +2404,10 @@ export default function DynamicAuditLandingPage() {
                   >
                     {landingPageData?.workforceCrisis?.fullTitle || 
                       getLocalizedText(landingPageData?.language, {
-                  en: <>Workforce Crisis <br className="xl:hidden"/> in {capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')} Industry</>,
-                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}</>,
-                  ua: <>Кадрова криза <br className="xl:hidden"/> в {capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}-галузі</>,
-                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {capitalize(landingPageData?.workforceCrisis?.industry || 'HVAC')}-отрасли</>
+                  en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
+                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
+                  ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
                 })}
                   </span>
                 )}
@@ -3176,7 +3242,7 @@ export default function DynamicAuditLandingPage() {
                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                         title="Click to edit onboarding course title"
                       >
-                        {`"${landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}"`}
+                        {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
                       </span>
                     )}
                   </h4>
@@ -3539,7 +3605,7 @@ export default function DynamicAuditLandingPage() {
                                           )}
                                         </div>
                                         <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                          {assessment.type === 'нет' || assessment.type === 'none' ? (
+                                          {assessment.type === 'нет' || assessment.type === 'none' || assessment.type === 'ninguno' || assessment.type === 'немає' ? (
                                             <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                               <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
                                             </svg>
@@ -3548,17 +3614,45 @@ export default function DynamicAuditLandingPage() {
                                               <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
                                             </svg>
                                           )}
-                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                            {assessment.type}
-                                          </span>
+                                          {editingField === `assessmentType_0_${index}` ? (
+                                            <InlineEditor
+                                              initialValue={assessment.type}
+                                              onSave={(value) => handleTextSave(`assessmentType_0_${index}`, value)}
+                                              onCancel={handleTextCancel}
+                                              className="font-medium"
+                                              style={{ fontSize: '12px', color: '#09090B' }}
+                                            />
+                                          ) : (
+                                            <span 
+                                              onClick={() => startEditing(`assessmentType_0_${index}`)}
+                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[12px] text-[#09090B] leading-[120%]"
+                                              title="Click to edit assessment type"
+                                            >
+                                              {assessment.type}
+                                            </span>
+                                          )}
                                         </div>
                                         <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                           <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                           </svg>
-                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                            {assessment.duration}
-                                          </span>
+                                          {editingField === `assessmentDuration_0_${index}` ? (
+                                            <InlineEditor
+                                              initialValue={assessment.duration}
+                                              onSave={(value) => handleTextSave(`assessmentDuration_0_${index}`, value)}
+                                              onCancel={handleTextCancel}
+                                              className="font-medium"
+                                              style={{ fontSize: '12px', color: '#09090B' }}
+                                            />
+                                          ) : (
+                                            <span 
+                                              onClick={() => startEditing(`assessmentDuration_0_${index}`)}
+                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[12px] text-[#09090B] leading-[120%]"
+                                              title="Click to edit duration"
+                                            >
+                                              {assessment.duration}
+                                            </span>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -4907,7 +5001,7 @@ export default function DynamicAuditLandingPage() {
                 <div 
                   className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
                   style={{ 
-                    backgroundImage: `url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${landingPageData?.language === 'ua' ? 'ua' : 'en'}.png)`,
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
@@ -4919,12 +5013,7 @@ export default function DynamicAuditLandingPage() {
                     className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                   >
                     <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                      {getLocalizedText(landingPageData?.language, {
-                        en: 'AI capabilities:',
-                        es: 'Capacidades de IA:',
-                        ua: 'Можливості ШІ:',
-                        ru: 'Возможности ИИ:'
-                      })}
+                      AI capabilities:
                     </h4>
                     
                     {/* Capability 1 */}
@@ -5107,10 +5196,10 @@ export default function DynamicAuditLandingPage() {
                             ua: 'Методолог',
                             ru: 'Методолог'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
-                            en: 'uploads your ',
-                            es: 'sube tus ',
-                            ua: 'завантажує ваші ',
-                            ru: 'загружает ваши '
+                            en: 'uploads your',
+                            es: 'sube tus',
+                            ua: 'завантажує ваші',
+                            ru: 'загружает ваши'
                           })}</span><br className="xl:hidden"/>
                           <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
                             en: 'materials',
@@ -5174,7 +5263,7 @@ export default function DynamicAuditLandingPage() {
                           })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
                             en: 'them into',
                             es: 'en',
-                            ua: 'їх в',
+                            ua: 'їх у',
                             ru: 'их в'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(landingPageData?.language, {
                             en: 'lessons,',
@@ -5333,19 +5422,19 @@ export default function DynamicAuditLandingPage() {
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
                     {getLocalizedText(landingPageData?.language, {
-                      en: 'Role and department',
+                      en: 'Role-based training',
                       es: 'Entrenamiento basado en roles',
                       ua: 'Навчання за ролями',
                       ru: 'Обучение по ролям'
                     })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(landingPageData?.language, {
-                      en: 'based',
+                      en: 'and',
                       es: 'y',
-                      ua: 'та',
+                      ua: 'і',
                       ru: 'и'
                     })}<br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                      en: 'training',
+                      en: 'departments',
                       es: 'departamentos',
-                      ua: 'департаментами',
+                      ua: 'департаментам',
                       ru: 'департаментам'
                     })}</span>
                     </span>
@@ -5448,7 +5537,7 @@ export default function DynamicAuditLandingPage() {
                       })}<br/>{getLocalizedText(landingPageData?.language, {
                         en: 'training analytics',
                         es: 'análisis de entrenamiento',
-                        ua: 'аналітика навчання',
+                        ua: 'аналітика з навчання',
                         ru: 'аналитика по обучению'
                       })}</span>
                     </span>
@@ -5599,7 +5688,35 @@ export default function DynamicAuditLandingPage() {
                     className="w-full xl:h-[490px] xl:w-[470px]"
                   />
   
-                  <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">  
+                  <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">
+                    <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] w-fit">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
+                        <path d="M2.60109 5.51323C2.6322 5.62599 2.73458 5.70374 2.85122 5.70374C2.96786 5.70374 3.07025 5.62598 3.10136 5.51323C3.55497 3.87117 3.87054 3.55555 5.51259 3.102C5.62534 3.0709 5.70245 2.96851 5.70245 2.85187C5.70245 2.73523 5.62469 2.63284 5.51259 2.60174C3.87053 2.14813 3.5549 1.8332 3.10136 0.19051C3.07025 0.0777549 2.96786 0 2.85122 0C2.73458 0 2.6322 0.0777615 2.60109 0.19051C2.14748 1.83257 1.8319 2.14819 0.189863 2.60174C0.0771079 2.63284 0 2.73523 0 2.85187C0 2.96851 0.0777615 3.0709 0.189863 3.102C1.83192 3.55561 2.14755 3.87054 2.60109 5.51323Z" fill="#09090B"/>
+                        <path d="M5.89895 11.2861C4.52127 10.9057 4.25689 10.6414 3.87657 9.26375C3.84546 9.151 3.74308 9.07324 3.62644 9.07324C3.5098 9.07324 3.40741 9.151 3.37631 9.26375C2.99592 10.6414 2.73154 10.9058 1.35393 11.2861C1.24117 11.3172 1.16406 11.4196 1.16406 11.5363C1.16406 11.6529 1.24182 11.7553 1.35393 11.7864C2.7316 12.1668 2.99598 12.4312 3.37631 13.8088C3.40741 13.9215 3.5098 13.9993 3.62644 13.9993C3.74308 13.9993 3.84546 13.9215 3.87657 13.8088C4.25696 12.4311 4.52134 12.1667 5.89895 11.7864C6.0117 11.7553 6.08881 11.6529 6.08881 11.5363C6.08881 11.4196 6.01105 11.3172 5.89895 11.2861Z" fill="#09090B"/>
+                      </svg>
+                      
+                      <span className="font-semibold text-[14px] text-[#09090B]">
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Trial Package',
+                          es: 'Paquete de Prueba',
+                          ua: 'Пробний пакет',
+                          ru: 'Пробный пакет'
+                        })}
+                      </span>
+                    </div>
+  
+                    <div>
+                      <span className="font-bold text-[30px] leading-[120%]">
+                        <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(landingPageData?.language, {
+                          en: 'hours',
+                          es: 'horas',
+                          ua: 'годин',
+                          ru: 'часов'
+                        })}
+                      </span>
+                    </div>
+  
                     <div className="flex flex-col gap-[15px] xl:gap-[10px]">
                       {/* Card 1 */}
                       <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>

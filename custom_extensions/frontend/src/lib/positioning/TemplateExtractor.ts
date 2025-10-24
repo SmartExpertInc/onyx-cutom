@@ -141,7 +141,21 @@ export class TemplateExtractor {
       'bar-chart-slide': this.extractBarChartSlide,
       'critical-thinking-slide': this.extractCriticalThinkingSlide,
       'psychological-safety-slide': this.extractPsychologicalSafetySlide,
-      'data-analysis-slide': this.extractDataAnalysisSlide
+      'data-analysis-slide': this.extractDataAnalysisSlide,
+      'solution-steps-slide': null,
+      'proof-statistics-slide': null,
+      'marketing-agency-thank-you-slide': null,
+      'table-of-contents-slide': null,
+      'company-tools-resources-slide': null,
+      'stay-safe-tips-slide': null,
+      'resources-list-slide': null,
+      'course-rules-timeline-slide': null,
+      'resilience-behaviors-slide': null,
+      'soft-skills-types-slide': null,
+      'phishing-rise-slide': null,
+      'ai-pharma-market-growth-slide': null,
+      'kpi-update-slide': null,
+      'interest-growth-slide': null
     };
 
     return extractors[templateId] || null;
@@ -1638,7 +1652,7 @@ export class TemplateExtractor {
     const items: PositionableItem[] = [];
 
     // Try to extract basic content
-    if (slide.props.title) {
+    if (slide.props.title && typeof slide.props.title === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'title',
         slide.props.title,
@@ -1647,7 +1661,7 @@ export class TemplateExtractor {
       ));
     }
 
-    if (slide.props.content) {
+    if (slide.props.content && typeof slide.props.content === 'string') {
       items.push(TemplateExtractor.createTextItem(
         'content',
         slide.props.content,

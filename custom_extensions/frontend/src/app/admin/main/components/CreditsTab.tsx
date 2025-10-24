@@ -10,6 +10,8 @@ interface UserCredits {
   id: number;
   onyx_user_id: string;
   name: string;
+  email?: string;
+  display_identity?: string;
   credits_balance: number;
   total_credits_used: number;
   credits_purchased: number;
@@ -17,6 +19,16 @@ interface UserCredits {
   subscription_tier: string;
   created_at: string;
   updated_at: string;
+}
+
+interface QuestionnaireAnswer {
+  question: string;
+  answer: string;
+}
+
+interface UserQuestionnaire {
+  onyx_user_id: string;
+  answers: QuestionnaireAnswer[];
 }
 
 interface CreditTransaction {
@@ -28,9 +40,11 @@ interface CreditTransaction {
 
 const CreditsTab: React.FC = () => {
   const [users, setUsers] = useState<UserCredits[]>([]);
+  const [questionnaires, setQuestionnaires] = useState<UserQuestionnaire[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tierFilter, setTierFilter] = useState<string>('all');
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserCredits | null>(null);
   const [transaction, setTransaction] = useState<CreditTransaction>({
@@ -47,23 +61,43 @@ const CreditsTab: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/users`, {
-        credentials: 'same-origin',
-      });
+      const [usersResponse, questionnairesResponse] = await Promise.all([
+        fetch(`${CUSTOM_BACKEND_URL}/admin/credits/users`, {
+          credentials: 'same-origin',
+        }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/questionnaire/all`, {
+          credentials: 'same-origin',
+        })
+      ]);
 
-      if (!response.ok) {
-        if (response.status === 403) {
+      if (!usersResponse.ok) {
+        if (usersResponse.status === 403) {
           throw new Error('Access denied. You must be logged in as an admin in Onyx to access this page.');
         }
-        throw new Error(`Failed to fetch users: ${response.status}`);
+        throw new Error(`Failed to fetch users: ${usersResponse.status}`);
       }
 
-      const userData = await response.json();
-      setUsers(userData);
+      const userData = await usersResponse.json();
+      // Safety: compute display_identity if backend not yet deployed
+      const normalized = (Array.isArray(userData) ? userData : []).map((u: any) => ({
+        ...u,
+        display_identity: u.display_identity || u.email || ((u.name && u.name !== 'User') ? u.name : u.onyx_user_id),
+      }));
+      setUsers(normalized);
+
+      // Fetch questionnaires (don't fail if this endpoint fails)
+      if (questionnairesResponse.ok) {
+        const questionnaireData = await questionnairesResponse.json();
+        setQuestionnaires(questionnaireData);
+      } else {
+        console.warn('Failed to fetch questionnaires:', questionnairesResponse.status);
+        setQuestionnaires([]);
+      }
+
       setError(null);
     } catch (err) {
-      console.error('Error fetching users:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch users');
+      console.error('Error fetching data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -73,10 +107,16 @@ const CreditsTab: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = (user.display_identity || '').toLowerCase().includes(term) ||
+      (user.email || '').toLowerCase().includes(term) ||
+      user.name.toLowerCase().includes(term) ||
+      user.onyx_user_id.toLowerCase().includes(term);
+    const tier = (user.subscription_tier || 'starter').toLowerCase();
+    const matchesTier = tierFilter === 'all' ? true : tier.includes(tierFilter);
+    return matchesSearch && matchesTier;
+  });
 
   const openTransactionModal = (user: UserCredits, action: 'add' | 'remove') => {
     setSelectedUser(user);
@@ -253,6 +293,17 @@ const CreditsTab: React.FC = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </button>
+            <select
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white"
+            >
+              <option value="all">All tiers</option>
+              <option value="starter">Starter</option>
+              <option value="pro">Pro</option>
+              <option value="business">Business</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
             <button
               onClick={handleMigrateUsers}
               disabled={migrating}
@@ -291,6 +342,7 @@ const CreditsTab: React.FC = () => {
       <div className="mt-8">
         <CreditsAdministrationTable 
           users={filteredUsers}
+          questionnaires={questionnaires}
           selectedUser={selectedUser}
           onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
           onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}

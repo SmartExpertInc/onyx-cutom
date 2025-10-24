@@ -8,9 +8,18 @@ interface GenerateModalProps {
   onClose: () => void;
   title: string;
   onGenerationStart?: () => void;
+  generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
+  generationError?: string | null;
 }
 
-export default function GenerateModal({ isOpen, onClose, title, onGenerationStart }: GenerateModalProps) {
+export default function GenerateModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  onGenerationStart,
+  generationStatus = 'idle',
+  generationError
+}: GenerateModalProps) {
   const [videoTitle, setVideoTitle] = useState(title);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isSubtitleDropdownOpen, setIsSubtitleDropdownOpen] = useState(false);
@@ -236,6 +245,8 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               </div>
             </button>
           </div>
+
+
           
           {/* Summary section */}
           <div className="mb-6">
@@ -273,12 +284,24 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             </button>
             <button 
               onClick={() => {
-                onClose();
+                console.log('🎬 [GENERATE_MODAL] Start generation button clicked');
+                console.log('🎬 [GENERATE_MODAL] onGenerationStart callback:', onGenerationStart);
+                console.log('🎬 [GENERATE_MODAL] Current generationStatus:', generationStatus);
                 onGenerationStart?.();
               }}
-              className="flex-1 bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors font-medium text-sm"
+              disabled={generationStatus === 'generating'}
+              className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
+                generationStatus === 'generating'
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-gray-800'
+              }`}
+              title={
+                generationStatus === 'generating' 
+                  ? 'Generation in progress...' 
+                  : 'Start video generation'
+              }
             >
-              Start generation
+              {generationStatus === 'generating' ? 'Starting generation...' : 'Start generation'}
             </button>
           </div>
         </div>

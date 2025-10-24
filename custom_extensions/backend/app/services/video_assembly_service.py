@@ -230,10 +230,15 @@ class VideoAssemblyService:
                 # Extract the actual props from slide_props
                 actual_props = slide_props.get("props", slide_props)
                 
+                # CRITICAL FIX: Extract metadata (contains elementPositions for drag-and-drop)
+                metadata = slide_props.get("metadata", {})
+                logger.info(f"🎬 [VIDEO_ASSEMBLY] Slide {i+1} metadata: {metadata}")
+                
                 # Convert slide to PNG (Chromium-free)
                 success = await html_to_image_service.convert_slide_to_png(
                     template_id=template_id,
                     props=actual_props,
+                    metadata=metadata,
                     theme=theme,
                     output_path=temp_png.name
                 )

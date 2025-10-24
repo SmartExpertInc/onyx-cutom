@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit, XCircle } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
+import ManageAddonsModal from "../../../components/AddOnsModal";
 
 
 // Base URL so frontend can reach custom backend through nginx proxy
@@ -294,6 +296,15 @@ export default function CourseOutlineClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Retry state for error handling
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+  
+  // Modal states for insufficient credits
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
+  const [isHandlingInsufficientCredits, setIsHandlingInsufficientCredits] = useState(false);
   
   // Track whether user has manually edited the preview content
   const [hasUserEdits, setHasUserEdits] = useState(false);
@@ -559,6 +570,43 @@ export default function CourseOutlineClient() {
         setHasUserEdits(false); // Reset user edits flag when generating new preview
 
         let gotFirstChunk = false;
+        let lastDataTime = Date.now();
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        let heartbeatStarted = false;
+        
+        // Timeout settings
+        const STREAM_TIMEOUT = 30000; // 30 seconds without data
+        const HEARTBEAT_INTERVAL = 5000; // Check every 5 seconds
+
+        // Cleanup function
+        const cleanup = () => {
+          if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+          }
+        };
+
+        // Setup heartbeat to check for stream timeout
+        const setupHeartbeat = () => {
+          heartbeatInterval = setInterval(() => {
+            const timeSinceLastData = Date.now() - lastDataTime;
+            if (timeSinceLastData > STREAM_TIMEOUT) {
+              console.warn('Stream timeout: No data received for', timeSinceLastData, 'ms');
+              cleanup();
+              abortController.abort();
+              
+              // Retry the request if we haven't exceeded max attempts
+              if (attempt < 3) {
+                console.log(`Retrying due to stream timeout (attempt ${attempt + 1}/3)`);
+                setTimeout(() => startPreview(attempt + 1), 1500 * (attempt + 1));
+                return;
+              }
+              
+              setError("Failed to generate outline – please try again later.");
+              setLoading(false);
+            }
+          }, HEARTBEAT_INTERVAL);
+        };
 
         try {
           const requestBody: any = { 
@@ -631,6 +679,10 @@ export default function CourseOutlineClient() {
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
+            
+            // Update last data time and reset timeout on any data received
+            lastDataTime = Date.now();
+            
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() || "";
@@ -639,6 +691,11 @@ export default function CourseOutlineClient() {
               const pkt = JSON.parse(ln);
               gotFirstChunk = true;
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedRaw += pkt.text;
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
@@ -664,9 +721,17 @@ export default function CourseOutlineClient() {
 
           if (buffer.trim()) {
             try {
+              // Update last data time for final buffer processing
+              lastDataTime = Date.now();
+              
               const pkt = JSON.parse(buffer.trim());
               gotFirstChunk = true;
               if (pkt.type === "delta") {
+                // Start heartbeat only after receiving first delta package
+                if (!heartbeatStarted) {
+                  heartbeatStarted = true;
+                  setupHeartbeat();
+                }
                 accumulatedRaw += pkt.text;
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
@@ -700,6 +765,9 @@ export default function CourseOutlineClient() {
             setError(e.message);
           }
         } finally {
+          // Always cleanup timeouts
+          cleanup();
+          
           if (!abortController.signal.aborted) {
             setLoading(false);
             if (!gotFirstChunk && attempt >= 3) {
@@ -717,7 +785,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress]);
+  }, [prompt, modules, lessonsPerModule, language, isGenerating, chatId, isFromText, userText, textMode, hasUserEdits, isAdvancedEditInProgress, retryTrigger]);
 
   const handleModuleChange = (index: number, value: string) => {
     setHasUserEdits(true);
@@ -754,6 +822,22 @@ export default function CourseOutlineClient() {
     // Stop any ongoing preview fetch so it doesn't flash / restart while finalizing
     if (previewAbortRef.current) {
       previewAbortRef.current.abort();
+    }
+
+    // Lightweight credits pre-check to avoid starting finalization when balance is 0
+    try {
+      const creditsRes = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, { cache: 'no-store', credentials: 'same-origin' });
+      if (creditsRes.ok) {
+        const credits = await creditsRes.json();
+        if (!credits || typeof credits.credits_balance !== 'number' || credits.credits_balance <= 0) {
+          setShowInsufficientCreditsModal(true);
+          setIsGenerating(false);
+          setIsHandlingInsufficientCredits(true);
+          return;
+        }
+      }
+    } catch (_) {
+      // On pre-check failure, proceed to server-side validation (will still 402 if insufficient)
     }
 
     setIsGenerating(true);
@@ -821,7 +905,16 @@ export default function CourseOutlineClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalizeBody),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        // Check for insufficient credits (402)
+        if (res.status === 402) {
+          setIsGenerating(false); // Stop the finalization animation
+          setIsHandlingInsufficientCredits(true); // Prevent regeneration
+          setShowInsufficientCreditsModal(true);
+          return;
+        }
+        throw new Error(await res.text());
+      }
 
       let data;
       
@@ -1443,7 +1536,27 @@ export default function CourseOutlineClient() {
             )}
           </div>
           {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
-          {error && <p className="text-red-600">{error}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
+              <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">
+                <XCircle className="h-5 w-5" />
+                {t('interface.error', 'Error')}
+              </div>
+              <div className="text-sm text-red-700 mb-4">
+                <p>{error}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setRetryCount(0);
+                  setRetryTrigger(prev => prev + 1);
+                }}
+                className="px-4 py-2 rounded-full border border-red-300 bg-white text-red-700 hover:bg-red-50 text-sm font-medium transition-colors"
+              >
+                {t('interface.generate.retryGeneration', 'Retry Generation')}
+              </button>
+            </div>
+          )}
           {preview.length > 0 && (
             <div
               className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
@@ -1799,6 +1912,26 @@ export default function CourseOutlineClient() {
         <LoadingAnimation message={t('interface.courseOutline.finalizingProduct', 'Finalizing product...')} />
       </div>
     )}
+    
+    {/* Insufficient Credits Modal */}
+    <InsufficientCreditsModal
+      isOpen={showInsufficientCreditsModal}
+      onClose={() => {
+        setShowInsufficientCreditsModal(false);
+        setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+      }}
+      onBuyMore={() => {
+        setShowInsufficientCreditsModal(false);
+        setIsHandlingInsufficientCredits(false); // Reset flag when modal is closed
+        setShowAddonsModal(true);
+      }}
+    />
+    
+    {/* Add-ons Modal */}
+    <ManageAddonsModal 
+      isOpen={showAddonsModal} 
+      onClose={() => setShowAddonsModal(false)} 
+    />
     </>
   );
 } 

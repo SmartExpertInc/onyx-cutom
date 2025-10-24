@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart';
-import { capitalize } from '@/lib/utils';
 
 // Types for the audit data
 interface PersonnelShortageChartData {
@@ -74,6 +73,7 @@ interface LandingPageData {
   courseOutlineModules: Array<{
     title: string
     lessons: string[]
+    lessonAssessments?: Array<{ type: string; duration: string }>
   }>
   courseTemplates: Array<{
     title: string
@@ -123,29 +123,44 @@ export default function PublicAuditPage() {
     return { modules, lessons }
   }
 
-  // Generate random assessment data for lessons
-  const getRandomAssessment = () => {
-    const types = ['нет', 'тест', 'практика', 'проект']
-    const durations = ['5 мин', '10 мин', '15 мин', '20 мин', '30 мин']
-    
-    return {
-      type: types[Math.floor(Math.random() * types.length)],
-      duration: durations[Math.floor(Math.random() * durations.length)]
-    }
-  }
-
-  // Generate stable assessment data for all modules
+  // Generate assessment data from backend data (stored in courseOutlineModules)
   const generateAssessmentData = () => {
     if (!courseOutlineModules) return {}
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Generating assessment data from backend')
     const data: { [key: string]: { type: string; duration: string }[] } = {}
     
     courseOutlineModules.forEach((module, moduleIndex) => {
-      if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      // Use lessonAssessments from backend if available, otherwise use fallback
+      if (module.lessonAssessments && Array.isArray(module.lessonAssessments)) {
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: Using backend lessonAssessments (${module.lessonAssessments.length} items)`)
+        data[`module-${moduleIndex}`] = module.lessonAssessments
+      } else if (module.lessons) {
+        // Fallback: generate default assessments based on language
+        console.log(`🎯 [PUBLIC ASSESSMENT] Module ${moduleIndex}: No lessonAssessments found, using fallback`)
+        const language = auditData?.language || 'en'
+        let defaultType = 'test'
+        let defaultDuration = '5 min'
+        
+        if (language === 'ru') {
+          defaultType = 'тест'
+          defaultDuration = '5 мин'
+        } else if (language === 'ua') {
+          defaultType = 'тест'
+          defaultDuration = '5 хв'
+        } else if (language === 'es') {
+          defaultType = 'prueba'
+          defaultDuration = '5 min'
+        }
+        
+        data[`module-${moduleIndex}`] = module.lessons.map(() => ({
+          type: defaultType,
+          duration: defaultDuration
+        }))
       }
     })
     
+    console.log('🎯 [PUBLIC ASSESSMENT] Final assessment data:', data)
     return data
   }
 
@@ -425,21 +440,15 @@ export default function PublicAuditPage() {
                         {getLocalizedText(language, {
                           en: <>Reduce staff turnover <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
                           es: <>Reduzca la rotación <br className="xl:hidden"/> de personal en <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ua: <>Зменшити плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
-                          ru: <>Сократить текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
+                          ua: <>Зменшіть плинність <br className="xl:hidden"/> кадрів на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>,
+                          ru: <>Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span></>
                         })}
                       </h3>
                     </div>
                   </div>
                   <div className="pt-[13.26px] xl:pt-[16px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[19px] border-t border-[#E0E0E0]">
                     <Image 
-                      src={
-                        language === 'ua'
-                          ? '/custom-projects-ui/images/audit-section-2-card-1-mobile-ua.png'
-                          : language === 'ru'
-                          ? '/custom-projects-ui/images/audit-section-2-card-1-mobile-ru.png'
-                          : '/custom-projects-ui/images/audit-section-2-card-1-mobile-en.png'
-                      }
+                      src="/custom-projects-ui/images/audit-section-2-card-1-mobile.png"
                       alt="Card 1"
                       width={290}
                       height={203}
@@ -459,7 +468,7 @@ export default function PublicAuditPage() {
                         {getLocalizedText(language, {
                           en: <>Increase employee productivity <br className="xl:hidden"/> by <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           es: <>Aumente la productividad <br className="xl:hidden"/> de empleados en <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
-                          ua: <>Підвищити продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
+                          ua: <>Підвищіть продуктивність <br className="xl:hidden"/> співробітників на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span></>,
                           ru: <>Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников</>
                         })}
                       </h3>
@@ -467,13 +476,7 @@ export default function PublicAuditPage() {
                   </div>
                     <div className="pt-[13.26px] xl:pt-[31px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[36px] border-t border-[#E0E0E0]">
                       <Image 
-                        src={
-                          language === 'ua'
-                            ? '/custom-projects-ui/images/audit-section-2-card-2-mobile-ua.png'
-                            : language === 'ru'
-                            ? '/custom-projects-ui/images/audit-section-2-card-2-mobile-ru.png'
-                            : '/custom-projects-ui/images/audit-section-2-card-2-mobile-en.png'
-                        }
+                        src="/custom-projects-ui/images/audit-section-2-card-2-mobile.png"
                         alt="Card 2"
                         width={290}
                         height={203}
@@ -491,10 +494,10 @@ export default function PublicAuditPage() {
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
                         {getLocalizedText(language, {
-                          en: 'Implement AI Onboarding',
-                          es: 'Implementar Incorporación IA',
-                          ua: 'Впровадити AI-онбординг',
-                          ru: 'Внедрить AI-онбординг'
+                          en: 'AI Onboarding Implementation',
+                          es: 'Implementación de Incorporación IA',
+                          ua: 'Впровадження AI-онбордингу',
+                          ru: 'Внедрение AI-онбординг'
                         })} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{getLocalizedText(language, {
                           en: 'in 7 days',
                           es: 'en 7 días',
@@ -506,13 +509,7 @@ export default function PublicAuditPage() {
                   </div>
                     <div className="pt-[13.26px] xl:pt-[20px] px-[14.88px] xl:px-[20px] pb-[3.85px] xl:pb-[20px] border-t border-[#E0E0E0]">
                       <Image 
-                        src={
-                          language === 'ua'
-                            ? '/custom-projects-ui/images/audit-section-2-card-3-mobile-ua.png'
-                            : language === 'ru'
-                            ? '/custom-projects-ui/images/audit-section-2-card-3-mobile-ru.png'
-                            : '/custom-projects-ui/images/audit-section-2-card-3-mobile-en.png'
-                        }
+                        src="/custom-projects-ui/images/audit-section-2-card-3-mobile.png"
                         alt="Card 3"
                         width={290}
                         height={203}
@@ -527,10 +524,10 @@ export default function PublicAuditPage() {
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
                 {getLocalizedText(language, {
-                  en: 'Open Positions in',
-                  es: 'Posiciones Abiertas en',
-                  ua: 'Відкриті вакансії у',
-                  ru: 'Открытые вакансии в'
+                  en: 'Open Positions',
+                  es: 'Posiciones Abiertas',
+                  ua: 'Відкриті вакансії',
+                  ru: 'Открытые вакансии'
                 })} <br className="xl:hidden"/> {companyName}
               </h2>
               
@@ -690,10 +687,10 @@ export default function PublicAuditPage() {
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
                 {workforceCrisis?.fullTitle || getLocalizedText(language, {
-                  en: <>Workforce Crisis <br className="xl:hidden"/> in {capitalize(workforceCrisis?.industry || 'HVAC')} Industry</>,
-                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {capitalize(workforceCrisis?.industry || 'HVAC')}</>,
-                  ua: <>Кадрова криза <br className="xl:hidden"/> в {capitalize(workforceCrisis?.industry || 'HVAC')}-галузі</>,
-                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {capitalize(workforceCrisis?.industry || 'HVAC')}-отрасли</>
+                  en: <>Workforce Crisis <br className="xl:hidden"/> in {workforceCrisis?.industry || 'HVAC'} Industry</>,
+                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {workforceCrisis?.industry || 'HVAC'}</>,
+                  ua: <>Кадрова криза <br className="xl:hidden"/> в {workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {workforceCrisis?.industry || 'HVAC'}-отрасли</>
                 })}
               </h2>
   
@@ -1117,7 +1114,7 @@ export default function PublicAuditPage() {
                       es: 'posición',
                       ua: 'посади',
                       ru: 'должности'
-                    })} {`"${courseTemplates?.[0]?.title}"`|| '"HVAC Installer"'}
+                    })} {courseTemplates?.[0]?.title || 'HVAC Installer'}
                   </h4>
                   
                   <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
@@ -2098,7 +2095,7 @@ export default function PublicAuditPage() {
                 <div 
                   className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
                   style={{ 
-                    backgroundImage: `url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop-${language === 'ua' ? 'ua' : 'en'}.png)`,
+                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
@@ -2298,10 +2295,10 @@ export default function PublicAuditPage() {
                             ua: 'Методолог',
                             ru: 'Методолог'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(language, {
-                            en: 'uploads your ',
-                            es: 'sube tus ',
-                            ua: 'завантажує ваші ',
-                            ru: 'загружает ваши '
+                            en: 'uploads your',
+                            es: 'sube tus',
+                            ua: 'завантажує ваші',
+                            ru: 'загружает ваши'
                           })}</span><br className="xl:hidden"/>
                           <span className="text-[#0F58F9]">{getLocalizedText(language, {
                             en: 'materials',
@@ -2365,7 +2362,7 @@ export default function PublicAuditPage() {
                           })}<br className="xl:hidden"/> {getLocalizedText(language, {
                             en: 'them into',
                             es: 'en',
-                            ua: 'їх в',
+                            ua: 'їх у',
                             ru: 'их в'
                           })} <span className="text-[#0F58F9]">{getLocalizedText(language, {
                             en: 'lessons,',
@@ -2524,19 +2521,19 @@ export default function PublicAuditPage() {
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
                     {getLocalizedText(language, {
-                      en: 'Role and department',
+                      en: 'Role-based training',
                       es: 'Entrenamiento basado en roles',
                       ua: 'Навчання за ролями',
                       ru: 'Обучение по ролям'
                     })} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{getLocalizedText(language, {
-                      en: 'based',
+                      en: 'and',
                       es: 'y',
                       ua: 'і',
                       ru: 'и'
                     })}<br className="xl:hidden"/> {getLocalizedText(language, {
-                      en: 'training',
+                      en: 'departments',
                       es: 'departamentos',
-                      ua: 'департаментами',
+                      ua: 'департаментам',
                       ru: 'департаментам'
                     })}</span>
                     </span>
@@ -2639,7 +2636,7 @@ export default function PublicAuditPage() {
                       })}<br/>{getLocalizedText(language, {
                         en: 'training analytics',
                         es: 'análisis de entrenamiento',
-                        ua: 'аналітика навчання',
+                        ua: 'аналітика з навчання',
                         ru: 'аналитика по обучению'
                       })}</span>
                     </span>
@@ -2790,7 +2787,35 @@ export default function PublicAuditPage() {
                     className="w-full xl:h-[490px] xl:w-[470px]"
                   />
   
-                  <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">  
+                  <div className="flex flex-col gap-[15px] xl:py-[10px] xl:flex-1">
+                    <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] w-fit">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
+                        <path d="M2.60109 5.51323C2.6322 5.62599 2.73458 5.70374 2.85122 5.70374C2.96786 5.70374 3.07025 5.62598 3.10136 5.51323C3.55497 3.87117 3.87054 3.55555 5.51259 3.102C5.62534 3.0709 5.70245 2.96851 5.70245 2.85187C5.70245 2.73523 5.62469 2.63284 5.51259 2.60174C3.87053 2.14813 3.5549 1.8332 3.10136 0.19051C3.07025 0.0777549 2.96786 0 2.85122 0C2.73458 0 2.6322 0.0777615 2.60109 0.19051C2.14748 1.83257 1.8319 2.14819 0.189863 2.60174C0.0771079 2.63284 0 2.73523 0 2.85187C0 2.96851 0.0777615 3.0709 0.189863 3.102C1.83192 3.55561 2.14755 3.87054 2.60109 5.51323Z" fill="#09090B"/>
+                        <path d="M5.89895 11.2861C4.52127 10.9057 4.25689 10.6414 3.87657 9.26375C3.84546 9.151 3.74308 9.07324 3.62644 9.07324C3.5098 9.07324 3.40741 9.151 3.37631 9.26375C2.99592 10.6414 2.73154 10.9058 1.35393 11.2861C1.24117 11.3172 1.16406 11.4196 1.16406 11.5363C1.16406 11.6529 1.24182 11.7553 1.35393 11.7864C2.7316 12.1668 2.99598 12.4312 3.37631 13.8088C3.40741 13.9215 3.5098 13.9993 3.62644 13.9993C3.74308 13.9993 3.84546 13.9215 3.87657 13.8088C4.25696 12.4311 4.52134 12.1667 5.89895 11.7864C6.0117 11.7553 6.08881 11.6529 6.08881 11.5363C6.08881 11.4196 6.01105 11.3172 5.89895 11.2861Z" fill="#09090B"/>
+                      </svg>
+                      
+                      <span className="font-semibold text-[14px] text-[#09090B]">
+                        {getLocalizedText(language, {
+                          en: 'Trial Package',
+                          es: 'Paquete de Prueba',
+                          ua: 'Пробний пакет',
+                          ru: 'Пробный пакет'
+                        })}
+                      </span>
+                    </div>
+  
+                    <div>
+                      <span className="font-bold text-[30px] leading-[120%]">
+                        <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {getLocalizedText(language, {
+                          en: 'hours',
+                          es: 'horas',
+                          ua: 'годин',
+                          ru: 'часов'
+                        })}
+                      </span>
+                    </div>
+  
                     <div className="flex flex-col gap-[15px] xl:gap-[10px]">
                       {/* Card 1 */}
                       <div className="p-[10px] flex gap-[15px] rounded-[4px]" style={{ boxShadow: '2px 2px 6px -1.5px #2A33461F' }}>

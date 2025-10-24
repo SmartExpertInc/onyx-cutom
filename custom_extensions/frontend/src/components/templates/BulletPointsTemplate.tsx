@@ -1,5 +1,3 @@
-// custom_extensions/frontend/src/components/templates/BulletPointsTemplate.tsx
-
 import React, { useState, useRef, useEffect } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
@@ -64,7 +62,6 @@ function InlineEditor({
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -82,7 +79,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -92,8 +88,10 @@ function InlineEditor({
           width: '100%',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block'
+          display: 'block',
+          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -112,7 +110,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -127,7 +124,7 @@ function InlineEditor({
   );
 }
 
-// New component for unified bullet points editing
+// Component for unified bullet points editing
 interface UnifiedBulletEditorProps {
   bullets: string[];
   bulletStyle: string;
@@ -148,12 +145,10 @@ function UnifiedBulletEditor({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
-  // Convert bullets array to text for editing
   const bulletsToText = (bullets: string[]): string => {
     return bullets.join('\n');
   };
 
-  // Convert text back to bullets array
   const textToBullets = (text: string): string[] => {
     return text
       .split('\n')
@@ -162,20 +157,7 @@ function UnifiedBulletEditor({
   };
 
   const getBulletIcon = (style: string, index: number) => {
-    switch (style) {
-      case 'dot':
-        return '•';
-      case 'arrow':
-        return '→';
-      case 'check':
-        return '✓';
-      case 'star':
-        return '★';
-      case 'number':
-        return `${index + 1}.`;
-      default:
-        return '•';
-    }
+    return '▶';
   };
 
   const startEditing = () => {
@@ -211,22 +193,19 @@ function UnifiedBulletEditor({
     handleSave();
   };
 
-  // Focus management
   useEffect(() => {
     if (isEditing && textareaRefs.current[focusedIndex]) {
       textareaRefs.current[focusedIndex]?.focus();
     }
   }, [focusedIndex, isEditing]);
 
-  // Initialize refs array and set proper heights
   useEffect(() => {
     const editLines = editValue.split('\n');
     textareaRefs.current = textareaRefs.current.slice(0, editLines.length);
     
-    // Set proper heights for all textareas after a brief delay to ensure DOM is ready
     if (isEditing) {
       setTimeout(() => {
-        textareaRefs.current.forEach((textarea, index) => {
+        textareaRefs.current.forEach((textarea) => {
           if (textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = textarea.scrollHeight + 'px';
@@ -236,20 +215,16 @@ function UnifiedBulletEditor({
     }
   }, [editValue, isEditing]);
 
-  // Set initial heights when entering edit mode
   useEffect(() => {
     if (isEditing) {
       setTimeout(() => {
         textareaRefs.current.forEach((textarea) => {
           if (textarea) {
             textarea.style.height = 'auto';
-            // Calculate proper height for wrapped text
             const computedStyle = window.getComputedStyle(textarea);
             const lineHeight = parseInt(computedStyle.lineHeight) || 20;
             const padding = parseInt(computedStyle.paddingTop) + parseInt(computedStyle.paddingBottom);
             const border = parseInt(computedStyle.borderTopWidth) + parseInt(computedStyle.borderBottomWidth);
-            
-            // Set a minimum height and ensure all wrapped content is visible
             const minHeight = lineHeight + padding + border;
             const contentHeight = textarea.scrollHeight;
             textarea.style.height = Math.max(minHeight, contentHeight + 4) + 'px';
@@ -260,22 +235,30 @@ function UnifiedBulletEditor({
   }, [isEditing]);
 
   const bulletIconStyles: React.CSSProperties = {
-    color: theme.colors.accentColor,
-    fontWeight: 600,
-    minWidth: '20px',
-    fontSize: bulletStyle === 'number' ? '1.1rem' : '1.2rem',
-    fontFamily: theme.fonts.titleFont
+    color: '#ffffff',
+    fontWeight: 'bold',
+    minWidth: '14px',
+    minHeight: '14px',
+    width: '14px',
+    height: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.8rem',
+    fontFamily: 'sans-serif',
+    flexShrink: 0
   };
 
   const bulletTextStyles: React.CSSProperties = {
-    fontFamily: theme.fonts.contentFont,
-    fontSize: theme.fonts.contentSize,
-    color: theme.colors.contentColor,
+    fontFamily: 'sans-serif',
+    fontSize: '0.9rem',
+    marginTop: '-5px',
+    opacity: '0.8',
+    color: '#ffffff',
     lineHeight: '1.6'
   };
 
   if (isEditing) {
-    // WYSIWYG editing mode with visible bullet icons
     const editLines = editValue.split('\n');
     const currentBullets = textToBullets(editValue);
     
@@ -286,21 +269,25 @@ function UnifiedBulletEditor({
           borderRadius: '4px',
           border: '1px solid #3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.05)',
-          position: 'relative'
+          position: 'relative',
+          width: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box'
         }}
       >
         <ul style={{
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '100%'
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end'
         }}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
             const isEmpty = trimmedLine.length === 0;
             const isPlaceholder = trimmedLine === 'Click to add bullet point' || trimmedLine === 'Click to add bullet points...';
-            
-            // Only show bullet icon for non-empty lines that aren't placeholders
             const shouldShowBullet = !isEmpty && !isPlaceholder;
             
             return (
@@ -308,8 +295,8 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '16px',
-                minHeight: '1.6em'
+                marginBottom: '35px',
+                width: '80%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
@@ -321,7 +308,7 @@ function UnifiedBulletEditor({
                     {getBulletIcon(bulletStyle, index)}
                   </span>
                 )}
-                <div style={{ flex: 1, position: 'relative' }}>
+                <div style={{ flex: 1, position: 'relative', minWidth: 0 }}>
                   <textarea
                     ref={(el) => {
                       textareaRefs.current[index] = el;
@@ -335,30 +322,22 @@ function UnifiedBulletEditor({
                     onKeyDown={(e: React.KeyboardEvent) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        // Insert a new line at the current position
                         const newLines = [...editLines];
                         newLines.splice(index + 1, 0, '');
                         setEditValue(newLines.join('\n'));
-                        
-                        // Focus the new line
                         setFocusedIndex(index + 1);
                       } else if (e.key === 'Backspace') {
                         const target = e.target as HTMLTextAreaElement;
                         const cursorPosition = target.selectionStart;
                         
                         if (cursorPosition === 0 && index > 0) {
-                          // Backspace at the beginning of a line - merge with previous
                           e.preventDefault();
                           const newLines = [...editLines];
                           const currentText = newLines[index];
                           const previousText = newLines[index - 1];
-                          
-                          // Merge current text with previous line
                           newLines[index - 1] = previousText + currentText;
                           newLines.splice(index, 1);
                           setEditValue(newLines.join('\n'));
-                          
-                          // Focus the previous line and position cursor at the end
                           setFocusedIndex(index - 1);
                           setTimeout(() => {
                             const prevTextarea = textareaRefs.current[index - 1];
@@ -368,12 +347,9 @@ function UnifiedBulletEditor({
                             }
                           }, 10);
                         } else if (line === '' && editLines.length > 1) {
-                          // Backspace on empty line - remove the line
                           e.preventDefault();
                           const newLines = editLines.filter((_, i) => i !== index);
                           setEditValue(newLines.join('\n'));
-                          
-                          // Focus the previous line and position cursor at the end
                           setFocusedIndex(Math.max(0, index - 1));
                           setTimeout(() => {
                             const prevTextarea = textareaRefs.current[Math.max(0, index - 1)];
@@ -401,7 +377,6 @@ function UnifiedBulletEditor({
                       setFocusedIndex(index);
                     }}
                     onBlur={() => {
-                      // Only save on blur if we're not switching to another textarea
                       setTimeout(() => {
                         const activeElement = document.activeElement;
                         const isStillInEditMode = activeElement?.classList.contains('bullet-edit-textarea');
@@ -432,10 +407,8 @@ function UnifiedBulletEditor({
                     }}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
-                      // Auto-resize this specific textarea with better wrapping support
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
-                      // Add a small buffer to ensure all wrapped text is visible
                       target.style.height = (target.scrollHeight + 2) + 'px';
                     }}
                   />
@@ -452,25 +425,29 @@ function UnifiedBulletEditor({
     <div 
       onClick={startEditing}
       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px' }}
+      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
     >
       <ul style={{
         listStyle: 'none',
         padding: 0,
         margin: 0,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
       }}>
         {bullets.map((bullet: string, index: number) => (
           <li key={index} style={{ 
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px' 
+            marginBottom: '35px',
+            width: '80%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
             </span>
-            <span style={bulletTextStyles}>
+            <span style={{ ...bulletTextStyles, flex: 1, minWidth: 0 }}>
               {bullet || 'Click to add bullet point'}
             </span>
           </li>
@@ -480,10 +457,11 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px' 
+            marginBottom: '35px',
+            width: '100%'
           }}>
             <span style={bulletIconStyles}>•</span>
-            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic' }}>
+            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic', flex: 1, minWidth: 0 }}>
               Click to add bullet points...
             </span>
           </li>
@@ -494,6 +472,7 @@ function UnifiedBulletEditor({
 }
 
 export const BulletPointsTemplate: React.FC<BulletPointsProps & { 
+  subtitle?: string;
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -501,14 +480,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
 }> = ({
   slideId,
   title,
+  subtitle = '',
   bullets,
-  maxColumns = 2,
+  maxColumns = 1,
   bulletStyle = 'dot',
-  isEditable = false,
   onUpdate,
   imagePrompt,
   imageAlt,
   theme,
+  isEditable = false,
   imagePath,
   widthPx,
   heightPx,
@@ -517,68 +497,75 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   objectFit,
   getPlaceholderGenerationState
 }) => {
-  // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  
-  // Inline editing state for title only
-  const [editingTitle, setEditingTitle] = useState(false);
-  
-  // Refs for MoveableManager integration
   const imageRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const bulletsRef = useRef<HTMLDivElement>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
   const slideContainerRef = useRef<HTMLDivElement>(null);
-  
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
+    background: '#ffffff',
     display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'stretch',
-    padding: '80px',
+    flexDirection: 'row',
     position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
+    fontFamily: currentTheme.fonts.contentFont,
+    overflow: 'hidden'
   };
 
-  // Placeholder styles (left)
-  const placeholderContainerStyles: React.CSSProperties = {
-    flex: '0 0 50%',
+  // LEFT side with IMAGE (white background)
+  const leftSectionStyles: React.CSSProperties = {
+    width: '100%',
+    height: '600px',
+    position: 'absolute',
+    left: '0',
+    top: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 0
-  };
-  const placeholderStyles: React.CSSProperties = {
-    // Only apply default dimensions if no saved size exists
-    ...(widthPx && heightPx ? {} : { width: '100%', aspectRatio: '1 / 1', height: '100%' }),
-    margin: '0 auto'
+    background: '#ffffff',
+    zIndex: 1
   };
 
-  // Right (bullets) styles
-  const bulletsContainerStyles: React.CSSProperties = {
-    flex: '1 1 50%',
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: currentTheme.colors.contentColor,
+  // RIGHT side with TITLE and BULLETS (dark blue background with diagonal cut)
+  const rightSectionStyles: React.CSSProperties = {
+    width: '65%',
+    height: '600px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
     display: 'flex',
     flexDirection: 'column',
-    minWidth: 0,
-    paddingLeft: '40px'
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
+    padding: '35px',
+    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 15% 100%)', // Mirrored diagonal cut - bottom left corner
+    zIndex: 2
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: currentTheme.colors.titleColor,
-    textAlign: 'left',
-    marginBottom: '32px',
+    fontSize: '3.5rem',
+    width: '100%',
+    fontFamily: 'serif',
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'right',
+    marginBottom: '40px',
     wordWrap: 'break-word',
-    lineHeight: '1.2'
+    lineHeight: '1.1'
   };
 
-  // Handle title editing
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: '1.2rem',
+    color: currentTheme.colors.subtitleColor,
+    marginBottom: '32px',
+    fontFamily: currentTheme.fonts.contentFont,
+    wordWrap: 'break-word',
+    lineHeight: '1.4'
+  };
+
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -590,14 +577,23 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     setEditingTitle(false);
   };
 
-  // Handle bullet points update
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
+  };
+
   const handleBulletsUpdate = (newBullets: string[]) => {
     if (onUpdate) {
       onUpdate({ bullets: newBullets });
     }
   };
 
-  // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
@@ -606,7 +602,6 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
 
   const handleSizeTransformChange = (payload: any) => {
     if (onUpdate) {
-      // Convert the payload to the expected format for the backend
       const updateData: any = {};
       
       if (payload.imagePosition) {
@@ -618,112 +613,100 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         updateData.heightPx = payload.imageSize.height;
       }
       
-      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
       if (payload.objectFit) {
         updateData.objectFit = payload.objectFit;
-        console.log('BulletPointsTemplate: objectFit update', { 
-          slideId, 
-          objectFit: payload.objectFit 
-        });
       }
       
       onUpdate(updateData);
     }
   };
 
-  // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
+
+  const placeholderStyles: React.CSSProperties = {
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
+    margin: '0 auto',
+    position: 'relative',
+    zIndex: 29
+  };
 
   return (
     <div ref={slideContainerRef} className="bullet-points-template" style={slideStyles}>
-      {/* Title */}
-      <div 
-        ref={titleRef}
-        data-moveable-element={`${slideId}-title`}
-        data-draggable="true" 
-        style={{ display: 'inline-block' }}
-      >
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block',
-              lineHeight: '1.2'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              // Check the wrapper for just-dragged flag
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
+      {/* LEFT section with IMAGE */}
+      <div style={leftSectionStyles}>
+        <ClickableImagePlaceholder
+          imagePath={imagePath}
+          onImageUploaded={handleImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Click to upload image"
+          prompt={displayPrompt}
+          isEditable={isEditable}
+          style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode={objectFit || 'contain'}
+          slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          templateId="bullet-points"
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
+        />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
-        {/* Left: Clickable Image Placeholder */}
-        <div style={placeholderContainerStyles} >
-          <ClickableImagePlaceholder
-            imagePath={imagePath}
-            onImageUploaded={handleImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt={displayPrompt}
-            isEditable={isEditable}
-            style={placeholderStyles}
-            onSizeTransformChange={handleSizeTransformChange}
-            elementId={`${slideId}-image`}
-            elementRef={imageRef}
-            cropMode={objectFit || 'contain'}
-            slideContainerRef={slideContainerRef}
-            savedImagePosition={imageOffset}
-            savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
-            templateId="bullet-points"
-            aiGeneratedPrompt={imagePrompt}
-            isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
-            onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
-          />
+      {/* RIGHT section with TITLE and BULLETS */}
+      <div style={rightSectionStyles}>
+        {/* Title */}
+        <div data-draggable="true">
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || 'Problem'}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Problem'}
+            </h1>
+          )}
         </div>
-        
-        {/* Right: Unified bullet points editor */}
-        <div 
-          ref={bulletsRef}
-          data-moveable-element={`${slideId}-bullets`}
-          style={bulletsContainerStyles} 
-          data-draggable="true"
-        >
+
+        {/* Bullets */}
+        <div data-draggable="true">
           <UnifiedBulletEditor
             bullets={bullets || []}
-            bulletStyle={bulletStyle}
+            bulletStyle="arrow"
             onUpdate={handleBulletsUpdate}
             theme={currentTheme}
             isEditable={isEditable}
@@ -734,4 +717,4 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   );
 };
 
-export default BulletPointsTemplate; 
+export default BulletPointsTemplate;
