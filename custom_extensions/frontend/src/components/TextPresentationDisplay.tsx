@@ -808,9 +808,9 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       let textStyleClass = ''; 
       if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
-      else if (level === 2) { textStyleClass += `text-xl lg:text-base font-semibold ${THEME_COLORS.headingText}`; }  
+      else if (level === 2) { textStyleClass += `text-xl lg:text-xl font-semibold ${THEME_COLORS.headingText}`; }  
       else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
-      else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
+      else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold !text-[#0F58F9]`; }
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
       if (depth > 0) {
@@ -2536,7 +2536,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   return (
-    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-7xl mx-auto my-6">
+    <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
       {dataToDisplay.textTitle && (
         <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
           {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}
@@ -2567,8 +2567,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {/* Card 1: Drilling & Joining */}
-                  <div className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-6 text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-white rounded-full flex items-center justify-center">
+                  <div className="bg-[#CCDBFCCC] border border-[#CCCCCC] rounded-lg p-6 space-y-2 text-left">
                       <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15.6315 6.92906H22.3646C23.6174 6.92906 24.6387 5.90782 24.6387 4.64904V3.5625C24.6387 2.90935 24.1043 2.375 23.4512 2.375H14.5449C13.8918 2.375 13.3574 2.90935 13.3574 3.5625V4.64904C13.3574 5.90782 14.3786 6.92906 15.6315 6.92906Z" fill="white"/>
                         <path d="M18.9988 29.1841C19.1531 29.1841 19.3016 29.1247 19.4203 29.0059L21.825 26.6013C21.9378 26.4944 21.9972 26.34 21.9972 26.1856V25.7344L17.3125 27.7413L18.5772 29.0059C18.6959 29.1247 18.8444 29.1841 18.9988 29.1841Z" fill="white"/>
@@ -2584,7 +2583,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         <path d="M33.8012 24.8947C33.4476 24.6871 32.5846 24.6851 32.2277 24.8948C31.9546 25.0016 31.6162 25.1382 30.9987 25.1382C29.9233 25.1526 29.8977 24.7575 28.9799 24.7344C28.0586 24.7563 28.0328 25.1521 26.9552 25.1381C25.8859 25.1517 25.8539 24.7557 24.9365 24.7344C24.9365 24.7344 24.3427 24.7344 24.3427 24.7344C24.4898 26.6531 23.8234 28.5456 22.3477 29.6863C22.3477 29.6863 35.624 29.6863 35.624 29.6863V25.1382C35.0034 25.1725 34.1629 25.0957 33.8012 24.8947ZM27.5371 28.196C26.7572 28.1852 26.7565 27.0231 27.5371 27.0085C28.3178 27.0232 28.3169 28.1853 27.5371 28.196ZM30.874 27.6022C30.094 27.5914 30.0933 26.4294 30.874 26.4147C31.6547 26.4295 31.6538 27.5915 30.874 27.6022Z" fill="white"/>
                         <path d="M2.37305 35.0312C2.37305 35.3578 2.64024 35.625 2.9668 35.625H35.0293C35.3559 35.625 35.6231 35.3578 35.6231 35.0312V30.875H2.37305V35.0312Z" fill="white"/>
                       </svg>
-                    </div>
                     <h3 className="text-lg font-bold text-gray-800 mb-2">Drilling & Joining</h3>
                     <p className="text-sm text-gray-600">Create holes and connections with accuracy and strength</p>
                   </div>
