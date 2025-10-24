@@ -163,7 +163,13 @@ export default function PublicCourseViewerPage() {
     if (!productId || !shareToken) return;
     
     // Navigate to the public product view page with share token
-    window.location.href = `/public/product/${productId}?share_token=${shareToken}`;
+    // Use relative path to preserve any base path (like /custom-projects-ui)
+    const currentPath = window.location.pathname;
+    const basePath = currentPath.substring(0, currentPath.indexOf('/public/'));
+    const targetUrl = `${basePath}/public/product/${productId}?share_token=${shareToken}`;
+    
+    console.log(`🔗 [PUBLIC COURSE] Navigating to product: ${targetUrl}`);
+    window.location.href = targetUrl;
   };
 
   if (loading) {
