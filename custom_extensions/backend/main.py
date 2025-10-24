@@ -34518,22 +34518,59 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     
                     logger.info(f"Found {len(connected)} connected products to duplicate")
                     
-                    # Duplicate each connected product
+                    # Duplicate each connected product with pattern-aware logic
                     duplicated_products = []
                     for i, prod in enumerate(connected):
                         try:
-                            # Smart name replacement - handle various naming patterns
                             prod_name = prod['project_name']
-                            if prod_name.startswith(orig['project_name']):
-                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
-                            else:
-                                # If name doesn't start with parent name, just add "Copy of" prefix
-                                prod_name = f"Copy of {prod_name}"
-                            
-                            # Update microproduct name if it references the parent
                             micro_name = prod['microproduct_name']
-                            if micro_name and micro_name.startswith(orig['project_name']):
-                                micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                            
+                            logger.info(f"[DUPLICATE] Processing product {prod['id']}: project_name='{prod_name}', microproduct_name='{micro_name}'")
+                            
+                            # Pattern 1: "Outline: Lesson" 
+                            if ': ' in prod_name and prod_name.startswith(orig['project_name'] + ': '):
+                                # Replace outline name only
+                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
+                                # microproduct_name stays unchanged (it's the lesson title)
+                                logger.info(f"Pattern 1 (Outline:Lesson) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 2: "Quiz - Outline: Lesson"
+                            elif prod_name.startswith('Quiz - ') and ': ' in prod_name:
+                                quiz_part = prod_name.replace('Quiz - ', '', 1)
+                                if quiz_part.startswith(orig['project_name'] + ': '):
+                                    quiz_part = quiz_part.replace(orig['project_name'], new_name, 1)
+                                    prod_name = f"Quiz - {quiz_part}"
+                                    logger.info(f"Pattern 2 (Quiz) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 3: "Type - Outline: Lesson" (generic prefixed)
+                            elif ' - ' in prod_name and ': ' in prod_name:
+                                parts = prod_name.split(' - ', 1)
+                                if len(parts) == 2:
+                                    prefix = parts[0]
+                                    rest = parts[1]
+                                    if rest.startswith(orig['project_name'] + ': '):
+                                        rest = rest.replace(orig['project_name'], new_name, 1)
+                                        prod_name = f"{prefix} - {rest}"
+                                        logger.info(f"Pattern 3 (Prefixed) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 4: project_name == outline AND microproduct_name == lesson (Legacy)
+                            elif prod_name == orig['project_name'] and micro_name:
+                                prod_name = new_name
+                                # microproduct_name stays as lesson title
+                                logger.info(f"Pattern 4 (Legacy) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Pattern 5: Default fallback
+                            else:
+                                prod_name = f"Copy of {prod_name}"
+                                logger.info(f"Pattern 5 (Fallback) detected: '{prod['project_name']}' -> '{prod_name}'")
+                            
+                            # Update microproduct_name if it references the parent outline
+                            if micro_name and orig['project_name'] in micro_name:
+                                micro_name = micro_name.replace(orig['project_name'], new_name)
+                                logger.info(f"Updated microproduct_name: '{prod['microproduct_name']}' -> '{micro_name}'")
+                            
+                            # Log the final names for debugging
+                            logger.info(f"[DUPLICATE] Final names: project_name='{prod_name}', microproduct_name='{micro_name}'")
                             
                             # Insert the duplicated product with all fields
                             new_prod_id = await conn.fetchval(
@@ -34571,7 +34608,8 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                                 'name': prod_name
                             })
                             
-                            logger.info(f"Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            logger.info(f"✅ Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            logger.info(f"   Original microproduct_name: '{prod['microproduct_name']}' -> New: '{micro_name}'")
                             
                         except Exception as e:
                             logger.error(f"Failed to duplicate connected product {prod['id']} ({prod['microproduct_type']}): {str(e)}")
