@@ -272,16 +272,14 @@ function UnifiedBulletEditor({
           position: 'relative',
           width: '100%',
           minWidth: 0,
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'flex-end'
+          boxSizing: 'border-box'
         }}
       >
         <ul style={{
           listStyle: 'none',
           padding: 0,
           margin: 0,
-          width: '80%',
+          width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end'
@@ -298,7 +296,7 @@ function UnifiedBulletEditor({
                 alignItems: 'flex-start', 
                 gap: '12px', 
                 marginBottom: '35px',
-                width: '100%'
+                width: '80%'
               }}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
