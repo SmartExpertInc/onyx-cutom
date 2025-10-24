@@ -94,7 +94,7 @@ function PublicProductViewerContent() {
     // Determine which component to render based on component_name
     switch (component_name) {
       case 'SlideDeckDisplay':
-        return <SmartSlideDeckViewer slideData={content} projectName={name} isPublicView={true} />;
+        return <SmartSlideDeckViewer deck={content} isEditable={false} />;
       
       case 'QuizDisplay':
         return <QuizDisplay data={content} projectName={name} />;
