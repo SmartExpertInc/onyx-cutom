@@ -292,7 +292,6 @@ export default function CommercialProposalPage() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Share modal state
   const [showShareModal, setShowShareModal] = useState(false)
@@ -454,30 +453,12 @@ export default function CommercialProposalPage() {
   };
 
   const handleTextSave = async (field: string, newValue: string) => {
-    console.log(`[COMMERCIAL PROPOSAL SAVE] Debouncing save for field: ${field}`);
-    
-    // Clear any existing timeout
-    if (saveTimeout) {
-      console.log('[COMMERCIAL PROPOSAL SAVE] Clearing existing timeout');
-      clearTimeout(saveTimeout);
-    }
-    
     // Prevent multiple simultaneous saves
     if (isSaving) {
       console.log('[COMMERCIAL PROPOSAL SAVE] Save already in progress, skipping...');
       return;
     }
     
-    // Set a debounced timeout for the actual save
-    const timeout = setTimeout(async () => {
-      console.log(`[COMMERCIAL PROPOSAL SAVE] Executing debounced save for field: ${field}`);
-      await performSave(field, newValue);
-    }, 300); // 300ms debounce
-    
-    setSaveTimeout(timeout);
-  };
-
-  const performSave = async (field: string, newValue: string) => {
     setIsSaving(true);
     
     // Check if this is a course template field
@@ -1506,18 +1487,14 @@ export default function CommercialProposalPage() {
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
                                       en: 'Lessons in module',
                                       es: 'Lecciones en módulo',
                                       ua: 'Уроки в модулі',
                                       ru: 'Уроки в модуле'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderLessons')}
@@ -1535,18 +1512,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
                                       en: 'Knowledge check: test / practice with mentor',
                                       es: 'Verificación de conocimientos: prueba / práctica con mentor',
                                       ua: 'Перевірка знань: тест / практика з куратором',
                                       ru: 'Проверка знаний: тест / практика с куратором'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderAssessment')}
@@ -1564,18 +1537,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
                                       en: 'Training duration',
                                       es: 'Duración del entrenamiento',
                                       ua: 'Тривалість навчання',
                                       ru: 'Длительность обучения'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderDuration')}
@@ -1882,18 +1851,14 @@ export default function CommercialProposalPage() {
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
                                       en: 'Lessons in module',
                                       es: 'Lecciones en módulo',
                                       ua: 'Уроки в модулі',
                                       ru: 'Уроки в модуле'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderLessons')}
@@ -1911,18 +1876,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
                                       en: 'Knowledge check: test / practice with mentor',
                                       es: 'Verificación de conocimientos: prueba / práctica con mentor',
                                       ua: 'Перевірка знань: тест / практика з куратором',
                                       ru: 'Проверка знаний: тест / практика с куратором'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderAssessment')}
@@ -1940,18 +1901,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
                                       en: 'Training duration',
                                       es: 'Duración del entrenamiento',
                                       ua: 'Тривалість навчання',
                                       ru: 'Длительность обучения'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderDuration')}
@@ -2258,18 +2215,14 @@ export default function CommercialProposalPage() {
                             <div className="grid grid-cols-3 gap-[20px]">
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderLessons' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.lessons || getLocalizedText(proposalData?.language, {
                                       en: 'Lessons in module',
                                       es: 'Lecciones en módulo',
                                       ua: 'Уроки в модулі',
                                       ru: 'Уроки в модуле'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderLessons', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderLessons')}
@@ -2287,18 +2240,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderAssessment' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.assessment || getLocalizedText(proposalData?.language, {
                                       en: 'Knowledge check: test / practice with mentor',
                                       es: 'Verificación de conocimientos: prueba / práctica con mentor',
                                       ua: 'Перевірка знань: тест / практика з куратором',
                                       ru: 'Проверка знаний: тест / практика с куратором'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderAssessment')}
@@ -2316,18 +2265,14 @@ export default function CommercialProposalPage() {
                               </div>
                               <div className="text-white font-medium text-[12px] leading-[100%]">
                                 {editingField === 'tableHeaderDuration' ? (
-                                  <InlineEditor
-                                    initialValue={proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
+                                  <span className="font-medium text-white inline-block" style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}>
+                                    {proposalData?.courseOutlineTableHeaders?.duration || getLocalizedText(proposalData?.language, {
                                       en: 'Training duration',
                                       es: 'Duración del entrenamiento',
                                       ua: 'Тривалість навчання',
                                       ru: 'Длительность обучения'
                                     })}
-                                    onSave={(value) => handleTextSave('tableHeaderDuration', value)}
-                                    onCancel={handleTextCancel}
-                                    className="font-medium text-white inline-block"
-                                    style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
-                                  />
+                                  </span>
                                 ) : (
                                   <span 
                                     onClick={() => startEditing('tableHeaderDuration')}
@@ -5926,14 +5871,6 @@ export default function CommercialProposalPage() {
     };
   }, [editingField]);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout);
-      }
-    };
-  }, [saveTimeout]);
 
   // Show loading state
   if (loading) {
