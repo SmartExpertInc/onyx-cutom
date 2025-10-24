@@ -1800,7 +1800,7 @@ export default function TextPresentationClient() {
 
           {/* Theme section */}
           {streamDone && content && (
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3 mb-8">
               <div className="rounded-lg border border-[#CCCCCC] px-10 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
                 <div className="bg-white rounded-lg border border-[#E0E0E0] pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                   <div className="flex items-center justify-between py-2 border-b border-[#E0E0E0] px-6">
@@ -1891,7 +1891,7 @@ export default function TextPresentationClient() {
 
           {/* AI Agent section */}
           {streamDone && content && showAdvanced && (
-            <div className="rounded-lg pt-8 border border-[#CCCCCC] py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
+            <div className="rounded-lg pt-8 border border-[#CCCCCC] px-5 py-5" style={{ background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.5) 100%)' }}>
               <AiAgent
                 editPrompt={editPrompt}
                 setEditPrompt={setEditPrompt}
