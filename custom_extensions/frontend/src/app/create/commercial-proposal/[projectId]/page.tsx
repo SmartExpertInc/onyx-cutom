@@ -177,6 +177,60 @@ interface ProposalPageData {
     assessment: string
     duration: string
   }
+  // Service 1 fields
+  mainPrice?: string
+  courseCount1?: string
+  price1_service_1?: string
+  total1_service_1?: string
+  courseCount2?: string
+  price2_service_1?: string
+  total2_service_1?: string
+  courseCount3?: string
+  price3_service_1?: string
+  total3_service_1?: string
+  // Service 2 fields
+  monthlyPrice?: string
+  aiCredits?: string
+  // Service 3 fields
+  mainSmartExpertPrice?: string
+  userCount1?: string
+  monthlyPrice1?: string
+  perUserPrice1?: string
+  userCount2?: string
+  monthlyPrice2?: string
+  perUserPrice2?: string
+  userCount3?: string
+  monthlyPrice3?: string
+  perUserPrice3?: string
+  userCount4?: string
+  monthlyPrice4?: string
+  perUserPrice4?: string
+  // Service 4 fields
+  mainPriceMobile_service_4?: string
+  mainPriceDesktop_service_4?: string
+  hoursCount_service_4?: string
+  packName1_service_4?: string
+  hours1_service_4?: string
+  price1_service_4?: string
+  rate1_service_4?: string
+  packName2_service_4?: string
+  hours2_service_4?: string
+  price2_service_4?: string
+  rate2_service_4?: string
+  packName3_service_4?: string
+  hours3_service_4?: string
+  price3_service_4?: string
+  rate3_service_4?: string
+  // Final section fields
+  trialHours?: string
+  methodologistPrice?: string
+  aiCreditsCount?: string
+  contentBuilderPrice?: string
+  smartExpertUsers?: string
+  smartExpertPrice?: string
+  totalMethodologistPrice?: string
+  totalPlatformsPrice?: string
+  timeline?: string
   [key: string]: string | number | object | undefined
 }
 
@@ -341,6 +395,9 @@ export default function CommercialProposalPage() {
     // Check if this is a course lesson field
     const isCourseLessonField = field.startsWith('courseLesson_');
     
+    // Check if this is a table header field
+    const isTableHeaderField = field.startsWith('tableHeader');
+    
     let updatedData: ProposalPageData;
     
     if (isCourseTemplateField) {
@@ -416,8 +473,19 @@ export default function CommercialProposalPage() {
           return module;
         }) || []
       } as ProposalPageData;
+    } else if (isTableHeaderField) {
+      // Handle table header field updates
+      const headerType = field.replace('tableHeader', '').toLowerCase();
+      
+      updatedData = {
+        ...proposalData,
+        courseOutlineTableHeaders: {
+          ...proposalData?.courseOutlineTableHeaders,
+          [headerType]: newValue
+        }
+      } as ProposalPageData;
     } else {
-      // Handle regular field updates
+      // Handle regular field updates (all other fields like prices, counts, etc.)
       updatedData = {
         ...proposalData,
         [field]: newValue
@@ -2158,7 +2226,7 @@ export default function CommercialProposalPage() {
                   <span className="text-[60px] font-bold text-[#0F58F9]">
                     {editingField === 'mainPrice' ? (
                       <InlineEditor
-                        initialValue="$900"
+                        initialValue={proposalData?.mainPrice || "$900"}
                         onSave={(value) => handleTextSave('mainPrice', value)}
                         onCancel={handleTextCancel}
                         className="text-[#0F58F9] font-bold"
@@ -2170,7 +2238,7 @@ export default function CommercialProposalPage() {
                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                         title="Click to edit main price"
                       >
-                        $900
+                        {proposalData?.mainPrice || "$900"}
                       </span>
                     )}
                     <span className="text-[26px] font-bold text-[#09090B]">
@@ -2235,7 +2303,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               {editingField === 'courseCount1' ? (
                                 <InlineEditor
-                                  initialValue={getLocalizedText(proposalData?.language, {
+                                  initialValue={proposalData?.courseCount1 || getLocalizedText(proposalData?.language, {
                                     en: '1 course',
                                     es: '1 curso',
                                     ua: '1 курс',
@@ -2252,7 +2320,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit course count"
                                 >
-                                  {getLocalizedText(proposalData?.language, {
+                                  {proposalData?.courseCount1 || getLocalizedText(proposalData?.language, {
                                     en: '1 course',
                                     es: '1 curso',
                                     ua: '1 курс',
@@ -2264,7 +2332,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'price1_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$900"
+                                  initialValue={proposalData?.price1_service_1 || "$900"}
                                   onSave={(value) => handleTextSave('price1_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2276,7 +2344,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit price"
                                 >
-                                  $900
+                                  {proposalData?.price1_service_1 || "$900"}
                                 </span>
                               )}
                               {getLocalizedText(proposalData?.language, {
@@ -2289,7 +2357,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'total1_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$900"
+                                  initialValue={proposalData?.total1_service_1 || "$900"}
                                   onSave={(value) => handleTextSave('total1_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2301,7 +2369,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit total"
                                 >
-                                  $900
+                                  {proposalData?.total1_service_1 || "$900"}
                                 </span>
                               )}
                             </div>
@@ -2314,7 +2382,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               {editingField === 'courseCount2' ? (
                                 <InlineEditor
-                                  initialValue={getLocalizedText(proposalData?.language, {
+                                  initialValue={proposalData?.courseCount2 || getLocalizedText(proposalData?.language, {
                                     en: '3 courses',
                                     es: '3 cursos',
                                     ua: '3 курси',
@@ -2331,7 +2399,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit course count"
                                 >
-                                  {getLocalizedText(proposalData?.language, {
+                                  {proposalData?.courseCount2 || getLocalizedText(proposalData?.language, {
                                     en: '3 courses',
                                     es: '3 cursos',
                                     ua: '3 курси',
@@ -2343,7 +2411,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'price2_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$750"
+                                  initialValue={proposalData?.price2_service_1 || "$750"}
                                   onSave={(value) => handleTextSave('price2_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2355,7 +2423,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit price"
                                 >
-                                  $750
+                                  {proposalData?.price2_service_1 || "$750"}
                                 </span>
                               )}
                               {getLocalizedText(proposalData?.language, {
@@ -2368,7 +2436,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'total2_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$2250"
+                                  initialValue={proposalData?.total2_service_1 || "$2250"}
                                   onSave={(value) => handleTextSave('total2_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2380,7 +2448,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit total"
                                 >
-                                  $2250
+                                  {proposalData?.total2_service_1 || "$2250"}
                                 </span>
                               )}
                             </div>
@@ -2393,7 +2461,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               {editingField === 'courseCount3' ? (
                                 <InlineEditor
-                                  initialValue={getLocalizedText(proposalData?.language, {
+                                  initialValue={proposalData?.courseCount3 || getLocalizedText(proposalData?.language, {
                                     en: '10 courses',
                                     es: '10 cursos',
                                     ua: '10 курсів',
@@ -2410,7 +2478,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit course count"
                                 >
-                                  {getLocalizedText(proposalData?.language, {
+                                  {proposalData?.courseCount3 || getLocalizedText(proposalData?.language, {
                                     en: '10 courses',
                                     es: '10 cursos',
                                     ua: '10 курсів',
@@ -2422,7 +2490,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'price3_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$600"
+                                  initialValue={proposalData?.price3_service_1 || "$600"}
                                   onSave={(value) => handleTextSave('price3_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2434,7 +2502,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit price"
                                 >
-                                  $600
+                                  {proposalData?.price3_service_1 || "$600"}
                                 </span>
                               )}
                               {getLocalizedText(proposalData?.language, {
@@ -2447,7 +2515,7 @@ export default function CommercialProposalPage() {
                             <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                               {editingField === 'total3_service_1' ? (
                                 <InlineEditor
-                                  initialValue="$6000"
+                                  initialValue={proposalData?.total3_service_1 || "$6000"}
                                   onSave={(value) => handleTextSave('total3_service_1', value)}
                                   onCancel={handleTextCancel}
                                   className="font-medium"
@@ -2459,7 +2527,7 @@ export default function CommercialProposalPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit total"
                                 >
-                                  $6000
+                                  {proposalData?.total3_service_1 || "$6000"}
                                 </span>
                               )}
                             </div>
@@ -2794,7 +2862,7 @@ export default function CommercialProposalPage() {
                 <span className="text-[60px] xl:text-[70px] font-bold text-[#0F58F9]">
                   {editingField === 'monthlyPrice' ? (
                     <InlineEditor
-                      initialValue="$100"
+                      initialValue={proposalData?.monthlyPrice || "$100"}
                       onSave={(value) => handleTextSave('monthlyPrice', value)}
                       onCancel={handleTextCancel}
                       className="text-[#0F58F9] font-bold"
@@ -2806,7 +2874,7 @@ export default function CommercialProposalPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit monthly price"
                     >
-                      $100
+                      {proposalData?.monthlyPrice || "$100"}
                     </span>
                   )}
                   <span className="text-[26px] xl:text-[40px] font-bold text-[#09090B] xl:hidden">
@@ -2842,7 +2910,7 @@ export default function CommercialProposalPage() {
                       })} <span className="font-semibold text-[#09090B]">
                         {editingField === 'aiCredits' ? (
                           <InlineEditor
-                            initialValue="500"
+                            initialValue={proposalData?.aiCredits || "500"}
                             onSave={(value) => handleTextSave('aiCredits', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold text-[#09090B]"
@@ -2854,7 +2922,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit AI credits count"
                           >
-                            500
+                            {proposalData?.aiCredits || "500"}
                           </span>
                         )} {getLocalizedText(proposalData?.language, {
                           en: 'AI credits',
@@ -3271,7 +3339,7 @@ export default function CommercialProposalPage() {
               <span className="text-[60px] font-bold text-[#0F58F9]">
                 {editingField === 'mainSmartExpertPrice' ? (
                   <InlineEditor
-                    initialValue="$350"
+                    initialValue={proposalData?.mainSmartExpertPrice || "$350"}
                     onSave={(value) => handleTextSave('mainSmartExpertPrice', value)}
                     onCancel={handleTextCancel}
                     className="text-[#0F58F9] font-bold"
@@ -3283,7 +3351,7 @@ export default function CommercialProposalPage() {
                     className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                     title="Click to edit main price"
                   >
-                    $350
+                    {proposalData?.mainSmartExpertPrice || "$350"}
                   </span>
                 )}
                 <span className="text-[26px] font-bold text-[#09090B]">
@@ -3373,7 +3441,7 @@ export default function CommercialProposalPage() {
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           {editingField === 'monthlyPrice1' ? (
                             <InlineEditor
-                              initialValue="$350"
+                              initialValue={proposalData?.monthlyPrice1 || "$350"}
                               onSave={(value) => handleTextSave('monthlyPrice1', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3385,7 +3453,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit monthly price"
                             >
-                              $350
+                              {proposalData?.monthlyPrice1 || "$350"}
                             </span>
                           )}
                         </div>
@@ -3401,7 +3469,7 @@ export default function CommercialProposalPage() {
                           <span className="font-semibold">
                             {editingField === 'perUserPrice1' ? (
                               <InlineEditor
-                                initialValue="$3.50"
+                                initialValue={proposalData?.perUserPrice1 || "$3.50"}
                                 onSave={(value) => handleTextSave('perUserPrice1', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -3413,7 +3481,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit per-user price"
                               >
-                                $3.50
+                                {proposalData?.perUserPrice1 || "$3.50"}
                               </span>
                             )}
                           </span>
@@ -3433,7 +3501,7 @@ export default function CommercialProposalPage() {
                           })}{' '}
                           {editingField === 'userCount2' ? (
                             <InlineEditor
-                              initialValue="200"
+                              initialValue={proposalData?.userCount2 || "200"}
                               onSave={(value) => handleTextSave('userCount2', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3445,14 +3513,14 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit user count"
                             >
-                              200
+                              {proposalData?.userCount2 || "200"}
                             </span>
                           )}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           {editingField === 'monthlyPrice2' ? (
                             <InlineEditor
-                              initialValue="$500"
+                              initialValue={proposalData?.monthlyPrice2 || "$500"}
                               onSave={(value) => handleTextSave('monthlyPrice2', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3464,7 +3532,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit monthly price"
                             >
-                              $500
+                              {proposalData?.monthlyPrice2 || "$500"}
                             </span>
                           )}
                         </div>
@@ -3479,7 +3547,7 @@ export default function CommercialProposalPage() {
                           </span>{' '}<span className="font-semibold">
                             {editingField === 'perUserPrice2' ? (
                               <InlineEditor
-                                initialValue="$2.50"
+                                initialValue={proposalData?.perUserPrice2 || "$2.50"}
                                 onSave={(value) => handleTextSave('perUserPrice2', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -3491,7 +3559,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit per-user price"
                               >
-                                $2.50
+                                {proposalData?.perUserPrice2 || "$2.50"}
                               </span>
                             )}
                           </span>
@@ -3505,7 +3573,7 @@ export default function CommercialProposalPage() {
                         <div className="text-[14px] xl:text-[22px] font-medium">
                           {editingField === 'userCount3' ? (
                             <InlineEditor
-                              initialValue="201-500"
+                              initialValue={proposalData?.userCount3 || "201-500"}
                               onSave={(value) => handleTextSave('userCount3', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3517,14 +3585,14 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit user count"
                             >
-                              201-500
+                              {proposalData?.userCount3 || "201-500"}
                             </span>
                           )}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           {editingField === 'monthlyPrice3' ? (
                             <InlineEditor
-                              initialValue="$1000"
+                              initialValue={proposalData?.monthlyPrice3 || "$1000"}
                               onSave={(value) => handleTextSave('monthlyPrice3', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3536,7 +3604,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit monthly price"
                             >
-                              $1000
+                              {proposalData?.monthlyPrice3 || "$1000"}
                             </span>
                           )}
                         </div>
@@ -3551,7 +3619,7 @@ export default function CommercialProposalPage() {
                           </span>{' '}<span className="font-semibold">
                             {editingField === 'perUserPrice3' ? (
                               <InlineEditor
-                                initialValue="$2.00"
+                                initialValue={proposalData?.perUserPrice3 || "$2.00"}
                                 onSave={(value) => handleTextSave('perUserPrice3', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -3563,7 +3631,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit per-user price"
                               >
-                                $2.00
+                                {proposalData?.perUserPrice3 || "$2.00"}
                               </span>
                             )}
                           </span>
@@ -3577,7 +3645,7 @@ export default function CommercialProposalPage() {
                         <div className="text-[14px] xl:text-[22px] font-medium">
                           {editingField === 'userCount4' ? (
                             <InlineEditor
-                              initialValue="501-1000"
+                              initialValue={proposalData?.userCount4 || "501-1000"}
                               onSave={(value) => handleTextSave('userCount4', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3589,14 +3657,14 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit user count"
                             >
-                              501-1000
+                              {proposalData?.userCount4 || "501-1000"}
                             </span>
                           )}
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           {editingField === 'monthlyPrice4' ? (
                             <InlineEditor
-                              initialValue="$1800"
+                              initialValue={proposalData?.monthlyPrice4 || "$1800"}
                               onSave={(value) => handleTextSave('monthlyPrice4', value)}
                               onCancel={handleTextCancel}
                               className="font-medium"
@@ -3608,7 +3676,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit monthly price"
                             >
-                              $1800
+                              {proposalData?.monthlyPrice4 || "$1800"}
                             </span>
                           )}
                         </div>
@@ -3623,7 +3691,7 @@ export default function CommercialProposalPage() {
                           </span>{' '}<span className="font-semibold">
                             {editingField === 'perUserPrice4' ? (
                               <InlineEditor
-                                initialValue="$1.80"
+                                initialValue={proposalData?.perUserPrice4 || "$1.80"}
                                 onSave={(value) => handleTextSave('perUserPrice4', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -3635,7 +3703,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit per-user price"
                               >
-                                $1.80
+                                {proposalData?.perUserPrice4 || "$1.80"}
                               </span>
                             )}
                           </span>
@@ -4381,7 +4449,7 @@ export default function CommercialProposalPage() {
             <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">
               {editingField === 'mainPriceMobile_service_4' ? (
                 <InlineEditor
-                  initialValue="$750"
+                  initialValue={proposalData?.mainPriceMobile_service_4 || "$750"}
                   onSave={(value) => handleTextSave('mainPriceMobile_service_4', value)}
                   onCancel={handleTextCancel}
                   className="text-[#0F58F9] font-bold"
@@ -4393,7 +4461,7 @@ export default function CommercialProposalPage() {
                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                   title="Click to edit main price"
                 >
-                  $750
+                  {proposalData?.mainPriceMobile_service_4 || "$750"}
                 </span>
               )}
               <span className="text-[26px] font-bold text-[#09090B] xl:hidden">
@@ -4409,7 +4477,7 @@ export default function CommercialProposalPage() {
             <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">
               {editingField === 'mainPriceDesktop_service_4' ? (
                 <InlineEditor
-                  initialValue="$750"
+                  initialValue={proposalData?.mainPriceDesktop_service_4 || "$750"}
                   onSave={(value) => handleTextSave('mainPriceDesktop_service_4', value)}
                   onCancel={handleTextCancel}
                   className="text-[#0F58F9] font-bold"
@@ -4421,13 +4489,13 @@ export default function CommercialProposalPage() {
                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                   title="Click to edit main price"
                 >
-                  $750
+                  {proposalData?.mainPriceDesktop_service_4 || "$750"}
                 </span>
               )}{' '}
               <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]">
                 {editingField === 'hoursCount_service_4' ? (
                   <InlineEditor
-                    initialValue="10"
+                    initialValue={proposalData?.hoursCount_service_4 || "10"}
                     onSave={(value) => handleTextSave('hoursCount_service_4', value)}
                     onCancel={handleTextCancel}
                     className="font-bold text-[#09090B]"
@@ -4439,7 +4507,7 @@ export default function CommercialProposalPage() {
                     className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                     title="Click to edit hours count"
                   >
-                    10
+                    {proposalData?.hoursCount_service_4 || "10"}
                   </span>
                 )}{' '}
                 {getLocalizedText(proposalData?.language, {
@@ -4517,7 +4585,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold">
                         {editingField === 'packName1_service_4' ? (
                           <InlineEditor
-                            initialValue="Pack 1"
+                            initialValue={proposalData?.packName1_service_4 || "Pack 1"}
                             onSave={(value) => handleTextSave('packName1_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4529,14 +4597,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit pack name"
                           >
-                            Pack 1
+                            {proposalData?.packName1_service_4 || "Pack 1"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'hours1_service_4' ? (
                           <InlineEditor
-                            initialValue="30"
+                            initialValue={proposalData?.hours1_service_4 || "30"}
                             onSave={(value) => handleTextSave('hours1_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4548,7 +4616,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit hours count"
                           >
-                            30
+                            {proposalData?.hours1_service_4 || "30"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -4561,7 +4629,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'price1_service_4' ? (
                           <InlineEditor
-                            initialValue="$2,250"
+                            initialValue={proposalData?.price1_service_4 || "$2,250"}
                             onSave={(value) => handleTextSave('price1_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4573,14 +4641,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit price"
                           >
-                            $2,250
+                            {proposalData?.price1_service_4 || "$2,250"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'rate1_service_4' ? (
                           <InlineEditor
-                            initialValue="$75"
+                            initialValue={proposalData?.rate1_service_4 || "$75"}
                             onSave={(value) => handleTextSave('rate1_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4592,7 +4660,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit rate"
                           >
-                            $75
+                            {proposalData?.rate1_service_4 || "$75"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -4611,7 +4679,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold">
                         {editingField === 'packName2_service_4' ? (
                           <InlineEditor
-                            initialValue="Pack 2"
+                            initialValue={proposalData?.packName2_service_4 || "Pack 2"}
                             onSave={(value) => handleTextSave('packName2_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4623,14 +4691,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit pack name"
                           >
-                            Pack 2
+                            {proposalData?.packName2_service_4 || "Pack 2"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'hours2_service_4' ? (
                           <InlineEditor
-                            initialValue="50"
+                            initialValue={proposalData?.hours2_service_4 || "50"}
                             onSave={(value) => handleTextSave('hours2_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4642,7 +4710,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit hours count"
                           >
-                            50
+                            {proposalData?.hours2_service_4 || "50"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -4655,7 +4723,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'price2_service_4' ? (
                           <InlineEditor
-                            initialValue="$3,500"
+                            initialValue={proposalData?.price2_service_4 || "$3,500"}
                             onSave={(value) => handleTextSave('price2_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4667,14 +4735,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit price"
                           >
-                            $3,500
+                            {proposalData?.price2_service_4 || "$3,500"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'rate2_service_4' ? (
                           <InlineEditor
-                            initialValue="$70"
+                            initialValue={proposalData?.rate2_service_4 || "$70"}
                             onSave={(value) => handleTextSave('rate2_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4686,7 +4754,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit rate"
                           >
-                            $70
+                            {proposalData?.rate2_service_4 || "$70"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -4705,7 +4773,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold">
                         {editingField === 'packName3_service_4' ? (
                           <InlineEditor
-                            initialValue="Pack 3"
+                            initialValue={proposalData?.packName3_service_4 || "Pack 3"}
                             onSave={(value) => handleTextSave('packName3_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4717,14 +4785,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit pack name"
                           >
-                            Pack 3
+                            {proposalData?.packName3_service_4 || "Pack 3"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'hours3_service_4' ? (
                           <InlineEditor
-                            initialValue="100"
+                            initialValue={proposalData?.hours3_service_4 || "100"}
                             onSave={(value) => handleTextSave('hours3_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4736,7 +4804,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit hours count"
                           >
-                            100
+                            {proposalData?.hours3_service_4 || "100"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -4749,7 +4817,7 @@ export default function CommercialProposalPage() {
                       <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'price3_service_4' ? (
                           <InlineEditor
-                            initialValue="$5,900"
+                            initialValue={proposalData?.price3_service_4 || "$5,900"}
                             onSave={(value) => handleTextSave('price3_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -4761,14 +4829,14 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit price"
                           >
-                            $5,900
+                            {proposalData?.price3_service_4 || "$5,900"}
                           </span>
                         )}
                       </div>
                       <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                         {editingField === 'rate3_service_4' ? (
                           <InlineEditor
-                            initialValue="$59"
+                            initialValue={proposalData?.rate3_service_4 || "$59"}
                             onSave={(value) => handleTextSave('rate3_service_4', value)}
                             onCancel={handleTextCancel}
                             className="font-medium"
@@ -4780,7 +4848,7 @@ export default function CommercialProposalPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit rate"
                           >
-                            $59
+                            {proposalData?.rate3_service_4 || "$59"}
                           </span>
                         )}{' '}
                         {getLocalizedText(proposalData?.language, {
@@ -5877,7 +5945,7 @@ export default function CommercialProposalPage() {
                           <span className="font-semibold">
                             {editingField === 'trialHours' ? (
                               <InlineEditor
-                                initialValue="10"
+                                initialValue={proposalData?.trialHours || "10"}
                                 onSave={(value) => handleTextSave('trialHours', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -5889,7 +5957,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit trial hours"
                               >
-                                10
+                                {proposalData?.trialHours || "10"}
                               </span>
                             )}{' '}
                             {getLocalizedText(proposalData?.language, {
@@ -5927,7 +5995,7 @@ export default function CommercialProposalPage() {
                         <span className="text-[16px] font-semibold">
                           {editingField === 'methodologistPrice' ? (
                             <InlineEditor
-                              initialValue="$750"
+                              initialValue={proposalData?.methodologistPrice || "$750"}
                               onSave={(value) => handleTextSave('methodologistPrice', value)}
                               onCancel={handleTextCancel}
                               className="font-semibold"
@@ -5939,7 +6007,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit methodologist price"
                             >
-                              $750
+                              {proposalData?.methodologistPrice || "$750"}
                             </span>
                           )}{' '}
                           {getLocalizedText(proposalData?.language, {
@@ -5999,7 +6067,7 @@ export default function CommercialProposalPage() {
                           })}{' '}
                           {editingField === 'aiCreditsCount' ? (
                             <InlineEditor
-                              initialValue="500"
+                              initialValue={proposalData?.aiCreditsCount || "500"}
                               onSave={(value) => handleTextSave('aiCreditsCount', value)}
                               onCancel={handleTextCancel}
                               className="font-semibold"
@@ -6011,7 +6079,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit AI credits count"
                             >
-                              500
+                              {proposalData?.aiCreditsCount || "500"}
                             </span>
                           )}{' '}
                           <span className="font-semibold">
@@ -6031,7 +6099,7 @@ export default function CommercialProposalPage() {
                         <span className="text-[16px] font-semibold">
                           {editingField === 'contentBuilderPrice' ? (
                             <InlineEditor
-                              initialValue="$100"
+                              initialValue={proposalData?.contentBuilderPrice || "$100"}
                               onSave={(value) => handleTextSave('contentBuilderPrice', value)}
                               onCancel={handleTextCancel}
                               className="font-semibold"
@@ -6043,7 +6111,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit ContentBuilder price"
                             >
-                              $100
+                              {proposalData?.contentBuilderPrice || "$100"}
                             </span>
                           )}{' '}
                           {getLocalizedText(proposalData?.language, {
@@ -6096,7 +6164,7 @@ export default function CommercialProposalPage() {
                           <span className="font-semibold">
                             {editingField === 'smartExpertUsers' ? (
                               <InlineEditor
-                                initialValue="200"
+                                initialValue={proposalData?.smartExpertUsers || "200"}
                                 onSave={(value) => handleTextSave('smartExpertUsers', value)}
                                 onCancel={handleTextCancel}
                                 className="font-semibold"
@@ -6108,7 +6176,7 @@ export default function CommercialProposalPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit user count"
                               >
-                                200
+                                {proposalData?.smartExpertUsers || "200"}
                               </span>
                             )}{' '}
                             {getLocalizedText(proposalData?.language, {
@@ -6127,7 +6195,7 @@ export default function CommercialProposalPage() {
                         <span className="text-[16px] font-semibold">
                           {editingField === 'smartExpertPrice' ? (
                             <InlineEditor
-                              initialValue="$250"
+                              initialValue={proposalData?.smartExpertPrice || "$250"}
                               onSave={(value) => handleTextSave('smartExpertPrice', value)}
                               onCancel={handleTextCancel}
                               className="font-semibold"
@@ -6139,7 +6207,7 @@ export default function CommercialProposalPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit SmartExpert price"
                             >
-                              $250
+                              {proposalData?.smartExpertPrice || "$250"}
                             </span>
                           )}{' '}
                           {getLocalizedText(proposalData?.language, {
@@ -6234,7 +6302,7 @@ export default function CommercialProposalPage() {
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
                       {editingField === 'totalPlatformsPrice' ? (
                         <InlineEditor
-                          initialValue="$350"
+                          initialValue={proposalData?.totalPlatformsPrice || "$350"}
                           onSave={(value) => handleTextSave('totalPlatformsPrice', value)}
                           onCancel={handleTextCancel}
                           className="text-white font-semibold"
@@ -6246,7 +6314,7 @@ export default function CommercialProposalPage() {
                           className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                           title="Click to edit total platforms price"
                         >
-                          $350
+                          {proposalData?.totalPlatformsPrice || "$350"}
                         </span>
                       )}
                     </span>
@@ -6264,7 +6332,12 @@ export default function CommercialProposalPage() {
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
                       {editingField === 'timeline' ? (
                         <InlineEditor
-                          initialValue="7-14 дней"
+                          initialValue={proposalData?.timeline || getLocalizedText(proposalData?.language, {
+                            en: '7-14 days',
+                            es: '7-14 días',
+                            ua: '7-14 днів',
+                            ru: '7-14 дней'
+                          })}
                           onSave={(value) => handleTextSave('timeline', value)}
                           onCancel={handleTextCancel}
                           className="text-white font-semibold"
@@ -6276,7 +6349,7 @@ export default function CommercialProposalPage() {
                           className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                           title="Click to edit timeline"
                         >
-                          {getLocalizedText(proposalData?.language, {
+                          {proposalData?.timeline || getLocalizedText(proposalData?.language, {
                             en: '7-14 days',
                             es: '7-14 días',
                             ua: '7-14 днів',
