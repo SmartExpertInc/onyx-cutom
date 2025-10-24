@@ -133,7 +133,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     background: color, // Solid color instead of gradient as in photo
-    width: '100%' // Each block takes full width of right column
+    width: '100%', // Each block takes full width of right column
+    position: 'relative' // Required for absolutely positioned step number circles
   });
 
   // Helper function to adjust color brightness
