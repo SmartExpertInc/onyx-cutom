@@ -233,7 +233,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
           
           // FALLBACK: Extract company name from project name for AI audit landing pages
           if (project.projectName && project.projectName.includes('AI-Аудит Landing Page:')) {
-            const extractedCompanyName = project.projectName.replace('AI-Аудит Landing Page:', '').trim();
+            const extractedCompanyName = project.projectName.replace('AI-Аудит Landing Page:', '').trim().replace('- Commercial Proposal', '').trim();
             if (extractedCompanyName && extractedCompanyName !== 'Company Name') {
               companyName = extractedCompanyName;
               companyNameSource = 'projectName.extracted';
