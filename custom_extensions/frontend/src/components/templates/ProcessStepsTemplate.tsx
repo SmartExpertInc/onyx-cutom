@@ -78,6 +78,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   ];
 
   const slideStyles: React.CSSProperties = {
+    width: '100%', // Ensure slide takes full width of container
     minHeight: '600px',
     background: '#ffffff', // White background as in photo
     fontFamily: currentTheme.fonts.contentFont,
