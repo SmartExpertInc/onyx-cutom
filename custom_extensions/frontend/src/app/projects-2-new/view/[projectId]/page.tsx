@@ -86,6 +86,11 @@ export default function Projects2ViewPage() {
   const [isTextToolbarVisible, setIsTextToolbarVisible] = useState<boolean>(false);
   const [textToolbarPosition, setTextToolbarPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   
+  // NEW: Text toolbar color picker state
+  const [isTextColorPickerOpen, setIsTextColorPickerOpen] = useState<boolean>(false);
+  const [textColorPickerPosition, setTextColorPickerPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [textRecentColors, setTextRecentColors] = useState<string[]>([]);
+  
   // NEW: Track active transition for Transition panel
   const [activeTransitionIndex, setActiveTransitionIndex] = useState<number | null>(null);
 
@@ -846,11 +851,12 @@ export default function Projects2ViewPage() {
                                         !target.closest('[data-color-palette-popup]');
           
           if (isOutsideToolbarArea) {
-            console.log('🔍 Main container click - closing toolbar', {
+            console.log('🔍 Main container click - closing toolbar and color picker', {
               targetClass: target.className,
               isOutsideToolbarArea
             });
             setIsTextToolbarVisible(false);
+            setIsTextColorPickerOpen(false);
           }
         }}>
       {/* Product View Header */}
@@ -1180,6 +1186,43 @@ export default function Projects2ViewPage() {
         computedStyles={computedTextStyles}
         position={textToolbarPosition}
         isVisible={isTextToolbarVisible}
+        onColorPickerOpen={(pos) => {
+          setTextColorPickerPosition(pos);
+          setIsTextColorPickerOpen(true);
+        }}
+      />
+
+      {/* Text Color Picker - Rendered at page level */}
+      <ColorPalettePopup
+        isOpen={isTextColorPickerOpen}
+        onClose={() => setIsTextColorPickerOpen(false)}
+        onColorChange={(color) => {
+          if (activeTextEditor && !activeTextEditor.isDestroyed && activeTextEditor.view) {
+            try {
+              activeTextEditor.chain().focus().setColor(color).run();
+              console.log('✅ Color applied to editor:', color);
+            } catch (error) {
+              console.warn('Color change failed:', error);
+            }
+          }
+        }}
+        selectedColor={(() => {
+          // Convert RGB to hex if needed
+          const color = activeTextEditor?.getAttributes?.('textStyle')?.color || computedTextStyles?.color || '#000000';
+          if (color.startsWith('rgb')) {
+            const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (match) {
+              const r = parseInt(match[1]).toString(16).padStart(2, '0');
+              const g = parseInt(match[2]).toString(16).padStart(2, '0');
+              const b = parseInt(match[3]).toString(16).padStart(2, '0');
+              return `#${r}${g}${b}`;
+            }
+          }
+          return color;
+        })()}
+        position={textColorPickerPosition}
+        recentColors={textRecentColors}
+        onRecentColorChange={setTextRecentColors}
       />
       </div>
       
