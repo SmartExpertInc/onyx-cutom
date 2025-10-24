@@ -4267,10 +4267,11 @@ export default function PublicCommercialProposalPage() {
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px]">
             {/* Draggable Services using @dnd-kit */}
             <ServiceList
-              serviceOrder={[]}
+              serviceOrder={['service1', 'service2', 'service3', 'service4']}
               onServiceReorder={() => {}}
               renderService={renderService}
               deletedElements={{}}
+              shared={true}
             />
           </section>
 

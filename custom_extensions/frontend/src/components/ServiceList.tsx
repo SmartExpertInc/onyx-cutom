@@ -39,6 +39,7 @@ interface ServiceListProps {
   onServiceReorder: (newOrder: string[]) => void;
   renderService: (serviceId: string, index: number) => React.ReactNode;
   deletedElements: { [key: string]: boolean };
+  shared: Boolean;
 }
 
 interface SortableServiceProps {
@@ -83,7 +84,8 @@ export function ServiceList({
   serviceOrder, 
   onServiceReorder, 
   renderService, 
-  deletedElements 
+  deletedElements ,
+  shared = false
 }: ServiceListProps) {
   const [activeId, setActiveId] = React.useState<string | null>(null);
   
@@ -118,6 +120,16 @@ export function ServiceList({
     setActiveId(null);
   }
 
+  if (shared) {
+    return (
+      <div className="flex flex-col gap-[30px] xl:gap-[50px]">
+        {serviceOrder.map((serviceId, index) => {
+          return renderService(serviceId, index);
+        })}
+      </div>
+    );
+  }
+  
   return (
     <DndContext
       sensors={sensors}
