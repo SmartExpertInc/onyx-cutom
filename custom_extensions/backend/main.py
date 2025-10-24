@@ -16829,41 +16829,19 @@ async def get_commercial_proposal_data(project_id: int, request: Request, pool: 
         logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Project name: '{project_name}'")
         logger.info(f"💾 [COMMERCIAL PROPOSAL DATA] - Content keys: {list(content.keys()) if content else 'None'}")
         
-        # Extract the commercial proposal data
-        company_name = content.get("companyName", None)
-        company_description = content.get("companyDescription", None)
-        
-        # Extract course outline modules
-        course_outline_modules = content.get("courseOutlineModules", [])
-        
-        # Extract course templates
-        course_templates = content.get("courseTemplates", [])
-        
-        # Extract service templates description
-        service_templates_description = content.get("serviceTemplatesDescription", None)
-        
-        # Extract table headers
-        course_outline_table_headers = content.get("courseOutlineTableHeaders", None)
-        
-        # Build response data in ProposalPageData format
+        # Build response data by merging all microproduct_content fields
         response_data = {
             "projectId": project_id,
             "projectName": project_name,
-            "companyName": company_name,
-            "companyDescription": company_description,
-            "courseOutlineModules": course_outline_modules,
-            "courseTemplates": course_templates,
-            "serviceTemplatesDescription": service_templates_description,
-            "language": content.get("language", "en"),
-            "courseOutlineTableHeaders": course_outline_table_headers
+            # Include all fields from microproduct_content
+            **content
         }
         
         logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] Final response data:")
         logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project ID: {response_data['projectId']}")
         logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Project Name: '{response_data['projectName']}'")
-        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Company Name: '{response_data['companyName']}'")
-        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Course Templates Count: {len(response_data['courseTemplates'])}")
-        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Language: '{response_data['language']}'")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - Total fields included: {len(response_data)}")
+        logger.info(f"📤 [COMMERCIAL PROPOSAL DATA] - All content fields: {list(content.keys()) if content else 'None'}")
         
         return response_data
         
