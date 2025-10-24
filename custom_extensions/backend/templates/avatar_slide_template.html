@@ -3763,7 +3763,7 @@
                                 
                                 <!-- Text -->
                                 <div class="card-text {% if loop.index0 == 0 %}card-text-first{% else %}card-text-second{% endif %}">
-                                    {{ card.text or (loop.index0 == 0 ? 'Minorities hold just 3% of executive roles.' : 'Companies with diverse leadership outperform competitors by 35%') }}
+                                    {{ card.text or ('Minorities hold just 3% of executive roles.' if loop.index0 == 0 else 'Companies with diverse leadership outperform competitors by 35%') }}
                                 </div>
                                 
                                 <!-- Arrow icon for second card -->
