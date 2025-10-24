@@ -192,6 +192,8 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     setIsDragging(true);
     handleMouseMove(e);
   };
@@ -241,6 +243,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         background: background || '#e0e0e0'
       }}
       onMouseDown={handleMouseDown}
+      onClick={(e) => e.stopPropagation()}
     >
       {/* Track */}
       <div
@@ -578,6 +581,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }, [colorState.hsb, updateColorFromHsb]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('🎨 SATURATION SQUARE MOUSEDOWN');
     // Only start dragging if clicking on the saturation square
     if (sbRef.current && sbRef.current.contains(e.target as Node)) {
       e.stopPropagation();
@@ -585,6 +589,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       isDraggingRef.current = true;
       setIsDragging(true);
       handleSBUpdate(e.clientX, e.clientY);
+      console.log('🎨 SATURATION SQUARE DRAG STARTED');
     }
   };
 
@@ -638,7 +643,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         onMouseDown={(e) => e.stopPropagation()}
       >
                 {/* Custom Saturation/Brightness Square */}
-        <div className="mb-4">
+        <div className="mb-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
           <div
             ref={sbRef}
             onMouseDown={(e) => {
@@ -687,7 +692,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Preview Square and Sliders Layout */}
-        <div className="flex gap-4 mb-4 items-center">
+        <div className="flex gap-4 mb-4 items-center" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
           {/* Color Preview Square */}
           <div className="w-10 h-10 rounded-lg relative z-[10001] flex-shrink-0"
             style={{
@@ -751,11 +756,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Format Toggle Buttons */}
-        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]">
+        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]" onClick={(e) => e.stopPropagation()}>
           {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
             <button
               key={format}
-              onClick={() => setColorFormat(format)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setColorFormat(format);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
               className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
                   ? 'bg-white text-black font-normal shadow-sm' 
@@ -768,7 +777,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Conditional Input Fields */}
-        <div className="mt-4 min-h-[56px] relative z-[10002]">
+        <div className="mt-4 min-h-[56px] relative z-[10002]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
           {colorFormat === 'HEX' && (
             <div>
               <div className="relative w-[234px]">
@@ -911,7 +920,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
         {/* Recent Colors */}
         {onRecentColorChange && (
-          <div className="mt-4 relative z-[10001]">
+          <div className="mt-4 relative z-[10001]" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
             <div className="text-gray-500 mb-2 block text-xs">
               Recent Colors
             </div>
@@ -921,7 +930,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 return (
                   <div
                     key={index}
-                    onClick={() => color && handleRecentColorClick(color)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      color && handleRecentColorClick(color);
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
                     className={`w-6 h-6 border border-gray-300 rounded bg-gray-100 transition-all duration-200 relative z-[10002] ${
                       color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
                     }`}

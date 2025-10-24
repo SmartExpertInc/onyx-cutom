@@ -860,13 +860,18 @@ export default function Projects2ViewPage() {
             const isProtectedArea = isTextSettingsPanel || isProseMirror || isToolbar || isColorPalette || isColorButton;
             
             if (!isProtectedArea) {
-              console.log('🔍 MAIN CONTAINER ONCLICK - CLOSING TOOLBAR AND COLOR PICKER');
+              console.log('🔍 MAIN CONTAINER ONCLICK - CLOSING TOOLBAR AND COLOR PICKER', {
+                targetClass: target.className,
+                targetTag: target.tagName,
+                targetId: target.id
+              });
               setIsTextToolbarVisible(false);
               setIsTextColorPickerOpen(false);
             } else {
               console.log('🔍 MAIN CONTAINER ONCLICK - PROTECTED AREA, KEEPING OPEN', {
                 isColorPalette: !!isColorPalette,
                 isToolbar: !!isToolbar,
+                isColorButton: !!isColorButton,
                 targetElement: target.className
               });
             }
