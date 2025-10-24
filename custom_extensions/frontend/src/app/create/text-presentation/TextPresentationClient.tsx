@@ -416,6 +416,20 @@ export default function TextPresentationClient() {
   // Use useMemo to recalculate lessonList when content changes
   const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
 
+  // Calculate word count from content
+  const wordCount = React.useMemo(() => {
+    if (!content) return 0;
+    // Remove markdown formatting and count words
+    const plainText = content
+      .replace(/#{1,6}\s+/g, '') // Remove markdown headers
+      .replace(/\*\*/g, '') // Remove bold markers
+      .replace(/\*/g, '') // Remove italic markers
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Remove links but keep text
+      .trim();
+    const words = plainText.split(/\s+/).filter(word => word.length > 0);
+    return words.length;
+  }, [content]);
+
   // Handle lesson title editing
   const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
     setEditedTitles(prev => ({
@@ -1793,6 +1807,23 @@ export default function TextPresentationClient() {
                   <span className="text-lg">+</span>
                   <span>Add Section</span>
                 </button>
+              </div>
+
+              {/* Word count and character count footer */}
+              <div className="flex items-center justify-between text-sm text-[#A5A5A5] px-10 pb-5">
+                <span className="select-none">{wordCount} words</span>
+                <span className="flex items-center gap-1">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="8" cy="8" r="7" stroke="#E0E0E0" strokeWidth="2" fill="none"/>
+                    <circle cx="8" cy="8" r="7" stroke="#0F58F9" strokeWidth="2" fill="none"
+                      strokeDasharray={`${2 * Math.PI * 7}`}
+                      strokeDashoffset={`${2 * Math.PI * 7 * (1 - Math.min(content.length / 50000, 1))}`}
+                      transform="rotate(-90 8 8)"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {content.length}/50000
+                </span>
               </div>
             </div>
           )}

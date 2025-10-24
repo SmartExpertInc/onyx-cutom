@@ -704,7 +704,7 @@ export default function QuizClient() {
           trimmedLine === 'Пояснення:' || trimmedLine === 'Пояснение:') {
         return (
           <div key={lineIndex} className="mb-2">
-            <span className="text-sm font-bold leading-[140%] text-[#171718]">{trimmedLine}</span>
+            <span className="text-xs font-bold leading-[140%] text-[#4D4D4D]">{trimmedLine}</span>
           </div>
         );
       }
@@ -1488,7 +1488,7 @@ export default function QuizClient() {
                           }}
                           placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
                           rows={1}
-                          className="w-full px-7 py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
+                          className="w-full px-7 !border-none py-5 rounded-lg text-lg text-white text-xl resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 cursor-pointer shadow-lg"
                           style={{ background: "#6E9BFB"}}
                         />
                       </div>
@@ -1556,7 +1556,7 @@ export default function QuizClient() {
                             <Textarea
                               value={getContentForQuestion(question, idx)}
                               onChange={(e) => handleContentEdit(idx, e.target.value)}
-                              className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                              className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
                               autoFocus
                               onBlur={(e) => handleContentSave(idx, (e.target as HTMLTextAreaElement).value)}
                               onKeyDown={(e) => {
@@ -1566,7 +1566,7 @@ export default function QuizClient() {
                             />
                           ) : (
                             <div 
-                              className={`cursor-pointer rounded text-sm p-2 -m-2 hover:bg-gray-50 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
+                              className={`cursor-pointer rounded !text-sm p-2 -m-2 hover:bg-gray-50 ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}
                               onMouseDown={() => {
                                 nextEditingContentIdRef.current = idx;
                               }}
@@ -1592,7 +1592,7 @@ export default function QuizClient() {
                              type="text"
                              value={question.title}
                              onChange={(e) => handleAdditionalQuestionTitleEdit(question.id, e.target.value)}
-                             className="text-[#0D001B] font-bold text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
+                             className="text-[#0D001B] font-bold !text-base leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#FFFFFF] px-0"
                              placeholder="Question title..."
                            />
                   </div>
@@ -1610,7 +1610,7 @@ export default function QuizClient() {
                          <Textarea
                            value={question.content}
                            onChange={(e) => handleAdditionalQuestionContentEdit(question.id, e.target.value)}
-                           className="w-full text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
+                           className="w-full !text-sm font-normal leading-[140%] text-[#171718] resize-none min-h-[100px] border-transparent focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 bg-[#FFFFFF] cursor-pointer"
                            placeholder="Add your content here..."
                          />
                        </div>
@@ -1629,7 +1629,7 @@ export default function QuizClient() {
                  </div>
 
                  {/* Question count and character count footer */}
-                 <div className="flex items-center justify-between text-sm text-[#858587] px-10 pb-5">
+                 <div className="flex items-center justify-between text-sm text-[#A5A5A5] px-10 pb-5">
                    <span className="select-none">{questionList.length + additionalQuestions.length} question total</span>
                    <span className="flex items-center gap-1">
                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
