@@ -291,6 +291,8 @@ export default function CommercialProposalPage() {
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Share modal state
   const [showShareModal, setShowShareModal] = useState(false)
@@ -452,6 +454,32 @@ export default function CommercialProposalPage() {
   };
 
   const handleTextSave = async (field: string, newValue: string) => {
+    console.log(`[COMMERCIAL PROPOSAL SAVE] Debouncing save for field: ${field}`);
+    
+    // Clear any existing timeout
+    if (saveTimeout) {
+      console.log('[COMMERCIAL PROPOSAL SAVE] Clearing existing timeout');
+      clearTimeout(saveTimeout);
+    }
+    
+    // Prevent multiple simultaneous saves
+    if (isSaving) {
+      console.log('[COMMERCIAL PROPOSAL SAVE] Save already in progress, skipping...');
+      return;
+    }
+    
+    // Set a debounced timeout for the actual save
+    const timeout = setTimeout(async () => {
+      console.log(`[COMMERCIAL PROPOSAL SAVE] Executing debounced save for field: ${field}`);
+      await performSave(field, newValue);
+    }, 300); // 300ms debounce
+    
+    setSaveTimeout(timeout);
+  };
+
+  const performSave = async (field: string, newValue: string) => {
+    setIsSaving(true);
+    
     // Check if this is a course template field
     const isCourseTemplateField = field.startsWith('courseTemplate_') || field.startsWith('courseTemplateDescription_') || field === 'onboardingCourseTitle';
     
@@ -541,12 +569,17 @@ export default function CommercialProposalPage() {
       } as ProposalPageData;
     } else if (isTableHeaderField) {
       // Handle table header field updates
-      const headerType = field.replace('tableHeader', '').toLowerCase();
+      // Remove module index from field name (e.g., 'tableHeaderLessons_1' -> 'tableHeaderLessons')
+      const baseField = field.split('_')[0];
+      const headerType = baseField.replace('tableHeader', '').toLowerCase();
+      
+      // Ensure courseOutlineTableHeaders exists
+      const currentHeaders = proposalData?.courseOutlineTableHeaders || {};
       
       updatedData = {
         ...proposalData,
         courseOutlineTableHeaders: {
-          ...proposalData?.courseOutlineTableHeaders,
+          ...currentHeaders,
           [headerType]: newValue
         }
       } as ProposalPageData;
@@ -585,6 +618,8 @@ export default function CommercialProposalPage() {
     } catch (err) {
       console.error('[COMMERCIAL PROPOSAL SAVE] Failed to save:', err);
       setError('Failed to save changes');
+    } finally {
+      setIsSaving(false);
     }
     
     stopEditing();
@@ -5795,6 +5830,15 @@ export default function CommercialProposalPage() {
       document.removeEventListener('mousedown', handleGlobalClick);
     };
   }, [editingField]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+    };
+  }, [saveTimeout]);
 
   // Show loading state
   if (loading) {
