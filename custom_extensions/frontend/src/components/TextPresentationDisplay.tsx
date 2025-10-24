@@ -809,7 +809,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       let textStyleClass = ''; 
       if (level === 1) { textStyleClass += `text-xl lg:text-xl font-bold ${THEME_COLORS.headingText}`; } 
       else if (level === 2) { textStyleClass += `text-xl lg:text-base font-semibold ${THEME_COLORS.headingText}`; }  
-      else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium text-[#0F58F9]`; } 
+      else if (level === 3) { textStyleClass += `text-lg lg:text-lg font-medium !text-[#0F58F9]`; } 
       else if (level === 4) { textStyleClass += `text-base lg:text-base font-bold ${THEME_COLORS.subHeadingText}`; }
       else { textStyleClass += `text-base font-bold ${THEME_COLORS.subHeadingText}`; }
 
@@ -2173,6 +2173,11 @@ const ImageUploadModal: React.FC<{
 };
 
 const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
+  // Default purpleBoxSection to true if not specified
+  const purpleBoxSection = (dataToDisplay as any)?.purpleBoxSection !== undefined 
+    ? (dataToDisplay as any)?.purpleBoxSection 
+    : true;
+
   // Extract text content from the document for preview
   const extractDocumentText = (data: TextPresentationData | null): string => {
     if (!data?.contentBlocks) return '';
@@ -2553,7 +2558,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
       <div className="bg-[#FFFFFF] rounded-[10px] px-4 sm:px-6 md:px-8 py-4">
           <main className="text-left">
             {/* Purple Box Section */}
-            {(dataToDisplay as any).purpleBoxSection && (
+            {purpleBoxSection && (
               <section className="mb-6">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">Essential tools for beginners</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">

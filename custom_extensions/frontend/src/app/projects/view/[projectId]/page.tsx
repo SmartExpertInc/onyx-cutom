@@ -1772,9 +1772,14 @@ export default function ProjectInstanceViewPage() {
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
+        // Set purpleBoxSection to true for now (user will change this later)
+        const textPresentationDataWithBox = textPresentationData ? {
+          ...textPresentationData,
+          purpleBoxSection: true
+        } : null;
         return (
           <TextPresentationDisplay
-            dataToDisplay={textPresentationData}
+            dataToDisplay={textPresentationDataWithBox}
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
