@@ -276,16 +276,7 @@ export default function CommercialProposalPage() {
   const { language, t } = useLanguage();
   const params = useParams()
   const projectId = params?.projectId as string
-  const [proposalData, setProposalData] = useState<ProposalPageData>({
-    projectId: 0,
-    projectName: 'Project',
-    companyName: 'MHE Group',
-    companyDescription: 'Since 1986, MHE Group has leveraged multi-disciplinary design and construction expertise to deliver performance audits for the built environment.',
-    courseOutlineModules: [],
-    courseTemplates: [],
-    serviceTemplatesDescription: '',
-    language: language
-  });
+  const [proposalData, setProposalData] = useState<ProposalPageData | null>(null);
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
   const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
   const [deletedElements, setDeletedElements] = useState<{ [key: string]: boolean }>({})
@@ -912,7 +903,7 @@ export default function CommercialProposalPage() {
                 </svg>
                 
                 <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
-                  {getLocalizedText(proposalData.language, {
+                  {getLocalizedText(proposalData?.language, {
                     en: 'Course Example',
                     es: 'Ejemplo de Curso',
                     ua: 'Приклад курсу',
@@ -5671,10 +5662,10 @@ export default function CommercialProposalPage() {
 
   // Calculate total modules and lessons count from course outline
   const getTotalModulesAndLessons = () => {
-    if (!proposalData.courseOutlineModules) return { modules: 0, lessons: 0 }
+    if (!proposalData?.courseOutlineModules) return { modules: 0, lessons: 0 }
     
-    const modules = proposalData.courseOutlineModules.length
-    const lessons = proposalData.courseOutlineModules.reduce((total, module) => {
+    const modules = proposalData?.courseOutlineModules.length
+    const lessons = proposalData?.courseOutlineModules.reduce((total, module) => {
       return total + (module.lessons?.length || 0)
     }, 0)
     
@@ -5908,21 +5899,21 @@ export default function CommercialProposalPage() {
               
               {/* Title with colored text and span */}
               <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
-                {getLocalizedText(proposalData.language, {
+                {getLocalizedText(proposalData?.language, {
                   en: 'Commercial Proposal ',
                   es: 'Propuesta comercial ',
                   ua: 'Комерційна пропозиція ',
                   ru: 'Коммерческое предложение '
                 })}
                 <span className="text-[#09090B]">
-                  {getLocalizedText(proposalData.language, {
+                  {getLocalizedText(proposalData?.language, {
                     en: 'for the ',
                     es: 'para el ',
                     ua: 'для ',
                     ru: 'для '
                   })} {editingField === 'companyName' ? (
                     <InlineEditor
-                      initialValue={proposalData.companyName}
+                      initialValue={proposalData?.companyName || ''}
                       onSave={(value) => handleTextSave('companyName', value)}
                       onCancel={handleTextCancel}
                       className="inline-block"
@@ -5939,7 +5930,7 @@ export default function CommercialProposalPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit company name"
                     >
-                      {proposalData.companyName}
+                      {proposalData?.companyName}
                     </span>
                   )}
                 </span>
@@ -5949,7 +5940,7 @@ export default function CommercialProposalPage() {
               <p className="font-normal text-[18px] xl:text-[20px] text-[#71717A] tracking-[0%]">
                 {editingField === 'companyDescription' ? (
                   <InlineEditor
-                    initialValue={proposalData.companyDescription}
+                    initialValue={proposalData?.companyDescription || ''}
                     onSave={(value) => handleTextSave('companyDescription', value)}
                     onCancel={handleTextCancel}
                     multiline={true}
@@ -5967,7 +5958,7 @@ export default function CommercialProposalPage() {
                     className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
                     title="Click to edit company description"
                   >
-                    {proposalData.companyDescription}
+                    {proposalData?.companyDescription}
                   </span>
                 )}
               </p>
@@ -6403,7 +6394,7 @@ export default function CommercialProposalPage() {
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">
                       {editingField === 'totalMethodologistPrice' ? (
                         <InlineEditor
-                          initialValue="$750"
+                          initialValue={proposalData?.totalMethodologistPrice || "$750"}
                           onSave={(value) => handleTextSave('totalMethodologistPrice', value)}
                           onCancel={handleTextCancel}
                           className="text-white font-semibold"
@@ -6415,7 +6406,7 @@ export default function CommercialProposalPage() {
                           className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                           title="Click to edit total methodologist price"
                         >
-                          $750
+                          {proposalData?.totalMethodologistPrice || "$750"}
                         </span>
                       )}
                     </span>
@@ -6592,7 +6583,7 @@ export default function CommercialProposalPage() {
                       {getLocalizedText(proposalData?.language, {
                         en: 'Create a public link to share this commercial proposal with others. The link will expire in 30 days.',
                         es: 'Crea un enlace público para compartir esta propuesta comercial con otros. El enlace expirará en 30 días.',
-                        ua: 'Створіть публічне посилання, щоб поділитися цим коммерційною пропозицією з іншими. Посилання діятиме 30 днів.',
+                        ua: 'Створіть публічне посилання, щоб поділитися цією коммерційною пропозицією з іншими. Посилання діятиме 30 днів.',
                         ru: 'Создайте публичную ссылку, чтобы поделиться этой коммерческой пропозицией с другими. Ссылка будет действительна 30 дней.'
                       })}
                     </p>
